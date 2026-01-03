@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@layer base {
+  * {
+    @apply border-border-default;
+  }
+  
+  body {
+    @apply bg-background text-text-primary font-sans;
+    font-family: 'Google Sans', 'Inter', system-ui, sans-serif;
+    background-color: #131314;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
