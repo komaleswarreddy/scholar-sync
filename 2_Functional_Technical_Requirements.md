@@ -8,18 +8,27 @@
 \* \*\*Middleware:\*\* Next.js Middleware must intercept the request, look up the \`school\_id\` from the \`tenants\` table, and inject it into the API headers.
 
 \#\#\# 1.2. Data Isolation (The "Iron Wall")  
-\* \*\*Database (Postgres):\*\* Row Level Security (RLS) policies must be enabled.  
-    \* \*Policy:\* \`CREATE POLICY tenant\_isolation ON sources USING (school\_id \= current\_setting('app.current\_school\_id'));\`  
-\* \*\*Vector Database (Pinecone):\*\* strict Namespace segregation.  
-    \* \*Format:\* \`namespace="{school\_id}"\`.  
-    \* \*Query Rule:\* Every vector search \*must\* include this namespace.
+**Status: ✅ Implemented**
+
+\* \*\*Database (Postgres):\*\* ✅ Tenant-scoped queries via middleware
+    \* \*Implementation:\* All database queries filter by \`tenant\_id\` extracted from subdomain
+    \* \*Middleware:\* \`tenant\_middleware\` extracts subdomain and injects \`tenant\_id\` into request state
+    \* ⏳ \*Future:\* Row Level Security (RLS) policies for additional security layer
+\* \*\*Vector Database (Pinecone):\*\* ✅ Strict Namespace segregation implemented
+    \* \*Format:\* \`namespace="{tenant\_id}"\` (using UUID from database)
+    \* \*Query Rule:\* ✅ Every vector search includes tenant namespace
+    \* \*Storage:\* ✅ Files stored in tenant-scoped paths: \`{tenant\_id}/{file\_id}.pdf\`
 
 \#\#\# 1.3. The "Smart Router" (AI Dispatcher)  
-The backend must programmatically decide which model to call:  
-\* \*\*Context-Heavy Tasks (Chat, Reports):\*\* Route to \*\*Gemini 1.5 Flash\*\*.  
-    \* \*Requirement:\* Must handle context windows \> 100k tokens cheaply.  
-\* \*\*Structured Tasks (Quiz, JSON, Flashcards, Mind Maps):\*\* Route to \*\*GPT-4o-mini\*\*.  
-    \* \*Requirement:\* Must adhere to strict JSON schemas or Markdown formatting instructions (System Prompts).
+**Status: ✅ Implemented**
+
+The backend programmatically decides which model to call:  
+\* \*\*Context-Heavy Tasks (Chat, Reports, Infographics):\*\* ✅ Route to \*\*Gemini 1.5 Flash\*\* (or Gemini 2.5 Flash with fallback)
+    \* ✅ Handles large context windows efficiently
+    \* ✅ Used for: Chat responses, comprehensive reports, infographic briefs
+\* \*\*Structured Tasks (Quiz, JSON, Flashcards, Mind Maps, Slide Decks):\*\* ✅ Route to \*\*GPT-4o-mini\*\*
+    \* ✅ Adheres to strict JSON schemas or Markdown formatting instructions
+    \* ✅ Used for: Quiz generation, flashcards (JSON), mind maps (Markdown), slide decks (Markdown)
 
 \#\# 2\. Technical Constraints & Architecture
 

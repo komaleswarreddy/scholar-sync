@@ -51,8 +51,7 @@ export function StudioSuite() {
       
       if (result) {
         // TODO: Display the generated content in a modal or new view
-        alert(`${type} generated successfully! Check the console for details.`);
-        console.log('Generated content:', result);
+        alert(`${type} generated successfully!`);
       }
     } catch (err) {
       console.error('Generation error:', err);

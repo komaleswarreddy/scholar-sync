@@ -71,10 +71,6 @@ class ApiClient {
       active_source_ids: activeSourceIds,
     };
     
-    console.log('Chat request body:', requestBody);
-    console.log('Active source IDs:', activeSourceIds);
-    console.log('Source IDs length:', activeSourceIds.length);
-    
     const response = await fetch(`${this.client.defaults.baseURL}/api/v1/chat/stream`, {
       method: 'POST',
       headers: {

@@ -74,14 +74,12 @@ class RAGService:
         query_embedding = await self.vector_service.generate_embedding(message)
         
         # 2. Query Pinecone (with tenant namespace and source filter)
-        print(f"📊 Step 2: Querying Pinecone (top_k={settings.TOP_K_CHUNKS}, sources={active_source_ids})...")
         filter_dict = {"source_id": {"$in": active_source_ids}} if active_source_ids else None
         results = await self.vector_service.query_vectors(
             query_embedding=query_embedding,
             top_k=settings.TOP_K_CHUNKS,
             filter=filter_dict,
         )
-        print(f"✅ Found {len(results.get('matches', []))} matches")
         
         # 3. Build context from retrieved chunks
         context_chunks = []
@@ -132,13 +130,10 @@ Note: No source documents are available. Please provide a general helpful respon
         
         # Stream text chunks from Gemini
         try:
-            print(f"📤 Sending prompt to Gemini (length: {len(full_prompt)})")
             # Use generate_content with the full prompt (simpler and more reliable)
             response = self.model.generate_content(full_prompt, stream=True)
             
-            chunk_count = 0
             for chunk in response:
-                chunk_count += 1
                 # Check different possible attributes for text
                 text = None
                 
@@ -156,16 +151,10 @@ Note: No source documents are available. Please provide a general helpful respon
                                     break
                 
                 if text:
-                    print(f"📥 Received chunk {chunk_count}: {text[:50]}...")
                     yield {
                         "event": "chunk",
                         "data": {"text": text},
                     }
-                else:
-                    # Debug: log what we got
-                    print(f"⚠️ Chunk {chunk_count} has no text. Type: {type(chunk)}, Attrs: {[a for a in dir(chunk) if not a.startswith('_')]}")
-            
-            print(f"✅ Streamed {chunk_count} chunks total")
         except Exception as e:
             import traceback
             error_msg = f"Gemini API error: {type(e).__name__}: {str(e)}"

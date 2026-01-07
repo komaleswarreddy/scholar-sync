@@ -26,91 +26,113 @@ All API requests must be authenticated and tenant-scoped.
 
 \#\#\# 2.1. Ingestion (Source Management)
 
-\#\#\#\# \*\*POST\*\* \`/ingest/upload\`  
+\#\#\#\# \*\*POST\*\* \`/api/v1/ingest/upload\`  
+**Status: ✅ Implemented**
+
 Uploads a file, extracts text, chunks it, and indexes it into the Vector DB.
 
 \* \*\*Request Content-Type:\*\* \`multipart/form-data\`  
 \* \*\*Parameters:\*\*  
     \* \`file\`: (Binary) The PDF or Text file.  
-    \* \`title\`: (String) Display name of the source.  
+    \* \`title\`: (String, Optional) Display name of the source.  
 \* \*\*Process:\*\*  
-    1\. Upload raw file to S3: \`s3://{tenant\_id}/{uuid}.pdf\`.  
-    2\. Extract text (PyPDF).  
-    3\. Split text: Chunk size 1000, Overlap 200\.  
-    4\. Generate Embeddings (OpenAI \`text-embedding-3-small\`).  
-    5\. Upsert to Pinecone:  
+    1\. ✅ Upload raw file to **Supabase Storage**: \`{tenant\_id}/{uuid}.pdf\`.  
+    2\. ✅ Extract text (PyPDF).  
+    3\. ✅ Split text: Configurable chunk size with overlap.  
+    4\. ✅ Generate Embeddings (OpenAI \`text-embedding-3-small\`).  
+    5\. ✅ Upsert to Pinecone:  
         \* \`id\`: \`{chunk\_uuid}\`  
         \* \`values\`: \`\[0.12, \-0.98, ...\]\`  
-        \* \`metadata\`: \`{ "source\_id": "...", "text": "...", "page": 1 }\`  
+        \* \`metadata\`: \`{ "source\_id": "...", "chunk\_id": "...", "text": "...", "score": 0.0 }\`  
         \* \*\*Namespace:\*\* \`{tenant\_id}\`.  
+    6\. ✅ **Background Processing:** Returns immediately with "processing" status, indexing happens asynchronously
 \* \*\*Response (JSON):\*\*  
 \`\`\`json  
 {  
   "id": "src\_12345",  
   "title": "Physics\_Chapter\_4.pdf",  
-  "status": "indexed",  
-  "chunks\_count": 45  
+  "status": "processing",  
+  "chunks\_count": 0,  
+  "created\_at": "2024-01-01T00:00:00Z"  
 }
+\`\`\`
 
-#### **GET `/ingest/sources`**
+#### **GET `/api/v1/ingest/sources`**
+
+**Status: ✅ Implemented**
 
 Retrieves a list of all sources available to the current user/tenant.
 
 * **Response (JSON):**
 
-JSON  
-\[  
-  {  
-    "id": "src\_12345",  
-    "title": "Physics\_Chapter\_4.pdf",  
-    "type": "pdf",  
-    "created\_at": "2023-10-27T10:00:00Z",  
-    "s3\_url": "https://..."  
-  }  
-\]
+\`\`\`json  
+{  
+  "sources": \[  
+    {  
+      "id": "src\_12345",  
+      "title": "Physics\_Chapter\_4.pdf",  
+      "type": "pdf",  
+      "status": "indexed",  
+      "chunks\_count": 45,  
+      "created\_at": "2023-10-27T10:00:00Z",  
+      "s3\_url": "https://..." \-- Presigned URL from Supabase Storage  
+    }  
+  \]  
+}
+\`\`\`
 
-#### **DELETE `/ingest/sources/{source_id}`**
+#### **DELETE `/api/v1/ingest/sources/{source_id}`**
 
-Removes the source from Postgres and deletes all associated vectors from Pinecone.
+**Status: ✅ Implemented**
+
+Removes the source from Postgres, deletes file from Supabase Storage, and deletes all associated vectors from Pinecone.
 
 ---
 
 ### **2.2. Smart Chat (RAG Pipeline)**
 
-#### **POST `/chat/stream`**
+**Status: ✅ Implemented**
 
-The primary endpoint for Q\&A. Uses **Gemini 1.5 Flash** for high-context handling.
+#### **POST `/api/v1/chat/stream`**
+
+The primary endpoint for Q\&A. Uses **Gemini 1.5 Flash** (or Gemini 2.5 Flash with fallback) for high-context handling.
 
 * **Request Body (JSON):**
 
-JSON  
+\`\`\`json  
 {  
   "message": "Explain the role of mitochondria.",  
   "history": \[  
     { "role": "user", "content": "What is a cell?" },  
     { "role": "assistant", "content": "A cell is..." }  
   \],  
-  "active\_source\_ids": \["src\_12345", "src\_67890"\]  
+  "active\_source\_ids": \["src\_12345", "src\_67890"\] \-- Required, min 1 item  
 }
+\`\`\`
 
 * **Process:**  
-  * Embed `message`.  
-  * Query Pinecone (Namespace: `{tenant_id}`) with filter: `source_id IN active_source_ids`.  
-  * Retrieve top K (e.g., 10\) chunks.  
-  * Construct System Prompt with retrieved context.  
-  * Call Gemini API with `stream=True`.  
+  * ✅ Embed `message` using OpenAI embeddings.  
+  * ✅ Query Pinecone (Namespace: `{tenant_id}`) with filter: `source_id IN active_source_ids`.  
+  * ✅ Retrieve top K chunks (configurable via `TOP_K_CHUNKS` setting).  
+  * ✅ Construct System Prompt with retrieved context and citation instructions.  
+  * ✅ Call Gemini API with `stream=True`.  
 * **Response:** `text/event-stream` (Server-Sent Events).  
-  * **Event: `citation`** \-\> JSON data `{ "indices": [1], "source_id": "...", "text_snippet": "..." }`  
-  * **Event: `chunk`** \-\> Plain text token.  
-  * **Event: `done`** \-\> End of stream.
+  * ✅ **Event: `citation`** \-\> JSON data `{ "source_id": "...", "chunk_id": "...", "text": "...", "score": 0.85 }`  
+  * ✅ **Event: `chunk`** \-\> JSON data `{ "text": "..." }` (text tokens).  
+  * ✅ **Event: `done`** \-\> End of stream `{ }`.  
+  * ✅ **Event: `error`** \-\> Error information `{ "error": "..." }`.
 
 ---
 
 ### **2.3. Studio (Generative Tools)**
 
+**Status: ✅ Backend Implemented, ⏳ UI Display Pending**
+
 This endpoint routes tasks to the optimal model based on the `task_type`.
 
-#### **POST `/studio/generate`**
+#### **POST `/api/v1/studio/generate`**
+
+**Status: ✅ Implemented**
 
 * **Request Body (JSON):**
 
@@ -171,21 +193,58 @@ JSON
 
 ### **2.4. Notes**
 
-#### **POST `/notes`**
+**Status: ✅ Implemented**
+
+#### **POST `/api/v1/notes`**
+
+**Status: ✅ Implemented**
 
 Save a note (either manual input or a saved chat response).
 
 * **Request Body (JSON):**
 
-JSON  
+\`\`\`json  
 {  
   "content": "Remember to study the Krebs cycle.",  
-  "source\_ref\_id": "msg\_98765" // Optional link to a specific chat message  
+  "source\_ref\_id": "msg\_98765" \-- Optional link to a specific chat message  
 }
+\`\`\`
 
-#### **GET `/notes`**
+* **Response (JSON):**
+
+\`\`\`json  
+{  
+  "id": "note\_12345",  
+  "content": "Remember to study the Krebs cycle."  
+}
+\`\`\`
+
+#### **GET `/api/v1/notes`**
+
+**Status: ✅ Implemented**
 
 Returns all notes for the user.
+
+* **Response (JSON):**
+
+\`\`\`json  
+{  
+  "notes": \[  
+    {  
+      "id": "note\_12345",  
+      "content": "Remember to study the Krebs cycle.",  
+      "source\_ref\_id": "msg\_98765",  
+      "created\_at": "2024-01-01T00:00:00Z"  
+    }  
+  \]  
+}
+\`\`\`
+
+#### **DELETE `/api/v1/notes/{note_id}`**
+
+**Status: ✅ Implemented**
+
+Deletes a note by ID.
 
 ---
 

@@ -50,3 +50,4 @@ class NotesService:
         return result.scalars().all()
 
 
+

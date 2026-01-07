@@ -47,25 +47,9 @@ export function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, currentResponse]);
 
-  // Debug: Log selectedSources changes
-  useEffect(() => {
-    console.log('ChatInterface - selectedSources changed:', {
-      size: selectedSources.size,
-      sources: Array.from(selectedSources),
-    });
-  }, [selectedSources]);
-
   const handleSend = async (message: string, activeSourceIds?: string[]) => {
     // Use selected sources if not provided
     const sourceIds = activeSourceIds || Array.from(selectedSources);
-    
-    console.log('Chat handleSend - Debug:', {
-      activeSourceIds,
-      selectedSources: Array.from(selectedSources),
-      selectedSourcesSize: selectedSources.size,
-      sourceIds,
-      sourceIdsLength: sourceIds.length,
-    });
     
     // Validate that at least one source is selected
     if (sourceIds.length === 0) {
@@ -74,8 +58,6 @@ export function ChatInterface() {
     }
     
     if (!message.trim() || isLoading) return;
-    
-    console.log('Sending chat message:', { message, sourceIds, selectedSources: Array.from(selectedSources) });
 
     // Add user message
     const userMessage: Message = {

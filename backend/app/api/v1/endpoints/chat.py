@@ -52,20 +52,15 @@ async def stream_chat(
     async def generate_stream():
         """Generator for SSE stream."""
         try:
-            print(f"🌐 Starting SSE stream for chat...")
-            event_count = 0
             async for event in service.stream_chat(
                 message=request_body.message,
                 history=request_body.history,
                 active_source_ids=request_body.active_source_ids,
             ):
-                event_count += 1
-                print(f"📤 Yielding SSE event #{event_count}: {event['event']}")
                 # Properly serialize data to JSON
                 event_data = json.dumps(event['data'], ensure_ascii=False)
                 yield f"event: {event['event']}\n"
                 yield f"data: {event_data}\n\n"
-            print(f"✅ SSE stream complete ({event_count} events)")
         except Exception as e:
             import traceback
             print(f"❌ SSE stream error: {type(e).__name__}: {str(e)}")

@@ -64,3 +64,4 @@ VALUES ('default', 'Default School')
 ON CONFLICT (subdomain) DO NOTHING;
 
 
+

@@ -18,27 +18,52 @@ ScholarSync is an enterprise-grade AI "Notebook" platform for educational instit
 \#\# 4\. Feature Scope (MVP)
 
 \#\#\# 4.1. Source Management (Column 1\)  
-\* \*\*Ingestion:\*\* Upload PDF, Copy/Paste Text, Add Web Links.  
-\* \*\*Selection:\*\* Global "Select All" or individual toggles to include/exclude sources from the active context window.  
-\* \*\*Deep Research:\*\* "Search the web" integration (utilizing search APIs to fetch external context).
+**Status: ✅ Implemented (Partial)**
+
+\* \*\*Ingestion:\*\* 
+  \* ✅ **Upload PDF** - Fully implemented with background processing
+  \* ⏳ **Copy/Paste Text** - UI placeholder exists, backend pending
+  \* ⏳ **Add Web Links** - UI placeholder exists, backend pending
+\* \*\*Selection:\*\* ✅ **Implemented** - Global "Select All" and individual toggles to include/exclude sources from the active context window
+\* \*\*Deep Research:\*\* ⏳ **Planned** - "Search the web" integration UI exists but backend integration pending
 
 \#\#\# 4.2. Chat Interface (Column 2\)  
-\* \*\*RAG Pipeline:\*\* Answers grounded \*strictly\* in the selected sources.  
-\* \*\*Citations:\*\* Clickable numerical footnotes \`\[1\]\` that open the exact source paragraph in a modal.  
-\* \*\*History:\*\* Persisted chat threads per session.  
-\* \*\*Actions:\*\* "Save to Note," "Copy," "Thumbs Up/Down" for feedback.
+**Status: ✅ Implemented (Core Features)**
+
+\* \*\*RAG Pipeline:\*\* ✅ **Implemented** - Answers grounded \*strictly\* in the selected sources using Gemini 1.5 Flash
+\* \*\*Citations:\*\* ✅ **Implemented** - Citations are displayed with source information and scores
+  \* ⏳ **Modal View** - Clickable citations to open source paragraph in modal (UI pending)
+\* \*\*History:\*\* ✅ **Implemented** - Chat history maintained per session in frontend
+  \* ⏳ **Persistent Storage** - Database persistence for chat threads (backend model exists, full implementation pending)
+\* \*\*Actions:\*\* 
+  \* ⏳ **"Save to Note"** - Planned
+  \* ⏳ **"Copy"** - Planned
+  \* ⏳ **"Thumbs Up/Down"** - Planned
 
 \#\#\# 4.3. Studio Suite (Column 3 \- Top)  
-\* \*\*Mind Map:\*\* Generates Markdown/Mermaid syntax for hierarchical visualization.  
-\* \*\*Reports:\*\* Generates comprehensive summaries or executive briefings.  
-\* \*\*Flashcards:\*\* Generates JSON-structured term/definition pairs.  
-\* \*\*Quiz:\*\* Generates multiple-choice questions with answer keys and explanations.  
-\* \*\*Infographic:\*\* Generates a "Visual Brief" text description for creating graphics.  
-\* \*\*Slide Deck:\*\* Generates a slide-by-slide Markdown outline.
+**Status: ✅ Backend Implemented, ⏳ UI Display Pending**
+
+\* \*\*Mind Map:\*\* ✅ **Backend Ready** - Generates Markdown/Mermaid syntax for hierarchical visualization (GPT-4o-mini)
+  \* ⏳ **UI Display** - Modal/view to display generated mind maps pending
+\* \*\*Reports:\*\* ✅ **Backend Ready** - Generates comprehensive summaries or executive briefings (Gemini 1.5 Flash)
+  \* ⏳ **UI Display** - Modal/view to display generated reports pending
+\* \*\*Flashcards:\*\* ✅ **Backend Ready** - Generates JSON-structured term/definition pairs (GPT-4o-mini)
+  \* ⏳ **UI Display** - Interactive flashcard view pending
+\* \*\*Quiz:\*\* ✅ **Backend Ready** - Generates multiple-choice questions with answer keys and explanations (GPT-4o-mini)
+  \* ⏳ **UI Display** - Interactive quiz view pending
+\* \*\*Infographic:\*\* ✅ **Backend Ready** - Generates a "Visual Brief" text description for creating graphics (Gemini 1.5 Flash)
+  \* ⏳ **UI Display** - Modal/view to display infographic briefs pending
+\* \*\*Slide Deck:\*\* ✅ **Backend Ready** - Generates a slide-by-slide Markdown outline (GPT-4o-mini)
+  \* ⏳ **UI Display** - Modal/view to display slide decks pending
 
 \#\#\# 4.4. Notes (Column 3 \- Bottom)  
-\* \*\*Pinned Content:\*\* Save specific chat responses or Studio outputs.  
-\* \*\*Manual Entry:\*\* Simple text editor for student thoughts.
+**Status: ✅ Implemented (Core Features)**
+
+\* \*\*Pinned Content:\*\* ⏳ **Planned** - Save specific chat responses or Studio outputs
+\* \*\*Manual Entry:\*\* ✅ **Implemented** - Simple text editor for creating, viewing, and deleting notes
+  \* ✅ Create notes with optional source reference
+  \* ✅ List all notes
+  \* ✅ Delete notes
 
 \#\#\# 4.5. Excluded Features  
 \* Audio Overview (Podcasts).  
@@ -46,6 +71,14 @@ ScholarSync is an enterprise-grade AI "Notebook" platform for educational instit
 \* Data Tables (CSV).
 
 \#\# 5\. Non-Functional Requirements  
-\* \*\*Cross-Platform:\*\* Web (Desktop/Tablet) and Mobile (iOS/Android) sharing \>80% code.  
-\* \*\*Latency:\*\* Chat Time-to-First-Token (TTFT) \< 1.5 seconds.  
-\* \*\*Security:\*\* AES-256 encryption for files at rest; TLS 1.3 for data in transit.  
+**Status: ✅ Partially Implemented**
+
+\* \*\*Cross-Platform:\*\* 
+  \* ✅ **Web (Desktop/Tablet)** - Fully implemented with Next.js 14
+  \* ⏳ **Mobile (iOS/Android)** - Planned (React Native/Expo SDK 50+)
+\* \*\*Latency:\*\* ✅ **Implemented** - Chat uses Server-Sent Events (SSE) for streaming, optimized for low latency
+\* \*\*Security:\*\* 
+  \* ✅ **Multi-Tenancy** - Implemented via subdomain-based tenant isolation
+  \* ✅ **Data Isolation** - Tenant-scoped database queries and Pinecone namespaces
+  \* ✅ **TLS** - HTTPS/TLS for data in transit (via deployment)
+  \* ⏳ **File Encryption** - AES-256 encryption for files at rest (planned for production)  

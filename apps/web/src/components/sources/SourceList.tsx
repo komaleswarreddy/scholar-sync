@@ -57,35 +57,25 @@ export function SourceList() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      console.log('No file selected');
-      return;
-    }
+    if (!file) return;
 
-    console.log('Starting upload:', file.name, file.type, file.size);
     setIsUploading(true);
     try {
-      console.log('Calling uploadSource API...');
       const result = await handleRequest(() =>
         apiClient.uploadSource(file, file.name)
       );
-      console.log('Upload result:', result);
       if (result) {
-        console.log('Upload successful, reloading sources...');
         await loadSources(); // Reload sources list
         // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
-      } else {
-        console.warn('Upload returned no result');
       }
     } catch (err) {
       console.error('Upload error:', err);
       alert(`Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setIsUploading(false);
-      console.log('Upload finished');
     }
   };
 

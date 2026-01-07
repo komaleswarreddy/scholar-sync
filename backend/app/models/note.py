@@ -41,3 +41,4 @@ class Note(Base):
     tenant = relationship("Tenant", back_populates="notes")
 
 
+

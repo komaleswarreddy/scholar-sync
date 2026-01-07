@@ -100,13 +100,16 @@ Data is isolated at:
 
 ## 📖 Documentation
 
-See the documentation files:
-- `1_Product_Requirements_Document.md`
-- `2_Functional_Technical_Requirements.md`
-- `3_Tech_Stack_Architecture.md`
-- `4_API_Specification.md`
-- `5_Design_Specifications.md`
-- `6_Coding_Standards_Best_Practices.md`
+### Core Documentation
+- `1_Product_Requirements_Document.md` - Product requirements
+- `2_Functional_Technical_Requirements.md` - Functional specs
+- `3_Tech_Stack_Architecture.md` - Architecture overview
+- `4_API_Specification.md` - API documentation
+- `5_Design_Specifications.md` - Design guidelines
+- `6_Coding_Standards_Best_Practices.md` - Coding standards
+
+### Setup Guides
+- `API_KEYS_EXPLAINED.md` - Complete guide to setting up all required API keys and services
 
 ## 🛠️ Development
 

@@ -69,27 +69,32 @@ graph TD
 
 **A. Ingestion Pipeline (Upload):**
 
-1. **Client:** Uploads PDF \-\> Sends `FormData` to `/api/ingest`.  
+**Status: ✅ Implemented**
+
+1. **Client:** Uploads PDF \-\> Sends `FormData` to `/api/v1/ingest/upload`.  
 2. **FastAPI:**  
-   * Validates file type/size.  
-   * Uploads raw file to S3 (Key: `{tenant_id}/{uuid}.pdf`).  
-   * Extracts text using `pypdf`.  
-   * Cleans text (removes headers/footers).  
-   * Splits into 1000-character chunks (overlap 200).  
-   * Generates Embeddings (via OpenAI `text-embedding-3-small` or Gemini).  
-   * Upserts to Pinecone: `id={chunk_id}`, `values=[...]`, `metadata={source_id, page_num, text}`.  
-   * **Namespace:** `{tenant_id}`.
+   * ✅ Validates file type/size.  
+   * ✅ Uploads raw file to **Supabase Storage** (Path: `{tenant_id}/{uuid}.pdf`).  
+   * ✅ Extracts text using `pypdf`.  
+   * ✅ Cleans text (removes headers/footers).  
+   * ✅ Splits into chunks (configurable size with overlap).  
+   * ✅ Generates Embeddings (via OpenAI `text-embedding-3-small`).  
+   * ✅ Upserts to Pinecone: `id={chunk_id}`, `values=[...]`, `metadata={source_id, chunk_id, text, score}`.  
+   * ✅ **Namespace:** `{tenant_id}` for tenant isolation.
+   * ✅ **Background Processing:** File processing happens asynchronously, returns immediately with "processing" status
 
 **B. Chat Pipeline (RAG):**
 
-1. **Client:** Sends message \+ list of `active_source_ids`.  
+**Status: ✅ Implemented**
+
+1. **Client:** Sends message \+ list of `active_source_ids` to `/api/v1/chat/stream`.  
 2. **FastAPI:**  
-   * Embeds user query.  
-   * Queries Pinecone: `filter={ source_id: { $in: active_source_ids } }`.  
-   * Retrieves top 10 chunks.  
-   * Constructs Prompt: "Context: \[Chunks\]... Question: \[Query\]".  
-   * Calls Gemini 1.5 Flash (Stream=True).  
-3. **Response:** Streams chunks to client via SSE (Server-Sent Events).
+   * ✅ Embeds user query using OpenAI embeddings.  
+   * ✅ Queries Pinecone: `filter={ source_id: { $in: active_source_ids } }` with tenant namespace.  
+   * ✅ Retrieves top K chunks (configurable via `TOP_K_CHUNKS` setting).  
+   * ✅ Constructs Prompt: "Context: \[Chunks\]... Question: \[Query\]" with citation instructions.  
+   * ✅ Calls Gemini 1.5 Flash (Stream=True) or Gemini 2.5 Flash (with fallback).  
+3. **Response:** ✅ Streams chunks to client via SSE (Server-Sent Events) with citation events.
 
 ---
 
@@ -154,8 +159,10 @@ CREATE TABLE sources (
   id UUID PRIMARY KEY DEFAULT gen\_random\_uuid(),  
   tenant\_id UUID REFERENCES tenants(id),  
   title TEXT NOT NULL,  
-  s3\_key TEXT NOT NULL,  
-  type TEXT DEFAULT 'pdf', \-- 'pdf', 'url', 'text'  
+  s3\_key TEXT NOT NULL, \-- Storage path (Supabase Storage)  
+  type TEXT DEFAULT 'pdf', \-- 'pdf', 'url', 'text' (stored as string)  
+  status TEXT DEFAULT 'processing', \-- 'processing', 'indexed', 'error'  
+  chunks\_count INTEGER DEFAULT 0, \-- Number of chunks created  
   created\_at TIMESTAMPTZ DEFAULT NOW()  
 );
 

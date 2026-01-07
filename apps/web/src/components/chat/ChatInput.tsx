@@ -24,7 +24,6 @@ export function ChatInput({ onSend, disabled = false, activeSourceIds = [] }: Ch
   const handleSend = () => {
     if (message.trim() && !disabled) {
       if (onSend) {
-        console.log('ChatInput - Sending message with activeSourceIds:', activeSourceIds);
         onSend(message, activeSourceIds);
       }
       setMessage('');
