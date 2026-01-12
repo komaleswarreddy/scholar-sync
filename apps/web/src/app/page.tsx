@@ -1,20 +1,20 @@
-import { redirect } from 'next/navigation';
+'use client'; // Make this a client component
 
-export default async function HomePage() {
-  // Temporarily allow access without Clerk for development
-  // TODO: Re-enable authentication once Clerk keys are configured
-  // const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  
-  // if (clerkKey && !clerkKey.includes('...')) {
-  //   // Clerk is configured, check authentication
-  //   // const user = await currentUser();
-  //   // if (!user) {
-  //   //   redirect('/sign-in');
-  //   // }
-  // }
-  
-  // Extract subdomain from host
-  // In production, this would be handled by middleware
-  redirect('/dashboard');
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
+
+export default function HomePage() {
+  const router = useRouter();
+  const { isSignedIn } = useUser();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push('/dashboard');
+    } else {
+      router.push('/sign-in');
+    }
+  }, [isSignedIn, router]);
+
+  return <p>Redirecting...</p>;
 }
-
