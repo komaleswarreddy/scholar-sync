@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request
+# app/main.py
+from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
@@ -13,12 +14,10 @@ from app.core.config import settings
 from app.core.middleware import tenant_and_auth_middleware
 from app.api.v1.endpoints import chat, sources, studio, notes
 
-
 # ---------------- Lifespan ----------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-
 
 # ---------------- App ----------------
 app = FastAPI(
@@ -31,8 +30,7 @@ app = FastAPI(
     redirect_slashes=True,
 )
 
-
-# ---------------- CORS (FIXED) ----------------
+# ---------------- CORS ----------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -41,9 +39,8 @@ app.add_middleware(
     ],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],  # IMPORTANT for Authorization header
+    allow_headers=["*"],  # important for Authorization header
 )
-
 
 # ---------------- Trusted Hosts ----------------
 if settings.ENVIRONMENT == "production":
@@ -52,13 +49,11 @@ if settings.ENVIRONMENT == "production":
         allowed_hosts=["*.scholarsync.com", "api.scholarsync.com"],
     )
 
-
 # ---------------- Tenant + Auth Middleware ----------------
 app.add_middleware(
     BaseHTTPMiddleware,
     dispatch=tenant_and_auth_middleware
 )
-
 
 # ---------------- Routes ----------------
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
@@ -66,21 +61,26 @@ app.include_router(sources.router, prefix="/api/v1/ingest", tags=["sources"])
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["studio"])
 app.include_router(notes.router, prefix="/api/v1/notes", tags=["notes"])
 
-
 # ---------------- Health ----------------
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
-
 @app.get("/")
 async def root():
     return {"message": "ScholarSync API running"}
 
-
 # ---------------- Global Error Handler ----------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    if isinstance(exc, HTTPException):
+        # Return original HTTPException response
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+        )
+
+    # For unexpected errors, keep 500
     print(f"❌ ERROR: {exc}")
     print(traceback.format_exc())
     return JSONResponse(
@@ -90,7 +90,6 @@ async def global_exception_handler(request: Request, exc: Exception):
             "type": type(exc).__name__,
         },
     )
-
 
 # ---------------- Run ----------------
 if __name__ == "__main__":
