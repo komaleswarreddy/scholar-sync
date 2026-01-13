@@ -38,7 +38,9 @@ class Settings(BaseSettings):
     
     # Authentication
     CLERK_SECRET_KEY: str = ""
-    
+    CLERK_ISSUER: str = ""
+
+
     # Chunking Configuration
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200
