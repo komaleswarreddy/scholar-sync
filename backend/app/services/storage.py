@@ -7,7 +7,7 @@ All files are stored in tenant-scoped paths.
 
 from fastapi import UploadFile
 from typing import Optional
-from supabase import create_client, Client
+# from supabase import create_client, Client
 
 from app.core.config import settings
 

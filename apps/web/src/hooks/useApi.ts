@@ -1,9 +1,4 @@
-/**
- * API Hook
- * 
- * Custom hook for API operations with error handling and loading states.
- */
-
+// useApi.ts
 import { useState, useCallback } from 'react';
 import { apiClient } from '@/lib/api-client';
 
@@ -40,6 +35,3 @@ export function useApi() {
     apiClient,
   };
 }
-
-
-

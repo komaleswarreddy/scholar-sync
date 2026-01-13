@@ -1,17 +1,20 @@
 """
 Main FastAPI Application Entry Point
-
-Sets up the FastAPI app with middleware, CORS, and route registration.
-Multi-tenancy is handled via middleware that extracts tenant_id from subdomain.
+Handles:
+- Middleware
+- Routes
+- CORS
+- Error handling
 """
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
 import traceback
+
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import settings
 from app.core.middleware import tenant_middleware
@@ -20,14 +23,6 @@ from app.api.v1.endpoints import chat, sources, studio, notes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager for startup/shutdown events.
-    
-    Handles:
-    - Database connection initialization
-    - Pinecone index connection
-    - Background task setup
-    """
     # Startup
     yield
     # Shutdown
@@ -42,68 +37,65 @@ app = FastAPI(
     redoc_url="/api/redoc" if settings.ENVIRONMENT == "development" else None,
 )
 
-# CORS Middleware
-# Parse CORS origins and ensure localhost:3000 is included
-cors_origins_list = settings.CORS_ORIGINS.split(",") if settings.CORS_ORIGINS else []
-# Clean up whitespace
-cors_origins_list = [origin.strip() for origin in cors_origins_list if origin.strip()]
-# Ensure localhost:3000 is always included for development
-if "http://localhost:3000" not in cors_origins_list:
-    cors_origins_list.append("http://localhost:3000")
-
-print(f"🔵 CORS Origins: {cors_origins_list}")
+# ------------------- CORS -------------------
+cors_origins = settings.CORS_ORIGINS.split(",") if settings.CORS_ORIGINS else []
+cors_origins = [o.strip() for o in cors_origins if o.strip()]
+if "http://localhost:3000" not in cors_origins:
+    cors_origins.append("http://localhost:3000")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins_list,
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
 )
 
-# Trusted Host Middleware (for production)
+# ------------------- Trusted Hosts -------------------
 if settings.ENVIRONMENT == "production":
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=["*.scholarsync.com", "api.scholarsync.com"],
     )
 
-# Tenant Middleware (must be early in the stack)
-app.middleware("http")(tenant_middleware)
+# ------------------- Tenant + Clerk Middleware -------------------
+app.add_middleware(BaseHTTPMiddleware, dispatch=tenant_middleware)
 
-# API Routes
+# ------------------- Routes -------------------
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(sources.router, prefix="/api/v1/ingest", tags=["sources"])
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["studio"])
 app.include_router(notes.router, prefix="/api/v1/notes", tags=["notes"])
 
-
+# ------------------- Health -------------------
 @app.get("/health")
-async def health_check():
-    """Health check endpoint for monitoring."""
-    return {"status": "healthy", "version": "1.0.0"}
+async def health():
+    return {"status": "ok"}
 
+# ------------------- Middleware Test -------------------
+@app.get("/test-middleware")
+async def test_middleware(request: Request):
+    return {
+        "tenant_id": getattr(request.state, "tenant_id", None),
+        "subdomain": getattr(request.state, "subdomain", None),
+        "clerk_user_id": getattr(request.state, "clerk_user_id", None),
+    }
 
+# ------------------- Global Error Handler -------------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    """Global exception handler to ensure CORS headers are always set."""
-    print(f"❌ Error: {type(exc).__name__}: {str(exc)}")
-    print(f"❌ Traceback: {traceback.format_exc()}")
-    
+    print("❌ ERROR:", exc)
+    print(traceback.format_exc())
+
     return JSONResponse(
         status_code=500,
         content={
             "detail": f"Internal server error: {str(exc)}",
-            "type": type(exc).__name__
+            "type": type(exc).__name__,
         },
-        headers={
-            "Access-Control-Allow-Origin": "http://localhost:3000",
-            "Access-Control-Allow-Credentials": "true",
-        }
     )
 
-
+# ------------------- Run -------------------
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
@@ -112,4 +104,3 @@ if __name__ == "__main__":
         port=8000,
         reload=settings.ENVIRONMENT == "development",
     )
-

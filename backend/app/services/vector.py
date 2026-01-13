@@ -6,8 +6,8 @@ All operations are tenant-scoped using namespaces.
 """
 
 from typing import List, Dict, Any, Optional
-from pinecone import Pinecone, ServerlessSpec
-import openai
+# from pinecone import Pinecone, ServerlessSpec
+# import openai
 
 from app.core.config import settings
 

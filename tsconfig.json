@@ -10,10 +10,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@scholarsync/types": ["packages/types/src"]
+    }
   },
   "exclude": ["node_modules", "dist", "build", ".next"]
 }
-
-
-

@@ -7,10 +7,10 @@ Uses Gemini 1.5 Flash for context-heavy tasks with streaming support.
 
 from typing import List, Dict, AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
-import google.generativeai as genai
+# import google.generativeai as genai
 
 from app.core.config import settings
-from app.services.vector import VectorService
+# from app.services.vector import VectorService
 from app.schemas.chat import ChatMessage, Citation
 
 # Lazy Gemini configuration

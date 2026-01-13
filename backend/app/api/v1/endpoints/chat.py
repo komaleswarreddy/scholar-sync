@@ -78,3 +78,11 @@ async def stream_chat(
         },
     )
 
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get("/ping")
+def ping():
+    return {"message": "chat route working"}
+
