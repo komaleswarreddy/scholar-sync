@@ -1,11 +1,6 @@
-"""
-Ingestion Service
-
-Handles file upload, text extraction, chunking, embedding generation, and vector indexing.
-All operations are tenant-scoped for data isolation.
-"""
-
 import uuid
+import io
+import pypdf
 from typing import List
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,77 +12,49 @@ from app.services.vector import VectorService
 from app.services.storage import StorageService
 from app.services.text_processing import TextProcessor
 
-import pypdf
-import io
-
-
 class IngestionService:
-    """
-    Service for processing and indexing source documents.
-    
-    Business Logic:
-    1. Upload file to S3 (tenant-scoped path)
-    2. Extract text from PDF/text file
-    3. Clean and chunk text
-    4. Generate embeddings
-    5. Index in Pinecone (with tenant namespace)
-    6. Save metadata to database
-    """
-    
     def __init__(self, db: AsyncSession, tenant_id: str):
         self.db = db
-        self.tenant_id = tenant_id
+        self.tenant_id = tenant_id  # Validated UUID string from Middleware
+        
+        # Pass tenant_id to downstream services for infrastructure isolation
         self.vector_service = VectorService(tenant_id)
         self.storage_service = StorageService(tenant_id)
         self.text_processor = TextProcessor()
-    
-    async def quick_upload(
-        self,
-        file: UploadFile,
-        title: str,
-    ) -> dict:
+
+    async def quick_upload(self, file: UploadFile, title: str) -> dict:
         """
-        Quick upload: Save file and create record, return immediately.
-        
-        Returns:
-            Dictionary with source ID, status="processing", and file_content
+        Handles the initial file upload to S3 and creates a 'PROCESSING' record in the DB.
         """
         source_id = str(uuid.uuid4())
-        
-        # Read file content once
         file_content = await file.read()
         content_type = file.content_type or ""
-        
-        # Determine source type
-        if content_type == "application/pdf" or (file.filename and file.filename.endswith('.pdf')):
-            source_type = SourceType.PDF.value  # Store enum value as string
+        file_ext = ".txt"
+        source_type = SourceType.TEXT.value
+
+        # Detect PDF vs Text
+        if content_type == "application/pdf" or (file.filename and file.filename.endswith(".pdf")):
+            source_type = SourceType.PDF.value
             file_ext = ".pdf"
-        else:
-            source_type = SourceType.TEXT.value  # Store enum value as string
-            file_ext = ".txt"
-        
-        # 1. Upload to storage (quick)
+
+        # Multi-tenant Storage Path: {tenant_id}/{source_id}.{ext}
         s3_key = f"{self.tenant_id}/{source_id}{file_ext}"
-        await self.storage_service.upload_file_bytes(
-            file_content=file_content,
-            file_path=s3_key,
-            content_type=content_type
-        )
-        
-        # 2. Create database record with "processing" status
+        await self.storage_service.upload_file_bytes(file_content, s3_key, content_type)
+
+        # Create Database Record
         source = Source(
             id=uuid.UUID(source_id),
-            tenant_id=uuid.UUID(self.tenant_id),
+            tenant_id=self.tenant_id,  # Critical: Tie data to tenant
             title=title,
             s3_key=s3_key,
-            type=source_type,  # Already a string value
-            status=SourceStatus.PROCESSING.value,  # Store enum value as string
+            type=source_type,
+            status=SourceStatus.PROCESSING.value,
             chunks_count=0,
         )
         self.db.add(source)
         await self.db.commit()
         await self.db.refresh(source)
-        
+
         return {
             "id": source_id,
             "title": title,
@@ -95,237 +62,135 @@ class IngestionService:
             "chunks_count": 0,
             "created_at": source.created_at,
         }
-    
-    async def process_file_background(
-        self,
-        source_id: str,
-        content_type: str,
-    ):
+
+    async def process_file_background(self, source_id: str, content_type: str):
         """
-        Background processing: Extract, chunk, embed, and index.
-        Uses batching for speed.
+        Background worker that extracts text, chunks it, and upserts to Vector DB.
+        Includes a tenant-check to prevent cross-tenant data processing.
         """
         try:
-            # Get source from database to get s3_key
+            # Verify the source belongs to the requesting tenant before processing
             result = await self.db.execute(
-                select(Source).where(Source.id == uuid.UUID(source_id))
+                select(Source).where(
+                    Source.id == uuid.UUID(source_id),
+                    Source.tenant_id == self.tenant_id
+                )
             )
             source = result.scalar_one_or_none()
+            
             if not source:
-                print(f"⚠️ Source {source_id} not found")
+                print(f"Access Denied or Not Found: Source {source_id} for Tenant {self.tenant_id}")
                 return
-            
-            # Download file from storage
+
+            # 1. Extract Text
             file_content = await self.storage_service.download_file(source.s3_key)
-            
-            # 2. Extract text
             text = await self._extract_text(file_content, content_type)
             
-            # 3. Chunk text
+            # 2. Chunk Text
             chunks = self.text_processor.chunk_text(
-                text,
-                chunk_size=settings.CHUNK_SIZE,
-                overlap=settings.CHUNK_OVERLAP,
+                text, 
+                settings.CHUNK_SIZE, 
+                settings.CHUNK_OVERLAP
             )
+
+            # 3. Generate Embeddings & Upsert to Vector DB
+            # VectorService(tenant_id) ensures the vectors go into the correct namespace
+            embeddings = await self.vector_service.batch_generate_embeddings([c for c in chunks])
             
-            # 4. Batch generate embeddings (much faster!)
-            print(f"📊 Generating embeddings for {len(chunks)} chunks...")
-            embeddings = await self.vector_service.batch_generate_embeddings(
-                [chunk for chunk in chunks]
-            )
-            
-            # 5. Batch upsert to Pinecone (much faster!)
-            print(f"📊 Upserting {len(chunks)} vectors to Pinecone...")
-            vectors_to_upsert = []
-            for i, (chunk_text, embedding) in enumerate(zip(chunks, embeddings)):
-                chunk_id = f"{source_id}_chunk_{i}"
-                vectors_to_upsert.append({
-                    "id": chunk_id,
-                    "values": embedding,
+            vectors_to_upsert = [
+                {
+                    "id": f"{source_id}_chunk_{i}", 
+                    "values": e, 
                     "metadata": {
-                        "source_id": source_id,
-                        "text": chunk_text,
-                        "chunk_index": i,
-                    },
-                })
-            
-            # Batch upsert (100 at a time for Pinecone)
+                        "source_id": source_id, 
+                        "tenant_id": self.tenant_id,
+                        "text": c, 
+                        "chunk_index": i
+                    }
+                }
+                for i, (c, e) in enumerate(zip(chunks, embeddings))
+            ]
+
+            # Batch upsert (Pinecone/Milvus/etc)
             batch_size = 100
             for i in range(0, len(vectors_to_upsert), batch_size):
-                batch = vectors_to_upsert[i:i + batch_size]
-                await self.vector_service.batch_upsert_vectors(batch)
-            
-            # 6. Update database status
-            result = await self.db.execute(
-                select(Source).where(Source.id == uuid.UUID(source_id))
-            )
-            source = result.scalar_one_or_none()
-            if source:
-                source.status = SourceStatus.INDEXED.value  # Store enum value as string
-                source.chunks_count = len(chunks)
-                await self.db.commit()
-                print(f"✅ Source {source_id} processed successfully: {len(chunks)} chunks")
-            else:
-                print(f"⚠️ Source {source_id} not found in database")
-                
+                await self.vector_service.batch_upsert_vectors(vectors_to_upsert[i:i+batch_size])
+
+            # 4. Update Database Status
+            source.status = SourceStatus.INDEXED.value
+            source.chunks_count = len(chunks)
+            await self.db.commit()
+            print(f"Source {source_id} (Tenant: {self.tenant_id}) processed successfully")
+
         except Exception as e:
-            import traceback
-            print(f"❌ Background processing error for {source_id}: {type(e).__name__}: {str(e)}")
-            print(f"❌ Traceback: {traceback.format_exc()}")
-            # Update status to error
-            result = await self.db.execute(
-                select(Source).where(Source.id == uuid.UUID(source_id))
-            )
-            source = result.scalar_one_or_none()
-            if source:
-                source.status = SourceStatus.ERROR.value  # Store enum value as string
+            print(f"Background error for {source_id} [Tenant: {self.tenant_id}]: {e}")
+            # Ensure we update the status even on failure
+            if 'source' in locals() and source:
+                source.status = SourceStatus.ERROR.value
                 await self.db.commit()
-    
-    async def process_upload(
-        self,
-        file: UploadFile,
-        title: str,
-    ) -> dict:
-        """
-        Process uploaded file: extract, chunk, embed, and index.
-        
-        Args:
-            file: Uploaded file object
-            title: Display title for source
-            
-        Returns:
-            Dictionary with source ID, status, and chunk count
-        """
-        source_id = str(uuid.uuid4())
-        
-        # Read file content once (can only be read once from UploadFile)
-        file_content = await file.read()
-        content_type = file.content_type
-        
-        # 1. Upload to S3 (pass bytes directly)
-        s3_key = f"{self.tenant_id}/{source_id}.pdf"
-        await self.storage_service.upload_file_bytes(
-            file_content=file_content,
-            file_path=s3_key,
-            content_type=content_type
-        )
-        
-        # 2. Extract text (use the already-read content)
-        text = await self._extract_text(file_content, content_type)
-        
-        # 3. Chunk text
-        chunks = self.text_processor.chunk_text(
-            text,
-            chunk_size=settings.CHUNK_SIZE,
-            overlap=settings.CHUNK_OVERLAP,
-        )
-        
-        # 4. Generate embeddings and index in Pinecone
-        chunk_ids = []
-        for i, chunk_text in enumerate(chunks):
-            chunk_id = f"{source_id}_chunk_{i}"
-            chunk_ids.append(chunk_id)
-            
-            # Generate embedding
-            embedding = await self.vector_service.generate_embedding(chunk_text)
-            
-            # Upsert to Pinecone with tenant namespace
-            await self.vector_service.upsert_vector(
-                vector_id=chunk_id,
-                embedding=embedding,
-                metadata={
-                    "source_id": source_id,
-                    "text": chunk_text,
-                    "chunk_index": i,
-                },
-            )
-        
-        # 5. Save to database
-        # Determine source type from content_type or filename
-        if content_type == "application/pdf" or (hasattr(file, 'filename') and file.filename and file.filename.endswith('.pdf')):
-            source_type = SourceType.PDF.value  # Store enum value as string
-        else:
-            source_type = SourceType.TEXT.value  # Store enum value as string
-        source = Source(
-            id=uuid.UUID(source_id),
-            tenant_id=uuid.UUID(self.tenant_id),
-            title=title,
-            s3_key=s3_key,
-            type=source_type,
-        )
-        self.db.add(source)
-        await self.db.commit()
-        
-        return {
-            "id": source_id,
-            "title": title,
-            "status": "indexed",
-            "chunks_count": len(chunks),
-            "created_at": source.created_at,
-        }
-    
-    async def _extract_text(self, file_content: bytes, content_type: str) -> str:
-        """Extract text from file based on type."""
-        if content_type == "application/pdf":
-            # Extract from PDF
-            pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
-            text = ""
-            for page in pdf_reader.pages:
-                text += page.extract_text() + "\n"
-            return text
-        elif content_type == "text/plain":
-            return file_content.decode("utf-8")
-        else:
-            raise ValueError(f"Unsupported file type: {content_type}")
-    
+
     async def list_sources(self) -> List[dict]:
-        """List all sources for tenant."""
+        """
+        Returns all sources belonging to the tenant.
+        """
         result = await self.db.execute(
-            select(Source).where(Source.tenant_id == uuid.UUID(self.tenant_id))
+            select(Source).where(Source.tenant_id == self.tenant_id)
         )
         sources = result.scalars().all()
         
-        result_list = []
+        res_list = []
         for s in sources:
             try:
-                s3_url = await self.storage_service.get_presigned_url(s.s3_key)
-            except Exception as e:
-                # If presigned URL generation fails, continue without it
-                print(f"Warning: Failed to generate presigned URL for {s.s3_key}: {e}")
-                s3_url = None
-            
-            result_list.append({
+                # Generate a temporary download link
+                url = await self.storage_service.get_presigned_url(s.s3_key)
+            except Exception:
+                url = None
+                
+            res_list.append({
                 "id": str(s.id),
                 "title": s.title,
-                "type": s.type if isinstance(s.type, str) else (s.type.value if hasattr(s.type, 'value') else str(s.type)),
-                "status": s.status if isinstance(s.status, str) else (s.status.value if hasattr(s.status, 'value') else str(s.status)),
+                "type": s.type,
+                "status": s.status,
                 "chunks_count": s.chunks_count,
                 "created_at": s.created_at.isoformat() if s.created_at else None,
-                "s3_url": s3_url,
+                "s3_url": url,
             })
-        return result_list
-    
+        return res_list
+
     async def delete_source(self, source_id: str):
-        """Delete source and all associated vectors."""
-        # Delete from database
+        """
+        Deletes source from DB, S3, and Vector DB.
+        """
         result = await self.db.execute(
             select(Source).where(
-                Source.id == uuid.UUID(source_id),
-                Source.tenant_id == uuid.UUID(self.tenant_id),
+                Source.id == uuid.UUID(source_id), 
+                Source.tenant_id == self.tenant_id
             )
         )
         source = result.scalar_one_or_none()
         
         if not source:
-            raise ValueError(f"Source not found: {source_id}")
-        
-        # Delete vectors from Pinecone (filter by source_id in tenant namespace)
+            raise ValueError(f"Source not found or access denied: {source_id}")
+
+        # Clean up external services
         await self.vector_service.delete_vectors_by_source(source_id)
-        
-        # Delete file from S3
         await self.storage_service.delete_file(source.s3_key)
         
-        # Delete from database
+        # Clean up database
         await self.db.delete(source)
         await self.db.commit()
 
+    async def _extract_text(self, file_content: bytes, content_type: str) -> str:
+        """
+        Internal helper for text extraction.
+        """
+        if content_type == "application/pdf":
+            pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text() or ""
+            return text
+        elif content_type == "text/plain":
+            return file_content.decode("utf-8")
+        else:
+            raise ValueError(f"Unsupported file type: {content_type}")

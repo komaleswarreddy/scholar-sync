@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-from starlette.middleware.base import BaseHTTPMiddleware
 import traceback
 from dotenv import load_dotenv
 
@@ -13,11 +12,14 @@ load_dotenv()
 from app.core.config import settings
 from app.core.middleware import tenant_and_auth_middleware
 from app.api.v1.endpoints import chat, sources, studio, notes
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # ---------------- Lifespan ----------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Startup logic here if needed
     yield
+    # Shutdown logic here if needed
 
 # ---------------- App ----------------
 app = FastAPI(
@@ -33,10 +35,7 @@ app = FastAPI(
 # ---------------- CORS ----------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=[origin.strip() for origin in settings.CORS_ORIGINS.split(",")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],  # important for Authorization header
@@ -73,29 +72,20 @@ async def root():
 # ---------------- Global Error Handler ----------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    if isinstance(exc, HTTPException):
-        # Return original HTTPException response
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={"detail": exc.detail},
-        )
-
-    # For unexpected errors, keep 500
+    if hasattr(exc, "status_code"):
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
     print(f"❌ ERROR: {exc}")
     print(traceback.format_exc())
     return JSONResponse(
         status_code=500,
-        content={
-            "detail": "Internal server error",
-            "type": type(exc).__name__,
-        },
+        content={"detail": "Internal server error", "type": type(exc).__name__},
     )
 
-# ---------------- Run ----------------
+# ---------------- Run (for local dev) ----------------
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "app.main:app",
+        "app.main:app",  # Must match the module path and variable
         host="0.0.0.0",
         port=8000,
         reload=True if settings.ENVIRONMENT == "development" else False,

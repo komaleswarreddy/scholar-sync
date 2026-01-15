@@ -10,8 +10,8 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    """Application settings loaded from environment variables."""
-    
+    """Application settings loaded from environment variables."""    
+
     # App
     ENVIRONMENT: str = "development"
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
@@ -39,7 +39,8 @@ class Settings(BaseSettings):
     # Authentication
     CLERK_SECRET_KEY: str = ""
     CLERK_ISSUER: str = ""
-
+    CLERK_JWT_PUBLIC_KEY: str = ""  # JWT verification key
+    CLERK_JWT_AUDIENCE: str = ""    # <-- added to avoid extra_forbidden error
 
     # Chunking Configuration
     CHUNK_SIZE: int = 1000
@@ -52,7 +53,8 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # <-- prevents extra env vars from causing errors
 
 
+# Singleton instance of settings
 settings = Settings()
-

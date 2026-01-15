@@ -1,16 +1,34 @@
-import axios, { AxiosInstance, AxiosRequestHeaders, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosRequestHeaders,
+  InternalAxiosRequestConfig,
+} from 'axios';
 
 type TokenGetter = () => Promise<string | null>;
 type LogoutFunc = () => Promise<void>;
 
+/**
+ * Read tenantId from cookie (set by middleware)
+ */
+function getTenantIdFromCookie(): string {
+  if (typeof document === 'undefined') return 'default';
+
+  const match = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('tenantId='));
+
+  return match ? match.split('=')[1] : 'default';
+}
+
 class ApiClient {
   private client: AxiosInstance;
-  private tenantId: string = 'default';
   private getTokenFunc: TokenGetter | null = null;
   private logoutFunc: LogoutFunc | null = null;
   private latestToken: string | null = null;
 
-  constructor(baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000') {
+  constructor(
+    baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  ) {
     this.client = axios.create({
       baseURL,
       headers: { 'Content-Type': 'application/json' },
@@ -23,11 +41,15 @@ class ApiClient {
       (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
         const headers: AxiosRequestHeaders = config.headers;
 
+        // 🔐 Auth token
         if (this.latestToken) {
           headers['Authorization'] = `Bearer ${this.latestToken}`;
         } else {
           delete headers['Authorization'];
         }
+
+        // 🏢 Tenant ID
+        headers['x-tenant-id'] = getTenantIdFromCookie();
 
         return config;
       }
@@ -48,24 +70,20 @@ class ApiClient {
             await this.refreshToken();
 
             if (this.latestToken) {
-              originalRequest.headers['Authorization'] = `Bearer ${this.latestToken}`;
-              return this.client(originalRequest); // retry original request
+              originalRequest.headers['Authorization'] =
+                `Bearer ${this.latestToken}`;
+              return this.client(originalRequest);
             }
           } catch (err) {
             console.error('Token refresh failed', err);
           }
 
-          // Call logout if refresh fails
           if (this.logoutFunc) await this.logoutFunc();
         }
 
         return Promise.reject(error);
       }
     );
-  }
-
-  setTenantId(tenantId: string) {
-    this.tenantId = tenantId;
   }
 
   setTokenGetter(getTokenFunc: TokenGetter) {
@@ -90,6 +108,7 @@ class ApiClient {
   // ------------------------
   // API methods
   // ------------------------
+
   async uploadSource(file: File, title?: string) {
     await this.refreshToken();
     const formData = new FormData();
@@ -124,14 +143,26 @@ class ApiClient {
   ) {
     await this.refreshToken();
 
-    const response = await fetch(`${this.client.defaults.baseURL}/api/v1/chat/stream`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.latestToken ? { Authorization: `Bearer ${this.latestToken}` } : {}),
-      },
-      body: JSON.stringify({ message, history, active_source_ids: activeSourceIds }),
-    });
+    const tenantId = getTenantIdFromCookie();
+
+    const response = await fetch(
+      `${this.client.defaults.baseURL}/api/v1/chat/stream`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
+          ...(this.latestToken
+            ? { Authorization: `Bearer ${this.latestToken}` }
+            : {}),
+        },
+        body: JSON.stringify({
+          message,
+          history,
+          active_source_ids: activeSourceIds,
+        }),
+      }
+    );
 
     if (!response.ok) throw new Error('Chat request failed');
 
@@ -146,6 +177,7 @@ class ApiClient {
       const chunk = decoder.decode(value);
       for (const line of chunk.split('\n')) {
         if (!line.startsWith('data: ')) continue;
+
         const payload = line.replace('data: ', '').trim();
         if (!payload) continue;
 
@@ -160,7 +192,11 @@ class ApiClient {
     }
   }
 
-  async generateStudio(taskType: string, sourceIds: string[], instructions?: string) {
+  async generateStudio(
+    taskType: string,
+    sourceIds: string[],
+    instructions?: string
+  ) {
     await this.refreshToken();
     const res = await this.client.post('/api/v1/studio/generate', {
       task_type: taskType,
@@ -172,7 +208,10 @@ class ApiClient {
 
   async createNote(content: string, sourceRefId?: string) {
     await this.refreshToken();
-    const res = await this.client.post('/api/v1/notes', { content, source_ref_id: sourceRefId });
+    const res = await this.client.post('/api/v1/notes', {
+      content,
+      source_ref_id: sourceRefId,
+    });
     return res.data;
   }
 
@@ -189,7 +228,6 @@ class ApiClient {
 }
 
 const apiClient = new ApiClient();
-apiClient.setTenantId('default');
 
 export { apiClient };
 export default apiClient;
