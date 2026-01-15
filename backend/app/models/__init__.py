@@ -1,4 +1,5 @@
 """Database models."""
+# Import all models so SQLAlchemy can see them
 
 from app.models.tenant import Tenant
 from app.models.source import Source

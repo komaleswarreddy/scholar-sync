@@ -1,90 +1,67 @@
-"""
-Multi-Tenancy Middleware
-
-Extracts tenant_id from subdomain and injects it into request state.
-This ensures all database queries and vector searches are scoped to the correct tenant.
-
-Flow:
-1. Extract subdomain from Host header (e.g., "lincoln.scholarsync.com" -> "lincoln")
-2. Look up tenant_id from database using subdomain
-3. Set tenant_id in request.state for use in route handlers
-4. All subsequent operations use this tenant_id for data isolation
-"""
-
 from fastapi import Request, HTTPException
-from starlette.middleware.base import BaseHTTPMiddleware
-from typing import Callable
+from starlette.responses import JSONResponse
+from sqlalchemy import select
 import re
+import traceback
 
-from app.core.database import get_db
+# Import DB session and Tenant model
+from app.core.database import AsyncSessionLocal
 from app.models.tenant import Tenant
 
+# Configuration for Development
+DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5" 
+DEV_USER_ID = "dev-user-123"
 
-async def tenant_middleware(request: Request, call_next: Callable):
-    """
-    Middleware to extract and validate tenant from subdomain.
-    
-    Business Logic:
-    - Extracts subdomain from Host header
-    - Validates tenant exists in database
-    - Injects tenant_id into request.state
-    - If tenant not found, returns 404
-    
-    Security:
-    - Prevents access to non-existent tenants
-    - Ensures all data operations are tenant-scoped
-    """
-    # Extract subdomain from Host header
-    host = request.headers.get("host", "")
-    
-    # Pattern: subdomain.scholarsync.com or subdomain.localhost:3000
-    subdomain_match = re.match(r"^([a-z0-9-]+)\.", host)
-    
-    if not subdomain_match:
-        # For development, allow localhost without subdomain
-        if "localhost" in host or "127.0.0.1" in host:
-            # Look up default tenant from database
-            from app.core.database import AsyncSessionLocal
-            async with AsyncSessionLocal() as db:
-                from sqlalchemy import select
-                result = await db.execute(select(Tenant).where(Tenant.subdomain == "default"))
-                tenant = result.scalar_one_or_none()
-                
-                if not tenant:
-                    # Create default tenant if it doesn't exist
-                    tenant = Tenant(subdomain="default", name="Default School")
-                    db.add(tenant)
-                    await db.commit()
-                    await db.refresh(tenant)
-                
-                request.state.tenant_id = str(tenant.id)
-                request.state.subdomain = "default"
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid subdomain. Expected format: {subdomain}.scholarsync.com"
-            )
-    else:
-        subdomain = subdomain_match.group(1)
+EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc"}
+
+async def tenant_and_auth_middleware(request: Request, call_next):
+    try:
+        request.state.tenant_id = None
+        request.state.user_id = None
+
+        current_path = request.url.path
+        is_excluded = (
+            current_path == "/" or 
+            any(current_path.startswith(p) for p in EXCLUDED_PATHS if p != "/")
+        )
+
+        if is_excluded:
+            return await call_next(request)
+
+        host = request.headers.get("host", "").lower()
+        is_local = any(h in host for h in ["localhost", "127.0.0.1", "0.0.0.0", "testserver"])
         
-        # Look up tenant in database
-        # Note: In production, cache tenant lookups for performance
-        from app.core.database import AsyncSessionLocal
+        # Determine the subdomain
+        subdomain = "default"
+        if not is_local and host:
+            subdomain_match = re.match(r"^(?P<subdomain>.+?)\.scholarsync\.com", host)
+            if subdomain_match:
+                subdomain = subdomain_match.group("subdomain")
+            else:
+                raise HTTPException(status_code=403, detail="Invalid Host Header")
+
+        # DATABASE LOOKUP (Fulfills Phase B.a and B.b)
         async with AsyncSessionLocal() as db:
-            from sqlalchemy import select
             result = await db.execute(select(Tenant).where(Tenant.subdomain == subdomain))
             tenant = result.scalar_one_or_none()
-            
-            if not tenant:
-                raise HTTPException(
-                    status_code=404,
-                    detail=f"Tenant not found for subdomain: {subdomain}"
-                )
-            
-            # Inject tenant_id into request state
-            request.state.tenant_id = str(tenant.id)
-            request.state.subdomain = subdomain
-    
-    response = await call_next(request)
-    return response
 
+            if not tenant:
+                # Task B.c: Show appropriate error messages
+                return JSONResponse(
+                    status_code=404, 
+                    content={"detail": f"Organization '{subdomain}' not found."}
+                )
+
+            request.state.tenant_id = str(tenant.id)
+            request.state.user_id = DEV_USER_ID # Placeholder for Phase C
+
+        return await call_next(request)
+
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"detail": e.detail})
+    except Exception as e:
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500, 
+            content={"detail": "Internal Server Error", "error": str(e)}
+        )

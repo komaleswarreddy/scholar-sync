@@ -1,24 +1,16 @@
-/**
- * Notes Section Component
- * 
- * Right sidebar bottom section for notes.
- * Uses placeholder data until API keys are added.
- */
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { NoteItem } from './NoteItem';
-import { useApi } from '@/hooks/useApi';
+import { apiClient } from '@/lib/api-client';
 
 interface Note {
   id: string;
   content: string;
   source_ref_id?: string;
   created_at?: string;
-  updated_at?: string;
 }
 
 interface NoteWithExtras extends Note {
@@ -30,7 +22,8 @@ interface NoteWithExtras extends Note {
 
 export function NotesSection() {
   const [notes, setNotes] = useState<NoteWithExtras[]>([]);
-  const { loading, error, handleRequest, apiClient } = useApi();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Load notes on mount
   useEffect(() => {
@@ -38,17 +31,25 @@ export function NotesSection() {
   }, []);
 
   const loadNotes = async () => {
-    const result = await handleRequest(() => apiClient.listNotes());
-    if (result && Array.isArray(result)) {
-      // Transform API notes to component format
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await apiClient.listNotes(); // uses dev-user-123
       const transformedNotes = result.map((note: Note) => ({
         ...note,
-        title: note.content?.substring(0, 50) + (note.content && note.content.length > 50 ? '...' : '') || 'New Note',
-        sourceCount: 0, // TODO: Add source count when available
+        title:
+          note.content?.substring(0, 50) +
+          (note.content && note.content.length > 50 ? '...' : '') ||
+          'New Note',
+        sourceCount: 0,
         isNew: false,
         createdAt: note.created_at,
       }));
       setNotes(transformedNotes);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load notes');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,37 +57,47 @@ export function NotesSection() {
     const content = prompt('Enter note content:');
     if (!content) return;
 
-    const result = await handleRequest(() => apiClient.createNote(content));
-    if (result) {
+    setLoading(true);
+    setError(null);
+    try {
+      await apiClient.createNote(content); // dev-user-123
       await loadNotes();
+    } catch (err: any) {
+      setError(err.message || 'Failed to create note');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteNote = async (id: string) => {
     if (!confirm('Delete this note?')) return;
-    
-    const result = await handleRequest(() => apiClient.deleteNote(id));
-    if (result !== null) {
+
+    setLoading(true);
+    setError(null);
+    try {
+      await apiClient.deleteNote(id); // dev-user-123
       await loadNotes();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete note');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-border-default">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-text-primary">Notes</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCreateNote}
-            className="p-2 rounded-full"
-            title="Create new note"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
+      <div className="p-4 border-b border-border-default flex items-center justify-between">
+        <h2 className="text-lg font-medium text-text-primary">Notes</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleCreateNote}
+          className="p-2 rounded-full"
+          title="Create new note"
+        >
+          <Plus className="w-4 h-4" />
+        </Button>
       </div>
 
       {/* Notes List */}
@@ -112,7 +123,7 @@ export function NotesSection() {
                 title={note.title || 'Untitled Note'}
                 content={note.content || ''}
                 sourceCount={note.sourceCount || 0}
-                createdAt={note.created_at || note.createdAt || note.createdAt || new Date().toISOString()}
+                createdAt={note.createdAt || new Date().toISOString()}
                 isNew={note.isNew || false}
                 onDelete={handleDeleteNote}
               />
@@ -128,4 +139,3 @@ export function NotesSection() {
     </div>
   );
 }
-

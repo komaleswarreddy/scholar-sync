@@ -1,10 +1,4 @@
-"""
-Tenant Model
-
-Represents a school/tenant in the multi-tenant system.
-Each tenant has a unique subdomain and isolated data.
-"""
-
+# app/models/tenant.py
 from sqlalchemy import Column, String, JSON, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -12,7 +6,6 @@ from sqlalchemy.sql import func
 import uuid
 
 from app.core.database import Base
-
 
 class Tenant(Base):
     """

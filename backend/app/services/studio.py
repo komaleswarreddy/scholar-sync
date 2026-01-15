@@ -7,8 +7,8 @@ Routes to optimal model based on task type.
 
 from typing import Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-import google.generativeai as genai
-import openai
+# import google.generativeai as genai
+# import openai
 import json
 
 from app.core.config import settings

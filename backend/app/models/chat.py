@@ -1,6 +1,5 @@
 """
 Chat Models
-
 Represents chat sessions and messages for RAG-based conversations.
 Each chat belongs to a tenant and user, with messages containing citations.
 """
@@ -61,6 +60,3 @@ class Message(Base):
     
     # Relationships
     chat = relationship("Chat", back_populates="messages")
-
-
-

@@ -1,193 +1,233 @@
+import axios, {
+  AxiosInstance,
+  AxiosRequestHeaders,
+  InternalAxiosRequestConfig,
+} from 'axios';
+
+type TokenGetter = () => Promise<string | null>;
+type LogoutFunc = () => Promise<void>;
+
 /**
- * API Client Setup
- * 
- * Initializes and configures the API client for the frontend.
+ * Read tenantId from cookie (set by middleware)
  */
+function getTenantIdFromCookie(): string {
+  if (typeof document === 'undefined') return 'default';
 
-import axios, { AxiosInstance } from 'axios';
+  const match = document.cookie
+    .split('; ')
+    .find(row => row.startsWith('tenantId='));
 
-// Create API client directly
+  return match ? match.split('=')[1] : 'default';
+}
+
 class ApiClient {
   private client: AxiosInstance;
-  private tenantId: string | null = null;
+  private getTokenFunc: TokenGetter | null = null;
+  private logoutFunc: LogoutFunc | null = null;
+  private latestToken: string | null = null;
 
-  constructor(baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000') {
+  constructor(
+    baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  ) {
     this.client = axios.create({
       baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
+
+    // ------------------------
+    // Request Interceptor
+    // ------------------------
+    this.client.interceptors.request.use(
+      (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+        const headers: AxiosRequestHeaders = config.headers;
+
+        // 🔐 Auth token
+        if (this.latestToken) {
+          headers['Authorization'] = `Bearer ${this.latestToken}`;
+        } else {
+          delete headers['Authorization'];
+        }
+
+        // 🏢 Tenant ID
+        headers['x-tenant-id'] = getTenantIdFromCookie();
+
+        return config;
+      }
+    );
+
+    // ------------------------
+    // Response Interceptor
+    // ------------------------
+    this.client.interceptors.response.use(
+      (res) => res,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            await this.refreshToken();
+
+            if (this.latestToken) {
+              originalRequest.headers['Authorization'] =
+                `Bearer ${this.latestToken}`;
+              return this.client(originalRequest);
+            }
+          } catch (err) {
+            console.error('Token refresh failed', err);
+          }
+
+          if (this.logoutFunc) await this.logoutFunc();
+        }
+
+        return Promise.reject(error);
+      }
+    );
   }
 
-  setTenantId(tenantId: string) {
-    this.tenantId = tenantId;
+  setTokenGetter(getTokenFunc: TokenGetter) {
+    this.getTokenFunc = getTokenFunc;
+    this.refreshToken();
   }
 
-  setAuthToken(token: string) {
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  setLogoutHandler(logoutFunc: LogoutFunc) {
+    this.logoutFunc = logoutFunc;
   }
 
-  // Source Management
-  async uploadSource(file: File, title?: string): Promise<any> {
+  async refreshToken() {
+    if (!this.getTokenFunc) return;
+    try {
+      this.latestToken = await this.getTokenFunc();
+    } catch (err) {
+      console.error('Failed to refresh token', err);
+      this.latestToken = null;
+    }
+  }
+
+  // ------------------------
+  // API methods
+  // ------------------------
+
+  async uploadSource(file: File, title?: string) {
+    await this.refreshToken();
     const formData = new FormData();
     formData.append('file', file);
-    if (title) {
-      formData.append('title', title);
-    }
+    if (title) formData.append('title', title);
 
-    const response = await this.client.post('/api/v1/ingest/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const res = await this.client.post('/api/v1/ingest/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
-
-    return response.data;
+    return res.data;
   }
 
-  async listSources(): Promise<any[]> {
-    const response = await this.client.get('/api/v1/ingest/sources');
-    return response.data.sources || [];
+  async listSources() {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/ingest/sources');
+    return res.data.sources ?? [];
   }
 
-  async deleteSource(sourceId: string): Promise<void> {
+  async deleteSource(sourceId: string) {
+    await this.refreshToken();
     await this.client.delete(`/api/v1/ingest/sources/${sourceId}`);
   }
 
-  // Chat
+  // Streaming Chat
   async streamChat(
     message: string,
     history: any[],
     activeSourceIds: string[],
     onChunk: (text: string) => void,
     onCitation: (citation: any) => void,
-    onDone: () => void,
-  ): Promise<void> {
-    const userId = 'dev-user-123';
-    
-    const requestBody = {
-      message,
-      history,
-      active_source_ids: activeSourceIds,
-    };
-    
-    const response = await fetch(`${this.client.defaults.baseURL}/api/v1/chat/stream`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': this.tenantId || 'default',
-        'X-User-ID': userId,
-        'Authorization': this.client.defaults.headers.common['Authorization'] as string || '',
-      },
-      body: JSON.stringify(requestBody),
-    });
+    onDone: () => void
+  ) {
+    await this.refreshToken();
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Failed to start chat' }));
-      throw new Error(errorData.detail || 'Chat request failed');
-    }
+    const tenantId = getTenantIdFromCookie();
+
+    const response = await fetch(
+      `${this.client.defaults.baseURL}/api/v1/chat/stream`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
+          ...(this.latestToken
+            ? { Authorization: `Bearer ${this.latestToken}` }
+            : {}),
+        },
+        body: JSON.stringify({
+          message,
+          history,
+          active_source_ids: activeSourceIds,
+        }),
+      }
+    );
+
+    if (!response.ok) throw new Error('Chat request failed');
 
     const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-
     if (!reader) return;
 
+    const decoder = new TextDecoder();
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       const chunk = decoder.decode(value);
-      const lines = chunk.split('\n');
+      for (const line of chunk.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
 
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        
-        if (line.startsWith('event: ')) {
-          continue;
-        }
-        if (line.startsWith('data: ')) {
-          try {
-            const jsonStr = line.substring(6).trim();
-            if (!jsonStr) continue;
-            
-            const data = JSON.parse(jsonStr);
-            
-            if (data.event === 'chunk' && data.data?.text) {
-              onChunk(data.data.text);
-            } else if (data.event === 'citation' && data.data) {
-              onCitation(data.data);
-            } else if (data.event === 'done') {
-              onDone();
-              return;
-            }
-          } catch (err) {
-            console.warn('Failed to parse SSE data:', line, err);
-          }
+        const payload = line.replace('data: ', '').trim();
+        if (!payload) continue;
+
+        const data = JSON.parse(payload);
+        if (data.event === 'chunk') onChunk(data.data.text);
+        if (data.event === 'citation') onCitation(data.data);
+        if (data.event === 'done') {
+          onDone();
+          return;
         }
       }
     }
   }
 
-  // Studio
   async generateStudio(
     taskType: string,
     sourceIds: string[],
-    customInstructions?: string,
-  ): Promise<any> {
-    const response = await this.client.post('/api/v1/studio/generate', {
+    instructions?: string
+  ) {
+    await this.refreshToken();
+    const res = await this.client.post('/api/v1/studio/generate', {
       task_type: taskType,
       source_ids: sourceIds,
-      custom_instructions: customInstructions,
+      custom_instructions: instructions,
     });
-
-    return response.data;
+    return res.data;
   }
 
-  // Notes
-  async createNote(content: string, sourceRefId?: string): Promise<any> {
-    const userId = 'dev-user-123';
-    
-    const response = await this.client.post(
-      '/api/v1/notes',
-      {
-        content,
-        source_ref_id: sourceRefId,
-      },
-      {
-        headers: {
-          'X-User-ID': userId,
-        },
-      }
-    );
-
-    return response.data;
+  async createNote(content: string, sourceRefId?: string) {
+    await this.refreshToken();
+    const res = await this.client.post('/api/v1/notes', {
+      content,
+      source_ref_id: sourceRefId,
+    });
+    return res.data;
   }
 
-  async listNotes(): Promise<any[]> {
-    const userId = 'dev-user-123';
-    
-    const response = await this.client.get('/api/v1/notes', {
-      headers: {
-        'X-User-ID': userId,
-      },
-    });
-    return response.data.notes || [];
+  async listNotes() {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/notes');
+    return res.data.notes ?? [];
   }
 
-  async deleteNote(noteId: string): Promise<void> {
-    const userId = 'dev-user-123';
-    
-    await this.client.delete(`/api/v1/notes/${noteId}`, {
-      headers: {
-        'X-User-ID': userId,
-      },
-    });
+  async deleteNote(noteId: string) {
+    await this.refreshToken();
+    await this.client.delete(`/api/v1/notes/${noteId}`);
   }
 }
 
-// Initialize API client with default tenant
 const apiClient = new ApiClient();
-apiClient.setTenantId('default');
 
 export { apiClient };
-
+export default apiClient;

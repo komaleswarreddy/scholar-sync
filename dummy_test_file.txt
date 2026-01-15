@@ -1,0 +1,9 @@
+This is a dummy file created for testing purposes.
+
+You can use this file to test various operations like:
+- File reading
+- File writing
+- File deletion
+- File operations in general
+
+Created: 2024
