@@ -30,12 +30,22 @@ async def tenant_and_auth_middleware(request: Request, call_next):
         request.state.tenant_id = None
         request.state.user_id = None
 
-        # Step 1: Check if path is excluded
+        # Step 1: Check if path is excluded OR if it's a CORS preflight request
         current_path = request.url.path
         is_excluded = (
             current_path == "/" or 
             any(current_path.startswith(p) for p in EXCLUDED_PATHS if p != "/")
         )
+        
+        # Skip middleware for OPTIONS requests (CORS preflight)
+        # SECURITY NOTE: This is safe and standard practice because:
+        # 1. OPTIONS requests are browser-initiated preflight checks
+        # 2. They don't contain actual data or authentication tokens
+        # 3. CORS middleware (which runs BEFORE this) validates the origin
+        # 4. The actual request (GET/POST/etc) will still go through full auth middleware
+        # 5. This is the recommended approach per FastAPI and CORS standards
+        if request.method == "OPTIONS":
+            return await call_next(request)
 
         if is_excluded:
             return await call_next(request)

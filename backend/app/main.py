@@ -33,12 +33,40 @@ app = FastAPI(
 )
 
 # ---------------- CORS ----------------
+# Parse CORS origins from environment variable
+cors_origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+
+# Production: Validate that CORS origins are configured (not wildcard)
+if settings.ENVIRONMENT == "production" and not cors_origins:
+    raise ValueError("CORS_ORIGINS must be set in production environment")
+
+# Production: Ensure no wildcard origins
+if settings.ENVIRONMENT == "production" and "*" in cors_origins:
+    raise ValueError("Wildcard CORS origins (*) are not allowed in production")
+
+# Define allowed headers - more restrictive in production
+if settings.ENVIRONMENT == "production":
+    allowed_headers = [
+        "Authorization",
+        "Content-Type",
+        "X-Tenant-ID",
+        "x-tenant-id",
+        "Accept",
+        "Origin",
+        "X-Requested-With",
+    ]
+else:
+    # Development: Allow all headers for easier testing
+    allowed_headers = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in settings.CORS_ORIGINS.split(",")],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],  # important for Authorization header
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=allowed_headers,
+    expose_headers=["Content-Type", "Authorization"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 # ---------------- Trusted Hosts ----------------
