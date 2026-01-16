@@ -34,7 +34,7 @@ export function NotesSection() {
     setLoading(true);
     setError(null);
     try {
-      const result = await apiClient.listNotes(); // uses dev-user-123
+      const result = await apiClient.listNotes();
       const transformedNotes = result.map((note: Note) => ({
         ...note,
         title:
@@ -47,7 +47,9 @@ export function NotesSection() {
       }));
       setNotes(transformedNotes);
     } catch (err: any) {
-      setError(err.message || 'Failed to load notes');
+      const errorMessage = err.response?.data?.detail || err.message || 'Failed to load notes';
+      setError(errorMessage);
+      console.error('Error loading notes:', err);
     } finally {
       setLoading(false);
     }
@@ -60,10 +62,12 @@ export function NotesSection() {
     setLoading(true);
     setError(null);
     try {
-      await apiClient.createNote(content); // dev-user-123
+      await apiClient.createNote(content);
       await loadNotes();
     } catch (err: any) {
-      setError(err.message || 'Failed to create note');
+      const errorMessage = err.response?.data?.detail || err.message || 'Failed to create note';
+      setError(errorMessage);
+      console.error('Error creating note:', err);
     } finally {
       setLoading(false);
     }
@@ -75,10 +79,12 @@ export function NotesSection() {
     setLoading(true);
     setError(null);
     try {
-      await apiClient.deleteNote(id); // dev-user-123
+      await apiClient.deleteNote(id);
       await loadNotes();
     } catch (err: any) {
-      setError(err.message || 'Failed to delete note');
+      const errorMessage = err.response?.data?.detail || err.message || 'Failed to delete note';
+      setError(errorMessage);
+      console.error('Error deleting note:', err);
     } finally {
       setLoading(false);
     }

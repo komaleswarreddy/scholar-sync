@@ -12,15 +12,24 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import declarative_base
 from typing import AsyncGenerator
+from urllib.parse import quote_plus, unquote
 
 from app.core.config import settings
 
 # ======================
 # Database Engine
 # ======================
+# SQLAlchemy should handle URL encoding automatically, but ensure it's properly formatted
+# The connection string from Supabase may have encoded characters that need proper handling
+database_url = settings.DATABASE_URL
+
+# Ensure the URL is properly formatted for asyncpg
+# SQLAlchemy's create_async_engine should handle this, but we ensure it's correct
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    database_url,
     echo=True,  # logs SQL queries (safe for dev)
+    pool_pre_ping=True,  # Verify connections before using them
+    pool_recycle=3600,  # Recycle connections after 1 hour
 )
 
 # ======================

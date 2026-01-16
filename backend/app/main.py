@@ -69,6 +69,30 @@ async def health():
 async def root():
     return {"message": "ScholarSync API running"}
 
+# ---------------- Debug: Show Current User (Development Only) ----------------
+@app.get("/api/v1/debug/user")
+async def debug_user(request: Request):
+    """
+    Debug endpoint to show current authenticated user.
+    Only available in development mode.
+    """
+    if settings.ENVIRONMENT != "development":
+        raise HTTPException(status_code=404, detail="Not found")
+    
+    user_id = getattr(request.state, "user_id", None)
+    tenant_id = getattr(request.state, "tenant_id", None)
+    auth_header = request.headers.get("Authorization", "")
+    has_token = bool(auth_header and auth_header.startswith("Bearer "))
+    
+    return {
+        "user_id": user_id,
+        "tenant_id": tenant_id,
+        "has_authorization_header": has_token,
+        "authorization_header_present": bool(auth_header),
+        "environment": settings.ENVIRONMENT,
+        "message": "This endpoint shows authentication status (dev mode only)"
+    }
+
 # ---------------- Global Error Handler ----------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):

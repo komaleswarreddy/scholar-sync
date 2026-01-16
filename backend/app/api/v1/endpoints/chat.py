@@ -30,11 +30,10 @@ async def stream_chat(
     tenant_id = request.state.tenant_id
     user_id = getattr(request.state, "user_id", None)
 
+    # User ID should already be set by middleware (from JWT token or dev fallback)
     if not user_id:
-        if settings.ENVIRONMENT == "development":
-            user_id = "dev-user-123"
-        else:
-            raise HTTPException(status_code=401, detail="User ID required")
+        # This should rarely happen as middleware handles it, but keep as safety check
+        raise HTTPException(status_code=401, detail="User ID required")
 
     service = RAGService(db, tenant_id, user_id)
 

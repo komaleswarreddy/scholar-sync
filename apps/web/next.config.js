@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@scholarsync/types', '@scholarsync/api'],
+  transpilePackages: ['@scholarsync/types'],
   async rewrites() {
     return [
       {
