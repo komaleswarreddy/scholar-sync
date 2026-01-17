@@ -50,7 +50,7 @@ async def stream_chat(
                 yield f"data: {event_data}\n\n"
         except Exception as e:
             import traceback
-            print(f"❌ SSE stream error: {type(e).__name__}: {str(e)}")
+            print(f"[ERROR] SSE stream error: {type(e).__name__}: {str(e)}")
             print(traceback.format_exc())
             error_data = json.dumps({"error": str(e)}, ensure_ascii=False)
             yield f"event: error\n"

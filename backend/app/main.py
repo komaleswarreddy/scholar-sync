@@ -8,9 +8,9 @@ import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
-
+ 
 from app.core.config import settings
-from app.core.middleware import tenant_and_auth_middleware
+from app.core.middleware import TenantAuthMiddleware
 from app.api.v1.endpoints import chat, sources, studio, notes
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -77,10 +77,7 @@ if settings.ENVIRONMENT == "production":
     )
 
 # ---------------- Tenant + Auth Middleware ----------------
-app.add_middleware(
-    BaseHTTPMiddleware,
-    dispatch=tenant_and_auth_middleware
-)
+app.add_middleware(TenantAuthMiddleware)
 
 # ---------------- Routes ----------------
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
@@ -126,7 +123,7 @@ async def debug_user(request: Request):
 async def global_exception_handler(request: Request, exc: Exception):
     if hasattr(exc, "status_code"):
         return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
-    print(f"❌ ERROR: {exc}")
+    print(f"[ERROR] ERROR: {exc}")
     print(traceback.format_exc())
     return JSONResponse(
         status_code=500,

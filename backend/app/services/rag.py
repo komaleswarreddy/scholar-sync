@@ -158,8 +158,8 @@ Note: No source documents are available. Please provide a general helpful respon
         except Exception as e:
             import traceback
             error_msg = f"Gemini API error: {type(e).__name__}: {str(e)}"
-            print(f"❌ {error_msg}")
-            print(f"❌ Traceback: {traceback.format_exc()}")
+            print(f"[ERROR] {error_msg}")
+            print(f"[ERROR] Traceback: {traceback.format_exc()}")
             yield {
                 "event": "error",
                 "data": {"error": error_msg},

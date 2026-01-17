@@ -39,12 +39,22 @@ def get_user_tenant(request: Request):
 
 @router.get("", response_model=NotesListResponse)
 async def list_notes(request: Request, db: AsyncSession = Depends(get_db)):
-    tenant_id, user_id = get_user_tenant(request)
-    service = NotesService(db, tenant_id, user_id)
-    notes = await service.list_notes()
-    return NotesListResponse(
-        notes=[NoteResponse(id=str(n.id), content=n.content) for n in notes]
-    )
+    try:
+        tenant_id, user_id = get_user_tenant(request)
+        print(f"[NOTES] Listing notes for tenant: {tenant_id}, user: {user_id}")
+        service = NotesService(db, tenant_id, user_id)
+        notes = await service.list_notes()
+        print(f"[NOTES] Found {len(notes)} notes")
+        return NotesListResponse(
+            notes=[NoteResponse(id=str(n.id), content=n.content) for n in notes]
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] [NOTES] Error listing notes: {type(e).__name__}: {str(e)}")
+        print(f"[ERROR] [NOTES] Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to list notes: {str(e)}")
 
 @router.post("", response_model=NoteResponse)
 async def create_note(

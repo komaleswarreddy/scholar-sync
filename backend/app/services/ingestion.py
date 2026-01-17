@@ -26,60 +26,104 @@ class IngestionService:
         """
         Handles the initial file upload to S3 and creates a 'PROCESSING' record in the DB.
         """
-        source_id = str(uuid.uuid4())
-        file_content = await file.read()
-        content_type = file.content_type or ""
-        file_ext = ".txt"
-        source_type = SourceType.TEXT.value
+        try:
+            source_id = str(uuid.uuid4())
+            
+            # Read file content
+            try:
+                file_content = await file.read()
+                if not file_content:
+                    raise ValueError("File content is empty after reading")
+            except Exception as e:
+                raise ValueError(f"Failed to read file content: {str(e)}")
+            
+            content_type = file.content_type or ""
+            filename = file.filename or ""
+            return await self.quick_upload_bytes(file_content, filename, content_type, title, source_id)
+        except Exception as e:
+            # Re-wrap or re-raise errors to be handled by the endpoint
+            if isinstance(e, ValueError):
+                raise
+            raise ValueError(f"Ingestion service failure: {str(e)}")
 
-        # Detect PDF vs Text
-        if content_type == "application/pdf" or (file.filename and file.filename.endswith(".pdf")):
-            source_type = SourceType.PDF.value
-            file_ext = ".pdf"
-
-        # Multi-tenant Storage Path: {tenant_id}/{source_id}.{ext}
-        s3_key = f"{self.tenant_id}/{source_id}{file_ext}"
-        await self.storage_service.upload_file_bytes(file_content, s3_key, content_type)
-
-        # Create Database Record
-        source = Source(
-            id=uuid.UUID(source_id),
-            tenant_id=self.tenant_id,  # Critical: Tie data to tenant
-            title=title,
-            s3_key=s3_key,
-            type=source_type,
-            status=SourceStatus.PROCESSING.value,
-            chunks_count=0,
-        )
-        self.db.add(source)
-        await self.db.commit()
-        await self.db.refresh(source)
-
-        return {
-            "id": source_id,
-            "title": title,
-            "status": SourceStatus.PROCESSING.value,
-            "chunks_count": 0,
-            "created_at": source.created_at,
-        }
-
-    async def process_file_background(self, source_id: str, content_type: str):
+    async def quick_upload_bytes(
+        self, 
+        file_content: bytes, 
+        filename: str, 
+        content_type: str, 
+        title: str,
+        source_id: str = None
+    ) -> dict:
         """
-        Background worker that extracts text, chunks it, and upserts to Vector DB.
-        Includes a tenant-check to prevent cross-tenant data processing.
+        Handles the initial file upload to S3 and creates a 'PROCESSING' record in the DB.
+        Accepts file content as bytes directly.
         """
         try:
-            # Verify the source belongs to the requesting tenant before processing
+            if source_id is None:
+                source_id = str(uuid.uuid4())
+            
+            if not file_content:
+                raise ValueError("File content is empty")
+            
+            file_ext = ".txt"
+            source_type = SourceType.TEXT.value
+
+            # Detect PDF vs Text
+            if content_type == "application/pdf" or (filename and filename.endswith(".pdf")):
+                source_type = SourceType.PDF.value
+                file_ext = ".pdf"
+
+            # Multi-tenant Storage Path: {tenant_id}/{source_id}.{ext}
+            s3_key = f"{self.tenant_id}/{source_id}{file_ext}"
+            
+            # Upload to storage
+            try:
+                await self.storage_service.upload_file_bytes(file_content, s3_key, content_type)
+            except Exception as e:
+                raise ValueError(f"Storage upload failed: {str(e)}")
+
+            # Create Database Record
+            try:
+                source = Source(
+                    id=uuid.UUID(source_id),
+                    tenant_id=uuid.UUID(self.tenant_id),
+                    title=title,
+                    s3_key=s3_key,
+                    type=source_type,
+                    status=SourceStatus.PROCESSING.value,
+                    chunks_count=0,
+                )
+                self.db.add(source)
+                await self.db.commit()
+                await self.db.refresh(source)
+            except Exception as e:
+                await self.db.rollback()
+                raise ValueError(f"Database error: {str(e)}")
+
+            return {
+                "id": source_id,
+                "title": title,
+                "status": SourceStatus.PROCESSING.value,
+                "chunks_count": 0,
+                "created_at": source.created_at,
+            }
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError(f"Upload processing failed: {str(e)}")
+
+    async def process_file_background(self, source_id: str, content_type: str):
+        try:
+            tenant_uuid = uuid.UUID(self.tenant_id)
             result = await self.db.execute(
                 select(Source).where(
                     Source.id == uuid.UUID(source_id),
-                    Source.tenant_id == self.tenant_id
+                    Source.tenant_id == tenant_uuid
                 )
             )
             source = result.scalar_one_or_none()
             
             if not source:
-                print(f"Access Denied or Not Found: Source {source_id} for Tenant {self.tenant_id}")
                 return
 
             # 1. Extract Text
@@ -93,8 +137,7 @@ class IngestionService:
                 settings.CHUNK_OVERLAP
             )
 
-            # 3. Generate Embeddings & Upsert to Vector DB
-            # VectorService(tenant_id) ensures the vectors go into the correct namespace
+            # 3. Generate Embeddings & Upsert
             embeddings = await self.vector_service.batch_generate_embeddings([c for c in chunks])
             
             vectors_to_upsert = [
@@ -111,7 +154,6 @@ class IngestionService:
                 for i, (c, e) in enumerate(zip(chunks, embeddings))
             ]
 
-            # Batch upsert (Pinecone/Milvus/etc)
             batch_size = 100
             for i in range(0, len(vectors_to_upsert), batch_size):
                 await self.vector_service.batch_upsert_vectors(vectors_to_upsert[i:i+batch_size])
@@ -120,28 +162,23 @@ class IngestionService:
             source.status = SourceStatus.INDEXED.value
             source.chunks_count = len(chunks)
             await self.db.commit()
-            print(f"Source {source_id} (Tenant: {self.tenant_id}) processed successfully")
 
         except Exception as e:
-            print(f"Background error for {source_id} [Tenant: {self.tenant_id}]: {e}")
-            # Ensure we update the status even on failure
+            print(f"Background error for {source_id}: {e}")
             if 'source' in locals() and source:
                 source.status = SourceStatus.ERROR.value
                 await self.db.commit()
 
     async def list_sources(self) -> List[dict]:
-        """
-        Returns all sources belonging to the tenant.
-        """
+        tenant_uuid = uuid.UUID(self.tenant_id)
         result = await self.db.execute(
-            select(Source).where(Source.tenant_id == self.tenant_id)
+            select(Source).where(Source.tenant_id == tenant_uuid)
         )
         sources = result.scalars().all()
         
         res_list = []
         for s in sources:
             try:
-                # Generate a temporary download link
                 url = await self.storage_service.get_presigned_url(s.s3_key)
             except Exception:
                 url = None
@@ -158,13 +195,11 @@ class IngestionService:
         return res_list
 
     async def delete_source(self, source_id: str):
-        """
-        Deletes source from DB, S3, and Vector DB.
-        """
+        tenant_uuid = uuid.UUID(self.tenant_id)
         result = await self.db.execute(
             select(Source).where(
                 Source.id == uuid.UUID(source_id), 
-                Source.tenant_id == self.tenant_id
+                Source.tenant_id == tenant_uuid
             )
         )
         source = result.scalar_one_or_none()
@@ -172,18 +207,24 @@ class IngestionService:
         if not source:
             raise ValueError(f"Source not found or access denied: {source_id}")
 
-        # Clean up external services
-        await self.vector_service.delete_vectors_by_source(source_id)
-        await self.storage_service.delete_file(source.s3_key)
-        
-        # Clean up database
-        await self.db.delete(source)
-        await self.db.commit()
+        try:
+            await self.vector_service.delete_vectors_by_source(source_id)
+        except Exception:
+            pass # Non-critical failure
+
+        try:
+            await self.storage_service.delete_file(source.s3_key)
+        except Exception:
+            pass
+
+        try:
+            await self.db.delete(source)
+            await self.db.commit()
+        except Exception as e:
+            await self.db.rollback()
+            raise
 
     async def _extract_text(self, file_content: bytes, content_type: str) -> str:
-        """
-        Internal helper for text extraction.
-        """
         if content_type == "application/pdf":
             pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
             text = ""

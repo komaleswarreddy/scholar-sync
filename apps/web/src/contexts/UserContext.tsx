@@ -18,14 +18,26 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const { user, isSignedIn } = useUser();
-  const { signOut: clerkSignOut, getToken: clerkGetToken } = useAuth();
+  // Check if Clerk is configured
+  const isClerkConfigured = typeof window !== 'undefined' && 
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
+    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('...');
+  
+  // Use Clerk hooks - must be called unconditionally
+  // If ClerkProvider isn't present, hooks will still work but return defaults
+  const { user, isSignedIn, isLoaded: userLoaded } = useUser();
+  const { signOut: clerkSignOut, getToken: clerkGetToken, isLoaded: authLoaded } = useAuth();
+  
   const [loading, setLoading] = useState(true);
 
   // Safe wrapper for getToken
   const getToken = useCallback(async () => {
     try {
       console.log('[🔐 AUTH DEBUG] Fetching token from Clerk...');
+      if (!clerkGetToken) {
+        console.log('[🔐 AUTH DEBUG] ⚠️ clerkGetToken is not available');
+        return null;
+      }
       const token = await clerkGetToken({ template: 'default' });
       
       if (token) {
@@ -52,18 +64,49 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Logout handler for ApiClient
   const handleLogout = useCallback(async () => {
-    await clerkSignOut();
+    if (clerkSignOut) {
+      await clerkSignOut();
+    }
   }, [clerkSignOut]);
 
-  // Wire logoutFunc for ApiClient
-  // Only re-register if getToken or handleLogout functions change, not on isSignedIn changes
+  // Wait for Clerk to finish loading before setting loading to false
   useEffect(() => {
-    console.log('[🔐 AUTH DEBUG] Registering token getter with API client');
-    apiClient.setTokenGetter(getToken);
-    apiClient.setLogoutHandler(handleLogout);
-    setLoading(false);
-    console.log('[🔐 AUTH DEBUG] ✅ Token getter registered. User signed in:', isSignedIn);
-  }, [getToken, handleLogout]); // Removed isSignedIn to prevent unnecessary re-registrations
+    const isClerkLoaded = userLoaded && authLoaded;
+    console.log('[🔐 AUTH DEBUG] Clerk loading state:', { 
+      userLoaded, 
+      authLoaded, 
+      isClerkLoaded, 
+      isSignedIn, 
+      isClerkConfigured,
+      hasClerkKey: !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+    });
+    
+    if (!isClerkConfigured) {
+      console.warn('[🔐 AUTH DEBUG] ⚠️ Clerk is not configured. Skipping authentication setup.');
+      setLoading(false);
+      return;
+    }
+    
+    if (isClerkLoaded) {
+      console.log('[🔐 AUTH DEBUG] Registering token getter with API client');
+      apiClient.setTokenGetter(getToken);
+      apiClient.setLogoutHandler(handleLogout);
+      setLoading(false);
+      console.log('[🔐 AUTH DEBUG] ✅ Token getter registered. User signed in:', isSignedIn);
+    } else {
+      console.log('[🔐 AUTH DEBUG] ⏳ Waiting for Clerk to load...');
+      // Set a timeout to prevent infinite loading if Clerk never loads
+      const timeout = setTimeout(() => {
+        console.warn('[🔐 AUTH DEBUG] ⚠️ Clerk took too long to load (10s timeout), setting loading to false anyway');
+        // Still register the token getter even if Clerk is slow
+        apiClient.setTokenGetter(getToken);
+        apiClient.setLogoutHandler(handleLogout);
+        setLoading(false);
+      }, 10000); // 10 second timeout
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [getToken, handleLogout, userLoaded, authLoaded, isSignedIn, isClerkConfigured]);
 
   const value: UserContextType = {
     userId: user?.id ?? null,

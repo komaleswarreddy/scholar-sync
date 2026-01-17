@@ -1,8 +1,12 @@
 /**
- * Source List Component
- * 
- * Left sidebar showing all uploaded sources.
- * Uses placeholder data until API keys are added.
+ * Source List Component 
+ * Tasks Implemented:
+ * - A: Already connected - Local duplicate check & verify error handling
+ * - B: File Validation (Size & Type)
+ * - C: Upload Progress Indicator
+ * - D: Handle upload errors gracefully with user-friendly messages (UI Error State)
+ * - E: Refresh source list after successful upload
+ * - F: Show processing status (processing → indexed) via Polling
  */
 
 'use client';
@@ -10,7 +14,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Checkbox } from '../ui/Checkbox';
 import { Button } from '../ui/Button';
-import { FileText, Globe, Plus, Search, ArrowRight, Upload, X } from 'lucide-react';
+import { FileText, Plus, X, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { useSourceContext } from '@/contexts/SourceContext';
 
@@ -18,21 +22,30 @@ interface Source {
   id: string;
   title: string;
   type?: string;
-  file_type?: string;
+  status: 'processing' | 'indexed' | 'error'; // Task F: Added Status
   created_at?: string;
-  uploadedAt?: string;
+  chunks_count?: number;
 }
 
 export function SourceList() {
   const { selectedSources, toggleSource } = useSourceContext();
   const [sources, setSources] = useState<Source[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0); // Task C: Progress state
+  const [localError, setLocalError] = useState<string | null>(null); // Task D: Local error handling
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { loading, error, handleRequest, apiClient } = useApi();
+  const { loading, error: apiError, handleRequest, apiClient } = useApi();
 
   // Load sources on mount
   useEffect(() => {
     loadSources();
+    
+    // Task F: Simple Polling - Refresh list every 10 seconds to update processing status
+    const interval = setInterval(() => {
+        loadSources();
+    }, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadSources = async () => {
@@ -41,7 +54,6 @@ export function SourceList() {
       if (result && Array.isArray(result)) {
         setSources(result as Source[]);
       } else {
-        console.warn('Unexpected response format:', result);
         setSources([]);
       }
     } catch (error) {
@@ -50,8 +62,8 @@ export function SourceList() {
     }
   };
 
-
   const handleUpload = () => {
+    setLocalError(null); // Clear errors when starting new flow
     fileInputRef.current?.click();
   };
 
@@ -59,23 +71,85 @@ export function SourceList() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // --- TASK A: Already Connected Check (Local) ---
+    const isAlreadyConnected = sources.some(
+      (s) => s.title.toLowerCase() === file.name.toLowerCase()
+    );
+    if (isAlreadyConnected) {
+      setLocalError("This file is already connected as a source.");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // --- TASK B: File Validation ---
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['application/pdf', 'text/plain'];
+    const allowedExtensions = ['.pdf', '.txt'];
+    
+    // Check both MIME type and file extension (some browsers don't set MIME type correctly)
+    const hasValidType = allowedTypes.includes(file.type);
+    const hasValidExtension = allowedExtensions.some(ext => 
+      file.name.toLowerCase().endsWith(ext)
+    );
+    
+    if (!hasValidType && !hasValidExtension) {
+      setLocalError("Only PDF and TXT files are supported.");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    if (file.size > MAX_SIZE) {
+      setLocalError("File is too large. Limit is 10MB.");
+      return;
+    }
+
     setIsUploading(true);
+    setUploadProgress(0); // Reset progress
+    setLocalError(null);
+
     try {
-      const result = await handleRequest(() =>
-        apiClient.uploadSource(file, file.name)
-      );
+      // Call upload directly to get better error handling
+      console.log('📤 Starting file upload:', file.name, file.size, 'bytes');
+      const result = await apiClient.uploadSource(file, file.name, (percent) => {
+        setUploadProgress(percent); // Update progress state from Axios
+        console.log(`📤 Upload progress: ${percent}%`);
+      });
+
+      console.log('✅ Upload successful:', result);
+      
       if (result) {
-        await loadSources(); // Reload sources list
-        // Reset file input
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
+        // --- TASK E: Refresh list ---
+        await loadSources(); 
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
-    } catch (err) {
-      console.error('Upload error:', err);
-      alert(`Upload failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } catch (err: any) {
+      // Task D: Handle upload errors gracefully with user-friendly messages
+      console.error('❌ Upload error:', err);
+      console.error('❌ Error details:', {
+        code: err.code,
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      
+      let msg = "Upload failed. Please check your connection and try again.";
+      
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        msg = "Upload timed out. The file might be too large or the server is taking too long. Please try again with a smaller file.";
+      } else if (err.response?.data?.detail) {
+        msg = err.response.data.detail;
+      } else if (err.response?.status === 403) {
+        msg = "Access denied. Please check your authentication.";
+      } else if (err.response?.status === 401) {
+        msg = "Authentication failed. Please sign in again.";
+      } else if (err.message) {
+        msg = err.message;
+      }
+      
+      setLocalError(msg);
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -86,13 +160,12 @@ export function SourceList() {
     const result = await handleRequest(() => apiClient.deleteSource(sourceId));
     if (result !== null) {
       await loadSources();
-      // Note: selectedSources is managed by context, deletion handled automatically
     }
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
+    <div className="flex flex-col h-full bg-surface">
+      {/* Header Section */}
       <div className="p-4 border-b border-border-default">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -100,6 +173,7 @@ export function SourceList() {
             <h2 className="text-lg font-semibold text-text-primary">Sources</h2>
           </div>
         </div>
+
         <input
           ref={fileInputRef}
           type="file"
@@ -107,130 +181,116 @@ export function SourceList() {
           onChange={handleFileChange}
           className="hidden"
         />
+
         <Button
           variant="secondary"
           size="md"
           onClick={handleUpload}
           disabled={isUploading || loading}
-          className="w-full flex items-center justify-center gap-2 rounded-2xl py-3"
+          className="w-full flex flex-col items-center justify-center gap-1 rounded-2xl py-3"
         >
           {isUploading ? (
-            <>
-              <div className="w-5 h-5 border-2 border-text-primary border-t-transparent rounded-full animate-spin" />
-              Uploading...
-            </>
+            <div className="w-full px-2">
+              <div className="flex justify-between text-[10px] mb-1">
+                <span className="flex items-center gap-1">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Uploading...
+                </span>
+                <span>{uploadProgress}%</span>
+              </div>
+              {/* Task C: Progress Bar Visual */}
+              <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-accent-blue transition-all duration-300" 
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            </div>
           ) : (
-            <>
-              <Plus className="w-5 h-5" />
-              Add sources
-            </>
+            <div className="flex items-center gap-2">
+              <Plus className="w-5 h-5" /> 
+              <span>Add sources</span>
+            </div>
           )}
         </Button>
-        {error && (
-          <div className="mt-2 p-2 rounded-lg bg-red-500/10 border border-red-500/20">
-            <p className="text-xs text-red-400">{error}</p>
+
+        {/* Task D: Graceful Error Display (Handles local validation & API errors) */}
+        {(localError || apiError) && (
+          <div className="mt-2 p-2 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-2">
+            <AlertCircle className="w-3 h-3 text-red-400 mt-0.5" />
+            <p className="text-xs text-red-400 flex-1">{localError || apiError}</p>
+            <button onClick={() => setLocalError(null)}>
+              <X className="w-3 h-3 text-red-400" />
+            </button>
           </div>
         )}
-        
-        {/* Deep Research Card */}
-        <div className="mt-3 p-3 rounded-2xl bg-accent-green/10 border border-accent-green/20">
-          <p className="text-xs text-text-primary leading-relaxed">
-            Try Deep Research for an in-depth report and new sources!
-          </p>
-        </div>
-        
-        {/* Search Bar */}
-        <div className="mt-3 flex items-center gap-2">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="Search the web for new sources"
-              className="w-full bg-surface border border-border-default rounded-full px-4 py-2 pl-10 text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:border-border-active"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-          </div>
-          <select className="bg-surface border border-border-default rounded-full px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-border-active">
-            <option>Web</option>
-            <option>Fast Research</option>
-          </select>
-          <button className="p-2 rounded-full hover:bg-surface-hover transition-colors">
-            <ArrowRight className="w-4 h-4 text-text-secondary" />
-          </button>
-        </div>
-        
-        {/* Select All */}
-        <div className="mt-3 flex items-center gap-2">
-          <Checkbox id="select-all" />
-          <label htmlFor="select-all" className="text-sm text-text-secondary cursor-pointer">
-            Select all sources
-          </label>
-        </div>
       </div>
 
-      {/* Source List */}
+      {/* Source List Section */}
       <div className="flex-1 overflow-y-auto p-2">
         {loading && sources.length === 0 ? (
-          <div className="text-center py-8 px-4">
-            <div className="w-6 h-6 border-2 border-accent-blue border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-text-secondary text-sm">Loading sources...</p>
+          <div className="text-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-accent-blue mb-2" />
+            <p className="text-text-secondary text-sm">Fetching sources...</p>
           </div>
         ) : sources.length === 0 ? (
           <div className="text-center py-8 px-4">
-            <p className="text-text-secondary text-sm mb-2">No sources yet</p>
-            <p className="text-text-tertiary text-xs">
-              Upload a document to get started
-            </p>
+            <p className="text-text-secondary text-sm mb-1">No sources yet</p>
+            <p className="text-text-tertiary text-xs">Upload a PDF to start research</p>
           </div>
         ) : (
           <div className="space-y-1">
             {sources.map((source) => {
               const isSelected = selectedSources.has(source.id);
-              const sourceType = source.file_type || 'pdf';
               
               return (
                 <div
                   key={source.id}
-                  className={`
-                    flex items-center gap-3 p-3 rounded-2xl cursor-pointer
-                    transition-colors duration-200 group
-                    ${isSelected 
-                      ? 'bg-surface-hover' 
-                      : 'hover:bg-surface-hover'
-                    }
-                  `}
+                  className={`flex items-start gap-3 p-3 rounded-2xl cursor-pointer transition-all group
+                    ${isSelected ? 'bg-surface-hover shadow-sm' : 'hover:bg-surface-hover'}`}
                   onClick={() => toggleSource(source.id)}
                 >
-                  <Checkbox
-                    checked={isSelected}
-                    onChange={() => toggleSource(source.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                  <Checkbox checked={isSelected} onChange={() => {}} />
                   
                   <div className="flex-1 min-w-0">
-                    {sourceType === 'pdf' || sourceType === 'application/pdf' ? (
-                      <FileText className="w-4 h-4 text-red-400 mb-1" />
-                    ) : (
-                      <Globe className="w-4 h-4 text-accent-blue mb-1" />
-                    )}
-                    <p
-                      className={`
-                        text-sm line-clamp-2
-                        ${isSelected ? 'text-text-primary' : 'text-text-secondary'}
-                      `}
-                    >
+                    <div className="flex items-center gap-2 mb-1">
+                      <FileText className={`w-4 h-4 ${source.status === 'error' ? 'text-red-400' : 'text-red-400'}`} />
+                      
+                      {/* TASK F: Enhanced Status Badges */}
+                      {source.status === 'processing' && (
+                        <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded flex items-center gap-1 animate-pulse">
+                          <Loader2 className="w-2 h-2 animate-spin" /> processing
+                        </span>
+                      )}
+                      {source.status === 'indexed' && (
+                        <span className="text-[10px] bg-green-500/10 text-green-400 px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <CheckCircle2 className="w-2 h-2" /> ready
+                        </span>
+                      )}
+                      {source.status === 'error' && (
+                        <span className="text-[10px] bg-red-500/10 text-red-400 px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <AlertCircle className="w-2 h-2" /> error
+                        </span>
+                      )}
+                    </div>
+
+                    <p className={`text-sm font-medium line-clamp-2 ${isSelected ? 'text-text-primary' : 'text-text-secondary'}`}>
                       {source.title}
                     </p>
-                    <p className="text-xs text-text-tertiary mt-1">
-                      {source.created_at 
-                        ? new Date(source.created_at).toLocaleDateString()
-                        : 'Recently uploaded'}
-                    </p>
+                    
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-[10px] text-text-tertiary uppercase">
+                            {source.chunks_count || 0} chunks
+                        </p>
+                        <span className="text-text-tertiary text-[10px]">•</span>
+                        <p className="text-[10px] text-text-tertiary">
+                            {source.created_at ? new Date(source.created_at).toLocaleDateString() : 'Just now'}
+                        </p>
+                    </div>
                   </div>
                   
                   <button
                     onClick={(e) => handleDelete(source.id, e)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-surface text-text-secondary hover:text-red-400"
-                    title="Delete source"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-text-tertiary hover:text-red-400 transition-all"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -241,13 +301,12 @@ export function SourceList() {
         )}
       </div>
 
-      {/* Footer Info */}
-      <div className="p-4 border-t border-border-default">
+      {/* Footer Section - Selection Counter */}
+      <div className="p-4 border-t border-border-default bg-surface-subtle">
         <p className="text-xs text-text-tertiary text-center">
-          {selectedSources.size} of {sources.length} selected
+          {selectedSources.size} of {sources.length} sources selected
         </p>
       </div>
     </div>
   );
 }
-

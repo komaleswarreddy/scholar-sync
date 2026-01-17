@@ -27,26 +27,56 @@ class ApiClient {
   private latestToken: string | null = null;
   private tokenExpiry: number | null = null; // Unix timestamp when token expires
   private refreshPromise: Promise<void> | null = null; // Prevent concurrent refresh attempts
+  private authFailureCount: number = 0; // Track consecutive auth failures
+  private maxAuthFailures: number = 3; // Stop trying after 3 failures
+  private circuitBreakerOpen: boolean = false; // Circuit breaker state
 
   constructor(
     baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
   ) {
+    console.log(`[🌐 API DEBUG] Initializing API client with base URL: ${baseURL}`);
     this.client = axios.create({
       baseURL,
-      headers: { 'Content-Type': 'application/json' },
+      timeout: 30000, // 30 second timeout to prevent hanging requests
+      // Don't set default Content-Type - let axios set it based on data type
     });
 
     // ------------------------
     // Request Interceptor
     // ------------------------
     this.client.interceptors.request.use(
-      (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+      async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
         const headers: AxiosRequestHeaders = config.headers;
         const url = config.url || 'unknown';
         const method = config.method?.toUpperCase() || 'UNKNOWN';
 
-        // 🔐 Auth token
-        if (this.latestToken) {
+        // Check if this is a FormData request
+        const isFormData = config.data instanceof FormData;
+
+        // Set Content-Type only for non-FormData requests
+        // For FormData, axios will set it automatically with boundary
+        if (!isFormData && !headers['Content-Type']) {
+          headers['Content-Type'] = 'application/json';
+        } else if (isFormData) {
+          // Remove Content-Type for FormData so axios can set it with boundary
+          delete headers['Content-Type'];
+        }
+
+        // 🔐 Auth token - refresh if needed (but respect circuit breaker)
+        if (!this.circuitBreakerOpen && !this.latestToken && this.getTokenFunc) {
+          // Try to get token if we don't have one
+          try {
+            await this.refreshToken(true); // Force refresh
+          } catch (e) {
+            console.log(`[🌐 API DEBUG] ⚠️ Could not refresh token: ${e}`);
+          }
+        }
+
+        if (this.circuitBreakerOpen) {
+          delete headers['Authorization'];
+          console.log(`[🌐 API DEBUG] 📤 ${method} ${url}`);
+          console.log(`[🌐 API DEBUG]   ⚠️ Circuit breaker open - skipping auth (user needs to sign in)`);
+        } else if (this.latestToken) {
           headers['Authorization'] = `Bearer ${this.latestToken}`;
           console.log(`[🌐 API DEBUG] 📤 ${method} ${url}`);
           console.log(`[🌐 API DEBUG]   ✅ Authorization header added (Bearer token)`);
@@ -60,7 +90,7 @@ class ApiClient {
         } else {
           delete headers['Authorization'];
           console.log(`[🌐 API DEBUG] 📤 ${method} ${url}`);
-          console.log(`[🌐 API DEBUG]   ⚠️ No Authorization header (no token available)`);
+          console.log(`[🌐 API DEBUG]   ⚠️ No Authorization header (no token available - user may not be signed in)`);
         }
 
         // 🏢 Tenant ID
@@ -95,9 +125,28 @@ class ApiClient {
           }
         } else {
           console.log(`[🌐 API DEBUG] ❌ ${method} ${url} - Network error`);
+          if (error.code === 'ECONNABORTED') {
+            console.error(`[🌐 API DEBUG] ⚠️ Request timed out. Is the backend server running at ${this.client.defaults.baseURL}?`);
+          } else if (error.code === 'ECONNREFUSED') {
+            console.error(`[🌐 API DEBUG] ⚠️ Connection refused. Backend server is not running at ${this.client.defaults.baseURL}`);
+          } else {
+            console.error(`[🌐 API DEBUG] ⚠️ Network error: ${error.message}`);
+          }
         }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+          this.authFailureCount++;
+          console.log(`[🌐 API DEBUG]   Authentication failure count: ${this.authFailureCount}/${this.maxAuthFailures}`);
+
+          // Open circuit breaker after too many failures
+          if (this.authFailureCount >= this.maxAuthFailures) {
+            this.circuitBreakerOpen = true;
+            console.error(`[🌐 API DEBUG]   ⚠️ Circuit breaker opened after ${this.authFailureCount} auth failures`);
+            console.error(`[🌐 API DEBUG]   Please sign in to continue. Circuit breaker will reset on next successful auth.`);
+            // Don't retry, just reject
+            return Promise.reject(new Error('Authentication required. Please sign in.'));
+          }
+
           originalRequest._retry = true;
 
           try {
@@ -105,6 +154,9 @@ class ApiClient {
             await this.refreshToken();
 
             if (this.latestToken) {
+              // Reset failure count on successful token refresh
+              this.authFailureCount = 0;
+              this.circuitBreakerOpen = false;
               originalRequest.headers['Authorization'] =
                 `Bearer ${this.latestToken}`;
               console.log(`[🌐 API DEBUG]   Retrying request with new token...`);
@@ -114,7 +166,10 @@ class ApiClient {
             console.error('[🌐 API DEBUG] ❌ Token refresh failed', err);
           }
 
-          if (this.logoutFunc) await this.logoutFunc();
+          // If we get here, token refresh failed - don't retry if circuit breaker is open
+          if (this.circuitBreakerOpen) {
+            return Promise.reject(new Error('Authentication required. Please sign in.'));
+          }
         }
 
         return Promise.reject(error);
@@ -188,6 +243,9 @@ class ApiClient {
         if (token) {
           this.latestToken = token;
           this.tokenExpiry = this.getTokenExpiry(token);
+          // Reset circuit breaker on successful token fetch
+          this.authFailureCount = 0;
+          this.circuitBreakerOpen = false;
           console.log('[🌐 API DEBUG] ✅ Token refreshed successfully');
           
           // Decode token to show user_id (for debugging)
@@ -216,7 +274,7 @@ class ApiClient {
         this.refreshPromise = null;
       }
     })();
-
+ 
     return this.refreshPromise;
   }
 
@@ -224,14 +282,29 @@ class ApiClient {
   // API methods
   // ------------------------
 
-  async uploadSource(file: File, title?: string) {
+  /**
+   * TASK C UPDATED: Added onProgress callback
+   */
+  async uploadSource(file: File, title?: string, onProgress?: (percent: number) => void) {
     await this.refreshToken();
     const formData = new FormData();
     formData.append('file', file);
     if (title) formData.append('title', title);
 
+    // Use longer timeout for file uploads (5 minutes)
+    const uploadTimeout = 5 * 60 * 1000; // 5 minutes in milliseconds
+
     const res = await this.client.post('/api/v1/ingest/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: uploadTimeout,
+      // Don't set Content-Type header - axios will set it automatically with boundary for FormData
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          onProgress(percentCompleted);
+        }
+      },
     });
     return res.data;
   }

@@ -57,29 +57,41 @@ class StorageService:
             content_type: MIME type of the file
         """
         try:
+            print(f"[STORAGE] Starting upload to Supabase: {file_path}, size: {len(file_content)} bytes")
             supabase = get_supabase_client()
             
             # Upload to Supabase Storage
             # Note: Supabase Python client is synchronous, so we run it in executor
             import asyncio
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(
-                None,
-                lambda: supabase.storage.from_(self.bucket_name).upload(
-                    path=file_path,
-                    file=file_content,
-                    file_options={"content-type": content_type}
-                )
+            
+            # Add timeout to prevent hanging (2 minutes)
+            response = await asyncio.wait_for(
+                loop.run_in_executor(
+                    None,
+                    lambda: supabase.storage.from_(self.bucket_name).upload(
+                        path=file_path,
+                        file=file_content,
+                        file_options={"content-type": content_type}
+                    )
+                ),
+                timeout=120.0  # 2 minutes timeout
             )
+            
+            print(f"[SUCCESS] [STORAGE] Upload completed: {file_path}")
             
             # Check for errors in response
             if hasattr(response, 'error') and response.error:
+                print(f"[ERROR] [STORAGE] Supabase returned error: {response.error}")
                 raise ValueError(f"Supabase upload error: {response.error}")
                 
+        except asyncio.TimeoutError:
+            print(f"[ERROR] [STORAGE] Upload timeout after 2 minutes for: {file_path}")
+            raise ValueError("Storage upload timed out. Please try again.")
         except Exception as e:
             import traceback
-            print(f"❌ Storage upload error: {type(e).__name__}: {str(e)}")
-            print(f"❌ Traceback: {traceback.format_exc()}")
+            print(f"[ERROR] [STORAGE] Storage upload error: {type(e).__name__}: {str(e)}")
+            print(f"[ERROR] [STORAGE] Traceback: {traceback.format_exc()}")
             raise
     
     async def get_presigned_url(self, file_path: str, expiration: int = 3600) -> str:
@@ -140,12 +152,35 @@ class StorageService:
             return response
         except Exception as e:
             import traceback
-            print(f"❌ Storage download error: {type(e).__name__}: {str(e)}")
-            print(f"❌ Traceback: {traceback.format_exc()}")
+            print(f"[ERROR] Storage download error: {type(e).__name__}: {str(e)}")
+            print(f"[ERROR] Traceback: {traceback.format_exc()}")
             raise
     
     async def delete_file(self, file_path: str):
         """Delete file from Supabase Storage."""
-        supabase = get_supabase_client()
-        supabase.storage.from_(self.bucket_name).remove([file_path])
+        try:
+            supabase = get_supabase_client()
+            import asyncio
+            loop = asyncio.get_event_loop()
+            
+            # Run in executor since Supabase client is synchronous
+            response = await loop.run_in_executor(
+                None,
+                lambda: supabase.storage.from_(self.bucket_name).remove([file_path])
+            )
+            print(f"[STORAGE] Deleted file: {file_path}")
+            
+            # Check for errors in response
+            if hasattr(response, 'error') and response.error:
+                print(f"[ERROR] [STORAGE] Supabase delete error: {response.error}")
+                raise ValueError(f"Supabase delete error: {response.error}")
+        except ValueError as e:
+            # Supabase not configured or other config error
+            print(f"[WARNING] [STORAGE] Storage not configured or error: {str(e)}")
+            raise
+        except Exception as e:
+            import traceback
+            print(f"[ERROR] [STORAGE] Failed to delete file {file_path}: {type(e).__name__}: {str(e)}")
+            print(f"[ERROR] [STORAGE] Traceback: {traceback.format_exc()}")
+            raise
 

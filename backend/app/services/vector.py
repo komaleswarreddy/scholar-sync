@@ -158,9 +158,20 @@ class VectorService:
         
         Uses metadata filter to find all chunks for source_id.
         """
-        index = get_pinecone_index()
-        index.delete(
-            filter={"source_id": source_id},
-            namespace=self.namespace,
-        )
+        try:
+            index = get_pinecone_index()
+            index.delete(
+                filter={"source_id": source_id},
+                namespace=self.namespace,
+            )
+            print(f"[VECTOR] Deleted vectors for source {source_id} in namespace {self.namespace}")
+        except ValueError as e:
+            # Pinecone not configured - log and continue
+            print(f"[WARNING] [VECTOR] Pinecone not configured, skipping vector deletion: {str(e)}")
+            raise
+        except Exception as e:
+            import traceback
+            print(f"[ERROR] [VECTOR] Failed to delete vectors for source {source_id}: {type(e).__name__}: {str(e)}")
+            print(f"[ERROR] [VECTOR] Traceback: {traceback.format_exc()}")
+            raise
 
