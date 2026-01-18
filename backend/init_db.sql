@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS messages (
   role TEXT NOT NULL,
   content TEXT NOT NULL,
   citations JSONB DEFAULT '[]',
+  feedback VARCHAR,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

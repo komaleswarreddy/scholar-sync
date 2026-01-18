@@ -75,24 +75,80 @@ async def upload_source(
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 async def process_upload_background(tenant_id: str, source_id: str, content_type: str):
+    """
+    Background task to process uploaded file.
+    Handles text extraction, chunking, embedding, and vector storage.
+    """
+    import traceback
+    error_occurred = False
+    error_message = None
+    
     try:
         async with AsyncSessionLocal() as db:
             service = IngestionService(db, tenant_id)
             await service.process_file_background(source_id, content_type)
-    except Exception as e:
+    except ValueError as e:
+        # Expected errors (API keys, configuration, etc.)
+        error_message = str(e)
+        error_type = type(e).__name__
+        full_traceback = traceback.format_exc()
+        
+        # Log detailed error information
+        print(f"[ERROR] Background processing failed for source {source_id}")
+        print(f"[ERROR] Error Type: {error_type}")
+        print(f"[ERROR] Error Message: {error_message}")
+        print(f"[ERROR] Full Traceback:\n{full_traceback}")
+        
+        # Update source status to ERROR
         from app.models.source import Source, SourceStatus
         from sqlalchemy import select
-        async with AsyncSessionLocal() as db:
-            result = await db.execute(
-                select(Source).where(
-                    Source.id == uuid.UUID(source_id),
-                    Source.tenant_id == uuid.UUID(tenant_id)
+        try:
+            async with AsyncSessionLocal() as db:
+                result = await db.execute(
+                    select(Source).where(
+                        Source.id == uuid.UUID(source_id),
+                        Source.tenant_id == uuid.UUID(tenant_id)
+                    )
                 )
-            )
-            source = result.scalar_one_or_none()
-            if source:
-                source.status = SourceStatus.ERROR.value
-                await db.commit()
+                source = result.scalar_one_or_none()
+                if source:
+                    source.status = SourceStatus.ERROR.value
+                    await db.commit()
+                    print(f"[ERROR] Updated source {source_id} status to ERROR")
+        except Exception as db_error:
+            print(f"[ERROR] Failed to update source status: {db_error}")
+            print(traceback.format_exc())
+    except Exception as e:
+        # Unexpected errors
+        error_message = str(e)
+        error_type = type(e).__name__
+        full_traceback = traceback.format_exc()
+        
+        # Log detailed error information
+        print(f"[ERROR] ⚠️ UNEXPECTED ERROR in background processing for source {source_id}")
+        print(f"[ERROR] Error Type: {error_type}")
+        print(f"[ERROR] Error Message: {error_message}")
+        print(f"[ERROR] Full Traceback:\n{full_traceback}")
+        
+        # Update source status to ERROR
+        from app.models.source import Source, SourceStatus
+        from sqlalchemy import select
+        try:
+            async with AsyncSessionLocal() as db:
+                result = await db.execute(
+                    select(Source).where(
+                        Source.id == uuid.UUID(source_id),
+                        Source.tenant_id == uuid.UUID(tenant_id)
+                    )
+                )
+                source = result.scalar_one_or_none()
+                if source:
+                    source.status = SourceStatus.ERROR.value
+                    await db.commit()
+                    print(f"[ERROR] Updated source {source_id} status to ERROR")
+        except Exception as db_error:
+            print(f"[ERROR] Failed to update source status: {db_error}")
+            print(traceback.format_exc())
 
 @router.get("/sources", response_model=SourceListResponse)
 async def list_sources(request: Request, db: AsyncSession = Depends(get_db)):

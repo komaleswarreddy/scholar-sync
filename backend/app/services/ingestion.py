@@ -113,6 +113,18 @@ class IngestionService:
             raise ValueError(f"Upload processing failed: {str(e)}")
 
     async def process_file_background(self, source_id: str, content_type: str):
+        """
+        Process uploaded file in background:
+        1. Download from storage
+        2. Extract text
+        3. Chunk text
+        4. Generate embeddings
+        5. Upsert to vector database
+        6. Update status to INDEXED
+        """
+        import traceback
+        source = None
+        
         try:
             tenant_uuid = uuid.UUID(self.tenant_id)
             result = await self.db.execute(
@@ -124,21 +136,56 @@ class IngestionService:
             source = result.scalar_one_or_none()
             
             if not source:
+                print(f"[ERROR] Source {source_id} not found in database")
                 return
 
+            print(f"[INGESTION] Starting processing for source {source_id} ({source.title})")
+
             # 1. Extract Text
-            file_content = await self.storage_service.download_file(source.s3_key)
-            text = await self._extract_text(file_content, content_type)
+            try:
+                print(f"[INGESTION] Step 1: Downloading file from storage...")
+                file_content = await self.storage_service.download_file(source.s3_key)
+                if not file_content:
+                    raise ValueError("Downloaded file content is empty")
+                print(f"[INGESTION] Step 1: File downloaded, size: {len(file_content)} bytes")
+            except Exception as e:
+                raise ValueError(f"Failed to download file from storage: {str(e)}")
+
+            try:
+                print(f"[INGESTION] Step 2: Extracting text from {content_type}...")
+                text = await self._extract_text(file_content, content_type)
+                if not text or not text.strip():
+                    raise ValueError("Extracted text is empty")
+                print(f"[INGESTION] Step 2: Text extracted, length: {len(text)} characters")
+            except Exception as e:
+                raise ValueError(f"Failed to extract text: {str(e)}")
             
             # 2. Chunk Text
-            chunks = self.text_processor.chunk_text(
-                text, 
-                settings.CHUNK_SIZE, 
-                settings.CHUNK_OVERLAP
-            )
+            try:
+                print(f"[INGESTION] Step 3: Chunking text...")
+                chunks = self.text_processor.chunk_text(
+                    text, 
+                    settings.CHUNK_SIZE, 
+                    settings.CHUNK_OVERLAP
+                )
+                if not chunks or len(chunks) == 0:
+                    raise ValueError("No chunks created from text")
+                print(f"[INGESTION] Step 3: Created {len(chunks)} chunks")
+            except Exception as e:
+                raise ValueError(f"Failed to chunk text: {str(e)}")
 
             # 3. Generate Embeddings & Upsert
-            embeddings = await self.vector_service.batch_generate_embeddings([c for c in chunks])
+            try:
+                print(f"[INGESTION] Step 4: Generating embeddings...")
+                embeddings = await self.vector_service.batch_generate_embeddings([c for c in chunks])
+                if not embeddings or len(embeddings) != len(chunks):
+                    raise ValueError(f"Embedding count mismatch: {len(embeddings)} embeddings for {len(chunks)} chunks")
+                print(f"[INGESTION] Step 4: Generated {len(embeddings)} embeddings")
+            except Exception as e:
+                error_msg = str(e)
+                if "api key" in error_msg.lower() or "not configured" in error_msg.lower():
+                    raise ValueError(f"Embedding service not configured. Please check your API keys (OpenAI/Pinecone). Original error: {error_msg}")
+                raise ValueError(f"Failed to generate embeddings: {error_msg}")
             
             vectors_to_upsert = [
                 {
@@ -154,20 +201,73 @@ class IngestionService:
                 for i, (c, e) in enumerate(zip(chunks, embeddings))
             ]
 
-            batch_size = 100
-            for i in range(0, len(vectors_to_upsert), batch_size):
-                await self.vector_service.batch_upsert_vectors(vectors_to_upsert[i:i+batch_size])
+            try:
+                print(f"[INGESTION] Step 5: Upserting {len(vectors_to_upsert)} vectors to Pinecone...")
+                batch_size = 100
+                for i in range(0, len(vectors_to_upsert), batch_size):
+                    batch = vectors_to_upsert[i:i+batch_size]
+                    await self.vector_service.batch_upsert_vectors(batch)
+                    print(f"[INGESTION] Step 5: Upserted batch {i//batch_size + 1}/{(len(vectors_to_upsert) + batch_size - 1)//batch_size}")
+                print(f"[INGESTION] Step 5: All vectors upserted successfully")
+            except Exception as e:
+                error_msg = str(e)
+                if "api key" in error_msg.lower() or "not configured" in error_msg.lower():
+                    raise ValueError(f"Vector database not configured. Please check your Pinecone API key. Original error: {error_msg}")
+                raise ValueError(f"Failed to upsert vectors: {error_msg}")
 
             # 4. Update Database Status
-            source.status = SourceStatus.INDEXED.value
-            source.chunks_count = len(chunks)
-            await self.db.commit()
-
-        except Exception as e:
-            print(f"Background error for {source_id}: {e}")
-            if 'source' in locals() and source:
-                source.status = SourceStatus.ERROR.value
+            try:
+                print(f"[INGESTION] Step 6: Updating database status...")
+                source.status = SourceStatus.INDEXED.value
+                source.chunks_count = len(chunks)
                 await self.db.commit()
+                print(f"[INGESTION] ✅ Successfully processed source {source_id}: {len(chunks)} chunks indexed")
+            except Exception as e:
+                await self.db.rollback()
+                raise ValueError(f"Failed to update database: {str(e)}")
+
+        except ValueError as e:
+            # Re-raise ValueError with clear message
+            error_msg = str(e)
+            print(f"[ERROR] Processing failed for {source_id}: {error_msg}")
+            print(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+            if source:
+                try:
+                    source.status = SourceStatus.ERROR.value
+                    await self.db.commit()
+                    print(f"[ERROR] Updated source {source_id} status to ERROR")
+                except Exception as db_error:
+                    print(f"[ERROR] Failed to update source status: {db_error}")
+            raise  # Re-raise to be caught by background task handler
+            
+        except NameError as e:
+            # Handle missing imports (e.g., pinecone, openai not installed)
+            error_msg = f"Missing required package: {str(e)}. Please install required dependencies."
+            print(f"[ERROR] {error_msg}")
+            print(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+            if source:
+                try:
+                    source.status = SourceStatus.ERROR.value
+                    await self.db.commit()
+                except Exception as db_error:
+                    print(f"[ERROR] Failed to update source status: {db_error}")
+            raise ValueError(error_msg)
+            
+        except Exception as e:
+            # Catch-all for unexpected errors
+            error_msg = f"Unexpected error during processing: {type(e).__name__}: {str(e)}"
+            print(f"[ERROR] {error_msg}")
+            print(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+            
+            if source:
+                try:
+                    source.status = SourceStatus.ERROR.value
+                    await self.db.commit()
+                except Exception as db_error:
+                    print(f"[ERROR] Failed to update source status: {db_error}")
+            
+            # Re-raise as ValueError with user-friendly message
+            raise ValueError(error_msg)
 
     async def list_sources(self) -> List[dict]:
         tenant_uuid = uuid.UUID(self.tenant_id)

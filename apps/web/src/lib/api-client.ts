@@ -34,10 +34,9 @@ class ApiClient {
   constructor(
     baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
   ) {
-    console.log(`[🌐 API DEBUG] Initializing API client with base URL: ${baseURL}`);
     this.client = axios.create({
       baseURL,
-      timeout: 30000, // 30 second timeout to prevent hanging requests
+      timeout: 10000, // 10 second timeout for most requests (reduced from 30s)
       // Don't set default Content-Type - let axios set it based on data type
     });
 
@@ -62,41 +61,24 @@ class ApiClient {
           delete headers['Content-Type'];
         }
 
-        // 🔐 Auth token - refresh if needed (but respect circuit breaker)
         if (!this.circuitBreakerOpen && !this.latestToken && this.getTokenFunc) {
-          // Try to get token if we don't have one
           try {
-            await this.refreshToken(true); // Force refresh
+            await this.refreshToken(true);
           } catch (e) {
-            console.log(`[🌐 API DEBUG] ⚠️ Could not refresh token: ${e}`);
+            // Ignore token refresh errors
           }
         }
 
         if (this.circuitBreakerOpen) {
           delete headers['Authorization'];
-          console.log(`[🌐 API DEBUG] 📤 ${method} ${url}`);
-          console.log(`[🌐 API DEBUG]   ⚠️ Circuit breaker open - skipping auth (user needs to sign in)`);
         } else if (this.latestToken) {
           headers['Authorization'] = `Bearer ${this.latestToken}`;
-          console.log(`[🌐 API DEBUG] 📤 ${method} ${url}`);
-          console.log(`[🌐 API DEBUG]   ✅ Authorization header added (Bearer token)`);
-          // Decode token to show user_id in logs
-          try {
-            const payload = JSON.parse(atob(this.latestToken.split('.')[1]));
-            console.log(`[🌐 API DEBUG]   User ID being sent: ${payload.sub}`);
-          } catch (e) {
-            // Ignore decode errors
-          }
         } else {
           delete headers['Authorization'];
-          console.log(`[🌐 API DEBUG] 📤 ${method} ${url}`);
-          console.log(`[🌐 API DEBUG]   ⚠️ No Authorization header (no token available - user may not be signed in)`);
         }
 
-        // 🏢 Tenant ID
         const tenantId = getTenantIdFromCookie();
         headers['x-tenant-id'] = tenantId;
-        console.log(`[🌐 API DEBUG]   Tenant ID: ${tenantId}`);
 
         return config;
       }
@@ -106,64 +88,41 @@ class ApiClient {
     // Response Interceptor
     // ------------------------
     this.client.interceptors.response.use(
-      (res) => {
-        const url = res.config.url || 'unknown';
-        const method = res.config.method?.toUpperCase() || 'UNKNOWN';
-        console.log(`[🌐 API DEBUG] ✅ ${method} ${url} - Status: ${res.status}`);
-        return res;
-      },
+      (res) => res,
       async (error) => {
         const originalRequest = error.config;
-        const url = originalRequest?.url || 'unknown';
-        const method = originalRequest?.method?.toUpperCase() || 'UNKNOWN';
         const status = error.response?.status;
 
-        if (status) {
-          console.log(`[🌐 API DEBUG] ❌ ${method} ${url} - Status: ${status}`);
-          if (status === 401) {
-            console.log(`[🌐 API DEBUG]   ⚠️ 401 Unauthorized - Token might be invalid or expired`);
-          }
-        } else {
-          console.log(`[🌐 API DEBUG] ❌ ${method} ${url} - Network error`);
+        if (!status) {
           if (error.code === 'ECONNABORTED') {
-            console.error(`[🌐 API DEBUG] ⚠️ Request timed out. Is the backend server running at ${this.client.defaults.baseURL}?`);
+            console.error(`Request timed out. Is the backend server running at ${this.client.defaults.baseURL}?`);
           } else if (error.code === 'ECONNREFUSED') {
-            console.error(`[🌐 API DEBUG] ⚠️ Connection refused. Backend server is not running at ${this.client.defaults.baseURL}`);
-          } else {
-            console.error(`[🌐 API DEBUG] ⚠️ Network error: ${error.message}`);
+            console.error(`Connection refused. Backend server is not running at ${this.client.defaults.baseURL}`);
           }
         }
 
         if (error.response?.status === 401 && !originalRequest._retry) {
           this.authFailureCount++;
-          console.log(`[🌐 API DEBUG]   Authentication failure count: ${this.authFailureCount}/${this.maxAuthFailures}`);
 
-          // Open circuit breaker after too many failures
           if (this.authFailureCount >= this.maxAuthFailures) {
             this.circuitBreakerOpen = true;
-            console.error(`[🌐 API DEBUG]   ⚠️ Circuit breaker opened after ${this.authFailureCount} auth failures`);
-            console.error(`[🌐 API DEBUG]   Please sign in to continue. Circuit breaker will reset on next successful auth.`);
-            // Don't retry, just reject
+            console.error(`Circuit breaker opened after ${this.authFailureCount} auth failures. Please sign in.`);
             return Promise.reject(new Error('Authentication required. Please sign in.'));
           }
 
           originalRequest._retry = true;
 
           try {
-            console.log(`[🌐 API DEBUG]   Attempting token refresh...`);
             await this.refreshToken();
 
             if (this.latestToken) {
-              // Reset failure count on successful token refresh
               this.authFailureCount = 0;
               this.circuitBreakerOpen = false;
-              originalRequest.headers['Authorization'] =
-                `Bearer ${this.latestToken}`;
-              console.log(`[🌐 API DEBUG]   Retrying request with new token...`);
+              originalRequest.headers['Authorization'] = `Bearer ${this.latestToken}`;
               return this.client(originalRequest);
             }
           } catch (err) {
-            console.error('[🌐 API DEBUG] ❌ Token refresh failed', err);
+            console.error('Token refresh failed', err);
           }
 
           // If we get here, token refresh failed - don't retry if circuit breaker is open
@@ -178,7 +137,6 @@ class ApiClient {
   }
 
   setTokenGetter(getTokenFunc: TokenGetter) {
-    console.log('[🌐 API DEBUG] Token getter registered with API client');
     this.getTokenFunc = getTokenFunc;
     this.refreshToken();
   }
@@ -220,55 +178,44 @@ class ApiClient {
    */
   async refreshToken(force: boolean = false): Promise<void> {
     if (!this.getTokenFunc) {
-      console.log('[🌐 API DEBUG] ⚠️ No token getter registered');
       return;
     }
 
-    // If token is still valid and not forcing refresh, skip
     if (!force && !this.isTokenExpired()) {
       return;
     }
 
-    // If a refresh is already in progress, wait for it
     if (this.refreshPromise) {
       return this.refreshPromise;
     }
 
-    // Create new refresh promise
     this.refreshPromise = (async () => {
       try {
-        console.log('[🌐 API DEBUG] Refreshing token...');
-        const token = await this.getTokenFunc!();
+        const tokenPromise = this.getTokenFunc!();
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          setTimeout(() => reject(new Error('Token refresh timeout')), 3000);
+        });
+        
+        const token = await Promise.race([tokenPromise, timeoutPromise]);
         
         if (token) {
           this.latestToken = token;
           this.tokenExpiry = this.getTokenExpiry(token);
-          // Reset circuit breaker on successful token fetch
           this.authFailureCount = 0;
           this.circuitBreakerOpen = false;
-          console.log('[🌐 API DEBUG] ✅ Token refreshed successfully');
-          
-          // Decode token to show user_id (for debugging)
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            console.log('[🌐 API DEBUG]   User ID from token:', payload.sub);
-            if (this.tokenExpiry) {
-              const expiresIn = Math.floor((this.tokenExpiry - Date.now()) / 1000);
-              console.log(`[🌐 API DEBUG]   Token expires in: ${expiresIn}s`);
-            }
-          } catch (e) {
-            // Ignore decode errors
-          }
         } else {
           this.latestToken = null;
           this.tokenExpiry = null;
-          console.log('[🌐 API DEBUG] ⚠️ Token is null (user might not be signed in)');
         }
-      } catch (err) {
-        console.error('[🌐 API DEBUG] ❌ Failed to refresh token:', err);
+      } catch (error: any) {
+        console.error('[🌐 API DEBUG] ❌ Token refresh failed:', error?.message || error);
         this.latestToken = null;
         this.tokenExpiry = null;
-        throw err;
+        // Don't open circuit breaker on token refresh failure - user might not be signed in
+        // But log if it's a timeout
+        if (error?.message?.includes('timeout')) {
+          console.error('[🌐 API DEBUG] ⚠️ Token refresh timed out - token getter may be hanging');
+        }
       } finally {
         // Clear the refresh promise so future calls can refresh again
         this.refreshPromise = null;
@@ -327,105 +274,299 @@ class ApiClient {
     activeSourceIds: string[],
     onChunk: (text: string) => void,
     onCitation: (citation: any) => void,
-    onDone: () => void
+    onDone: () => void,
+    onError?: (error: string) => void
   ) {
     await this.refreshToken();
 
     const tenantId = getTenantIdFromCookie();
-    const hasToken = !!this.latestToken;
-
-    console.log('[🌐 API DEBUG] 📤 POST /api/v1/chat/stream');
-    console.log(`[🌐 API DEBUG]   Tenant ID: ${tenantId}`);
-    if (hasToken) {
-      console.log(`[🌐 API DEBUG]   ✅ Authorization header will be included`);
-      try {
-        const payload = JSON.parse(atob(this.latestToken!.split('.')[1]));
-        console.log(`[🌐 API DEBUG]   User ID being sent: ${payload.sub}`);
-      } catch (e) {
-        // Ignore decode errors
-      }
-    } else {
-      console.log(`[🌐 API DEBUG]   ⚠️ No Authorization header (no token)`);
-    }
-
     let retryCount = 0;
-    const maxRetries = 1;
+    const maxRetries = 3; // Increased retries for network resilience
+    const retryableStatuses = [408, 429, 500, 502, 503, 504]; // Retryable HTTP statuses
+    const retryDelay = (attempt: number) => Math.min(1000 * Math.pow(2, attempt), 10000); // Exponential backoff
 
     while (retryCount <= maxRetries) {
-      const response = await fetch(
-        `${this.client.defaults.baseURL}/api/v1/chat/stream`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-tenant-id': tenantId,
-            ...(this.latestToken
-              ? { Authorization: `Bearer ${this.latestToken}` }
-              : {}),
-          },
-          body: JSON.stringify({
-            message,
-            history,
-            active_source_ids: activeSourceIds,
-          }),
-        }
-      );
+      let reader: ReadableStreamDefaultReader<Uint8Array> | null | undefined = null;
+      let hasReceivedData = false;
+      let accumulatedText = '';
 
-      // Handle 401 Unauthorized - try refreshing token and retry once
-      if (response.status === 401 && retryCount < maxRetries) {
-        console.log('[🌐 API DEBUG]   ⚠️ 401 Unauthorized - Attempting token refresh...');
-        try {
-          await this.refreshToken(true); // Force refresh
-          retryCount++;
-          continue; // Retry the request
-        } catch (err) {
-          console.error('[🌐 API DEBUG] ❌ Token refresh failed', err);
-          if (this.logoutFunc) {
-            await this.logoutFunc();
+      try {
+        // Create AbortController for timeout handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+        }, 120000); // 2 minute timeout for streaming
+
+        const response = await fetch(
+          `${this.client.defaults.baseURL}/api/v1/chat/stream`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-tenant-id': tenantId,
+              ...(this.latestToken
+                ? { Authorization: `Bearer ${this.latestToken}` }
+                : {}),
+            },
+            body: JSON.stringify({
+              message,
+              history,
+              active_source_ids: activeSourceIds,
+            }),
+            signal: controller.signal,
           }
-          throw new Error('Authentication failed. Please sign in again.');
-        }
-      }
+        );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.detail || `Chat request failed with status ${response.status}`;
-        throw new Error(errorMessage);
-      }
+        clearTimeout(timeoutId);
 
-      // Success - stream the response
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('Failed to get response stream');
-      }
-
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-
-          const payload = line.replace('data: ', '').trim();
-          if (!payload) continue;
-
+        // Handle 401 Unauthorized - try refreshing token and retry once
+        if (response.status === 401 && retryCount < maxRetries) {
           try {
-            const data = JSON.parse(payload);
-            if (data.event === 'chunk') onChunk(data.data.text);
-            if (data.event === 'citation') onCitation(data.data);
-            if (data.event === 'done') {
-              onDone();
+            await this.refreshToken(true); // Force refresh
+            retryCount++;
+            // Small delay before retry
+            await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
+            continue; // Retry the request
+          } catch (err) {
+            console.error('[🌐 API DEBUG] ❌ Token refresh failed', err);
+            const errorMsg = 'Authentication failed. Please sign in again.';
+            if (onError) {
+              onError(errorMsg);
+            }
+            if (this.logoutFunc) {
+              await this.logoutFunc();
+            }
+            throw new Error(errorMsg);
+          }
+        }
+
+        // Handle retryable errors
+if (!response.ok && retryableStatuses.includes(response.status) && retryCount < maxRetries) {
+  // Read as text first to avoid crashing if the response isn't JSON
+  const errorText = await response.text().catch(() => "");
+  let errorMessage = `Server error (${response.status})`;
+
+  try {
+    const errorData = JSON.parse(errorText);
+    errorMessage = errorData.detail || errorData.message || errorMessage;
+  } catch (e) {
+    // If not JSON, use the first few characters of the text if available
+    if (errorText.length > 0) {
+      errorMessage = errorText.slice(0, 100); 
+    }
+  }
+
+  // Retrying...
+  
+  retryCount++;
+  // Task F: Exponential backoff delay before the next loop iteration
+  await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
+  continue; 
+}
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.detail || `Chat request failed with status ${response.status}`;
+          if (onError) {
+            onError(errorMessage);
+          }
+          throw new Error(errorMessage);
+        }
+
+        // Success - stream the response
+        reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('Failed to get response stream');
+        }
+
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          let readResult;
+          try {
+            readResult = await reader.read();
+          } catch (readError: any) {
+            // Handle network disconnection during streaming
+            if (readError.name === 'AbortError' || readError.name === 'NetworkError' || readError.message?.includes('network')) {
+              console.error('[🌐 API DEBUG] Network error during streaming:', readError);
+              
+              // If we've received some data, try to recover
+              if (hasReceivedData && retryCount < maxRetries) {
+                retryCount++;
+                await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
+                break; // Break inner loop to retry
+              } else {
+                const errorMsg = 'Network connection lost. Please check your internet connection and try again.';
+                if (onError) {
+                  onError(errorMsg);
+                }
+                throw new Error(errorMsg);
+              }
+            }
+            throw readError;
+          }
+
+          const { done, value } = readResult;
+          
+          if (done) {
+            // Handle empty response edge case
+            if (!hasReceivedData && accumulatedText === '') {
+              if (onError) {
+                onError('Received empty response from server. Please try again.');
+              } else {
+                throw new Error('Received empty response from server. Please try again.');
+              }
               return;
             }
-          } catch (e) {
-            console.error('[🌐 API DEBUG] Error parsing SSE data:', e);
-            // Continue processing other lines
+            break;
+          }
+
+          hasReceivedData = true;
+          
+          // Decode chunk (handle partial UTF-8 sequences)
+          try {
+            buffer += decoder.decode(value, { stream: true });
+          } catch (decodeError) {
+            console.error('[🌐 API DEBUG] Error decoding chunk:', decodeError);
+            // Continue processing - try to decode remaining buffer
+            try {
+              buffer += decoder.decode(new Uint8Array(0), { stream: false });
+            } catch (e) {
+              // If still fails, skip this chunk
+              buffer = '';
+            }
+            continue;
+          }
+
+          // Process complete lines
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+
+            // Handle SSE format: "event: type\ndata: payload\n\n"
+            if (line.startsWith('event: ')) {
+              // Event type line - next line should be data
+              continue;
+            }
+
+            if (!line.startsWith('data: ')) {
+              // Skip non-data lines
+              continue;
+            }
+
+            const payload = line.replace('data: ', '').trim();
+            if (!payload || payload === '[DONE]') {
+              continue;
+            }
+
+            try {
+              const data = JSON.parse(payload);
+              
+              // Handle error events from server
+              if (data.event === 'error') {
+                const errorMsg = data.data?.error || 'An error occurred during streaming';
+                console.error('[🌐 API DEBUG] Server sent error event:', errorMsg);
+                if (onError) {
+                  onError(errorMsg);
+                } else {
+                  throw new Error(errorMsg);
+                }
+                return;
+              }
+
+              // Handle chunk events
+              if (data.event === 'chunk' && data.data?.text) {
+                const text = data.data.text;
+                accumulatedText += text;
+                onChunk(text);
+              }
+
+              // Handle citation events
+              if (data.event === 'citation' && data.data) {
+                onCitation(data.data);
+              }
+
+              // Handle done event
+              if (data.event === 'done') {
+                // Verify we received content (edge case: done without chunks)
+                if (accumulatedText === '' && !hasReceivedData) {
+                  if (onError) {
+                    onError('Stream completed but no content was received. Please try again.');
+                  }
+                }
+                onDone();
+                return;
+              }
+            } catch (parseError: any) {
+              // Edge case: malformed JSON - log but continue processing
+              console.error('[🌐 API DEBUG] Error parsing SSE data:', parseError, 'Line:', line);
+              // Continue processing other lines - don't break the stream
+            }
           }
         }
+
+        // If we exit the loop normally (not via return), check if we need to retry
+        if (reader && !hasReceivedData && retryCount < maxRetries) {
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
+          continue; // Retry
+        }
+
+        // Successfully completed
+        return;
+
+      } catch (error: any) {
+        // Clean up reader if it exists
+        if (reader) {
+          try {
+            await reader.cancel();
+          } catch (cancelError) {
+            // Ignore cancel errors
+          }
+        }
+
+        // Handle network errors with retry
+        const isNetworkError = 
+          error.name === 'TypeError' && error.message?.includes('fetch') ||
+          error.name === 'NetworkError' ||
+          error.message?.includes('network') ||
+          error.message?.includes('Failed to fetch') ||
+          error.message?.includes('Network request failed');
+
+        if (isNetworkError && retryCount < maxRetries) {
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
+          continue; // Retry
+        }
+
+        // Handle timeout errors
+        if (error.name === 'AbortError' && retryCount < maxRetries) {
+          retryCount++;
+          await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
+          continue; // Retry
+        }
+
+        // All retries exhausted or non-retryable error
+        const errorMessage = error.message || 'An unexpected error occurred during streaming';
+        console.error('[🌐 API DEBUG] Streaming error:', errorMessage);
+        if (onError) {
+          onError(errorMessage);
+        } else {
+          throw error;
+        }
+        return;
       }
-      return; // Successfully completed
+    }
+
+    // If we've exhausted all retries
+    const finalError = 'Failed to connect after multiple attempts. Please check your connection and try again.';
+    if (onError) {
+      onError(finalError);
+    } else {
+      throw new Error(finalError);
     }
   }
 
@@ -454,13 +595,85 @@ class ApiClient {
 
   async listNotes() {
     await this.refreshToken();
-    const res = await this.client.get('/api/v1/notes');
+    const res = await this.client.get('/api/v1/notes', {
+      timeout: 5000, // 5 second timeout for simple GET requests
+    });
     return res.data.notes ?? [];
   }
 
   async deleteNote(noteId: string) {
     await this.refreshToken();
     await this.client.delete(`/api/v1/notes/${noteId}`);
+  }
+
+  // Task C: Chat History Methods
+
+  async createChat(title?: string) {
+    await this.refreshToken();
+    const res = await this.client.post('/api/v1/chat', {
+      title: title || null,
+    });
+    return res.data;
+  }
+
+  async listChats(limit: number = 50, offset: number = 0) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/chat', {
+      params: { limit, offset },
+      timeout: 5000, // 5 second timeout for simple GET requests
+    });
+    return res.data;
+  }
+
+  async getChat(chatId: string) {
+    await this.refreshToken();
+    const res = await this.client.get(`/api/v1/chat/${chatId}`, {
+      timeout: 30000, // 30 second timeout - may have many messages to load
+    });
+    return res.data;
+  }
+
+  async updateChatTitle(chatId: string, title: string) {
+    await this.refreshToken();
+    const res = await this.client.patch(`/api/v1/chat/${chatId}`, {
+      title,
+    });
+    return res.data;
+  }
+
+  async deleteChat(chatId: string) {
+    await this.refreshToken();
+    // Use longer timeout for delete operations (30 seconds) in case there are many messages to cascade delete
+    const res = await this.client.delete(`/api/v1/chat/${chatId}`, {
+      timeout: 30000, // 30 seconds
+    });
+    return res.data;
+  }
+
+  async addMessageToChat(
+    chatId: string,
+    role: 'user' | 'assistant',
+    content: string,
+    citations?: any[]
+  ) {
+    await this.refreshToken();
+    const res = await this.client.post(`/api/v1/chat/${chatId}/messages`, {
+      role,
+      content,
+      citations: citations || [],
+    });
+    return res.data;
+  }
+
+  async updateMessageFeedback(
+    messageId: string,
+    feedback: 'thumbs_up' | 'thumbs_down' | null
+  ) {
+    await this.refreshToken();
+    const res = await this.client.patch(`/api/v1/chat/messages/${messageId}/feedback`, {
+      feedback,
+    });
+    return res.data;
   }
 }
 

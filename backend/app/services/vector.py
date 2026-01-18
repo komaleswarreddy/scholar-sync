@@ -6,8 +6,19 @@ All operations are tenant-scoped using namespaces.
 """
 
 from typing import List, Dict, Any, Optional
-# from pinecone import Pinecone, ServerlessSpec
-# import openai
+
+try:
+    from pinecone import Pinecone, ServerlessSpec
+except ImportError:
+    Pinecone = None
+    ServerlessSpec = None
+    print("[WARNING] Pinecone package not installed. Install with: pip install pinecone-client")
+
+try:
+    import openai
+except ImportError:
+    openai = None
+    print("[WARNING] OpenAI package not installed. Install with: pip install openai")
 
 from app.core.config import settings
 
@@ -19,6 +30,8 @@ def get_pinecone_index():
     """Lazy initialization of Pinecone index."""
     global _pc, _index
     if _index is None:
+        if Pinecone is None:
+            raise ValueError("Pinecone package not installed. Please install with: pip install pinecone-client")
         if not settings.PINECONE_API_KEY or settings.PINECONE_API_KEY == "your-pinecone-api-key":
             raise ValueError("Pinecone API key not configured. Please set PINECONE_API_KEY in .env")
         _pc = Pinecone(api_key=settings.PINECONE_API_KEY)
@@ -44,6 +57,8 @@ class VectorService:
     def openai_client(self):
         """Lazy initialization of OpenAI client."""
         if self._openai_client is None:
+            if openai is None:
+                raise ValueError("OpenAI package not installed. Please install with: pip install openai")
             if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "your-openai-api-key":
                 raise ValueError("OpenAI API key not configured. Please set OPENAI_API_KEY in .env")
             self._openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)

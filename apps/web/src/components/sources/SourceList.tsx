@@ -254,7 +254,10 @@ export function SourceList() {
                         </span>
                       )}
                       {source.status === 'error' && (
-                        <span className="text-[9px] font-bold uppercase bg-red-50 text-red-600 px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <span 
+                          className="text-[9px] font-bold uppercase bg-red-50 text-red-600 px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help"
+                          title="Processing failed. Check backend logs for details. Common causes: Missing API keys (OpenAI/Pinecone), Storage configuration issues, or file format problems."
+                        >
                           <AlertCircle className="w-2.5 h-2.5" /> error
                         </span>
                       )}

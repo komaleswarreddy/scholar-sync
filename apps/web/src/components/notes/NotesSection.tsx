@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { NoteItem } from './NoteItem';
@@ -25,12 +25,7 @@ export function NotesSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load notes on mount
-  useEffect(() => {
-    loadNotes();
-  }, []);
-
-  const loadNotes = async () => {
+  const loadNotes = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -47,13 +42,39 @@ export function NotesSection() {
       }));
       setNotes(transformedNotes);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || err.message || 'Failed to load notes';
+      let errorMessage = 'Failed to load notes';
+      
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        errorMessage = 'Request timed out. Please check if the backend server is running.';
+      } else if (err.code === 'ECONNREFUSED' || err.message?.includes('Failed to fetch')) {
+        errorMessage = 'Cannot connect to server. Please check if the backend is running.';
+      } else {
+        errorMessage = err.response?.data?.detail || err.message || 'Failed to load notes';
+      }
+      
       setError(errorMessage);
       console.error('Error loading notes:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load notes on mount
+  useEffect(() => {
+    loadNotes();
+  }, [loadNotes]);
+
+  // Listen for note creation events from other components (e.g., ChatMessage)
+  useEffect(() => {
+    const handleNoteCreated = () => {
+      loadNotes();
+    };
+
+    window.addEventListener('noteCreated', handleNoteCreated);
+    return () => {
+      window.removeEventListener('noteCreated', handleNoteCreated);
+    };
+  }, [loadNotes]);
 
   const handleCreateNote = async () => {
     const content = prompt('Enter note content:');

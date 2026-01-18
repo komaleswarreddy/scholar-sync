@@ -94,6 +94,13 @@ async def health():
 async def root():
     return {"message": "ScholarSync API running"}
 
+# ---------------- Favicon ----------------
+@app.get("/favicon.ico")
+async def favicon():
+    """Handle favicon requests - return 204 No Content (standard for missing favicon)"""
+    from fastapi.responses import Response
+    return Response(status_code=204)
+
 # ---------------- Debug: Show Current User (Development Only) ----------------
 @app.get("/api/v1/debug/user")
 async def debug_user(request: Request):

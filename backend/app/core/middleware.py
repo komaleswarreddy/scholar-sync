@@ -32,7 +32,7 @@ def add_cors_headers(response: JSONResponse, origin: str = None) -> JSONResponse
  
 # Configuration for Development
 DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
-EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc"}
+EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc", "/favicon.ico"}
 
 class TenantAuthMiddleware:
     def __init__(self, app: ASGIApp):
