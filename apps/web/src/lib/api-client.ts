@@ -606,6 +606,20 @@ if (!response.ok && retryableStatuses.includes(response.status) && retryCount < 
     await this.client.delete(`/api/v1/notes/${noteId}`);
   }
 
+  async updateNote(noteId: string, content: string) {
+    await this.refreshToken();
+    const res = await this.client.put(`/api/v1/notes/${noteId}`, {
+      content,
+    });
+    return res.data;
+  }
+
+  async getNote(noteId: string) {
+    await this.refreshToken();
+    const res = await this.client.get(`/api/v1/notes/${noteId}`);
+    return res.data;
+  }
+
   // Task C: Chat History Methods
 
   async createChat(title?: string) {

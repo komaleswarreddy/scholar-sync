@@ -234,8 +234,9 @@ class IngestionService:
             if source:
                 try:
                     source.status = SourceStatus.ERROR.value
+                    source.error_message = error_msg
                     await self.db.commit()
-                    print(f"[ERROR] Updated source {source_id} status to ERROR")
+                    print(f"[ERROR] Updated source {source_id} status to ERROR with message: {error_msg}")
                 except Exception as db_error:
                     print(f"[ERROR] Failed to update source status: {db_error}")
             raise  # Re-raise to be caught by background task handler
@@ -248,6 +249,7 @@ class IngestionService:
             if source:
                 try:
                     source.status = SourceStatus.ERROR.value
+                    source.error_message = error_msg
                     await self.db.commit()
                 except Exception as db_error:
                     print(f"[ERROR] Failed to update source status: {db_error}")
@@ -262,6 +264,7 @@ class IngestionService:
             if source:
                 try:
                     source.status = SourceStatus.ERROR.value
+                    source.error_message = error_msg
                     await self.db.commit()
                 except Exception as db_error:
                     print(f"[ERROR] Failed to update source status: {db_error}")
@@ -289,6 +292,7 @@ class IngestionService:
                 "type": s.type,
                 "status": s.status,
                 "chunks_count": s.chunks_count,
+                "error_message": s.error_message,
                 "created_at": s.created_at.isoformat() if s.created_at else None,
                 "s3_url": url,
             })
@@ -326,12 +330,47 @@ class IngestionService:
 
     async def _extract_text(self, file_content: bytes, content_type: str) -> str:
         if content_type == "application/pdf":
-            pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
-            text = ""
-            for page in pdf_reader.pages:
-                text += page.extract_text() or ""
-            return text
+            try:
+                pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
+                
+                # Check if PDF is encrypted
+                if pdf_reader.is_encrypted:
+                    raise ValueError("PDF is password-protected or encrypted. Please remove password protection and try again.")
+                
+                text = ""
+                for page_num, page in enumerate(pdf_reader.pages):
+                    try:
+                        page_text = page.extract_text() or ""
+                        text += page_text
+                    except Exception as page_error:
+                        # Log page extraction error but continue with other pages
+                        print(f"[WARNING] Failed to extract text from page {page_num + 1}: {str(page_error)}")
+                        continue
+                
+                if not text or not text.strip():
+                    raise ValueError("PDF contains no extractable text. This may be a scanned image PDF. Please use OCR to extract text first.")
+                
+                return text
+            except ValueError:
+                # Re-raise ValueError (our custom errors)
+                raise
+            except Exception as e:
+                error_type = type(e).__name__
+                error_msg = str(e)
+                
+                # Handle specific pypdf errors
+                if "encrypted" in error_msg.lower() or "password" in error_msg.lower():
+                    raise ValueError("PDF is password-protected or encrypted. Please remove password protection and try again.")
+                elif "corrupted" in error_msg.lower() or "invalid" in error_msg.lower() or "read" in error_msg.lower():
+                    raise ValueError(f"PDF file appears to be corrupted or invalid: {error_msg}")
+                elif error_type in ["PdfReadError", "PdfStreamError", "PdfParseError"]:
+                    raise ValueError(f"PDF parsing error: {error_msg}")
+                else:
+                    raise ValueError(f"Failed to extract text from PDF ({error_type}): {error_msg}")
         elif content_type == "text/plain":
-            return file_content.decode("utf-8")
+            try:
+                return file_content.decode("utf-8")
+            except UnicodeDecodeError as e:
+                raise ValueError(f"Failed to decode text file. File may not be UTF-8 encoded: {str(e)}")
         else:
             raise ValueError(f"Unsupported file type: {content_type}")

@@ -13,6 +13,7 @@ class SourceResponse(BaseModel):
     title: str
     status: str = Field(..., description="Status: 'indexed', 'processing', 'error'")
     chunks_count: int = Field(default=0, description="Number of chunks created")
+    error_message: Optional[str] = Field(default=None, description="Error message if status is 'error'")
     created_at: datetime
     
     @field_validator('chunks_count', mode='before')
@@ -35,6 +36,8 @@ class SourceItem(BaseModel):
     created_at: Optional[str] = None  # ISO format string
     s3_url: Optional[str] = None
     status: Optional[str] = Field(default="indexed", description="Status: 'indexed', 'processing', 'error'")
+    chunks_count: Optional[int] = Field(default=0, description="Number of chunks created")
+    error_message: Optional[str] = Field(default=None, description="Error message if status is 'error'")
 
 
 class SourceListResponse(BaseModel):

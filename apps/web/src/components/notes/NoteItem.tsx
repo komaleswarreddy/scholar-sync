@@ -1,57 +1,92 @@
 /**
  * Note Item Component
  * 
- * Individual note display item.
- * Uses placeholder data until API keys are added.
+ * Individual note display item with edit and delete functionality.
  */
 
-import { FileText, Trash2 } from 'lucide-react';
+import { FileText, Trash2, Edit2, Link as LinkIcon } from 'lucide-react';
 
 interface NoteItemProps {
   id: string;
   title: string;
   content: string;
+  sourceRefId?: string;
   sourceCount?: number;
   createdAt: string;
   isNew?: boolean;
   onDelete?: (id: string) => void;
+  onEdit?: (id: string) => void;
 }
 
 export function NoteItem({ 
   id, 
   title, 
   content, 
+  sourceRefId,
   sourceCount = 0, 
   createdAt, 
   isNew = false,
-  onDelete 
+  onDelete,
+  onEdit
 }: NoteItemProps) {
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onDelete) {
       onDelete(id);
-    } else {
-      // TODO: Replace with real API call when API keys are added
-      alert('Note deletion will be available once API keys are configured');
     }
   };
 
-  const formatTimeAgo = (date: string) => {
-    const now = new Date();
-    const noteDate = new Date(date);
-    const diffMs = now.getTime() - noteDate.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(id);
+    }
+  };
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return noteDate.toLocaleDateString();
+  const handleClick = () => {
+    if (onEdit) {
+      onEdit(id);
+    }
+  };
+
+  const formatDate = (date: string) => {
+    if (!date) {
+      return 'Unknown date';
+    }
+    
+    const noteDate = new Date(date);
+    
+    if (isNaN(noteDate.getTime())) {
+      console.warn('[NoteItem] Invalid date received:', date);
+      return 'Unknown date';
+    }
+    
+    // Match the format used in SourceList: "Jan 15"
+    return noteDate.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatFullDate = (date: string) => {
+    const noteDate = new Date(date);
+    if (isNaN(noteDate.getTime())) {
+      return 'Unknown date';
+    }
+    return noteDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
-    <div className="group p-3 rounded-2xl bg-surface hover:bg-surface-hover transition-colors cursor-pointer">
+    <div 
+      className="group p-3 rounded-2xl bg-surface hover:bg-surface-hover transition-colors cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="flex items-start gap-2">
         <FileText className="w-4 h-4 text-text-secondary mt-0.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">
@@ -63,29 +98,55 @@ export function NoteItem({
               {content}
             </p>
           )}
-          <div className="flex items-center gap-2 mt-2">
-            {sourceCount > 0 && (
-              <span className="text-xs text-text-tertiary">
-                {sourceCount} source{sourceCount !== 1 ? 's' : ''}
+          <div className="flex items-center gap-3 mt-2 flex-wrap">
+            {/* Creation Date */}
+            <span 
+              className="text-xs text-text-tertiary"
+              title={formatFullDate(createdAt)}
+            >
+              {formatDate(createdAt)}
+            </span>
+            
+            {/* Source Reference */}
+            {sourceRefId && (
+              <span 
+                className="text-xs text-text-tertiary flex items-center gap-1"
+                title={`Linked to source: ${sourceRefId}`}
+              >
+                <LinkIcon className="w-3 h-3" />
+                Linked source
               </span>
             )}
-            <span className="text-xs text-text-tertiary">
-              {formatTimeAgo(createdAt)}
-            </span>
+            
+            {/* Source Count (if multiple) */}
+            {sourceCount > 1 && (
+              <span className="text-xs text-text-tertiary">
+                {sourceCount} sources
+              </span>
+            )}
           </div>
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete();
-          }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-surface-hover text-text-secondary hover:text-red-400"
-          title="Delete note"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onEdit && (
+            <button
+              onClick={handleEdit}
+              className="p-1 rounded-full hover:bg-surface-hover text-text-secondary hover:text-accent-blue transition-colors"
+              title="Edit note"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              className="p-1 rounded-full hover:bg-surface-hover text-text-secondary hover:text-red-400 transition-colors"
+              title="Delete note"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-

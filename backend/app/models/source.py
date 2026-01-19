@@ -41,6 +41,7 @@ class Source(Base):
         type: Type of source (PDF, TEXT, URL)
         status: Processing status (processing, indexed, error)
         chunks_count: Number of chunks created
+        error_message: Error message when processing fails (status is 'error')
         created_at: Timestamp of upload
     """
     __tablename__ = "sources"
@@ -52,6 +53,7 @@ class Source(Base):
     type = Column(String, default=SourceType.PDF.value, nullable=False)  # Store as string, use enum in code
     status = Column(String, default=SourceStatus.PROCESSING.value, nullable=False)  # Store as string, use enum in code
     chunks_count = Column(Integer, default=0, nullable=False)
+    error_message = Column(String, nullable=True)  # Error message when status is 'error'
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships

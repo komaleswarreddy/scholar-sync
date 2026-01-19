@@ -24,6 +24,7 @@ interface Source {
   status: 'processing' | 'indexed' | 'error';
   created_at?: string;
   chunks_count?: number;
+  error_message?: string;
 }
 
 export function SourceList() {
@@ -255,8 +256,7 @@ export function SourceList() {
                       )}
                       {source.status === 'error' && (
                         <span 
-                          className="text-[9px] font-bold uppercase bg-red-50 text-red-600 px-1.5 py-0.5 rounded flex items-center gap-1 cursor-help"
-                          title="Processing failed. Check backend logs for details. Common causes: Missing API keys (OpenAI/Pinecone), Storage configuration issues, or file format problems."
+                          className="text-[9px] font-bold uppercase bg-red-50 text-red-600 px-1.5 py-0.5 rounded flex items-center gap-1"
                         >
                           <AlertCircle className="w-2.5 h-2.5" /> error
                         </span>
@@ -266,6 +266,14 @@ export function SourceList() {
                     <p className={`text-sm font-semibold truncate ${isSelected ? 'text-text-primary' : 'text-text-secondary'}`}>
                       {source.title}
                     </p>
+                    
+                    {source.status === 'error' && source.error_message && (
+                      <div className="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200">
+                        <p className="text-[10px] text-red-700 leading-relaxed">
+                          {source.error_message}
+                        </p>
+                      </div>
+                    )}
                     
                     <div className="flex items-center gap-2 mt-1.5">
                         <p className="text-[10px] font-bold text-text-tertiary uppercase">

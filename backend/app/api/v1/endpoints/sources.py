@@ -113,8 +113,9 @@ async def process_upload_background(tenant_id: str, source_id: str, content_type
                 source = result.scalar_one_or_none()
                 if source:
                     source.status = SourceStatus.ERROR.value
+                    source.error_message = error_message
                     await db.commit()
-                    print(f"[ERROR] Updated source {source_id} status to ERROR")
+                    print(f"[ERROR] Updated source {source_id} status to ERROR with message: {error_message}")
         except Exception as db_error:
             print(f"[ERROR] Failed to update source status: {db_error}")
             print(traceback.format_exc())
@@ -144,8 +145,9 @@ async def process_upload_background(tenant_id: str, source_id: str, content_type
                 source = result.scalar_one_or_none()
                 if source:
                     source.status = SourceStatus.ERROR.value
+                    source.error_message = error_message
                     await db.commit()
-                    print(f"[ERROR] Updated source {source_id} status to ERROR")
+                    print(f"[ERROR] Updated source {source_id} status to ERROR with message: {error_message}")
         except Exception as db_error:
             print(f"[ERROR] Failed to update source status: {db_error}")
             print(traceback.format_exc())
