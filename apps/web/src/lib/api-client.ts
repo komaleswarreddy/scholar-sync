@@ -1,8 +1,9 @@
 import axios, {
   AxiosInstance,
   AxiosRequestHeaders,
-  InternalAxiosRequestConfig,
+  InternalAxiosRequestConfig, 
 } from 'axios';
+import { handleApiError, redirectToLogin, getUserFriendlyMessage, ApiError, ErrorType } from './error-handler';
 
 type TokenGetter = () => Promise<string | null>;
 type LogoutFunc = () => Promise<void>;
@@ -18,6 +19,24 @@ function getTenantIdFromCookie(): string {
     .find(row => row.startsWith('tenantId='));
 
   return match ? match.split('=')[1] : 'default';
+}
+
+/**
+ * Extract user ID from JWT token (from 'sub' claim)
+ */
+function extractUserIdFromToken(token: string | null): string | null {
+  if (!token) return null;
+  
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    
+    const payload = JSON.parse(atob(parts[1]));
+    return payload.sub || null;
+  } catch (error) {
+    console.error('[API Client] Failed to extract user ID from token:', error);
+    return null;
+  }
 }
 
 class ApiClient {
@@ -61,6 +80,7 @@ class ApiClient {
           delete headers['Content-Type'];
         }
 
+        // Task B.d: Handle token refresh - refresh if token is missing or expired
         if (!this.circuitBreakerOpen && !this.latestToken && this.getTokenFunc) {
           try {
             await this.refreshToken(true);
@@ -69,16 +89,51 @@ class ApiClient {
           }
         }
 
+        // Task B.c: Ensure all requests include Authorization header when token is available
         if (this.circuitBreakerOpen) {
           delete headers['Authorization'];
         } else if (this.latestToken) {
           headers['Authorization'] = `Bearer ${this.latestToken}`;
         } else {
-          delete headers['Authorization'];
+          // Try to get token if available
+          if (this.getTokenFunc) {
+            try {
+              const token = await this.getTokenFunc();
+              if (token) {
+                this.latestToken = token;
+                this.tokenExpiry = this.getTokenExpiry(token);
+                headers['Authorization'] = `Bearer ${token}`;
+              }
+            } catch (e) {
+              // Ignore token fetch errors
+            }
+          }
         }
 
+        // Task B.a: Ensure all requests include X-Tenant-ID
         const tenantId = getTenantIdFromCookie();
         headers['x-tenant-id'] = tenantId;
+
+        // Task B.b: Ensure all requests include X-User-ID (from Clerk token)
+        const userId = extractUserIdFromToken(this.latestToken);
+        if (userId) {
+          headers['x-user-id'] = userId;
+        } else {
+          // If we don't have a token yet, try to get it to extract user ID
+          if (this.getTokenFunc && !this.latestToken) {
+            try {
+              const token = await this.getTokenFunc();
+              if (token) {
+                const extractedUserId = extractUserIdFromToken(token);
+                if (extractedUserId) {
+                  headers['x-user-id'] = extractedUserId;
+                }
+              }
+            } catch (e) {
+              // Ignore token fetch errors
+            }
+          }
+        }
 
         return config;
       }
@@ -93,21 +148,30 @@ class ApiClient {
         const originalRequest = error.config;
         const status = error.response?.status;
 
-        if (!status) {
-          if (error.code === 'ECONNABORTED') {
-            console.error(`Request timed out. Is the backend server running at ${this.client.defaults.baseURL}?`);
-          } else if (error.code === 'ECONNREFUSED') {
-            console.error(`Connection refused. Backend server is not running at ${this.client.defaults.baseURL}`);
-          }
-        }
-
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Handle 401 Unauthorized - try token refresh, then redirect to login
+        if (status === 401 && !originalRequest._retry) {
           this.authFailureCount++;
 
+          // If we've exceeded max auth failures, redirect to login
           if (this.authFailureCount >= this.maxAuthFailures) {
             this.circuitBreakerOpen = true;
-            console.error(`Circuit breaker opened after ${this.authFailureCount} auth failures. Please sign in.`);
-            return Promise.reject(new Error('Authentication required. Please sign in.'));
+            console.error(`Circuit breaker opened after ${this.authFailureCount} auth failures. Redirecting to login.`);
+            
+            // Redirect to login if logout handler is available
+            if (this.logoutFunc) {
+              try {
+                await this.logoutFunc();
+              } catch (err) {
+                console.error('Logout failed', err);
+              }
+            }
+            
+            // Redirect to login page
+            redirectToLogin();
+            
+            // Create standardized error
+            const apiError = handleApiError(error);
+            return Promise.reject(apiError);
           }
 
           originalRequest._retry = true;
@@ -118,19 +182,47 @@ class ApiClient {
             if (this.latestToken) {
               this.authFailureCount = 0;
               this.circuitBreakerOpen = false;
+              // Task B.c: Update Authorization header with new token
               originalRequest.headers['Authorization'] = `Bearer ${this.latestToken}`;
+              // Task B.b: Update X-User-ID header with user ID from refreshed token
+              const userId = extractUserIdFromToken(this.latestToken);
+              if (userId) {
+                originalRequest.headers['x-user-id'] = userId;
+              }
               return this.client(originalRequest);
             }
           } catch (err) {
-            console.error('Token refresh failed', err);
+            console.error('Token refresh failed:', err);
           }
 
-          // If we get here, token refresh failed - don't retry if circuit breaker is open
+          // If token refresh failed and circuit breaker is open, redirect to login
           if (this.circuitBreakerOpen) {
-            return Promise.reject(new Error('Authentication required. Please sign in.'));
+            if (this.logoutFunc) {
+              try {
+                await this.logoutFunc();
+              } catch (err) {
+                console.error('Logout failed', err);
+              }
+            }
+            redirectToLogin();
+            const apiError = handleApiError(error);
+            return Promise.reject(apiError);
           }
         }
 
+        // Handle all other errors with standardized error handling
+        const apiError = handleApiError(error);
+        
+        // Log error details for debugging
+        if (status) {
+          console.error(`[API Error] ${status}: ${apiError.message}`);
+        } else {
+          console.error(`[API Error] Network: ${apiError.message}`);
+        }
+
+        // Attach the ApiError to the error object for easier access
+        error.apiError = apiError;
+        
         return Promise.reject(error);
       }
     );
@@ -212,10 +304,6 @@ class ApiClient {
         this.latestToken = null;
         this.tokenExpiry = null;
         // Don't open circuit breaker on token refresh failure - user might not be signed in
-        // But log if it's a timeout
-        if (error?.message?.includes('timeout')) {
-          console.error('[🌐 API DEBUG] ⚠️ Token refresh timed out - token getter may be hanging');
-        }
       } finally {
         // Clear the refresh promise so future calls can refresh again
         this.refreshPromise = null;
@@ -297,17 +385,30 @@ class ApiClient {
           controller.abort();
         }, 120000); // 2 minute timeout for streaming
 
+        // Task B.b: Get user ID from token for X-User-ID header
+        const userId = extractUserIdFromToken(this.latestToken);
+        
+        // Build headers with all required headers
+        const fetchHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
+        };
+        
+        // Task B.c: Include Authorization header when token is available
+        if (this.latestToken) {
+          fetchHeaders['Authorization'] = `Bearer ${this.latestToken}`;
+        }
+        
+        // Task B.b: Include X-User-ID header when user ID is available
+        if (userId) {
+          fetchHeaders['x-user-id'] = userId;
+        }
+
         const response = await fetch(
           `${this.client.defaults.baseURL}/api/v1/chat/stream`,
           {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-tenant-id': tenantId,
-              ...(this.latestToken
-                ? { Authorization: `Bearer ${this.latestToken}` }
-                : {}),
-            },
+            headers: fetchHeaders,
             body: JSON.stringify({
               message,
               history,
@@ -328,45 +429,84 @@ class ApiClient {
             await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
             continue; // Retry the request
           } catch (err) {
-            console.error('[🌐 API DEBUG] ❌ Token refresh failed', err);
-            const errorMsg = 'Authentication failed. Please sign in again.';
+            // Use standardized error handling
+            const mockError = { response: { status: 401, data: {} } };
+            const apiError = handleApiError(mockError);
+            const errorMsg = getUserFriendlyMessage(apiError);
+            
             if (onError) {
               onError(errorMsg);
             }
             if (this.logoutFunc) {
               await this.logoutFunc();
             }
+            redirectToLogin();
             throw new Error(errorMsg);
           }
         }
 
-        // Handle retryable errors
-if (!response.ok && retryableStatuses.includes(response.status) && retryCount < maxRetries) {
-  // Read as text first to avoid crashing if the response isn't JSON
-  const errorText = await response.text().catch(() => "");
-  let errorMessage = `Server error (${response.status})`;
-
-  try {
-    const errorData = JSON.parse(errorText);
-    errorMessage = errorData.detail || errorData.message || errorMessage;
-  } catch (e) {
-    // If not JSON, use the first few characters of the text if available
-    if (errorText.length > 0) {
-      errorMessage = errorText.slice(0, 100); 
-    }
-  }
-
-  // Retrying...
-  
-  retryCount++;
-  // Task F: Exponential backoff delay before the next loop iteration
-  await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
-  continue; 
-}
-
+        // Handle non-OK responses with standardized error handling
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          const errorMessage = errorData.detail || `Chat request failed with status ${response.status}`;
+          // Read error response
+          const errorText = await response.text().catch(() => "");
+          let errorData: any = {};
+          
+          try {
+            errorData = errorText ? JSON.parse(errorText) : {};
+          } catch (e) {
+            // If not JSON, create a mock error object
+            errorData = { detail: errorText || `Request failed with status ${response.status}` };
+          }
+
+          // Create a mock axios error for error handler
+          const mockError = {
+            response: {
+              status: response.status,
+              data: errorData,
+              headers: response.headers,
+            },
+          };
+
+          const apiError = handleApiError(mockError);
+          const errorMessage = getUserFriendlyMessage(apiError);
+
+          // Handle 403 Forbidden - show appropriate message
+          if (response.status === 403) {
+            if (onError) {
+              onError(errorMessage);
+            }
+            throw new Error(errorMessage);
+          }
+
+          // Handle 429 Rate Limit - show retry message
+          if (response.status === 429) {
+            if (onError) {
+              onError(errorMessage);
+            }
+            // If retryable and haven't exceeded max retries, retry
+            if (retryCount < maxRetries) {
+              retryCount++;
+              const delay = apiError.retryAfter ? apiError.retryAfter * 1000 : retryDelay(retryCount - 1);
+              await new Promise(resolve => setTimeout(resolve, delay));
+              continue;
+            }
+            throw new Error(errorMessage);
+          }
+
+          // Handle 500 Server Error - show user-friendly message
+          if (response.status >= 500) {
+            if (retryCount < maxRetries) {
+              retryCount++;
+              await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
+              continue;
+            }
+            if (onError) {
+              onError(errorMessage);
+            }
+            throw new Error(errorMessage);
+          }
+
+          // Handle other errors
           if (onError) {
             onError(errorMessage);
           }
@@ -428,7 +568,6 @@ if (!response.ok && retryableStatuses.includes(response.status) && retryCount < 
           try {
             buffer += decoder.decode(value, { stream: true });
           } catch (decodeError) {
-            console.error('[🌐 API DEBUG] Error decoding chunk:', decodeError);
             // Continue processing - try to decode remaining buffer
             try {
               buffer += decoder.decode(new Uint8Array(0), { stream: false });
@@ -468,7 +607,6 @@ if (!response.ok && retryableStatuses.includes(response.status) && retryCount < 
               // Handle error events from server
               if (data.event === 'error') {
                 const errorMsg = data.data?.error || 'An error occurred during streaming';
-                console.error('[🌐 API DEBUG] Server sent error event:', errorMsg);
                 if (onError) {
                   onError(errorMsg);
                 } else {
@@ -501,8 +639,7 @@ if (!response.ok && retryableStatuses.includes(response.status) && retryCount < 
                 return;
               }
             } catch (parseError: any) {
-              // Edge case: malformed JSON - log but continue processing
-              console.error('[🌐 API DEBUG] Error parsing SSE data:', parseError, 'Line:', line);
+              // Edge case: malformed JSON - continue processing
               // Continue processing other lines - don't break the stream
             }
           }
@@ -528,41 +665,33 @@ if (!response.ok && retryableStatuses.includes(response.status) && retryCount < 
           }
         }
 
-        // Handle network errors with retry
-        const isNetworkError = 
-          error.name === 'TypeError' && error.message?.includes('fetch') ||
-          error.name === 'NetworkError' ||
-          error.message?.includes('network') ||
-          error.message?.includes('Failed to fetch') ||
-          error.message?.includes('Network request failed');
+        // Use standardized error handling
+        const apiError = handleApiError(error);
+        const errorMessage = getUserFriendlyMessage(apiError);
 
-        if (isNetworkError && retryCount < maxRetries) {
-          retryCount++;
-          await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
-          continue; // Retry
-        }
-
-        // Handle timeout errors
-        if (error.name === 'AbortError' && retryCount < maxRetries) {
+        // Handle network and timeout errors with retry
+        if ((apiError.type === ErrorType.NETWORK || apiError.type === ErrorType.TIMEOUT) && 
+            apiError.retryable && 
+            retryCount < maxRetries) {
           retryCount++;
           await new Promise(resolve => setTimeout(resolve, retryDelay(retryCount - 1)));
           continue; // Retry
         }
 
         // All retries exhausted or non-retryable error
-        const errorMessage = error.message || 'An unexpected error occurred during streaming';
-        console.error('[🌐 API DEBUG] Streaming error:', errorMessage);
         if (onError) {
           onError(errorMessage);
         } else {
-          throw error;
+          throw new Error(errorMessage);
         }
         return;
       }
     }
 
     // If we've exhausted all retries
-    const finalError = 'Failed to connect after multiple attempts. Please check your connection and try again.';
+    const mockError = { response: null, message: 'Failed to connect after multiple attempts' };
+    const apiError = handleApiError(mockError);
+    const finalError = getUserFriendlyMessage(apiError);
     if (onError) {
       onError(finalError);
     } else {

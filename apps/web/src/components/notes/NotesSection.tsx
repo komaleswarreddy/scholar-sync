@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { NoteItem } from './NoteItem';
 import { NoteEditor } from './NoteEditor';
-import { apiClient } from '@/lib/api-client';
+import { useNotes, useCreateNote, useUpdateNote, useDeleteNote } from '@/hooks/useNotes';
+import { useQueryClient } from '@tanstack/react-query';
+import { noteKeys } from '@/hooks/useNotes';
 import { Input } from '../ui/Input';
 
 interface Note {
@@ -26,78 +28,32 @@ interface NoteWithExtras extends Note {
 type ViewMode = 'list' | 'create' | 'edit';
 
 export function NotesSection() {
-  const [notes, setNotes] = useState<NoteWithExtras[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const loadNotes = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await apiClient.listNotes();
-      const transformedNotes = result.map((note: Note) => {
-        // Ensure we have a valid created_at date
-        // Backend should always return created_at, but handle null/undefined cases
-        const createdAt = note.created_at || note.updated_at || new Date().toISOString();
-        
-        // Debug logging to check what we're receiving
-        if (!note.created_at && !note.updated_at) {
-          console.warn('[NotesSection] Note missing created_at and updated_at:', note.id);
-        }
-        
-        return {
-          ...note,
-          title:
-            note.content?.substring(0, 50) +
-            (note.content && note.content.length > 50 ? '...' : '') ||
-            'New Note',
-          sourceCount: note.source_ref_id ? 1 : 0,
-          isNew: false,
-          createdAt: createdAt,
-        };
-      });
-      setNotes(transformedNotes);
-    } catch (err: any) {
-      let errorMessage = 'Failed to load notes';
-      
-      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        errorMessage = 'Request timed out. Please check if the backend server is running.';
-      } else if (err.code === 'ECONNREFUSED' || err.message?.includes('Failed to fetch')) {
-        errorMessage = 'Cannot connect to server. Please check if the backend is running.';
-      } else if (err.response?.status === 401) {
-        errorMessage = 'Authentication required. Please sign in.';
-      } else if (err.response?.status === 403) {
-        errorMessage = 'Access denied. Please check your permissions.';
-      } else {
-        errorMessage = err.response?.data?.detail || err.message || 'Failed to load notes';
-      }
-      
-      setError(errorMessage);
-      console.error('Error loading notes:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Task C.a & C.b: Use TanStack Query for notes with loading states and caching
+  const { data: notes = [], isLoading: loading, error: queryError } = useNotes();
+  const createMutation = useCreateNote();
+  const updateMutation = useUpdateNote();
+  const deleteMutation = useDeleteNote();
+  const queryClient = useQueryClient();
 
-  // Load notes on mount
-  useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+  // Task C.a: Loading state from TanStack Query
+  const error = queryError?.message || null;
 
   // Listen for note creation events from other components (e.g., ChatMessage)
   useEffect(() => {
     const handleNoteCreated = () => {
-      loadNotes();
+      // Invalidate notes query to refetch
+      queryClient.invalidateQueries({ queryKey: noteKeys.list() });
     };
 
     window.addEventListener('noteCreated', handleNoteCreated);
     return () => {
       window.removeEventListener('noteCreated', handleNoteCreated);
     };
-  }, [loadNotes]);
+  }, [queryClient]);
 
   const handleCreateNote = () => {
     setViewMode('create');
@@ -105,37 +61,18 @@ export function NotesSection() {
   };
 
   const handleSaveNote = async (content: string, sourceRefId?: string) => {
-    setLoading(true);
-    setError(null);
     try {
       if (editingNoteId) {
-        // Update existing note
-        await apiClient.updateNote(editingNoteId, content);
+        // Task C.c: Optimistic update handled by TanStack Query
+        await updateMutation.mutateAsync({ noteId: editingNoteId, content });
       } else {
-        // Create new note
-        await apiClient.createNote(content, sourceRefId);
+        await createMutation.mutateAsync({ content, sourceRefId });
       }
-      await loadNotes();
       setViewMode('list');
       setEditingNoteId(null);
     } catch (err: any) {
-      let errorMessage = editingNoteId ? 'Failed to update note' : 'Failed to create note';
-      
-      if (err.response?.status === 400) {
-        errorMessage = 'Invalid note content. Please check your input.';
-      } else if (err.response?.status === 404) {
-        errorMessage = 'Note not found. It may have been deleted.';
-      } else if (err.response?.status === 500) {
-        errorMessage = 'Server error. Please try again later.';
-      } else {
-        errorMessage = err.response?.data?.detail || err.message || errorMessage;
-      }
-      
-      setError(errorMessage);
-      console.error('Error saving note:', err);
-      throw err; // Re-throw to let NoteEditor handle it
-    } finally {
-      setLoading(false);
+      // Error is handled by TanStack Query, but re-throw for NoteEditor
+      throw err;
     }
   };
 
@@ -154,26 +91,12 @@ export function NotesSection() {
     const confirmed = window.confirm('Are you sure you want to delete this note? This action cannot be undone.');
     if (!confirmed) return;
 
-    setLoading(true);
-    setError(null);
     try {
-      await apiClient.deleteNote(id);
-      await loadNotes();
+      // Task C.c: Optimistic update handled by TanStack Query
+      await deleteMutation.mutateAsync(id);
     } catch (err: any) {
-      let errorMessage = 'Failed to delete note';
-      
-      if (err.response?.status === 404) {
-        errorMessage = 'Note not found. It may have already been deleted.';
-      } else if (err.response?.status === 403) {
-        errorMessage = 'You do not have permission to delete this note.';
-      } else {
-        errorMessage = err.response?.data?.detail || err.message || errorMessage;
-      }
-      
-      setError(errorMessage);
+      // Error is handled by TanStack Query
       console.error('Error deleting note:', err);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -10,11 +10,11 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Checkbox } from '../ui/Checkbox';
 import { Button } from '../ui/Button';
 import { FileText, Plus, X, Loader2, AlertCircle, CheckCircle2, Trash2 } from 'lucide-react';
-import { useApi } from '@/hooks/useApi';
+import { useSources, useUploadSource, useDeleteSource } from '@/hooks/useSources';
 import { useSourceContext } from '@/contexts/SourceContext';
 
 interface Source {
@@ -29,8 +29,6 @@ interface Source {
 
 export function SourceList() {
   const { selectedSources, toggleSource, removeSource, clearSelection } = useSourceContext();
-  const [sources, setSources] = useState<Source[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
   
@@ -38,29 +36,15 @@ export function SourceList() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { loading, error: apiError, handleRequest, apiClient } = useApi();
+  
+  // Task C.a & C.b: Use TanStack Query for sources with loading states and caching
+  const { data: sources = [], isLoading, error: apiError } = useSources();
+  const uploadMutation = useUploadSource();
+  const deleteMutation = useDeleteSource();
 
-  useEffect(() => {
-    loadSources();
-    const interval = setInterval(() => {
-        loadSources();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadSources = async () => {
-    try {
-      const result = await handleRequest(() => apiClient.listSources());
-      if (result && Array.isArray(result)) {
-        setSources(result as Source[]);
-      } else {
-        setSources([]);
-      }
-    } catch (error) {
-      console.error('Failed to load sources:', error);
-      setSources([]);
-    }
-  };
+  // Task C.a: Loading state from TanStack Query
+  const loading = isLoading;
+  const isUploading = uploadMutation.isPending;
 
   const handleUpload = () => {
     setLocalError(null);
@@ -96,28 +80,28 @@ export function SourceList() {
       return;
     }
 
-    setIsUploading(true);
     setUploadProgress(0);
     setLocalError(null);
 
     try {
-      const result = await apiClient.uploadSource(file, file.name, (percent) => {
-        setUploadProgress(percent);
+      // Task C.a: Use TanStack Query mutation with loading state
+      await uploadMutation.mutateAsync({
+        file,
+        title: file.name,
+        onProgress: (percent) => {
+          setUploadProgress(percent);
+        },
       });
-
-      if (result) {
-        await loadSources(); 
-        if (fileInputRef.current) fileInputRef.current.value = '';
-      }
+      
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err: any) {
-      setLocalError(err.response?.data?.detail || "Upload failed.");
+      setLocalError(err.message || "Upload failed.");
     } finally {
-      setIsUploading(false);
       setUploadProgress(0);
     }
   };
 
-  // Task E: Optimized Deletion Flow
+  // Task E: Optimized Deletion Flow with TanStack Query
   const handleDelete = async (sourceId: string, e: React.MouseEvent) => {
     e.stopPropagation(); 
     
@@ -132,16 +116,14 @@ export function SourceList() {
     setLocalError(null);
 
     try {
-      const result = await handleRequest(() => apiClient.deleteSource(sourceId));
+      // Task C.c: Optimistic update handled by TanStack Query
+      await deleteMutation.mutateAsync(sourceId);
       
-      if (result !== null) {
-        // Task E.e: Refresh list and clean selection context
-        removeSource(sourceId); 
-        await loadSources();
-      }
+      // Task E.e: Clean selection context
+      removeSource(sourceId);
     } catch (err: any) {
       // Task E.d: Graceful error handling
-      setLocalError(err.response?.data?.detail || "Failed to delete source.");
+      setLocalError(err.message || "Failed to delete source.");
     } finally {
       setDeletingId(null);
     }
