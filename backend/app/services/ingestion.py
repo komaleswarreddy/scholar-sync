@@ -139,30 +139,23 @@ class IngestionService:
                 print(f"[ERROR] Source {source_id} not found in database")
                 return
 
-            print(f"[INGESTION] Starting processing for source {source_id} ({source.title})")
-
             # 1. Extract Text
             try:
-                print(f"[INGESTION] Step 1: Downloading file from storage...")
                 file_content = await self.storage_service.download_file(source.s3_key)
                 if not file_content:
                     raise ValueError("Downloaded file content is empty")
-                print(f"[INGESTION] Step 1: File downloaded, size: {len(file_content)} bytes")
             except Exception as e:
                 raise ValueError(f"Failed to download file from storage: {str(e)}")
 
             try:
-                print(f"[INGESTION] Step 2: Extracting text from {content_type}...")
                 text = await self._extract_text(file_content, content_type)
                 if not text or not text.strip():
                     raise ValueError("Extracted text is empty")
-                print(f"[INGESTION] Step 2: Text extracted, length: {len(text)} characters")
             except Exception as e:
                 raise ValueError(f"Failed to extract text: {str(e)}")
             
             # 2. Chunk Text
             try:
-                print(f"[INGESTION] Step 3: Chunking text...")
                 chunks = self.text_processor.chunk_text(
                     text, 
                     settings.CHUNK_SIZE, 
@@ -170,17 +163,14 @@ class IngestionService:
                 )
                 if not chunks or len(chunks) == 0:
                     raise ValueError("No chunks created from text")
-                print(f"[INGESTION] Step 3: Created {len(chunks)} chunks")
             except Exception as e:
                 raise ValueError(f"Failed to chunk text: {str(e)}")
 
             # 3. Generate Embeddings & Upsert
             try:
-                print(f"[INGESTION] Step 4: Generating embeddings...")
                 embeddings = await self.vector_service.batch_generate_embeddings([c for c in chunks])
                 if not embeddings or len(embeddings) != len(chunks):
                     raise ValueError(f"Embedding count mismatch: {len(embeddings)} embeddings for {len(chunks)} chunks")
-                print(f"[INGESTION] Step 4: Generated {len(embeddings)} embeddings")
             except Exception as e:
                 error_msg = str(e)
                 if "api key" in error_msg.lower() or "not configured" in error_msg.lower():
@@ -202,13 +192,10 @@ class IngestionService:
             ]
 
             try:
-                print(f"[INGESTION] Step 5: Upserting {len(vectors_to_upsert)} vectors to Pinecone...")
                 batch_size = 100
                 for i in range(0, len(vectors_to_upsert), batch_size):
                     batch = vectors_to_upsert[i:i+batch_size]
                     await self.vector_service.batch_upsert_vectors(batch)
-                    print(f"[INGESTION] Step 5: Upserted batch {i//batch_size + 1}/{(len(vectors_to_upsert) + batch_size - 1)//batch_size}")
-                print(f"[INGESTION] Step 5: All vectors upserted successfully")
             except Exception as e:
                 error_msg = str(e)
                 if "api key" in error_msg.lower() or "not configured" in error_msg.lower():
@@ -217,11 +204,10 @@ class IngestionService:
 
             # 4. Update Database Status
             try:
-                print(f"[INGESTION] Step 6: Updating database status...")
                 source.status = SourceStatus.INDEXED.value
                 source.chunks_count = len(chunks)
                 await self.db.commit()
-                print(f"[INGESTION] ✅ Successfully processed source {source_id}: {len(chunks)} chunks indexed")
+                print(f"[INGESTION] Successfully processed source {source_id}: {len(chunks)} chunks indexed")
             except Exception as e:
                 await self.db.rollback()
                 raise ValueError(f"Failed to update database: {str(e)}")

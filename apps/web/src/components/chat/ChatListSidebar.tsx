@@ -8,8 +8,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { MessageCircle, Plus, Trash2, Loader2 } from 'lucide-react';
+import { MessageCircle, Plus, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
+import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 
 interface ChatListItem {
   id: string;
@@ -38,18 +39,35 @@ export function ChatListSidebar({
   const [chats, setChats] = useState<ChatListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { apiClient } = useApi();
 
   // Load chat list
   const loadChats = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const response = await apiClient.listChats(50, 0);
-      if (response && response.chats) {
-        setChats(response.chats);
+      
+      // Handle different response formats
+      if (response) {
+        if (Array.isArray(response)) {
+          setChats(response);
+        } else if (response.chats && Array.isArray(response.chats)) {
+          setChats(response.chats);
+        }
+      } else {
+        setChats((prev) => prev.length > 0 ? prev : []);
       }
-    } catch (error) {
-      console.error('Failed to load chats:', error);
+    } catch (error: any) {
+      console.error('[ChatListSidebar] Failed to load chats:', error);
+      // Use standardized error handling
+      const apiError = error.apiError || handleApiError(error);
+      const errorMessage = getUserFriendlyMessage(apiError);
+      setError(errorMessage);
+      // Don't clear chats on error - keep previous state to avoid showing "no chats" during errors
+      // Only clear if we don't have any chats yet
+      setChats((prev) => prev.length > 0 ? prev : []);
     } finally {
       setIsLoading(false);
     }
@@ -86,8 +104,10 @@ export function ChatListSidebar({
       await loadChats();
     } catch (error: any) {
       console.error('Failed to delete chat:', error);
-      const errorMessage = error.response?.data?.detail || error.message || 'Failed to delete chat. Please try again.';
-      alert(errorMessage);
+      // Use standardized error handling
+      const apiError = error.apiError || handleApiError(error);
+      const errorMessage = getUserFriendlyMessage(apiError);
+      setError(errorMessage);
       await loadChats();
     } finally {
       setDeletingId(null);
@@ -116,6 +136,25 @@ export function ChatListSidebar({
         </div>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="p-3 mx-4 mt-2 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-xs text-red-700 font-medium">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                loadChats();
+              }}
+              className="text-xs text-red-600 hover:text-red-800 mt-1 underline"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto p-2">
         {isLoading ? (
@@ -128,6 +167,11 @@ export function ChatListSidebar({
             <MessageCircle className="w-8 h-8 text-text-tertiary mx-auto mb-2" />
             <p className="text-text-secondary text-sm font-semibold mb-1">No chats yet</p>
             <p className="text-text-tertiary text-xs">Start a new conversation</p>
+            {process.env.NODE_ENV === 'development' && (
+              <p className="text-text-tertiary text-xs mt-2">
+                (Check console for loading errors)
+              </p>
+            )}
           </div>
         ) : (
           <div className="space-y-1">

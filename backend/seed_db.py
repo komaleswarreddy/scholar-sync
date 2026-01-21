@@ -5,7 +5,7 @@ from app.models.tenant import Tenant
 from sqlalchemy import select
 
 async def seed_tenant():
-    print("🌱 Seeding database...")
+    print("Seeding database...")
     async with AsyncSessionLocal() as session:
         # Check if the dev tenant already exists
         dev_id = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
@@ -23,9 +23,9 @@ async def seed_tenant():
             )
             session.add(new_tenant)
             await session.commit()
-            print(f"✅ Created 'default' tenant with ID: {dev_id}")
+            print(f"Created 'default' tenant with ID: {dev_id}")
         else:
-            print(f"ℹ️ Tenant 'default' already exists with ID: {existing_tenant.id}")
+            print(f"Tenant 'default' already exists with ID: {existing_tenant.id}")
 
     await engine.dispose()
 

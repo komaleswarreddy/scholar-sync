@@ -300,7 +300,7 @@ class ApiClient {
           this.tokenExpiry = null;
         }
       } catch (error: any) {
-        console.error('[🌐 API DEBUG] ❌ Token refresh failed:', error?.message || error);
+        console.error('[API] Token refresh failed:', error?.message || error);
         this.latestToken = null;
         this.tokenExpiry = null;
         // Don't open circuit breaker on token refresh failure - user might not be signed in
@@ -376,6 +376,7 @@ class ApiClient {
     while (retryCount <= maxRetries) {
       let reader: ReadableStreamDefaultReader<Uint8Array> | null | undefined = null;
       let hasReceivedData = false;
+      let hasReceivedText = false; // Track if we received any text chunks (separate from citations)
       let accumulatedText = '';
 
       try {
@@ -419,6 +420,16 @@ class ApiClient {
         );
 
         clearTimeout(timeoutId);
+
+        // Debug: Log response status
+        if (!response.ok && response.status !== 200) {
+          const errorText = await response.text().catch(() => '');
+          const errorMsg = `Stream request failed with status ${response.status}: ${errorText}`;
+          if (onError) {
+            onError(errorMsg);
+          }
+          throw new Error(errorMsg);
+        }
 
         // Handle 401 Unauthorized - try refreshing token and retry once
         if (response.status === 401 && retryCount < maxRetries) {
@@ -516,7 +527,11 @@ class ApiClient {
         // Success - stream the response
         reader = response.body?.getReader();
         if (!reader) {
-          throw new Error('Failed to get response stream');
+          const errorMsg = 'Failed to get response stream';
+          if (onError) {
+            onError(errorMsg);
+          }
+          throw new Error(errorMsg);
         }
 
         const decoder = new TextDecoder();
@@ -529,8 +544,6 @@ class ApiClient {
           } catch (readError: any) {
             // Handle network disconnection during streaming
             if (readError.name === 'AbortError' || readError.name === 'NetworkError' || readError.message?.includes('network')) {
-              console.error('[🌐 API DEBUG] Network error during streaming:', readError);
-              
               // If we've received some data, try to recover
               if (hasReceivedData && retryCount < maxRetries) {
                 retryCount++;
@@ -549,99 +562,140 @@ class ApiClient {
 
           const { done, value } = readResult;
           
-          if (done) {
-            // Handle empty response edge case
-            if (!hasReceivedData && accumulatedText === '') {
-              if (onError) {
-                onError('Received empty response from server. Please try again.');
-              } else {
-                throw new Error('Received empty response from server. Please try again.');
-              }
-              return;
-            }
-            break;
-          }
-
           hasReceivedData = true;
           
           // Decode chunk (handle partial UTF-8 sequences)
-          try {
-            buffer += decoder.decode(value, { stream: true });
-          } catch (decodeError) {
-            // Continue processing - try to decode remaining buffer
+          if (!done && value) {
+            try {
+              buffer += decoder.decode(value, { stream: true });
+            } catch (decodeError) {
+              // Continue processing - try to decode remaining buffer
+              try {
+                buffer += decoder.decode(new Uint8Array(0), { stream: false });
+              } catch (e) {
+                // If still fails, skip this chunk
+                buffer = '';
+              }
+              continue;
+            }
+          } else if (done && buffer) {
+            // When done, decode any remaining buffer
             try {
               buffer += decoder.decode(new Uint8Array(0), { stream: false });
             } catch (e) {
-              // If still fails, skip this chunk
-              buffer = '';
+              // Ignore decode errors on final flush
             }
-            continue;
           }
 
           // Process complete lines
           const lines = buffer.split('\n');
           buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
-          for (const line of lines) {
-            if (!line.trim()) continue;
+          let currentEventType: string | null = null;
 
+          for (const line of lines) {
             // Handle SSE format: "event: type\ndata: payload\n\n"
             if (line.startsWith('event: ')) {
-              // Event type line - next line should be data
+              // Extract event type
+              currentEventType = line.replace('event: ', '').trim();
               continue;
             }
 
-            if (!line.startsWith('data: ')) {
-              // Skip non-data lines
-              continue;
-            }
-
-            const payload = line.replace('data: ', '').trim();
-            if (!payload || payload === '[DONE]') {
-              continue;
-            }
-
-            try {
-              const data = JSON.parse(payload);
+            if (line.startsWith('data: ')) {
+              const payload = line.replace('data: ', '').trim();
               
-              // Handle error events from server
-              if (data.event === 'error') {
-                const errorMsg = data.data?.error || 'An error occurred during streaming';
-                if (onError) {
-                  onError(errorMsg);
-                } else {
-                  throw new Error(errorMsg);
+              // Skip empty data or [DONE] markers
+              if (!payload || payload === '[DONE]') {
+                currentEventType = null; // Reset for next event
+                continue;
+              }
+
+              // Use the event type we captured from the previous line
+              if (!currentEventType) {
+                // If we don't have an event type, try to parse payload as JSON with event field
+                try {
+                  const parsed = JSON.parse(payload);
+                  if (parsed.event) {
+                    currentEventType = parsed.event;
+                  }
+                } catch {
+                  // Skip if we can't parse
+                  continue;
                 }
-                return;
               }
 
-              // Handle chunk events
-              if (data.event === 'chunk' && data.data?.text) {
-                const text = data.data.text;
-                accumulatedText += text;
-                onChunk(text);
-              }
+              try {
+                // Parse the data payload (it's JSON)
+                const eventData = JSON.parse(payload);
 
-              // Handle citation events
-              if (data.event === 'citation' && data.data) {
-                onCitation(data.data);
-              }
-
-              // Handle done event
-              if (data.event === 'done') {
-                // Verify we received content (edge case: done without chunks)
-                if (accumulatedText === '' && !hasReceivedData) {
+                // Handle error events from server
+                if (currentEventType === 'error') {
+                  const errorMsg = eventData.error || eventData.data?.error || 'An error occurred during streaming';
                   if (onError) {
-                    onError('Stream completed but no content was received. Please try again.');
+                    onError(errorMsg);
+                  } else {
+                    throw new Error(errorMsg);
+                  }
+                  return;
+                }
+
+                // Handle chunk events
+                if (currentEventType === 'chunk') {
+                  const text = eventData.text || eventData.data?.text;
+                  if (text) {
+                    hasReceivedText = true;
+                    accumulatedText += text;
+                    onChunk(text);
                   }
                 }
-                onDone();
-                return;
+
+                // Handle citation events
+                if (currentEventType === 'citation') {
+                  const citation = eventData.data || eventData;
+                  if (citation) {
+                    onCitation(citation);
+                  }
+                }
+
+                // Handle done event
+                if (currentEventType === 'done') {
+                  // Verify we received text content (citations alone don't count)
+                  if (!hasReceivedText || accumulatedText.trim() === '') {
+                    if (onError) {
+                      onError('Stream completed but no text response was received. The model may have been blocked or encountered an error. Please try again.');
+                    }
+                    return;
+                  }
+                  onDone();
+                  return;
+                }
+
+                // Reset event type after processing
+                currentEventType = null;
+              } catch (parseError: any) {
+                // Edge case: malformed JSON - continue processing
+                currentEventType = null;
+                continue;
               }
-            } catch (parseError: any) {
-              // Edge case: malformed JSON - continue processing
-              // Continue processing other lines - don't break the stream
+            } else if (line.trim() === '') {
+              // Empty line indicates end of SSE event, reset event type
+              currentEventType = null;
             }
+          }
+          
+          // After processing all lines, if stream is done, check if we received text
+          if (done) {
+            // Handle empty response edge case (no text received)
+            // Only check if we haven't already received a 'done' event (which would have returned)
+            if (!hasReceivedText || accumulatedText.trim() === '') {
+              if (onError) {
+                onError('Received empty text response from server. The model may have been blocked or encountered an error. Please try again.');
+              } else {
+                throw new Error('Received empty text response from server. Please try again.');
+              }
+              return;
+            }
+            break;
           }
         }
 

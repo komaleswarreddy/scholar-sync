@@ -36,6 +36,7 @@ class Citation(BaseModel):
     text: str
     page_number: Optional[int] = None
     score: float
+    source_title: Optional[str] = None  # Source file name/title
 
 
 class ChatResponse(BaseModel):

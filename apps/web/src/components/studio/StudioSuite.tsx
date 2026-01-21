@@ -14,11 +14,13 @@ import {
   Network, 
   FileText, 
   Presentation, 
-  Image as ImageIcon
+  Image as ImageIcon,
+  AlertCircle
 } from 'lucide-react';
 import { StudioCard } from './StudioCard';
 import { useApi } from '@/hooks/useApi';
 import { useSourceContext } from '@/contexts/SourceContext';
+import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 
 const STUDIO_TOOLS = [
   { icon: <Network className="w-5 h-5" />, title: 'Mind Map', type: 'mind_map' },
@@ -33,18 +35,26 @@ export function StudioSuite() {
   const { loading, error, handleRequest, apiClient } = useApi();
   const { selectedSources } = useSourceContext();
   const [generating, setGenerating] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleGenerate = async (type: string) => {
     const sourceIds = Array.from(selectedSources);
     
     if (sourceIds.length === 0) {
-      alert('Please select at least one source to generate content');
+      setLocalError('Please select at least one source to generate content');
+      return;
+    }
+    
+    // Check network status
+    if (!navigator.onLine) {
+      setLocalError('Network disconnected. Please check your internet connection.');
       return;
     }
     
     setGenerating(type);
+    setLocalError(null);
+    
     try {
-      
       const result = await handleRequest(() =>
         apiClient.generateStudio(type as any, sourceIds)
       );
@@ -53,8 +63,12 @@ export function StudioSuite() {
         // TODO: Display the generated content in a modal or new view
         alert(`${type} generated successfully!`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Generation error:', err);
+      // Use standardized error handling
+      const apiError = err.apiError || handleApiError(err);
+      const errorMessage = getUserFriendlyMessage(apiError);
+      setLocalError(errorMessage);
     } finally {
       setGenerating(null);
     }
@@ -70,17 +84,39 @@ export function StudioSuite() {
         </div>
       </div>
 
+      {/* Error Display */}
+      {(localError || error) && (
+        <div className="p-3 mx-4 mt-2 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-xs text-red-700 font-medium">
+              {localError || (typeof error === 'string' ? error : error?.message || 'An error occurred')}
+            </p>
+            <button
+              onClick={() => setLocalError(null)}
+              className="text-xs text-red-600 hover:text-red-800 mt-1 underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Studio Grid */}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="grid grid-cols-2 gap-3">
-          {STUDIO_TOOLS.map((tool) => (
-            <StudioCard
-              key={tool.type}
-              icon={tool.icon}
-              title={tool.title}
-              onClick={() => handleGenerate(tool.type)}
-            />
-          ))}
+          {STUDIO_TOOLS.map((tool) => {
+            const isGenerating = generating === tool.type;
+            return (
+              <StudioCard
+                key={tool.type}
+                icon={tool.icon}
+                title={tool.title}
+                onClick={() => !isGenerating && handleGenerate(tool.type)}
+                disabled={isGenerating || loading}
+              />
+            );
+          })}
         </div>
       </div>
 

@@ -7,10 +7,11 @@
 
 'use client';
 
-import { useState, KeyboardEvent } from 'react';
+import { useState, KeyboardEvent, useMemo } from 'react';
 import { Send } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
+import { useSources } from '@/hooks/useSources';
 
 interface ChatInputProps {
   onSend?: (message: string, activeSourceIds?: string[]) => void;
@@ -20,6 +21,38 @@ interface ChatInputProps {
 
 export function ChatInput({ onSend, disabled = false, activeSourceIds = [] }: ChatInputProps) {
   const [message, setMessage] = useState('');
+  const { data: sources = [] } = useSources();
+  
+  // Get selected source titles for generating relevant prompts
+  const selectedSources = useMemo(() => {
+    if (activeSourceIds.length === 0) return [];
+    return sources.filter(source => activeSourceIds.includes(source.id));
+  }, [sources, activeSourceIds]);
+  
+  // Generate dynamic prompts based on selected sources
+  const suggestedPrompts = useMemo(() => {
+    if (selectedSources.length === 0) {
+      // Generic prompts when no sources selected
+      return [
+        'What are the main topics covered in this document?',
+        'Summarize the key points.',
+        'What questions does this document answer?'
+      ];
+    }
+    
+    // Generate contextual prompts based on source titles
+    const sourceContext = selectedSources.length === 1 
+      ? `this document${selectedSources[0].title ? ` (${selectedSources[0].title})` : ''}`
+      : 'these documents';
+    
+    return [
+      `What are the main topics covered in ${sourceContext}?`,
+      `Summarize the key points from ${sourceContext}.`,
+      `What are the most important concepts in ${sourceContext}?`,
+      `Explain the main ideas discussed in ${sourceContext}.`,
+      `What questions does ${sourceContext} answer?`
+    ];
+  }, [selectedSources]);
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
@@ -39,27 +72,20 @@ export function ChatInput({ onSend, disabled = false, activeSourceIds = [] }: Ch
 
   return (
     <div className="p-4">
-      {/* Suggested Prompts */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <button
-          className="px-4 py-2 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
-          onClick={() => setMessage('Describe the primary objective of the Pre-Define stage.')}
-        >
-          Describe the primary objective of the Pre-Define stage.
-        </button>
-        <button
-          className="px-4 py-2 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
-          onClick={() => setMessage('List three tools used to assess the Voice of Customer.')}
-        >
-          List three tools used to assess the Voice of Customer.
-        </button>
-        <button
-          className="px-4 py-2 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
-          onClick={() => setMessage('Explain the role of the PDSA model during improvement.')}
-        >
-          Explain the role of the PDSA model during improvement.
-        </button>
-      </div>
+      {/* Suggested Prompts - Dynamic based on selected sources */}
+      {suggestedPrompts.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {suggestedPrompts.slice(0, 3).map((prompt, index) => (
+            <button
+              key={index}
+              className="px-4 py-2 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+              onClick={() => setMessage(prompt)}
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      )}
       
       {/* Floating Input Bar */}
       <div className="flex items-center gap-2 bg-surface border border-border-default rounded-full px-4 py-2">

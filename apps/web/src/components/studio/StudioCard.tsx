@@ -13,10 +13,12 @@ interface StudioCardProps {
   icon: ReactNode;
   title: string;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
-export function StudioCard({ icon, title, onClick }: StudioCardProps) {
+export function StudioCard({ icon, title, onClick, disabled = false }: StudioCardProps) {
   const handleClick = () => {
+    if (disabled) return;
     if (onClick) {
       onClick();
     } else {
@@ -26,7 +28,11 @@ export function StudioCard({ icon, title, onClick }: StudioCardProps) {
   };
 
   return (
-    <Card hover onClick={handleClick} className="h-[88px] relative">
+    <Card 
+      hover={!disabled} 
+      onClick={handleClick} 
+      className={`h-[88px] relative ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
       {/* Icon - Top Left */}
       <div className="absolute top-3 left-3 w-5 h-5 text-accent-blue">
         {icon}

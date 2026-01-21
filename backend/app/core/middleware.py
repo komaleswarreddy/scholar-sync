@@ -25,14 +25,11 @@ def add_cors_headers(response: JSONResponse, origin: str = None) -> JSONResponse
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
         response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Tenant-ID, x-tenant-id, Accept, Origin, X-Requested-With"
-        print(f"[CORS] Added CORS headers for origin: {origin}")
-    else:
-        print(f"[CORS] Origin not allowed: {origin}")
     return response
  
 # Configuration for Development
 DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
-EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc", "/favicon.ico"}
+EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc", "/favicon.ico", "/.well-known"}
 
 class TenantAuthMiddleware:
     def __init__(self, app: ASGIApp):

@@ -57,7 +57,6 @@ export function NoteItem({
     const noteDate = new Date(date);
     
     if (isNaN(noteDate.getTime())) {
-      console.warn('[NoteItem] Invalid date received:', date);
       return 'Unknown date';
     }
     

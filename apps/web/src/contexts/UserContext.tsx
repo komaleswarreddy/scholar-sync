@@ -33,31 +33,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Safe wrapper for getToken
   const getToken = useCallback(async () => {
     try {
-      console.log('[🔐 AUTH DEBUG] Fetching token from Clerk...');
       if (!clerkGetToken) {
-        console.log('[🔐 AUTH DEBUG] ⚠️ clerkGetToken is not available');
         return null;
       }
       const token = await clerkGetToken({ template: 'default' });
-      
-      if (token) {
-        // Decode token to show user_id (for debugging only)
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          const userId = payload.sub;
-          console.log('[🔐 AUTH DEBUG] ✅ Token fetched successfully');
-          console.log('[🔐 AUTH DEBUG]   User ID from token:', userId);
-          console.log('[🔐 AUTH DEBUG]   Token preview:', token.substring(0, 20) + '...' + token.substring(token.length - 20));
-        } catch (e) {
-          console.log('[🔐 AUTH DEBUG] ✅ Token fetched (could not decode for preview)');
-        }
-      } else {
-        console.log('[🔐 AUTH DEBUG] ⚠️ Token is null');
-      }
-      
       return token ?? null;
     } catch (err) {
-      console.error('[🔐 AUTH DEBUG] ❌ Error fetching token:', err);
+      console.error('[AUTH] Error fetching token:', err);
       return null;
     }
   }, [clerkGetToken]);
@@ -72,37 +54,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Wait for Clerk to finish loading before setting loading to false
   useEffect(() => {
     const isClerkLoaded = userLoaded && authLoaded;
-    console.log('[🔐 AUTH DEBUG] Clerk loading state:', { 
-      userLoaded, 
-      authLoaded, 
-      isClerkLoaded, 
-      isSignedIn, 
-      isClerkConfigured,
-      hasClerkKey: !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-    });
     
     if (!isClerkConfigured) {
-      console.warn('[🔐 AUTH DEBUG] ⚠️ Clerk is not configured. Skipping authentication setup.');
       setLoading(false);
       return;
     }
     
     if (isClerkLoaded) {
-      console.log('[🔐 AUTH DEBUG] Registering token getter with API client');
       apiClient.setTokenGetter(getToken);
       apiClient.setLogoutHandler(handleLogout);
       setLoading(false);
-      console.log('[🔐 AUTH DEBUG] ✅ Token getter registered. User signed in:', isSignedIn);
     } else {
-      console.log('[🔐 AUTH DEBUG] ⏳ Waiting for Clerk to load...');
       // Set a timeout to prevent infinite loading if Clerk never loads
       const timeout = setTimeout(() => {
-        console.warn('[🔐 AUTH DEBUG] ⚠️ Clerk took too long to load (10s timeout), setting loading to false anyway');
-        // Still register the token getter even if Clerk is slow
         apiClient.setTokenGetter(getToken);
         apiClient.setLogoutHandler(handleLogout);
         setLoading(false);
-      }, 10000); // 10 second timeout
+      }, 10000);
       
       return () => clearTimeout(timeout);
     }

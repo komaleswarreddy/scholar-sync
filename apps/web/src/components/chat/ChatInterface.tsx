@@ -17,11 +17,12 @@ import { ChatListSidebar } from './ChatListSidebar';
 import { MessageCircle, RefreshCw, WifiOff, AlertTriangle, Menu, X } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { useSourceContext } from '@/contexts/SourceContext';
+import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 
 interface Citation {
-  id: string;
-  sourceId: string;
-  sourceTitle: string;
+  id?: string;
+  sourceId?: string;
+  sourceTitle?: string;
   text: string;
   source_id?: string;
   chunk_id?: string;
@@ -37,6 +38,7 @@ interface Message {
   citations?: Citation[];
   feedback?: 'thumbs_up' | 'thumbs_down' | null;
   messageId?: string; // Backend message ID for feedback
+  question?: string; // The question that was asked (for assistant messages)
 }
 
 export function ChatInterface() {
@@ -49,6 +51,7 @@ export function ChatInterface() {
   const [isLoadingChat, setIsLoadingChat] = useState(false);
   const [currentResponse, setCurrentResponse] = useState('');
   const [currentCitations, setCurrentCitations] = useState<Citation[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   
@@ -92,15 +95,11 @@ export function ChatInterface() {
       }
     } catch (error: any) {
       console.error('Failed to load recent chat:', error);
-      // Show user-friendly error message
-      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        setStreamError('Request timed out. Please check if the backend server is running.');
-      } else if (error.code === 'ECONNREFUSED' || error.message?.includes('Failed to fetch')) {
-        setStreamError('Cannot connect to server. Please check if the backend is running.');
-      } else {
-        // Continue without loading - user can start new chat
-        setStreamError(null);
-      }
+      // Use standardized error handling
+      const apiError = error.apiError || handleApiError(error);
+      const errorMessage = getUserFriendlyMessage(apiError);
+      setStreamError(errorMessage);
+      // Continue without loading - user can start new chat
     } finally {
       setIsLoadingChat(false);
     }
@@ -110,8 +109,15 @@ export function ChatInterface() {
   const loadChat = async (chatId: string) => {
     try {
       setIsLoadingChat(true);
+      // Clear all streaming state before loading chat (but don't clear messages yet)
+      setCurrentResponse('');
+      setCurrentCitations([]);
+      responseAccumulatorRef.current = '';
+      citationsAccumulatorRef.current = [];
+      setIsLoading(false);
+      setIsStreaming(false);
       setStreamError(null); // Clear any previous errors
-      setCurrentResponse(''); // Clear any streaming response
+      
       const chat = await apiClient.getChat(chatId);
       if (chat) {
         setCurrentChatId(chat.id);
@@ -137,19 +143,9 @@ export function ChatInterface() {
       }
     } catch (error: any) {
       console.error('Failed to load chat:', error);
-      let errorMessage = 'Failed to load chat history.';
-      
-      if (error.response?.status === 404) {
-        errorMessage = 'Chat not found. It may have been deleted.';
-        setCurrentChatId(null);
-        setMessages([]);
-      } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
-        errorMessage = 'Request timed out. Please check if the backend server is running.';
-      } else if (error.code === 'ECONNREFUSED' || error.message?.includes('Failed to fetch')) {
-        errorMessage = 'Cannot connect to server. Please check if the backend is running.';
-      } else if (error.response?.status === 500) {
-        errorMessage = 'Server error. Please check backend logs.';
-      }
+      // Use standardized error handling
+      const apiError = error.apiError || handleApiError(error);
+      const errorMessage = getUserFriendlyMessage(apiError);
       
       setStreamError(errorMessage);
       setCurrentChatId(null);
@@ -163,15 +159,20 @@ export function ChatInterface() {
   const startNewChat = async () => {
     try {
       setIsLoadingChat(true);
+      // Clear all streaming state before creating new chat
+      resetStreamingState();
+      setStreamError(null);
       const newChat = await apiClient.createChat();
       setCurrentChatId(newChat.id);
       setMessages([]);
-      setStreamError(null);
       // Refresh sidebar to show new chat
       setSidebarRefreshTrigger((prev) => prev + 1);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create new chat:', error);
-      setStreamError('Failed to create new chat.');
+      // Use standardized error handling
+      const apiError = error.apiError || handleApiError(error);
+      const errorMessage = getUserFriendlyMessage(apiError);
+      setStreamError(errorMessage);
     } finally {
       setIsLoadingChat(false);
     }
@@ -195,6 +196,7 @@ export function ChatInterface() {
   const handleChatDeleted = () => {
     // Clear the current chat without creating a new one
     // The user can manually start a new chat if they want
+    resetStreamingState();
     setCurrentChatId(null);
     setMessages([]);
     setStreamError(null);
@@ -210,7 +212,7 @@ export function ChatInterface() {
     const sourceIds = activeSourceIds || Array.from(selectedSources);
     
     if (sourceIds.length === 0) {
-      alert('Please select at least one source to chat with.');
+      setStreamError('Please select at least one source to chat with.');
       return;
     }
     
@@ -223,12 +225,17 @@ export function ChatInterface() {
     let chatId = currentChatId;
     if (!chatId) {
       try {
+        setIsLoading(true);
         const newChat = await apiClient.createChat();
         chatId = newChat.id;
         setCurrentChatId(chatId);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to create chat:', error);
-        setStreamError('Failed to create chat session.');
+        // Use standardized error handling
+        const apiError = error.apiError || handleApiError(error);
+        const errorMessage = getUserFriendlyMessage(apiError);
+        setStreamError(errorMessage);
+        setIsLoading(false);
         return;
       }
     }
@@ -238,6 +245,7 @@ export function ChatInterface() {
       role: 'user',
       content: message,
       timestamp: new Date().toLocaleTimeString(),
+      question: message.trim(),
     };
     
     setMessages((prev) => [...prev, userMessage]);
@@ -259,15 +267,16 @@ export function ChatInterface() {
         }
       } catch (error: any) {
         console.error('Failed to save user message:', error);
+        // Non-blocking error - message is already displayed, just log it
+        // Use standardized error handling for logging
+        const apiError = error.apiError || handleApiError(error);
+        // Non-blocking error - message is already displayed
       }
     }
+    // Reset all streaming state before sending
+    resetStreamingState();
     setIsLoading(true);
-    setIsStreaming(false);
     setStreamError(null);
-    setCurrentResponse('');
-    setCurrentCitations([]);
-    responseAccumulatorRef.current = '';
-    citationsAccumulatorRef.current = [];
 
     try {
       const history = messages
@@ -289,33 +298,124 @@ export function ChatInterface() {
         },
         // onCitation
         (citation: Citation) => {
-          citationsAccumulatorRef.current = [...citationsAccumulatorRef.current, citation];
+          // Ensure source_title is mapped to sourceTitle for frontend compatibility
+          const mappedCitation: Citation = {
+            ...citation,
+            sourceTitle: citation.sourceTitle || (citation as any).source_title,
+          };
+          citationsAccumulatorRef.current = [...citationsAccumulatorRef.current, mappedCitation];
           setCurrentCitations(citationsAccumulatorRef.current);
         },
         // onDone
         async () => {
           setIsStreaming(false);
           const finalResponse = responseAccumulatorRef.current;
-          const finalCitations = citationsAccumulatorRef.current;
+          const allCitations = citationsAccumulatorRef.current;
+          
+          // Filter citations to only include those referenced in the response text
+          // Track citations in order of appearance (not just unique numbers)
+          const referencedCitationNumbers: number[] = [];
+          const seenNumbers = new Set<number>();
+          
+          // Parse citation patterns: [1], [1, 4], [4, 6, 9], etc.
+          // Match patterns like [1], [1, 4], [4, 6, 9] where numbers can be comma-separated
+          const citationPattern = /\[(\d+(?:\s*,\s*\d+)*)\]/g;
+          let match;
+          
+          // Reset regex lastIndex
+          citationPattern.lastIndex = 0;
+          
+          while ((match = citationPattern.exec(finalResponse)) !== null) {
+            // Extract all numbers from the match (e.g., "1, 4" or "4, 6, 9")
+            const numbersStr = match[1];
+            const numbers = numbersStr.split(',').map(num => parseInt(num.trim(), 10));
+            
+            numbers.forEach(citationNum => {
+              if (citationNum > 0 && citationNum <= allCitations.length) {
+                // Track order of appearance, but only add each number once
+                if (!seenNumbers.has(citationNum)) {
+                  referencedCitationNumbers.push(citationNum);
+                  seenNumbers.add(citationNum);
+                }
+              }
+            });
+          }
+          
+          let filteredCitations: Citation[] = [];
+          let finalResponseText = finalResponse;
+          
+          // If we found referenced citations, filter them
+          if (referencedCitationNumbers.length > 0 && allCitations.length > 0) {
+            // Create a map of original citation number to citation object
+            const citationMap = new Map<number, Citation>();
+            allCitations.forEach((citation, index) => {
+              citationMap.set(index + 1, citation); // Map 1-based index to citation
+            });
+            
+            // Get citations in order of appearance in text (preserve order)
+            referencedCitationNumbers.forEach((originalNum) => {
+              const citation = citationMap.get(originalNum);
+              if (citation) {
+                filteredCitations.push(citation);
+              }
+            });
+            
+            // Check if response has comma-separated citations (e.g., [1, 4], [4, 6, 9])
+            // If so, don't renumber - keep original numbers to preserve meaning
+            const hasCommaSeparatedCitations = /\[\d+\s*,\s*\d+/.test(finalResponse);
+            
+            if (!hasCommaSeparatedCitations) {
+              // Only renumber if we have single citations (e.g., [1], [2])
+              // Process in reverse order to avoid renumbering conflicts
+              for (let i = referencedCitationNumbers.length - 1; i >= 0; i--) {
+                const originalNum = referencedCitationNumbers[i];
+                const newNum = i + 1;
+                if (originalNum !== newNum) {
+                  // Replace [originalNum] with [newNum] in the response (only single citations)
+                  finalResponseText = finalResponseText.replace(
+                    new RegExp(`\\[${originalNum}\\]`, 'g'),
+                    `[${newNum}]`
+                  );
+                }
+              }
+            }
+            // If comma-separated citations exist, keep original numbers
+          } else {
+            // Fallback: if no citations are referenced in text, show all citations
+            // This handles cases where Gemini doesn't include citation markers or markers aren't found
+            filteredCitations = allCitations;
+            finalResponseText = finalResponse;
+          }
           
           // Task A.d: Handle empty responses
-          if (finalResponse && finalResponse.trim()) {
+          if (finalResponseText && finalResponseText.trim()) {
             const assistantMessage: Message = {
               id: (Date.now() + 1).toString(),
               role: 'assistant',
-              content: finalResponse,
-              citations: finalCitations,
+              content: finalResponseText, // Use final response (may be renumbered or original)
+              citations: filteredCitations,
               timestamp: new Date().toLocaleTimeString(),
+              question: currentQuestion,
             };
             setMessages((prev) => [...prev, assistantMessage]);
 
             if (currentChatId) {
               try {
+                // Format citations for backend (ensure they have required fields)
+                // Use filteredCitations instead of finalCitations
+                const formattedCitations = filteredCitations.map((citation) => ({
+                  source_id: citation.sourceId || citation.source_id || '',
+                  chunk_id: citation.chunk_id || '',
+                  text: citation.text || '',
+                  page_number: citation.page_number || null,
+                  score: citation.score || 0,
+                }));
+                
                 const savedMessage = await apiClient.addMessageToChat(
                   currentChatId,
                   'assistant',
-                  finalResponse,
-                  finalCitations
+                  finalResponseText, // Use final response
+                  formattedCitations
                 );
                 if (savedMessage && savedMessage.id) {
                   setMessages((prev) =>
@@ -334,16 +434,27 @@ export function ChatInterface() {
                         : msg
                     )
                   );
+                  console.error('Failed to save assistant message: No message ID returned');
                 }
                 setSidebarRefreshTrigger((prev) => prev + 1);
               } catch (error: any) {
                 console.error('Failed to save assistant message:', error);
+                // Show error to user but keep the message visible
+                setStreamError(`Response received but failed to save: ${error?.message || 'Unknown error'}`);
               }
+            } else {
+              console.error('Cannot save assistant message: No chat ID');
             }
           } else {
-            setStreamError("Received an empty response from the assistant.");
+            // Check if we have citations but no text - this might indicate a backend issue
+            if (finalCitations.length > 0) {
+              setStreamError("Received citations but no text response. The model may have been blocked or encountered an error. Please try again.");
+            } else {
+              setStreamError("Received an empty response from the assistant. Please try again or rephrase your question.");
+            }
           }
           
+          // Always reset streaming state after done, regardless of whether response was empty
           resetStreamingState();
         },
         // onError - Task A.b: Handle streaming errors gracefully
@@ -351,7 +462,6 @@ export function ChatInterface() {
           console.error('Streaming error:', error);
           setStreamError(error);
           setIsStreaming(false);
-          setIsLoading(false);
           
           // Save partial work if it exists
           if (responseAccumulatorRef.current.trim()) {
@@ -364,13 +474,18 @@ export function ChatInterface() {
             };
             setMessages((prev) => [...prev, partialMessage]);
           }
+          
+          // Always reset streaming state on error
+          resetStreamingState();
         }
       );
     } catch (error: any) {
       // Task A.b & A.e
-      setStreamError(error.message || 'Failed to connect to the chat service.');
-      setIsLoading(false);
-      setIsStreaming(false);
+      // Ensure we always set a string, not an Error object
+      const errorMessage = error?.message || error?.apiError?.message || error?.toString() || 'Failed to connect to the chat service.';
+      setStreamError(errorMessage);
+      // Always reset streaming state on error
+      resetStreamingState();
     }
   };
 
@@ -380,6 +495,7 @@ export function ChatInterface() {
     responseAccumulatorRef.current = '';
     citationsAccumulatorRef.current = [];
     setIsLoading(false);
+    setIsStreaming(false);
   };
 
   // Task A.f: Retry functionality
@@ -467,6 +583,7 @@ export function ChatInterface() {
                 timestamp={message.timestamp}
                 messageId={message.messageId || message.id}
                 feedback={message.feedback}
+                question={message.question}
                 onFeedbackUpdate={(messageId, feedback) => {
                   // Update local state when feedback changes
                   setMessages((prev) =>
@@ -481,11 +598,12 @@ export function ChatInterface() {
             {/* Task A.c: Combined loading and streaming states */}
             {isLoading && (
               <div className="space-y-4">
-                {(currentResponse || isStreaming) ? (
+                {(currentResponse || isStreaming || currentCitations.length > 0) ? (
                   <ChatMessage
                     role="assistant"
-                    content={currentResponse}
+                    content={currentResponse || (currentCitations.length > 0 ? 'Generating response...' : '')}
                     citations={currentCitations}
+                    question={currentQuestion}
                   />
                 ) : (
                   <div className="flex items-center gap-3 p-4 bg-surface-subtle rounded-2xl w-fit">

@@ -40,7 +40,12 @@ export function NotesSection() {
   const queryClient = useQueryClient();
 
   // Task C.a: Loading state from TanStack Query
-  const error = queryError?.message || null;
+  // Ensure error is always a string, not an Error object
+  const error = queryError 
+    ? (typeof queryError === 'string' 
+        ? queryError 
+        : queryError?.message || queryError?.toString() || 'An error occurred')
+    : null;
 
   // Listen for note creation events from other components (e.g., ChatMessage)
   useEffect(() => {
@@ -261,7 +266,10 @@ export function NotesSection() {
           <div className="mt-2 p-2 rounded-lg bg-red-500/10 border border-red-500/20">
             <p className="text-xs text-red-400">{error}</p>
             <button
-              onClick={() => setError(null)}
+              onClick={() => {
+                // Invalidate query to clear error
+                queryClient.invalidateQueries({ queryKey: noteKeys.list() });
+              }}
               className="mt-1 text-xs text-red-400 hover:text-red-300 underline"
             >
               Dismiss

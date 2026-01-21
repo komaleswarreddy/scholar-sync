@@ -24,33 +24,33 @@ DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
 
 async def test_connection():
     """Test if we can connect to the database"""
-    print("🔍 Testing database connection...")
+    print("Testing database connection...")
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(text("SELECT 1"))
             result.scalar()
-            print("✅ Database connection successful!")
+            print("Database connection successful!")
             return True
     except Exception as e:
-        print(f"❌ Database connection failed: {str(e)}")
+        print(f"Database connection failed: {str(e)}")
         print(f"   Error type: {type(e).__name__}")
         return False
 
 async def create_tables():
     """Create all tables if they don't exist"""
-    print("\n📦 Creating database tables...")
+    print("\nCreating database tables...")
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        print("✅ Tables created/verified successfully!")
+        print("Tables created/verified successfully!")
         return True
     except Exception as e:
-        print(f"❌ Failed to create tables: {str(e)}")
+        print(f"Failed to create tables: {str(e)}")
         return False
 
 async def seed_default_tenant():
     """Seed the default tenant if it doesn't exist"""
-    print("\n🌱 Seeding default tenant...")
+    print("\nSeeding default tenant...")
     try:
         async with AsyncSessionLocal() as session:
             # Check if tenant exists
@@ -60,7 +60,7 @@ async def seed_default_tenant():
             existing_tenant = result.scalar_one_or_none()
 
             if existing_tenant:
-                print(f"ℹ️  Tenant 'default' already exists (ID: {existing_tenant.id})")
+                print(f"Tenant 'default' already exists (ID: {existing_tenant.id})")
                 return True
 
             # Create new tenant
@@ -72,15 +72,15 @@ async def seed_default_tenant():
             )
             session.add(new_tenant)
             await session.commit()
-            print(f"✅ Created 'default' tenant (ID: {DEV_TENANT_ID})")
+            print(f"Created 'default' tenant (ID: {DEV_TENANT_ID})")
             return True
     except Exception as e:
-        print(f"❌ Failed to seed tenant: {str(e)}")
+        print(f"Failed to seed tenant: {str(e)}")
         return False
 
 async def verify_tenant_lookup():
     """Verify we can look up the tenant (simulating middleware)"""
-    print("\n🔍 Verifying tenant lookup (middleware simulation)...")
+    print("\nVerifying tenant lookup (middleware simulation)...")
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
@@ -89,16 +89,16 @@ async def verify_tenant_lookup():
             tenant = result.scalar_one_or_none()
 
             if tenant:
-                print(f"✅ Tenant lookup successful!")
+                print(f"Tenant lookup successful!")
                 print(f"   Subdomain: {tenant.subdomain}")
                 print(f"   ID: {tenant.id}")
                 print(f"   Name: {tenant.name}")
                 return True
             else:
-                print("❌ Tenant not found!")
+                print("Tenant not found!")
                 return False
     except Exception as e:
-        print(f"❌ Tenant lookup failed: {str(e)}")
+        print(f"Tenant lookup failed: {str(e)}")
         return False
 
 async def main():
@@ -108,21 +108,21 @@ async def main():
 
     # Step 1: Test connection
     if not await test_connection():
-        print("\n❌ Cannot proceed - database connection failed")
+        print("\nCannot proceed - database connection failed")
         print("   Please check your DATABASE_URL in .env")
         sys.exit(1)
 
     # Step 2: Create tables
     if not await create_tables():
-        print("\n⚠️  Table creation failed, but continuing...")
+        print("\nTable creation failed, but continuing...")
 
     # Step 3: Seed tenant
     if not await seed_default_tenant():
-        print("\n⚠️  Tenant seeding failed, but continuing...")
+        print("\nTenant seeding failed, but continuing...")
 
     # Step 4: Verify lookup
     if not await verify_tenant_lookup():
-        print("\n⚠️  Tenant lookup failed")
+        print("\nTenant lookup failed")
 
     # Cleanup
     await engine.dispose()
@@ -130,7 +130,7 @@ async def main():
     print("\n" + "=" * 60)
     print("SETUP COMPLETE")
     print("=" * 60)
-    print("\n✅ Database is ready for middleware to use!")
+    print("\nDatabase is ready for middleware to use!")
     print("   The middleware should now be able to:")
     print("   1. Connect to database")
     print("   2. Look up tenant by subdomain")

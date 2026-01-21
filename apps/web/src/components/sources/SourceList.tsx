@@ -188,7 +188,11 @@ export function SourceList() {
         {(localError || apiError) && (
           <div className="mt-3 p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2">
             <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5" />
-            <p className="text-xs text-red-700 flex-1 leading-relaxed">{localError || apiError}</p>
+            <p className="text-xs text-red-700 flex-1 leading-relaxed">
+              {localError || (typeof apiError === 'string' 
+                ? apiError 
+                : apiError?.message || apiError?.toString() || 'An error occurred')}
+            </p>
             <button onClick={() => setLocalError(null)}>
               <X className="w-3.5 h-3.5 text-red-400 hover:text-red-600" />
             </button>

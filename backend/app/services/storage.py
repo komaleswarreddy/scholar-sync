@@ -57,7 +57,6 @@ class StorageService:
             content_type: MIME type of the file
         """
         try:
-            print(f"[STORAGE] Starting upload to Supabase: {file_path}, size: {len(file_content)} bytes")
             supabase = get_supabase_client()
             
             # Upload to Supabase Storage
@@ -77,8 +76,6 @@ class StorageService:
                 ),
                 timeout=120.0  # 2 minutes timeout
             )
-            
-            print(f"[SUCCESS] [STORAGE] Upload completed: {file_path}")
             
             # Check for errors in response
             if hasattr(response, 'error') and response.error:
@@ -168,7 +165,6 @@ class StorageService:
                 None,
                 lambda: supabase.storage.from_(self.bucket_name).remove([file_path])
             )
-            print(f"[STORAGE] Deleted file: {file_path}")
             
             # Check for errors in response
             if hasattr(response, 'error') and response.error:

@@ -11,6 +11,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 import json
+import uuid
 
 from app.core.database import get_db
 from app.core.config import settings
@@ -117,6 +118,47 @@ def ping():
     return {"message": "chat route working"}
 
 
+@router.get("/debug/chats")
+async def debug_chats(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Debug endpoint to check chat data (development only)."""
+    from app.core.config import settings
+    
+    if settings.ENVIRONMENT != "development":
+        raise HTTPException(status_code=403, detail="Debug endpoint only available in development")
+    
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    
+    # Get all chats for tenant (regardless of user)
+    from app.models.chat import Chat
+    result = await db.execute(
+        select(Chat)
+        .where(Chat.tenant_id == tenant_id)
+        .order_by(Chat.created_at.desc())
+        .limit(20)
+    )
+    all_chats = result.scalars().all()
+    
+    return {
+        "tenant_id": str(tenant_id),
+        "user_id": user_id,
+        "total_chats_in_tenant": len(list(all_chats)),
+        "chats": [
+            {
+                "id": str(chat.id),
+                "user_id": chat.user_id,
+                "title": chat.title,
+                "created_at": str(chat.created_at),
+                "matches_current_user": chat.user_id == user_id,
+            }
+            for chat in all_chats
+        ]
+    }
+
+
 # Task C: Chat History Endpoints
 
 @router.post("", response_model=ChatResponse)
@@ -159,6 +201,18 @@ async def list_chats(
     
     service = ChatService(db, tenant_id, user_id)
     chats = await service.list_chats(limit=limit, offset=offset)
+    
+    # If no chats found, check if there are any chats for this tenant at all
+    if len(chats) == 0:
+        from app.models.chat import Chat
+        all_tenant_chats_result = await db.execute(
+            select(Chat)
+            .where(Chat.tenant_id == uuid.UUID(tenant_id))
+        )
+        all_tenant_chats = list(all_tenant_chats_result.scalars().all())
+        if all_tenant_chats:
+            print(f"[WARNING] list_chats - No chats found for user {user_id}, but {len(all_tenant_chats)} chats exist for tenant {tenant_id}")
+            print(f"[WARNING] list_chats - Sample user_ids in tenant chats: {[c.user_id for c in all_tenant_chats[:5]]}")
     
     # Get message count for each chat
     chat_items = []

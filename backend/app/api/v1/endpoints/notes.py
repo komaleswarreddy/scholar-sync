@@ -44,10 +44,8 @@ def get_user_tenant(request: Request):
 async def list_notes(request: Request, db: AsyncSession = Depends(get_db)):
     try:
         tenant_id, user_id = get_user_tenant(request)
-        print(f"[NOTES] Listing notes for tenant: {tenant_id}, user: {user_id}")
         service = NotesService(db, tenant_id, user_id)
         notes = await service.list_notes()
-        print(f"[NOTES] Found {len(notes)} notes")
         return NotesListResponse(
             notes=[
                 NoteResponse(

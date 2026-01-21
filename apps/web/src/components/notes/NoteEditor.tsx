@@ -73,10 +73,8 @@ export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: No
       try {
         if (content.trim()) {
           localStorage.setItem(DRAFT_KEY, content);
-          console.log('[NoteEditor] Draft saved to localStorage:', DRAFT_KEY, 'Length:', content.length);
         } else {
           localStorage.removeItem(DRAFT_KEY);
-          console.log('[NoteEditor] Draft removed (empty content):', DRAFT_KEY);
         }
       } catch (error) {
         console.error('[NoteEditor] Failed to save draft to localStorage:', error);
@@ -93,10 +91,9 @@ export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: No
       try {
         if (content.trim()) {
           localStorage.setItem(DRAFT_KEY, content);
-          console.log('[NoteEditor] Draft saved on unmount:', DRAFT_KEY);
         }
       } catch (error) {
-        console.error('[NoteEditor] Failed to save draft on unmount:', error);
+        // Ignore localStorage errors on unmount
       }
     };
   }, [content, DRAFT_KEY]);
@@ -119,9 +116,8 @@ export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: No
       if (typeof window !== 'undefined') {
         try {
           localStorage.removeItem(DRAFT_KEY);
-          console.log('[NoteEditor] Draft cleared after successful save:', DRAFT_KEY);
         } catch (error) {
-          console.error('[NoteEditor] Failed to clear draft:', error);
+          // Ignore localStorage errors
         }
       }
     } catch (error) {

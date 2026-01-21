@@ -126,7 +126,7 @@ async def process_upload_background(tenant_id: str, source_id: str, content_type
         full_traceback = traceback.format_exc()
         
         # Log detailed error information
-        print(f"[ERROR] ⚠️ UNEXPECTED ERROR in background processing for source {source_id}")
+        print(f"[ERROR] UNEXPECTED ERROR in background processing for source {source_id}")
         print(f"[ERROR] Error Type: {error_type}")
         print(f"[ERROR] Error Message: {error_message}")
         print(f"[ERROR] Full Traceback:\n{full_traceback}")

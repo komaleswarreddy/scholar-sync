@@ -9,7 +9,7 @@ from app.core.database import engine, Base
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✅ All tables created successfully!")
+    print("All tables created successfully!")
 
 
 if __name__ == "__main__":

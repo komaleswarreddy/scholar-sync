@@ -88,7 +88,8 @@ class ChatService:
             .limit(limit)
             .offset(offset)
         )
-        return list(result.scalars().all())
+        chats = list(result.scalars().all())
+        return chats
 
     async def update_chat_title(self, chat_id: str, title: str) -> Optional[Chat]:
         """Update chat title."""
