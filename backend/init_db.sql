@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS tenants (
 CREATE TABLE IF NOT EXISTS sources (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL,
   title TEXT NOT NULL,
   s3_key TEXT NOT NULL,
   type TEXT DEFAULT 'pdf',
@@ -53,6 +54,7 @@ CREATE TABLE IF NOT EXISTS notes (
 
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_sources_tenant_id ON sources(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_sources_user_id ON sources(user_id);
 CREATE INDEX IF NOT EXISTS idx_chats_tenant_id ON chats(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_chats_user_id ON chats(user_id);
 CREATE INDEX IF NOT EXISTS idx_messages_chat_id ON messages(chat_id);

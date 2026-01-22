@@ -36,6 +36,7 @@ class Source(Base):
     Attributes:
         id: Unique source identifier
         tenant_id: Foreign key to tenants table (multi-tenancy)
+        user_id: Clerk user ID (user who uploaded the source)
         title: Display name of the source
         s3_key: S3 object key for the file
         type: Type of source (PDF, TEXT, URL)
@@ -48,6 +49,7 @@ class Source(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
+    user_id = Column(String, nullable=False, index=True)  # Clerk user ID
     title = Column(String, nullable=False)
     s3_key = Column(String, nullable=False)
     type = Column(String, default=SourceType.PDF.value, nullable=False)  # Store as string, use enum in code

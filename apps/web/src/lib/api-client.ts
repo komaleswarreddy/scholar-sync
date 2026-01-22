@@ -642,10 +642,14 @@ class ApiClient {
                 // Handle chunk events
                 if (currentEventType === 'chunk') {
                   const text = eventData.text || eventData.data?.text;
-                  if (text) {
+                  // Only process non-empty text strings
+                  if (text && typeof text === 'string' && text.trim()) {
                     hasReceivedText = true;
                     accumulatedText += text;
                     onChunk(text);
+                  } else if (text !== undefined && text !== null) {
+                    // Log if we receive a chunk but it's not valid text
+                    console.warn('[Stream] Received chunk event but text is invalid:', { text, eventData });
                   }
                 }
 
@@ -661,6 +665,12 @@ class ApiClient {
                 if (currentEventType === 'done') {
                   // Verify we received text content (citations alone don't count)
                   if (!hasReceivedText || accumulatedText.trim() === '') {
+                    // Log for debugging
+                    console.warn('[Stream] Done event received but no text was received:', {
+                      hasReceivedText,
+                      accumulatedTextLength: accumulatedText.length,
+                      accumulatedTextPreview: accumulatedText.substring(0, 100),
+                    });
                     if (onError) {
                       onError('Stream completed but no text response was received. The model may have been blocked or encountered an error. Please try again.');
                     }

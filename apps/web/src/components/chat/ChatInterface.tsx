@@ -447,7 +447,7 @@ export function ChatInterface() {
             }
           } else {
             // Check if we have citations but no text - this might indicate a backend issue
-            if (finalCitations.length > 0) {
+            if (filteredCitations.length > 0) {
               setStreamError("Received citations but no text response. The model may have been blocked or encountered an error. Please try again.");
             } else {
               setStreamError("Received an empty response from the assistant. Please try again or rephrase your question.");

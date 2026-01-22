@@ -13,9 +13,10 @@ from app.services.storage import StorageService
 from app.services.text_processing import TextProcessor
 
 class IngestionService:
-    def __init__(self, db: AsyncSession, tenant_id: str):
+    def __init__(self, db: AsyncSession, tenant_id: str, user_id: str):
         self.db = db
         self.tenant_id = tenant_id  # Validated UUID string from Middleware
+        self.user_id = user_id  # Clerk user ID
         
         # Pass tenant_id to downstream services for infrastructure isolation
         self.vector_service = VectorService(tenant_id)
@@ -87,6 +88,7 @@ class IngestionService:
                 source = Source(
                     id=uuid.UUID(source_id),
                     tenant_id=uuid.UUID(self.tenant_id),
+                    user_id=self.user_id,
                     title=title,
                     s3_key=s3_key,
                     type=source_type,
@@ -130,7 +132,8 @@ class IngestionService:
             result = await self.db.execute(
                 select(Source).where(
                     Source.id == uuid.UUID(source_id),
-                    Source.tenant_id == tenant_uuid
+                    Source.tenant_id == tenant_uuid,
+                    Source.user_id == self.user_id
                 )
             )
             source = result.scalar_one_or_none()
@@ -261,7 +264,10 @@ class IngestionService:
     async def list_sources(self) -> List[dict]:
         tenant_uuid = uuid.UUID(self.tenant_id)
         result = await self.db.execute(
-            select(Source).where(Source.tenant_id == tenant_uuid)
+            select(Source).where(
+                Source.tenant_id == tenant_uuid,
+                Source.user_id == self.user_id
+            )
         )
         sources = result.scalars().all()
         
@@ -289,7 +295,8 @@ class IngestionService:
         result = await self.db.execute(
             select(Source).where(
                 Source.id == uuid.UUID(source_id), 
-                Source.tenant_id == tenant_uuid
+                Source.tenant_id == tenant_uuid,
+                Source.user_id == self.user_id
             )
         )
         source = result.scalar_one_or_none()

@@ -97,7 +97,8 @@ class RAGService:
             result = await self.db.execute(
                 select(Source.id, Source.title).where(
                     Source.id.in_(source_uuids),
-                    Source.tenant_id == tenant_uuid
+                    Source.tenant_id == tenant_uuid,
+                    Source.user_id == self.user_id
                 )
             )
             sources = result.all()

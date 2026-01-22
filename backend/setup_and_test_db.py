@@ -48,6 +48,40 @@ async def create_tables():
         print(f"Failed to create tables: {str(e)}")
         return False
 
+async def run_migration_add_user_id():
+    """Add user_id column to sources table if it doesn't exist"""
+    print("\nRunning migration: Add user_id to sources table...")
+    try:
+        async with AsyncSessionLocal() as session:
+            # Check if user_id column exists
+            result = await session.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='sources' AND column_name='user_id'
+            """))
+            column_exists = result.scalar_one_or_none() is not None
+            
+            if column_exists:
+                print("user_id column already exists in sources table")
+                return True
+            
+            # Add user_id column
+            await session.execute(text("ALTER TABLE sources ADD COLUMN user_id TEXT"))
+            await session.commit()
+            
+            # Create index
+            await session.execute(text("CREATE INDEX IF NOT EXISTS idx_sources_user_id ON sources(user_id)"))
+            await session.commit()
+            
+            print("Successfully added user_id column to sources table")
+            print("   Note: Existing sources will have NULL user_id. You may want to:")
+            print("   - Delete them: DELETE FROM sources WHERE user_id IS NULL;")
+            print("   - Or assign them to a user: UPDATE sources SET user_id = 'your_user_id' WHERE user_id IS NULL;")
+            return True
+    except Exception as e:
+        print(f"Migration failed: {str(e)}")
+        return False
+
 async def seed_default_tenant():
     """Seed the default tenant if it doesn't exist"""
     print("\nSeeding default tenant...")
@@ -115,6 +149,10 @@ async def main():
     # Step 2: Create tables
     if not await create_tables():
         print("\nTable creation failed, but continuing...")
+
+    # Step 2.5: Run migration for user_id column
+    if not await run_migration_add_user_id():
+        print("\nMigration failed, but continuing...")
 
     # Step 3: Seed tenant
     if not await seed_default_tenant():

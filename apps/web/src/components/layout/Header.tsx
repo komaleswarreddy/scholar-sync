@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Plus,
   Share2,
@@ -10,6 +11,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useUserContext } from '@/contexts/UserContext';
+import { DraftSaveModal } from '../notes/DraftSaveModal';
+import { checkForNoteDrafts, removeDraft } from '@/lib/note-draft-utils';
 
 export function Header() {
   const {
@@ -17,6 +20,12 @@ export function Header() {
     avatarUrl,
     signOut,
   } = useUserContext();
+
+  const [showDraftModal, setShowDraftModal] = useState(false);
+  const [draftInfo, setDraftInfo] = useState<{
+    draftKey: string;
+    draftContent: string;
+  } | null>(null);
 
   // ------------------------
   // Actions
@@ -38,7 +47,44 @@ export function Header() {
   };
 
   const handleLogout = async () => {
-    await signOut();
+    // Check for unsaved note drafts before logging out
+    const { hasDraft, draftKey, draftContent } = checkForNoteDrafts();
+    
+    if (hasDraft && draftContent && draftKey) {
+      // Show modal with save/discard options
+      setDraftInfo({ draftKey, draftContent });
+      setShowDraftModal(true);
+    } else {
+      // No draft, proceed with logout
+      await signOut();
+    }
+  };
+
+  const handleDraftSave = () => {
+    // Draft was saved as note, remove it from localStorage
+    if (draftInfo) {
+      removeDraft(draftInfo.draftKey);
+    }
+    setShowDraftModal(false);
+    setDraftInfo(null);
+    // Proceed with logout after saving
+    signOut();
+  };
+
+  const handleDraftDiscard = () => {
+    // User chose to discard - remove draft and logout
+    if (draftInfo) {
+      removeDraft(draftInfo.draftKey);
+    }
+    setShowDraftModal(false);
+    setDraftInfo(null);
+    signOut();
+  };
+
+  const handleDraftCancel = () => {
+    // User cancelled - don't logout, just close modal
+    setShowDraftModal(false);
+    setDraftInfo(null);
   };
 
   return (
@@ -131,6 +177,17 @@ export function Header() {
           <LogOut className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Draft Save Modal */}
+      {draftInfo && (
+        <DraftSaveModal
+          isOpen={showDraftModal}
+          draftContent={draftInfo.draftContent}
+          onSave={handleDraftSave}
+          onDiscard={handleDraftDiscard}
+          onCancel={handleDraftCancel}
+        />
+      )}
     </header>
   );
 }

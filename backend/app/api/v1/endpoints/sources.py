@@ -23,11 +23,14 @@ async def upload_source(
     background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ):
-    # 1. Pull validated tenant_id from middleware
+    # 1. Pull validated tenant_id and user_id from middleware
     tenant_id = getattr(request.state, "tenant_id", None)
+    user_id = getattr(request.state, "user_id", None)
     
     if not tenant_id:
         raise HTTPException(status_code=403, detail="Unauthorized: No valid tenant identified")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User authentication required")
 
     if not file:
         raise HTTPException(status_code=400, detail="File is required")
@@ -54,7 +57,7 @@ async def upload_source(
         title = file.filename or "Untitled Source"
 
     try:
-        service = IngestionService(db, tenant_id)
+        service = IngestionService(db, tenant_id, user_id)
         # Use the bytes-direct method because we already read the file
         result = await service.quick_upload_bytes(
             file_content=file_content,
@@ -63,7 +66,7 @@ async def upload_source(
             title=title
         )
 
-        background_tasks.add_task(process_upload_background, tenant_id, result["id"], content_type)
+        background_tasks.add_task(process_upload_background, tenant_id, user_id, result["id"], content_type)
         return SourceResponse(**result)
 
     except ValueError as e:
@@ -74,7 +77,7 @@ async def upload_source(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
-async def process_upload_background(tenant_id: str, source_id: str, content_type: str):
+async def process_upload_background(tenant_id: str, user_id: str, source_id: str, content_type: str):
     """
     Background task to process uploaded file.
     Handles text extraction, chunking, embedding, and vector storage.
@@ -85,7 +88,7 @@ async def process_upload_background(tenant_id: str, source_id: str, content_type
     
     try:
         async with AsyncSessionLocal() as db:
-            service = IngestionService(db, tenant_id)
+            service = IngestionService(db, tenant_id, user_id)
             await service.process_file_background(source_id, content_type)
     except ValueError as e:
         # Expected errors (API keys, configuration, etc.)
@@ -107,7 +110,8 @@ async def process_upload_background(tenant_id: str, source_id: str, content_type
                 result = await db.execute(
                     select(Source).where(
                         Source.id == uuid.UUID(source_id),
-                        Source.tenant_id == uuid.UUID(tenant_id)
+                        Source.tenant_id == uuid.UUID(tenant_id),
+                        Source.user_id == user_id
                     )
                 )
                 source = result.scalar_one_or_none()
@@ -139,7 +143,8 @@ async def process_upload_background(tenant_id: str, source_id: str, content_type
                 result = await db.execute(
                     select(Source).where(
                         Source.id == uuid.UUID(source_id),
-                        Source.tenant_id == uuid.UUID(tenant_id)
+                        Source.tenant_id == uuid.UUID(tenant_id),
+                        Source.user_id == user_id
                     )
                 )
                 source = result.scalar_one_or_none()
@@ -155,25 +160,31 @@ async def process_upload_background(tenant_id: str, source_id: str, content_type
 @router.get("/sources", response_model=SourceListResponse)
 async def list_sources(request: Request, db: AsyncSession = Depends(get_db)):
     tenant_id = getattr(request.state, "tenant_id", None)
+    user_id = getattr(request.state, "user_id", None)
     if not tenant_id:
         raise HTTPException(status_code=403, detail="Tenant identification failed")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User authentication required")
 
-    service = IngestionService(db, tenant_id)
+    service = IngestionService(db, tenant_id, user_id)
     sources = await service.list_sources()
     return SourceListResponse(sources=sources)
 
 @router.delete("/sources/{source_id}")
 async def delete_source(source_id: str, request: Request, db: AsyncSession = Depends(get_db)):
     tenant_id = getattr(request.state, "tenant_id", None)
+    user_id = getattr(request.state, "user_id", None)
     if not tenant_id:
         raise HTTPException(status_code=403, detail="Tenant identification failed")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User authentication required")
 
     try:
         uuid.UUID(source_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid ID format")
 
-    service = IngestionService(db, tenant_id)
+    service = IngestionService(db, tenant_id, user_id)
     try:
         await service.delete_source(source_id)
         return JSONResponse(status_code=200, content={"message": "Source deleted"})
