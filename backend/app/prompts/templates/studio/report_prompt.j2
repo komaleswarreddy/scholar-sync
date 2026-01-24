@@ -1,0 +1,18 @@
+Generate a comprehensive report based on the following content. Include:
+- Executive Summary
+- Key Points
+- Detailed Analysis
+- Conclusions
+
+{% if context and context.strip() %}
+Content:
+{{ context }}
+{% else %}
+Note: No specific content was provided. Generate a general report structure.
+{% endif %}
+
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% endif %}
+
+Format the report with clear sections using Markdown headings (##, ###).

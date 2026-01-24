@@ -17,7 +17,7 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 # Activate virtual environment if it exists
 if [ -d "venv" ]; then

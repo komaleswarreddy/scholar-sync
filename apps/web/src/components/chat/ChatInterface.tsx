@@ -17,6 +17,7 @@ import { ChatListSidebar } from './ChatListSidebar';
 import { MessageCircle, RefreshCw, WifiOff, AlertTriangle, Menu, X } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { useSourceContext } from '@/contexts/SourceContext';
+import { useChatContext } from '@/contexts/ChatContext';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 
 interface Citation {
@@ -43,7 +44,7 @@ interface Message {
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const { currentChatId, setCurrentChat, setCurrentChatId } = useChatContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
@@ -120,7 +121,7 @@ export function ChatInterface() {
       
       const chat = await apiClient.getChat(chatId);
       if (chat) {
-        setCurrentChatId(chat.id);
+        setCurrentChat(chat);
         if (chat.messages && Array.isArray(chat.messages) && chat.messages.length > 0) {
           const formattedMessages: Message[] = chat.messages.map((msg: any) => ({
             id: msg.id,
@@ -138,7 +139,7 @@ export function ChatInterface() {
         setStreamError(null); // Clear error on success
       } else {
         setStreamError('Chat not found.');
-        setCurrentChatId(null);
+        setCurrentChat(null);
         setMessages([]);
       }
     } catch (error: any) {
@@ -148,7 +149,7 @@ export function ChatInterface() {
       const errorMessage = getUserFriendlyMessage(apiError);
       
       setStreamError(errorMessage);
-      setCurrentChatId(null);
+      setCurrentChat(null);
       setMessages([]);
     } finally {
       setIsLoadingChat(false);
@@ -163,7 +164,7 @@ export function ChatInterface() {
       resetStreamingState();
       setStreamError(null);
       const newChat = await apiClient.createChat();
-      setCurrentChatId(newChat.id);
+      setCurrentChat(newChat);
       setMessages([]);
       // Refresh sidebar to show new chat
       setSidebarRefreshTrigger((prev) => prev + 1);
@@ -197,7 +198,7 @@ export function ChatInterface() {
     // Clear the current chat without creating a new one
     // The user can manually start a new chat if they want
     resetStreamingState();
-    setCurrentChatId(null);
+    setCurrentChat(null);
     setMessages([]);
     setStreamError(null);
   };
@@ -228,7 +229,7 @@ export function ChatInterface() {
         setIsLoading(true);
         const newChat = await apiClient.createChat();
         chatId = newChat.id;
-        setCurrentChatId(chatId);
+        setCurrentChat(newChat);
       } catch (error: any) {
         console.error('Failed to create chat:', error);
         // Use standardized error handling
@@ -524,14 +525,14 @@ export function ChatInterface() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Task A.e: Network status indicator */}
         {!isOnline && (
-          <div className="bg-red-600 text-white text-[11px] py-1.5 px-4 flex items-center justify-center gap-2">
+          <div className="bg-red-600 text-white text-xs py-1.5 px-4 flex items-center justify-center gap-2">
             <WifiOff className="w-3 h-3" />
             Offline Mode: Check your connection to continue chatting
           </div>
         )}
 
-        <div className="border-b border-border-default p-4">
-          <div className="flex items-center justify-between">
+        <div className="h-14 flex items-center px-4 border-b border-border-default">
+          <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -556,7 +557,7 @@ export function ChatInterface() {
           </div>
         </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-4">
         {isLoadingChat ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
             <div className="flex gap-1 mb-2">

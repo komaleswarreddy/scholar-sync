@@ -161,16 +161,16 @@ export function DashboardWrapper({ children }: { children: React.ReactNode }) {
     if (!isSignedIn) return <p>Redirecting to login...</p>;
 
     return (
-      <div className="h-screen w-screen flex flex-col overflow-hidden" style={{ backgroundColor: '#131314' }}>
+      <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
         <Header />
         <div className="flex-1 flex gap-4 p-4 overflow-hidden">
-          <aside className="w-[25%] bg-surface rounded-3xl flex flex-col overflow-hidden border border-border-default">
+          <aside className="w-[18%] bg-surface rounded-3xl flex flex-col overflow-hidden border border-border-default">
             <SourceList />
           </aside>
           <main className="flex-1 flex flex-col bg-surface rounded-3xl overflow-hidden border border-border-default min-w-0">
             {children}
           </main>
-          <aside className="w-[25%] bg-surface rounded-3xl flex flex-col overflow-hidden border border-border-default">
+          <aside className="w-[18%] bg-surface rounded-3xl flex flex-col overflow-hidden border border-border-default">
             <div className="flex-1 border-b border-border-default min-h-0">
               <StudioSuite />
             </div>

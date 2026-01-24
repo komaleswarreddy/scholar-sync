@@ -769,10 +769,13 @@ class ApiClient {
     instructions?: string
   ) {
     await this.refreshToken();
+    // Use longer timeout for AI generation (60 seconds) as it can take time
     const res = await this.client.post('/api/v1/studio/generate', {
       task_type: taskType,
       source_ids: sourceIds,
       custom_instructions: instructions,
+    }, {
+      timeout: 60000, // 60 seconds for AI generation
     });
     return res.data;
   }

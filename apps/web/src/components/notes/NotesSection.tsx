@@ -128,7 +128,7 @@ export function NotesSection() {
   if (viewMode === 'create' || viewMode === 'edit') {
     return (
       <div className="flex flex-col h-full">
-        <div className="p-4 border-b border-border-default flex items-center justify-between">
+        <div className="h-14 flex items-center px-4 border-b border-border-default justify-between">
           <h2 className="text-lg font-medium text-text-primary">
             {viewMode === 'create' ? 'New Note' : 'Edit Note'}
           </h2>
@@ -164,7 +164,7 @@ export function NotesSection() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-border-default flex items-center justify-between">
+      <div className="h-14 flex items-center px-4 border-b border-border-default justify-between">
         <h2 className="text-lg font-medium text-text-primary">Notes</h2>
         <Button
           variant="ghost"
@@ -180,7 +180,7 @@ export function NotesSection() {
 
       {/* Search Bar */}
       {notes.length > 0 && (
-        <div className="p-4 border-b border-border-default">
+        <div className="h-14 flex items-center px-4 border-b border-border-default">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary" />
             <Input

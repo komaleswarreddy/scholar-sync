@@ -1,0 +1,27 @@
+Generate a quiz based on the following content. Return ONLY valid JSON with this exact structure (no markdown, no code blocks):
+{
+  "title": "Quiz Title",
+  "questions": [
+    {
+      "question": "Question text",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "correct_answer": "Correct option",
+      "explanation": "Explanation text"
+    }
+  ]
+}
+
+Generate at least 5 questions. Make sure each question has exactly 4 options.
+
+{% if context and context.strip() %}
+Content:
+{{ context }}
+{% else %}
+Note: No specific content was provided. Generate a general educational quiz.
+{% endif %}
+
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% endif %}
+
+Important: Return ONLY the JSON object, no other text, no markdown formatting, no code blocks.

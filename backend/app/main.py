@@ -12,7 +12,6 @@ load_dotenv()
 from app.core.config import settings
 from app.core.middleware import TenantAuthMiddleware
 from app.api.v1.endpoints import chat, sources, studio, notes
-from starlette.middleware.base import BaseHTTPMiddleware
 
 # ---------------- Lifespan ----------------
 @asynccontextmanager

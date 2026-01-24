@@ -60,7 +60,7 @@ export function ChatListSidebar({
         setChats((prev) => prev.length > 0 ? prev : []);
       }
     } catch (error: any) {
-      console.error('[ChatListSidebar] Failed to load chats:', error);
+      // Error is handled by TanStack Query error state
       // Use standardized error handling
       const apiError = error.apiError || handleApiError(error);
       const errorMessage = getUserFriendlyMessage(apiError);
@@ -123,8 +123,8 @@ export function ChatListSidebar({
   return (
     <div className={`flex flex-col h-full bg-surface border-r border-border-default ${className}`}>
       {/* Header */}
-      <div className="p-4 border-b border-border-default">
-        <div className="flex items-center justify-between mb-4">
+      <div className="h-14 flex items-center px-4 border-b border-border-default">
+        <div className="flex items-center justify-between w-full">
           <h2 className="text-lg font-bold text-text-primary">Chats</h2>
           <button
             onClick={onNewChat}
@@ -197,11 +197,11 @@ export function ChatListSidebar({
                       {formatChatTitle(chat.title, chat.created_at)}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <p className="text-[10px] font-medium text-text-tertiary">
+                      <p className="text-xs font-medium text-text-tertiary">
                         {chat.message_count} {chat.message_count === 1 ? 'message' : 'messages'}
                       </p>
-                      <span className="text-text-tertiary text-[10px]">•</span>
-                      <p className="text-[10px] text-text-tertiary">
+                      <span className="text-text-tertiary text-xs">•</span>
+                      <p className="text-xs text-text-tertiary">
                         {new Date(chat.created_at).toLocaleDateString()}
                       </p>
                     </div>

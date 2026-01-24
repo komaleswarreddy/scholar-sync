@@ -19,12 +19,12 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'rounded-full font-medium transition-all duration-200 focus:outline-none';
+  const baseStyles = 'rounded-full font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-2 focus:ring-offset-background active:scale-95';
   
   const variants = {
-    primary: 'bg-accent-blue text-background hover:opacity-90',
-    secondary: 'bg-surface border border-border-default text-text-primary hover:bg-surface-hover',
-    ghost: 'bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover',
+    primary: 'bg-accent-blue text-background hover:opacity-90 hover:shadow-lg hover:shadow-accent-blue/20 hover:scale-105',
+    secondary: 'bg-surface border border-border-default text-text-primary hover:bg-surface-hover hover:border-border-active hover:shadow-md hover:scale-105',
+    ghost: 'bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface-hover hover:scale-105',
   };
   
   const sizes = {

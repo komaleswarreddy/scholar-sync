@@ -2,28 +2,17 @@
 RAG Service
 
 Handles Retrieval-Augmented Generation for chat.
-Uses Gemini 1.5 Flash for context-heavy tasks with streaming support.
+Uses LLM abstraction layer and prompt templates.
 """
 
 from typing import List, Dict, AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
-import google.generativeai as genai
 
 from app.core.config import settings
+from app.core.llm import get_llm_client, get_model_for_task
+from app.prompts import load_prompt
 from app.services.vector import VectorService
 from app.schemas.chat import ChatMessage, Citation
-
-# Lazy Gemini configuration
-_gemini_configured = False
-
-def configure_gemini():
-    """Lazy configuration of Gemini API."""
-    global _gemini_configured
-    if not _gemini_configured:
-        if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY == "your-gemini-api-key":
-            raise ValueError("Gemini API key not configured. Please set GEMINI_API_KEY in .env")
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        _gemini_configured = True
 
 
 class RAGService:
@@ -44,19 +33,6 @@ class RAGService:
         self.tenant_id = tenant_id
         self.user_id = user_id
         self.vector_service = VectorService(tenant_id)
-        self._model = None
-    
-    @property
-    def model(self):
-        """Lazy initialization of Gemini model."""
-        if self._model is None:
-            configure_gemini()
-            # Use gemini-2.5-flash (newer version) or fallback to gemini-1.5-flash
-            try:
-                self._model = genai.GenerativeModel("gemini-2.5-flash")
-            except:
-                self._model = genai.GenerativeModel("gemini-1.5-flash")
-        return self._model
     
     async def stream_chat(
         self,
@@ -152,53 +128,30 @@ class RAGService:
         
         context = "\n\n".join(context_chunks)
         
-        # 4. Construct prompt with context
-        if context:
-            # If we have context from sources, include it in the prompt
-            full_prompt = f"""You are a helpful AI assistant for students. Answer questions based ONLY on the provided context.
+        # 4. Construct prompt using template
+        try:
+            full_prompt = load_prompt(
+                "chat/rag_prompt.j2",
+                context=context or "",
+                message=message
+            )
+        except FileNotFoundError:
+            # Fallback to inline prompt if template missing
+            if context:
+                full_prompt = f"""You are a helpful AI assistant for students. Answer questions based ONLY on the provided context.
 
 Context (chunks numbered [1], [2], [3]... in order of relevance - [1] is most relevant):
 {context}
 
-Answer Format Instructions:
-1. Start your answer with a clear, complete sentence that directly answers the question. For example, if asked "what are NULL values", start with "NULL value is..." or "NULL values are..." - be explicit and clear from the first sentence.
-2. Use the most relevant chunk(s) - typically [1] or [2] - to provide the direct answer.
-3. After the direct answer, you can mention alternative approaches or related information if applicable.
-4. Only cite chunk numbers [1], [2], etc. that actually contain the information you are stating. Do NOT cite chunks that do not contain the information.
-5. Use proper formatting with Markdown:
-   - Use **bold** for emphasis
-   - Use headings (##, ###) for sections and subsections
-   - Use bullet points (- or *) for lists
-   - Use numbered lists (1., 2., 3.) for ordered items
-   - Put each point on a new line
-   - Use line breaks between paragraphs
-   - Use `code` formatting for commands, keywords, or technical terms
-
-Example format:
-"To delete data from a database, use the **DELETE** command [1].
-
-Alternatively, you can use:
-- **TRUNCATE TABLE** to delete all rows [2]
-- **DROP TABLE** to delete the entire table [3]"
-
-Rules:
-- Answer based strictly on the provided context
-- The most relevant chunks are listed first ([1] is most relevant)
-- Cite accurately - only reference chunks that contain the information
-- If information is not in the context, say so clearly
-- Format your response with proper Markdown for readability
-- Use line breaks and structure for clarity
-
 User question: {message}"""
-        else:
-            # No context available
-            full_prompt = f"""You are a helpful AI assistant for students.
+            else:
+                full_prompt = f"""You are a helpful AI assistant for students.
 
 User question: {message}
 
 Note: No source documents are available. Please provide a general helpful response."""
         
-        # 5. Stream response from Gemini
+        # 5. Stream response using LLM abstraction
         # Send citations first
         for citation in citations:
             yield {
@@ -206,74 +159,43 @@ Note: No source documents are available. Please provide a general helpful respon
                 "data": citation,
             }
         
-        # Stream text chunks from Gemini
+        # Get LLM client for chat (Gemini)
+        provider, model = get_model_for_task("chat")
+        llm_client = get_llm_client(provider=provider, model=model, temperature=0.7)
+        
+        # Stream text chunks from LLM
         text_received = False
         accumulated_text = ""
         
         try:
-            # Use generate_content with the full prompt (simpler and more reliable)
-            # Add generation config for better reliability
-            generation_config = {
-                "temperature": 0.7,
-                "top_p": 0.8,
-                "top_k": 40,
-            }
-            response = self.model.generate_content(
-                full_prompt, 
-                stream=True,
-                generation_config=generation_config
-            )
-            
-            chunk_count = 0
-            for chunk in response:
-                chunk_count += 1
-                # Check different possible attributes for text
-                text = None
-                
-                # Try direct .text attribute first
-                if hasattr(chunk, 'text') and chunk.text:
-                    text = chunk.text
-                # Try accessing through candidates
-                elif hasattr(chunk, 'candidates') and chunk.candidates and len(chunk.candidates) > 0:
-                    candidate = chunk.candidates[0]
-                    # Check for finish_reason (might indicate blocking)
-                    if hasattr(candidate, 'finish_reason'):
-                        finish_reason = candidate.finish_reason
-                        if finish_reason and finish_reason != 1:  # 1 = STOP, other values indicate issues
-                            print(f"[WARNING] Gemini finish_reason: {finish_reason}")
-                            if finish_reason == 3:  # SAFETY
-                                yield {
-                                    "event": "error",
-                                    "data": {"error": "Response was blocked by safety filters. Please try rephrasing your question."},
-                                }
-                                return
-                    
-                    if hasattr(candidate, 'content') and candidate.content:
-                        if hasattr(candidate.content, 'parts') and candidate.content.parts:
-                            for part in candidate.content.parts:
-                                if hasattr(part, 'text') and part.text:
-                                    text = part.text
-                                    break
-                
-                # Additional check: try to get text from the response object itself
-                if not text and hasattr(response, 'text'):
-                    text = response.text
-                
-                if text and text.strip():
+            async for chunk in llm_client.stream_generate(
+                prompt=full_prompt,
+                temperature=0.7
+            ):
+                if chunk.content and chunk.content.strip():
                     text_received = True
-                    accumulated_text += text
+                    accumulated_text += chunk.content
                     yield {
                         "event": "chunk",
-                        "data": {"text": text},
+                        "data": {"text": chunk.content},
                     }
-            
-            # Log if we received chunks but no text
-            if chunk_count > 0 and not text_received:
-                print(f"[WARNING] Received {chunk_count} chunks but no text content extracted")
+                
+                # Check for errors in metadata
+                if chunk.metadata and chunk.metadata.get("finish_reason"):
+                    finish_reason = chunk.metadata["finish_reason"]
+                    if finish_reason == "SAFETY" or finish_reason == 3:
+                        yield {
+                            "event": "error",
+                            "data": {"error": "Response was blocked by safety filters. Please try rephrasing your question."},
+                        }
+                        return
+                
+                if chunk.done:
+                    break
         
         except Exception as e:
             import traceback
-            error_msg = f"Gemini API error: {type(e).__name__}: {str(e)}"
+            error_msg = f"LLM API error: {type(e).__name__}: {str(e)}"
             print(f"[ERROR] {error_msg}")
             print(f"[ERROR] Traceback: {traceback.format_exc()}")
             yield {
@@ -284,39 +206,12 @@ Note: No source documents are available. Please provide a general helpful respon
         
         # Check if we received any text before sending done
         if not text_received:
-            print(f"[WARNING] No text received from Gemini. Accumulated text length: {len(accumulated_text)}")
-            # Try to get the full response if streaming didn't work
-            try:
-                # Fallback: try non-streaming generation
-                generation_config = {
-                    "temperature": 0.7,
-                    "top_p": 0.8,
-                    "top_k": 40,
-                }
-                fallback_response = self.model.generate_content(
-                    full_prompt, 
-                    stream=False,
-                    generation_config=generation_config
-                )
-                if hasattr(fallback_response, 'text') and fallback_response.text:
-                    text_received = True
-                    yield {
-                        "event": "chunk",
-                        "data": {"text": fallback_response.text},
-                    }
-                else:
-                    yield {
-                        "event": "error",
-                        "data": {"error": "No response generated. The model may have been blocked or encountered an error. Please try again."},
-                    }
-                    return
-            except Exception as fallback_error:
-                print(f"[ERROR] Fallback generation also failed: {fallback_error}")
-                yield {
-                    "event": "error",
-                    "data": {"error": f"Failed to generate response: {str(fallback_error)}"},
-                }
-                return
+            print(f"[WARNING] No text received from LLM. Accumulated text length: {len(accumulated_text)}")
+            yield {
+                "event": "error",
+                "data": {"error": "No response generated. The model may have been blocked or encountered an error. Please try again."},
+            }
+            return
         
         # Done
         yield {

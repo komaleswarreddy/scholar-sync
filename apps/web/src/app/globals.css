@@ -2,17 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+/* Inter font is loaded via Next.js font optimization in layout.tsx */
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap');
 
 @layer base {
+  :root {
+    /* Light Theme - Design Tokens */
+    --color-background: #FFFFFF;
+    --color-surface: #F8F9FA;
+    --color-surface-hover: #E8EAED;
+    --color-modal: #FFFFFF;
+    
+    --color-border-default: #DADCE0;
+    --color-border-active: #4285F4;
+    
+    --color-text-primary: #202124;
+    --color-text-secondary: #5F6368;
+    --color-text-tertiary: #80868B;
+    
+    --color-accent-blue: #1A73E8;
+    --color-accent-green: #34A853;
+    --color-citation-badge: #E8EAED;
+  }
+
+  .dark {
+    /* Dark Theme - NotebookLM Design Tokens */
+    --color-background: #131314;
+    --color-surface: #1E1F20;
+    --color-surface-hover: #28292A;
+    --color-modal: #1E1F20;
+    
+    --color-border-default: #2D2D2D;
+    --color-border-active: #3D3D3D;
+    
+    --color-text-primary: #E3E3E3;
+    --color-text-secondary: #C4C7C5;
+    --color-text-tertiary: #9AA0A6;
+    
+    --color-accent-blue: #A8C7FA;
+    --color-accent-green: #C4EED0;
+    --color-citation-badge: #2D2D2D;
+  }
+
   * {
     @apply border-border-default;
   }
   
   body {
     @apply bg-background text-text-primary font-sans;
-    font-family: 'Google Sans', 'Inter', system-ui, sans-serif;
-    background-color: #131314;
+    font-family: var(--font-inter), 'Google Sans', 'Inter', system-ui, sans-serif;
   }
 }
 

@@ -1,0 +1,20 @@
+Generate a mind map in Markdown format with hierarchical structure:
+# Main Topic
+## Subtopic 1
+- Point 1
+- Point 2
+## Subtopic 2
+...
+
+{% if context and context.strip() %}
+Content:
+{{ context }}
+{% else %}
+Note: No specific content was provided. Generate a general mind map structure.
+{% endif %}
+
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% endif %}
+
+Important: Return ONLY the Markdown content, no code blocks, no explanations.

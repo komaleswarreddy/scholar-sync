@@ -1,0 +1,20 @@
+Generate a slide deck outline in Markdown:
+# Slide 1: Title
+Content
+
+# Slide 2: Topic
+Content
+...
+
+{% if context and context.strip() %}
+Content:
+{{ context }}
+{% else %}
+Note: No specific content was provided. Generate a general slide deck outline.
+{% endif %}
+
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% endif %}
+
+Important: Return ONLY the Markdown content, no code blocks, no explanations.

@@ -22,6 +22,10 @@ export { ChatInput } from './chat/ChatInput';
 // Studio Components
 export { StudioSuite } from './studio/StudioSuite';
 export { StudioCard } from './studio/StudioCard';
+export { GenerationModal } from './studio/GenerationModal';
+export type { ContentType } from './studio/GenerationModal';
+export { QuizDisplay } from './studio/QuizDisplay';
+export type { QuizQuestion, QuizData } from './studio/QuizDisplay';
 
 // Notes Components
 export { NotesSection } from './notes/NotesSection';

@@ -146,7 +146,7 @@ export function ChatMessage({
             onClick={() => handleCitationClick(citation)}
             className="
               bg-citation-badge 
-              text-[#E3E3E3] 
+              text-text-primary 
               px-1.5 
               rounded 
               text-xs 
@@ -172,7 +172,7 @@ export function ChatMessage({
         <span
           className="
             bg-citation-badge 
-            text-[#E3E3E3] 
+            text-text-primary 
             px-1.5 
             rounded 
             text-xs 

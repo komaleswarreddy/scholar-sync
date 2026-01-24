@@ -77,7 +77,7 @@ export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: No
           localStorage.removeItem(DRAFT_KEY);
         }
       } catch (error) {
-        console.error('[NoteEditor] Failed to save draft to localStorage:', error);
+        // Silently fail - draft saving is non-critical
       }
     }, 500); // 500ms debounce
 

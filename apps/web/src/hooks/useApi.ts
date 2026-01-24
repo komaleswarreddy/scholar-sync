@@ -37,11 +37,17 @@ export function useApi() {
     []
   );
 
+  const clearError = useCallback(() => {
+    setError(null);
+    setErrorDetails(null);
+  }, []);
+
   return {
     loading,
     error,
     errorDetails,
     handleRequest,
+    clearError,
     apiClient,
   };
 }

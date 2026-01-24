@@ -3,38 +3,19 @@ Studio Service
 
 Handles generative tasks with smart model routing.
 Routes to optimal model based on task type.
+
+Uses LLM abstraction layer and prompt templates.
 """
 
 from typing import Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-# import google.generativeai as genai
-# import openai
 import json
+import re
 
 from app.core.config import settings
+from app.core.llm import get_llm_client, get_model_for_task, LLMClient
+from app.prompts import load_prompt
 from app.services.vector import VectorService
-
-# Lazy configuration - will be configured when needed
-_gemini_configured = False
-_openai_configured = False
-
-def configure_gemini():
-    """Lazy configuration of Gemini API."""
-    global _gemini_configured
-    if not _gemini_configured:
-        if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY == "your-gemini-api-key":
-            raise ValueError("Gemini API key not configured. Please set GEMINI_API_KEY in .env")
-        genai.configure(api_key=settings.GEMINI_API_KEY)
-        _gemini_configured = True
-
-def configure_openai():
-    """Lazy configuration of OpenAI API."""
-    global _openai_configured
-    if not _openai_configured:
-        if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "your-openai-api-key":
-            raise ValueError("OpenAI API key not configured. Please set OPENAI_API_KEY in .env")
-        openai.api_key = settings.OPENAI_API_KEY
-        _openai_configured = True
 
 
 class StudioService:
@@ -46,23 +27,11 @@ class StudioService:
     - Content-heavy tasks (report, infographic) -> Gemini 1.5 Flash
     """
     
-    def __init__(self, db: AsyncSession, tenant_id: str):
+    def __init__(self, db: AsyncSession, tenant_id: str, user_id: str = None):
         self.db = db
         self.tenant_id = tenant_id
+        self.user_id = user_id
         self.vector_service = VectorService(tenant_id)
-        self._gemini_model = None
-    
-    @property
-    def gemini_model(self):
-        """Lazy initialization of Gemini model."""
-        if self._gemini_model is None:
-            configure_gemini()
-            # Use gemini-2.5-flash (newer version) or fallback to gemini-1.5-flash
-            try:
-                self._gemini_model = genai.GenerativeModel("gemini-2.5-flash")
-            except:
-                self._gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-        return self._gemini_model
     
     async def generate(
         self,
@@ -84,6 +53,10 @@ class StudioService:
         # Retrieve context from sources
         context = await self._get_context_from_sources(source_ids)
         
+        # Warn if context is empty (but allow generation to proceed)
+        if not context or not context.strip():
+            print(f"[WARNING] Empty context for sources: {source_ids}. Generation may produce generic content.")
+        
         # Route to appropriate model
         if task_type in ["quiz", "flashcards", "mind_map", "slide_deck"]:
             # Structured output -> GPT-4o-mini
@@ -94,11 +67,58 @@ class StudioService:
     
     async def _get_context_from_sources(self, source_ids: list) -> str:
         """Retrieve text content from sources for context."""
-        # Query Pinecone for chunks from these sources
-        # For simplicity, get all chunks from sources (in production, use better retrieval)
-        context_parts = []
-        # Implementation would query Pinecone with source_id filter
-        return "\n\n".join(context_parts)
+        if not source_ids:
+            print(f"[STUDIO] No source IDs provided")
+            return ""
+        
+        try:
+            # Generate a generic embedding to retrieve relevant chunks from the sources
+            # We use a generic query to get content from the selected sources
+            query_text = "Generate quiz questions based on this content"
+            query_embedding = await self.vector_service.generate_embedding(query_text)
+            
+            # Query Pinecone with source_id filter to get chunks from selected sources
+            filter_dict = {"source_id": {"$in": source_ids}}
+            results = await self.vector_service.query_vectors(
+                query_embedding=query_embedding,
+                top_k=settings.TOP_K_CHUNKS * 2,  # Get more chunks for better context
+                filter=filter_dict,
+            )
+            
+            # Build context from retrieved chunks
+            context_parts = []
+            for match in results.get("matches", []):
+                chunk_text = match.get("metadata", {}).get("text", "")
+                if chunk_text:
+                    context_parts.append(chunk_text)
+            
+            context = "\n\n".join(context_parts)
+            
+            if not context or not context.strip():
+                print(f"[STUDIO] WARNING: No content retrieved from sources: {source_ids}")
+                print(f"[STUDIO] This might mean:")
+                print(f"[STUDIO]   1. Sources have not been processed/ingested yet")
+                print(f"[STUDIO]   2. Pinecone is not configured or not accessible")
+                print(f"[STUDIO]   3. No vectors exist for these source IDs")
+                print(f"[STUDIO] Quiz will still be generated, but may be generic.")
+                return ""
+            
+            print(f"[STUDIO] Successfully retrieved {len(context_parts)} chunks from {len(source_ids)} source(s)")
+            return context
+            
+        except ValueError as e:
+            # Configuration errors (missing API keys, etc.)
+            error_msg = str(e)
+            print(f"[STUDIO] Configuration error retrieving context: {error_msg}")
+            print(f"[STUDIO] Quiz will still be generated, but may be generic.")
+            return ""
+        except Exception as e:
+            import traceback
+            print(f"[STUDIO] Error retrieving context from sources: {type(e).__name__}: {str(e)}")
+            print(f"[STUDIO] Traceback: {traceback.format_exc()}")
+            print(f"[STUDIO] Quiz will still be generated, but may be generic.")
+            # Return empty context rather than failing completely
+            return ""
     
     async def _generate_with_gpt4o_mini(
         self,
@@ -106,80 +126,71 @@ class StudioService:
         context: str,
         custom_instructions: Optional[str],
     ) -> Dict[str, Any]:
-        """Generate structured content with GPT-4o-mini."""
-        configure_openai()
-        client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+        """Generate structured content with GPT-4o-mini using LLM abstraction."""
+        # Get LLM client using factory
+        provider, model = get_model_for_task(task_type)
+        llm_client = get_llm_client(provider=provider, model=model, temperature=0.7)
         
-        # Build prompt based on task type
-        prompts = {
-            "quiz": f"""Generate a quiz based on the following content. Return JSON with this structure:
-{{
-  "title": "Quiz Title",
-  "questions": [
-    {{
-      "question": "Question text",
-      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-      "correct_answer": "Correct option",
-      "explanation": "Explanation text"
-    }}
-  ]
-}}
-
-Content:
-{context}
-
-{custom_instructions or ""}
-""",
-            "flashcards": f"""Generate flashcards based on the content. Return JSON array:
-[
-  {{"front": "Term", "back": "Definition"}},
-  ...
-]
-
-Content:
-{context}
-""",
-            "mind_map": f"""Generate a mind map in Markdown format with hierarchical structure:
-# Main Topic
-## Subtopic 1
-- Point 1
-- Point 2
-## Subtopic 2
-...
-
-Content:
-{context}
-""",
-            "slide_deck": f"""Generate a slide deck outline in Markdown:
-# Slide 1: Title
-Content
-
-# Slide 2: Topic
-Content
-...
-
-Content:
-{context}
-""",
+        # Load prompt template
+        prompt_template_map = {
+            "quiz": "studio/quiz_prompt.j2",
+            "flashcards": "studio/flashcards_prompt.j2",
+            "mind_map": "studio/mind_map_prompt.j2",
+            "slide_deck": "studio/slide_deck_prompt.j2",
         }
         
-        prompt = prompts.get(task_type, prompts["quiz"])
+        template_path = prompt_template_map.get(task_type, "studio/quiz_prompt.j2")
         
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a helpful educational content generator. Always return valid JSON or Markdown."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
+        try:
+            prompt = load_prompt(
+                template_path,
+                context=context or "",
+                custom_instructions=custom_instructions or ""
+            )
+        except FileNotFoundError as e:
+            print(f"[STUDIO] Prompt template not found: {template_path}, using fallback")
+            # Fallback to inline prompt if template missing
+            prompt = f"Generate a {task_type} based on: {context or 'general content'}"
+        
+        # Generate using LLM abstraction
+        system_prompt = "You are a helpful educational content generator. Always return valid JSON or Markdown."
+        response = await llm_client.generate(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            temperature=0.7
         )
         
-        content = response.choices[0].message.content
+        content = response.content
+        
+        # Clean up the content - remove markdown code blocks if present
+        if content.strip().startswith("```"):
+            # Remove markdown code blocks
+            lines = content.strip().split("\n")
+            if lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines[-1].strip() == "```":
+                lines = lines[:-1]
+            content = "\n".join(lines)
         
         # Parse and return
         if task_type in ["quiz", "flashcards"]:
-            data = json.loads(content)
-            return {"task_type": task_type, "data": data}
+            try:
+                data = json.loads(content)
+                print(f"[STUDIO] Successfully parsed {task_type} response")
+                return {"task_type": task_type, "data": data}
+            except json.JSONDecodeError as e:
+                print(f"[STUDIO] Failed to parse JSON response: {str(e)}")
+                print(f"[STUDIO] Response content: {content[:500]}...")
+                # Try to extract JSON from the response
+                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                if json_match:
+                    try:
+                        data = json.loads(json_match.group())
+                        print(f"[STUDIO] Successfully extracted JSON from response")
+                        return {"task_type": task_type, "data": data}
+                    except:
+                        pass
+                raise ValueError(f"Failed to parse {task_type} response as JSON. Response: {content[:200]}")
         else:
             return {"task_type": task_type, "content": content}
     
@@ -189,36 +200,38 @@ Content:
         context: str,
         custom_instructions: Optional[str],
     ) -> Dict[str, Any]:
-        """Generate content-heavy tasks with Gemini 1.5 Flash."""
-        prompts = {
-            "report": f"""Generate a comprehensive report based on the following content. Include:
-- Executive Summary
-- Key Points
-- Detailed Analysis
-- Conclusions
-
-Content:
-{context}
-
-{custom_instructions or ""}
-""",
-            "infographic": f"""Generate a visual brief description for an infographic based on:
-- Main visual elements
-- Data points to highlight
-- Layout suggestions
-- Color scheme recommendations
-
-Content:
-{context}
-""",
+        """Generate content-heavy tasks with Gemini using LLM abstraction."""
+        # Get LLM client using factory
+        provider, model = get_model_for_task(task_type)
+        llm_client = get_llm_client(provider=provider, model=model, temperature=0.7)
+        
+        # Load prompt template
+        prompt_template_map = {
+            "report": "studio/report_prompt.j2",
+            "infographic": "studio/infographic_prompt.j2",
         }
         
-        prompt = prompts.get(task_type, prompts["report"])
+        template_path = prompt_template_map.get(task_type, "studio/report_prompt.j2")
         
-        response = self.gemini_model.generate_content(prompt)
+        try:
+            prompt = load_prompt(
+                template_path,
+                context=context or "",
+                custom_instructions=custom_instructions or ""
+            )
+        except FileNotFoundError as e:
+            print(f"[STUDIO] Prompt template not found: {template_path}, using fallback")
+            # Fallback to inline prompt if template missing
+            prompt = f"Generate a {task_type} based on: {context or 'general content'}"
+        
+        # Generate using LLM abstraction
+        response = await llm_client.generate(
+            prompt=prompt,
+            temperature=0.7
+        )
         
         return {
             "task_type": task_type,
-            "content": response.text,
+            "content": response.content,
         }
 

@@ -13,18 +13,51 @@
 import { useState, useRef } from 'react';
 import { Checkbox } from '../ui/Checkbox';
 import { Button } from '../ui/Button';
-import { FileText, Plus, X, Loader2, AlertCircle, CheckCircle2, Trash2 } from 'lucide-react';
+import { FileText, Plus, X, Loader2, AlertCircle, CheckCircle2, Trash2, File, Globe, FileType } from 'lucide-react';
 import { useSources, useUploadSource, useDeleteSource } from '@/hooks/useSources';
 import { useSourceContext } from '@/contexts/SourceContext';
+import { SourceItemSkeleton } from './SourceItemSkeleton';
 
 interface Source {
   id: string;
   title: string;
-  type?: string;
-  status: 'processing' | 'indexed' | 'error';
+  type?: 'pdf' | 'text' | 'url' | string;
+  file_type?: string; // API might return file_type
+  status: 'processing' | 'indexed' | 'error' | 'completed' | 'failed';
   created_at?: string;
   chunks_count?: number;
   error_message?: string;
+}
+
+// Helper function to get file type icon and color
+function getFileTypeIcon(type?: string) {
+  const normalizedType = type?.toLowerCase();
+  
+  if (normalizedType === 'pdf' || normalizedType?.includes('pdf')) {
+    return {
+      icon: FileText,
+      color: 'text-red-500',
+      bgColor: 'bg-red-500/10',
+      borderColor: 'border-red-500/20',
+    };
+  }
+  
+  if (normalizedType === 'url' || normalizedType?.includes('url') || normalizedType?.includes('http')) {
+    return {
+      icon: Globe,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10',
+      borderColor: 'border-blue-500/20',
+    };
+  }
+  
+  // Default to text file
+  return {
+    icon: FileType,
+    color: 'text-accent-blue',
+    bgColor: 'bg-accent-blue/10',
+    borderColor: 'border-accent-blue/20',
+  };
 }
 
 export function SourceList() {
@@ -131,8 +164,8 @@ export function SourceList() {
 
   return (
     <div className="flex flex-col h-full bg-surface border-r border-border-default">
-      <div className="p-4 border-b border-border-default">
-        <div className="flex items-center justify-between mb-4">
+      <div className="h-14 flex items-center px-4 border-b border-border-default">
+        <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-text-primary" />
             <h2 className="text-lg font-bold text-text-primary tracking-tight">Sources</h2>
@@ -140,13 +173,15 @@ export function SourceList() {
           {selectedSources.size > 0 && (
             <button 
               onClick={clearSelection}
-              className="text-[11px] font-medium text-text-tertiary hover:text-text-primary transition-colors"
+              className="text-xs font-medium text-text-tertiary hover:text-text-primary transition-colors"
             >
               Deselect all
             </button>
           )}
         </div>
+      </div>
 
+      <div className="p-4 border-b border-border-default">
         <input
           ref={fileInputRef}
           type="file"
@@ -160,26 +195,27 @@ export function SourceList() {
           size="md"
           onClick={handleUpload}
           disabled={isUploading || loading}
-          className="w-full flex flex-col items-center justify-center gap-1 rounded-xl py-3 border-dashed border-2 bg-surface-subtle"
+          className="w-full flex flex-col items-center justify-center gap-2 rounded-xl py-3 border-dashed border-2 border-border-default hover:border-border-active hover:bg-surface-hover transition-all"
         >
           {isUploading ? (
-            <div className="w-full px-2">
-              <div className="flex justify-between text-[10px] mb-1.5 font-medium">
-                <span className="flex items-center gap-1">
-                  <Loader2 className="w-3 h-3 animate-spin" /> Uploading...
+            <div className="w-full px-2 space-y-2">
+              <div className="flex justify-between items-center text-xs font-medium">
+                <span className="flex items-center gap-1.5 text-text-primary">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-accent-blue" /> 
+                  <span>Uploading...</span>
                 </span>
-                <span>{uploadProgress}%</span>
+                <span className="text-text-secondary font-semibold">{uploadProgress}%</span>
               </div>
-              <div className="w-full h-1.5 bg-border-default rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-border-default rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-text-primary transition-all duration-300" 
+                  className="h-full bg-accent-blue transition-all duration-300 rounded-full shadow-sm" 
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Plus className="w-4 h-4" /> 
+            <div className="flex items-center gap-2 text-text-primary">
+              <Plus className="w-5 h-5" /> 
               <span className="font-semibold text-sm">Add documents</span>
             </div>
           )}
@@ -193,7 +229,14 @@ export function SourceList() {
                 ? apiError 
                 : apiError?.message || apiError?.toString() || 'An error occurred')}
             </p>
-            <button onClick={() => setLocalError(null)}>
+            <button 
+              onClick={() => {
+                setLocalError(null);
+                // Note: apiError from TanStack Query will persist until query is refetched
+                // This is expected behavior - the error will clear on next successful fetch
+              }}
+              className="cursor-pointer hover:opacity-70 transition-opacity"
+            >
               <X className="w-3.5 h-3.5 text-red-400 hover:text-red-600" />
             </button>
           </div>
@@ -202,71 +245,103 @@ export function SourceList() {
 
       <div className="flex-1 overflow-y-auto p-2">
         {loading && sources.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-text-tertiary mb-3" />
-            <p className="text-text-tertiary text-xs font-medium">Loading library...</p>
+          <div className="space-y-1">
+            {[1, 2, 3, 4].map((i) => (
+              <SourceItemSkeleton key={i} />
+            ))}
           </div>
         ) : sources.length === 0 ? (
-          <div className="text-center py-12 px-6">
-            <p className="text-text-secondary text-sm font-semibold mb-1">No sources connected</p>
-            <p className="text-text-tertiary text-xs">Upload a file to start research</p>
+          <div className="flex flex-col items-center justify-center py-16 px-6">
+            <div className="w-16 h-16 rounded-full bg-surface-hover flex items-center justify-center mb-4">
+              <FileText className="w-8 h-8 text-text-tertiary" />
+            </div>
+            <p className="text-text-primary text-base font-semibold mb-1">No sources connected</p>
+            <p className="text-text-secondary text-sm text-center mb-4">
+              Upload PDF or text files to start researching
+            </p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleUpload}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add your first source</span>
+            </Button>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {sources.map((source) => {
               const isSelected = selectedSources.has(source.id);
               const isDeleting = deletingId === source.id;
+              // Use type or file_type from API, or infer from title
+              const sourceType = source.type || source.file_type || 
+                (source.title?.toLowerCase().endsWith('.pdf') ? 'pdf' : 
+                 source.title?.toLowerCase().endsWith('.txt') ? 'text' : 'text');
+              const fileType = getFileTypeIcon(sourceType);
+              const IconComponent = fileType.icon;
+              // Map status: 'completed' -> 'indexed', 'failed' -> 'error'
+              const mappedStatus = source.status === 'completed' ? 'indexed' :
+                                   source.status === 'failed' ? 'error' : source.status;
               
               return (
                 <div
                   key={source.id}
                   className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all group relative
-                    ${isSelected ? 'bg-surface-hover border border-border-default' : 'hover:bg-surface-subtle border border-transparent'}`}
+                    ${isSelected 
+                      ? 'bg-surface-hover border-2 border-accent-blue shadow-sm' 
+                      : 'border border-transparent hover:bg-surface-hover hover:border-border-default hover:shadow-sm'
+                    }
+                    ${isDeleting ? 'opacity-50 pointer-events-none' : ''}
+                  `}
                   onClick={() => !isDeleting && toggleSource(source.id)}
                 >
-                  <div className="mt-0.5">
+                  <div className="mt-0.5 flex-shrink-0">
                     <Checkbox checked={isSelected} onChange={() => {}} disabled={isDeleting} />
+                  </div>
+                  
+                  {/* File Type Icon */}
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-lg ${fileType.bgColor} border ${fileType.borderColor} flex items-center justify-center mt-0.5`}>
+                    <IconComponent className={`w-4 h-4 ${fileType.color}`} />
                   </div>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5">
-                      {source.status === 'processing' && (
-                        <span className="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      {mappedStatus === 'processing' && (
+                        <span className="text-xs font-bold uppercase bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded flex items-center gap-1 border border-blue-500/20">
                           <Loader2 className="w-2.5 h-2.5 animate-spin" /> processing
                         </span>
                       )}
-                      {source.status === 'indexed' && (
-                        <span className="text-[9px] font-bold uppercase bg-green-50 text-green-600 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      {mappedStatus === 'indexed' && (
+                        <span className="text-xs font-bold uppercase bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded flex items-center gap-1 border border-green-500/20">
                           <CheckCircle2 className="w-2.5 h-2.5" /> ready
                         </span>
                       )}
-                      {source.status === 'error' && (
-                        <span 
-                          className="text-[9px] font-bold uppercase bg-red-50 text-red-600 px-1.5 py-0.5 rounded flex items-center gap-1"
-                        >
+                      {mappedStatus === 'error' && (
+                        <span className="text-xs font-bold uppercase bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded flex items-center gap-1 border border-red-500/20">
                           <AlertCircle className="w-2.5 h-2.5" /> error
                         </span>
                       )}
                     </div>
 
-                    <p className={`text-sm font-semibold truncate ${isSelected ? 'text-text-primary' : 'text-text-secondary'}`}>
+                    <p className={`text-sm font-semibold truncate mb-1 ${isSelected ? 'text-text-primary' : 'text-text-secondary'}`}>
                       {source.title}
                     </p>
                     
-                    {source.status === 'error' && source.error_message && (
-                      <div className="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200">
-                        <p className="text-[10px] text-red-700 leading-relaxed">
+                    {mappedStatus === 'error' && source.error_message && (
+                      <div className="mt-1.5 p-2 rounded-lg bg-red-500/10 border border-red-500/20">
+                        <p className="text-xs text-red-600 leading-relaxed">
                           {source.error_message}
                         </p>
                       </div>
                     )}
                     
                     <div className="flex items-center gap-2 mt-1.5">
-                        <p className="text-[10px] font-bold text-text-tertiary uppercase">
+                        <p className="text-xs font-medium text-text-tertiary">
                             {source.chunks_count || 0} chunks
                         </p>
-                        <span className="text-text-tertiary text-[10px]">•</span>
-                        <p className="text-[10px] font-medium text-text-tertiary">
+                        <span className="text-text-tertiary text-xs">•</span>
+                        <p className="text-xs font-medium text-text-tertiary">
                             {source.created_at ? new Date(source.created_at).toLocaleDateString(undefined, {
                               month: 'short',
                               day: 'numeric'
@@ -278,13 +353,18 @@ export function SourceList() {
                   <button
                     onClick={(e) => handleDelete(source.id, e)}
                     disabled={isDeleting}
-                    className={`p-1.5 rounded-lg transition-all 
-                      ${isDeleting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 text-text-tertiary hover:text-red-600 hover:bg-red-50'}`}
+                    className={`p-1.5 rounded-lg transition-all flex-shrink-0
+                      ${isDeleting 
+                        ? 'opacity-100' 
+                        : 'opacity-0 group-hover:opacity-100 text-text-tertiary hover:text-red-500 hover:bg-red-500/10'
+                      }`}
+                    title="Delete source"
+                    aria-label="Delete source"
                   >
                     {isDeleting ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                      <Loader2 className="w-4 h-4 animate-spin text-red-500" />
                     ) : (
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     )}
                   </button>
                 </div>
@@ -299,7 +379,7 @@ export function SourceList() {
             <p className="text-xs font-bold text-text-primary">
               {selectedSources.size} selected
             </p>
-            <p className="text-[10px] text-text-tertiary font-medium">
+            <p className="text-xs text-text-tertiary font-medium">
               {sources.length} total sources in library
             </p>
         </div>

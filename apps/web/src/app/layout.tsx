@@ -4,7 +4,12 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { Providers } from './providers';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'ScholarSync - AI Notebook Platform',
@@ -21,8 +26,8 @@ export default function RootLayout({
   
   // Only wrap with ClerkProvider if Clerk is properly configured
   const content = (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
+    <html lang="en">
+      <body className={`${inter.variable} font-sans`}>
         <Providers>{children}</Providers>
       </body>
     </html>

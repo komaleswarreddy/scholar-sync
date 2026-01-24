@@ -1,0 +1,18 @@
+Generate flashcards based on the content. Return JSON array:
+[
+  {"front": "Term", "back": "Definition"},
+  ...
+]
+
+{% if context and context.strip() %}
+Content:
+{{ context }}
+{% else %}
+Note: No specific content was provided. Generate general educational flashcards.
+{% endif %}
+
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% endif %}
+
+Important: Return ONLY the JSON array, no other text, no markdown formatting, no code blocks.

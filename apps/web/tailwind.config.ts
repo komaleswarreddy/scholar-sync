@@ -10,41 +10,62 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Material Design 3 Dark Mode (NotebookLM)
-        google: {
-          dark: '#131314',
-        },
-        'surface-google': '#1E1F20',
-        'surface-highlight': '#28292A',
-        
+        // Design Tokens using CSS variables for theme switching
         // Backgrounds
-        background: '#131314',
-        surface: '#1E1F20',
-        'surface-hover': '#28292A',
-        modal: '#1E1F20',
+        background: 'var(--color-background)',
+        surface: 'var(--color-surface)',
+        'surface-hover': 'var(--color-surface-hover)',
+        modal: 'var(--color-modal)',
         
         // Borders
-        'border-default': '#2D2D2D',
-        'border-active': '#3D3D3D',
+        'border-default': 'var(--color-border-default)',
+        'border-active': 'var(--color-border-active)',
         
         // Typography
-        'text-primary': '#E3E3E3',
-        'text-secondary': '#C4C7C5',
-        'text-tertiary': '#9AA0A6',
+        'text-primary': 'var(--color-text-primary)',
+        'text-secondary': 'var(--color-text-secondary)',
+        'text-tertiary': 'var(--color-text-tertiary)',
         
         // Accents
-        'accent-blue': '#A8C7FA',
-        'accent-green': '#C4EED0',
-        'citation-badge': '#2D2D2D',
+        'accent-blue': 'var(--color-accent-blue)',
+        'accent-green': 'var(--color-accent-green)',
+        'citation-badge': 'var(--color-citation-badge)',
       },
       fontFamily: {
-        sans: ['Google Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'Google Sans', 'Inter', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        // Design spec typography scale
+        'xs': ['12px', { lineHeight: '16px', letterSpacing: '0' }],      // Metadata, Citations
+        'sm': ['14px', { lineHeight: '20px', letterSpacing: '0' }],      // Sidebar items, Input text
+        'base': ['16px', { lineHeight: '24px', letterSpacing: '0' }],    // Chat body, General reading
+        'lg': ['18px', { lineHeight: '28px', letterSpacing: '0' }],      // Card Titles
+        'xl': ['20px', { lineHeight: '28px', letterSpacing: '0' }],     // Section Headers
+        '2xl': ['24px', { lineHeight: '32px', letterSpacing: '0' }],    // Welcome Message
+      },
+      letterSpacing: {
+        'tight': '-0.01em',
+        'normal': '0',
+        'wide': '0.01em',
       },
       borderRadius: {
-        'lg': '8px',
-        'xl': '12px',
-        '2xl': '16px',
-        '3xl': '24px',
+        'lg': '8px',      // Small buttons (design spec)
+        'xl': '12px',     // Cards, Modals (design spec)
+        '2xl': '16px',    // Chat bubbles (design spec)
+        '3xl': '24px',    // Large containers (used for main layout)
+      },
+      spacing: {
+        // Standard Tailwind spacing scale is used throughout
+        // Common values: 1 (4px), 2 (8px), 3 (12px), 4 (16px), 6 (24px), 8 (32px)
+        // Fractional values (1.5, 2.5) are valid Tailwind classes and used for fine-tuning
+      },
+      screens: {
+        // Standard Tailwind breakpoints
+        'sm': '640px',   // Small devices (tablets)
+        'md': '768px',   // Medium devices (small laptops)
+        'lg': '1024px',  // Large devices (laptops)
+        'xl': '1280px',  // Extra large devices (desktops)
+        '2xl': '1536px', // 2X large devices (large desktops)
       },
     },
   },

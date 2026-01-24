@@ -1,0 +1,18 @@
+Generate a visual brief description for an infographic based on:
+- Main visual elements
+- Data points to highlight
+- Layout suggestions
+- Color scheme recommendations
+
+{% if context and context.strip() %}
+Content:
+{{ context }}
+{% else %}
+Note: No specific content was provided. Generate a general infographic brief.
+{% endif %}
+
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% endif %}
+
+Provide a detailed description that a designer could use to create the infographic.
