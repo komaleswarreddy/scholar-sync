@@ -36,7 +36,9 @@ This document explains each service, whether it's required, and how to get start
 
 **Example:**
 ```
-DATABASE_URL=postgresql+asyncpg://postgres:mypassword123@abcdefghijklmnop.supabase.co:5432/postgres
+# ⚠️ SECURITY: This is an example - replace with your actual Supabase credentials
+# Never commit real database passwords to Git
+DATABASE_URL=postgresql+asyncpg://postgres:YOUR_ACTUAL_PASSWORD@YOUR_PROJECT_REF.supabase.co:5432/postgres
 ```
 
 #### Option B: Local PostgreSQL
@@ -195,6 +197,8 @@ GEMINI_API_KEY=AIzaSyAbc123Def456...
 
 **Example:**
 ```
+# ⚠️ These are EXAMPLE keys from AWS documentation - DO NOT use in production
+# Replace with your actual AWS credentials from IAM
 AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
 AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 AWS_REGION=us-east-1
@@ -241,12 +245,14 @@ S3_BUCKET_NAME=scholarsync-storage
 
 **Example:**
 ```
+# ⚠️ SECURITY: These are examples - replace with your actual Clerk keys
+# Never commit real API keys to Git
 # Frontend (.env.local)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_abc123...
-CLERK_SECRET_KEY=sk_test_def456...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_ACTUAL_KEY
+CLERK_SECRET_KEY=sk_test_YOUR_ACTUAL_KEY
 
 # Backend (.env)
-CLERK_SECRET_KEY=sk_test_def456...
+CLERK_SECRET_KEY=sk_test_YOUR_ACTUAL_KEY
 ```
 
 ---

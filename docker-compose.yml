@@ -7,7 +7,10 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-scholarsync}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      # ⚠️ SECURITY: Default password is for LOCAL DEVELOPMENT ONLY
+      # In production, ALWAYS set POSTGRES_PASSWORD via environment variable
+      # Never commit real passwords to Git
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_change_me}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -37,7 +40,8 @@ services:
     ports:
       - "${API_PORT:-8000}:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-scholarsync}
+      # ⚠️ SECURITY: Uses environment variables - never hardcode real credentials
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-dev_password_change_me}@postgres:5432/${POSTGRES_DB:-scholarsync}
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
@@ -62,7 +66,8 @@ services:
       dockerfile: Dockerfile.worker
     container_name: scholarsync-worker
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-scholarsync}
+      # ⚠️ SECURITY: Uses environment variables - never hardcode real credentials
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-dev_password_change_me}@postgres:5432/${POSTGRES_DB:-scholarsync}
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=${ENVIRONMENT:-development}
     env_file:
