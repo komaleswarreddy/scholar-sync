@@ -1,0 +1,17 @@
+# Model definitions for ScholarSync
+# This file defines available LLM models and their configurations
+
+models:
+  openai:
+    gpt-4o-mini:
+      provider: openai
+      max_tokens: 16384
+      cost_per_1k_tokens: 0.15
+      
+  gemini:
+    gemini-1.5-flash:
+      provider: gemini
+      max_tokens: 8192
+      cost_per_1k_tokens: 0.075
+
+

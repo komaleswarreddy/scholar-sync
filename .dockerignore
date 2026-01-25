@@ -1,0 +1,91 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+venv_stable/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg
+dist/
+build/
+
+# Node
+node_modules/
+.npm
+.pnp
+.pnp.js
+.next/
+out/
+.turbo
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.bak
+.env.production
+.env.staging
+.env.development
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Documentation (not needed in container)
+docs/
+*.md
+!README.md
+
+# Tests (not needed in container)
+tests/
+evals/
+
+# Infrastructure (not needed in container)
+infrastructure/
+terraform/
+kubernetes/
+helm/
+
+# Scripts (not needed in container, or selectively copy)
+scripts/
+!scripts/init_db.py
+!scripts/seed_db.py
+
+# Backups
+*.tar.gz
+backend_backup_*
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Build artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+

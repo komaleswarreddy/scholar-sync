@@ -1,0 +1,23 @@
+# SLO (Service Level Objective) definitions for ScholarSync
+# This file defines performance and reliability targets
+
+slos:
+  chat:
+    latency_p50: 2000ms
+    latency_p95: 5000ms
+    latency_p99: 10000ms
+    availability: 99.9%
+    
+  ingestion:
+    latency_p50: 5000ms
+    latency_p95: 30000ms
+    latency_p99: 60000ms
+    availability: 99.5%
+    
+  studio:
+    latency_p50: 10000ms
+    latency_p95: 30000ms
+    latency_p99: 60000ms
+    availability: 99.0%
+
+

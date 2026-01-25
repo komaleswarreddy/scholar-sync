@@ -64,3 +64,8 @@ Thumbs.db
 
 
 
+
+# Backup files
+*.tar.gz
+*.backup
+backend_backup_*

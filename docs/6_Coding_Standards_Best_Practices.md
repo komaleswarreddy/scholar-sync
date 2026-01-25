@@ -24,6 +24,33 @@ This document defines coding standards, best practices, and guidelines for the C
 5. **Consistent Structure**: Same patterns throughout the codebase
 6. **Future-Proof**: Easy to extend and modify
 
+### 2.2 File Placement Rules (Mandatory)
+
+**When adding a new file, place it in the folder below; do not create new top-level folders without explicit approval.**
+
+- **API route handlers**: `apps/api/routes/`
+- **API request/response schemas**: `apps/api/schemas/`
+- **API middleware**: `apps/api/middleware/`
+- **Worker tasks**: `apps/worker/tasks/`
+- **Core AI orchestration**: `packages/core/orchestrator/`
+- **Skills** (flashcards/quiz/etc.): `packages/core/skills/`
+- **RAG logic**: `packages/core/rag/` and providers in `packages/core/rag/vectorstores/`
+- **LLM clients**: `packages/core/llm/`
+- **Guardrails** (cost, input/output safety): `packages/core/guardrails/`
+- **DB models + migrations**: `packages/core/database/`
+- **Shared utilities**: `packages/core/utils/`
+- **Docs**: `docs/` (only `README.md` stays at root)
+- **Tests**:
+  - Unit: `tests/unit/`
+  - Integration: `tests/integration/`
+  - Load: `tests/load/`
+- **Evals**: `evals/`
+- **Infra**: `infrastructure/`
+
+**Important Constraints:**
+- Never create a root `data/` folder. Use external storage; local dev uses docker volumes if needed.
+- Only `.env.example` may exist in repo. No `.env.production/.staging/.development`.
+
 ---
 
 ## 3. Commenting Standards
