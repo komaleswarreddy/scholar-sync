@@ -22,9 +22,11 @@ class LLMModel(str, Enum):
     GPT_3_5_TURBO = "gpt-3.5-turbo"
     
     # Gemini Models
-    GEMINI_1_5_FLASH = "gemini-1.5-flash"
-    GEMINI_2_5_FLASH = "gemini-2.5-flash"
-    GEMINI_1_5_PRO = "gemini-1.5-pro"
+    # NOTE: gemini-1.5-flash has been RETIRED by Google - auto-upgrades to gemini-2.0-flash-exp
+    GEMINI_1_5_FLASH = "gemini-1.5-flash"  # RETIRED - Auto-upgrades to GEMINI_2_0_FLASH_EXP (kept for backward compatibility)
+    GEMINI_2_0_FLASH_EXP = "gemini-2.0-flash-exp"  # Recommended: Experimental, newer model (works with v1 API)
+    GEMINI_2_5_FLASH = "gemini-2.5-flash"  # Recommended: Stable newer model (works with v1 API)
+    GEMINI_1_5_PRO = "gemini-1.5-pro"  # Alternative: Pro version (more compatible)
     
     # Claude Models (future)
     CLAUDE_3_OPUS = "claude-3-opus"
@@ -63,6 +65,12 @@ def get_llm_client(
     # Set default model if not specified
     if model is None:
         model = _get_default_model(provider)
+    
+    # Intercept retired gemini-1.5-flash model and replace immediately
+    # This model has been retired by Google and is not available in v1beta API
+    if model == "gemini-1.5-flash" or (isinstance(model, str) and "1.5-flash" in model.lower()):
+        print(f"[WARNING] [FACTORY] Model 'gemini-1.5-flash' has been retired by Google. Auto-upgrading to 'gemini-2.0-flash-exp'")
+        model = "gemini-2.0-flash-exp"
     
     # Create client based on provider
     if provider == LLMProvider.OPENAI:
@@ -103,7 +111,8 @@ def _get_default_model(provider: LLMProvider) -> str:
     """Get default model for provider."""
     defaults = {
         LLMProvider.OPENAI: LLMModel.GPT_4O_MINI.value,
-        LLMProvider.GEMINI: LLMModel.GEMINI_1_5_FLASH.value,
+        # Use newer Gemini model as default for v1beta API compatibility
+        LLMProvider.GEMINI: LLMModel.GEMINI_2_0_FLASH_EXP.value,
         LLMProvider.CLAUDE: LLMModel.CLAUDE_3_HAIKU.value,
     }
     return defaults.get(provider, LLMModel.GPT_4O_MINI.value)
@@ -128,11 +137,13 @@ def get_model_for_task(task_type: str) -> tuple:
         "slide_deck": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         
         # Content-heavy tasks -> Gemini (larger context window)
-        "report": (LLMProvider.GEMINI, LLMModel.GEMINI_1_5_FLASH.value),
-        "infographic": (LLMProvider.GEMINI, LLMModel.GEMINI_1_5_FLASH.value),
+        # Use newer models that are compatible with v1beta API
+        "report": (LLMProvider.GEMINI, LLMModel.GEMINI_2_0_FLASH_EXP.value),
+        "infographic": (LLMProvider.GEMINI, LLMModel.GEMINI_2_0_FLASH_EXP.value),
         
         # Chat -> Gemini (better for conversational)
-        "chat": (LLMProvider.GEMINI, LLMModel.GEMINI_1_5_FLASH.value),
+        # Chat -> Use newer Gemini model (better for conversational, compatible with v1beta)
+        "chat": (LLMProvider.GEMINI, LLMModel.GEMINI_2_0_FLASH_EXP.value),
     }
     
     return task_routing.get(task_type, (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value))

@@ -5,9 +5,11 @@ Handles file uploads and retrieval from Supabase Storage (S3-compatible).
 All files are stored in tenant-scoped paths.
 """
 
+import asyncio
 from fastapi import UploadFile
 from typing import Optional
 from supabase import create_client, Client
+import httpx
 
 from config.settings import settings
 from packages.core.storage.base import BaseStorage
@@ -21,7 +23,20 @@ def get_supabase_client() -> Client:
     if _supabase_client is None:
         if not settings.SUPABASE_URL or not settings.SUPABASE_KEY:
             raise ValueError("Supabase URL and Key must be configured")
-        _supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+        
+        # Workaround for httpx 0.25.2 compatibility with Supabase
+        # Supabase's gotrue library tries to pass 'proxy' parameter to httpx.Client()
+        # which httpx 0.25.2 doesn't accept, causing: Client.__init__() got an unexpected keyword argument 'proxy'
+        # Solution: Create a custom httpx client and pass it to Supabase via ClientOptions
+        from supabase.lib.client_options import ClientOptions
+        
+        # Create custom httpx client without proxy settings
+        custom_httpx_client = httpx.Client(timeout=120.0)
+        
+        # Create Supabase client with custom httpx client
+        options = ClientOptions(httpx_client=custom_httpx_client)
+        _supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY, options)
+    
     return _supabase_client
 
 
@@ -62,7 +77,6 @@ class S3Storage(BaseStorage):
             
             # Upload to Supabase Storage
             # Note: Supabase Python client is synchronous, so we run it in executor
-            import asyncio
             loop = asyncio.get_event_loop()
             
             # Add timeout to prevent hanging (2 minutes)
@@ -141,7 +155,6 @@ class S3Storage(BaseStorage):
         """
         try:
             supabase = get_supabase_client()
-            import asyncio
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
                 None,
@@ -158,7 +171,6 @@ class S3Storage(BaseStorage):
         """Delete file from Supabase Storage."""
         try:
             supabase = get_supabase_client()
-            import asyncio
             loop = asyncio.get_event_loop()
             
             # Run in executor since Supabase client is synchronous

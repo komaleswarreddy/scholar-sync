@@ -16,7 +16,7 @@ pinecone-client==3.0.0
 
 # LLM & AI
 openai>=1.9.0,<1.10.0
-google-generativeai==0.3.2
+google-generativeai>=0.8.0,<1.0.0
 # Note: Using custom text splitter instead of langchain to avoid dependency conflicts
 # langchain-text-splitters==0.2.4
 
@@ -33,7 +33,9 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 
 # Utilities
-httpx>=0.26.0,<0.30.0
+# Note: httpx < 0.26.0 required for OpenAI 1.9.0 compatibility (proxies parameter issue)
+# This conflicts with supabase which requires httpx>=0.26.0, but OpenAI embeddings won't work otherwise
+httpx>=0.25.0,<0.26.0
 python-dateutil==2.8.2
 jinja2==3.1.3
 
