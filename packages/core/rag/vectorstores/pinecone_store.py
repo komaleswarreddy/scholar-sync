@@ -16,8 +16,10 @@ except ImportError:
 
 try:
     import openai
+    import httpx
 except ImportError:
     openai = None
+    httpx = None
     print("[WARNING] OpenAI package not installed. Install with: pip install openai")
 
 from config.settings import settings
@@ -61,7 +63,28 @@ class PineconeVectorStore(BaseVectorStore):
                 raise ValueError("OpenAI package not installed. Please install with: pip install openai")
             if not settings.OPENAI_API_KEY or settings.OPENAI_API_KEY == "your-openai-api-key":
                 raise ValueError("OpenAI API key not configured. Please set OPENAI_API_KEY in .env")
-            self._openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+            
+            # Workaround for OpenAI 1.9.0/1.10.0 bug with httpx proxies parameter
+            # Create a custom httpx client without proxies to avoid the compatibility issue
+            try:
+                if httpx is not None:
+                    # Create httpx client explicitly (without proxies) and pass to OpenAI
+                    # This bypasses OpenAI's internal client creation that tries to pass 'proxies'
+                    http_client = httpx.Client(timeout=60.0)
+                    self._openai_client = openai.OpenAI(
+                        api_key=settings.OPENAI_API_KEY,
+                        http_client=http_client,
+                    )
+                else:
+                    # Fallback: try without custom http_client
+                    self._openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+            except Exception as e:
+                # If custom client fails, try standard initialization
+                if 'proxies' in str(e).lower():
+                    # Last resort: try with AsyncClient or different approach
+                    self._openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+                else:
+                    raise
         return self._openai_client
     
     async def generate_embedding(self, text: str) -> List[float]:

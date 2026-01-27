@@ -27,8 +27,11 @@ from apps.api.schemas.studio import (
     QuizQuestion,
     QuizResponse,
     Flashcard,
-    FlashcardResponse,
-    StudioResponse,
+    FlashcardsResponse,
+    MindMapResponse,
+    ReportResponse,
+    InfographicResponse,
+    SlideDeckResponse,
 )
 
 __all__ = [
@@ -53,6 +56,9 @@ __all__ = [
     "QuizQuestion",
     "QuizResponse",
     "Flashcard",
-    "FlashcardResponse",
-    "StudioResponse",
+    "FlashcardsResponse",
+    "MindMapResponse",
+    "ReportResponse",
+    "InfographicResponse",
+    "SlideDeckResponse",
 ]

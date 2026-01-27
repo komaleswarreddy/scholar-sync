@@ -59,7 +59,8 @@ class IngestionService:
         filename: str, 
         content_type: str, 
         title: str,
-        source_id: str = None
+        source_id: str = None,
+        pdf_password: str = None
     ) -> dict:
         """
         Handles the initial file upload to S3 and creates a 'PROCESSING' record in the DB.
@@ -120,11 +121,11 @@ class IngestionService:
         except Exception as e:
             raise ValueError(f"Upload processing failed: {str(e)}")
 
-    async def process_file_background(self, source_id: str, content_type: str):
+    async def process_file_background(self, source_id: str, content_type: str, pdf_password: str = None):
         """
         Process uploaded file in background:
         1. Download from storage
-        2. Extract text
+        2. Extract text (with optional PDF password for encrypted PDFs)
         3. Chunk text
         4. Generate embeddings
         5. Upsert to vector database
@@ -157,7 +158,7 @@ class IngestionService:
                 raise ValueError(f"Failed to download file from storage: {str(e)}")
 
             try:
-                text = await self._extract_text(file_content, content_type)
+                text = await self._extract_text(file_content, content_type, pdf_password)
                 if not text or not text.strip():
                     raise ValueError("Extracted text is empty")
             except Exception as e:
@@ -327,14 +328,41 @@ class IngestionService:
             await self.db.rollback()
             raise
 
-    async def _extract_text(self, file_content: bytes, content_type: str) -> str:
+    async def _extract_text(self, file_content: bytes, content_type: str, pdf_password: str = None) -> str:
         if content_type == "application/pdf":
             try:
                 pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
                 
                 # Check if PDF is encrypted
                 if pdf_reader.is_encrypted:
-                    raise ValueError("PDF is password-protected or encrypted. Please remove password protection and try again.")
+                    if pdf_password:
+                        # User provided a password - try to decrypt with it
+                        try:
+                            if pdf_reader.decrypt(pdf_password):
+                                print(f"[INFO] Successfully decrypted password-protected PDF")
+                            else:
+                                raise ValueError("Incorrect password for PDF. Please provide the correct password.")
+                        except ValueError:
+                            # Re-raise our custom ValueError
+                            raise
+                        except Exception as decrypt_error:
+                            raise ValueError(f"Failed to decrypt PDF: {str(decrypt_error)}")
+                    else:
+                        # No password provided - try empty string first
+                        # Many PDFs marked as "encrypted" can actually be read without a password
+                        # (they have encryption metadata but no user password required)
+                        try:
+                            if pdf_reader.decrypt(""):
+                                print(f"[INFO] PDF marked as encrypted but readable without password")
+                            else:
+                                # Empty password didn't work - PDF actually requires a password
+                                raise ValueError("PDF is password-protected or encrypted. Please provide the password or remove password protection and try again.")
+                        except ValueError:
+                            # Re-raise our custom ValueError
+                            raise
+                        except Exception as empty_decrypt_error:
+                            # If empty string fails, PDF actually requires a password
+                            raise ValueError("PDF is password-protected or encrypted. Please provide the password or remove password protection and try again.")
                 
                 text = ""
                 for page_num, page in enumerate(pdf_reader.pages):
@@ -359,7 +387,10 @@ class IngestionService:
                 
                 # Handle specific pypdf errors
                 if "encrypted" in error_msg.lower() or "password" in error_msg.lower():
-                    raise ValueError("PDF is password-protected or encrypted. Please remove password protection and try again.")
+                    if pdf_password:
+                        raise ValueError("PDF is password-protected. The provided password may be incorrect. Please verify the password and try again.")
+                    else:
+                        raise ValueError("PDF is password-protected or encrypted. Please provide the password or remove password protection and try again.")
                 elif "corrupted" in error_msg.lower() or "invalid" in error_msg.lower() or "read" in error_msg.lower():
                     raise ValueError(f"PDF file appears to be corrupted or invalid: {error_msg}")
                 elif error_type in ["PdfReadError", "PdfStreamError", "PdfParseError"]:

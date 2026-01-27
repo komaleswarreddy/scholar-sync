@@ -20,6 +20,7 @@ async def upload_source(
     request: Request,
     file: UploadFile = File(...),
     title: str = Form(None),
+    pdf_password: str = Form(None),  # Optional password for encrypted PDFs
     background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
 ):
@@ -63,10 +64,11 @@ async def upload_source(
             file_content=file_content,
             filename=file.filename or "",
             content_type=content_type,
-            title=title
+            title=title,
+            pdf_password=pdf_password  # Pass password for encrypted PDFs
         )
 
-        background_tasks.add_task(process_upload_background, tenant_id, user_id, result["id"], content_type)
+        background_tasks.add_task(process_upload_background, tenant_id, user_id, result["id"], content_type, pdf_password)
         return SourceResponse(**result)
 
     except ValueError as e:
@@ -77,7 +79,7 @@ async def upload_source(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
-async def process_upload_background(tenant_id: str, user_id: str, source_id: str, content_type: str):
+async def process_upload_background(tenant_id: str, user_id: str, source_id: str, content_type: str, pdf_password: str = None):
     """
     Background task to process uploaded file.
     Handles text extraction, chunking, embedding, and vector storage.
@@ -89,7 +91,7 @@ async def process_upload_background(tenant_id: str, user_id: str, source_id: str
     try:
         async with AsyncSessionLocal() as db:
             service = IngestionService(db, tenant_id, user_id)
-            await service.process_file_background(source_id, content_type)
+            await service.process_file_background(source_id, content_type, pdf_password)
     except ValueError as e:
         # Expected errors (API keys, configuration, etc.)
         error_message = str(e)

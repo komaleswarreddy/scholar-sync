@@ -59,13 +59,15 @@ export function useUploadSource() {
       file,
       title,
       onProgress,
+      pdfPassword,
     }: {
       file: File;
       title?: string;
       onProgress?: (percent: number) => void;
+      pdfPassword?: string;
     }) => {
       try {
-        const result = await apiClient.uploadSource(file, title, onProgress);
+        const result = await apiClient.uploadSource(file, title, onProgress, pdfPassword);
         return result;
       } catch (error: any) {
         const apiError = error.apiError || handleApiError(error);

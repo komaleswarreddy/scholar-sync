@@ -6,6 +6,10 @@ Implements LLMClient interface for OpenAI models.
 
 from typing import AsyncGenerator, Optional, Dict, Any, List
 import openai
+try:
+    import httpx
+except ImportError:
+    httpx = None
 from config.settings import settings
 from packages.core.llm._base import LLMClient, LLMResponse, LLMStreamChunk, LLMProvider
 
@@ -30,7 +34,27 @@ class OpenAIClient(LLMClient):
     def client(self):
         """Lazy initialization of OpenAI client."""
         if self._client is None:
-            self._client = openai.OpenAI(api_key=self.api_key)
+            # Workaround for OpenAI 1.9.0/1.10.0 bug with httpx proxies parameter
+            # Create a custom httpx client without proxies to avoid the compatibility issue
+            try:
+                if httpx is not None:
+                    # Create httpx client explicitly (without proxies) and pass to OpenAI
+                    # This bypasses OpenAI's internal client creation that tries to pass 'proxies'
+                    http_client = httpx.Client(timeout=60.0)
+                    self._client = openai.OpenAI(
+                        api_key=self.api_key,
+                        http_client=http_client,
+                    )
+                else:
+                    # Fallback: try without custom http_client
+                    self._client = openai.OpenAI(api_key=self.api_key)
+            except Exception as e:
+                # If custom client fails, try standard initialization
+                if 'proxies' in str(e).lower():
+                    # Last resort: try standard initialization
+                    self._client = openai.OpenAI(api_key=self.api_key)
+                else:
+                    raise
         return self._client
     
     def _get_provider(self) -> LLMProvider:

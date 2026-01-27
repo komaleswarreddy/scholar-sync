@@ -64,6 +64,11 @@ export function SourceList() {
   const { selectedSources, toggleSource, removeSource, clearSelection } = useSourceContext();
   const [uploadProgress, setUploadProgress] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [pdfPassword, setPdfPassword] = useState<string>('');
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [passwordAttempts, setPasswordAttempts] = useState(0);
+  const MAX_PASSWORD_ATTEMPTS = 3;
   
   // Task E.c: State to track which specific item is being deleted
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -113,25 +118,98 @@ export function SourceList() {
       return;
     }
 
+    // Try uploading immediately (without password first)
+    await performUpload(file, '');
+  };
+
+  const performUpload = async (file: File, password: string, isRetry: boolean = false) => {
     setUploadProgress(0);
-    setLocalError(null);
+    if (!isRetry) {
+      setLocalError(null);
+    }
 
     try {
       // Task C.a: Use TanStack Query mutation with loading state
       await uploadMutation.mutateAsync({
         file,
         title: file.name,
+        pdfPassword: password || undefined,
         onProgress: (percent) => {
           setUploadProgress(percent);
         },
       });
       
+      // Reset state on success
       if (fileInputRef.current) fileInputRef.current.value = '';
+      setShowPasswordInput(false);
+      setSelectedFile(null);
+      setPdfPassword('');
+      setPasswordAttempts(0);
+      setLocalError(null);
     } catch (err: any) {
-      setLocalError(err.message || "Upload failed.");
+      const errorMessage = err.message || "Upload failed.";
+      
+      // Check if error is about password-protected PDF
+      const isPasswordError = errorMessage.toLowerCase().includes('password-protected') || 
+                             errorMessage.toLowerCase().includes('encrypted') ||
+                             errorMessage.toLowerCase().includes('password') ||
+                             errorMessage.toLowerCase().includes('incorrect password');
+      
+      if (isPasswordError && !password) {
+        // PDF is password-protected and no password was provided
+        // Show password input dialog (first attempt)
+        setSelectedFile(file);
+        setShowPasswordInput(true);
+        setPdfPassword('');
+        setPasswordAttempts(0);
+        setLocalError("This PDF is password-protected. Please enter the password to continue.");
+      } else if (isPasswordError && password) {
+        // Password was provided but incorrect
+        const newAttempts = passwordAttempts + 1;
+        setPasswordAttempts(newAttempts);
+        
+        if (newAttempts >= MAX_PASSWORD_ATTEMPTS) {
+          // Max attempts reached - fail the upload
+          setLocalError(`Upload failed: Incorrect password after ${MAX_PASSWORD_ATTEMPTS} attempts. Please verify the password and try again.`);
+          setShowPasswordInput(false);
+          setSelectedFile(null);
+          setPdfPassword('');
+          setPasswordAttempts(0);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        } else {
+          // Still have attempts left - show error and keep dialog open
+          const remaining = MAX_PASSWORD_ATTEMPTS - newAttempts;
+          setLocalError(`Incorrect password. ${remaining} attempt${remaining > 1 ? 's' : ''} remaining.`);
+          setPdfPassword(''); // Clear password field for retry
+          setShowPasswordInput(true);
+        }
+      } else {
+        // Other errors (not password-related)
+        setLocalError(errorMessage);
+        setShowPasswordInput(false);
+        setSelectedFile(null);
+        setPdfPassword('');
+        setPasswordAttempts(0);
+      }
     } finally {
       setUploadProgress(0);
     }
+  };
+
+  const handlePasswordConfirm = () => {
+    if (selectedFile && pdfPassword.trim()) {
+      // Clear error message but keep dialog open in case of retry
+      performUpload(selectedFile, pdfPassword, true);
+    }
+  };
+
+  const handlePasswordCancel = () => {
+    setShowPasswordInput(false);
+    setSelectedFile(null);
+    setPdfPassword('');
+    setPasswordAttempts(0);
+    setLocalError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   // Task E: Optimized Deletion Flow with TanStack Query
@@ -190,11 +268,78 @@ export function SourceList() {
           className="hidden"
         />
 
+        {/* Password Input Dialog - Only shown when PDF is password-protected */}
+        {showPasswordInput && selectedFile && (
+          <div className="mb-4 p-4 bg-surface-hover rounded-lg border border-border-default">
+            <div className="flex items-start gap-2 mb-3">
+              <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-text-primary mb-1">
+                  Password Required
+                </p>
+                <p className="text-xs text-text-secondary">
+                  This PDF is password-protected. Please enter the password to continue.
+                </p>
+                {passwordAttempts > 0 && (
+                  <p className="text-xs text-amber-600 mt-1 font-medium">
+                    Attempt {passwordAttempts} of {MAX_PASSWORD_ATTEMPTS}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={pdfPassword}
+                onChange={(e) => setPdfPassword(e.target.value)}
+                placeholder="Enter PDF password"
+                className="flex-1 px-3 py-2 text-sm bg-surface border border-border-default rounded-lg text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent-blue/50"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && pdfPassword.trim()) {
+                    handlePasswordConfirm();
+                  } else if (e.key === 'Escape') {
+                    handlePasswordCancel();
+                  }
+                }}
+                autoFocus
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handlePasswordConfirm}
+                disabled={isUploading || !pdfPassword.trim()}
+                className="px-4"
+              >
+                {isUploading ? 'Uploading...' : 'Try Password'}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handlePasswordCancel}
+                disabled={isUploading}
+                className="px-4"
+              >
+                Cancel
+              </Button>
+            </div>
+            {localError && (
+              <p className={`text-xs mt-2 flex items-center gap-1 ${
+                localError.includes('attempts remaining') || localError.includes('Incorrect password')
+                  ? 'text-amber-600'
+                  : 'text-red-500'
+              }`}>
+                <AlertCircle className="w-3 h-3" />
+                {localError}
+              </p>
+            )}
+          </div>
+        )}
+
         <Button
           variant="secondary"
           size="md"
           onClick={handleUpload}
-          disabled={isUploading || loading}
+          disabled={isUploading || loading || showPasswordInput}
           className="w-full flex flex-col items-center justify-center gap-2 rounded-xl py-3 border-dashed border-2 border-border-default hover:border-border-active hover:bg-surface-hover transition-all"
         >
           {isUploading ? (

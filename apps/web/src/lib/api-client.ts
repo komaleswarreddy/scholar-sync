@@ -319,12 +319,14 @@ class ApiClient {
 
   /**
    * TASK C UPDATED: Added onProgress callback
+   * Updated: Added pdfPassword parameter for password-protected PDFs
    */
-  async uploadSource(file: File, title?: string, onProgress?: (percent: number) => void) {
+  async uploadSource(file: File, title?: string, onProgress?: (percent: number) => void, pdfPassword?: string) {
     await this.refreshToken();
     const formData = new FormData();
     formData.append('file', file);
     if (title) formData.append('title', title);
+    if (pdfPassword) formData.append('pdf_password', pdfPassword);
 
     // Use longer timeout for file uploads (5 minutes)
     const uploadTimeout = 5 * 60 * 1000; // 5 minutes in milliseconds
