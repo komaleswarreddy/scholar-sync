@@ -2,9 +2,29 @@
 Gemini LLM Client Implementation
 
 Implements LLMClient interface for Google Gemini models.
+
+Note: Currently using deprecated `google.generativeai` package.
+The package is still functional and will continue to work, but Google recommends
+migrating to `google.genai` in the future. The deprecation warning is suppressed
+to reduce console noise.
+
+TODO: Migrate to `google.genai` package when stable and API-compatible.
+Migration guide: https://github.com/google-gemini/deprecated-generative-ai-python
 """
 
 from typing import AsyncGenerator, Optional, Dict, Any, List
+import warnings
+import sys
+
+# Suppress deprecation warning for google.generativeai at import time
+# This catches warnings that occur during the import itself
+if not sys.warnoptions:
+    warnings.simplefilter('ignore', DeprecationWarning)
+
+# Additional filter for specific google.generativeai warnings
+warnings.filterwarnings('ignore', message='.*google.generativeai.*')
+warnings.filterwarnings('ignore', message='.*deprecated.*generativeai.*', category=DeprecationWarning)
+
 import google.generativeai as genai
 from config.settings import settings
 from packages.core.llm._base import LLMClient, LLMResponse, LLMStreamChunk, LLMProvider
@@ -410,6 +430,7 @@ class GeminiClient(LLMClient):
                 # Re-raise other errors
                 raise
         
+        chunks_yielded = 0
         for chunk in response:
             # Extract text from chunk - check multiple ways
             chunk_text = ""
@@ -441,6 +462,7 @@ class GeminiClient(LLMClient):
             
             # Check if chunk was blocked
             if chunk_finish_reason in ['SAFETY', 'RECITATION', 'OTHER']:
+                print(f"[WARNING] [GEMINI] Stream blocked. Finish reason: {chunk_finish_reason}")
                 yield LLMStreamChunk(
                     content="",
                     done=True,
@@ -448,13 +470,18 @@ class GeminiClient(LLMClient):
                 )
                 return
             
-            # Yield chunk if it has text
-            if chunk_text:
+            # Yield chunk if it has text (non-empty after stripping whitespace)
+            if chunk_text and chunk_text.strip():
+                chunks_yielded += 1
                 yield LLMStreamChunk(
                     content=chunk_text,
                     done=False,
                     metadata={"finish_reason": chunk_finish_reason}
                 )
+        
+        # Log if no chunks were yielded
+        if chunks_yielded == 0:
+            print(f"[WARNING] [GEMINI] Stream completed but no text chunks were yielded. This may indicate the model was blocked or returned empty content.")
         
         yield LLMStreamChunk(content="", done=True)
     

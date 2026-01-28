@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { MessageCircle, Plus, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
@@ -40,13 +40,18 @@ export function ChatListSidebar({
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const retryCountRef = useRef(0);
   const { apiClient } = useApi();
 
-  // Load chat list
-  const loadChats = useCallback(async () => {
+  // Load chat list with automatic retry for network errors
+  const loadChats = useCallback(async (isRetry: boolean = false) => {
     try {
       setIsLoading(true);
-      setError(null);
+      if (!isRetry) {
+        setError(null);
+        retryCountRef.current = 0;
+      }
+      
       const response = await apiClient.listChats(50, 0);
       
       // Handle different response formats
@@ -56,6 +61,9 @@ export function ChatListSidebar({
         } else if (response.chats && Array.isArray(response.chats)) {
           setChats(response.chats);
         }
+        // Clear any previous errors on successful load
+        setError(null);
+        retryCountRef.current = 0;
       } else {
         setChats((prev) => prev.length > 0 ? prev : []);
       }
@@ -64,14 +72,36 @@ export function ChatListSidebar({
       // Use standardized error handling
       const apiError = error.apiError || handleApiError(error);
       const errorMessage = getUserFriendlyMessage(apiError);
-      setError(errorMessage);
-      // Don't clear chats on error - keep previous state to avoid showing "no chats" during errors
-      // Only clear if we don't have any chats yet
-      setChats((prev) => prev.length > 0 ? prev : []);
+      
+      // Auto-retry network errors up to 2 times
+      if (apiError.type === 'NETWORK' && apiError.retryable && retryCountRef.current < 2) {
+        retryCountRef.current += 1;
+        
+        // Only show error if we don't have any chats loaded
+        if (chats.length === 0) {
+          setError(errorMessage);
+        }
+        
+        // Auto-retry after a short delay
+        setTimeout(() => {
+          loadChats(true);
+        }, 1000 * retryCountRef.current); // Exponential backoff: 1s, 2s
+        
+        // Don't clear chats on retryable network error - keep previous state
+        setChats((prev) => prev.length > 0 ? prev : []);
+      } else {
+        // Show error for non-retryable errors or after retries exhausted
+        setError(errorMessage);
+        retryCountRef.current = 0;
+        
+        // Don't clear chats on error - keep previous state to avoid showing "no chats" during errors
+        // Only clear if we don't have any chats yet
+        setChats((prev) => prev.length > 0 ? prev : []);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [apiClient]);
+  }, [apiClient, chats.length]);
 
   useEffect(() => {
     loadChats();
@@ -145,6 +175,7 @@ export function ChatListSidebar({
             <button
               onClick={() => {
                 setError(null);
+                retryCountRef.current = 0;
                 loadChats();
               }}
               className="text-xs text-red-600 hover:text-red-800 mt-1 underline"

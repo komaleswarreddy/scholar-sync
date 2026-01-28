@@ -213,11 +213,21 @@ class ApiClient {
         // Handle all other errors with standardized error handling
         const apiError = handleApiError(error);
         
-        // Log error details for debugging
-        if (status) {
-          console.error(`[API Error] ${status}: ${apiError.message}`);
-        } else {
-          console.error(`[API Error] Network: ${apiError.message}`);
+        // Only log errors that are not already handled or retried
+        // Skip logging if this is a retryable error that will be retried
+        const isRetryableNetworkError = apiError.type === 'NETWORK' && apiError.retryable;
+        const willRetry = isRetryableNetworkError && !originalRequest._retry;
+        
+        // Log error details for debugging (but not for retryable errors that will be retried)
+        if (!willRetry) {
+          if (status) {
+            console.error(`[API Error] ${status}: ${apiError.message}`);
+          } else {
+            // Only log network errors if they're not retryable or already retried
+            if (!isRetryableNetworkError || originalRequest._retry) {
+              console.error(`[API Error] Network: ${apiError.message}`);
+            }
+          }
         }
 
         // Attach the ApiError to the error object for easier access

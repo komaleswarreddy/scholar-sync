@@ -168,12 +168,33 @@ Note: No source documents are available. Please provide a general helpful respon
         # Stream text chunks from LLM
         text_received = False
         accumulated_text = ""
+        stream_completed = False
         
         try:
             async for chunk in llm_client.stream_generate(
                 prompt=full_prompt,
                 temperature=0.7
             ):
+                # Check for errors in metadata first (before processing content)
+                if chunk.metadata and chunk.metadata.get("finish_reason"):
+                    finish_reason = chunk.metadata["finish_reason"]
+                    if finish_reason == "SAFETY" or finish_reason == 3:
+                        print(f"[WARNING] Response blocked by safety filters. Finish reason: {finish_reason}")
+                        yield {
+                            "event": "error",
+                            "data": {"error": "Response was blocked by safety filters. Please try rephrasing your question."},
+                        }
+                        return
+                    # Check for other blocking reasons
+                    if finish_reason in ["RECITATION", "OTHER"]:
+                        print(f"[WARNING] Response blocked. Finish reason: {finish_reason}")
+                        yield {
+                            "event": "error",
+                            "data": {"error": "Response was blocked. Please try rephrasing your question."},
+                        }
+                        return
+                
+                # Process content if available
                 if chunk.content and chunk.content.strip():
                     text_received = True
                     accumulated_text += chunk.content
@@ -182,17 +203,9 @@ Note: No source documents are available. Please provide a general helpful respon
                         "data": {"text": chunk.content},
                     }
                 
-                # Check for errors in metadata
-                if chunk.metadata and chunk.metadata.get("finish_reason"):
-                    finish_reason = chunk.metadata["finish_reason"]
-                    if finish_reason == "SAFETY" or finish_reason == 3:
-                        yield {
-                            "event": "error",
-                            "data": {"error": "Response was blocked by safety filters. Please try rephrasing your question."},
-                        }
-                        return
-                
+                # Check if stream is done
                 if chunk.done:
+                    stream_completed = True
                     break
         
         except Exception as e:
@@ -206,16 +219,18 @@ Note: No source documents are available. Please provide a general helpful respon
             }
             return
         
-        # Check if we received any text before sending done
-        if not text_received:
-            print(f"[WARNING] No text received from LLM. Accumulated text length: {len(accumulated_text)}")
+        # CRITICAL: Check if we received any text before sending done
+        # Use both the flag and accumulated text length for safety
+        if not text_received or (accumulated_text and accumulated_text.strip() == ""):
+            print(f"[WARNING] No text received from LLM. text_received={text_received}, accumulated_text_length={len(accumulated_text)}, stream_completed={stream_completed}")
             yield {
                 "event": "error",
                 "data": {"error": "No response generated. The model may have been blocked or encountered an error. Please try again."},
             }
             return
         
-        # Done
+        # Only send done if we actually received text
+        print(f"[DEBUG] Stream completed successfully. Received {len(accumulated_text)} characters of text.")
         yield {
             "event": "done",
             "data": {},

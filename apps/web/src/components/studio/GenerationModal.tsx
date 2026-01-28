@@ -15,6 +15,7 @@ import remarkGfm from 'remark-gfm';
 import { Button } from '../ui/Button';
 import { LoadingShimmer } from '../ui/LoadingShimmer';
 import { QuizDisplay } from './QuizDisplay';
+import { FlashcardsDisplay } from './FlashcardsDisplay';
 
 export type ContentType = 'json' | 'markdown' | 'text';
 
@@ -97,6 +98,35 @@ export function GenerationModal({
     }
   };
 
+  // Check if content is flashcards
+  const isFlashcardsContent = (): boolean => {
+    try {
+      let parsed: any;
+      
+      if (typeof content === 'string') {
+        parsed = JSON.parse(content);
+      } else if (typeof content === 'object' && content !== null) {
+        parsed = content;
+      } else {
+        return false;
+      }
+
+      // Check if it's a flashcards response structure
+      if (parsed.task_type === 'flashcards' || (parsed.data && Array.isArray(parsed.data) && parsed.data.length > 0 && parsed.data[0].front && parsed.data[0].back)) {
+        return true;
+      }
+      
+      // Check if it's a direct array of flashcards
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].front && parsed[0].back) {
+        return true;
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   // Determine content type from content if not explicitly provided
   const detectContentType = (): ContentType => {
     if (contentType !== 'text') return contentType;
@@ -124,6 +154,7 @@ export function GenerationModal({
 
   const detectedType = detectContentType();
   const isQuiz = isQuizContent();
+  const isFlashcards = isFlashcardsContent();
 
   // Format content for display
   const formatContent = (): string => {
@@ -205,6 +236,15 @@ export function GenerationModal({
       return (
         <div className="overflow-y-auto">
           <QuizDisplay quizData={content || displayContent} />
+        </div>
+      );
+    }
+
+    // Flashcards content - render with FlashcardsDisplay component
+    if (isFlashcards) {
+      return (
+        <div className="overflow-y-auto">
+          <FlashcardsDisplay flashcardsData={content || displayContent} />
         </div>
       );
     }
@@ -333,6 +373,8 @@ export function GenerationModal({
                     ? 'Generation failed'
                     : isQuiz
                     ? 'Quiz Content'
+                    : isFlashcards
+                    ? 'Flashcards'
                     : detectedType === 'json'
                     ? 'JSON Content'
                     : detectedType === 'markdown'
