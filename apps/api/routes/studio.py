@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 import traceback
 import json
@@ -23,6 +24,14 @@ async def generate_studio_content(
         user_id = getattr(request.state, 'user_id', None)
         print(f"[STUDIO ENDPOINT] Generating {request_body.task_type} for tenant {tenant_id}, user {user_id}")
         print(f"[STUDIO ENDPOINT] Source IDs: {request_body.source_ids}")
+        print(f"[STUDIO ENDPOINT] Source IDs count: {len(request_body.source_ids) if request_body.source_ids else 0}")
+        
+        # Additional validation
+        if not request_body.source_ids or len(request_body.source_ids) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="At least one source ID is required. Please select at least one source document."
+            )
         
         service = StudioService(db, tenant_id, user_id)
 
@@ -34,10 +43,30 @@ async def generate_studio_content(
 
         print(f"[STUDIO ENDPOINT] Generation successful, result keys: {list(result.keys()) if isinstance(result, dict) else 'not a dict'}")
         return JSONResponse(content=result)
+    except HTTPException:
+        # Re-raise HTTPException as-is (FastAPI will handle it)
+        raise
+    except RequestValidationError as e:
+        # Pydantic validation errors (FastAPI returns 422, but we'll handle it here for logging)
+        error_details = e.errors()
+        error_msg = f"Validation error: {json.dumps(error_details, indent=2)}"
+        print(f"[STUDIO ENDPOINT] RequestValidationError: {error_msg}")
+        print(f"[STUDIO ENDPOINT] Request body received: task_type={getattr(request_body, 'task_type', 'N/A')}, source_ids={getattr(request_body, 'source_ids', 'N/A')}")
+        # Extract user-friendly message
+        if error_details:
+            first_error = error_details[0]
+            field = first_error.get('loc', ['unknown'])[-1]
+            message = first_error.get('msg', 'Validation failed')
+            user_msg = f"Invalid request: {field} - {message}"
+        else:
+            user_msg = "Invalid request format. Please check your request parameters."
+        # Re-raise as 422 (FastAPI standard for validation errors)
+        raise HTTPException(status_code=422, detail=user_msg)
     except ValueError as e:
-        # API key configuration errors
+        # API key configuration errors or content validation errors
         error_msg = str(e)
         print(f"[STUDIO ENDPOINT] ValueError: {error_msg}")
+        print(f"[STUDIO ENDPOINT] ValueError traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=400, detail=error_msg)
     except json.JSONDecodeError as e:
         # JSON parsing errors

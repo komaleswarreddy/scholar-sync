@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Save, X } from 'lucide-react';
+import { Save, X, Check } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 interface NoteEditorProps {
@@ -9,9 +9,10 @@ interface NoteEditorProps {
   onSave: (content: string) => Promise<void>;
   onCancel: () => void;
   noteId?: string;
+  onContentChange?: (content: string) => void;
 }
 
-export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: NoteEditorProps) {
+export function NoteEditor({ initialContent = '', onSave, onCancel, noteId, onContentChange }: NoteEditorProps) {
   const [content, setContent] = useState(initialContent);
   const [isSaving, setIsSaving] = useState(false);
   const [charCount, setCharCount] = useState(initialContent.length);
@@ -102,6 +103,10 @@ export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: No
     const newContent = e.target.value;
     setContent(newContent);
     setCharCount(newContent.length);
+    // Notify parent of content changes
+    if (onContentChange) {
+      onContentChange(newContent);
+    }
   };
 
   const handleSave = async () => {
@@ -166,7 +171,7 @@ export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: No
       </div>
 
       {/* Footer with character count and actions */}
-      <div className="border-t border-border-default p-4 flex items-center justify-between">
+      <div className="border-t border-border-default p-4 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-4">
           <span className="text-xs text-text-tertiary">
             {charCount.toLocaleString()} {charCount === 1 ? 'character' : 'characters'}
@@ -193,7 +198,11 @@ export function NoteEditor({ initialContent = '', onSave, onCancel, noteId }: No
             disabled={isSaving || !content.trim()}
             className="bg-accent-blue text-background hover:opacity-90"
           >
-            <Save className="w-4 h-4 mr-1" />
+            {isSaving ? (
+              <Save className="w-4 h-4 mr-1" />
+            ) : (
+              <Check className="w-4 h-4 mr-1" />
+            )}
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </div>

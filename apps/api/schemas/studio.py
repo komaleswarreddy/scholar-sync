@@ -71,6 +71,9 @@ class InfographicResponse(BaseModel):
     """Infographic generation response."""
     task_type: Literal["infographic"] = "infographic"
     content: str = Field(..., description="Visual brief description for infographic")
+    image_url: Optional[str] = Field(None, description="URL of the generated infographic image")
+    revised_prompt: Optional[str] = Field(None, description="DALL-E revised prompt used for image generation")
+    image_error: Optional[str] = Field(None, description="Error message if image generation failed")
 
 
 class SlideDeckResponse(BaseModel):

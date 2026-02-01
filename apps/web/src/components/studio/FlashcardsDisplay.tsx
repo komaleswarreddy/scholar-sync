@@ -9,9 +9,10 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Shuffle, CheckCircle2, XCircle, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCcw, Shuffle, CheckCircle2, XCircle, BookOpen, Download } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Flashcard } from '@repo/types';
+import { exportAsJSON, exportFlashcardsAsCSV } from '@/lib/export-utils';
 
 export interface FlashcardsData {
   task_type?: 'flashcards';
@@ -226,6 +227,24 @@ export function FlashcardsDisplay({ flashcardsData }: FlashcardsDisplayProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => exportAsJSON(flashcards, `flashcards-${Date.now()}`)}
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            JSON
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => exportFlashcardsAsCSV(flashcards, `flashcards-${Date.now()}`)}
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            CSV
+          </Button>
           <Button
             variant={studyMode ? 'primary' : 'secondary'}
             size="sm"

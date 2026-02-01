@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { NoteItem } from './NoteItem';
-import { NoteEditor } from './NoteEditor';
+import { NoteModal } from './NoteModal';
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote } from '@/hooks/useNotes';
 import { useQueryClient } from '@tanstack/react-query';
 import { noteKeys } from '@/hooks/useNotes';
-import { Input } from '../ui/Input';
 
 interface Note {
   id: string;
@@ -25,12 +24,9 @@ interface NoteWithExtras extends Note {
   createdAt?: string;
 }
 
-type ViewMode = 'list' | 'create' | 'edit';
-
 export function NotesSection() {
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [isCreatingNote, setIsCreatingNote] = useState(false);
 
   // Task C.a & C.b: Use TanStack Query for notes with loading states and caching
   const { data: notes = [], isLoading: loading, error: queryError } = useNotes();
@@ -61,34 +57,34 @@ export function NotesSection() {
   }, [queryClient]);
 
   const handleCreateNote = () => {
-    setViewMode('create');
-    setEditingNoteId(null);
+    setIsCreatingNote(true);
+    setSelectedNoteId(null);
   };
 
   const handleSaveNote = async (content: string, sourceRefId?: string) => {
     try {
-      if (editingNoteId) {
+      if (selectedNoteId) {
         // Task C.c: Optimistic update handled by TanStack Query
-        await updateMutation.mutateAsync({ noteId: editingNoteId, content });
+        await updateMutation.mutateAsync({ noteId: selectedNoteId, content });
       } else {
         await createMutation.mutateAsync({ content, sourceRefId });
       }
-      setViewMode('list');
-      setEditingNoteId(null);
+      setIsCreatingNote(false);
+      setSelectedNoteId(null);
     } catch (err: any) {
-      // Error is handled by TanStack Query, but re-throw for NoteEditor
+      // Error is handled by TanStack Query, but re-throw for NoteModal
       throw err;
     }
   };
 
-  const handleCancelEdit = () => {
-    setViewMode('list');
-    setEditingNoteId(null);
+  const handleEditNote = (id: string) => {
+    setSelectedNoteId(id);
+    setIsCreatingNote(false);
   };
 
-  const handleEditNote = (id: string) => {
-    setEditingNoteId(id);
-    setViewMode('edit');
+  const handleCloseModal = () => {
+    setIsCreatingNote(false);
+    setSelectedNoteId(null);
   };
 
   const handleDeleteNote = async (id: string) => {
@@ -105,60 +101,12 @@ export function NotesSection() {
     }
   };
 
-  // Filter notes based on search query
-  const filteredNotes = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return notes;
-    }
-    const query = searchQuery.toLowerCase();
-    return notes.filter(
-      (note) =>
-        note.content?.toLowerCase().includes(query) ||
-        note.title?.toLowerCase().includes(query)
-    );
-  }, [notes, searchQuery]);
 
-  // Get note being edited
-  const editingNote = useMemo(() => {
-    if (!editingNoteId) return null;
-    return notes.find((n) => n.id === editingNoteId);
-  }, [notes, editingNoteId]);
-
-  // Show editor if in create or edit mode
-  if (viewMode === 'create' || viewMode === 'edit') {
-    return (
-      <div className="flex flex-col h-full">
-        <div className="h-14 flex items-center px-4 border-b border-border-default justify-between">
-          <h2 className="text-lg font-medium text-text-primary">
-            {viewMode === 'create' ? 'New Note' : 'Edit Note'}
-          </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCancelEdit}
-            className="p-2 rounded-full"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <NoteEditor
-            initialContent={editingNote?.content || ''}
-            onSave={handleSaveNote}
-            onCancel={handleCancelEdit}
-            noteId={editingNoteId || undefined}
-          />
-        </div>
-        {error && (
-          <div className="p-4 border-t border-border-default">
-            <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20">
-              <p className="text-xs text-red-400">{error}</p>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
+  // Get selected note
+  const selectedNote = useMemo(() => {
+    if (!selectedNoteId) return null;
+    return notes.find((n) => n.id === selectedNoteId);
+  }, [notes, selectedNoteId]);
 
   // Show list view
   return (
@@ -178,30 +126,6 @@ export function NotesSection() {
         </Button>
       </div>
 
-      {/* Search Bar */}
-      {notes.length > 0 && (
-        <div className="h-14 flex items-center px-4 border-b border-border-default">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary" />
-            <Input
-              type="text"
-              placeholder="Search notes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-tertiary hover:text-text-primary"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Notes List */}
       <div className="flex-1 overflow-y-auto p-4">
         {loading && notes.length === 0 ? (
@@ -209,44 +133,25 @@ export function NotesSection() {
             <div className="w-6 h-6 border-2 border-accent-blue border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <p className="text-text-secondary text-sm">Loading notes...</p>
           </div>
-        ) : filteredNotes.length === 0 && !loading ? (
+        ) : notes.length === 0 && !loading ? (
           <div className="text-center py-8">
-            {searchQuery ? (
-              <>
-                <p className="text-text-secondary text-sm mb-2">No notes found</p>
-                <p className="text-text-tertiary text-xs">
-                  Try adjusting your search query
-                </p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchQuery('')}
-                  className="mt-4"
-                >
-                  Clear search
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-text-secondary text-sm mb-2">No notes yet</p>
-                <p className="text-text-tertiary text-xs mb-4">
-                  Create a note to save important information
-                </p>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleCreateNote}
-                  className="bg-accent-blue text-background"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Create your first note
-                </Button>
-              </>
-            )}
+            <p className="text-text-secondary text-sm mb-2">No notes yet</p>
+            <p className="text-text-tertiary text-xs mb-4">
+              Create a note to save important information
+            </p>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleCreateNote}
+              className="bg-accent-blue text-background"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Create your first note
+            </Button>
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredNotes.map((note) => (
+            {notes.map((note) => (
               <NoteItem
                 key={note.id}
                 id={note.id}
@@ -277,6 +182,20 @@ export function NotesSection() {
           </div>
         )}
       </div>
+
+      {/* Note Modal */}
+      {(isCreatingNote || selectedNote) && (
+        <NoteModal
+          isOpen={isCreatingNote || !!selectedNote}
+          onClose={handleCloseModal}
+          noteId={selectedNoteId}
+          initialContent={selectedNote?.content || ''}
+          onSave={handleSaveNote}
+          title={selectedNote ? (selectedNote.title || 'Note') : 'New Note'}
+          isSaving={createMutation.isPending || updateMutation.isPending}
+          error={error}
+        />
+      )}
     </div>
   );
 }

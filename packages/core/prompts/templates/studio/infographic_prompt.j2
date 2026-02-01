@@ -1,18 +1,24 @@
-Generate a visual brief description for an infographic based on:
-- Main visual elements
-- Data points to highlight
-- Layout suggestions
-- Color scheme recommendations
+Generate a DALL-E 3 image generation prompt. Output ONLY the prompt text - no explanations, no descriptions, no meta-commentary.
 
 {% if context and context.strip() %}
-Content:
+Content to visualize in the infographic:
 {{ context }}
 {% else %}
-Note: No specific content was provided. Generate a general infographic brief.
+Generate a general educational infographic.
 {% endif %}
 
 {% if custom_instructions %}
-{{ custom_instructions }}
+Additional requirements: {{ custom_instructions }}
 {% endif %}
 
-Provide a detailed description that a designer could use to create the infographic.
+The DALL-E prompt should:
+- Start directly describing the infographic (e.g., "A detailed educational infographic showing...")
+- Use present tense, descriptive language
+- Include specific visual elements, colors, layout, text labels
+- Be 200-400 words, detailed enough for DALL-E to generate a complete infographic
+- Style: educational, science textbook illustration, colorful, professional
+
+EXAMPLE FORMAT (do not copy, just follow the style):
+"A detailed educational infographic titled 'The Water Cycle' showing evaporation arrows rising from an ocean, clouds forming in the sky, rain falling over mountains, and a rainbow. The design uses blues, greens, and warm earth tones with clear labels and text boxes in a science textbook illustration style."
+
+CRITICAL: Output ONLY the prompt text. Start immediately with "A detailed educational infographic..." or similar. No prefixes, no explanations.

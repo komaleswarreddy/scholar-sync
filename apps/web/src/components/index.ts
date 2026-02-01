@@ -22,12 +22,15 @@ export { ChatInput } from './chat/ChatInput';
 // Studio Components
 export { StudioSuite } from './studio/StudioSuite';
 export { StudioCard } from './studio/StudioCard';
-export { FlashcardsDisplay } from './studio/FlashcardsDisplay';
-export { QuizDisplay } from './studio/QuizDisplay';
 export { GenerationModal } from './studio/GenerationModal';
 export type { ContentType } from './studio/GenerationModal';
 export { QuizDisplay } from './studio/QuizDisplay';
 export type { QuizQuestion, QuizData } from './studio/QuizDisplay';
+export { FlashcardsDisplay } from './studio/FlashcardsDisplay';
+export { MindMapDisplay } from './studio/MindMapDisplay';
+export { ReportDisplay } from './studio/ReportDisplay';
+export { InfographicBriefDisplay } from './studio/InfographicBriefDisplay';
+export { SlideDeckDisplay } from './studio/SlideDeckDisplay';
 
 // Notes Components
 export { NotesSection } from './notes/NotesSection';

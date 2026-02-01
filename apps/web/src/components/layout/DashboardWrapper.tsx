@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Header } from '@/components/layout/Header';
 import { SourceList } from '@/components/sources/SourceList';
 import { StudioSuite } from '@/components/studio/StudioSuite';
+import { GeneratedStudioFeatures } from '@/components/studio/GeneratedStudioFeatures';
 import { NotesSection } from '@/components/notes/NotesSection';
 import { SourceProvider } from '@/contexts/SourceContext';
 import { UserProvider, useUserContext } from '@/contexts/UserContext';
@@ -171,10 +172,16 @@ export function DashboardWrapper({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           <aside className="w-[18%] bg-surface rounded-3xl flex flex-col overflow-hidden border border-border-default">
-            <div className="flex-1 border-b border-border-default min-h-0">
+            {/* Studio Suite - Top Third */}
+            <div className="flex-1 min-h-0 border-b border-border-default overflow-hidden">
               <StudioSuite />
             </div>
-            <div className="flex-1 min-h-0">
+            {/* Generated Studio Features - Middle Third */}
+            <div className="flex-1 min-h-0 border-b border-border-default overflow-hidden">
+              <GeneratedStudioFeatures />
+            </div>
+            {/* Notes - Bottom Third */}
+            <div className="flex-1 min-h-0 overflow-hidden">
               <NotesSection />
             </div>
           </aside>

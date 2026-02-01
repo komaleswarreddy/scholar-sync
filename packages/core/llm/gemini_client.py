@@ -35,15 +35,15 @@ class GeminiClient(LLMClient):
     
     def __init__(
         self,
-        model: str = "gemini-2.0-flash-exp",
+        model: str = "gemini-pro",
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         api_key: Optional[str] = None
     ):
         # Intercept gemini-1.5-flash and replace immediately (not supported in v1beta API)
         if model == "gemini-1.5-flash" or "1.5-flash" in model.lower():
-            print(f"[WARNING] [GEMINI] Model 'gemini-1.5-flash' is not supported in v1beta API. Auto-upgrading to 'gemini-2.0-flash-exp'")
-            model = "gemini-2.0-flash-exp"
+            print(f"[WARNING] [GEMINI] Model 'gemini-1.5-flash' is not supported in v1beta API. Auto-upgrading to 'gemini-pro'")
+            model = "gemini-pro"
         
         super().__init__(model, temperature, max_tokens)
         self.api_key = api_key or settings.GEMINI_API_KEY
@@ -95,7 +95,7 @@ class GeminiClient(LLMClient):
             if "1.5-flash" in self.model.lower() and "pro" not in self.model.lower():
                 print(f"[CRITICAL] [GEMINI] Model name changed to retired model '{self.model}'. Resetting cached model object...")
                 self._gemini_model = None  # Force re-initialization
-                self.model = "gemini-2.0-flash-exp"  # Upgrade immediately
+                self.model = "gemini-pro"  # Upgrade to most compatible model
         
         if self._gemini_model is None:
             self._configure()
@@ -110,47 +110,47 @@ class GeminiClient(LLMClient):
             # Newer models (2.0-flash-exp, 2.5-flash) work with both v1 and v1beta APIs
             model_candidates = []
             
-            # Try newer models first, then fallback to older compatible models
+            # Try models with fallback chain - prioritize stable, widely available models
             if "1.5-flash" in model_name.lower() or model_name == "gemini-1.5-flash":
-                # For 1.5-flash (legacy), try newer models first
-                # gemini-1.5-flash is not supported in v1beta API, so prioritize newer models
+                # For 1.5-flash (legacy), try stable models first
+                # gemini-1.5-flash is not supported in v1beta API
                 model_candidates = [
-                    "gemini-2.0-flash-exp",  # Newer experimental model (works with v1)
-                    "gemini-2.5-flash",  # Newer stable model (works with v1)
-                    "gemini-1.5-pro",  # Pro version (more compatible)
+                    "gemini-1.5-pro",  # Most stable and widely available
+                    "gemini-2.5-flash",  # Newer stable model
+                    "gemini-2.0-flash-exp",  # Experimental (may not be available in all regions)
                     "gemini-pro",  # Legacy pro (most compatible)
                     # Note: gemini-1.5-flash removed from fallback as it doesn't work with v1beta
                 ]
             elif "2.0" in model_name.lower() or "2.5" in model_name.lower():
-                # For newer models, try them first, then fallback
+                # For newer models, try them first, then fallback to stable models
                 model_candidates = [
                     model_name,  # Try original name first
-                    "gemini-2.0-flash-exp",  # Try experimental (works with v1)
-                    "gemini-2.5-flash",  # Try stable newer (works with v1)
-                    "gemini-1.5-pro",  # Fallback to pro
+                    "gemini-1.5-pro",  # Most stable fallback
+                    "gemini-2.5-flash",  # Alternative newer stable
+                    "gemini-2.0-flash-exp",  # Experimental (if original wasn't this)
                     "gemini-pro",  # Last resort fallback
                 ]
             else:
-                # For other models, try original first, then fallbacks
+                # For other models (including pro models), try original first, then fallbacks
                 model_candidates = [
                     model_name,  # Try original name first
-                    "gemini-2.0-flash-exp",  # Try newer experimental (works with v1)
-                    "gemini-2.5-flash",  # Try newer stable (works with v1)
-                    "gemini-1.5-pro",  # Fallback to pro
+                    "gemini-1.5-pro",  # Most stable fallback
+                    "gemini-2.5-flash",  # Newer stable
+                    "gemini-2.0-flash-exp",  # Experimental
                     "gemini-pro",  # Last resort fallback
                 ]
             
             # CRITICAL: Ensure gemini-1.5-flash is NEVER used - replace it before creating model
             if "1.5-flash" in model_name.lower() or model_name == "gemini-1.5-flash":
-                print(f"[CRITICAL] [GEMINI] Intercepted retired model 'gemini-1.5-flash' at model creation. Replacing with 'gemini-2.0-flash-exp'")
-                model_name = "gemini-2.0-flash-exp"
+                print(f"[CRITICAL] [GEMINI] Intercepted retired model 'gemini-1.5-flash' at model creation. Replacing with 'gemini-pro'")
+                model_name = "gemini-pro"
                 self.model = model_name  # Update stored model name
-                # Rebuild candidates with new model name
+                # Rebuild candidates with new model name - prioritize compatible models
                 model_candidates = [
-                    "gemini-2.0-flash-exp",
-                    "gemini-2.5-flash",
-                    "gemini-1.5-pro",
-                    "gemini-pro",
+                    "gemini-pro",  # Most compatible (works with v1beta)
+                    "gemini-2.5-flash",  # Newer stable
+                    "gemini-2.0-flash-exp",  # Experimental
+                    "gemini-1.5-pro",  # Last resort (may not work with v1beta / plan / region)
                 ]
             
             last_error = None
@@ -241,7 +241,7 @@ class GeminiClient(LLMClient):
         if "1.5-flash" in self.model.lower() and "pro" not in self.model.lower():
             print(f"[CRITICAL] [GEMINI] generate: Detected retired model '{self.model}'. Forcing reset...")
             self._gemini_model = None  # Force re-initialization
-            self.model = "gemini-2.0-flash-exp"
+            self.model = "gemini-pro"
             # Re-initialize with new model
             _ = self.gemini_model
         
@@ -250,7 +250,7 @@ class GeminiClient(LLMClient):
         if "1.5-flash" in self.model.lower() and "pro" not in self.model.lower():
             print(f"[CRITICAL] [GEMINI] generate: Final check - model is '{self.model}'. Forcing complete reset...")
             self._gemini_model = None
-            self.model = "gemini-2.0-flash-exp"
+            self.model = "gemini-pro"
         
         model_obj = self.gemini_model
         print(f"[DEBUG] [GEMINI] generate: Using model object with self.model='{self.model}'")
@@ -273,10 +273,17 @@ class GeminiClient(LLMClient):
                 # Try to recreate model with fallback and retry
                 print(f"[WARNING] [GEMINI] Model '{self.model}' failed with 404/v1beta error, attempting fallback...")
                 self._gemini_model = None  # Reset model
-                # Force fallback by updating model name if it's the problematic one
+                # Force fallback by updating model name - use most compatible model
                 original_model = self.model
-                if "1.5-flash" in original_model.lower():
-                    self.model = "gemini-2.0-flash-exp"  # Upgrade to newer model
+                # Try gemini-pro first (most compatible with v1beta)
+                if "pro" not in original_model.lower() or "1.5-pro" in original_model.lower():
+                    self.model = "gemini-pro"  # Most compatible model
+                elif "2.0" in original_model.lower() or "2.5" in original_model.lower():
+                    # If newer model failed, try compatible pro model
+                    self.model = "gemini-pro"
+                else:
+                    # For other models, try gemini-pro as fallback
+                    self.model = "gemini-pro"
                 try:
                     # Force re-initialization with fallback
                     model = self.gemini_model
@@ -287,7 +294,28 @@ class GeminiClient(LLMClient):
                     )
                     print(f"[INFO] [GEMINI] Successfully using fallback model '{self.model}'")
                 except Exception as retry_error:
-                    raise ValueError(f"Gemini model {original_model} not available. Tried fallback to {self.model} but still failed. The model may not be supported in your API plan or region. Error: {str(retry_error)}")
+                    # If gemini-pro also failed, try other fallbacks
+                    fallback_models = ["gemini-2.5-flash", "gemini-2.0-flash-exp"]
+                    last_error = retry_error
+                    for fallback_model in fallback_models:
+                        try:
+                            print(f"[INFO] [GEMINI] Trying additional fallback: {fallback_model}")
+                            self._gemini_model = None
+                            self.model = fallback_model
+                            model = self.gemini_model
+                            response = model.generate_content(
+                                full_prompt,
+                                generation_config=generation_config,
+                                safety_settings=safety_settings
+                            )
+                            print(f"[INFO] [GEMINI] Successfully using fallback model '{self.model}'")
+                            break
+                        except Exception as e:
+                            last_error = e
+                            continue
+                    else:
+                        # All fallbacks failed
+                        raise ValueError(f"Gemini model {original_model} not available. Tried fallbacks: gemini-pro, {', '.join(fallback_models)}. The models may not be supported in your API plan or region. Error: {str(last_error)}")
             else:
                 # Re-raise other errors
                 raise
@@ -374,14 +402,14 @@ class GeminiClient(LLMClient):
         if "1.5-flash" in self.model.lower() and "pro" not in self.model.lower():
             print(f"[CRITICAL] [GEMINI] Detected retired model '{self.model}' before stream API call. Resetting and upgrading...")
             self._gemini_model = None  # Force re-initialization
-            self.model = "gemini-2.0-flash-exp"
+            self.model = "gemini-pro"
         
         # Ensure model is initialized (this will trigger fallback if needed)
         # CRITICAL: Always reset model if self.model contains 1.5-flash - don't trust any cached objects
         if "1.5-flash" in self.model.lower() and "pro" not in self.model.lower():
             print(f"[CRITICAL] [GEMINI] stream_generate: Final check - model is '{self.model}'. Forcing complete reset...")
             self._gemini_model = None
-            self.model = "gemini-2.0-flash-exp"
+            self.model = "gemini-pro"
         
         model = self.gemini_model
         print(f"[DEBUG] [GEMINI] stream_generate: Using model object with self.model='{self.model}'")
@@ -405,27 +433,53 @@ class GeminiClient(LLMClient):
                 print(f"[WARNING] [GEMINI] Model '{self.model}' failed with 404, attempting fallback...")
                 # Reset the model to trigger fallback logic
                 self._gemini_model = None
-                # Force fallback by temporarily changing model name
+                # Force fallback by temporarily changing model name - use most compatible model
                 original_model = self.model
-                if "1.5-flash" in original_model.lower():
-                    # gemini-1.5-flash doesn't work with v1beta, use newer models
-                    self.model = "gemini-2.0-flash-exp"  # Try newer first
+                # Try gemini-pro first (most compatible with v1beta)
+                if "pro" not in original_model.lower() or "1.5-pro" in original_model.lower():
+                    self.model = "gemini-pro"  # Most compatible model
                 elif "2.0" in original_model.lower() or "2.5" in original_model.lower():
-                    # Already using newer model, try alternative newer model
-                    if "2.0" in original_model.lower():
-                        self.model = "gemini-2.5-flash"  # Try stable version
+                    # Already using newer model, try compatible pro model as fallback
+                    self.model = "gemini-pro"  # Most compatible and widely available
+                else:
+                    # For other models, try compatible pro model
+                    self.model = "gemini-pro"
+                try:
+                    model = self.gemini_model
+                    # Use the same safety settings
+                    safety_settings = self._get_safety_settings()
+                    response = model.generate_content(
+                        full_prompt,
+                        generation_config=generation_config,
+                        safety_settings=safety_settings,
+                        stream=True
+                    )
+                    print(f"[INFO] [GEMINI] Successfully using fallback model '{self.model}'")
+                except Exception as retry_error:
+                    # If gemini-pro also failed, try other fallbacks
+                    fallback_models = ["gemini-2.5-flash", "gemini-2.0-flash-exp"]
+                    last_error = retry_error
+                    for fallback_model in fallback_models:
+                        try:
+                            print(f"[INFO] [GEMINI] Trying additional fallback: {fallback_model}")
+                            self._gemini_model = None
+                            self.model = fallback_model
+                            model = self.gemini_model
+                            safety_settings = self._get_safety_settings()
+                            response = model.generate_content(
+                                full_prompt,
+                                generation_config=generation_config,
+                                safety_settings=safety_settings,
+                                stream=True
+                            )
+                            print(f"[INFO] [GEMINI] Successfully using fallback model '{self.model}'")
+                            break
+                        except Exception as e:
+                            last_error = e
+                            continue
                     else:
-                        self.model = "gemini-2.0-flash-exp"  # Try experimental
-                model = self.gemini_model
-                # Use the same safety settings
-                safety_settings = self._get_safety_settings()
-                response = model.generate_content(
-                    full_prompt,
-                    generation_config=generation_config,
-                    safety_settings=safety_settings,
-                    stream=True
-                )
-                print(f"[INFO] [GEMINI] Successfully using fallback model '{self.model}'")
+                        # All fallbacks failed
+                        raise ValueError(f"Gemini model {original_model} not available. Tried fallbacks: gemini-pro, {', '.join(fallback_models)}. The models may not be supported in your API plan or region. Error: {str(last_error)}")
             else:
                 # Re-raise other errors
                 raise

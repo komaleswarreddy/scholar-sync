@@ -69,8 +69,8 @@ def get_llm_client(
     # Intercept retired gemini-1.5-flash model and replace immediately
     # This model has been retired by Google and is not available in v1beta API
     if model == "gemini-1.5-flash" or (isinstance(model, str) and "1.5-flash" in model.lower()):
-        print(f"[WARNING] [FACTORY] Model 'gemini-1.5-flash' has been retired by Google. Auto-upgrading to 'gemini-2.0-flash-exp'")
-        model = "gemini-2.0-flash-exp"
+        print(f"[WARNING] [FACTORY] Model 'gemini-1.5-flash' has been retired by Google. Auto-upgrading to 'gemini-pro'")
+        model = "gemini-pro"
     
     # Create client based on provider
     if provider == LLMProvider.OPENAI:
@@ -111,8 +111,8 @@ def _get_default_model(provider: LLMProvider) -> str:
     """Get default model for provider."""
     defaults = {
         LLMProvider.OPENAI: LLMModel.GPT_4O_MINI.value,
-        # Use newer Gemini model as default for v1beta API compatibility
-        LLMProvider.GEMINI: LLMModel.GEMINI_2_0_FLASH_EXP.value,
+        # Use gemini-pro as default (most compatible with v1beta API)
+        LLMProvider.GEMINI: "gemini-pro",
         LLMProvider.CLAUDE: LLMModel.CLAUDE_3_HAIKU.value,
     }
     return defaults.get(provider, LLMModel.GPT_4O_MINI.value)
@@ -137,13 +137,13 @@ def get_model_for_task(task_type: str) -> tuple:
         "slide_deck": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         
         # Content-heavy tasks -> Gemini (larger context window)
-        # Use newer models that are compatible with v1beta API
-        "report": (LLMProvider.GEMINI, LLMModel.GEMINI_2_0_FLASH_EXP.value),
-        "infographic": (LLMProvider.GEMINI, LLMModel.GEMINI_2_0_FLASH_EXP.value),
+        # Use gemini-pro (most compatible with v1beta API)
+        "report": (LLMProvider.GEMINI, "gemini-pro"),
+        "infographic": (LLMProvider.GEMINI, "gemini-pro"),
         
         # Chat -> Gemini (better for conversational)
-        # Chat -> Use newer Gemini model (better for conversational, compatible with v1beta)
-        "chat": (LLMProvider.GEMINI, LLMModel.GEMINI_2_0_FLASH_EXP.value),
+        # Use gemini-pro (most compatible with v1beta API)
+        "chat": (LLMProvider.GEMINI, "gemini-pro"),
     }
     
     return task_routing.get(task_type, (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value))

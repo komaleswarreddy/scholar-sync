@@ -21,10 +21,8 @@ export function StudioCard({ icon, title, onClick, disabled = false }: StudioCar
     if (disabled) return;
     if (onClick) {
       onClick();
-    } else {
-      // TODO: Replace with real API call when API keys are added
-      alert(`${title} generation will be available once API keys are configured`);
     }
+    // If no onClick is provided, do nothing (should not happen in production)
   };
 
   return (

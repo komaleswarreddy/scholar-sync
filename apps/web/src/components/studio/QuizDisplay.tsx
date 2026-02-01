@@ -9,8 +9,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle, ChevronDown, ChevronUp, BookOpen, Trophy } from 'lucide-react';
+import { CheckCircle2, XCircle, ChevronDown, ChevronUp, BookOpen, Trophy, Download } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { exportAsPDF } from '@/lib/export-utils';
 
 export interface QuizQuestion {
   question: string;
@@ -197,6 +198,32 @@ export function QuizDisplay({ quizData }: QuizDisplayProps) {
             {questions.length} {questions.length === 1 ? 'question' : 'questions'}
           </p>
         </div>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => {
+            const quizHTML = `
+              <h1>${title || 'Quiz'}</h1>
+              <p><strong>Total Questions:</strong> ${questions.length}</p>
+              ${questions.map((q, idx) => `
+                <div style="margin-bottom: 2em; page-break-inside: avoid;">
+                  <h3>Question ${idx + 1}</h3>
+                  <p><strong>${q.question}</strong></p>
+                  <ul>
+                    ${q.options.map(opt => `<li>${opt}</li>`).join('')}
+                  </ul>
+                  <p><strong>Correct Answer:</strong> ${q.correct_answer}</p>
+                  ${q.explanation ? `<p><em>Explanation:</em> ${q.explanation}</p>` : ''}
+                </div>
+              `).join('')}
+            `;
+            exportAsPDF(quizHTML, `quiz-${Date.now()}`, title || 'Quiz');
+          }}
+          className="flex items-center gap-2"
+        >
+          <Download className="w-4 h-4" />
+          Export PDF
+        </Button>
       </div>
 
       {/* Progress Bar - Only show before submission */}
@@ -281,7 +308,7 @@ export function QuizDisplay({ quizData }: QuizDisplayProps) {
                                 Correct
                               </span>
                             ) : (
-                              <span className="text-xs font-semibold text-red-500 flex items-center gap-1">
+                              <span className="text-xs font-semibold text-red-500 dark:text-red-400 flex items-center gap-1">
                                 <XCircle className="w-4 h-4" />
                                 Incorrect
                               </span>
@@ -363,7 +390,7 @@ export function QuizDisplay({ quizData }: QuizDisplayProps) {
                                 {isOptionCorrect ? (
                                   <CheckCircle2 className="w-5 h-5 text-accent-green" />
                                 ) : isOptionSelected && !isOptionCorrect ? (
-                                  <XCircle className="w-5 h-5 text-red-500" />
+                                  <XCircle className="w-5 h-5 text-red-500 dark:text-red-400" />
                                 ) : null}
                               </div>
                             )}

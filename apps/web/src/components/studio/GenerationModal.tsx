@@ -9,13 +9,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, Loader2, AlertCircle, Download, Copy, Check } from 'lucide-react';
+import { X, Loader2, AlertCircle, Download, Copy, Check, RotateCcw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../ui/Button';
 import { LoadingShimmer } from '../ui/LoadingShimmer';
 import { QuizDisplay } from './QuizDisplay';
 import { FlashcardsDisplay } from './FlashcardsDisplay';
+import { MindMapDisplay } from './MindMapDisplay';
+import { ReportDisplay } from './ReportDisplay';
+import { InfographicBriefDisplay } from './InfographicBriefDisplay';
+import { SlideDeckDisplay } from './SlideDeckDisplay';
 
 export type ContentType = 'json' | 'markdown' | 'text';
 
@@ -23,10 +27,14 @@ interface GenerationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave?: (content: string) => void | Promise<void>;
+  onRetry?: () => void | Promise<void>;
   title?: string;
   contentType?: ContentType;
   content?: string | object | null;
   loading?: boolean;
+  loadingType?: string;
+  sourceCount?: number;
+  customInstructions?: string;
   error?: string | null;
 }
 
@@ -34,10 +42,14 @@ export function GenerationModal({
   isOpen,
   onClose,
   onSave,
+  onRetry,
   title = 'Generated Content',
   contentType = 'text',
   content = null,
   loading = false,
+  loadingType,
+  sourceCount,
+  customInstructions,
   error = null,
 }: GenerationModalProps) {
   const [copied, setCopied] = useState(false);
@@ -127,6 +139,273 @@ export function GenerationModal({
     }
   };
 
+  // Check if content is a mind map
+  const isMindMapContent = (): boolean => {
+    try {
+      let parsed: any;
+      let contentString = '';
+      
+      if (typeof content === 'string') {
+        contentString = content;
+        try {
+          parsed = JSON.parse(content);
+          // If it's JSON, check for mind_map task_type
+          if (parsed.task_type === 'mind_map') {
+            return true;
+          }
+        } catch {
+          // Not JSON, check if it looks like a mind map markdown
+          // But first exclude slide deck and infographic patterns
+          const slidePattern = /(?:^#+\s+.*[Ss]lide\s+\d+|^#+\s+Slide\s+\d+)/m;
+          if (slidePattern.test(contentString)) {
+            return false; // This is likely a slide deck, not a mind map
+          }
+          
+          // Exclude infographic patterns
+          const infographicKeywords = [
+            /infographic/i,
+            /visual\s+(?:elements?|brief|design)/i,
+            /data\s+points?/i,
+            /layout\s+(?:suggestions?|design)/i,
+            /color\s+scheme/i,
+          ];
+          if (infographicKeywords.some(pattern => pattern.test(contentString))) {
+            return false; // This is likely an infographic, not a mind map
+          }
+          
+          // Mind maps typically have hierarchical headers (#, ##, ###) or structured lists
+          // But should NOT have many top-level headers (that's a slide deck)
+          const lines = contentString.split('\n');
+          const topLevelHeaders = lines.filter(line => {
+            const trimmed = line.trim();
+            return trimmed.match(/^#{1,2}\s+/) && !trimmed.match(/^#{3,}/);
+          });
+          
+          // If there are many top-level headers (3+), it's likely a slide deck, not a mind map
+          if (topLevelHeaders.length >= 3) {
+            return false;
+          }
+          
+          if (contentString.match(/^#\s+.+$/m) || 
+              (contentString.includes('# ') && contentString.split('\n').filter(l => l.trim().startsWith('#')).length >= 2)) {
+            return true;
+          }
+        }
+      } else if (typeof content === 'object' && content !== null) {
+        parsed = content;
+        if (parsed.task_type === 'mind_map') {
+          return true;
+        }
+        // Also check if content field looks like a mind map
+        if (parsed.content && typeof parsed.content === 'string') {
+          const contentStr = parsed.content;
+          
+          // Exclude slide deck patterns
+          const slidePattern = /(?:^#+\s+.*[Ss]lide\s+\d+|^#+\s+Slide\s+\d+)/m;
+          if (slidePattern.test(contentStr)) {
+            return false;
+          }
+          
+          // Exclude infographic patterns
+          const infographicKeywords = [
+            /infographic/i,
+            /visual\s+(?:elements?|brief|design)/i,
+            /data\s+points?/i,
+            /layout\s+(?:suggestions?|design)/i,
+            /color\s+scheme/i,
+          ];
+          if (infographicKeywords.some(pattern => pattern.test(contentStr))) {
+            return false; // This is likely an infographic, not a mind map
+          }
+          
+          const lines = contentStr.split('\n');
+          const topLevelHeaders = lines.filter(line => {
+            const trimmed = line.trim();
+            return trimmed.match(/^#{1,2}\s+/) && !trimmed.match(/^#{3,}/);
+          });
+          
+          if (topLevelHeaders.length >= 3) {
+            return false;
+          }
+          
+          if (contentStr.match(/^#\s+.+$/m) || 
+              (contentStr.includes('# ') && contentStr.split('\n').filter(l => l.trim().startsWith('#')).length >= 2)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  // Check if content is a report
+  const isReportContent = (): boolean => {
+    try {
+      let parsed: any;
+      
+      if (typeof content === 'string') {
+        try {
+          parsed = JSON.parse(content);
+          if (parsed.task_type === 'report') {
+            return true;
+          }
+        } catch {
+          // Not JSON, might be markdown report
+        }
+      } else if (typeof content === 'object' && content !== null) {
+        parsed = content;
+        if (parsed.task_type === 'report') {
+          return true;
+        }
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  // Check if content is an infographic brief
+  const isInfographicContent = (): boolean => {
+    try {
+      let parsed: any;
+      let contentString = '';
+      
+      if (typeof content === 'string') {
+        contentString = content;
+        try {
+          parsed = JSON.parse(content);
+          if (parsed.task_type === 'infographic') {
+            return true;
+          }
+          // Check if content field contains infographic patterns
+          if (parsed.content && typeof parsed.content === 'string') {
+            contentString = parsed.content;
+          }
+        } catch {
+          // Not JSON, might be markdown infographic brief
+        }
+      } else if (typeof content === 'object' && content !== null) {
+        parsed = content;
+        if (parsed.task_type === 'infographic') {
+          return true;
+        }
+        // Check if content field contains infographic patterns
+        if (parsed.content && typeof parsed.content === 'string') {
+          contentString = parsed.content;
+        }
+      }
+
+      // Check for infographic patterns in markdown
+      if (contentString) {
+        // Infographic briefs typically mention visual elements, data points, layout, color scheme
+        const infographicKeywords = [
+          /infographic/i,
+          /visual\s+(?:elements?|brief|design)/i,
+          /data\s+points?/i,
+          /layout\s+(?:suggestions?|design)/i,
+          /color\s+scheme/i,
+          /visual\s+brief/i,
+          /design\s+recommendations?/i,
+        ];
+        
+        // Check if content contains infographic-specific keywords
+        const hasInfographicKeywords = infographicKeywords.some(pattern => pattern.test(contentString));
+        
+        // Also check for section headers that might indicate infographic brief structure
+        // Infographic briefs often have sections like "Visual Elements", "Data Points", "Layout", etc.
+        const infographicSectionPatterns = [
+          /^#+\s+.*visual\s+(?:elements?|brief)/im,
+          /^#+\s+.*data\s+points?/im,
+          /^#+\s+.*layout/im,
+          /^#+\s+.*color\s+scheme/im,
+        ];
+        
+        const hasInfographicSections = infographicSectionPatterns.some(pattern => pattern.test(contentString));
+        
+        if (hasInfographicKeywords || hasInfographicSections) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  // Check if content is a slide deck
+  const isSlideDeckContent = (): boolean => {
+    try {
+      let parsed: any;
+      let contentString = '';
+      
+      if (typeof content === 'string') {
+        contentString = content;
+        try {
+          parsed = JSON.parse(content);
+          if (parsed.task_type === 'slide_deck') {
+            return true;
+          }
+          // Check if content field contains slide deck patterns
+          if (parsed.content && typeof parsed.content === 'string') {
+            contentString = parsed.content;
+          }
+        } catch {
+          // Not JSON, might be markdown slide deck
+        }
+      } else if (typeof content === 'object' && content !== null) {
+        parsed = content;
+        if (parsed.task_type === 'slide_deck') {
+          return true;
+        }
+        // Check if content field contains slide deck patterns
+        if (parsed.content && typeof parsed.content === 'string') {
+          contentString = parsed.content;
+        }
+      }
+
+      // Check for slide deck patterns in markdown
+      if (contentString) {
+        // Look for patterns like "Slide 1", "Slide 2", etc. in headers
+        const slidePattern = /(?:^#+\s+.*[Ss]lide\s+\d+|^#+\s+Slide\s+\d+)/m;
+        if (slidePattern.test(contentString)) {
+          return true;
+        }
+        
+        // Look for multiple level 1 or 2 headers that might be slides
+        // Slide decks typically have many top-level headers
+        const lines = contentString.split('\n');
+        const topLevelHeaders = lines.filter(line => {
+          const trimmed = line.trim();
+          return trimmed.match(/^#{1,2}\s+/) && !trimmed.match(/^#{3,}/);
+        });
+        
+        // If there are 3+ top-level headers, it's likely a slide deck
+        if (topLevelHeaders.length >= 3) {
+          // Additional check: see if headers mention "slide" or have sequential numbering
+          const hasSlideKeywords = topLevelHeaders.some(h => 
+            /slide|presentation|deck/i.test(h)
+          );
+          const hasSequentialNumbers = topLevelHeaders.some(h => 
+            /\d+/.test(h)
+          );
+          
+          if (hasSlideKeywords || hasSequentialNumbers) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   // Determine content type from content if not explicitly provided
   const detectContentType = (): ContentType => {
     if (contentType !== 'text') return contentType;
@@ -155,6 +434,11 @@ export function GenerationModal({
   const detectedType = detectContentType();
   const isQuiz = isQuizContent();
   const isFlashcards = isFlashcardsContent();
+  // Check slide deck and infographic BEFORE mind map since they can also have headers
+  const isSlideDeck = isSlideDeckContent();
+  const isInfographic = isInfographicContent();
+  const isMindMap = isMindMapContent();
+  const isReport = isReportContent();
 
   // Format content for display
   const formatContent = (): string => {
@@ -191,7 +475,20 @@ export function GenerationModal({
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="p-6">
+        <div className="p-6 space-y-4">
+          {/* Progress Indicator */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-text-secondary font-medium">
+                {loadingType ? `Generating ${loadingType.replace('_', ' ')}` : 'Generating content'}
+                {sourceCount ? ` (Processing ${sourceCount} ${sourceCount === 1 ? 'Source' : 'Sources'})` : ''}
+              </span>
+            </div>
+            {/* Animated Indeterminate Progress Bar */}
+            <div className="w-full h-2.5 bg-surface-subtle rounded-full overflow-hidden">
+              <div className="h-full bg-accent-blue rounded-full animate-pulse" style={{ width: '60%' }} />
+            </div>
+          </div>
           <LoadingShimmer />
         </div>
       );
@@ -206,15 +503,26 @@ export function GenerationModal({
               <p className="text-sm font-semibold text-red-700 dark:text-red-300 mb-1">
                 Generation Failed
               </p>
-              <p className="text-sm text-red-600 dark:text-red-400 mb-2">
+              <p className="text-sm text-red-600 dark:text-red-400 mb-3">
                 {error}
               </p>
-              <button
-                onClick={onClose}
-                className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 underline cursor-pointer"
-              >
-                Dismiss
-              </button>
+              <div className="flex items-center gap-3">
+                {onRetry && (
+                  <button
+                    onClick={onRetry}
+                    className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 px-3 py-1.5 rounded-md border border-red-300 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center gap-1.5"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Retry
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 underline cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -245,6 +553,47 @@ export function GenerationModal({
       return (
         <div className="overflow-y-auto">
           <FlashcardsDisplay flashcardsData={content || displayContent} />
+        </div>
+      );
+    }
+
+    // Slide Deck content - render with SlideDeckDisplay component
+    // Check BEFORE mind map since slide decks can also have headers
+    if (isSlideDeck) {
+      return (
+        <div className="h-full overflow-hidden">
+          <SlideDeckDisplay slideData={content || displayContent} />
+        </div>
+      );
+    }
+
+    // Infographic content - render with InfographicBriefDisplay component
+    // Check BEFORE mind map since infographics can also have headers
+    if (isInfographic) {
+      // For infographics, pass the raw content object to preserve image_url and other fields
+      // If content is an object, use it directly; otherwise fall back to displayContent
+      const infographicData = (typeof content === 'object' && content !== null) ? content : displayContent;
+      return (
+        <div className="overflow-y-auto">
+          <InfographicBriefDisplay briefData={infographicData} />
+        </div>
+      );
+    }
+
+    // Mind Map content - render with MindMapDisplay component (full screen)
+    if (isMindMap) {
+      return (
+        <div className="h-full overflow-hidden">
+          <MindMapDisplay mindMapData={content || displayContent} />
+        </div>
+      );
+    }
+
+    // Report content - render with ReportDisplay component
+    if (isReport) {
+      return (
+        <div className="overflow-y-auto">
+          <ReportDisplay reportData={content || displayContent} />
         </div>
       );
     }
@@ -347,13 +696,17 @@ export function GenerationModal({
           aria-modal="true"
           aria-labelledby="generation-modal-title"
           aria-describedby="generation-modal-description"
-          className="bg-surface border border-border-default rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+          className={`bg-surface border border-border-default rounded-2xl shadow-2xl flex flex-col ${
+            (isMindMap || isSlideDeck)
+              ? 'w-full h-full max-w-[98vw] max-h-[98vh] m-2' 
+              : 'w-full max-w-4xl max-h-[90vh]'
+          }`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border-default">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-accent-blue/10 flex items-center justify-center">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-lg bg-accent-blue/10 flex items-center justify-center flex-shrink-0">
                 {loading ? (
                   <Loader2 className="w-5 h-5 text-accent-blue animate-spin" />
                 ) : error ? (
@@ -362,25 +715,42 @@ export function GenerationModal({
                   <Download className="w-5 h-5 text-accent-blue" />
                 )}
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h2 id="generation-modal-title" className="text-lg font-bold text-text-primary">
                   {title}
                 </h2>
                 <p id="generation-modal-description" className="text-xs text-text-tertiary mt-0.5">
                   {loading
-                    ? 'Generating content...'
+                    ? loadingType
+                      ? `Generating ${loadingType.replace('_', ' ')}${sourceCount ? ` (Processing ${sourceCount} ${sourceCount === 1 ? 'Source' : 'Sources'})` : ''}...`
+                      : 'Generating content...'
                     : error
                     ? 'Generation failed'
                     : isQuiz
                     ? 'Quiz Content'
                     : isFlashcards
                     ? 'Flashcards'
+                    : isMindMap
+                    ? 'Mind Map'
+                    : isReport
+                    ? 'Report'
+                    : isInfographic
+                    ? 'Infographic Brief'
+                    : isSlideDeck
+                    ? 'Slide Deck'
                     : detectedType === 'json'
                     ? 'JSON Content'
                     : detectedType === 'markdown'
                     ? 'Markdown Content'
                     : 'Text Content'}
                 </p>
+                {/* Custom Instructions Display */}
+                {customInstructions && customInstructions.trim() && (
+                  <div className="mt-2 p-2 bg-surface-subtle border border-border-default rounded-md">
+                    <p className="text-xs font-medium text-text-secondary mb-1">Custom Instructions:</p>
+                    <p className="text-xs text-text-primary italic">{customInstructions}</p>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -411,7 +781,7 @@ export function GenerationModal({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto">
+          <div className={`flex-1 ${(isMindMap || isSlideDeck) ? 'overflow-hidden' : 'overflow-y-auto'}`}>
             {renderContent()}
           </div>
 
