@@ -20,7 +20,11 @@ from config.settings import settings
 
 # Configuration for Development
 DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
-EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc", "/favicon.ico", "/.well-known"}
+EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc", "/favicon.ico", "/.well-known", "/metrics"}
+
+# Paths that require tenant but not user authentication (development only)
+# These paths can work with just tenant_id from subdomain, no JWT required
+TENANT_ONLY_PATHS = {"/api/v1/metrics", "/api/v1/dashboards", "/api/v1/alerts", "/debug"}
 
 
 class TenantMiddleware:
@@ -130,9 +134,22 @@ class TenantMiddleware:
             # Extract origin early for CORS headers
             origin = request.headers.get("Origin", "")
 
+            # Check if this is a tenant-only path (metrics/dashboards in development)
+            is_tenant_only_path = (
+                settings.ENVIRONMENT == "development" and
+                any(current_path.startswith(path) for path in TENANT_ONLY_PATHS)
+            )
+            
             # Step 4: Extract user_id from Authorization header
             auth_header = request.headers.get("Authorization", "")
             user_id = None
+            
+            # For tenant-only paths in development, skip user authentication
+            if is_tenant_only_path:
+                print(f"[INFO] [MIDDLEWARE] Tenant-only path '{current_path}' - skipping user authentication in development mode")
+                request.state.user_id = None  # No user required
+                await self.app(scope, receive, send)
+                return
             
             if not auth_header or not auth_header.startswith("Bearer "):
                 resp = JSONResponse(

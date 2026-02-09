@@ -5,10 +5,12 @@ Context (chunks numbered [1], [2], [3]... in order of relevance - [1] is most re
 {{ context }}
 
 Answer Format Instructions:
-1. Start your answer with a clear, complete sentence that directly answers the question. For example, if asked "what are NULL values", start with "NULL value is..." or "NULL values are..." - be explicit and clear from the first sentence.
-2. Use the most relevant chunk(s) - typically [1] or [2] - to provide the direct answer.
-3. After the direct answer, you can mention alternative approaches or related information if applicable.
-4. Only cite chunk numbers [1], [2], etc. that actually contain the information you are stating. Do NOT cite chunks that do not contain the information.
+1. **IMPORTANT: Provide a complete, comprehensive answer.** Do not stop mid-sentence or provide vague, incomplete responses. Always finish your thoughts completely.
+2. Start your answer with a clear, complete sentence that directly answers the question. For example, if asked "what are NULL values", start with "NULL value is..." or "NULL values are..." - be explicit and clear from the first sentence.
+3. Use the most relevant chunk(s) - typically [1] or [2] - to provide the direct answer.
+4. After the direct answer, you can mention alternative approaches or related information if applicable.
+5. Only cite chunk numbers [1], [2], etc. that actually contain the information you are stating. Do NOT cite chunks that do not contain the information.
+6. **Always provide a full, complete response.** Never end with incomplete phrases like "on the information" or "based on" - always complete your sentences and provide the full answer.
 5. Use proper formatting with Markdown:
    - Use **bold** for emphasis
    - Use headings (##, ###) for sections and subsections
@@ -29,9 +31,12 @@ Rules:
 - Answer based strictly on the provided context
 - The most relevant chunks are listed first ([1] is most relevant)
 - Cite accurately - only reference chunks that contain the information
+- **If the user asks about a document by name (e.g., "what's in MySQL.pdf"), use the context chunks to provide information about that document's contents, topics, and structure.**
+- **If the context contains information from the document, summarize the main topics, sections, or key information covered in that document.**
 - If information is not in the context, say so clearly
 - Format your response with proper Markdown for readability
 - Use line breaks and structure for clarity
+- **When asked about document contents, provide a comprehensive overview based on the available context chunks**
 
 User question: {{ message }}
 {% else %}

@@ -113,6 +113,9 @@ class MetricsCollector:
         
         with self._lock:
             self._llm_calls.append(metric)
+            # Debug logging
+            print(f"[METRICS] Recorded LLM call: tenant={tenant_id}, model={model}, tokens={total_tokens}, cost={cost:.6f}, feature={feature_tag}")
+            print(f"[METRICS] Total LLM calls in memory: {len(self._llm_calls)}")
         
         # Write to log file
         self._write_log("llm_calls", metric)
@@ -300,14 +303,21 @@ class MetricsCollector:
             Dictionary with aggregated metrics
         """
         with self._lock:
+            # Debug: Log total calls before filtering
+            print(f"[METRICS] get_metrics_summary called: tenant_id={tenant_id}, total_calls_in_memory={len(self._llm_calls)}")
+            
             # Filter by tenant if provided
             llm_calls = [m for m in self._llm_calls if not tenant_id or m["tenant_id"] == tenant_id]
             cache_ops = [m for m in self._cache_operations if not tenant_id or m["tenant_id"] == tenant_id]
+            
+            print(f"[METRICS] After filtering: tenant_id={tenant_id}, filtered_calls={len(llm_calls)}")
             
             # Calculate totals
             total_tokens = sum(m["total_tokens"] for m in llm_calls)
             total_cost = sum(m["cost"] for m in llm_calls)
             total_calls = len(llm_calls)
+            
+            print(f"[METRICS] Calculated totals: calls={total_calls}, tokens={total_tokens}, cost={total_cost:.6f}")
             
             # Cache stats
             cache_hits = sum(1 for m in cache_ops if m["operation"] == "hit")
@@ -328,6 +338,10 @@ class MetricsCollector:
                 if not tenant_id or m["tenant_id"] == tenant_id
             )
             
+            # Calculate token breakdown
+            input_tokens = sum(m.get("prompt_tokens", 0) for m in llm_calls)
+            output_tokens = sum(m.get("completion_tokens", 0) for m in llm_calls)
+            
             return {
                 "llm_calls": {
                     "total": total_calls,
@@ -335,6 +349,15 @@ class MetricsCollector:
                     "total_cost": total_cost,
                     "avg_tokens_per_call": total_tokens / total_calls if total_calls > 0 else 0,
                     "avg_cost_per_call": total_cost / total_calls if total_calls > 0 else 0,
+                },
+                "tokens": {
+                    "input": input_tokens,
+                    "output": output_tokens,
+                    "total": total_tokens,
+                },
+                "costs": {
+                    "total": total_cost,
+                    "avg_per_call": total_cost / total_calls if total_calls > 0 else 0.0,
                 },
                 "cache": {
                     "hits": cache_hits,
@@ -344,8 +367,8 @@ class MetricsCollector:
                 "feature_usage": feature_counts,
                 "regenerate_attempts": regenerate_count,
                 "document_costs": {
-                    "total_documents": len([d for d in self._document_costs.values() if not tenant_id or d["tenant_id"] == tenant_id]),
-                    "total_cost": sum(d["total_cost"] for d in self._document_costs.values() if not tenant_id or d["tenant_id"] == tenant_id),
+                    "total_documents": len([d for d in self._document_costs.values() if not tenant_id or d.get("tenant_id") == tenant_id]),
+                    "total_cost": sum(d.get("total_cost", 0) for d in self._document_costs.values() if not tenant_id or d.get("tenant_id") == tenant_id),
                 },
             }
 

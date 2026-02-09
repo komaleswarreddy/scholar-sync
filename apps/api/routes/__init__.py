@@ -4,7 +4,7 @@ API Routes
 FastAPI route handlers for all API endpoints.
 """
 
-from apps.api.routes import chat, sources, studio, notes, health, metrics
+from apps.api.routes import chat, sources, studio, notes, health, metrics, alerts, dashboards, debug
 
 __all__ = [
     "chat",
@@ -13,4 +13,7 @@ __all__ = [
     "notes",
     "health",
     "metrics",
+    "alerts",
+    "dashboards",
+    "debug",
 ]

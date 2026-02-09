@@ -1,0 +1,263 @@
+{
+  "text": "MySQL Notes\nMySQL\n1. MySQL is a widely used relational database management system (RDBMS).\n2. MySQL is free and open-source.\n3. MySQL is ideal for both small and large applications.\n4. MySQL is very fast, reliable, scalable, and easy to use\n5. MySQL is cross-platform\n6. MySQL is compliant with the ANSI SQL standard\n7. MySQL was first released in 1995\n8. MySQL is developed, distributed, and supported by Oracle Corporation\n9. MySQL is named after co-founder Monty Widenius's daughter: My\nUses of MySQL\n1. Huge websites like F acebook, T witter, Airbnb, Booking.com, Uber, GitHub, Y ouTube, etc.\n2. Content Management S ystems like W ordPress, Drupal, Joomla!, Contao, etc.\n3. A very large number of web developers around the world\nRDBMS\n1. RDBMS stands for R elational Database Management S ystem.\n2. RDBMS is a program used to maintain a relational database.\n3. RDBMS is the basis for all modern database systems such as MySQL, Microsoft SQL Server, Oracle, and Microsoft Access.\n4. RDBMS uses SQL queries to access the data in the database.\nRelational Database\nA relational database defines database relationships in the form of tables. The tables are related to each other - based on data\ncommon to each.\nSQL\n1. SQL is the standard language for dealing with R elational Databases.\n2. SQL is used to insert, search, update, and delete database records.\n3. SQL keywords are NO T case sensitive i.e. select is the same as SELECT\nSQL Comma nds\nSELECT -> extracts data from a database\nUPDATE -> updates data in a database\nDELETE -> deletes data from a database\nINSER T INT O -> inserts new data into a database\nCREA TE DATABASE -> creates a new database\nALTER D ATABASE -> modifies a database\nCREA TE TABLE -> creates a new table\nALTER T ABLE -> modifies a table\nDROP TABLE -> deletes a table\nCREA TE INDEX -> creates an index (search key)\nDROP INDEX -> deletes an index\nCreate and Drop Database\nCREATE DATABASE: \"To create a new SQL database\"\nCREATE DATABASE databasename;\nDROP DATABASE: \"To drop an existing SQL database\"\nDROP DATABASE databasename;\nCreate and Drop Table\nCreate table Syntax: \"To create a new table in a database\"\nCREATE TABLE table_name (\ncolumn1 datatype,\ncolumn2 datatype,\ncolumn3 datatype,\n....\n);\nTo create a new table using an existing table:\nCREATE TABLE new_table_name AS\nSELECT column1, column2,...\nFROM existing_table_name\nWHERE ....; // Optional\nDrop table Syntax: \"To drop an existing table in a database\"\nDROP TABLE table_name;\nTo delete the data inside a table, but not the table itself:\nTRUNCATE TABLE table_name;\nINSERT INTO\nThe INSER T INT O statement is used to insert new records in a table.\n1. When Specify both the column names and the values:\nINSERT INTO table_name (column1,column2,column3, ...)\nVALUES (value1, value2, value3, ...);\n2. When adding the values into all columns:\nINSERT INTO table_name\nVALUES (value1, value2, value3, ...);\nFetch Data From Database\nSELECT\nTo select data from a database\n1. When select data from any Column\nSELECT column1, column2, ...FROM table_name;\n2. When select all the Columns\nSELECT * FROM table_name;\n3. To return only distinct (different) values\nSELECT DISTINCT columnname FROM table_name\n4. When we want to count the columndata\nSELECT COUNT(DISTINCT columnname) FROM table_name\nWHERE\nused to filter records\nSELECT column1, column2, ...\nFROM table_name\nWHERE condition;\nOperators in Where\n'=' -> Equal\n'>' -> Greater than\n'<' -> Less than\n'>=' -> Greater than or equal\n'<=' -> Less than or equal\n'<>' -> Not equal. Note: In some versions of SQL this operator may be written as '!='\n'BETWEEN' -> Between a certain range\n'LIKE' -> Search for a pattern\n'IN' -> T o specify multiple possible values for a column\nWhere with AND,OR, and NOT operators:\nAND Syntax: \"If all the conditions separated by AND are TRUE\"\nSELECT column1, column2, ...\nFROM table_name\nWHERE condition1 AND condition2 AND condition3 ...;\nOR Syntax: \"If any of the conditions separated by OR is TRUE\"\nSELECT column1, column2, ...\nFROM table_name\nWHERE condition1 OR condition2 Ocondition3 ...;\nNOT Syntax: \"If the condition(s) is NOT TRUE\"\nSELECT column1, column2, ...\nFROM table_name\nWHERE NOT condition;\nORDER BY\nused to sort the result-set in ascending or descending order\nOrder By\nSELECT column1, column2, ...\nFROM table_name\nORDER BY column1, column2, ... ASC|DESC;\nOrder By several columns\nSELECT * FROM table_name\nORDER BY column1 ASC|DESC, column2 ASC|DESC, ...;\nNULL Values\nNULL value is a field with no value\nA NULL value is different from a zero value or a field that contains spaces. A field with a NULL value is one that has been left blank\nduring record creation!\nIs Null\nSELECT column_names\nFROM table_name\nWHERE column_name IS NULL;\nIs Not Null\nSELECT column_names\nFROM table_name\nWHERE column_name IS NOT NULL;\nUPDATE\nused to modify the existing records in a table\nUpdate record\nUPDATE table_name\nSET column1 = value1, column2 = value2, ...\nWHERE condition;\nUpdate Multiple record\nUPDATE table_name\nSET columnname = condition\nWHERE columnname = condition;\nLimit, Min(), Max(), Count(), Avg(), and Sum()\nLimit: \"To specify the number of records to return\"\nSELECT column_name(s)\nFROM table_name\nWHERE condition\nLIMIT number;\nMin(): \"It returns the smallest value of the selected column\"\nSELECT MIN(column_name)\nFROM table_name\nWHERE condition;\nMax(): \"It returns the largest value of the selected column\"\nSELECT MAX(column_name)\nFROM table_name\nWHERE condition;\nCount(): \"It returns the number of rows that matches a specified\ncriterion\"\nSELECT COUNT(column_name)\nFROM table_name\nWHERE condition;\nAvg(): \"It returns the average value of a numeric column\"\nSELECT AVG(column_name)\nFROM table_name\nWHERE condition;\nSum(): \"It returns the total sum of a numeric column\"\nSELECT SUM(column_name)\nFROM table_name\nWHERE condition;\nLIKE\nused in a WHERE clause to search for a specified pattern in a column\nThere are two wildcards often used in conjunction with the LIKE operator:\nThe percent sign (%) represents zero, one, or multiple characters\nThe underscore sign (_) represents one, single character\nLIKE Operat or Descr iption\nWHERE CustomerName LIKE 'a%' Finds any values that start with \"a\"\nWHERE CustomerName LIKE '%a' Finds any values that end with \"a\"\nWHERE CustomerName LIKE '%or%' Finds any values that have \"or\" in any position\nWHERE CustomerName LIKE '_r%' Finds any values that have \"r\" in the second position\nWHERE CustomerName LIKE 'a_%' Finds any values that start with \"a\" and are at least 2 characters in length\nWHERE CustomerName LIKE 'a__%' Finds any values that start with \"a\" and are at least 3 characters in length\nWHERE CustomerName LIKE 'a_%_%' Finds any values that starts with \"a\" and are at least 3 characters in length\nWHERE CustomerName LIKE 'a%o' Finds any values that start with \"a\" and ends with \"o\"\nLike\nSELECT column1, column2, ...\nFROM table_name\nWHERE columnN LIKE pattern;\nNot Like\nSELECT column1, column2, ...\nFROM table_name\nWHERE columnN NOT LIKE pattern;\nIN\nTo specify multiple values in a WHERE clause\nIt's a shorthand for multiple OR conditions\nIn:\nSELECT column_name(s)\nFROM table_name\nWHERE column_name IN (value1, value2, ...);\nNot In:\nSELECT column_name(s)\nFROM table_name\nWHERE column_name NOT IN (value1, value2, ...);\nOR\nIn:\nSELECT column_name(s)\nFROM table_name\nWHERE column_name IN (SELECT STATEMENT);\nNot In:\nSELECT column_name(s)\nFROM table_name\nWHERE column_name NOT IN (SELECT STATEMENT);\nBETWEEN\nIt selects values within a given range\nThe values can be numbers, text, or dates\nbegin and end values are included\nBetween\nSELECT column_name(s)\nFROM table_name\nWHERE column_name BETWEEN value1 AND value2;\nNot Between\nSELECT column_name(s)\nFROM table_name\nWHERE column_name NOT BETWEEN value1 AND value2;\nBetween with IN\nSELECT column_name(s)\nFROM table_name\nWHERE column_name BETWEEN value1 AND value2 And column_name NOT IN (value3,value4,...);\nBetween Text\nSELECT column_name(s)\nFROM table_name\nWHERE column_name BETWEEN textvalue1 AND textvalue2;\nNot Between Text\nSELECT column_name(s)\nFROM table_name\nWHERE column_name NOT BETWEEN textvalue1 AND textvalue2;\nBetween Dates\nSELECT column_name(s)\nFROM table_name\nWHERE column_name BETWEEN date1 AND date2;\nAliases\nused to give a table, or a column in a table, a temporary name\nused to make column names more readable\nonly exists for the duration of that query\ncreated with the AS keyword\nAlisas Column\nSELECT column_name AS alias_name\nFROM table_name;\nAlisas Table\nSELECT column_name(s)\nFROM table_name AS alias_name;\nJoins\nused to combine rows from two or more tables, based on a related column between them\nTypes of Joins\nINNER JOIN : Returns records that have matching values in both tables\nLEFT JOIN : Returns all records from the left table, and the matched records from the right table\nRIGHT JOIN : Returns all records from the right table, and the matched records from the left table\nCROSS JOIN : Returns all records from both tables\nInner Join: \"Selects records that have matching values in both\ntables\"\nSELECT column_name(s)\nFROM table1\nINNER JOIN table2\nON table1.column_name = table2.column_name;\nLEFT JOIN: \"Returns all records from the left table1, and the\nmatching records (if any) from the right table2\"\nSELECT column_name(s)\nFROM table1\nLEFT JOIN table2\nON table1.column_name = table2.column_name;\nRIGHT JOIN: \"Returns all records from the right table2, and the\nmatching records (if any) from the left table1\"\nSELECT column_name(s)\nFROM table1\nRIGHT JOIN table2\nON table1.column_name = table2.column_name;\nCROSS JOIN: \"Returns all records from both tables\"\nSELECT column_name(s)\nFROM table1\nCROSS JOIN table2;\nSelf Join: \"Table is joined with itself\"\nSELECT column_name(s)\nFROM table1 T1, table1 T2\nWHERE condition;\nUNION\nused to combine the result-set of two or more SELECT statements\nEvery SELECT statement within UNION must have the same number of columns\nThe columns must also have similar data types\nThe columns in every SELECT statement must also be in the same order\nUnion:\nSELECT column_name(s) FROM table1\nUNION\nSELECT column_name(s) FROM table2;\nORDER BY columan_name; //Optional\nUnion All:\nSELECT column_name(s) FROM table1\nUNION ALL\nSELECT column_name(s) FROM table2\nORDER BY columan_name; //Optional\nUnion With Where:\nSELECT column_name(s) FROM table1\nWHERE column_name = 'value1'\nUNION\nSELECT column_name(s) FROM table2\nWHERE column_name = 'value1'\nORDER BY columan_name; //Optional\nUnion All With Where:\nSELECT column_name(s) FROM table1\nWHERE column_name = 'value1'\nUNION All\nSELECT column_name(s) FROM table2\nWHERE column_name = 'value1'\nORDER BY columan_name; //Optional\nGROUP BY\nThe GR OUP B Y statement is often used with aggregate functions (C OUNT(), MAX(), MIN(), SUM(), A VG()) to group the result-set by one\nor more columns.\nSELECT column_name(s)\nFROM table_name\nWHERE condition\nGROUP BY column_name(s)\nORDER BY column_name(s);\nHAVING\nThe HA VING clause was added to SQL because the WHERE keyword cannot be used with aggregate functions\nSELECT column_name(s)\nFROM table_name\nWHERE condition\nGROUP BY column_name(s)\nHAVING condition\nORDER BY column_name(s);\nEXISTS\nUsed to test for the existence of any record in a subquery\nReturns TRUE if the subquery returns one or more records\nSELECT column_name(s)\nFROM table_name\nWHERE EXISTS (SELECT column_name FROM table_name WHERE condition);\nANY and ALL\nThe ANY and ALL operators allow you to perform a comparison between a single column value and a range of other values\nAny:\nReturns a boolean value as a result\nANY means that the condition will be true if the operation is true for any of the values in the range.\nSELECT column_name(s)\nFROM table_name\nWHERE column_name operator ANY (SELECT column_name FROM table_name WHERE condition);\nAll:\nReturns a boolean value as a result\nReturns TRUE if ALL of the subquery values meet the condition\nALL Syntax With SELECT:\nSELECT ALL column_name(s)\nFROM table_name\nWHERE condition;\nALL Syntax With WHERE or HAVING:\nSELECT column_name(s)\nFROM table_name\nWHERE column_name operator ALL (SELECT column_name FROM table_name WHERE condition);\nCASE\nThe CASE statement goes through conditions and returns a value when the first condition is met (like an if-then-else statement). So,\nonce a condition is true, it will stop reading and return the result. If no conditions are true, it returns the value in the ELSE clause.\nIf there is no ELSE part and no conditions are true, it returns NULL.\nSELECT column1, colummn2,\nCASE\nWHEN condition1 THEN result1\nWHEN condition2 THEN result2\nWHEN conditionN THEN resultN\nELSE result\nEND;\nFROM Database_name;\nMySQL Operators\nArithmetic Operators\n'+' -> Add\n'-' -> Subtract\n'*' -> Multiply\n'/' -> Divide\n'%' -> Modulo\nBitwise Operators\n'&' Bitwise AND\n'|' Bitwise OR\n'^' Bitwise exclusive OR\nComparison Operators\n'=' -> Equal to\n'>' -> Greater than\n'<' -> Less than\n'>=' -> Greater than or equal to\n'<=' -> Less than or equal to\n'<>' -> Not equal to\nCompound Operators\n'+=' -> Add equals\n'-=' -> Subtract equals\n'*=' -> Multiply equals\n'/=' -> Divide equals\n'%=' -> Modulo equals\n'&=' -> Bitwise AND equals\n'^-=' -> Bitwise exclusive equals\n'|*=' -> Bitwise OR equals\nLogical Operators\n'ALL' -> TRUE if all of the subquery values meet the condition\n'AND' -> TRUE if all the conditions separated by AND is TRUE\n'ANY' -> TRUE if any of the subquery values meet the condition\n'BETWEEN' -> TRUE if the operand is within the range of comparisons\n'EXIST S' -> TRUE if the subquery returns one or more records\n'IN' -> TRUE if the operand is equal to one of a list of expressions\n'LIKE' -> TRUE if the operand matches a pattern\n'NOT' -> Displays a record if the condition(s) is NO T TRUE\n'OR' -> TRUE if any of the conditions separated by OR is TRUE\n'SOME' -> TRUE if any of the subquery values meet the condition\nALTER TABLE\nused to add, delete, or modify columns in an existing table\nAnd used to add and drop various constraints on an existing table\n1. ADD Column: \"To add a column in a table\"\nALTER TABLE table_name\nADD column_name datatype;\n2. DROP COLUMN: \"To delete a column in a table\"\nALTER TABLE table_name\nDROP COLUMN column_name;\n3. MODIFY COLUMN: \"To change the data type of a column in a\ntable\"\nALTER TABLE table_name\nMODIFY COLUMN column_name datatype;\n\nConstraints\nused to specify rules for data in a table\nused to limit the type of data that can go into a table\nThe following constraints are commonly used in SQL:\nNOT NULL - Ensures that a column cannot have a NULL value\nUNIQUE - Ensures that all values in a column are different\nPRIMAR Y KEY - A combination of a NOT NULL and UNIQUE . Uniquely identifies each row in a table\nFOREIGN KEY - Prevents actions that would destroy links between tables\nCHECK - Ensures that the values in a column satisfies a specific condition\nDEFAULT - Sets a default value for a column if no value is specified\nCREA TE INDEX - Used to create and retrieve data from the database very quickly\nSyntax :\nCREATE TABLE table_name (\ncolumn1 datatype constraint,\ncolumn2 datatype constraint,\ncolumn3 datatype constraint,\n....\n);\nNOT NULL\nNOT NULL on CREATE TABLE\nCREATE TABLE Persons (\nID int NOT NULL,\nLastName varchar NOT NULL,\nFirstName varchar NOT NULL,\nAge int\n);\nNOT NULL on ALTER TABLE\nALTER TABLE Persons\nMODIFY Age int NOT NULL;\nUNIQUE\nUNIQUE Constraint on CREATE TABLE\nCREATE TABLE Persons (\nID int NOT NULL,\nLastName varchar NOT NULL,\nFirstName varchar,\nAge int,\nUNIQUE (ID)\n);\nUNIQUE Constraint on ALTER TABLE\nALTER TABLE Persons\nADD UNIQUE (ID);\nDROP a UNIQUE Constraint\nALTER TABLE Persons\nDROP INDEX UC_Person;\nPRIMARY KEY\nPRIMARY KEY on CREATE TABLE\nCREATE TABLE Persons (\nID int NOT NULL,\nLastName varchar NOT NULL,\nFirstName varchar,\nAge int,\nPRIMARY KEY (ID)\n);\nPRIMARY KEY on ALTER TABLE\nALTER TABLE Persons\nADD PRIMARY KEY (ID);\nDROP a PRIMARY KEY Constraint\nALTER TABLE Persons\nDROP PRIMARY KEY;\nFOREIGN KEY\nFOREIGN KEY on CREATE TABLE\nCREATE TABLE Orders (\nOrderID int NOT NULL,\nOrderNumber int NOT NULL,\nPersonID int,\nPRIMARY KEY (OrderID),\nFOREIGN KEY (PersonID) REFERENCES Persons(PersonID)\n);\nFOREIGN KEY on ALTER TABLE\nALTER TABLE Orders\nADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);\nDROP a FOREIGN KEY Constraint\nALTER TABLE Orders\nDROP FOREIGN KEY FK_PersonOrder;\nCHECK\nCHECK on CREATE TABLE\nCREATE TABLE Persons (\nID int NOT NULL,\nLastName varchar NOT NULL,\nFirstName varchar,\nAge int,\nCHECK (Age>=18)\n);\nCHECK on ALTER TABLE\nALTER TABLE Persons\nADD CHECK (Age>=18);\nDROP a CHECK Constraint\nALTER TABLE Persons\nDROP CHECK CHK_PersonAge;\nDEFAULT\nDEFAULT on CREATE TABLE\nCREATE TABLE Persons (\nID int NOT NULL,\nLastName varchar NOT NULL,\nFirstName varchar,\nAge int,\nCity varchar DEFAULT 'Sandnes'\n);\nDEFAULT on ALTER TABLE\nALTER TABLE Persons\nALTER City SET DEFAULT 'Sandnes';\nDROP a DEFAULT Constraint\nALTER TABLE Persons\nALTER City DROP DEFAULT;\nCREATE INDEX\nCREATE INDEX\nCREATE INDEX index_name\nON table_name (column1, column2, ...);\nCREATE UNIQUE INDEX\nCREATE UNIQUE INDEX index_name\nON table_name (column1, column2, ...);\nDROP INDEX\nALTER TABLE table_name\nDROP INDEX index_name;\nAUTO INCREMENT\nAuto-increment allows a unique number to be generated automatically when a new record is inserted into a table.\nOften this is the primary key field that we would like to be created automatically every time a new record is inserted.\nCREATE TABLE Persons (\nPersonid int NOT NULL AUTO_INCREMENT,\nLastName varchar NOT NULL,\nFirstName varchar,\nAge int,\nPRIMARY KEY (Personid)\n);\nWorking With Dates\nMySQL Date Data Types\nMySQL comes with the following data types for storing a date or a date/time value in the database:\nDATE -> format YYYY-MM-DD\nDATETIME -> format: YYYY-MM-DD HH:MI:SS\nTIMEST AMP -> format: YYYY-MM-DD HH:MI:SS\nYEAR -> format YYYY or YY\nSELECT * FROM Orders WHERE OrderDate='2008-11-11'\nCREATE VIEW\nA view contains rows and columns, just like a real table. The fields in a view are fields from one or more real tables in the database.\nCreating a View\nCREATE VIEW view_name AS\nSELECT column1, column2, ...\nFROM table_name\nWHERE condition;\nUpdating a View\nCREATE OR REPLACE VIEW view_name AS\nSELECT column1, column2, ...\nFROM table_name\nWHERE condition;\nDropping a View\nDROP VIEW view_name;",
+  "chunks": [
+    {
+      "text": "MySQL Notes\nMySQL\n1. MySQL is a widely used relational database management system (RDBMS).\n2. MySQL is free and open-source.\n3. MySQL is ideal for both small and large applications.\n4. MySQL is very fast, reliable, scalable, and easy to use\n5. MySQL is cross-platform\n6. MySQL is compliant with the ANSI SQL standard\n7. MySQL was first released in 1995\n8. MySQL is developed, distributed, and supported by Oracle Corporation\n9. MySQL is named after co-founder Monty Widenius's daughter: My\nUses of MySQL\n1. Huge websites like F acebook, T witter, Airbnb, Booking.com, Uber, GitHub, Y ouTube, etc.\n2. Content Management S ystems like W ordPress, Drupal, Joomla!, Contao, etc.\n3. A very large number of web developers around the world\nRDBMS\n1. RDBMS stands for R elational Database Management S ystem.\n2. RDBMS is a program used to maintain a relational database.\n3. RDBMS is the basis for all modern database systems such as MySQL, Microsoft SQL Server, Oracle, and Microsoft Access.\n4.",
+      "metadata": {
+        "chunk_index": 0,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 0,
+        "char_end": 985,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "RDBMS uses SQL queries to access the data in the database.\nRelational Database\nA relational database defines database relationships in the form of tables. The tables are related to each other - based on data\ncommon to each.\nSQL\n1. SQL is the standard language for dealing with R elational Databases.\n2. SQL is used to insert, search, update, and delete database records.\n3. SQL keywords are NO T case sensitive i.e. select  is the same as SELECT\nSQL Comma nds\nSELECT  -> extracts data from a database\nUPDATE -> updates data in a database\nDELETE  -> deletes data from a database\nINSER T INT O -> inserts new data into a database\nCREA TE DATABASE  -> creates a new database\nALTER D ATABASE  -> modifies a database\nCREA TE TABLE  -> creates a new table\nALTER T ABLE  -> modifies a table\nDROP TABLE  -> deletes a table\nCREA TE INDEX  -> creates an index (search key)\nDROP INDEX  -> deletes an index\nCreate and Drop Database\nCREATE DATABASE:",
+      "metadata": {
+        "chunk_index": 1,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 865,
+        "char_end": 1801,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "\"To create a new SQL database\"\n    CREATE DATABASE databasename;  \n \nDROP DATABASE: \"To drop an existing SQL database\"\n    DROP DATABASE databasename;\nCreate and Drop Table\nCreate table Syntax: \"To create a new table in a database\"\n    CREATE TABLE table_name (  \n    column1 datatype,  \n    column2 datatype,  \n    column3 datatype,  \n    ....  \n    ); \nTo create a new table using an existing table:\n    CREATE TABLE new_table_name AS  \n    SELECT column1, column2,...  \n    FROM existing_table_name  \n    WHERE ....; // Optional\nDrop table Syntax: \"To drop an existing table in a database\"\n    DROP TABLE table_name;  \nTo delete the data inside a table, but not the table itself:\n    TRUNCATE TABLE table_name;\nINSERT INTO\nThe INSER T INT O statement is used to insert new records in a table.\n1. When Specify both the column names and the values:\n    INSERT INTO table_name (column1,column2,column3, ...)  \n    VALUES (value1, value2, value3, ...);  \n2.",
+      "metadata": {
+        "chunk_index": 2,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 1681,
+        "char_end": 2637,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "When adding the values into all columns:\n    INSERT INTO table_name  \n    VALUES (value1, value2, value3, ...);\nFetch Data From Database\nSELECT\nTo select data from a database\n1. When select data from any Column\n    SELECT column1, column2, ...FROM table_name;  \n2. When select all the Columns\n    SELECT * FROM table_name;  \n3. To return only distinct (different) values\n    SELECT DISTINCT columnname FROM table_name  \n4. When we want to count the columndata\n    SELECT COUNT(DISTINCT columnname) FROM table_name\nWHERE\nused to filter records\n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE condition;\nOperators in Where\n'=' -> Equal\n'>' -> Greater than\n'<' -> Less than\n'>=' -> Greater than or equal\n'<=' -> Less than or equal\n'<>' -> Not equal. Note: In some versions of SQL this operator may be written as '!='\n'BETWEEN' -> Between a certain range\n'LIKE' -> Search for a pattern\n'IN' -> T o specify multiple possible values for a column\nWhere with AND,OR, and NOT operators:",
+      "metadata": {
+        "chunk_index": 3,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 2517,
+        "char_end": 3513,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "AND Syntax: \"If all the conditions separated by AND are TRUE\"\n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE condition1 AND condition2 AND condition3 ...;  \nOR Syntax: \"If any of the conditions separated by OR is TRUE\"\n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE condition1 OR condition2 Ocondition3 ...;  \nNOT Syntax: \"If the condition(s) is NOT TRUE\"\n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE NOT condition;\nORDER BY\nused to sort the result-set in ascending or descending order\nOrder By\n    SELECT column1, column2, ...  \n    FROM table_name  \n    ORDER BY column1, column2, ... ASC|DESC;  \nOrder By several columns\n    SELECT * FROM table_name  \n    ORDER BY column1 ASC|DESC, column2 ASC|DESC, ...;\nNULL Values\nNULL value is a field with no value\nA NULL value is different from a zero value or a field that contains spaces. A field with a NULL value is one that has been left blank\nduring record creation!",
+      "metadata": {
+        "chunk_index": 4,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 3393,
+        "char_end": 4370,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "Is Null\n    SELECT column_names  \n    FROM table_name  \n    WHERE column_name IS NULL;  \nIs Not Null\n    SELECT column_names  \n    FROM table_name  \n    WHERE column_name IS NOT NULL;\nUPDATE\nused to modify the existing records in a table\nUpdate record\n    UPDATE table_name  \n    SET column1 = value1, column2 = value2, ...  \n    WHERE condition;  \nUpdate Multiple record\n    UPDATE table_name  \n    SET columnname = condition  \n    WHERE columnname = condition;\nLimit, Min(), Max(), Count(), Avg(), and Sum()\nLimit: \"To specify the number of records to return\"\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE condition  \n    LIMIT number;  \nMin(): \"It returns the smallest value of the selected column\"\n    SELECT MIN(column_name)  \n    FROM table_name  \n    WHERE condition;  \nMax(): \"It returns the largest value of the selected column\"\n  SELECT MAX(column_name)  \n  FROM table_name  \n  WHERE condition;  \nCount():",
+      "metadata": {
+        "chunk_index": 5,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 4250,
+        "char_end": 5179,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "\"It returns the number of rows that matches a specified\ncriterion\"\n  SELECT COUNT(column_name)  \n  FROM table_name  \n  WHERE condition;  \nAvg(): \"It returns the average value of a numeric column\"\n  SELECT AVG(column_name)  \n  FROM table_name  \n  WHERE condition;  \nSum(): \"It returns the total sum of a numeric column\"\n  SELECT SUM(column_name)  \n  FROM table_name  \n  WHERE condition;\nLIKE\nused in a WHERE clause to search for a specified pattern in a column\nThere are two wildcards often used in conjunction with the LIKE operator:\nThe percent sign (%) represents zero, one, or multiple characters\nThe underscore sign (_) represents one, single character\nLIKE Operat or Descr iption\nWHERE CustomerName LIKE 'a%' Finds any values that start with \"a\"\nWHERE CustomerName LIKE '%a' Finds any values that end with \"a\"\nWHERE CustomerName LIKE '%or%' Finds any values that have \"or\" in any position\nWHERE CustomerName LIKE '_r%' Finds any values that have \"r\" in the second position\nWHERE CustomerName LIK",
+      "metadata": {
+        "chunk_index": 6,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 5059,
+        "char_end": 6059,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "E 'a_%' Finds any values that start with \"a\" and are at least 2 characters in length\nWHERE CustomerName LIKE 'a__%' Finds any values that start with \"a\" and are at least 3 characters in length\nWHERE CustomerName LIKE 'a_%_%' Finds any values that starts with \"a\" and are at least 3 characters in length\nWHERE CustomerName LIKE 'a%o' Finds any values that start with \"a\" and ends with \"o\"\nLike\n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE columnN LIKE pattern;  \nNot Like\n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE columnN NOT LIKE pattern;\nIN\nTo specify multiple values in a WHERE clause\nIt's a shorthand for multiple OR conditions\nIn:\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name IN (value1, value2, ...);  \nNot In:\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name NOT IN (value1, value2, ...);  \nOR\nIn:\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name IN (SELECT STATEMENT);",
+      "metadata": {
+        "chunk_index": 7,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 5939,
+        "char_end": 6934,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "Not In:\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name NOT IN (SELECT STATEMENT);\nBETWEEN\nIt selects values within a given range\nThe values can be numbers, text, or dates\nbegin and end values are included\nBetween\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name BETWEEN value1 AND value2;  \nNot Between\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name NOT BETWEEN value1 AND value2;  \nBetween with IN\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name BETWEEN value1 AND value2 And column_name NOT IN (value3,value4,...);  \nBetween Text\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name BETWEEN textvalue1 AND textvalue2;  \nNot Between Text\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name NOT BETWEEN textvalue1 AND textvalue2;  \nBetween Dates\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name BETWEEN date1 AND date2;",
+      "metadata": {
+        "chunk_index": 8,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 6814,
+        "char_end": 7792,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "Aliases\nused to give a table, or a column in a table, a temporary name\nused to make column names more readable\nonly exists for the duration of that query\ncreated with the AS keyword\nAlisas Column\n    SELECT column_name AS alias_name  \n    FROM table_name;  \nAlisas Table\n    SELECT column_name(s)  \n    FROM table_name AS alias_name;\nJoins\nused to combine rows from two or more tables, based on a related column between them\nTypes of Joins\nINNER JOIN : Returns records that have matching values in both tables\nLEFT JOIN : Returns all records from the left table, and the matched records from the right table\nRIGHT JOIN : Returns all records from the right table, and the matched records from the left table\nCROSS JOIN : Returns all records from both tables\nInner Join: \"Selects records that have matching values in both\ntables\"\n    SELECT column_name(s)  \n    FROM table1  \n    INNER JOIN table2  \n    ON table1.column_name = table2.column_name;  \nLEFT JOIN:",
+      "metadata": {
+        "chunk_index": 9,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 7672,
+        "char_end": 8630,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "\"Returns all records from the left table1, and the\nmatching records (if any) from the right table2\"\n    SELECT column_name(s)  \n    FROM table1  \n    LEFT JOIN table2  \n    ON table1.column_name = table2.column_name;  \nRIGHT JOIN: \"Returns all records from the right table2, and the\nmatching records (if any) from the left table1\"\n    SELECT column_name(s)  \n    FROM table1  \n    RIGHT JOIN table2  \n    ON table1.column_name = table2.column_name;  \nCROSS JOIN: \"Returns all records from both tables\"\n    SELECT column_name(s)  \n    FROM table1  \n    CROSS JOIN table2;  \nSelf Join: \"Table is joined with itself\"\n    SELECT column_name(s)  \n    FROM table1 T1, table1 T2  \n    WHERE condition;\nUNION\nused to combine the result-set of two or more SELECT statements\nEvery SELECT statement within UNION must have the same number of columns\nThe columns must also have similar data types\nThe columns in every SELECT statement must also be in the same order\nUnion:",
+      "metadata": {
+        "chunk_index": 10,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 8510,
+        "char_end": 9469,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "SELECT column_name(s) FROM table1  \n    UNION  \n    SELECT column_name(s) FROM table2;  \n    ORDER BY columan_name; //Optional  \nUnion All:\n    SELECT column_name(s) FROM table1  \n    UNION ALL  \n    SELECT column_name(s) FROM table2  \n    ORDER BY columan_name; //Optional  \nUnion With Where:\n    SELECT column_name(s) FROM table1  \n    WHERE column_name = 'value1'  \n    UNION  \n    SELECT column_name(s) FROM table2  \n    WHERE column_name = 'value1'  \n    ORDER BY columan_name; //Optional  \nUnion All With Where:\n    SELECT column_name(s) FROM table1  \n    WHERE column_name = 'value1'  \n    UNION All  \n    SELECT column_name(s) FROM table2  \n    WHERE column_name = 'value1'  \n    ORDER BY columan_name; //Optional\nGROUP BY\nThe GR OUP B Y statement is often used with aggregate functions (C OUNT(), MAX(), MIN(), SUM(), A VG()) to group the result-set by one\nor more columns.",
+      "metadata": {
+        "chunk_index": 11,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 9349,
+        "char_end": 10231,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "SELECT column_name(s)  \n    FROM table_name  \n    WHERE condition  \n    GROUP BY column_name(s)  \n    ORDER BY column_name(s);\nHAVING\nThe HA VING clause was added to SQL because the WHERE keyword cannot be used with aggregate functions\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE condition  \n    GROUP BY column_name(s)  \n    HAVING condition  \n    ORDER BY column_name(s);\nEXISTS\nUsed to test for the existence of any record in a subquery\nReturns TRUE if the subquery returns one or more records\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE EXISTS (SELECT column_name FROM table_name WHERE condition);\nANY and ALL\nThe ANY and ALL operators allow you to perform a comparison between a single column value and a range of other values\nAny:\nReturns a boolean value as a result\nANY means that the condition will be true if the operation is true for any of the values in the range.",
+      "metadata": {
+        "chunk_index": 12,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 10111,
+        "char_end": 11018,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name operator ANY (SELECT column_name FROM table_name WHERE condition);\nAll:\nReturns a boolean value as a result\nReturns TRUE if ALL of the subquery values meet the condition\nALL Syntax With SELECT:\n    SELECT ALL column_name(s)  \n    FROM table_name  \n    WHERE condition;  \nALL Syntax With WHERE or HAVING:\n    SELECT column_name(s)  \n    FROM table_name  \n    WHERE column_name operator ALL (SELECT column_name FROM table_name WHERE condition);\nCASE\nThe CASE statement goes through conditions and returns a value when the first condition is met (like an if-then-else statement). So,\nonce a condition is true, it will stop reading and return the result. If no conditions are true, it returns the value in the ELSE clause.\nIf there is no ELSE part and no conditions are true, it returns NULL.",
+      "metadata": {
+        "chunk_index": 13,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 10898,
+        "char_end": 11754,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "SELECT column1, colummn2,  \n    CASE  \n        WHEN condition1 THEN result1  \n        WHEN condition2 THEN result2  \n        WHEN conditionN THEN resultN  \n        ELSE result  \n    END;  \n    FROM Database_name;\nMySQL Operators\nArithmetic Operators\n'+' -> Add\n'-' -> Subtract\n'*' -> Multiply\n'/' -> Divide\n'%' -> Modulo\nBitwise Operators\n'&' Bitwise AND\n'|' Bitwise OR\n'^' Bitwise exclusive OR\nComparison Operators\n'=' -> Equal to\n'>' -> Greater than\n'<' -> Less than\n'>=' -> Greater than or equal to\n'<=' -> Less than or equal to\n'<>' -> Not equal to\nCompound Operators\n'+=' -> Add equals\n'-=' -> Subtract equals\n'*=' -> Multiply equals\n'/=' -> Divide equals\n'%=' -> Modulo equals\n'&=' -> Bitwise AND equals\n'^-=' -> Bitwise exclusive equals\n'|*=' -> Bitwise OR equals\nLogical Operators\n'ALL' -> TRUE if all of the subquery values meet the condition\n'AND' -> TRUE if all the conditions separated by AND is TRUE\n'ANY' -> TRUE if any of the subquery values meet the condition\n'BETWEEN' -> TRUE if the",
+      "metadata": {
+        "chunk_index": 14,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 11634,
+        "char_end": 12634,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "operand is within the range of comparisons\n'EXIST S' -> TRUE if the subquery returns one or more records\n'IN' -> TRUE if the operand is equal to one of a list of expressions\n'LIKE' -> TRUE if the operand matches a pattern\n'NOT' -> Displays a record if the condition(s) is NO T TRUE\n'OR' -> TRUE if any of the conditions separated by OR is TRUE\n'SOME' -> TRUE if any of the subquery values meet the condition\nALTER TABLE\nused to add, delete, or modify columns in an existing table\nAnd used to add and drop various constraints on an existing table\n1. ADD Column: \"To add a column in a table\"\n    ALTER TABLE table_name  \n    ADD column_name datatype;  \n2. DROP COLUMN: \"To delete a column in a table\"\n    ALTER TABLE table_name  \n    DROP COLUMN column_name;  \n3. MODIFY COLUMN: \"To change the data type of a column in a\ntable\"\n    ALTER TABLE table_name  \n    MODIFY COLUMN column_name datatype;",
+      "metadata": {
+        "chunk_index": 15,
+        "page_start": 1,
+        "page_end": 1,
+        "char_start": 12514,
+        "char_end": 13408,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "Constraints\nused to specify rules for data in a table\nused to limit the type of data that can go into a table\nThe following constraints are commonly used in SQL:\nNOT NULL  - Ensures that a column cannot have a NULL value\nUNIQUE  - Ensures that all values in a column are different\nPRIMAR Y KEY  - A combination of a NOT NULL  and UNIQUE . Uniquely identifies each row in a table\nFOREIGN KEY  - Prevents actions that would destroy links between tables\nCHECK  - Ensures that the values in a column satisfies a specific condition\nDEFAULT - Sets a default value for a column if no value is specified\nCREA TE INDEX  - Used to create and retrieve data from the database very quickly\nSyntax :\n    CREATE TABLE table_name (  \n        column1 datatype constraint,  \n        column2 datatype constraint,  \n        column3 datatype constraint,  \n        ....",
+      "metadata": {
+        "chunk_index": 16,
+        "page_start": 2,
+        "page_end": 2,
+        "char_start": 13288,
+        "char_end": 14135,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": ");\nNOT NULL\nNOT NULL on CREATE TABLE\n    CREATE TABLE Persons (  \n        ID int NOT NULL,  \n        LastName varchar(255) NOT NULL,  \n        FirstName varchar(255) NOT NULL,  \n        Age int  \n    ); \nNOT NULL on ALTER TABLE\n    ALTER TABLE Persons  \n    MODIFY Age int NOT NULL;\nUNIQUE\nUNIQUE Constraint on CREATE TABLE\n    CREATE TABLE Persons (  \n    ID int NOT NULL,  \n    LastName varchar(255) NOT NULL,  \n    FirstName varchar(255),  \n    Age int,  \n    UNIQUE (ID)  \n    ); \nUNIQUE Constraint on ALTER TABLE\n    ALTER TABLE Persons  \n    ADD UNIQUE (ID);  \nDROP a UNIQUE Constraint\n    ALTER TABLE Persons  \n    DROP INDEX UC_Person;\nPRIMARY KEY\nPRIMARY KEY on CREATE TABLE\n    CREATE TABLE Persons (  \n        ID int NOT NULL,  \n        LastName varchar(255) NOT NULL,  \n        FirstName varchar(255),  \n        Age int,  \n        PRIMARY KEY (ID)  \n    ); \nPRIMARY KEY on ALTER TABLE\n    ALTER TABLE Persons  \n    ADD PRIMARY KEY (ID);",
+      "metadata": {
+        "chunk_index": 17,
+        "page_start": 2,
+        "page_end": 2,
+        "char_start": 14015,
+        "char_end": 14963,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "DROP a PRIMARY KEY Constraint\n    ALTER TABLE Persons  \n    DROP PRIMARY KEY;\nFOREIGN KEY\nFOREIGN KEY on CREATE TABLE\n    CREATE TABLE Orders (  \n        OrderID int NOT NULL,  \n        OrderNumber int NOT NULL,  \n        PersonID int,  \n        PRIMARY KEY (OrderID),  \n        FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)  \n    ); \nFOREIGN KEY on ALTER TABLE\n    ALTER TABLE Orders  \n    ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);  \nDROP a FOREIGN KEY Constraint\n    ALTER TABLE Orders  \n    DROP FOREIGN KEY FK_PersonOrder;\nCHECK\nCHECK on CREATE TABLE\n    CREATE TABLE Persons (  \n        ID int NOT NULL,  \n        LastName varchar(255) NOT NULL,  \n        FirstName varchar(255),  \n        Age int,  \n        CHECK (Age>=18)  \n    ); \nCHECK on ALTER TABLE\n    ALTER TABLE Persons  \n    ADD CHECK (Age>=18);  \nDROP a CHECK Constraint\n    ALTER TABLE Persons  \n    DROP CHECK CHK_PersonAge;",
+      "metadata": {
+        "chunk_index": 18,
+        "page_start": 2,
+        "page_end": 2,
+        "char_start": 14843,
+        "char_end": 15757,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "DEFAULT\nDEFAULT on CREATE TABLE\n    CREATE TABLE Persons (  \n        ID int NOT NULL,  \n        LastName varchar(255) NOT NULL,  \n        FirstName varchar(255),  \n        Age int,  \n        City varchar(255) DEFAULT 'Sandnes'  \n    ); \nDEFAULT on ALTER TABLE\n    ALTER TABLE Persons  \n    ALTER City SET DEFAULT 'Sandnes';  \nDROP a DEFAULT Constraint\n    ALTER TABLE Persons  \n    ALTER City DROP DEFAULT;\nCREATE INDEX\nCREATE INDEX\n    CREATE INDEX index_name  \n    ON table_name (column1, column2, ...);  \nCREATE UNIQUE INDEX\n    CREATE UNIQUE INDEX index_name  \n    ON table_name (column1, column2, ...);  \nDROP INDEX\n    ALTER TABLE table_name  \n    DROP INDEX index_name;\nAUTO INCREMENT\nAuto-increment allows a unique number to be generated automatically when a new record is inserted into a table.\nOften this is the primary key field that we would like to be created automatically every time a new record is inserted.",
+      "metadata": {
+        "chunk_index": 19,
+        "page_start": 2,
+        "page_end": 2,
+        "char_start": 15637,
+        "char_end": 16560,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    },
+    {
+      "text": "CREATE TABLE Persons (  \n        Personid int NOT NULL AUTO_INCREMENT,  \n        LastName varchar(255) NOT NULL,  \n        FirstName varchar(255),  \n        Age int,  \n        PRIMARY KEY (Personid)  \n    );\nWorking With Dates\nMySQL Date Data Types\nMySQL comes with the following data types for storing a date or a date/time value in the database:\nDATE -> format YYYY-MM-DD\nDATETIME  -> format: YYYY-MM-DD HH:MI:SS\nTIMEST AMP  -> format: YYYY-MM-DD HH:MI:SS\nYEAR  -> format YYYY or YY\n    SELECT * FROM Orders WHERE OrderDate='2008-11-11'\nCREATE VIEW\nA view contains rows and columns, just like a real table. The fields in a view are fields from one or more real tables in the database.\nCreating a View\n    CREATE VIEW view_name AS  \n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE condition;  \nUpdating a View\n    CREATE OR REPLACE VIEW view_name AS  \n    SELECT column1, column2, ...  \n    FROM table_name  \n    WHERE condition;  \nDropping a View\n    DROP VIEW view_name;",
+      "metadata": {
+        "chunk_index": 20,
+        "page_start": 2,
+        "page_end": 2,
+        "char_start": 16440,
+        "char_end": 17432,
+        "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+        "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f"
+      }
+    }
+  ],
+  "metadata": {
+    "source_id": "df4d0962-4894-40d5-81a4-bf517aea6fe5",
+    "chunks_count": 21,
+    "pages_count": 2
+  },
+  "file_hash": "30b70bfdf27e651c11608c8c1dfb3eb6ef0acd99f9c96a9cd1713486dcf56927"
+}

@@ -96,7 +96,7 @@ class MMRDiversity:
             np.linalg.norm(embeddings, axis=1) * query_norm
         )
         
-        # MMR selection
+        # MMR selection with guardrails to preserve highly relevant chunks
         selected_indices = []
         selected_embeddings = []
         
@@ -104,6 +104,9 @@ class MMRDiversity:
         first_idx = np.argmax(relevance_scores)
         selected_indices.append(first_idx)
         selected_embeddings.append(embeddings[first_idx])
+        
+        # Calculate relevance threshold: top 20% are considered "highly relevant"
+        relevance_threshold = np.percentile(relevance_scores, 80)
         
         # Select remaining chunks using MMR
         remaining_indices = [i for i in range(len(embeddings)) if i != first_idx]
@@ -136,6 +139,12 @@ class MMRDiversity:
                     self.lambda_param * relevance -
                     (1 - self.lambda_param) * max_similarity
                 )
+                
+                # Guardrail: If chunk is highly relevant (top 20%), prioritize it
+                # Even if similar to already selected chunks, include it if relevance is high
+                if relevance >= relevance_threshold and relevance > 0.7:
+                    # Boost MMR score for highly relevant chunks
+                    mmr_score += 0.2 * relevance
                 
                 if mmr_score > best_mmr_score:
                     best_mmr_score = mmr_score

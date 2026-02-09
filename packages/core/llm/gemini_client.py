@@ -17,14 +17,17 @@ import warnings
 import sys
 import time
 
-# Suppress deprecation warning for google.generativeai at import time
+# Suppress deprecation and future warnings for google.generativeai at import time
 # This catches warnings that occur during the import itself
 if not sys.warnoptions:
     warnings.simplefilter('ignore', DeprecationWarning)
+    warnings.simplefilter('ignore', FutureWarning)
 
 # Additional filter for specific google.generativeai warnings
 warnings.filterwarnings('ignore', message='.*google.generativeai.*')
 warnings.filterwarnings('ignore', message='.*deprecated.*generativeai.*', category=DeprecationWarning)
+warnings.filterwarnings('ignore', message='.*All support for the.*google.generativeai.*package.*', category=FutureWarning)
+warnings.filterwarnings('ignore', message='.*switch to the.*google.genai.*package.*', category=FutureWarning)
 
 import google.generativeai as genai
 from config.settings import settings
@@ -341,14 +344,21 @@ class GeminiClient(LLMClient):
         content = ""
         finish_reason = None
         
-        # Try to get text from response
-        if hasattr(response, 'text') and response.text:
-            content = response.text
-        elif hasattr(response, 'candidates') and response.candidates:
+        # First check candidates and parts before trying response.text
+        # This avoids the ValueError when response.text is accessed but no parts exist
+        if hasattr(response, 'candidates') and response.candidates:
             # Check candidates for text
             candidate = response.candidates[0]
+            
+            # Get finish reason from candidate first
+            if hasattr(candidate, 'finish_reason'):
+                finish_reason = candidate.finish_reason
+            elif hasattr(candidate, 'finishReason'):
+                finish_reason = candidate.finishReason
+            
+            # Check if candidate has content with parts
             if hasattr(candidate, 'content') and candidate.content:
-                if hasattr(candidate.content, 'parts'):
+                if hasattr(candidate.content, 'parts') and candidate.content.parts:
                     # Extract text from parts
                     text_parts = []
                     for part in candidate.content.parts:
@@ -357,12 +367,21 @@ class GeminiClient(LLMClient):
                     content = "".join(text_parts)
                 elif hasattr(candidate.content, 'text'):
                     content = candidate.content.text
-            
-            # Get finish reason from candidate
-            if hasattr(candidate, 'finish_reason'):
-                finish_reason = candidate.finish_reason
-            elif hasattr(candidate, 'finishReason'):
-                finish_reason = candidate.finishReason
+        
+        # Only try response.text if we haven't found content yet and it's safe
+        if not content and hasattr(response, 'text'):
+            try:
+                # This can raise ValueError if no parts exist
+                if response.text:
+                    content = response.text
+            except ValueError as e:
+                # Handle case where response.text is accessed but no parts exist
+                error_msg = str(e)
+                if "requires the response to contain a valid `Part`" in error_msg:
+                    print(f"[WARNING] [GEMINI] Response has no content parts. Finish reason: {finish_reason}")
+                    # Content remains empty, will be handled below
+                else:
+                    raise
         
         # Check if response was blocked
         if finish_reason in ['SAFETY', 'RECITATION', 'OTHER'] or (hasattr(response, 'prompt_feedback') and response.prompt_feedback):
@@ -372,9 +391,19 @@ class GeminiClient(LLMClient):
                 if hasattr(feedback, 'block_reason') and feedback.block_reason:
                     raise ValueError(f"Prompt was blocked by safety filters. Reason: {feedback.block_reason}")
         
-        # If no content and finish_reason indicates blocking
-        if not content and finish_reason in ['SAFETY', 'RECITATION']:
-            raise ValueError(f"Response was blocked by safety filters. Finish reason: {finish_reason}")
+        # Handle empty responses
+        if not content:
+            # Check finish reason to determine why content is empty
+            if finish_reason in ['SAFETY', 'RECITATION']:
+                raise ValueError(f"Response was blocked by safety filters. Finish reason: {finish_reason}")
+            elif finish_reason == 1 or finish_reason == 'STOP':
+                # Finish reason 1 = STOP (normal completion) but no content
+                # This can happen if the model decided not to generate anything
+                print(f"[WARNING] [GEMINI] Response completed (finish_reason=STOP) but no content was generated. This may indicate the prompt was too short or the model chose not to respond.")
+                raise ValueError("Response completed but no content was generated. The model may have chosen not to respond. Please try rephrasing your query or providing more context.")
+            else:
+                # Unknown finish reason with no content
+                raise ValueError(f"Response has no content. Finish reason: {finish_reason}. The model may have been blocked or encountered an error.")
         
         latency_ms = (time.time() - start_time) * 1000
         
@@ -537,20 +566,29 @@ class GeminiClient(LLMClient):
                 raise
         
         chunks_yielded = 0
+        last_finish_reason = None
+        
         for chunk in response:
             # Extract text from chunk - check multiple ways
             chunk_text = ""
             chunk_finish_reason = None
             
-            # Try to get text from chunk
-            if hasattr(chunk, 'text') and chunk.text:
-                chunk_text = chunk.text
-            elif hasattr(chunk, 'candidates') and chunk.candidates:
+            # Always check candidates and parts first to avoid ValueError from chunk.text
+            if hasattr(chunk, 'candidates') and chunk.candidates:
                 # Check candidates for text
                 candidate = chunk.candidates[0] if chunk.candidates else None
                 if candidate:
+                    # Get finish reason from candidate first
+                    if hasattr(candidate, 'finish_reason'):
+                        chunk_finish_reason = candidate.finish_reason
+                        last_finish_reason = chunk_finish_reason
+                    elif hasattr(candidate, 'finishReason'):
+                        chunk_finish_reason = candidate.finishReason
+                        last_finish_reason = chunk_finish_reason
+                    
+                    # Check if candidate has content with parts
                     if hasattr(candidate, 'content') and candidate.content:
-                        if hasattr(candidate.content, 'parts'):
+                        if hasattr(candidate.content, 'parts') and candidate.content.parts:
                             # Extract text from parts
                             text_parts = []
                             for part in candidate.content.parts:
@@ -559,12 +597,21 @@ class GeminiClient(LLMClient):
                             chunk_text = "".join(text_parts)
                         elif hasattr(candidate.content, 'text'):
                             chunk_text = candidate.content.text
-                    
-                    # Get finish reason from candidate
-                    if hasattr(candidate, 'finish_reason'):
-                        chunk_finish_reason = candidate.finish_reason
-                    elif hasattr(candidate, 'finishReason'):
-                        chunk_finish_reason = candidate.finishReason
+            
+            # Only try chunk.text if we haven't found content yet and it's safe
+            if not chunk_text and hasattr(chunk, 'text'):
+                try:
+                    # This can raise ValueError if no parts exist
+                    if chunk.text:
+                        chunk_text = chunk.text
+                except ValueError as e:
+                    # Handle case where chunk.text is accessed but no parts exist
+                    error_msg = str(e)
+                    if "requires the response to contain a valid `Part`" in error_msg:
+                        # Content remains empty, will be handled below
+                        pass
+                    else:
+                        raise
             
             # Check if chunk was blocked
             if chunk_finish_reason in ['SAFETY', 'RECITATION', 'OTHER']:
@@ -587,9 +634,19 @@ class GeminiClient(LLMClient):
         
         # Log if no chunks were yielded
         if chunks_yielded == 0:
-            print(f"[WARNING] [GEMINI] Stream completed but no text chunks were yielded. This may indicate the model was blocked or returned empty content.")
+            if last_finish_reason == 1 or last_finish_reason == 'STOP':
+                print(f"[WARNING] [GEMINI] Stream completed (finish_reason=STOP) but no text chunks were yielded. The model may have chosen not to generate content.")
+            else:
+                print(f"[WARNING] [GEMINI] Stream completed but no text chunks were yielded. Finish reason: {last_finish_reason}. This may indicate the model was blocked or returned empty content.")
         
-        yield LLMStreamChunk(content="", done=True)
+        # Note: Metrics recording for streaming is handled in the RAG service
+        # after the stream completes, where we have access to the full accumulated text
+        
+        yield LLMStreamChunk(
+            content="", 
+            done=True,
+            metadata={"finish_reason": last_finish_reason, "chunks_yielded": chunks_yielded}
+        )
     
     async def generate_batch(
         self,

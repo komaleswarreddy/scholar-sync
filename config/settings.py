@@ -56,6 +56,19 @@ class Settings(BaseSettings):
     # RAG Configuration
     TOP_K_CHUNKS: int = 10
     SIMILARITY_THRESHOLD: float = 0.7
+    CHAT_MAX_TOKENS: int = 2048  # Maximum tokens for chat responses
+    
+    # Phase 2: Retrieval Quality & Cost Guardrails
+    USE_RETRIEVAL_AGENTS: bool = True  # Enable Phase 2 agents
+    MMR_LAMBDA: float = 0.7  # MMR balance (0.0=diversity, 1.0=relevance)
+    HYBRID_VECTOR_WEIGHT: float = 0.7  # Hybrid retrieval vector weight
+    HYBRID_KEYWORD_WEIGHT: float = 0.3  # Hybrid retrieval keyword weight
+    MAX_CONTEXT_CHUNKS: int = 10  # Maximum chunks for context selection
+    MIN_CONTEXT_CHUNKS: int = 6  # Minimum chunks to ensure quality (guardrail)
+    USE_LLM_RERANKING: bool = True  # Use LLM for reranking (more accurate but slower)
+    RAG_DEBUG: bool = False  # Enable detailed debug logging for RAG pipeline
+    QUERY_REWRITE_CONFIDENCE_THRESHOLD: float = 0.7  # Minimum confidence to use rewritten query
+    CONTEXT_TOKEN_BUDGET: int = 4000  # Target token budget for context (approximate)
     
     # Pydantic v2 configuration
     model_config = SettingsConfigDict(

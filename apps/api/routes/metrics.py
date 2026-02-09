@@ -125,6 +125,63 @@ async def get_dashboard_data(
     }
 
 
+@router.get("/rag-quality/debug")
+async def debug_rag_quality(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Debug endpoint to check if feedback is being saved correctly."""
+    tenant_id = request.state.tenant_id
+    
+    if not tenant_id:
+        return {"error": "Tenant ID not found", "tenant_id": None}
+    
+    tenant_uuid = uuid.UUID(tenant_id)
+    
+    # Get all messages with feedback (no date filter)
+    result = await db.execute(
+        select(
+            Message.id,
+            Message.feedback,
+            Message.role,
+            Message.created_at,
+            Chat.tenant_id,
+        )
+        .join(Chat)
+        .where(
+            and_(
+                Chat.tenant_id == tenant_uuid,
+                Message.feedback.isnot(None),
+            )
+        )
+        .order_by(Message.created_at.desc())
+        .limit(20)
+    )
+    
+    messages = result.all()
+    
+    # Count by feedback type
+    feedback_counts = {}
+    for msg in messages:
+        feedback = msg.feedback
+        feedback_counts[feedback] = feedback_counts.get(feedback, 0) + 1
+    
+    return {
+        "tenant_id": tenant_id,
+        "total_messages_with_feedback": len(messages),
+        "feedback_counts": feedback_counts,
+        "recent_messages": [
+            {
+                "id": str(msg.id),
+                "feedback": msg.feedback,
+                "role": msg.role,
+                "created_at": msg.created_at.isoformat() if msg.created_at else None,
+            }
+            for msg in messages
+        ]
+    }
+
+
 @router.get("/rag-quality")
 async def get_rag_quality_dashboard(
     request: Request,
@@ -141,13 +198,59 @@ async def get_rag_quality_dashboard(
     - Quality trends over time
     """
     tenant_id = request.state.tenant_id
+    
+    if not tenant_id:
+        return {
+            "tenant_id": None,
+            "period_days": days,
+            "summary": {
+                "total_feedback": 0,
+                "thumbs_up": 0,
+                "thumbs_down": 0,
+                "hallucination_rate": 0.0,
+                "positive_rate": 0.0,
+            },
+            "daily_breakdown": [],
+            "error": "Tenant ID not found"
+        }
+    
     tenant_uuid = uuid.UUID(tenant_id)
     
-    # Calculate date range
-    end_date = datetime.utcnow()
+    # Calculate date range - use timezone-aware datetime
+    # Add a small buffer to ensure we catch messages created "today"
+    end_date = datetime.utcnow() + timedelta(hours=1)  # Add 1 hour buffer
     start_date = end_date - timedelta(days=days)
     
     # Query messages with feedback
+    # First, let's also get a count of all messages to debug
+    debug_result = await db.execute(
+        select(func.count(Message.id))
+        .join(Chat)
+        .where(
+            and_(
+                Chat.tenant_id == tenant_uuid,
+                Message.role == 'assistant',
+            )
+        )
+    )
+    total_assistant_messages = debug_result.scalar() or 0
+    
+    feedback_count_result = await db.execute(
+        select(func.count(Message.id))
+        .join(Chat)
+        .where(
+            and_(
+                Chat.tenant_id == tenant_uuid,
+                Message.role == 'assistant',
+                Message.feedback.isnot(None),
+            )
+        )
+    )
+    total_with_feedback = feedback_count_result.scalar() or 0
+    
+    print(f"[RAG_QUALITY] Tenant: {tenant_id}, Total assistant messages: {total_assistant_messages}, Messages with feedback: {total_with_feedback}")
+    
+    # Query with date filter - use CAST to date for timezone-safe date extraction
     result = await db.execute(
         select(
             Message.feedback,
@@ -168,6 +271,30 @@ async def get_rag_quality_dashboard(
     )
     
     feedback_data = result.all()
+    print(f"[RAG_QUALITY] Found {len(feedback_data)} feedback rows in date range ({start_date} to {end_date})")
+    
+    # If no data in date range, try without date filter to see if there's any feedback at all
+    if len(feedback_data) == 0 and total_with_feedback > 0:
+        print(f"[RAG_QUALITY] WARNING: No feedback in date range, but {total_with_feedback} messages have feedback. Date range might be too restrictive.")
+        # Try querying without date filter to get all feedback
+        result_all = await db.execute(
+            select(
+                Message.feedback,
+                func.count(Message.id).label('count'),
+                func.date(Message.created_at).label('date')
+            )
+            .join(Chat)
+            .where(
+                and_(
+                    Chat.tenant_id == tenant_uuid,
+                    Message.role == 'assistant',
+                    Message.feedback.isnot(None),
+                )
+            )
+            .group_by(Message.feedback, func.date(Message.created_at))
+        )
+        feedback_data = result_all.all()
+        print(f"[RAG_QUALITY] Found {len(feedback_data)} feedback rows without date filter")
     
     # Calculate totals
     total_feedback = 0
