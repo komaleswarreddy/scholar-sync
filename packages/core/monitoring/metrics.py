@@ -56,6 +56,9 @@ class MetricsCollector:
         
         # Load metrics schema
         self._load_schema()
+        
+        # Load persisted metrics from log files on startup
+        self._load_persisted_metrics()
     
     def _load_schema(self):
         """Load metrics schema from config."""
@@ -65,6 +68,124 @@ class MetricsCollector:
                 self.schema = json.load(f)
         else:
             self.schema = {}
+    
+    def _load_persisted_metrics(self):
+        """Load metrics from log files on startup to persist across restarts."""
+        try:
+            # Load LLM calls (last 10k from log file)
+            llm_calls_file = self.storage_path / "llm_calls.jsonl"
+            if llm_calls_file.exists():
+                loaded_count = 0
+                try:
+                    with open(llm_calls_file, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                        # Load last 10000 lines (most recent)
+                        for line in lines[-10000:]:
+                            if not line.strip():
+                                continue
+                            try:
+                                metric = json.loads(line.strip())
+                                # Validate metric has required fields
+                                if "tenant_id" in metric and "total_tokens" in metric:
+                                    self._llm_calls.append(metric)
+                                    loaded_count += 1
+                            except (json.JSONDecodeError, KeyError) as e:
+                                # Skip malformed lines
+                                continue
+                    if loaded_count > 0:
+                        print(f"[METRICS] Loaded {loaded_count} LLM call metrics from log file")
+                except Exception as e:
+                    print(f"[WARNING] Failed to load LLM calls from {llm_calls_file}: {e}")
+            
+            # Load cache operations
+            cache_ops_file = self.storage_path / "cache_operations.jsonl"
+            if cache_ops_file.exists():
+                loaded_count = 0
+                with open(cache_ops_file, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    for line in lines[-10000:]:
+                        try:
+                            metric = json.loads(line.strip())
+                            self._cache_operations.append(metric)
+                            # Update aggregated stats
+                            if metric.get("operation") in ["hit", "miss"]:
+                                tenant_id = metric.get("tenant_id", "all")
+                                cache_type = metric.get("cache_type", "default")
+                                key = f"{tenant_id}:{cache_type}"
+                                stat_key = "hits" if metric["operation"] == "hit" else "misses"
+                                self._cache_stats[key][stat_key] += 1
+                            loaded_count += 1
+                        except json.JSONDecodeError:
+                            continue
+                if loaded_count > 0:
+                    print(f"[METRICS] Loaded {loaded_count} cache operation metrics from log file")
+            
+            # Load document costs
+            doc_costs_file = self.storage_path / "document_costs.jsonl"
+            if doc_costs_file.exists():
+                loaded_count = 0
+                with open(doc_costs_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        try:
+                            metric = json.loads(line.strip())
+                            source_id = metric.get("source_id")
+                            if source_id:
+                                self._document_costs[source_id] = metric
+                                loaded_count += 1
+                        except json.JSONDecodeError:
+                            continue
+                if loaded_count > 0:
+                    print(f"[METRICS] Loaded {loaded_count} document cost metrics from log file")
+            
+            # Load feature usage
+            feature_usage_file = self.storage_path / "feature_usage.jsonl"
+            if feature_usage_file.exists():
+                loaded_count = 0
+                with open(feature_usage_file, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    for line in lines[-10000:]:
+                        try:
+                            metric = json.loads(line.strip())
+                            self._feature_usage.append(metric)
+                            feature = metric.get("feature")
+                            if feature:
+                                self._feature_counts[feature] += 1
+                            loaded_count += 1
+                        except json.JSONDecodeError:
+                            continue
+                if loaded_count > 0:
+                    print(f"[METRICS] Loaded {loaded_count} feature usage metrics from log file")
+            
+            # Load regenerate attempts
+            regenerate_file = self.storage_path / "regenerate_attempts.jsonl"
+            if regenerate_file.exists():
+                loaded_count = 0
+                with open(regenerate_file, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    for line in lines[-1000:]:
+                        try:
+                            metric = json.loads(line.strip())
+                            self._regenerate_attempts.append(metric)
+                            user_id = metric.get("user_id")
+                            if user_id:
+                                self._regenerate_counts[user_id] += 1
+                            loaded_count += 1
+                        except json.JSONDecodeError:
+                            continue
+                if loaded_count > 0:
+                    print(f"[METRICS] Loaded {loaded_count} regenerate attempt metrics from log file")
+            
+            total_loaded = len(self._llm_calls) + len(self._cache_operations) + len(self._feature_usage)
+            if total_loaded > 0:
+                print(f"[METRICS] Metrics persistence: Loaded {total_loaded} total metrics from log files")
+                print(f"[METRICS] Breakdown: LLM calls: {len(self._llm_calls)}, Cache ops: {len(self._cache_operations)}, Features: {len(self._feature_usage)}, Documents: {len(self._document_costs)}")
+            else:
+                print(f"[METRICS] No persisted metrics found in log files (this is normal for first run)")
+        except Exception as e:
+            import traceback
+            print(f"[WARNING] Failed to load persisted metrics: {e}")
+            print(f"[WARNING] Traceback: {traceback.format_exc()}")
+            # Continue without persisted metrics (fresh start)
     
     def record_llm_call(
         self,
@@ -296,6 +417,8 @@ class MetricsCollector:
         """
         Get aggregated metrics summary.
         
+        Includes both in-memory metrics and metrics loaded from log files.
+        
         Args:
             tenant_id: Optional tenant filter
             
@@ -307,17 +430,32 @@ class MetricsCollector:
             print(f"[METRICS] get_metrics_summary called: tenant_id={tenant_id}, total_calls_in_memory={len(self._llm_calls)}")
             
             # Filter by tenant if provided
-            llm_calls = [m for m in self._llm_calls if not tenant_id or m["tenant_id"] == tenant_id]
-            cache_ops = [m for m in self._cache_operations if not tenant_id or m["tenant_id"] == tenant_id]
+            llm_calls = [m for m in self._llm_calls if not tenant_id or m.get("tenant_id") == tenant_id]
+            cache_ops = [m for m in self._cache_operations if not tenant_id or m.get("tenant_id") == tenant_id]
             
             print(f"[METRICS] After filtering: tenant_id={tenant_id}, filtered_calls={len(llm_calls)}")
             
             # Calculate totals
-            total_tokens = sum(m["total_tokens"] for m in llm_calls)
-            total_cost = sum(m["cost"] for m in llm_calls)
+            total_tokens = sum(m.get("total_tokens", 0) for m in llm_calls)
+            total_cost = sum(m.get("cost", 0.0) for m in llm_calls)
             total_calls = len(llm_calls)
             
             print(f"[METRICS] Calculated totals: calls={total_calls}, tokens={total_tokens}, cost={total_cost:.6f}")
+            
+            # Debug: Log what we're returning
+            if total_calls > 0:
+                print(f"[METRICS] Returning summary: {total_calls} calls, {total_tokens} tokens, ${total_cost:.6f} cost")
+            else:
+                print(f"[METRICS] WARNING: No metrics found for tenant_id={tenant_id}")
+                print(f"[METRICS] Total metrics in memory (all tenants): LLM calls={len(self._llm_calls)}, Cache ops={len(self._cache_operations)}")
+                # Check if log files exist
+                llm_calls_file = self.storage_path / "llm_calls.jsonl"
+                if llm_calls_file.exists():
+                    file_size = llm_calls_file.stat().st_size
+                    print(f"[METRICS] Log file exists: {llm_calls_file} ({file_size} bytes)")
+                else:
+                    print(f"[METRICS] Log file does not exist: {llm_calls_file}")
+            
             
             # Cache stats
             cache_hits = sum(1 for m in cache_ops if m["operation"] == "hit")
@@ -371,6 +509,28 @@ class MetricsCollector:
                     "total_cost": sum(d.get("total_cost", 0) for d in self._document_costs.values() if not tenant_id or d.get("tenant_id") == tenant_id),
                 },
             }
+    
+    def reload_metrics_from_logs(self):
+        """
+        Reload metrics from log files.
+        
+        Useful for refreshing metrics after they've been written to disk.
+        """
+        print("[METRICS] Reloading metrics from log files...")
+        # Clear current in-memory metrics
+        with self._lock:
+            self._llm_calls.clear()
+            self._cache_operations.clear()
+            self._document_costs.clear()
+            self._feature_usage.clear()
+            self._regenerate_attempts.clear()
+            self._cache_stats.clear()
+            self._feature_counts.clear()
+            self._regenerate_counts.clear()
+        
+        # Reload from files
+        self._load_persisted_metrics()
+        print("[METRICS] Metrics reloaded from log files")
 
 
 # Global singleton instance

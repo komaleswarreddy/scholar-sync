@@ -51,6 +51,28 @@ async def stream_chat(
         # This should rarely happen as middleware handles it, but keep as safety check
         raise HTTPException(status_code=401, detail="User ID required")
     
+    # Phase 4: Rate Limiting & Debounce
+    if settings.USE_SESSION_MEMORY and settings.ENABLE_RATE_LIMITING:
+        from packages.core.memory import RateLimiter
+        
+        # Create rate limiter (singleton pattern - could be improved with global instance)
+        rate_limiter = RateLimiter(
+            max_requests_per_minute=settings.RATE_LIMIT_REQUESTS_PER_MINUTE,
+            debounce_seconds=settings.RATE_LIMIT_DEBOUNCE_SECONDS,
+            max_requests_per_hour=500
+        )
+        
+        rate_check = rate_limiter.check_rate_limit(user_id, request_body.message, tenant_id)
+        if not rate_check["allowed"]:
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    "error": "Rate limit exceeded",
+                    "message": rate_check.get("message", "Please wait before sending another request"),
+                    "retry_after": rate_check.get("retry_after", 0)
+                }
+            )
+    
     # Track regenerate attempts if this is a regenerate (same message as last assistant message)
     # Check if this looks like a regenerate by checking history
     is_regenerate = False

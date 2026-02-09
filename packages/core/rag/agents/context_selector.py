@@ -30,8 +30,9 @@ class ContextSelector:
         from config.settings import settings
         self.max_context_chunks = max_context_chunks
         self.min_relevance_score = min_relevance_score
-        self.min_chunks = getattr(settings, 'MIN_CONTEXT_CHUNKS', 6)
-        self.token_budget = getattr(settings, 'CONTEXT_TOKEN_BUDGET', 4000)
+        self.min_chunks = getattr(settings, 'MIN_CONTEXT_CHUNKS', 4)
+        self.token_budget = getattr(settings, 'CONTEXT_TOKEN_BUDGET', 2500)
+        self.max_chunk_length = getattr(settings, 'MAX_CHUNK_LENGTH', 500)
     
     def select_context(
         self,

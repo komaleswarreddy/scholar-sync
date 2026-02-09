@@ -432,40 +432,72 @@ class Retriever:
             "max_chunks": settings.MAX_CONTEXT_CHUNKS
         })
         
-        # CRITICAL SAFEGUARD: If final_chunks == 0, use top 6 vector chunks as fallback
+        # CRITICAL SAFEGUARD: If final_chunks == 0, use top chunks as fallback
         if len(selected_matches) == 0:
-            print(f"[RAG_PIPELINE] CRITICAL: Final chunks is 0! Applying fallback: using top 6 vector chunks")
-            self._log("FALLBACK", f"Final chunks is 0, using top 6 vector chunks as fallback")
+            fallback_count = max(settings.MIN_CONTEXT_CHUNKS, 4)  # At least 4 chunks
+            print(f"[RAG_PIPELINE] CRITICAL: Final chunks is 0! Applying fallback: using top {fallback_count} vector chunks")
+            self._log("FALLBACK", f"Final chunks is 0, using top {fallback_count} vector chunks as fallback")
             debug_trace["guardrails_applied"].append("empty_context_fallback_to_vector")
             
-            # Fallback to top 6 vector chunks from original retrieval
+            # Fallback to top chunks from original retrieval
             if len(vector_matches) > 0:
-                # Use top 6 by score
-                fallback_matches = sorted(vector_matches, key=lambda x: x.get("score", 0), reverse=True)[:6]
+                # Use top chunks by score
+                fallback_matches = sorted(vector_matches, key=lambda x: x.get("score", 0), reverse=True)[:fallback_count]
                 selected_matches = fallback_matches
                 print(f"[RAG_PIPELINE] Fallback applied: Using {len(selected_matches)} vector chunks")
             elif len(hybrid_matches) > 0:
                 # If no vector matches, use hybrid matches
-                fallback_matches = sorted(hybrid_matches, key=lambda x: x.get("score", 0), reverse=True)[:6]
+                fallback_matches = sorted(hybrid_matches, key=lambda x: x.get("score", 0), reverse=True)[:fallback_count]
                 selected_matches = fallback_matches
                 print(f"[RAG_PIPELINE] Fallback applied: Using {len(selected_matches)} hybrid chunks")
             else:
                 # Last resort: use any available chunks
                 all_available = reranked_matches or diverse_matches or hybrid_matches or vector_matches
                 if all_available:
-                    selected_matches = all_available[:6]
+                    selected_matches = all_available[:fallback_count]
                     print(f"[RAG_PIPELINE] Fallback applied: Using {len(selected_matches)} chunks from available pool")
                 else:
                     print(f"[RAG_PIPELINE] ERROR: No chunks available for fallback!")
         
-        # Ensure we have at least minimum chunks
+        # Ensure we have at least minimum chunks (but respect token budget)
         if len(selected_matches) < settings.MIN_CONTEXT_CHUNKS and len(reranked_matches) >= settings.MIN_CONTEXT_CHUNKS:
+            # Calculate current token usage
+            current_tokens = sum(
+                self._estimate_tokens(m.get("metadata", {}).get("text", ""))
+                for m in selected_matches
+            )
+            remaining_budget = settings.CONTEXT_TOKEN_BUDGET - current_tokens
+            
             print(f"[RAG_PIPELINE] GUARDRAIL: Only {len(selected_matches)} chunks selected, adding more to meet minimum {settings.MIN_CONTEXT_CHUNKS}")
-            # Add more chunks from reranked to meet minimum
+            # Add more chunks from reranked to meet minimum, but respect token budget
             selected_ids = {m.get("id") for m in selected_matches}
             for chunk in reranked_matches:
                 if chunk.get("id") not in selected_ids and len(selected_matches) < settings.MIN_CONTEXT_CHUNKS:
-                    selected_matches.append(chunk)
+                    chunk_tokens = self._estimate_tokens(chunk.get("metadata", {}).get("text", ""))
+                    # Only add if we have budget (reserve 20% for prompt overhead)
+                    if current_tokens + chunk_tokens <= settings.CONTEXT_TOKEN_BUDGET * 0.8:
+                        selected_matches.append(chunk)
+                        current_tokens += chunk_tokens
+                    else:
+                        # Truncate chunk to fit budget
+                        max_chunk_chars = (remaining_budget - 100) * 4  # Reserve 100 tokens
+                        chunk_text = chunk.get("metadata", {}).get("text", "")
+                        if len(chunk_text) > max_chunk_chars:
+                            truncated = chunk_text[:max_chunk_chars]
+                            last_period = truncated.rfind('.')
+                            if last_period > max_chunk_chars * 0.7:
+                                chunk_text = chunk_text[:last_period + 1]
+                            else:
+                                chunk_text = truncated + "..."
+                            # Update chunk metadata with truncated text
+                            chunk_copy = dict(chunk)
+                            chunk_copy["metadata"] = dict(chunk.get("metadata", {}))
+                            chunk_copy["metadata"]["text"] = chunk_text
+                            selected_matches.append(chunk_copy)
+                            current_tokens += self._estimate_tokens(chunk_text)
+                        else:
+                            selected_matches.append(chunk)
+                            current_tokens += chunk_tokens
             debug_trace["guardrails_applied"].append("min_context_chunks_enforced")
         
         # Final check: Never send empty context
