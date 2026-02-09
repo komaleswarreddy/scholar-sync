@@ -1,0 +1,2 @@
+{"timestamp": "2026-02-09T01:33:32.674963", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "operation": "miss", "cache_key": "278ef1be1c965a0c7fd44da15683c5c1f3f6ef0c352f06f9f60542194d3019e6", "cache_type": "context", "latency_ms": 0.0}
+{"timestamp": "2026-02-09T01:35:43.920264", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "operation": "hit", "cache_key": "278ef1be1c965a0c7fd44da15683c5c1f3f6ef0c352f06f9f60542194d3019e6", "cache_type": "context", "latency_ms": 2.0248889923095703}

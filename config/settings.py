@@ -49,7 +49,9 @@ class Settings(BaseSettings):
 
     # Chunking Configuration
     CHUNK_SIZE: int = 1000
-    CHUNK_OVERLAP: int = 200
+    CHUNK_OVERLAP: int = 200  # Deprecated: use CHUNK_OVERLAP_PERCENT instead
+    CHUNK_OVERLAP_PERCENT: float = 0.12  # 12% overlap (10-15% range)
+    USE_SEMANTIC_CHUNKING: bool = True  # Enable semantic chunking
     
     # RAG Configuration
     TOP_K_CHUNKS: int = 10

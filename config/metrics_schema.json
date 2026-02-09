@@ -1,0 +1,117 @@
+{
+  "version": "1.0.0",
+  "description": "Standardized metrics schema for PHASE 0 - Baseline & Observability",
+  "metrics": {
+    "llm_call": {
+      "description": "Metrics for individual LLM API calls",
+      "fields": {
+        "timestamp": {"type": "datetime", "required": true},
+        "tenant_id": {"type": "string", "required": true},
+        "user_id": {"type": "string", "required": true},
+        "model": {"type": "string", "required": true},
+        "provider": {"type": "string", "required": true, "enum": ["openai", "gemini"]},
+        "prompt_tokens": {"type": "integer", "required": true},
+        "completion_tokens": {"type": "integer", "required": true},
+        "total_tokens": {"type": "integer", "required": true},
+        "cost": {"type": "float", "required": true},
+        "feature_tag": {"type": "string", "required": false},
+        "request_id": {"type": "string", "required": false},
+        "latency_ms": {"type": "float", "required": false}
+      }
+    },
+    "cache_operation": {
+      "description": "Metrics for cache operations",
+      "fields": {
+        "timestamp": {"type": "datetime", "required": true},
+        "tenant_id": {"type": "string", "required": true},
+        "operation": {"type": "string", "required": true, "enum": ["hit", "miss", "set", "delete"]},
+        "cache_key": {"type": "string", "required": false},
+        "cache_type": {"type": "string", "required": false, "enum": ["context", "embedding", "response"]},
+        "latency_ms": {"type": "float", "required": false}
+      }
+    },
+    "document_cost": {
+      "description": "Cost tracking per document/source",
+      "fields": {
+        "timestamp": {"type": "datetime", "required": true},
+        "tenant_id": {"type": "string", "required": true},
+        "source_id": {"type": "string", "required": true},
+        "total_cost": {"type": "float", "required": true},
+        "processing_cost": {"type": "float", "required": false},
+        "embedding_cost": {"type": "float", "required": false},
+        "chunks_count": {"type": "integer", "required": false},
+        "pages_count": {"type": "integer", "required": false}
+      }
+    },
+    "feature_usage": {
+      "description": "Feature-level usage tracking",
+      "fields": {
+        "timestamp": {"type": "datetime", "required": true},
+        "tenant_id": {"type": "string", "required": true},
+        "user_id": {"type": "string", "required": true},
+        "feature": {"type": "string", "required": true, "enum": ["chat", "upload", "regenerate", "studio", "search", "export"]},
+        "endpoint": {"type": "string", "required": false},
+        "request_id": {"type": "string", "required": false}
+      }
+    },
+    "regenerate_attempt": {
+      "description": "Track regenerate button usage",
+      "fields": {
+        "timestamp": {"type": "datetime", "required": true},
+        "tenant_id": {"type": "string", "required": true},
+        "user_id": {"type": "string", "required": true},
+        "chat_id": {"type": "string", "required": false},
+        "message_id": {"type": "string", "required": false},
+        "attempt_number": {"type": "integer", "required": false}
+      }
+    },
+    "alert": {
+      "description": "Alert events",
+      "fields": {
+        "timestamp": {"type": "datetime", "required": true},
+        "alert_type": {"type": "string", "required": true, "enum": ["hallucination_rate", "cache_miss_anomaly", "token_spike", "cost_spike"]},
+        "severity": {"type": "string", "required": true, "enum": ["low", "medium", "high", "critical"]},
+        "tenant_id": {"type": "string", "required": false},
+        "message": {"type": "string", "required": true},
+        "threshold": {"type": "float", "required": false},
+        "actual_value": {"type": "float", "required": false}
+      }
+    }
+  },
+  "aggregations": {
+    "hourly": {
+      "description": "Hourly aggregated metrics",
+      "metrics": ["llm_call", "cache_operation", "feature_usage"]
+    },
+    "daily": {
+      "description": "Daily aggregated metrics",
+      "metrics": ["llm_call", "cache_operation", "feature_usage", "document_cost", "regenerate_attempt"]
+    }
+  },
+  "alerts": {
+    "hallucination_rate": {
+      "description": "Alert when hallucination rate exceeds threshold",
+      "threshold": 0.15,
+      "window_minutes": 60,
+      "severity": "high"
+    },
+    "cache_miss_anomaly": {
+      "description": "Alert when cache miss rate increases significantly",
+      "threshold": 0.3,
+      "window_minutes": 30,
+      "severity": "medium"
+    },
+    "token_spike": {
+      "description": "Alert when token usage spikes abnormally",
+      "threshold_multiplier": 3.0,
+      "window_minutes": 15,
+      "severity": "high"
+    },
+    "cost_spike": {
+      "description": "Alert when cost spikes abnormally",
+      "threshold_multiplier": 3.0,
+      "window_minutes": 15,
+      "severity": "critical"
+    }
+  }
+}

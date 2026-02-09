@@ -161,6 +161,16 @@ Note: No source documents are available. Please provide a general helpful respon
                 "data": citation,
             }
         
+        # Track feature usage
+        from packages.core.monitoring.metrics import get_metrics_collector
+        metrics = get_metrics_collector()
+        metrics.record_feature_usage(
+            tenant_id=self.tenant_id,
+            user_id=self.user_id,
+            feature="chat",
+            endpoint="/chat/stream"
+        )
+        
         # Get LLM client for chat (Gemini)
         provider, model = get_model_for_task("chat")
         llm_client = get_llm_client(provider=provider, model=model, temperature=0.7)
@@ -173,7 +183,10 @@ Note: No source documents are available. Please provide a general helpful respon
         try:
             async for chunk in llm_client.stream_generate(
                 prompt=full_prompt,
-                temperature=0.7
+                temperature=0.7,
+                tenant_id=self.tenant_id,
+                user_id=self.user_id,
+                feature_tag="chat"
             ):
                 # Check for errors in metadata first (before processing content)
                 if chunk.metadata and chunk.metadata.get("finish_reason"):

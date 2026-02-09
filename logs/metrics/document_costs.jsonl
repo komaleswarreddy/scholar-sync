@@ -1,0 +1,2 @@
+{"timestamp": "2026-02-09T01:33:45.765668", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "source_id": "344fc60c-9566-45d9-abbe-c0f09b1c53bf", "total_cost": 0.00112, "processing_cost": 0.001, "embedding_cost": 0.00012, "chunks_count": 6, "pages_count": 3}
+{"timestamp": "2026-02-09T01:35:49.884736", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "source_id": "5930aea0-a2e5-4b8c-b854-8115cf6efa87", "total_cost": 0.00112, "processing_cost": 0.001, "embedding_cost": 0.00012, "chunks_count": 6, "pages_count": 3}

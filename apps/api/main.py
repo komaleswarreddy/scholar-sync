@@ -11,7 +11,7 @@ load_dotenv()
  
 from config.settings import settings
 from apps.api.middleware.tenant import TenantMiddleware
-from apps.api.routes import chat, sources, studio, notes, health
+from apps.api.routes import chat, sources, studio, notes, health, metrics
 
 # ---------------- Lifespan ----------------
 @asynccontextmanager
@@ -83,6 +83,7 @@ app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(sources.router, prefix="/api/v1/ingest", tags=["sources"])
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["studio"])
 app.include_router(notes.router, prefix="/api/v1/notes", tags=["notes"])
+app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["metrics"])
 app.include_router(health.router, tags=["health"])
 
 # ---------------- Health ----------------

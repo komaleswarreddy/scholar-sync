@@ -15,6 +15,7 @@ Migration guide: https://github.com/google-gemini/deprecated-generative-ai-pytho
 from typing import AsyncGenerator, Optional, Dict, Any, List
 import warnings
 import sys
+import time
 
 # Suppress deprecation warning for google.generativeai at import time
 # This catches warnings that occur during the import itself
@@ -28,6 +29,7 @@ warnings.filterwarnings('ignore', message='.*deprecated.*generativeai.*', catego
 import google.generativeai as genai
 from config.settings import settings
 from packages.core.llm._base import LLMClient, LLMResponse, LLMStreamChunk, LLMProvider
+from packages.core.guardrails.cost_manager import get_cost_manager
 
 
 class GeminiClient(LLMClient):
@@ -223,6 +225,14 @@ class GeminiClient(LLMClient):
         **kwargs
     ) -> LLMResponse:
         """Generate a response using Gemini."""
+        # Extract metrics context from kwargs
+        tenant_id = kwargs.pop("tenant_id", None)
+        user_id = kwargs.pop("user_id", None)
+        feature_tag = kwargs.pop("feature_tag", None)
+        request_id = kwargs.pop("request_id", None)
+        
+        start_time = time.time()
+        
         # Combine system prompt and user prompt
         full_prompt = prompt
         if system_prompt:
@@ -234,8 +244,15 @@ class GeminiClient(LLMClient):
         if max_tokens or self.max_tokens:
             generation_config["max_output_tokens"] = max_tokens or self.max_tokens
         
-        # Merge with any additional kwargs
-        generation_config.update(kwargs)
+        # Only include valid GenerationConfig parameters from kwargs
+        # Valid fields: temperature, max_output_tokens, top_p, top_k, candidate_count, stop_sequences
+        valid_config_fields = {
+            "temperature", "max_output_tokens", "top_p", "top_k", 
+            "candidate_count", "stop_sequences"
+        }
+        for key, value in kwargs.items():
+            if key in valid_config_fields:
+                generation_config[key] = value
         
         # FINAL SAFEGUARD: Check model name before API call
         if "1.5-flash" in self.model.lower() and "pro" not in self.model.lower():
@@ -359,14 +376,35 @@ class GeminiClient(LLMClient):
         if not content and finish_reason in ['SAFETY', 'RECITATION']:
             raise ValueError(f"Response was blocked by safety filters. Finish reason: {finish_reason}")
         
+        latency_ms = (time.time() - start_time) * 1000
+        
         # Extract usage info if available
         usage = None
+        prompt_tokens = None
+        completion_tokens = None
         if hasattr(response, 'usage_metadata'):
+            prompt_tokens = getattr(response.usage_metadata, 'prompt_token_count', None)
+            completion_tokens = getattr(response.usage_metadata, 'completion_token_count', None)
             usage = {
-                "prompt_tokens": getattr(response.usage_metadata, 'prompt_token_count', None),
-                "completion_tokens": getattr(response.usage_metadata, 'completion_token_count', None),
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
                 "total_tokens": getattr(response.usage_metadata, 'total_token_count', None),
             }
+        
+        # Record metrics if context provided and tokens available
+        if tenant_id and user_id and prompt_tokens is not None and completion_tokens is not None:
+            cost_manager = get_cost_manager()
+            await cost_manager.record_usage(
+                tenant_id=tenant_id,
+                user_id=user_id,
+                model=self.model,
+                provider=self.provider.value,
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                feature_tag=feature_tag,
+                request_id=request_id,
+                latency_ms=latency_ms,
+            )
         
         return LLMResponse(
             content=content,
@@ -385,6 +423,12 @@ class GeminiClient(LLMClient):
         **kwargs
     ) -> AsyncGenerator[LLMStreamChunk, None]:
         """Stream responses from Gemini."""
+        # Extract metrics context from kwargs
+        tenant_id = kwargs.pop("tenant_id", None)
+        user_id = kwargs.pop("user_id", None)
+        feature_tag = kwargs.pop("feature_tag", None)
+        request_id = kwargs.pop("request_id", None)
+        
         # Combine system prompt and user prompt
         full_prompt = prompt
         if system_prompt:
@@ -396,7 +440,15 @@ class GeminiClient(LLMClient):
         if max_tokens or self.max_tokens:
             generation_config["max_output_tokens"] = max_tokens or self.max_tokens
         
-        generation_config.update(kwargs)
+        # Only include valid GenerationConfig parameters from kwargs
+        # Valid fields: temperature, max_output_tokens, top_p, top_k, candidate_count, stop_sequences
+        valid_config_fields = {
+            "temperature", "max_output_tokens", "top_p", "top_k", 
+            "candidate_count", "stop_sequences"
+        }
+        for key, value in kwargs.items():
+            if key in valid_config_fields:
+                generation_config[key] = value
         
         # FINAL SAFEGUARD: Check model name before API call
         if "1.5-flash" in self.model.lower() and "pro" not in self.model.lower():

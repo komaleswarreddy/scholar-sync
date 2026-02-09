@@ -6,12 +6,14 @@ Implements LLMClient interface for OpenAI models.
 
 from typing import AsyncGenerator, Optional, Dict, Any, List
 import openai
+import time
 try:
     import httpx
 except ImportError:
     httpx = None
 from config.settings import settings
 from packages.core.llm._base import LLMClient, LLMResponse, LLMStreamChunk, LLMProvider
+from packages.core.guardrails.cost_manager import get_cost_manager
 
 
 class OpenAIClient(LLMClient):
@@ -69,6 +71,13 @@ class OpenAIClient(LLMClient):
         **kwargs
     ) -> LLMResponse:
         """Generate a response using OpenAI."""
+        # Extract metrics context from kwargs
+        tenant_id = kwargs.pop("tenant_id", None)
+        user_id = kwargs.pop("user_id", None)
+        feature_tag = kwargs.pop("feature_tag", None)
+        request_id = kwargs.pop("request_id", None)
+        
+        start_time = time.time()
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
@@ -82,12 +91,29 @@ class OpenAIClient(LLMClient):
             **kwargs
         )
         
+        latency_ms = (time.time() - start_time) * 1000
+        
         content = response.choices[0].message.content or ""
         usage = {
             "prompt_tokens": response.usage.prompt_tokens if response.usage else None,
             "completion_tokens": response.usage.completion_tokens if response.usage else None,
             "total_tokens": response.usage.total_tokens if response.usage else None,
         }
+        
+        # Record metrics if context provided
+        if tenant_id and user_id and response.usage:
+            cost_manager = get_cost_manager()
+            await cost_manager.record_usage(
+                tenant_id=tenant_id,
+                user_id=user_id,
+                model=self.model,
+                provider=self.provider.value,
+                prompt_tokens=response.usage.prompt_tokens,
+                completion_tokens=response.usage.completion_tokens,
+                feature_tag=feature_tag,
+                request_id=request_id,
+                latency_ms=latency_ms,
+            )
         
         return LLMResponse(
             content=content,

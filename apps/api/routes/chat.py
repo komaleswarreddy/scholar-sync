@@ -50,6 +50,39 @@ async def stream_chat(
     if not user_id:
         # This should rarely happen as middleware handles it, but keep as safety check
         raise HTTPException(status_code=401, detail="User ID required")
+    
+    # Track regenerate attempts if this is a regenerate (same message as last assistant message)
+    # Check if this looks like a regenerate by checking history
+    is_regenerate = False
+    if request_body.history and len(request_body.history) >= 2:
+        # If last two messages are user message followed by assistant, and current message matches last user message
+        last_messages = request_body.history[-2:]
+        # ChatMessage is a Pydantic model, access attributes directly
+        if (last_messages[0].role == "user" and 
+            last_messages[1].role == "assistant" and
+            last_messages[0].content == request_body.message):
+            is_regenerate = True
+    
+    if is_regenerate:
+        from packages.core.monitoring.metrics import get_metrics_collector
+        metrics = get_metrics_collector()
+        # Try to get chat_id from history if available
+        chat_id = None
+        message_id = None
+        if request_body.history:
+            # ChatMessage is a Pydantic model, access attributes directly
+            last_assistant = next((m for m in reversed(request_body.history) if m.role == "assistant"), None)
+            if last_assistant:
+                # ChatMessage doesn't have an 'id' field, so message_id will be None
+                # This is fine - we're just tracking that a regenerate was attempted
+                message_id = getattr(last_assistant, 'id', None)
+        
+        metrics.record_regenerate_attempt(
+            tenant_id=tenant_id,
+            user_id=user_id,
+            chat_id=chat_id,
+            message_id=message_id,
+        )
 
     try:
         service = RAGService(db, tenant_id, user_id)
@@ -66,9 +99,15 @@ async def stream_chat(
     async def generate_stream():
         """Generator for SSE stream."""
         try:
+            # Convert ChatMessage objects to dictionaries for RAG service
+            history_dicts = [
+                {"role": msg.role, "content": msg.content}
+                for msg in request_body.history
+            ]
+            
             async for event in service.stream_chat(
                 message=request_body.message,
-                history=request_body.history,
+                history=history_dicts,
                 active_source_ids=request_body.active_source_ids,
             ):
                 try:

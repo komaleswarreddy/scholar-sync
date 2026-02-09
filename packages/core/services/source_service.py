@@ -7,7 +7,7 @@ Handles source document ingestion, processing, and management.
 import uuid
 import io
 import pypdf
-from typing import List
+from typing import List, Tuple
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -17,6 +17,8 @@ from packages.core.database.models.source import Source, SourceType, SourceStatu
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
 from packages.core.storage.s3 import S3Storage
 from packages.core.rag.chunker import Chunker
+from packages.core.processing.context_cache import ContextCache
+from packages.core.processing.pdf_preprocessor import PDFPreprocessor
 
 class IngestionService:
     def __init__(self, db: AsyncSession, tenant_id: str, user_id: str):
@@ -27,7 +29,9 @@ class IngestionService:
         # Pass tenant_id to downstream services for infrastructure isolation
         self.vector_store = PineconeVectorStore(tenant_id)
         self.storage_service = S3Storage(tenant_id)
-        self.chunker = Chunker()
+        self.chunker = Chunker(use_semantic=getattr(settings, 'USE_SEMANTIC_CHUNKING', True))
+        self.context_cache = ContextCache(cache_dir=f"cache/processed_pdfs/{tenant_id}")
+        self.pdf_preprocessor = PDFPreprocessor()
 
     async def quick_upload(self, file: UploadFile, title: str) -> dict:
         """
@@ -149,34 +153,92 @@ class IngestionService:
                 print(f"[ERROR] Source {source_id} not found in database")
                 return
 
-            # 1. Extract Text
+            # 0. Check cache first (for static PDFs)
             try:
                 file_content = await self.storage_service.download_file(source.s3_key)
                 if not file_content:
                     raise ValueError("Downloaded file content is empty")
             except Exception as e:
                 raise ValueError(f"Failed to download file from storage: {str(e)}")
-
-            try:
-                text = await self._extract_text(file_content, content_type, pdf_password)
-                if not text or not text.strip():
-                    raise ValueError("Extracted text is empty")
-            except Exception as e:
-                raise ValueError(f"Failed to extract text: {str(e)}")
             
-            # 2. Chunk Text
-            try:
-                chunks = self.chunker.chunk_text(
-                    text, 
-                    settings.CHUNK_SIZE, 
-                    settings.CHUNK_OVERLAP
-                )
-                if not chunks or len(chunks) == 0:
-                    raise ValueError("No chunks created from text")
-            except Exception as e:
-                raise ValueError(f"Failed to chunk text: {str(e)}")
+            # Check cache for processed content
+            cached_content = self.context_cache.get_cached_content(file_content, tenant_id=self.tenant_id)
+            if cached_content:
+                print(f"[CACHE] Using cached content for source {source_id}")
+                # Use cached chunks and text
+                chunks_with_metadata = cached_content['chunks']
+                chunks = [chunk_text for chunk_text, _ in chunks_with_metadata]
+                # Update metadata with current source_id and tenant_id
+                chunks_with_metadata = [
+                    (chunk_text, {**metadata, 'source_id': source_id, 'tenant_id': self.tenant_id})
+                    for chunk_text, metadata in chunks_with_metadata
+                ]
+            else:
+                # 1. Extract Text with page metadata (for PDFs)
+                try:
+                    if content_type == "application/pdf":
+                        text, pages = await self._extract_text_with_pages(file_content, pdf_password)
+                    else:
+                        text = await self._extract_text(file_content, content_type, pdf_password)
+                        pages = None
+                    
+                    if not text or not text.strip():
+                        raise ValueError("Extracted text is empty")
+                except Exception as e:
+                    raise ValueError(f"Failed to extract text: {str(e)}")
+                
+                # 2. Clean PDF text aggressively (40-70% token reduction)
+                if content_type == "application/pdf" and pages:
+                    try:
+                        # Use PDF preprocessor for aggressive cleaning
+                        cleaned_text = self.pdf_preprocessor.clean_text(text, pages)
+                        print(f"[PREPROCESSOR] Cleaned PDF text: {len(text)} -> {len(cleaned_text)} chars ({100 * (1 - len(cleaned_text)/len(text)):.1f}% reduction)")
+                        text = cleaned_text
+                    except Exception as e:
+                        print(f"[WARNING] PDF preprocessing failed, using raw text: {e}")
+                
+                # 3. Chunk Text with semantic chunking and metadata
+                try:
+                    # Calculate overlap from percentage
+                    overlap_percent = getattr(settings, 'CHUNK_OVERLAP_PERCENT', 0.12)
+                    overlap = int(settings.CHUNK_SIZE * overlap_percent)
+                    
+                    # Use chunk_text_with_metadata for page numbers and other metadata
+                    chunks_with_metadata = self.chunker.chunk_text_with_metadata(
+                        text,
+                        chunk_size=settings.CHUNK_SIZE,
+                        overlap=overlap,
+                        pages=pages,
+                        source_id=source_id,
+                        tenant_id=self.tenant_id
+                    )
+                    
+                    chunks = [chunk_text for chunk_text, _ in chunks_with_metadata]
+                    
+                    if not chunks or len(chunks) == 0:
+                        raise ValueError("No chunks created from text")
+                    
+                    print(f"[CHUNKING] Created {len(chunks)} chunks with semantic chunking and {overlap_percent*100:.1f}% overlap")
+                except Exception as e:
+                    raise ValueError(f"Failed to chunk text: {str(e)}")
+                
+                # 4. Cache processed content for future use
+                try:
+                    self.context_cache.cache_content(
+                        file_content=file_content,
+                        text=text,
+                        chunks=chunks_with_metadata,
+                        metadata={
+                            'source_id': source_id,
+                            'chunks_count': len(chunks),
+                            'pages_count': len(pages) if pages else None,
+                        }
+                    )
+                    print(f"[CACHE] Cached processed content for source {source_id}")
+                except Exception as e:
+                    print(f"[WARNING] Failed to cache content: {e}")
 
-            # 3. Generate Embeddings & Upsert
+            # 5. Generate Embeddings & Upsert
             try:
                 embeddings = await self.vector_store.batch_generate_embeddings([c for c in chunks])
                 if not embeddings or len(embeddings) != len(chunks):
@@ -187,19 +249,29 @@ class IngestionService:
                     raise ValueError(f"Embedding service not configured. Please check your API keys (OpenAI/Pinecone). Original error: {error_msg}")
                 raise ValueError(f"Failed to generate embeddings: {error_msg}")
             
-            vectors_to_upsert = [
-                {
-                    "id": f"{source_id}_chunk_{i}", 
-                    "values": e, 
-                    "metadata": {
-                        "source_id": source_id, 
-                        "tenant_id": self.tenant_id,
-                        "text": c,
-                        "chunk_index": i
-                    }
+            # Build vectors with enriched metadata (page numbers, etc.)
+            vectors_to_upsert = []
+            for i, ((chunk_text, chunk_metadata), embedding) in enumerate(zip(chunks_with_metadata, embeddings)):
+                # Merge chunk metadata with vector metadata
+                vector_metadata = {
+                    "source_id": source_id,
+                    "tenant_id": self.tenant_id,
+                    "text": chunk_text,
+                    "chunk_index": chunk_metadata.get("chunk_index", i),
                 }
-                for i, (c, e) in enumerate(zip(chunks, embeddings))
-            ]
+                
+                # Add page metadata if available
+                if "page_start" in chunk_metadata:
+                    vector_metadata["page_start"] = chunk_metadata["page_start"]
+                    vector_metadata["page_number"] = chunk_metadata["page_start"]  # For backward compatibility
+                if "page_end" in chunk_metadata:
+                    vector_metadata["page_end"] = chunk_metadata["page_end"]
+                
+                vectors_to_upsert.append({
+                    "id": f"{source_id}_chunk_{i}",
+                    "values": embedding,
+                    "metadata": vector_metadata
+                })
 
             try:
                 batch_size = 100
@@ -212,7 +284,52 @@ class IngestionService:
                     raise ValueError(f"Vector database not configured. Please check your Pinecone API key. Original error: {error_msg}")
                 raise ValueError(f"Failed to upsert vectors: {error_msg}")
 
-            # 4. Update Database Status
+            # 6. Calculate and record document costs
+            try:
+                from packages.core.monitoring.metrics import get_metrics_collector
+                from packages.core.guardrails.cost_manager import get_cost_manager
+                
+                metrics = get_metrics_collector()
+                cost_manager = get_cost_manager()
+                
+                # Calculate embedding cost (using OpenAI embeddings model pricing)
+                # OpenAI text-embedding-3-small: $0.02 per 1M tokens
+                # Rough estimate: each chunk is ~1000 tokens for embedding
+                embedding_tokens = len(chunks) * 1000  # Rough estimate
+                embedding_cost = (embedding_tokens / 1_000_000.0) * 0.02
+                
+                # Processing cost is minimal (just text extraction and chunking)
+                processing_cost = 0.001  # Fixed small cost for processing
+                
+                total_cost = embedding_cost + processing_cost
+                
+                # Get page count if available (for PDFs)
+                pages_count = None
+                if content_type == "application/pdf" or source.type == SourceType.PDF.value:
+                    try:
+                        import pypdf
+                        pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
+                        pages_count = len(pdf_reader.pages)
+                    except:
+                        pass
+                
+                # Record document cost
+                metrics.record_document_cost(
+                    tenant_id=self.tenant_id,
+                    source_id=source_id,
+                    total_cost=round(total_cost, 6),
+                    processing_cost=round(processing_cost, 6),
+                    embedding_cost=round(embedding_cost, 6),
+                    chunks_count=len(chunks),
+                    pages_count=pages_count,
+                )
+                
+                print(f"[INGESTION] Recorded document cost for {source_id}: ${total_cost:.6f} (embedding: ${embedding_cost:.6f}, processing: ${processing_cost:.6f})")
+            except Exception as e:
+                # Don't fail processing if cost tracking fails
+                print(f"[WARNING] Failed to record document cost: {e}")
+            
+            # 7. Update Database Status
             try:
                 source.status = SourceStatus.INDEXED.value
                 source.chunks_count = len(chunks)
@@ -328,6 +445,47 @@ class IngestionService:
             await self.db.rollback()
             raise
 
+    async def _extract_text_with_pages(self, file_content: bytes, pdf_password: str = None) -> Tuple[str, List]:
+        """
+        Extract text from PDF with page metadata.
+        
+        Returns:
+            Tuple of (full_text, pages) where pages is list of (page_num, page_text) tuples
+        """
+        try:
+            pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
+            
+            # Check if PDF is encrypted
+            if pdf_reader.is_encrypted:
+                if pdf_password:
+                    if not pdf_reader.decrypt(pdf_password):
+                        raise ValueError("Incorrect password for PDF. Please provide the correct password.")
+                else:
+                    if not pdf_reader.decrypt(""):
+                        raise ValueError("PDF is password-protected or encrypted. Please provide the password.")
+            
+            # Extract pages with metadata
+            pages = []
+            full_text = ""
+            for page_num, page in enumerate(pdf_reader.pages, start=1):
+                try:
+                    page_text = page.extract_text() or ""
+                    if page_text.strip():
+                        pages.append((page_num, page_text))
+                        full_text += page_text + "\n\n"
+                except Exception as page_error:
+                    print(f"[WARNING] Failed to extract text from page {page_num}: {str(page_error)}")
+                    continue
+            
+            if not full_text or not full_text.strip():
+                raise ValueError("PDF contains no extractable text. This may be a scanned image PDF.")
+            
+            return full_text.strip(), pages
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError(f"Failed to extract text from PDF: {str(e)}")
+    
     async def _extract_text(self, file_content: bytes, content_type: str, pdf_password: str = None) -> str:
         if content_type == "application/pdf":
             try:

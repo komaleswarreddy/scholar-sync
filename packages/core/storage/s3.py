@@ -9,7 +9,6 @@ import asyncio
 from fastapi import UploadFile
 from typing import Optional
 from supabase import create_client, Client
-import httpx
 
 from config.settings import settings
 from packages.core.storage.base import BaseStorage
@@ -24,18 +23,10 @@ def get_supabase_client() -> Client:
         if not settings.SUPABASE_URL or not settings.SUPABASE_KEY:
             raise ValueError("Supabase URL and Key must be configured")
         
-        # Workaround for httpx 0.25.2 compatibility with Supabase
-        # Supabase's gotrue library tries to pass 'proxy' parameter to httpx.Client()
-        # which httpx 0.25.2 doesn't accept, causing: Client.__init__() got an unexpected keyword argument 'proxy'
-        # Solution: Create a custom httpx client and pass it to Supabase via ClientOptions
-        from supabase.lib.client_options import ClientOptions
-        
-        # Create custom httpx client without proxy settings
-        custom_httpx_client = httpx.Client(timeout=120.0)
-        
-        # Create Supabase client with custom httpx client
-        options = ClientOptions(httpx_client=custom_httpx_client)
-        _supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY, options)
+        # Create Supabase client
+        # Note: ClientOptions doesn't support httpx_client parameter in current Supabase version
+        # If httpx compatibility issues arise, they should be handled at the httpx level
+        _supabase_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
     
     return _supabase_client
 
@@ -156,16 +147,27 @@ class S3Storage(BaseStorage):
         try:
             supabase = get_supabase_client()
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(
+            
+            # Download file from Supabase Storage
+            # Note: Supabase Python client is synchronous, so we run it in executor
+            file_content = await loop.run_in_executor(
                 None,
                 lambda: supabase.storage.from_(self.bucket_name).download(file_path)
             )
-            return response
+            
+            if not file_content:
+                raise ValueError(f"Downloaded file content is empty for path: {file_path}")
+            
+            return file_content
+        except ValueError:
+            # Re-raise ValueError as-is
+            raise
         except Exception as e:
             import traceback
-            print(f"[ERROR] Storage download error: {type(e).__name__}: {str(e)}")
-            print(f"[ERROR] Traceback: {traceback.format_exc()}")
-            raise
+            error_msg = f"Failed to download file from storage: {str(e)}"
+            print(f"[ERROR] [STORAGE] {error_msg}")
+            print(f"[ERROR] [STORAGE] Traceback: {traceback.format_exc()}")
+            raise ValueError(error_msg)
     
     async def delete_file(self, file_path: str):
         """Delete file from Supabase Storage."""
