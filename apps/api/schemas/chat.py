@@ -26,7 +26,7 @@ class ChatRequest(BaseModel):
     """
     message: str = Field(..., min_length=1, description="User's question")
     history: List[ChatMessage] = Field(default=[], description="Conversation history")
-    active_source_ids: List[str] = Field(..., min_items=1, description="Source IDs for context")
+    active_source_ids: List[str] = Field(default=[], description="Source IDs for context")
 
 
 class Citation(BaseModel):

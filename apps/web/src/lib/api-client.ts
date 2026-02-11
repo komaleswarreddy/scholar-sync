@@ -675,6 +675,25 @@ class ApiClient {
 
                 // Handle done event
                 if (currentEventType === 'done') {
+                  // Check for LLM-based low-confidence fallback signal
+                  const lowConfidence =
+                    !!(eventData && (eventData.low_confidence || eventData.used_low_confidence_fallback));
+                  const fallbackMessage =
+                    (eventData && (eventData.fallback_message as string)) ||
+                    'Not enough reliable information found. Please rephrase or check the document.';
+
+                  if (lowConfidence) {
+                    // Backend decided the answer is too low-confidence to show.
+                    // Do not call onDone; instead surface a special error so UI can suppress the answer.
+                    console.warn('[Stream] Low-confidence answer suppressed by backend.', {
+                      confidence: eventData?.llm_answer_confidence,
+                    });
+                    if (onError) {
+                      onError(`LOW_CONFIDENCE:${fallbackMessage}`);
+                    }
+                    return;
+                  }
+
                   // Verify we received text content (citations alone don't count)
                   if (!hasReceivedText || accumulatedText.trim() === '') {
                     // Log for debugging
@@ -895,6 +914,12 @@ class ApiClient {
     const res = await this.client.patch(`/api/v1/chat/messages/${messageId}/feedback`, {
       feedback,
     });
+    return res.data;
+  }
+
+  async deleteAllMessages(chatId: string) {
+    await this.refreshToken();
+    const res = await this.client.delete(`/api/v1/chat/${chatId}/messages`);
     return res.data;
   }
 }

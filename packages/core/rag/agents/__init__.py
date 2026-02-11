@@ -14,6 +14,9 @@ from packages.core.rag.agents.citation_enforcer import CitationEnforcer
 from packages.core.rag.agents.output_formatter import OutputFormatter, OutputFormat
 from packages.core.rag.agents.early_stop_detector import EarlyStopDetector
 from packages.core.rag.agents.output_length_limiter import OutputLengthLimiter
+from packages.core.rag.agents.context_deduper import ContextDeduper
+from packages.core.rag.agents.query_complexity_scorer import QueryComplexityScorer, QueryComplexity
+from packages.core.rag.agents.two_stage_answering import TwoStageAnswering
 
 __all__ = [
     "QueryRewriter",
@@ -28,4 +31,8 @@ __all__ = [
     "OutputFormat",
     "EarlyStopDetector",
     "OutputLengthLimiter",
+    "ContextDeduper",
+    "QueryComplexityScorer",
+    "QueryComplexity",
+    "TwoStageAnswering",
 ]

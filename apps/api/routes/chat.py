@@ -51,6 +51,16 @@ async def stream_chat(
         # This should rarely happen as middleware handles it, but keep as safety check
         raise HTTPException(status_code=401, detail="User ID required")
     
+    # Validate that at least one source is selected
+    if not request_body.active_source_ids or len(request_body.active_source_ids) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "No source selected",
+                "message": "Please select at least one document source before asking a question. Upload documents or select them from your library."
+            }
+        )
+    
     # Phase 4: Rate Limiting & Debounce
     if settings.USE_SESSION_MEMORY and settings.ENABLE_RATE_LIMITING:
         from packages.core.memory import RateLimiter
@@ -509,6 +519,32 @@ async def add_message(
 class MessageFeedbackRequest(BaseModel):
     """Request to update message feedback."""
     feedback: Optional[str] = Field(None, description="Feedback: 'thumbs_up', 'thumbs_down', or None")
+
+
+@router.delete("/{chat_id}/messages")
+async def delete_all_messages(
+    chat_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete all messages in a chat (used for summarization)."""
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User ID required")
+    
+    service = ChatService(db, tenant_id, user_id)
+    try:
+        deleted_count = await service.delete_all_messages(chat_id)
+        return {"message": f"Deleted {deleted_count} messages", "deleted_count": deleted_count}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        import traceback
+        print(f"[ERROR] Failed to delete messages for chat {chat_id}: {type(e).__name__}: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Failed to delete messages: {str(e)}")
 
 
 @router.patch("/messages/{message_id}/feedback", response_model=MessageResponse)

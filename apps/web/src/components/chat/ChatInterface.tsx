@@ -36,6 +36,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: string;
+  isSummary?: boolean;
   citations?: Citation[];
   feedback?: 'thumbs_up' | 'thumbs_down' | null;
   messageId?: string; // Backend message ID for feedback
@@ -46,6 +47,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const { currentChatId, setCurrentChat, setCurrentChatId } = useChatContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [turnCount, setTurnCount] = useState(0);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(true);
@@ -85,6 +87,15 @@ export function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, currentResponse, isLoading]);
 
+  // Track completed user/assistant turn pairs for summarize option
+  useEffect(() => {
+    const nonSummaryMessages = messages.filter((m) => !m.isSummary);
+    const userCount = nonSummaryMessages.filter((m) => m.role === 'user').length;
+    const assistantCount = nonSummaryMessages.filter((m) => m.role === 'assistant').length;
+    const pairs = Math.min(userCount, assistantCount);
+    setTurnCount(pairs);
+  }, [messages]);
+
   // Task C.c: Load the most recent chat on mount
   const loadRecentChat = async () => {
     try {
@@ -123,15 +134,20 @@ export function ChatInterface() {
       if (chat) {
         setCurrentChat(chat);
         if (chat.messages && Array.isArray(chat.messages) && chat.messages.length > 0) {
-          const formattedMessages: Message[] = chat.messages.map((msg: any) => ({
-            id: msg.id,
-            role: msg.role as 'user' | 'assistant',
-            content: msg.content,
-            citations: msg.citations || [],
-            messageId: msg.id,
-            feedback: msg.feedback || null,
-            timestamp: new Date(msg.created_at).toLocaleTimeString(),
-          }));
+          const formattedMessages: Message[] = chat.messages.map((msg: any) => {
+            // Detect summary messages by checking if content starts with "Summary of this chat so far:"
+            const isSummary = msg.content && msg.content.startsWith('Summary of this chat so far:');
+            return {
+              id: msg.id,
+              role: msg.role as 'user' | 'assistant',
+              content: msg.content,
+              citations: msg.citations || [],
+              messageId: msg.id,
+              feedback: msg.feedback || null,
+              timestamp: new Date(msg.created_at).toLocaleTimeString(),
+              isSummary: isSummary,
+            };
+          });
           setMessages(formattedMessages);
         } else {
           setMessages([]);
@@ -461,6 +477,18 @@ export function ChatInterface() {
         // onError - Task A.b: Handle streaming errors gracefully
         (error: string) => {
           console.error('Streaming error:', error);
+
+          // Special handling for low-confidence fallback from backend
+          const lowConfidencePrefix = 'LOW_CONFIDENCE:';
+          if (error.startsWith(lowConfidencePrefix)) {
+            const fallbackMessage = error.slice(lowConfidencePrefix.length).trim();
+            setStreamError(fallbackMessage || 'Not enough reliable information found. Please rephrase or check the document.');
+            setIsStreaming(false);
+            // Do NOT persist the low-confidence answer; just clear streaming state
+            resetStreamingState();
+            return;
+          }
+
           setStreamError(error);
           setIsStreaming(false);
           
@@ -507,6 +535,93 @@ export function ChatInterface() {
     }
   };
 
+  // Summarize chat history to reduce token usage and keep brief context
+  const handleSummarizeChat = async () => {
+    if (!currentChatId) {
+      setStreamError('No active chat to summarize.');
+      return;
+    }
+
+    const nonSummaryMessages = messages.filter((m) => !m.isSummary);
+    if (nonSummaryMessages.length === 0) return;
+
+    const userQuestions = nonSummaryMessages
+      .filter((m) => m.role === 'user')
+      .map((m) => m.content.trim())
+      .filter(Boolean);
+
+    const assistantAnswers = nonSummaryMessages
+      .filter((m) => m.role === 'assistant')
+      .map((m) => m.content.trim())
+      .filter(Boolean);
+
+    const topUserQuestions = userQuestions.slice(0, 5);
+    const topAssistantAnswers = assistantAnswers.slice(0, 5);
+
+    const summaryParts: string[] = [];
+
+    if (topUserQuestions.length > 0) {
+      const questionsText = topUserQuestions
+        .map((q, idx) => `${idx + 1}. ${q.length > 160 ? `${q.slice(0, 157)}...` : q}`)
+        .join('\n');
+      summaryParts.push(`Questions so far:\n${questionsText}`);
+    }
+
+    if (topAssistantAnswers.length > 0) {
+      const answersText = topAssistantAnswers
+        .map((a, idx) => `${idx + 1}. ${a.length > 200 ? `${a.slice(0, 197)}...` : a}`)
+        .join('\n');
+      summaryParts.push(`Answers so far:\n${answersText}`);
+    }
+
+    const summaryText =
+      summaryParts.length > 0
+        ? summaryParts.join('\n\n')
+        : 'Conversation so far covered multiple questions and responses.';
+
+    const summaryContent = `Summary of this chat so far:\n\n${summaryText}`;
+
+    try {
+      setIsLoading(true);
+      setStreamError(null);
+
+      // Step 1: Delete all existing messages from backend
+      await apiClient.deleteAllMessages(currentChatId);
+
+      // Step 2: Save the summary message to backend
+      const savedSummary = await apiClient.addMessageToChat(
+        currentChatId,
+        'assistant',
+        summaryContent,
+        []
+      );
+
+      // Step 3: Update frontend state with the saved summary
+      const summaryMessage: Message = {
+        id: savedSummary.id,
+        role: 'assistant',
+        content: summaryContent,
+        timestamp: new Date().toLocaleTimeString(),
+        isSummary: true,
+        messageId: savedSummary.id,
+      };
+
+      setMessages([summaryMessage]);
+      setStreamError(null);
+      resetStreamingState();
+      
+      // Refresh sidebar to show updated message count
+      setSidebarRefreshTrigger((prev) => prev + 1);
+    } catch (error: any) {
+      console.error('Failed to summarize chat:', error);
+      const apiError = error.apiError || handleApiError(error);
+      const errorMessage = getUserFriendlyMessage(apiError);
+      setStreamError(`Failed to summarize chat: ${errorMessage}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex h-full bg-surface">
       {/* Chat List Sidebar */}
@@ -546,14 +661,26 @@ export function ChatInterface() {
                 <h1 className="text-lg font-medium text-text-primary">Chat</h1>
               </div>
             </div>
-            {/* Task C.d: New Chat Button */}
-            <button
-              onClick={startNewChat}
-              disabled={isLoadingChat}
-              className="px-3 py-1.5 text-xs font-semibold bg-surface-subtle border border-border-default rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoadingChat ? 'Loading...' : '+ New Chat'}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Summarize Chat Button - shown after 5 completed question/answer turns */}
+              {turnCount >= 5 && (
+                <button
+                  onClick={handleSummarizeChat}
+                  disabled={isLoading || isStreaming || isLoadingChat}
+                  className="px-3 py-1.5 text-xs font-semibold bg-surface-subtle border border-border-default rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Summarize chat so far
+                </button>
+              )}
+              {/* Task C.d: New Chat Button */}
+              <button
+                onClick={startNewChat}
+                disabled={isLoadingChat}
+                className="px-3 py-1.5 text-xs font-semibold bg-surface-subtle border border-border-default rounded-lg text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoadingChat ? 'Loading...' : '+ New Chat'}
+              </button>
+            </div>
           </div>
         </div>
 

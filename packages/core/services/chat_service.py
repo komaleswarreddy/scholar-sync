@@ -188,6 +188,28 @@ class ChatService:
             print(traceback.format_exc())
             raise
 
+    async def delete_all_messages(self, chat_id: str) -> int:
+        """Delete all messages in a chat. Returns number of messages deleted."""
+        chat_uuid = uuid.UUID(chat_id) if isinstance(chat_id, str) else chat_id
+        
+        # Verify chat exists and belongs to user
+        result = await self.db.execute(
+            select(Chat)
+            .where(Chat.id == chat_uuid)
+            .where(Chat.tenant_id == self.tenant_id)
+            .where(Chat.user_id == self.user_id)
+        )
+        chat = result.scalar_one_or_none()
+        if not chat:
+            raise ValueError(f"Chat {chat_id} not found or access denied")
+        
+        # Delete all messages for this chat
+        delete_stmt = delete(Message).where(Message.chat_id == chat_uuid)
+        result = await self.db.execute(delete_stmt)
+        await self.db.commit()
+        
+        return result.rowcount
+
     async def update_message_feedback(
         self,
         message_id: str,

@@ -23,8 +23,8 @@ class EarlyStopDetector:
     def __init__(
         self,
         enabled: bool = True,
-        min_length: int = 50,  # Minimum response length before early stop
-        repetition_threshold: float = 0.3  # 30% similarity = repetitive
+        min_length: int = 200,  # Minimum response length before early stop (increased for completeness)
+        repetition_threshold: float = 0.5  # 50% similarity = repetitive (increased threshold)
     ):
         """
         Initialize early stop detector.
@@ -89,9 +89,9 @@ class EarlyStopDetector:
                 "confidence": completion_score
             }
         
-        # Check if query is answered
+        # Check if query is answered (be more conservative - require higher completeness)
         answer_completeness = self._check_answer_completeness(accumulated_text, query)
-        if answer_completeness > 0.8:
+        if answer_completeness > 0.95 and len(accumulated_text) > 300:  # Require very high completeness and sufficient length
             return {
                 "should_stop": True,
                 "reason": "query_answered",

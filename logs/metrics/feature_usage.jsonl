@@ -17,3 +17,14 @@
 {"timestamp": "2026-02-09T06:31:31.321121", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_38cN0lwWqFb1m1x0qVqYEC62QP2", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
 {"timestamp": "2026-02-09T09:17:43.629627", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
 {"timestamp": "2026-02-09T09:18:28.185475", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-09T13:17:39.109571", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-09T13:25:28.185579", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-10T04:33:20.717516", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-10T09:34:12.093921", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-10T09:37:22.729673", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-11T02:43:21.387265", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-11T04:36:20.410810", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-11T04:38:12.586287", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-11T04:41:19.445195", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-11T04:48:16.466638", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}
+{"timestamp": "2026-02-11T11:01:47.701733", "tenant_id": "632dd78c-a6b9-4a6a-86bc-70204db1c91f", "user_id": "user_389QpqZ8d4zGhq3QTNuU57YZouS", "feature": "chat", "endpoint": "/chat/stream", "request_id": null}

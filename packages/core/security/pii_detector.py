@@ -70,9 +70,13 @@ class PIIDetector:
         }
         
         # Common name patterns (less reliable, but can detect)
+        # Made more strict to avoid false positives on technical terms
         self.name_patterns = [
-            r'\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b',  # First Last
-            r'\b(Mr\.|Mrs\.|Ms\.|Dr\.)\s+[A-Z][a-z]+\b',  # Title Name
+            # Only match if preceded by common name indicators
+            r'\b(Mr\.|Mrs\.|Ms\.|Dr\.|Professor|Prof\.)\s+[A-Z][a-z]+\s+[A-Z][a-z]+\b',  # Title First Last
+            # Very strict: two capitalized words only if they're common first/last names
+            # This is disabled by default to avoid false positives on technical terms
+            # r'\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b',  # First Last (DISABLED - too many false positives)
         ]
     
     def detect(

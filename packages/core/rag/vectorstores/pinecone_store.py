@@ -93,10 +93,14 @@ class PineconeVectorStore(BaseVectorStore):
         
         Uses text-embedding-3-small for cost efficiency.
         """
+        embedding_model = "text-embedding-3-small"
+        print(f"[RAG] Generating embedding: Provider=OpenAI, Model={embedding_model}, TextLength={len(text)} chars")
         response = self.openai_client.embeddings.create(
-            model="text-embedding-3-small",
+            model=embedding_model,
             input=text,
         )
+        embedding_dim = len(response.data[0].embedding)
+        print(f"[RAG] Embedding generated: Dimension={embedding_dim}")
         return response.data[0].embedding
     
     async def batch_generate_embeddings(self, texts: List[str]) -> List[List[float]]:

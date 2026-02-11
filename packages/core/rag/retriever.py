@@ -6,6 +6,7 @@ Enhanced with Phase 2 retrieval quality agents with guardrails.
 """
 
 from typing import List, Dict, Any, Optional
+import re
 from config.settings import settings
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
 from packages.core.rag.embedder import Embedder
@@ -17,6 +18,8 @@ from packages.core.rag.agents import (
     MMRDiversity,
     Reranker,
     ContextSelector,
+    UserIntent,
+    QueryComplexityScorer,
 )
 
 
@@ -38,12 +41,15 @@ class Retriever:
         self.tenant_id = tenant_id
         self.vector_store = PineconeVectorStore(tenant_id)
         self.embedder = Embedder(tenant_id)
+        # Store previous chunks for conversation-aware retrieval
+        self.previous_chunks = []
         
         # Initialize Phase 2 agents if enabled
         if settings.USE_RETRIEVAL_AGENTS:
             self.intent_classifier = IntentClassifier(tenant_id)
             self.scope_narrower = ScopeNarrower(tenant_id)
             self.query_rewriter = QueryRewriter(tenant_id)
+            self.complexity_scorer = QueryComplexityScorer()
             self.hybrid_retriever = HybridRetriever(
                 vector_weight=settings.HYBRID_VECTOR_WEIGHT,
                 keyword_weight=settings.HYBRID_KEYWORD_WEIGHT
@@ -58,10 +64,19 @@ class Retriever:
             self.intent_classifier = None
             self.scope_narrower = None
             self.query_rewriter = None
+            self.complexity_scorer = None
             self.hybrid_retriever = None
             self.mmr_diversity = None
             self.reranker = None
             self.context_selector = None
+        
+        # Initialize retrieval cache for query rewrites and reranks
+        from packages.core.memory.retrieval_cache import RetrievalCache
+        self.retrieval_cache = RetrievalCache(
+            cache_dir=f"cache/retrieval/{tenant_id}",
+            default_ttl_seconds=3600,
+            max_cache_size=500
+        )
     
     def _log(self, stage: str, message: str, data: Optional[Dict] = None):
         """Log debug information if RAG_DEBUG is enabled."""
@@ -75,6 +90,62 @@ class Retriever:
     def _estimate_tokens(self, text: str) -> int:
         """Rough token estimation: 1 token ≈ 4 characters."""
         return len(text) // 4
+    
+    def get_context_size(self, intent: Optional[UserIntent] = None) -> int:
+        """
+        Get context size (top_k) based on intent.
+        
+        Args:
+            intent: User intent from classification
+            
+        Returns:
+            Suggested top_k value
+        """
+        if intent is None:
+            return settings.TOP_K_CHUNKS
+        
+        # Intent-based context sizing
+        intent_sizing = {
+            UserIntent.SUMMARY: 3,  # Minimal context for summaries
+            UserIntent.DEFINITION: 5,  # Small context for definitions
+            UserIntent.QUESTION: 7,  # Medium context for questions
+            UserIntent.EXPLANATION: 10,  # Default for explanations
+            UserIntent.HOW_TO: 10,  # Default for how-to
+            UserIntent.COMPARISON: 12,  # More context for comparisons
+            UserIntent.ANALYSIS: 15,  # Large context for analysis
+            UserIntent.CREATION: 10,  # Default for creation
+            UserIntent.GENERAL: 10,  # Default
+        }
+        
+        return intent_sizing.get(intent, settings.TOP_K_CHUNKS)
+    
+    def is_follow_up_query(self, query: str) -> bool:
+        """
+        Detect if query is a follow-up that should reuse previous chunks.
+        
+        Args:
+            query: User query text
+            
+        Returns:
+            True if query is a follow-up
+        """
+        follow_up_patterns = [
+            r'\bexplain\s+more\b',
+            r'\bcontinue\b',
+            r'\belaborate\b',
+            r'\bwhy\b',
+            r'\bhow\s+exactly\b',
+            r'\btell\s+me\s+more\b',
+            r'\bgo\s+deeper\b',
+            r'\bexpand\b',
+            r'\bmore\s+details?\b',
+        ]
+        
+        query_lower = query.lower()
+        for pattern in follow_up_patterns:
+            if re.search(pattern, query_lower):
+                return True
+        return False
     
     async def retrieve(
         self,
@@ -99,7 +170,19 @@ class Retriever:
         Returns:
             Query results with matches and metadata (intent, etc.)
         """
-        top_k = top_k or settings.TOP_K_CHUNKS
+        # Check if this is a follow-up query that should reuse previous chunks
+        is_follow_up = False
+        if query:
+            is_follow_up = self.is_follow_up_query(query)
+        previous_chunk_ids = {chunk.get("id") for chunk in self.previous_chunks} if self.previous_chunks else set()
+        
+        # Use intent-based context sizing if intent is available
+        # We'll get intent first, then adjust top_k
+        if top_k is None and settings.USE_RETRIEVAL_AGENTS and query:
+            # We'll set top_k after intent classification
+            top_k = settings.TOP_K_CHUNKS  # Temporary default
+        else:
+            top_k = top_k or settings.TOP_K_CHUNKS
         
         # Initialize debug trace
         debug_trace = {
@@ -140,6 +223,25 @@ class Retriever:
         
         self._log("START", f"Retrieval pipeline started", {"query": query, "top_k": top_k})
         
+        # 0. Query Complexity Scoring (skip expensive ops for simple queries)
+        complexity_result = self.complexity_scorer.score_complexity(query)
+        should_skip_rewrite = complexity_result.get("should_skip_rewrite", False)
+        should_skip_rerank = complexity_result.get("should_skip_rerank", False)
+        should_skip_confidence = complexity_result.get("should_skip_confidence", False)
+        
+        debug_trace["query_complexity"] = str(complexity_result.get("complexity"))
+        debug_trace["word_count"] = complexity_result.get("word_count")
+        debug_trace["has_operators"] = complexity_result.get("has_operators")
+        
+        if should_skip_rewrite or should_skip_rerank:
+            self._log("COMPLEXITY", f"Simple query detected - skipping expensive operations", {
+                "complexity": complexity_result.get("complexity"),
+                "skip_rewrite": should_skip_rewrite,
+                "skip_rerank": should_skip_rerank,
+                "skip_confidence": should_skip_confidence
+            })
+            debug_trace["guardrails_applied"].append("simple_query_skip_expensive_ops")
+        
         # 1. Intent Classification
         intent_result = await self.intent_classifier.classify_intent(
             query=query,
@@ -165,6 +267,22 @@ class Retriever:
             debug_trace["guardrails_applied"].append("low_intent_confidence_fallback")
             # Continue with pipeline but use generic intent
         
+        # Set top_k based on intent (replace fixed TOP_K_CHUNKS)
+        top_k = self.get_context_size(intent)
+        debug_trace["intent_based_top_k"] = top_k
+        self._log("INTENT", f"Using intent-based top_k: {top_k} (intent: {intent})")
+        
+        # Conversation-aware retrieval: if follow-up query, reuse previous chunks + add 2-3 new
+        if is_follow_up and self.previous_chunks:
+            # For follow-ups, only retrieve 2-3 new chunks
+            new_chunks_to_retrieve = 3
+            self._log("CONVERSATION", f"Follow-up query detected. Reusing {len(self.previous_chunks)} previous chunks, retrieving {new_chunks_to_retrieve} new chunks")
+            debug_trace["conversation_aware"] = True
+            debug_trace["previous_chunks_count"] = len(self.previous_chunks)
+            debug_trace["new_chunks_to_retrieve"] = new_chunks_to_retrieve
+            # We'll merge previous chunks with new ones later
+            top_k = new_chunks_to_retrieve  # Only retrieve a few new chunks
+        
         # 2. Scope Narrowing (skip if we expect small document set)
         # We'll check document count after initial retrieval
         scope_result = await self.scope_narrower.narrow_scope(
@@ -182,16 +300,40 @@ class Retriever:
             "suggested_max": suggested_max_chunks
         })
         
-        # 3. Query Rewriting (with confidence threshold)
-        rewrite_result = await self.query_rewriter.rewrite_query(
-            query=focused_query,
-            conversation_history=conversation_history,
-            max_rewrites=2,
-            confidence_threshold=settings.QUERY_REWRITE_CONFIDENCE_THRESHOLD
-        )
-        rewritten_queries = rewrite_result.get("queries", [focused_query])
-        rewrite_confidence = rewrite_result.get("confidence", 0.0)
-        used_rewrites = rewrite_result.get("used_rewrites", False)
+        # 3. Query Rewriting (with confidence threshold) - Skip for simple queries
+        rewritten_queries = [focused_query]
+        rewrite_confidence = 1.0
+        used_rewrites = False
+        
+        if not should_skip_rewrite:
+            # Check cache first
+            source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
+            cached_rewrite = self.retrieval_cache.get_rewrite(focused_query, source_ids_list)
+            
+            if cached_rewrite:
+                rewritten_queries = cached_rewrite
+                rewrite_confidence = 1.0
+                used_rewrites = True
+                self._log("CACHE", f"Using cached query rewrite", {"rewritten_queries": rewritten_queries})
+                debug_trace["rewrite_cache_hit"] = True
+            else:
+                rewrite_result = await self.query_rewriter.rewrite_query(
+                    query=focused_query,
+                    conversation_history=conversation_history,
+                    max_rewrites=2,
+                    confidence_threshold=settings.QUERY_REWRITE_CONFIDENCE_THRESHOLD
+                )
+                rewritten_queries = rewrite_result.get("queries", [focused_query])
+                rewrite_confidence = rewrite_result.get("confidence", 0.0)
+                used_rewrites = rewrite_result.get("used_rewrites", False)
+                
+                # Cache the rewrite
+                if used_rewrites and rewritten_queries:
+                    self.retrieval_cache.set_rewrite(focused_query, rewritten_queries, source_ids_list)
+                    debug_trace["rewrite_cache_miss"] = True
+        else:
+            self._log("REWRITE", f"Skipping query rewrite (simple query)")
+            debug_trace["rewrite_skipped"] = True
         
         debug_trace["rewritten_queries"] = rewritten_queries
         debug_trace["rewrite_confidence"] = rewrite_confidence
@@ -345,25 +487,46 @@ class Retriever:
         
         debug_trace["after_mmr"] = {"count": len(diverse_matches)}
         
-        # 7. Reranking - Rerank by relevance to query (with guardrails)
+        # 7. Reranking - Rerank by relevance to query (with guardrails) - Skip for simple queries
         # Safeguard: Reranker must always keep at least top 6 chunks
         if len(diverse_matches) <= 1:
             reranked_matches = diverse_matches
             reranker_confidence = 1.0  # Perfect confidence if only one chunk
+        elif should_skip_rerank:
+            # Skip reranking for simple queries
+            reranked_matches = diverse_matches
+            reranker_confidence = 0.8  # Default confidence for simple queries
+            self._log("RERANK", f"Skipping reranking (simple query)")
+            debug_trace["rerank_skipped"] = True
         else:
-            reranked_result = await self.reranker.rerank(
-                chunks=diverse_matches,
-                query=primary_query,
-                top_k=None  # Don't limit here, let context selector handle it
-            )
-            # Handle both dict and list return formats (backward compatibility)
-            if isinstance(reranked_result, dict):
-                reranked_matches = reranked_result.get("chunks", diverse_matches)
-                reranker_confidence = reranked_result.get("confidence", 0.5)
+            # Check cache first
+            source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
+            cached_rerank = self.retrieval_cache.get_rerank(primary_query, source_ids_list)
+            
+            if cached_rerank:
+                reranked_matches = cached_rerank
+                reranker_confidence = 0.9  # High confidence for cached results
+                self._log("CACHE", f"Using cached reranked chunks", {"chunk_count": len(reranked_matches)})
+                debug_trace["rerank_cache_hit"] = True
             else:
-                # Legacy format (list)
-                reranked_matches = reranked_result
-                reranker_confidence = 0.7  # Default confidence for legacy
+                reranked_result = await self.reranker.rerank(
+                    chunks=diverse_matches,
+                    query=primary_query,
+                    top_k=None  # Don't limit here, let context selector handle it
+                )
+                # Handle both dict and list return formats (backward compatibility)
+                if isinstance(reranked_result, dict):
+                    reranked_matches = reranked_result.get("chunks", diverse_matches)
+                    reranker_confidence = reranked_result.get("confidence", 0.5)
+                else:
+                    # Legacy format (list)
+                    reranked_matches = reranked_result
+                    reranker_confidence = 0.7  # Default confidence for legacy
+                
+                # Cache the reranked chunks
+                if reranked_matches:
+                    self.retrieval_cache.set_rerank(primary_query, reranked_matches, source_ids_list)
+                    debug_trace["rerank_cache_miss"] = True
             
             # Guardrail: if reranker confidence weak, keep original vector order
             RERANKER_CONFIDENCE_THRESHOLD = 0.6
@@ -431,6 +594,32 @@ class Retriever:
             "min_chunks": settings.MIN_CONTEXT_CHUNKS,
             "max_chunks": settings.MAX_CONTEXT_CHUNKS
         })
+        
+        # Conversation-aware retrieval: Merge previous chunks with new ones for follow-up queries
+        if is_follow_up and self.previous_chunks:
+            # Filter out chunks that are already in previous_chunks
+            new_chunk_ids = {m.get("id") for m in selected_matches}
+            previous_chunk_ids = {chunk.get("id") for chunk in self.previous_chunks}
+            
+            # Only keep new chunks (not in previous)
+            truly_new_chunks = [m for m in selected_matches if m.get("id") not in previous_chunk_ids]
+            
+            # Merge: previous chunks + new chunks (limit new to 2-3)
+            merged_chunks = list(self.previous_chunks) + truly_new_chunks[:3]
+            
+            print(f"[RAG_PIPELINE] CONVERSATION-AWARE: Merged {len(self.previous_chunks)} previous + {len(truly_new_chunks[:3])} new chunks = {len(merged_chunks)} total")
+            self._log("CONVERSATION", f"Merged previous and new chunks", {
+                "previous_count": len(self.previous_chunks),
+                "new_count": len(truly_new_chunks[:3]),
+                "total_count": len(merged_chunks)
+            })
+            
+            selected_matches = merged_chunks
+            debug_trace["conversation_merged"] = True
+            debug_trace["merged_chunks_count"] = len(merged_chunks)
+        
+        # Update previous_chunks for next query
+        self.previous_chunks = selected_matches[:10]  # Keep last 10 chunks for next query
         
         # CRITICAL SAFEGUARD: If final_chunks == 0, use top chunks as fallback
         if len(selected_matches) == 0:

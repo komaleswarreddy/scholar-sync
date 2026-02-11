@@ -5,9 +5,11 @@ Handles Retrieval-Augmented Generation for chat.
 Uses LLM abstraction layer and prompt templates.
 """
 
-from typing import List, Dict, AsyncGenerator
+from typing import List, Dict, AsyncGenerator, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 import re
+import time
+import json
 
 from config.settings import settings
 from packages.core.security import RefusalReason
@@ -134,6 +136,121 @@ class RAGService:
             self.injection_detector = None
             self.intent_gate = None
             self.pii_detector = None
+        
+        # Continuous Evaluation Loop
+        if settings.ENABLE_EVALUATION:
+            from packages.core.evaluation import (
+                Evaluator, ConfidenceScorer, ColdStartHandler
+            )
+            
+            if settings.ENABLE_CONFIDENCE_THRESHOLDING:
+                self.confidence_scorer = ConfidenceScorer(
+                    low_threshold=settings.CONFIDENCE_LOW_THRESHOLD,
+                    high_threshold=settings.CONFIDENCE_HIGH_THRESHOLD
+                )
+            else:
+                self.confidence_scorer = None
+            
+            if settings.ENABLE_COLD_START_HANDLING:
+                self.cold_start_handler = ColdStartHandler(enable_fallbacks=True)
+            else:
+                self.cold_start_handler = None
+            
+            # Evaluator (shared instance)
+            self.evaluator = Evaluator(
+                evaluation_dir=f"evaluations/{tenant_id}",
+                baseline_file=f"evaluations/{tenant_id}/baseline.json"
+            )
+        else:
+            self.confidence_scorer = None
+            self.cold_start_handler = None
+            self.evaluator = None
+
+    async def _evaluate_answer_confidence_with_llm(
+        self,
+        context: str,
+        answer: str,
+    ) -> Optional[float]:
+        """
+        Use a second LLM call to score how well the answer is supported by the context.
+
+        Returns a confidence score between 0 and 1, or None if evaluation fails.
+        """
+        if not context or not answer or not answer.strip():
+            return None
+
+        prompt = (
+            'Evaluate how well the answer addresses the question using the provided context. '
+            'Be lenient - if the answer is generally correct and relevant, give a high score (0.7-1.0). '
+            'Only give low scores (<0.6) if the answer is clearly wrong, off-topic, or unsupported. '
+            'Return only JSON:\n'
+            '{ "confidence": 0-1 }\n\n'
+            f"Context: {context[:2000]}\n"  # Limit context to avoid token waste
+            f"Answer: {answer[:1000]}"  # Limit answer length
+        )
+
+        # Check query complexity - skip confidence evaluation for simple queries
+        from packages.core.rag.agents import QueryComplexityScorer
+        complexity_scorer = QueryComplexityScorer()
+        complexity_result = complexity_scorer.score_complexity(answer)
+        should_skip_confidence = complexity_result.get("should_skip_confidence", False)
+        
+        if should_skip_confidence:
+            print(f"[RAG] Skipping confidence evaluation (simple query)")
+            # Return high confidence for simple queries
+            return {
+                "confidence": 0.85,
+                "reasoning": "Simple query - skipped confidence evaluation"
+            }
+        
+        try:
+            # Reuse the chat model but with low temperature and small max_tokens
+            provider, model = get_model_for_task("chat")
+            print(f"[RAG] Using LLM for confidence evaluation: Provider={provider.value}, Model={model}, Temperature=0.0, MaxTokens=64")
+            llm_client = get_llm_client(provider=provider, model=model, temperature=0.0)
+
+            response = await llm_client.generate(
+                prompt=prompt,
+                temperature=0.0,
+                max_tokens=64,
+                tenant_id=self.tenant_id,
+                feature_tag="answer_confidence",
+            )
+
+            raw = (response.content or "").strip()
+            # Ensure we only try to parse plausible JSON
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                # Try to extract JSON object if model wrapped it in extra text
+                start = raw.find("{")
+                end = raw.rfind("}")
+                if start != -1 and end != -1 and end > start:
+                    try:
+                        data = json.loads(raw[start : end + 1])
+                    except Exception:
+                        print(f"[RAG] Answer confidence JSON parse failed (extracted): {raw[:200]}")
+                        return None
+                else:
+                    print(f"[RAG] Answer confidence JSON parse failed: {raw[:200]}")
+                    return None
+
+            confidence = data.get("confidence", None)
+            if confidence is None:
+                return None
+
+            try:
+                confidence_val = float(confidence)
+            except (TypeError, ValueError):
+                return None
+
+            if 0.0 <= confidence_val <= 1.0:
+                return confidence_val
+
+            return None
+        except Exception as e:
+            print(f"[RAG] Answer confidence evaluation failed: {type(e).__name__}: {str(e)}")
+            return None
     
     async def stream_chat(
         self,
@@ -147,6 +264,13 @@ class RAGService:
         Yields:
             Dictionary with 'event' and 'data' keys for SSE
         """
+        print(f"[RAG] =========================================")
+        print(f"[RAG] Starting RAG Pipeline")
+        print(f"[RAG] Query: {message[:100]}...")
+        print(f"[RAG] Sources: {len(active_source_ids)} selected")
+        print(f"[RAG] History: {len(history)} messages")
+        print(f"[RAG] =========================================")
+        
         # Phase 5: PII Detection - Detect and redact PII in input
         if self.pii_detector and settings.ENABLE_PII_DETECTION:
             redacted_message, pii_info = self.pii_detector.redact(message)
@@ -204,34 +328,116 @@ class RAGService:
                     }
                     return
         
+        # Continuous Evaluation: Cold Start Handling
+        if self.cold_start_handler and settings.ENABLE_COLD_START_HANDLING:
+            cold_start_info = self.cold_start_handler.check_cold_start(
+                has_sources=len(active_source_ids) > 0,
+                has_history=len(history) > 0,
+                has_cache=self.answer_cache is not None,
+                is_first_query=len(history) == 0,
+                is_new_tenant=False  # Could check tenant creation date
+            )
+            
+            if cold_start_info["should_use_fallback"]:
+                yield {
+                    "event": "chunk",
+                    "data": {"text": cold_start_info["fallback_message"]}
+                }
+                yield {
+                    "event": "done",
+                    "data": {"cold_start": True, "reason": cold_start_info["primary_reason"]}
+                }
+                return
+            
+            if self.cold_start_handler.should_skip_retrieval(cold_start_info):
+                # No sources - return fallback
+                yield {
+                    "event": "chunk",
+                    "data": {"text": cold_start_info["fallback_message"]}
+                }
+                yield {
+                    "event": "done",
+                    "data": {"cold_start": True, "reason": cold_start_info["primary_reason"]}
+                }
+                return
+        
         # Phase 4: Answer Caching - Check cache first
         if self.answer_cache and settings.ENABLE_ANSWER_CACHE:
             cached_answer = self.answer_cache.get(message, active_source_ids, self.tenant_id)
             if cached_answer:
-                print(f"[RAG] Cache HIT for query: {message[:50]}...")
-                # Return cached answer
-                for citation in cached_answer.get("citations", []):
-                    yield {
-                        "event": "citation",
-                        "data": citation,
-                    }
-                
-                # Stream cached answer (simulate streaming)
                 answer_text = cached_answer["answer"]
-                # Split into chunks for streaming
-                chunk_size = 50
-                for i in range(0, len(answer_text), chunk_size):
-                    chunk = answer_text[i:i+chunk_size]
-                    yield {
-                        "event": "chunk",
-                        "data": {"text": chunk},
-                    }
                 
-                yield {
-                    "event": "done",
-                    "data": {"cached": True, "timestamp": cached_answer.get("timestamp")},
-                }
-                return
+                # Detect corrupted cache entries (with asterisks from incorrect PII redaction)
+                # If answer contains suspicious asterisk patterns, treat as cache miss
+                if answer_text and ("*" in answer_text and len([c for c in answer_text if c == "*"]) > 5):
+                    # Check if it looks like corrupted redaction (many asterisks in middle of words)
+                    asterisk_pattern = re.compile(r'[A-Za-z]\*{3,}[A-Za-z]')  # Letter, 3+ asterisks, letter
+                    if asterisk_pattern.search(answer_text):
+                        print(f"[RAG] Cache entry appears corrupted (has asterisks), treating as cache miss")
+                        # Delete the corrupted entry
+                        cache_key = self.answer_cache._hash_query(message, active_source_ids)
+                        with self.answer_cache._lock:
+                            if cache_key in self.answer_cache._cache:
+                                del self.answer_cache._cache[cache_key]
+                        # Continue to generate fresh answer
+                    else:
+                        # Normal asterisks (e.g., in formatting), use cached answer
+                        print(f"[RAG] Cache HIT for query: {message[:50]}...")
+                        # Return cached answer
+                        for citation in cached_answer.get("citations", []):
+                            yield {
+                                "event": "citation",
+                                "data": citation,
+                            }
+                        
+                        # Skip PII detection for cached answers - they're from academic documents
+                        # and PII detection can incorrectly redact technical terms (e.g., "Relational Database")
+                        # Cached answers were already checked when first generated
+                        
+                        # Stream cached answer (simulate streaming)
+                        # Split into chunks for streaming
+                        chunk_size = 50
+                        for i in range(0, len(answer_text), chunk_size):
+                            chunk = answer_text[i:i+chunk_size]
+                            yield {
+                                "event": "chunk",
+                                "data": {"text": chunk},
+                            }
+                        
+                        yield {
+                            "event": "done",
+                            "data": {"cached": True, "timestamp": cached_answer.get("timestamp")},
+                        }
+                        return
+                else:
+                    # No asterisks, use cached answer normally
+                    print(f"[RAG] Cache HIT for query: {message[:50]}...")
+                    # Return cached answer
+                    for citation in cached_answer.get("citations", []):
+                        yield {
+                            "event": "citation",
+                            "data": citation,
+                        }
+                    
+                    # Skip PII detection for cached answers - they're from academic documents
+                    # and PII detection can incorrectly redact technical terms (e.g., "Relational Database")
+                    # Cached answers were already checked when first generated
+                    
+                    # Stream cached answer (simulate streaming)
+                    # Split into chunks for streaming
+                    chunk_size = 50
+                    for i in range(0, len(answer_text), chunk_size):
+                        chunk = answer_text[i:i+chunk_size]
+                        yield {
+                            "event": "chunk",
+                            "data": {"text": chunk},
+                        }
+                    
+                    yield {
+                        "event": "done",
+                        "data": {"cached": True, "timestamp": cached_answer.get("timestamp")},
+                    }
+                    return
         
         # Phase 4: Memory Pruning - Prune history if needed
         if self.memory_manager and settings.ENABLE_MEMORY_PRUNING:
@@ -250,10 +456,12 @@ class RAGService:
                     print(f"[RAG] History summarized: {summary_result['original_count']} → {summary_result['new_count']} messages")
         
         # 1. Query retrieval (with Phase 2 agents if enabled)
+        print(f"[RAG] Step 5: Document Retrieval")
         filter_dict = {"source_id": {"$in": active_source_ids}} if active_source_ids else None
         
         # Use enhanced retriever with query text and conversation history
         if settings.USE_RETRIEVAL_AGENTS:
+            print(f"[RAG] Using retrieval agents (query rewriting/reranking enabled)")
             results = await self.retriever.retrieve(
                 query=message,
                 top_k=settings.TOP_K_CHUNKS,
@@ -262,27 +470,32 @@ class RAGService:
             )
         else:
             # Fallback to simple retrieval
+            print(f"[RAG] Using simple retrieval (no agents)")
             query_embedding = await self.embedder.generate_embedding(message)
             results = await self.retriever.retrieve(
                 query_embedding=query_embedding,
                 top_k=settings.TOP_K_CHUNKS,
                 filter=filter_dict,
             )
+        print(f"[RAG] Retrieved {len(results.get('matches', []))} chunks from vector database")
         
         # Store retrieval trace for debug (if available)
         if settings.RAG_DEBUG and "debug_trace" in results:
             self.last_retrieval_trace = results["debug_trace"]
         
-        # 3. Build context from retrieved chunks (already sorted by relevance/score from Pinecone)
-        # First, collect unique source_ids to fetch their titles
-        unique_source_ids = list(set([match["metadata"]["source_id"] for match in results["matches"]]))
+        # 3. Deduplicate chunks before building context
+        from packages.core.rag.agents import ContextDeduper
+        deduper = ContextDeduper(similarity_threshold=0.70)
+        deduplicated_matches = deduper.dedupe_chunks(results["matches"])
+        results["matches"] = deduplicated_matches
+        print(f"[RAG] After deduplication: {len(deduplicated_matches)} chunks")
         
-        # Fetch source titles from database
+        # 3.5. Fetch source titles early (needed for both two-stage and full context)
         from sqlalchemy import select
         from packages.core.database.models.source import Source
         import uuid as uuid_lib
         
-        # Define tenant_uuid outside conditional block so it's always available
+        unique_source_ids = list(set([match["metadata"]["source_id"] for match in results["matches"]]))
         tenant_uuid = uuid_lib.UUID(self.tenant_id)
         
         source_titles_map = {}
@@ -310,228 +523,410 @@ class RAGService:
         all_sources = all_sources_result.all()
         all_source_titles_map = {str(source.id): source.title for source in all_sources}
         
+        # 3.6. Two-Stage Answering: Check if we should use mini context first
+        from packages.core.rag.agents import TwoStageAnswering, QueryComplexityScorer
+        two_stage = TwoStageAnswering(self.tenant_id, enabled=True)
+        complexity_scorer = QueryComplexityScorer()
+        complexity_result = complexity_scorer.score_complexity(message)
+        
+        use_two_stage = complexity_result.get("complexity") == "simple" and len(results.get("matches", [])) > 2
+        use_mini_context = False
+        context = ""
         context_chunks = []
         citations = []
-        # Adaptive score threshold: lower for document-name queries, higher for content queries
-        # Check if query mentions a document name (check against ALL sources, not just retrieved ones)
-        message_lower = message.lower()
-        mentioned_documents = []
-        for source_id, title in all_source_titles_map.items():
-            if not title:
-                continue
-            title_clean = title.lower().replace(".pdf", "").replace(".txt", "").strip()
-            # Check if any significant word from the title appears in the query
-            title_words = [w for w in title_clean.split() if len(w) > 2]  # Words longer than 2 chars
-            if title_words and any(word in message_lower for word in title_words):
-                mentioned_documents.append(title_clean)
-                print(f"[RAG] Detected mention of document: '{title}' in query")
         
-        # Lower threshold if query mentions a specific document (user asking about a document)
-        if mentioned_documents:
-            MIN_SCORE_THRESHOLD = 0.30  # Lower threshold for document-name queries
-            print(f"[RAG] Detected document-name query. Mentioned documents: {mentioned_documents}. Using lower threshold: {MIN_SCORE_THRESHOLD}")
-        else:
-            MIN_SCORE_THRESHOLD = 0.45  # Slightly lower than before (was 0.50) for better recall
-        
-        citation_index = 0
-        
-        # Track how many chunks we've included from each source
-        included_source_ids = {}
-        
-        # Track total context tokens for optimization
-        total_context_tokens = 0
-        max_chunk_length = getattr(settings, 'MAX_CHUNK_LENGTH', 500)
-        use_compression = getattr(settings, 'USE_CHUNK_COMPRESSION', True)
-        
-        for match in results["matches"]:
-            chunk_text = match["metadata"]["text"]
-            source_id = match["metadata"]["source_id"]
-            score = match.get("score", 0)
-            source_title = source_titles_map.get(source_id, None)
+        if use_two_stage:
+            # Stage 1: Mini context (top 2 chunks)
+            mini_context = two_stage.get_mini_context(results["matches"], top_n=2)
+            answerable_result = await two_stage.check_answerable(message, mini_context)
             
-            # Include if score meets threshold
-            # OR if it's from a mentioned document and we haven't included enough from it yet
-            should_include = False
-            if score >= MIN_SCORE_THRESHOLD:
-                should_include = True
-            elif mentioned_documents and source_title:
-                # If query mentions this document, include it even with lower score
-                source_title_lower = source_title.lower().replace(".pdf", "").replace(".txt", "").strip()
-                if any(mentioned in source_title_lower or source_title_lower in mentioned for mentioned in mentioned_documents):
-                    # Include at least top 3 chunks from mentioned document
-                    if source_id not in included_source_ids or included_source_ids.get(source_id, 0) < 3:
-                        should_include = True
-                        print(f"[RAG] Including chunk from mentioned document '{source_title}' (score: {score:.3f})")
+            if answerable_result.get("answerable", False):
+                # Use mini context - skip full context building
+                use_mini_context = True
+                print(f"[RAG] Two-stage: Using mini context (answerable with 2 chunks)")
+                # Build mini context and citations (grouped by source)
+                from collections import defaultdict
+                mini_chunks_by_source = defaultdict(list)
+                for i, match in enumerate(results["matches"][:2], 1):
+                    chunk_text = match["metadata"]["text"]
+                    source_id = match["metadata"]["source_id"]
+                    source_title = source_titles_map.get(source_id) or f"doc_{source_id[:8]}"
+                    page_num = match["metadata"].get("page_start") or match["metadata"].get("page_number")
+                    page_str = f"p{page_num}" if page_num else f"chunk{i}"
+                    
+                    mini_chunks_by_source[source_title].append({
+                        "page": page_str,
+                        "text": chunk_text,
+                    })
+                    
+                    citations.append({
+                        "source_id": source_id,
+                        "chunk_id": match["id"],
+                        "text": chunk_text,
+                        "score": match.get("score", 0),
+                        "source_title": source_title,
+                        "page_number": page_num,
+                    })
+                
+                # Format grouped by source: docA:\n- p3: ...\n- p4: ...
+                mini_context_parts = []
+                for source_title, chunks in mini_chunks_by_source.items():
+                    source_lines = [f"{source_title}:"]
+                    for chunk_info in chunks:
+                        source_lines.append(f"- {chunk_info['page']}: {chunk_info['text']}")
+                    mini_context_parts.append("\n".join(source_lines))
+                context = "\n\n".join(mini_context_parts)
+            else:
+                # Stage 2: Expand to full context - continue with normal flow
+                print(f"[RAG] Two-stage: Expanding to full context (not answerable with mini context)")
+        
+        # 4. Build context from retrieved chunks (skip if using mini context)
+        if not use_mini_context:
+            context_chunks = []
+            citations = []
+            # Adaptive score threshold: lower for document-name queries, higher for content queries
+            # Check if query mentions a document name (check against ALL sources, not just retrieved ones)
+            message_lower = message.lower()
+            mentioned_documents = []
+            for source_id, title in all_source_titles_map.items():
+                if not title:
+                    continue
+                title_clean = title.lower().replace(".pdf", "").replace(".txt", "").strip()
+                # Check if any significant word from the title appears in the query
+                title_words = [w for w in title_clean.split() if len(w) > 2]  # Words longer than 2 chars
+                if title_words and any(word in message_lower for word in title_words):
+                    mentioned_documents.append(title_clean)
+                    print(f"[RAG] Detected mention of document: '{title}' in query")
             
-            if should_include:
-                citation_index += 1
-                
-                # INPUT TOKEN OPTIMIZATION: Truncate chunk text if too long
-                original_chunk_length = len(chunk_text)
-                if len(chunk_text) > max_chunk_length:
-                    # Truncate at sentence boundary if possible
-                    truncated = chunk_text[:max_chunk_length]
-                    last_period = truncated.rfind('.')
-                    last_question = truncated.rfind('?')
-                    last_exclamation = truncated.rfind('!')
-                    last_sentence_end = max(last_period, last_question, last_exclamation)
-                    
-                    if last_sentence_end > max_chunk_length * 0.7:  # If sentence end is reasonably close
-                        chunk_text = chunk_text[:last_sentence_end + 1]
-                    else:
-                        # Truncate at word boundary
-                        last_space = truncated.rfind(' ')
-                        if last_space > max_chunk_length * 0.8:
-                            chunk_text = chunk_text[:last_space] + "..."
-                        else:
-                            chunk_text = truncated + "..."
-                    
-                    print(f"[RAG] Truncated chunk {citation_index}: {original_chunk_length} → {len(chunk_text)} chars")
-                
-                # INPUT TOKEN OPTIMIZATION: Compress lower-scoring chunks
-                if use_compression and citation_index > 4 and score < 0.7:
-                    # For chunks beyond top 4 with lower scores, compress to first 300 chars + key sentences
-                    if len(chunk_text) > 300:
-                        # Keep first 300 chars and try to extract key sentences
-                        first_part = chunk_text[:300]
-                        remaining = chunk_text[300:]
-                        # Extract first complete sentence from remaining if available
-                        sentences = re.split(r'([.!?]+)', remaining)
-                        if len(sentences) >= 2:
-                            first_sentence = sentences[0] + sentences[1] if len(sentences) > 1 else ""
-                            if len(first_sentence) < 200:
-                                chunk_text = first_part + " " + first_sentence + "..."
-                            else:
-                                chunk_text = first_part + "..."
-                        else:
-                            chunk_text = first_part + "..."
-                        print(f"[RAG] Compressed chunk {citation_index} (score: {score:.2f}): {original_chunk_length} → {len(chunk_text)} chars")
-                
-                # Note: chunks are numbered [1], [2], etc. in order of relevance (highest score first)
-                context_chunks.append(f"[{citation_index}] {chunk_text}")
-                
-                # Store full text in citations (for display), but use truncated in context
-                citations.append({
-                    "source_id": source_id,
-                    "chunk_id": match["id"],
-                    "text": match["metadata"]["text"],  # Full text for citations
-                    "score": score,
-                    "source_title": source_title,
-                })
-                
-                # Track tokens (rough estimate: 1 token ≈ 4 characters)
-                chunk_tokens = len(chunk_text) // 4
-                total_context_tokens += chunk_tokens
-                
-                # Track how many chunks we've included from each source
-                if source_id not in included_source_ids:
-                    included_source_ids[source_id] = 0
-                included_source_ids[source_id] = included_source_ids.get(source_id, 0) + 1
-        
-        print(f"[RAG] Filtered citations: {len(citations)} out of {len(results['matches'])} matches (score >= {MIN_SCORE_THRESHOLD})")
-        print(f"[RAG] Total context tokens (estimated): ~{total_context_tokens} tokens from {len(context_chunks)} chunks")
-        
-        # If no citations meet the threshold, include at least the top results to ensure we have context
-        if len(citations) == 0 and len(results["matches"]) > 0:
-            print(f"[RAG] WARNING: No citations met {MIN_SCORE_THRESHOLD} threshold. Including top results as fallback.")
-            # Include top 3 results as fallback
-            for i, match in enumerate(results["matches"][:3]):
+            # Lower threshold if query mentions a specific document (user asking about a document)
+            if mentioned_documents:
+                MIN_SCORE_THRESHOLD = 0.30  # Lower threshold for document-name queries
+                print(f"[RAG] Detected document-name query. Mentioned documents: {mentioned_documents}. Using lower threshold: {MIN_SCORE_THRESHOLD}")
+            else:
+                MIN_SCORE_THRESHOLD = 0.35  # Lower threshold for better recall - include more relevant chunks
+            
+            citation_index = 0
+            
+            # Track how many chunks we've included from each source
+            included_source_ids = {}
+            
+            # Track total context tokens for optimization
+            total_context_tokens = 0
+            max_chunk_length = getattr(settings, 'MAX_CHUNK_LENGTH', 500)
+            use_compression = getattr(settings, 'USE_CHUNK_COMPRESSION', True)
+            
+            for match in results["matches"]:
                 chunk_text = match["metadata"]["text"]
                 source_id = match["metadata"]["source_id"]
                 score = match.get("score", 0)
                 source_title = source_titles_map.get(source_id, None)
                 
-                # Truncate fallback chunks too
-                if len(chunk_text) > max_chunk_length:
-                    truncated = chunk_text[:max_chunk_length]
-                    last_period = truncated.rfind('.')
-                    if last_period > max_chunk_length * 0.7:
-                        chunk_text = chunk_text[:last_period + 1]
-                    else:
-                        chunk_text = truncated + "..."
+                # Include if score meets threshold
+                # OR if it's from a mentioned document and we haven't included enough from it yet
+                should_include = False
+                if score >= MIN_SCORE_THRESHOLD:
+                    should_include = True
+                elif mentioned_documents and source_title:
+                    # If query mentions this document, include it even with lower score
+                    source_title_lower = source_title.lower().replace(".pdf", "").replace(".txt", "").strip()
+                    if any(mentioned in source_title_lower or source_title_lower in mentioned for mentioned in mentioned_documents):
+                        # Include at least top 3 chunks from mentioned document
+                        if source_id not in included_source_ids or included_source_ids.get(source_id, 0) < 3:
+                            should_include = True
+                            print(f"[RAG] Including chunk from mentioned document '{source_title}' (score: {score:.3f})")
                 
-                citation_index += 1
-                context_chunks.append(f"[{citation_index}] {chunk_text}")
-                citations.append({
-                    "source_id": source_id,
-                    "chunk_id": match["id"],
-                    "text": match["metadata"]["text"],  # Full text for citations
-                    "score": score,
-                    "source_title": source_title,
-                })
-                total_context_tokens += len(chunk_text) // 4
-        
-        context = "\n\n".join(context_chunks)
-        
-        # Log final context size
-        final_context_tokens = len(context) // 4  # Rough estimate
-        print(f"[RAG] Final context size: {len(context)} chars (~{final_context_tokens} tokens)")
-        
-        # INPUT TOKEN OPTIMIZATION: Further compress if still too large
-        max_context_tokens = settings.CONTEXT_TOKEN_BUDGET
-        if final_context_tokens > max_context_tokens * 1.2:  # 20% over budget
-            print(f"[RAG] WARNING: Context exceeds budget ({final_context_tokens} > {max_context_tokens}). Compressing...")
-            # Compress by truncating lower-priority chunks
-            compressed_chunks = []
+                if should_include:
+                    citation_index += 1
+                    
+                    # INPUT TOKEN OPTIMIZATION: Truncate chunk text if too long
+                    original_chunk_length = len(chunk_text)
+                    if len(chunk_text) > max_chunk_length:
+                        # Truncate at sentence boundary if possible
+                        truncated = chunk_text[:max_chunk_length]
+                        last_period = truncated.rfind('.')
+                        last_question = truncated.rfind('?')
+                        last_exclamation = truncated.rfind('!')
+                        last_sentence_end = max(last_period, last_question, last_exclamation)
+                        
+                        if last_sentence_end > max_chunk_length * 0.7:  # If sentence end is reasonably close
+                            chunk_text = chunk_text[:last_sentence_end + 1]
+                        else:
+                            # Truncate at word boundary
+                            last_space = truncated.rfind(' ')
+                            if last_space > max_chunk_length * 0.8:
+                                chunk_text = chunk_text[:last_space] + "..."
+                            else:
+                                chunk_text = truncated + "..."
+                        
+                        print(f"[RAG] Truncated chunk {citation_index}: {original_chunk_length} → {len(chunk_text)} chars")
+                    
+                    # INPUT TOKEN OPTIMIZATION: Compress lower-scoring chunks
+                    if use_compression and citation_index > 4 and score < 0.7:
+                        # For chunks beyond top 4 with lower scores, compress to first 300 chars + key sentences
+                        if len(chunk_text) > 300:
+                            # Keep first 300 chars and try to extract key sentences
+                            first_part = chunk_text[:300]
+                            remaining = chunk_text[300:]
+                            # Extract first complete sentence from remaining if available
+                            sentences = re.split(r'([.!?]+)', remaining)
+                            if len(sentences) >= 2:
+                                first_sentence = sentences[0] + sentences[1] if len(sentences) > 1 else ""
+                                if len(first_sentence) < 200:
+                                    chunk_text = first_part + " " + first_sentence + "..."
+                                else:
+                                    chunk_text = first_part + "..."
+                            else:
+                                chunk_text = first_part + "..."
+                            print(f"[RAG] Compressed chunk {citation_index} (score: {score:.2f}): {original_chunk_length} → {len(chunk_text)} chars")
+                    
+                    # Store chunk data for grouped formatting (by source)
+                    # Get page number if available
+                    page_num = match["metadata"].get("page_start") or match["metadata"].get("page_number")
+                    page_str = f"p{page_num}" if page_num else f"chunk{citation_index}"
+                    
+                    # Store chunk info for grouped formatting
+                    chunk_info = {
+                        "source_id": source_id,
+                        "source_title": source_title or f"doc_{source_id[:8]}",
+                        "page": page_str,
+                        "text": chunk_text,
+                        "citation_index": citation_index,
+                        "score": score,
+                    }
+                    
+                    # Store full text in citations (for display), but use truncated in context
+                    citations.append({
+                        "source_id": source_id,
+                        "chunk_id": match["id"],
+                        "text": match["metadata"]["text"],  # Full text for citations
+                        "score": score,
+                        "source_title": source_title,
+                        "page_number": page_num,
+                    })
+                    
+                    # Store chunk info for later grouping
+                    if not hasattr(self, '_chunks_by_source'):
+                        self._chunks_by_source = []
+                    self._chunks_by_source.append(chunk_info)
+                    
+                    # Track tokens (rough estimate: 1 token ≈ 4 characters)
+                    chunk_tokens = len(chunk_text) // 4
+                    total_context_tokens += chunk_tokens
+                    
+                    # Track how many chunks we've included from each source
+                    if source_id not in included_source_ids:
+                        included_source_ids[source_id] = 0
+                    included_source_ids[source_id] = included_source_ids.get(source_id, 0) + 1
+            
+            print(f"[RAG] Filtered citations: {len(citations)} out of {len(results['matches'])} matches (score >= {MIN_SCORE_THRESHOLD})")
+            num_chunks = len(self._chunks_by_source) if hasattr(self, '_chunks_by_source') else 0
+            print(f"[RAG] Total context tokens (estimated): ~{total_context_tokens} tokens from {num_chunks} chunks")
+            
+            # If no citations meet the threshold, include at least the top results to ensure we have context
+            if len(citations) == 0 and len(results["matches"]) > 0:
+                print(f"[RAG] WARNING: No citations met {MIN_SCORE_THRESHOLD} threshold. Including top results as fallback.")
+                # Include top 3 results as fallback
+                for i, match in enumerate(results["matches"][:3]):
+                    chunk_text = match["metadata"]["text"]
+                    source_id = match["metadata"]["source_id"]
+                    score = match.get("score", 0)
+                    source_title = source_titles_map.get(source_id, None)
+                    
+                    # Truncate fallback chunks too
+                    if len(chunk_text) > max_chunk_length:
+                        truncated = chunk_text[:max_chunk_length]
+                        last_period = truncated.rfind('.')
+                        if last_period > max_chunk_length * 0.7:
+                            chunk_text = chunk_text[:last_period + 1]
+                        else:
+                            chunk_text = truncated + "..."
+                    
+                    citation_index += 1
+                    
+                    # Get page number if available
+                    page_num = match["metadata"].get("page_start") or match["metadata"].get("page_number")
+                    page_str = f"p{page_num}" if page_num else f"chunk{citation_index}"
+                    
+                    # Store chunk info for grouped formatting
+                    chunk_info = {
+                        "source_id": source_id,
+                        "source_title": source_title or f"doc_{source_id[:8]}",
+                        "page": page_str,
+                        "text": chunk_text,
+                        "citation_index": citation_index,
+                        "score": score,
+                    }
+                    
+                    if not hasattr(self, '_chunks_by_source'):
+                        self._chunks_by_source = []
+                    self._chunks_by_source.append(chunk_info)
+                    
+                    citations.append({
+                        "source_id": source_id,
+                        "chunk_id": match["id"],
+                        "text": match["metadata"]["text"],  # Full text for citations
+                        "score": score,
+                        "source_title": source_title,
+                        "page_number": page_num,
+                    })
+                    total_context_tokens += len(chunk_text) // 4
+            
+            # Group chunks by source for efficient formatting (reduces repeated metadata tokens)
+            # Format: docA:\n- p3: ...\n- p4: ...
+            from collections import defaultdict
+            if hasattr(self, '_chunks_by_source') and self._chunks_by_source:
+                # Group by source
+                source_groups = defaultdict(list)
+                for chunk_info in self._chunks_by_source:
+                    source_key = chunk_info["source_title"]
+                    source_groups[source_key].append(chunk_info)
+                
+                # Format as: docA:\n- p3: ...\n- p4: ...
+                context_parts = []
+                for source_title, chunks in source_groups.items():
+                    source_lines = [f"{source_title}:"]
+                    for chunk_info in sorted(chunks, key=lambda x: x["citation_index"]):
+                        page_str = chunk_info["page"]
+                        text = chunk_info["text"]
+                        source_lines.append(f"- {page_str}: {text}")
+                    context_parts.append("\n".join(source_lines))
+                
+                context = "\n\n".join(context_parts)
+                print(f"[RAG] Grouped context by source: {len(source_groups)} sources, {len(self._chunks_by_source)} chunks")
+                # Clear for next query
+                delattr(self, '_chunks_by_source')
+            else:
+                # Fallback to empty context if no chunks
+                context = ""
+            
+            # Log final context size
+            final_context_tokens = len(context) // 4  # Rough estimate
+            print(f"[RAG] Final context size: {len(context)} chars (~{final_context_tokens} tokens)")
+            
+            # INPUT TOKEN OPTIMIZATION: Further compress if still too large
+            max_context_tokens = settings.CONTEXT_TOKEN_BUDGET
+            if final_context_tokens > max_context_tokens * 1.2:  # 20% over budget
+                print(f"[RAG] WARNING: Context exceeds budget ({final_context_tokens} > {max_context_tokens}). Compressing...")
+            # Compress by truncating lower-priority chunks in grouped format
+            # Split context back into source groups for compression
+            context_parts = context.split("\n\n")
+            compressed_parts = []
             remaining_budget = max_context_tokens
-            for i, chunk in enumerate(context_chunks):
-                chunk_tokens = len(chunk) // 4
-                if i < 3:  # Keep top 3 chunks full
-                    compressed_chunks.append(chunk)
-                    remaining_budget -= chunk_tokens
+            
+            for i, part in enumerate(context_parts):
+                part_tokens = len(part) // 4
+                if i < 2:  # Keep top 2 sources full
+                    compressed_parts.append(part)
+                    remaining_budget -= part_tokens
                 else:
-                    # Compress remaining chunks more aggressively
+                    # Compress remaining sources more aggressively
                     if remaining_budget > 200:  # Reserve 200 tokens for prompt
                         # Truncate to fit remaining budget
-                        max_chunk_chars = min(len(chunk), (remaining_budget - 200) // (len(context_chunks) - i) * 4)
-                        if len(chunk) > max_chunk_chars:
-                            truncated = chunk[:max_chunk_chars]
-                            last_period = truncated.rfind('.')
-                            if last_period > max_chunk_chars * 0.7:
-                                chunk = chunk[:last_period + 1]
+                        max_part_chars = min(len(part), (remaining_budget - 200) // max(1, len(context_parts) - i) * 4)
+                        if len(part) > max_part_chars:
+                            # Try to preserve source header and truncate chunk content
+                            lines = part.split("\n")
+                            if len(lines) > 1:
+                                header = lines[0]  # Source title
+                                content_lines = lines[1:]
+                                # Truncate content lines
+                                truncated_content = "\n".join(content_lines)[:max_part_chars - len(header) - 10]
+                                last_newline = truncated_content.rfind("\n")
+                                if last_newline > len(truncated_content) * 0.7:
+                                    truncated_content = truncated_content[:last_newline]
+                                part = header + "\n" + truncated_content + "..."
                             else:
-                                chunk = truncated + "..."
-                        compressed_chunks.append(chunk)
-                        remaining_budget -= len(chunk) // 4
+                                truncated = part[:max_part_chars]
+                                last_period = truncated.rfind('.')
+                                if last_period > max_part_chars * 0.7:
+                                    part = part[:last_period + 1]
+                                else:
+                                    part = truncated + "..."
+                        compressed_parts.append(part)
+                        remaining_budget -= len(part) // 4
                     else:
-                        # Skip remaining chunks if budget exhausted
-                        print(f"[RAG] Skipping {len(context_chunks) - i} chunks due to token budget")
+                        # Skip remaining sources if budget exhausted
+                        print(f"[RAG] Skipping {len(context_parts) - i} sources due to token budget")
                         break
             
-            context = "\n\n".join(compressed_chunks)
+            context = "\n\n".join(compressed_parts)
             final_context_tokens = len(context) // 4
             print(f"[RAG] Compressed context: {final_context_tokens} tokens")
-        
-        # CRITICAL SAFEGUARD: Never send empty context to LLM
-        if not context or not context.strip():
-            print(f"[RAG] CRITICAL: Empty context detected! Citations: {len(citations)}, Context chunks: {len(context_chunks)}")
+            
+            # CRITICAL SAFEGUARD: Never send empty context to LLM
+            if not context or not context.strip():
+                num_chunks = len(self._chunks_by_source) if hasattr(self, '_chunks_by_source') else 0
+                print(f"[RAG] CRITICAL: Empty context detected! Citations: {len(citations)}, Chunks: {num_chunks}")
             print(f"[RAG] Retrieved matches: {len(results.get('matches', []))}")
             
-            # Try to get any chunks from results as fallback
+            # Try to get any chunks from results as fallback (grouped format)
             if len(results.get("matches", [])) > 0:
                 print(f"[RAG] Applying emergency fallback: using top chunks from results")
-                emergency_chunks = []
+                from collections import defaultdict
+                emergency_chunks_by_source = defaultdict(list)
                 emergency_citations = []
                 for i, match in enumerate(results["matches"][:6]):  # Top 6
                     chunk_text = match["metadata"]["text"]
                     source_id = match["metadata"]["source_id"]
-                    source_title = source_titles_map.get(source_id, None)
-                    emergency_chunks.append(f"[{i+1}] {chunk_text}")
+                    source_title = source_titles_map.get(source_id) or f"doc_{source_id[:8]}"
+                    page_num = match["metadata"].get("page_start") or match["metadata"].get("page_number")
+                    page_str = f"p{page_num}" if page_num else f"chunk{i+1}"
+                    
+                    emergency_chunks_by_source[source_title].append({
+                        "page": page_str,
+                        "text": chunk_text,
+                    })
+                    
                     emergency_citations.append({
                         "source_id": source_id,
                         "chunk_id": match["id"],
                         "text": chunk_text,
                         "score": match.get("score", 0),
                         "source_title": source_title,
+                        "page_number": page_num,
                     })
-                context = "\n\n".join(emergency_chunks)
+                
+                # Format grouped by source
+                emergency_parts = []
+                for source_title, chunks in emergency_chunks_by_source.items():
+                    source_lines = [f"{source_title}:"]
+                    for chunk_info in chunks:
+                        source_lines.append(f"- {chunk_info['page']}: {chunk_info['text']}")
+                    emergency_parts.append("\n".join(source_lines))
+                
+                context = "\n\n".join(emergency_parts)
                 citations = emergency_citations
-                print(f"[RAG] Emergency fallback applied: {len(emergency_chunks)} chunks")
+                print(f"[RAG] Emergency fallback applied: {len(emergency_citations)} chunks")
             else:
                 # Last resort: raise error
                 raise ValueError(f"[RAG] CRITICAL: No context available and no fallback chunks found. Cannot generate response.")
         
-        # 4. Construct prompt using template
+        # 5. Fetch source titles (if not already fetched for mini context)
+        if use_mini_context:
+            # Fetch source titles for citations
+            unique_source_ids = list(set([c["source_id"] for c in citations]))
+            from sqlalchemy import select
+            from packages.core.database.models.source import Source
+            import uuid as uuid_lib
+            tenant_uuid = uuid_lib.UUID(self.tenant_id)
+            source_titles_map = {}
+            if unique_source_ids:
+                source_uuids = [uuid_lib.UUID(sid) for sid in unique_source_ids]
+                result = await self.db.execute(
+                    select(Source.id, Source.title).where(
+                        Source.id.in_(source_uuids),
+                        Source.tenant_id == tenant_uuid,
+                        Source.user_id == self.user_id
+                    )
+                )
+                sources = result.all()
+                for source in sources:
+                    source_titles_map[str(source.id)] = source.title
+                # Update citations with titles
+                for citation in citations:
+                    citation["source_title"] = source_titles_map.get(citation["source_id"])
+        
+        # 6. Construct prompt using template
         try:
             full_prompt = load_prompt(
                 "chat/rag_prompt.j2",
@@ -539,20 +934,18 @@ class RAGService:
                 message=message
             )
         except FileNotFoundError:
-            # Fallback to inline prompt if template missing
+            # Fallback to inline prompt if template missing (minimized)
             if context:
-                full_prompt = f"""You are a helpful AI assistant for students. Answer questions based ONLY on the provided context.
-
-Context (chunks numbered [1], [2], [3]... in order of relevance - [1] is most relevant):
+                full_prompt = f"""Context [1], [2], [3]... ([1] most relevant):
 {context}
 
-User question: {message}"""
+Answer ONLY from context. Cite sources [1], [2]. Be concise. Use bullets.
+
+User: {message}"""
             else:
-                full_prompt = f"""You are a helpful AI assistant for students.
+                full_prompt = f"""User: {message}
 
-User question: {message}
-
-Note: No source documents are available. Please provide a general helpful response."""
+No sources available. Provide general response."""
         
         # 5. Stream response using LLM abstraction
         # Send citations first
@@ -574,6 +967,7 @@ Note: No source documents are available. Please provide a general helpful respon
         
         # Get LLM client for chat (Gemini)
         provider, model = get_model_for_task("chat")
+        print(f"[RAG] Using LLM for answer generation: Provider={provider.value}, Model={model}, Temperature=0.7")
         llm_client = get_llm_client(provider=provider, model=model, temperature=0.7)
         
         # Initialize Phase 3 output optimization agents
@@ -798,6 +1192,9 @@ Note: No source documents are available. Please provide a general helpful respon
         if early_stopped:
             print(f"[RAG] Early stop was applied to prevent verbose response")
         
+        # Store original answer for caching (before any redaction/filtering)
+        original_answer_for_cache = accumulated_text
+        
         # Phase 5: Safety Filter - Output moderation
         if self.safety_filter and settings.ENABLE_SAFETY_FILTERS and accumulated_text:
             output_safety = self.safety_filter.check_output(accumulated_text, context="academic")
@@ -817,25 +1214,109 @@ Note: No source documents are available. Please provide a general helpful respon
                 print(f"[SECURITY] PII detected in output: {pii_info['pii_types']} - redacted")
                 accumulated_text = redacted_output
         
-        # Phase 4: Answer Caching - Cache the answer
-        if self.answer_cache and settings.ENABLE_ANSWER_CACHE and accumulated_text:
+        # Phase 4: Answer Caching - Cache the ORIGINAL answer (before PII redaction)
+        # This ensures cached answers don't have incorrect redactions that persist
+        if self.answer_cache and settings.ENABLE_ANSWER_CACHE and original_answer_for_cache:
             try:
                 self.answer_cache.set(
                     query=message,
                     source_ids=active_source_ids,
-                    answer=accumulated_text,
+                    answer=original_answer_for_cache,  # Cache original, not redacted version
                     citations=citations,
                     tenant_id=self.tenant_id,
                     ttl_seconds=settings.ANSWER_CACHE_TTL_SECONDS
                 )
-                print(f"[RAG] Answer cached for future queries")
+                print(f"[RAG] Answer cached for future queries (original version, before redaction)")
             except Exception as e:
                 print(f"[WARNING] Failed to cache answer: {e}")
         
+        # Continuous Evaluation: Confidence Scoring
+        confidence_score = 0.0
+        if self.confidence_scorer and settings.ENABLE_CONFIDENCE_THRESHOLDING and accumulated_text:
+            confidence_result = self.confidence_scorer.calculate_confidence(
+                query=message,
+                answer=accumulated_text,
+                citations=citations,
+                retrieval_scores=[c.get("score", 0.5) for c in citations] if citations else None,
+                answer_length=len(accumulated_text),
+            )
+            confidence_score = confidence_result["confidence"]
+
+            if confidence_result["flagged"]:
+                print(f"[EVAL] Low confidence response: {confidence_score:.2f} - {confidence_result['message']}")
+        
+        # Continuous Evaluation: Record evaluation
+        if self.evaluator and settings.ENABLE_EVALUATION and accumulated_text:
+            try:
+                # Estimate tokens and cost
+                estimated_tokens = len(full_prompt) // 4 + len(accumulated_text) // 4
+                estimated_cost = 0.0  # Would calculate from model pricing
+                
+                self.evaluator.evaluate_query(
+                    query=message,
+                    actual_answer=accumulated_text,
+                    expected_answer=None,  # Could be provided from test set
+                    model=llm_client.model if hasattr(llm_client, 'model') else "unknown",
+                    provider=llm_client.provider.value if hasattr(llm_client, 'provider') else "unknown",
+                    tokens_used=estimated_tokens,
+                    cost=estimated_cost,
+                    latency_ms=(time.time() - start_time) * 1000 if start_time else 0.0,
+                    confidence=confidence_score,
+                    citations=citations
+                )
+            except Exception as e:
+                print(f"[WARNING] Failed to record evaluation: {e}")
+        
+        # Phase: LLM-based answer confidence gating
+        llm_answer_confidence: Optional[float] = None
+        used_low_confidence_fallback = False
+        if settings.ENABLE_ANSWER_CONFIDENCE_THRESHOLDING and accumulated_text:
+            llm_answer_confidence = await self._evaluate_answer_confidence_with_llm(
+                context=context,
+                answer=accumulated_text,
+            )
+            if llm_answer_confidence is not None:
+                print(
+                    f"[RAG] Answer confidence (LLM eval): {llm_answer_confidence:.3f} "
+                    f"(threshold={settings.ANSWER_CONFIDENCE_THRESHOLD:.2f})"
+                )
+                if llm_answer_confidence < settings.ANSWER_CONFIDENCE_THRESHOLD:
+                    used_low_confidence_fallback = True
+                    # Do not use the generated answer; instead rely on frontend to show fallback
+                    print(
+                        f"[RAG] WARNING: Answer below confidence threshold ({llm_answer_confidence:.3f} < {settings.ANSWER_CONFIDENCE_THRESHOLD:.2f}). "
+                        "Suppressing answer and using fallback message."
+                    )
+                else:
+                    print(f"[RAG] Answer confidence PASSED ({llm_answer_confidence:.3f} >= {settings.ANSWER_CONFIDENCE_THRESHOLD:.2f}) - answer will be shown")
+            else:
+                print("[RAG] Confidence evaluation returned None - answer will be shown (fail-open)")
+
         # Include retrieval trace in done event if debug mode enabled
         done_data = {}
         if settings.RAG_DEBUG and self.last_retrieval_trace:
             done_data["retrieval_trace"] = self.last_retrieval_trace
+        
+        # Add confidence info to done event
+        if self.confidence_scorer and settings.ENABLE_CONFIDENCE_THRESHOLDING and confidence_score > 0:
+            done_data["confidence_score"] = confidence_score
+            if confidence_score < settings.CONFIDENCE_LOW_THRESHOLD:
+                done_data["low_confidence"] = True
+
+        # Add LLM-based answer confidence info
+        if settings.ENABLE_ANSWER_CONFIDENCE_THRESHOLDING and llm_answer_confidence is not None:
+            done_data["llm_answer_confidence"] = llm_answer_confidence
+            done_data["used_low_confidence_fallback"] = used_low_confidence_fallback
+            if used_low_confidence_fallback:
+                done_data["fallback_message"] = (
+                    "Not enough reliable information found. Please rephrase or check the document."
+                )
+
+            # Log whether fallback was used
+            print(
+                f"[RAG] Answer confidence log - confidence={llm_answer_confidence:.3f}, "
+                f"fallback_used={used_low_confidence_fallback}"
+            )
         
         yield {
             "event": "done",

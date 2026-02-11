@@ -65,13 +65,13 @@ class Settings(BaseSettings):
     MMR_LAMBDA: float = 0.7  # MMR balance (0.0=diversity, 1.0=relevance)
     HYBRID_VECTOR_WEIGHT: float = 0.7  # Hybrid retrieval vector weight
     HYBRID_KEYWORD_WEIGHT: float = 0.3  # Hybrid retrieval keyword weight
-    MAX_CONTEXT_CHUNKS: int = 8  # Maximum chunks for context selection (reduced from 10)
-    MIN_CONTEXT_CHUNKS: int = 4  # Minimum chunks to ensure quality (reduced from 6)
+    MAX_CONTEXT_CHUNKS: int = 10  # Maximum chunks for context selection (increased for better coverage)
+    MIN_CONTEXT_CHUNKS: int = 6  # Minimum chunks to ensure quality (increased for better answers)
     USE_LLM_RERANKING: bool = True  # Use LLM for reranking (more accurate but slower)
     RAG_DEBUG: bool = False  # Enable detailed debug logging for RAG pipeline
     QUERY_REWRITE_CONFIDENCE_THRESHOLD: float = 0.7  # Minimum confidence to use rewritten query
-    CONTEXT_TOKEN_BUDGET: int = 2500  # Target token budget for context (reduced from 4000)
-    MAX_CHUNK_LENGTH: int = 500  # Maximum characters per chunk in context (truncate if longer)
+    CONTEXT_TOKEN_BUDGET: int = 3500  # Target token budget for context (increased for more complete context)
+    MAX_CHUNK_LENGTH: int = 325  # Maximum characters per chunk in context (300-350 for better precision)
     USE_CHUNK_COMPRESSION: bool = True  # Compress lower-scoring chunks to reduce tokens
     
     # Phase 3: Output Token Optimization
@@ -81,7 +81,7 @@ class Settings(BaseSettings):
     USE_EARLY_STOP: bool = True  # Stop early after answering
     MAX_OUTPUT_TOKENS: Optional[int] = None  # Maximum output tokens (None = use CHAT_MAX_TOKENS)
     MAX_OUTPUT_CHARACTERS: Optional[int] = None  # Maximum output characters (None = no limit)
-    MAX_OUTPUT_SENTENCES: Optional[int] = 10  # Maximum output sentences (None = no limit)
+    MAX_OUTPUT_SENTENCES: Optional[int] = None  # Maximum output sentences (None = no limit) - removed limit for better completeness
     
     # Phase 4: Session Memory & Caching
     USE_SESSION_MEMORY: bool = True  # Enable Phase 4 session memory features
@@ -110,6 +110,19 @@ class Settings(BaseSettings):
     INJECTION_DETECTION_THRESHOLD: float = 0.6  # Prompt injection detection threshold
     INTENT_ACADEMIC_THRESHOLD: float = 0.5  # Academic intent classification threshold
     APPROVED_SOURCE_IDS: str = ""  # Comma-separated list of approved source IDs for syllabus lock
+    
+    # Continuous Evaluation Loop
+    ENABLE_EVALUATION: bool = True  # Enable continuous evaluation
+    ENABLE_SCHEDULED_EVALS: bool = True  # Enable scheduled evaluations
+    EVAL_INTERVAL_HOURS: int = 24  # Evaluation interval in hours
+    ENABLE_COLD_START_HANDLING: bool = True  # Enable cold-start fallback logic
+    ENABLE_CONFIDENCE_THRESHOLDING: bool = True  # Enable confidence scoring
+    ENABLE_ANSWER_CONFIDENCE_THRESHOLDING: bool = True  # Enable LLM-based answer confidence gating
+    CONFIDENCE_LOW_THRESHOLD: float = 0.5  # Low confidence threshold
+    CONFIDENCE_HIGH_THRESHOLD: float = 0.7  # High confidence threshold
+    ANSWER_CONFIDENCE_THRESHOLD: float = 0.6  # Threshold for showing answers based on LLM-evaluated confidence (lowered from 0.75 to be more lenient)
+    TARGET_COST_REDUCTION_PERCENT: float = 50.0  # Target cost reduction (≥50%)
+    TARGET_TOKEN_REDUCTION_PERCENT: float = 50.0  # Target token reduction (≥50%)
     
     # Pydantic v2 configuration
     model_config = SettingsConfigDict(
