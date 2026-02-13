@@ -5,12 +5,18 @@ import {
   Share2,
   BarChart3,
   BookOpen,
+  Home,
 } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '../ui/Button';
 import { SettingsDropdown } from './SettingsDropdown';
 import { UserMenuDropdown } from './UserMenuDropdown';
 
 export function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const isAnalyticsPage = pathname === '/analytics';
+  const isDashboardPage = pathname === '/dashboard';
   // Temporary: Static title - will be made dynamic with user input later
   const notebookTitle = 'NotebookLMSync';
 
@@ -26,7 +32,11 @@ export function Header() {
   };
 
   const handleAnalytics = () => {
-    alert('Analytics page will be available soon');
+    router.push('/analytics');
+  };
+
+  const handleHome = () => {
+    router.push('/dashboard');
   };
 
   return (
@@ -61,16 +71,30 @@ export function Header() {
           <span className="hidden sm:inline">Create notebook</span>
         </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleAnalytics}
-          className="p-2"
-          title="Analytics"
-          aria-label="Analytics"
-        >
-          <BarChart3 className="w-4 h-4" />
-        </Button>
+        {/* Show Home button on analytics page, Analytics button on dashboard/home */}
+        {isAnalyticsPage ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleHome}
+            className="p-2"
+            title="Home"
+            aria-label="Home"
+          >
+            <Home className="w-4 h-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleAnalytics}
+            className="p-2"
+            title="Analytics"
+            aria-label="Analytics"
+          >
+            <BarChart3 className="w-4 h-4" />
+          </Button>
+        )}
 
         <Button
           variant="ghost"

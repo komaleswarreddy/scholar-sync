@@ -10,6 +10,7 @@ const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
   '/studio(.*)',
   '/notes(.*)',
+  '/analytics(.*)',
   '/api/v1/(.*)', // Optional: Protect API routes if they aren't handled by backend middleware
 ]);
 

@@ -393,11 +393,17 @@ async def get_token_consumption_dashboard(
     grouped = {}
     daily_totals = {}
     total_tokens = 0
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
     total_calls = len(filtered_calls)
     
     for call in filtered_calls:
         tokens = call.get("total_tokens", 0)
+        prompt_tokens = call.get("prompt_tokens", 0)
+        completion_tokens = call.get("completion_tokens", 0)
         total_tokens += tokens
+        total_prompt_tokens += prompt_tokens
+        total_completion_tokens += completion_tokens
         
         # Group key
         if group_by == "feature":
@@ -412,12 +418,16 @@ async def get_token_consumption_dashboard(
         if key not in grouped:
             grouped[key] = {
                 "total_tokens": 0,
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
                 "total_calls": 0,
                 "avg_tokens": 0,
                 "cost": 0.0,
             }
         
         grouped[key]["total_tokens"] += tokens
+        grouped[key]["prompt_tokens"] += prompt_tokens
+        grouped[key]["completion_tokens"] += completion_tokens
         grouped[key]["total_calls"] += 1
         grouped[key]["cost"] += call.get("cost", 0.0)
         
@@ -441,6 +451,8 @@ async def get_token_consumption_dashboard(
         {
             "key": key,
             "total_tokens": stats["total_tokens"],
+            "prompt_tokens": stats["prompt_tokens"],
+            "completion_tokens": stats["completion_tokens"],
             "total_calls": stats["total_calls"],
             "avg_tokens": round(stats["avg_tokens"], 2),
             "cost": round(stats["cost"], 4),
@@ -461,6 +473,10 @@ async def get_token_consumption_dashboard(
         "group_by": group_by,
         "summary": {
             "total_tokens": total_tokens,
+            "prompt_tokens": total_prompt_tokens,
+            "completion_tokens": total_completion_tokens,
+            "input_tokens": total_prompt_tokens,  # Alias for compatibility
+            "output_tokens": total_completion_tokens,  # Alias for compatibility
             "total_calls": total_calls,
             "avg_tokens_per_call": round(total_tokens / total_calls if total_calls > 0 else 0, 2),
         },
