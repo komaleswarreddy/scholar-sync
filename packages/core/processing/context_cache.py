@@ -53,7 +53,8 @@ class ContextCache:
     def get_cached_content(
         self, 
         file_content: bytes,
-        tenant_id: Optional[str] = None
+        tenant_id: Optional[str] = None,
+        user_id: Optional[str] = None
     ) -> Optional[Dict]:
         """
         Get cached processed content for a file.
@@ -61,6 +62,7 @@ class ContextCache:
         Args:
             file_content: PDF file bytes
             tenant_id: Optional tenant ID for metrics tracking
+            user_id: Optional user ID for metrics tracking
             
         Returns:
             Cached content dict with keys:
@@ -83,6 +85,7 @@ class ContextCache:
                 metrics = get_metrics_collector()
                 metrics.record_cache_operation(
                     tenant_id=tenant_id,
+                    user_id=user_id,
                     operation="miss",
                     cache_key=file_hash,
                     cache_type="context",
@@ -102,6 +105,7 @@ class ContextCache:
                 metrics = get_metrics_collector()
                 metrics.record_cache_operation(
                     tenant_id=tenant_id,
+                    user_id=user_id,
                     operation="hit",
                     cache_key=file_hash,
                     cache_type="context",

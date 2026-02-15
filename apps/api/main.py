@@ -11,7 +11,7 @@ load_dotenv()
  
 from config.settings import settings
 from apps.api.middleware.tenant import TenantMiddleware
-from apps.api.routes import chat, sources, studio, notes, health, metrics, alerts, dashboards, debug
+from apps.api.routes import chat, sources, studio, notes, health, metrics, dashboards, alerts, admin
 
 # ---------------- Lifespan ----------------
 @asynccontextmanager
@@ -78,16 +78,16 @@ if settings.ENVIRONMENT == "production":
 # ---------------- Tenant + Auth Middleware ----------------
 app.add_middleware(TenantMiddleware)
 
-# ---------------- Routes ---------------- 
+# ---------------- Routes ----------------
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(sources.router, prefix="/api/v1/ingest", tags=["sources"])
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["studio"])
 app.include_router(notes.router, prefix="/api/v1/notes", tags=["notes"])
-app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["metrics"])
-app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
-app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashboards"])
-app.include_router(debug.router, prefix="/debug", tags=["debug"])
 app.include_router(health.router, tags=["health"])
+app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["metrics"])
+app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashboards"])
+app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
+app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 
 # ---------------- Health ----------------
 @app.get("/health")
@@ -97,73 +97,6 @@ async def health_check():
 @app.get("/")
 async def root():
     return {"message": "ScholarSync API running"}
-
-
-# ---------------- Metrics (Prometheus-style) ----------------
-@app.get("/metrics")
-async def prometheus_metrics(request: Request):
-    """
-    Prometheus-style metrics endpoint.
-    
-    Returns metrics in Prometheus text format for scraping.
-    """
-    from fastapi.responses import Response
-    from packages.core.monitoring.metrics import get_metrics_collector
-    
-    tenant_id = getattr(request.state, "tenant_id", None)
-    metrics = get_metrics_collector()
-    
-    # Get metrics summary
-    summary = metrics.get_metrics_summary(tenant_id=tenant_id)
-    
-    # Format as Prometheus metrics
-    lines = []
-    
-    # LLM calls
-    llm_calls = summary.get("llm_calls", {})
-    lines.append(f"# HELP scholarsync_llm_calls_total Total number of LLM API calls")
-    lines.append(f"# TYPE scholarsync_llm_calls_total counter")
-    lines.append(f'scholarsync_llm_calls_total{{tenant_id="{tenant_id or "unknown"}"}} {llm_calls.get("total", 0)}')
-    
-    # Tokens
-    tokens = summary.get("tokens", {})
-    lines.append(f"# HELP scholarsync_tokens_total Total tokens consumed")
-    lines.append(f"# TYPE scholarsync_tokens_total counter")
-    lines.append(f'scholarsync_tokens_input_total{{tenant_id="{tenant_id or "unknown"}"}} {tokens.get("input", 0)}')
-    lines.append(f'scholarsync_tokens_output_total{{tenant_id="{tenant_id or "unknown"}"}} {tokens.get("output", 0)}')
-    lines.append(f'scholarsync_tokens_total{{tenant_id="{tenant_id or "unknown"}"}} {tokens.get("total", 0)}')
-    
-    # Costs
-    costs = summary.get("costs", {})
-    lines.append(f"# HELP scholarsync_costs_total Total cost in USD")
-    lines.append(f"# TYPE scholarsync_costs_total counter")
-    lines.append(f'scholarsync_costs_total{{tenant_id="{tenant_id or "unknown"}"}} {costs.get("total", 0.0)}')
-    
-    # Cache
-    cache = summary.get("cache", {})
-    lines.append(f"# HELP scholarsync_cache_operations_total Total cache operations")
-    lines.append(f"# TYPE scholarsync_cache_operations_total counter")
-    lines.append(f'scholarsync_cache_hits_total{{tenant_id="{tenant_id or "unknown"}"}} {cache.get("hits", 0)}')
-    lines.append(f'scholarsync_cache_misses_total{{tenant_id="{tenant_id or "unknown"}"}} {cache.get("misses", 0)}')
-    
-    # Cache hit rate
-    hit_rate = metrics.get_cache_hit_rate(tenant_id=tenant_id)
-    lines.append(f"# HELP scholarsync_cache_hit_rate Cache hit rate (0-1)")
-    lines.append(f"# TYPE scholarsync_cache_hit_rate gauge")
-    lines.append(f'scholarsync_cache_hit_rate{{tenant_id="{tenant_id or "unknown"}"}} {hit_rate}')
-    
-    # Feature usage
-    features = summary.get("features", {})
-    lines.append(f"# HELP scholarsync_feature_usage_total Feature usage count")
-    lines.append(f"# TYPE scholarsync_feature_usage_total counter")
-    for feature, count in features.items():
-        lines.append(f'scholarsync_feature_usage_total{{tenant_id="{tenant_id or "unknown"}",feature="{feature}"}} {count}')
-    
-    # Return as text/plain for Prometheus
-    return Response(
-        content="\n".join(lines) + "\n",
-        media_type="text/plain; version=0.0.4; charset=utf-8"
-    )
 
 # ---------------- Favicon ----------------
 @app.get("/favicon.ico")

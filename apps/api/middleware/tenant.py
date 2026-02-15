@@ -134,20 +134,37 @@ class TenantMiddleware:
             # Extract origin early for CORS headers
             origin = request.headers.get("Origin", "")
 
+            # Step 4: Extract user_id from Authorization header
+            auth_header = request.headers.get("Authorization", "")
+            user_id = None
+            
             # Check if this is a tenant-only path (metrics/dashboards in development)
+            # BUT we still want to extract user_id if available for proper filtering
             is_tenant_only_path = (
                 settings.ENVIRONMENT == "development" and
                 any(current_path.startswith(path) for path in TENANT_ONLY_PATHS)
             )
             
-            # Step 4: Extract user_id from Authorization header
-            auth_header = request.headers.get("Authorization", "")
-            user_id = None
-            
-            # For tenant-only paths in development, skip user authentication
+            # For tenant-only paths in development, try to extract user_id but don't require it
             if is_tenant_only_path:
-                print(f"[INFO] [MIDDLEWARE] Tenant-only path '{current_path}' - skipping user authentication in development mode")
-                request.state.user_id = None  # No user required
+                print(f"[INFO] [MIDDLEWARE] Tenant-only path '{current_path}' - attempting to extract user_id for filtering")
+                # Try to extract user_id if token is provided, but don't fail if it's missing
+                if auth_header and auth_header.startswith("Bearer "):
+                    token = auth_header.replace("Bearer ", "").strip()
+                    if token:
+                        try:
+                            is_production = settings.ENVIRONMENT == "production"
+                            user_id = extract_user_id_from_token(
+                                token, 
+                                require_verification=is_production
+                            )
+                            print(f"[INFO] [MIDDLEWARE] Extracted user_id for tenant-only path: {user_id}")
+                        except Exception as e:
+                            print(f"[INFO] [MIDDLEWARE] Could not extract user_id from token (non-fatal for tenant-only path): {e}")
+                            user_id = None
+                
+                # Set user_id (may be None) and continue
+                request.state.user_id = user_id
                 await self.app(scope, receive, send)
                 return
             

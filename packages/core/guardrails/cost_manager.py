@@ -153,17 +153,18 @@ class CostManager:
         # For now, always allow
         return True
     
-    async def get_usage_summary(self, tenant_id: str) -> Dict[str, Any]:
+    async def get_usage_summary(self, tenant_id: str, user_id: Optional[str] = None) -> Dict[str, Any]:
         """
-        Get usage summary for tenant.
+        Get usage summary for tenant and user.
         
         Args:
             tenant_id: Tenant identifier
+            user_id: Optional user identifier
             
         Returns:
             Dictionary with usage summary
         """
-        summary = self.metrics.get_metrics_summary(tenant_id=tenant_id)
+        summary = self.metrics.get_metrics_summary(tenant_id=tenant_id, user_id=user_id)
         return summary
     
     def get_model_pricing(self, model: str) -> Optional[Dict[str, Any]]:

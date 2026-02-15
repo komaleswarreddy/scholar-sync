@@ -218,8 +218,14 @@ class ApiClient {
         const isRetryableNetworkError = apiError.type === 'NETWORK' && apiError.retryable;
         const willRetry = isRetryableNetworkError && !originalRequest._retry;
         
-        // Log error details for debugging (but not for retryable errors that will be retried)
-        if (!willRetry) {
+        // Skip logging if request is marked as silent (e.g., for admin checks)
+        const isSilent = originalRequest._silent === true;
+        
+        // Skip logging 403 errors for admin check requests (expected behavior)
+        const isExpected403 = status === 403 && originalRequest._expected403 === true;
+        
+        // Log error details for debugging (but not for retryable errors that will be retried, silent requests, or expected 403s)
+        if (!willRetry && !isSilent && !isExpected403) {
           if (status) {
             console.error(`[API Error] ${status}: ${apiError.message}`);
           } else {
@@ -675,25 +681,6 @@ class ApiClient {
 
                 // Handle done event
                 if (currentEventType === 'done') {
-                  // Check for LLM-based low-confidence fallback signal
-                  const lowConfidence =
-                    !!(eventData && (eventData.low_confidence || eventData.used_low_confidence_fallback));
-                  const fallbackMessage =
-                    (eventData && (eventData.fallback_message as string)) ||
-                    'Not enough reliable information found. Please rephrase or check the document.';
-
-                  if (lowConfidence) {
-                    // Backend decided the answer is too low-confidence to show.
-                    // Do not call onDone; instead surface a special error so UI can suppress the answer.
-                    console.warn('[Stream] Low-confidence answer suppressed by backend.', {
-                      confidence: eventData?.llm_answer_confidence,
-                    });
-                    if (onError) {
-                      onError(`LOW_CONFIDENCE:${fallbackMessage}`);
-                    }
-                    return;
-                  }
-
                   // Verify we received text content (citations alone don't count)
                   if (!hasReceivedText || accumulatedText.trim() === '') {
                     // Log for debugging
@@ -917,9 +904,84 @@ class ApiClient {
     return res.data;
   }
 
-  async deleteAllMessages(chatId: string) {
+  // Admin methods
+  async listAllUsers() {
     await this.refreshToken();
-    const res = await this.client.delete(`/api/v1/chat/${chatId}/messages`);
+    const res = await this.client.get('/api/v1/admin/users');
+    return res.data;
+  }
+
+  async getAggregateMetrics(days: number = 30, silent: boolean = false) {
+    await this.refreshToken();
+    const config: any = {
+      params: { days },
+    };
+    if (silent) {
+      config._expected403 = true; // Mark as expected 403 to suppress error logging
+    }
+    const res = await this.client.get('/api/v1/admin/aggregate', config);
+    return res.data;
+  }
+
+  async getMyMetrics(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/admin/me/metrics', {
+      params: { days },
+    });
+    return res.data;
+  }
+
+  async getUserMetrics(userId: string, days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get(`/api/v1/admin/users/${userId}/metrics`, {
+      params: { days },
+    });
+    return res.data;
+  }
+
+  async getTokenConsumption(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/token-consumption', {
+      params: { days },
+    });
+    return res.data;
+  }
+
+  async getCostTracking(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/cost-tracking', {
+      params: { days },
+    });
+    return res.data;
+  }
+
+  async getLatencyDashboard(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/latency', {
+      params: { days },
+    });
+    return res.data;
+  }
+
+  async getCacheEfficiency(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/cache-efficiency', {
+      params: { days },
+    });
+    return res.data;
+  }
+
+  async getRagQuality(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/rag-quality', {
+      params: { days },
+    });
+    return res.data;
+  }
+
+  async getAlertsStatus() {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/alerts/status');
     return res.data;
   }
 }

@@ -6,9 +6,51 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { ChatInterface } from '@/components/chat/ChatInterface';
 
 export default function DashboardPage() {
+  const { isSignedIn, isLoaded, user } = useUser();
+  const [shouldRedirect, setShouldRedirect] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    
+    if (isSignedIn && user) {
+      // Get user email from Clerk - try multiple ways
+      const email = (
+        user.primaryEmailAddress?.emailAddress ||
+        user.emailAddresses?.[0]?.emailAddress ||
+        user.emailAddresses?.[0]?.email_address ||
+        ''
+      )?.toLowerCase()?.trim();
+      
+      // Check if email matches known admin email
+      const ADMIN_EMAILS = ['harikapallapothu09@gmail.com'];
+      
+      if (email && ADMIN_EMAILS.includes(email)) {
+        // Use window.location for a hard redirect to ensure it happens
+        setShouldRedirect(true);
+        window.location.href = '/analytics';
+        return;
+      }
+      
+      setShouldRedirect(false);
+    } else if (isLoaded && !isSignedIn) {
+      setShouldRedirect(false);
+    }
+  }, [isLoaded, isSignedIn, user]);
+
+  // Show loading while checking or redirecting
+  if (shouldRedirect === true || (isLoaded && isSignedIn && user && shouldRedirect === null)) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p className="text-text-secondary">Redirecting...</p>
+      </div>
+    );
+  }
+
   return <ChatInterface />;
 }
 

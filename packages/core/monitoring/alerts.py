@@ -243,6 +243,35 @@ class AlertManager:
             alerts = [a for a in alerts if a.get("severity") == severity]
         
         return alerts[-limit:]
+    
+    def reset_all_alerts(self):
+        """
+        Reset all alerts by clearing in-memory storage and deleting log file.
+        
+        This will permanently delete all alerts data. Use with caution.
+        """
+        print("[ALERTS] Resetting all alerts...")
+        
+        # Clear in-memory alerts
+        self.alerts_log.clear()
+        
+        # Delete alert log file
+        log_file = Path("logs/metrics/alerts.jsonl")
+        deleted = False
+        try:
+            if log_file.exists():
+                log_file.unlink()
+                deleted = True
+                print(f"[ALERTS] Deleted alerts.jsonl")
+        except Exception as e:
+            print(f"[WARNING] Failed to delete alerts.jsonl: {e}")
+        
+        print(f"[ALERTS] Reset complete. Alerts cleared.")
+        return {
+            "status": "success",
+            "deleted_file": deleted,
+            "message": "All alerts have been reset"
+        }
 
 
 # Global singleton instance

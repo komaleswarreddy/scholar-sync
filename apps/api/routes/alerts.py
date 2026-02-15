@@ -25,6 +25,7 @@ async def get_alerts_status(
     - Recent alerts count
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
     
     alert_manager = get_alert_manager()
     alerts = alert_manager.get_recent_alerts(limit=100)
@@ -32,6 +33,10 @@ async def get_alerts_status(
     # Filter by tenant if needed
     if tenant_id:
         alerts = [a for a in alerts if a.get("tenant_id") == tenant_id or a.get("tenant_id") is None]
+    
+    # Filter by user if needed
+    if user_id:
+        alerts = [a for a in alerts if not a.get("user_id") or a.get("user_id") == user_id]
     
     # Count by severity
     severity_counts = {}
@@ -44,6 +49,7 @@ async def get_alerts_status(
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "status": {
             "total_alerts": len(alerts),
             "active_alerts": len(active_alerts),

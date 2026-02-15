@@ -162,7 +162,7 @@ class IngestionService:
                 raise ValueError(f"Failed to download file from storage: {str(e)}")
             
             # Check cache for processed content
-            cached_content = self.context_cache.get_cached_content(file_content, tenant_id=self.tenant_id)
+            cached_content = self.context_cache.get_cached_content(file_content, tenant_id=self.tenant_id, user_id=self.user_id)
             if cached_content:
                 print(f"[CACHE] Using cached content for source {source_id}")
                 # Use cached chunks and text

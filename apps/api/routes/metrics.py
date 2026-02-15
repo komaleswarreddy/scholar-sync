@@ -26,7 +26,7 @@ async def get_metrics_summary(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Get metrics summary for the current tenant.
+    Get metrics summary for the current tenant and user.
     
     Returns aggregated metrics including:
     - LLM call statistics (tokens, costs)
@@ -36,12 +36,17 @@ async def get_metrics_summary(
     - Regenerate attempts
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    
+    # Debug logging
+    print(f"[METRICS API] /summary endpoint: tenant_id={tenant_id}, user_id={user_id}")
     
     metrics = get_metrics_collector()
-    summary = metrics.get_metrics_summary(tenant_id=tenant_id)
+    summary = metrics.get_metrics_summary(tenant_id=tenant_id, user_id=user_id)
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "metrics": summary,
     }
 
@@ -62,6 +67,7 @@ async def get_alerts(
         limit: Maximum number of alerts to return
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
     
     alert_manager = get_alert_manager()
     alerts = alert_manager.get_recent_alerts(
@@ -74,8 +80,13 @@ async def get_alerts(
     if tenant_id:
         alerts = [a for a in alerts if a.get("tenant_id") == tenant_id or a.get("tenant_id") is None]
     
+    # Filter by user if needed
+    if user_id:
+        alerts = [a for a in alerts if not a.get("user_id") or a.get("user_id") == user_id]
+    
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "alerts": alerts,
         "count": len(alerts),
     }
@@ -92,27 +103,34 @@ async def get_dashboard_data(
     Returns all metrics, alerts, and summary statistics for dashboard visualization.
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    
+    # Debug logging
+    print(f"[METRICS API] /dashboard endpoint: tenant_id={tenant_id}, user_id={user_id}")
     
     metrics = get_metrics_collector()
     alert_manager = get_alert_manager()
     cost_manager = get_cost_manager()
     
     # Get metrics summary
-    summary = metrics.get_metrics_summary(tenant_id=tenant_id)
+    summary = metrics.get_metrics_summary(tenant_id=tenant_id, user_id=user_id)
     
     # Get cache hit rate
-    cache_hit_rate = metrics.get_cache_hit_rate(tenant_id=tenant_id)
+    cache_hit_rate = metrics.get_cache_hit_rate(tenant_id=tenant_id, user_id=user_id)
     
     # Get recent alerts
     alerts = alert_manager.get_recent_alerts(limit=50)
     if tenant_id:
         alerts = [a for a in alerts if a.get("tenant_id") == tenant_id or a.get("tenant_id") is None]
+    if user_id:
+        alerts = [a for a in alerts if not a.get("user_id") or a.get("user_id") == user_id]
     
     # Get usage summary from cost manager
-    usage_summary = await cost_manager.get_usage_summary(tenant_id=tenant_id)
+    usage_summary = await cost_manager.get_usage_summary(tenant_id=tenant_id, user_id=user_id)
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "metrics": {
             **summary,
             "cache": {
@@ -198,10 +216,12 @@ async def get_rag_quality_dashboard(
     - Quality trends over time
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
     
     if not tenant_id:
         return {
             "tenant_id": None,
+            "user_id": user_id,
             "period_days": days,
             "summary": {
                 "total_feedback": 0,
@@ -223,15 +243,17 @@ async def get_rag_quality_dashboard(
     
     # Query messages with feedback
     # First, let's also get a count of all messages to debug
+    query_conditions = [
+        Chat.tenant_id == tenant_uuid,
+        Message.role == 'assistant',
+    ]
+    if user_id:
+        query_conditions.append(Chat.user_id == user_id)
+    
     debug_result = await db.execute(
         select(func.count(Message.id))
         .join(Chat)
-        .where(
-            and_(
-                Chat.tenant_id == tenant_uuid,
-                Message.role == 'assistant',
-            )
-        )
+        .where(and_(*query_conditions))
     )
     total_assistant_messages = debug_result.scalar() or 0
     
@@ -240,17 +262,26 @@ async def get_rag_quality_dashboard(
         .join(Chat)
         .where(
             and_(
-                Chat.tenant_id == tenant_uuid,
-                Message.role == 'assistant',
+                *query_conditions,
                 Message.feedback.isnot(None),
             )
         )
     )
     total_with_feedback = feedback_count_result.scalar() or 0
     
-    print(f"[RAG_QUALITY] Tenant: {tenant_id}, Total assistant messages: {total_assistant_messages}, Messages with feedback: {total_with_feedback}")
+    print(f"[RAG_QUALITY] Tenant: {tenant_id}, User: {user_id}, Total assistant messages: {total_assistant_messages}, Messages with feedback: {total_with_feedback}")
     
     # Query with date filter - use CAST to date for timezone-safe date extraction
+    date_query_conditions = [
+        Chat.tenant_id == tenant_uuid,
+        Message.role == 'assistant',
+        Message.feedback.isnot(None),
+        Message.created_at >= start_date,
+        Message.created_at <= end_date
+    ]
+    if user_id:
+        date_query_conditions.append(Chat.user_id == user_id)
+    
     result = await db.execute(
         select(
             Message.feedback,
@@ -258,15 +289,7 @@ async def get_rag_quality_dashboard(
             func.date(Message.created_at).label('date')
         )
         .join(Chat)
-        .where(
-            and_(
-                Chat.tenant_id == tenant_uuid,
-                Message.role == 'assistant',
-                Message.feedback.isnot(None),
-                Message.created_at >= start_date,
-                Message.created_at <= end_date
-            )
-        )
+        .where(and_(*date_query_conditions))
         .group_by(Message.feedback, func.date(Message.created_at))
     )
     
@@ -277,6 +300,14 @@ async def get_rag_quality_dashboard(
     if len(feedback_data) == 0 and total_with_feedback > 0:
         print(f"[RAG_QUALITY] WARNING: No feedback in date range, but {total_with_feedback} messages have feedback. Date range might be too restrictive.")
         # Try querying without date filter to get all feedback
+        no_date_query_conditions = [
+            Chat.tenant_id == tenant_uuid,
+            Message.role == 'assistant',
+            Message.feedback.isnot(None),
+        ]
+        if user_id:
+            no_date_query_conditions.append(Chat.user_id == user_id)
+        
         result_all = await db.execute(
             select(
                 Message.feedback,
@@ -284,13 +315,7 @@ async def get_rag_quality_dashboard(
                 func.date(Message.created_at).label('date')
             )
             .join(Chat)
-            .where(
-                and_(
-                    Chat.tenant_id == tenant_uuid,
-                    Message.role == 'assistant',
-                    Message.feedback.isnot(None),
-                )
-            )
+            .where(and_(*no_date_query_conditions))
             .group_by(Message.feedback, func.date(Message.created_at))
         )
         feedback_data = result_all.all()
@@ -341,6 +366,7 @@ async def get_rag_quality_dashboard(
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "period_days": days,
         "summary": {
             "total_feedback": total_feedback,
@@ -369,14 +395,24 @@ async def get_token_consumption_dashboard(
     - Average tokens per call
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
     metrics = get_metrics_collector()
     
     # Get all LLM calls from in-memory storage
     with metrics._lock:
-        llm_calls = [
-            m for m in metrics._llm_calls
-            if m.get("tenant_id") == tenant_id
-        ]
+        llm_calls = []
+        for m in metrics._llm_calls:
+            # Check tenant match
+            if str(m.get("tenant_id")) != str(tenant_id):
+                continue
+            
+            # Check user match - if user_id is provided, metric MUST have matching user_id
+            if user_id:
+                metric_user_id = m.get("user_id")
+                if not metric_user_id or str(metric_user_id) != str(user_id):
+                    continue
+            
+            llm_calls.append(m)
     
     # Filter by date range
     cutoff_date = datetime.utcnow() - timedelta(days=days)
@@ -469,6 +505,7 @@ async def get_token_consumption_dashboard(
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "period_days": days,
         "group_by": group_by,
         "summary": {
@@ -502,14 +539,24 @@ async def get_cost_tracking_dashboard(
     - Cost by model/provider
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
     metrics = get_metrics_collector()
     
     # Get all LLM calls
     with metrics._lock:
-        llm_calls = [
-            m for m in metrics._llm_calls
-            if m.get("tenant_id") == tenant_id
-        ]
+        llm_calls = []
+        for m in metrics._llm_calls:
+            # Check tenant match
+            if str(m.get("tenant_id")) != str(tenant_id):
+                continue
+            
+            # Check user match - if user_id is provided, metric MUST have matching user_id
+            if user_id:
+                metric_user_id = m.get("user_id")
+                if not metric_user_id or str(metric_user_id) != str(user_id):
+                    continue
+            
+            llm_calls.append(m)
     
     # Filter by date range
     cutoff_date = datetime.utcnow() - timedelta(days=days)
@@ -571,6 +618,7 @@ async def get_cost_tracking_dashboard(
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "period_days": days,
         "summary": {
             "total_cost": round(total_cost, 4),
@@ -600,14 +648,24 @@ async def get_cache_efficiency_dashboard(
     - Latency improvements
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
     metrics = get_metrics_collector()
     
     # Get cache operations
     with metrics._lock:
-        cache_ops = [
-            m for m in metrics._cache_operations
-            if m.get("tenant_id") == tenant_id
-        ]
+        cache_ops = []
+        for m in metrics._cache_operations:
+            # Check tenant match
+            if str(m.get("tenant_id")) != str(tenant_id):
+                continue
+            
+            # Check user match - if user_id is provided, metric MUST have matching user_id
+            if user_id:
+                metric_user_id = m.get("user_id")
+                if not metric_user_id or str(metric_user_id) != str(user_id):
+                    continue
+            
+            cache_ops.append(m)
     
     # Filter by date range
     cutoff_date = datetime.utcnow() - timedelta(days=days)
@@ -666,6 +724,7 @@ async def get_cache_efficiency_dashboard(
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "period_days": days,
         "summary": {
             "total_operations": total,
@@ -699,14 +758,28 @@ async def get_latency_dashboard(
     - Bottleneck identification
     """
     tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
     metrics = get_metrics_collector()
     
     # Get LLM calls with latency data
     with metrics._lock:
-        llm_calls = [
-            m for m in metrics._llm_calls
-            if m.get("tenant_id") == tenant_id and m.get("latency_ms")
-        ]
+        llm_calls = []
+        for m in metrics._llm_calls:
+            # Check tenant match
+            if str(m.get("tenant_id")) != str(tenant_id):
+                continue
+            
+            # Check latency exists
+            if not m.get("latency_ms"):
+                continue
+            
+            # Check user match - if user_id is provided, metric MUST have matching user_id
+            if user_id:
+                metric_user_id = m.get("user_id")
+                if not metric_user_id or str(metric_user_id) != str(user_id):
+                    continue
+            
+            llm_calls.append(m)
     
     # Filter by date range
     cutoff_date = datetime.utcnow() - timedelta(days=days)
@@ -725,6 +798,7 @@ async def get_latency_dashboard(
     if not latencies:
         return {
             "tenant_id": tenant_id,
+            "user_id": user_id,
             "period_days": days,
             "summary": {
                 "total_calls": 0,
@@ -833,6 +907,7 @@ async def get_latency_dashboard(
     
     return {
         "tenant_id": tenant_id,
+        "user_id": user_id,
         "period_days": days,
         "summary": {
             "total_calls": len(filtered_calls),
@@ -845,4 +920,40 @@ async def get_latency_dashboard(
         "by_feature": sorted(feature_breakdown, key=lambda x: x["avg_latency_ms"], reverse=True),
         "daily_breakdown": daily_breakdown,
         "bottlenecks": bottlenecks,
+    }
+
+
+@router.delete("/reset")
+async def reset_all_metrics(
+    request: Request,
+):
+    """
+    Reset all metrics data.
+    
+    This will permanently delete:
+    - All in-memory metrics
+    - All persisted metrics log files
+    - All alerts
+    
+    Use with caution - this action cannot be undone.
+    """
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    
+    metrics = get_metrics_collector()
+    alert_manager = get_alert_manager()
+    
+    # Reset metrics
+    metrics_result = metrics.reset_all_metrics()
+    
+    # Reset alerts
+    alerts_result = alert_manager.reset_all_alerts()
+    
+    return {
+        "tenant_id": tenant_id,
+        "user_id": user_id,
+        "status": "success",
+        "metrics": metrics_result,
+        "alerts": alerts_result,
+        "message": "All metrics and alerts have been reset"
     }
