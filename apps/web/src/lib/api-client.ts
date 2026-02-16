@@ -915,6 +915,7 @@ class ApiClient {
     await this.refreshToken();
     const config: any = {
       params: { days },
+      timeout: 30000, // 30 second timeout for metrics queries
     };
     if (silent) {
       config._expected403 = true; // Mark as expected 403 to suppress error logging
@@ -927,6 +928,7 @@ class ApiClient {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/me/metrics', {
       params: { days },
+      timeout: 30000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
@@ -935,22 +937,34 @@ class ApiClient {
     await this.refreshToken();
     const res = await this.client.get(`/api/v1/admin/users/${userId}/metrics`, {
       params: { days },
+      timeout: 30000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
 
-  async getTokenConsumption(days: number = 30) {
+  async getUserSessions(userId: string, days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get(`/api/v1/admin/users/${userId}/sessions`, {
+      params: { days },
+      timeout: 30000, // 30 second timeout for session queries
+    });
+    return res.data;
+  }
+
+  async getTokenConsumption(days: number = 30, groupBy: string = 'feature') {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/token-consumption', {
-      params: { days },
+      params: { days, group_by: groupBy },
+      timeout: 30000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
 
-  async getCostTracking(days: number = 30) {
+  async getCostTracking(days: number = 30, groupByUser: boolean = false) {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/cost-tracking', {
-      params: { days },
+      params: { days, group_by_user: groupByUser },
+      timeout: 30000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
@@ -959,6 +973,7 @@ class ApiClient {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/latency', {
       params: { days },
+      timeout: 30000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
@@ -982,6 +997,19 @@ class ApiClient {
   async getAlertsStatus() {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/alerts/status');
+    return res.data;
+  }
+
+  async getLogs(days: number = 7, limit: number = 1000, eventType?: string) {
+    await this.refreshToken();
+    const params: any = { days, limit };
+    if (eventType) {
+      params.event_type = eventType;
+    }
+    const res = await this.client.get('/api/v1/metrics/logs', {
+      params,
+      timeout: 30000,
+    });
     return res.data;
   }
 }

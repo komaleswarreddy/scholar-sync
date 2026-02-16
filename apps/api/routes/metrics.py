@@ -382,6 +382,7 @@ async def get_rag_quality_dashboard(
 @router.get("/token-consumption")
 async def get_token_consumption_dashboard(
     request: Request,
+    db: AsyncSession = Depends(get_db),
     days: int = Query(7, description="Number of days to analyze"),
     group_by: str = Query("feature", description="Group by: 'feature', 'model', 'user'"),
 ):
@@ -396,6 +397,22 @@ async def get_token_consumption_dashboard(
     """
     tenant_id = request.state.tenant_id
     user_id = getattr(request.state, "user_id", None)
+    
+    # Check if user is admin - if admin, don't filter by user_id to get aggregate data
+    is_admin = False
+    try:
+        from apps.api.routes.admin import check_admin_role
+        is_admin = await check_admin_role(request, db)
+    except Exception as e:
+        # If admin check fails, assume not admin
+        print(f"[METRICS] Could not check admin role: {e}")
+        is_admin = False
+    
+    # If admin, set user_id to None to get aggregate data across all users
+    if is_admin:
+        user_id = None
+        print(f"[METRICS] Admin user detected, returning aggregate data for tenant {tenant_id}")
+    
     metrics = get_metrics_collector()
     
     # Get all LLM calls from in-memory storage
@@ -406,7 +423,7 @@ async def get_token_consumption_dashboard(
             if str(m.get("tenant_id")) != str(tenant_id):
                 continue
             
-            # Check user match - if user_id is provided, metric MUST have matching user_id
+            # Check user match - if user_id is provided (and not admin), metric MUST have matching user_id
             if user_id:
                 metric_user_id = m.get("user_id")
                 if not metric_user_id or str(metric_user_id) != str(user_id):
@@ -428,6 +445,7 @@ async def get_token_consumption_dashboard(
     # Group by requested dimension
     grouped = {}
     daily_totals = {}
+    daily_calls = {}
     total_tokens = 0
     total_prompt_tokens = 0
     total_completion_tokens = 0
@@ -467,13 +485,15 @@ async def get_token_consumption_dashboard(
         grouped[key]["total_calls"] += 1
         grouped[key]["cost"] += call.get("cost", 0.0)
         
-        # Daily totals
+        # Daily totals (tokens and calls)
         try:
             call_time = datetime.fromisoformat(call.get("timestamp", ""))
             date_key = call_time.date().isoformat()
             if date_key not in daily_totals:
                 daily_totals[date_key] = 0
+                daily_calls[date_key] = 0
             daily_totals[date_key] += tokens
+            daily_calls[date_key] += 1
         except:
             pass
     
@@ -497,15 +517,19 @@ async def get_token_consumption_dashboard(
         for key, stats in sorted(grouped.items(), key=lambda x: x[1]["total_tokens"], reverse=True)
     ]
     
-    # Daily breakdown
+    # Daily breakdown (include both tokens and calls)
     daily_breakdown = [
-        {"date": date, "tokens": tokens}
+        {
+            "date": date, 
+            "tokens": tokens,
+            "calls": daily_calls.get(date, 0)
+        }
         for date, tokens in sorted(daily_totals.items())
     ]
     
     return {
         "tenant_id": tenant_id,
-        "user_id": user_id,
+        "user_id": None if is_admin else user_id,  # Return None for admin to indicate aggregate data
         "period_days": days,
         "group_by": group_by,
         "summary": {
@@ -540,6 +564,22 @@ async def get_cost_tracking_dashboard(
     """
     tenant_id = request.state.tenant_id
     user_id = getattr(request.state, "user_id", None)
+    
+    # Check if user is admin - if admin, don't filter by user_id to get aggregate data
+    is_admin = False
+    try:
+        from apps.api.routes.admin import check_admin_role
+        is_admin = await check_admin_role(request, db)
+    except Exception as e:
+        # If admin check fails, assume not admin
+        print(f"[METRICS] Could not check admin role: {e}")
+        is_admin = False
+    
+    # If admin, set user_id to None to get aggregate data across all users
+    if is_admin:
+        user_id = None
+        print(f"[METRICS] Admin user detected for cost tracking, returning aggregate data for tenant {tenant_id}")
+    
     metrics = get_metrics_collector()
     
     # Get all LLM calls
@@ -550,7 +590,7 @@ async def get_cost_tracking_dashboard(
             if str(m.get("tenant_id")) != str(tenant_id):
                 continue
             
-            # Check user match - if user_id is provided, metric MUST have matching user_id
+            # Check user match - if user_id is provided (and not admin), metric MUST have matching user_id
             if user_id:
                 metric_user_id = m.get("user_id")
                 if not metric_user_id or str(metric_user_id) != str(user_id):
@@ -618,7 +658,7 @@ async def get_cost_tracking_dashboard(
     
     return {
         "tenant_id": tenant_id,
-        "user_id": user_id,
+        "user_id": None if is_admin else user_id,  # Return None for admin to indicate aggregate data
         "period_days": days,
         "summary": {
             "total_cost": round(total_cost, 4),
@@ -746,6 +786,7 @@ async def get_cache_efficiency_dashboard(
 @router.get("/latency")
 async def get_latency_dashboard(
     request: Request,
+    db: AsyncSession = Depends(get_db),
     days: int = Query(7, description="Number of days to analyze"),
 ):
     """
@@ -759,6 +800,22 @@ async def get_latency_dashboard(
     """
     tenant_id = request.state.tenant_id
     user_id = getattr(request.state, "user_id", None)
+    
+    # Check if user is admin - if admin, don't filter by user_id to get aggregate data
+    is_admin = False
+    try:
+        from apps.api.routes.admin import check_admin_role
+        is_admin = await check_admin_role(request, db)
+    except Exception as e:
+        # If admin check fails, assume not admin
+        print(f"[METRICS] Could not check admin role: {e}")
+        is_admin = False
+    
+    # If admin, set user_id to None to get aggregate data across all users
+    if is_admin:
+        user_id = None
+        print(f"[METRICS] Admin user detected for latency, returning aggregate data for tenant {tenant_id}")
+    
     metrics = get_metrics_collector()
     
     # Get LLM calls with latency data
@@ -773,7 +830,7 @@ async def get_latency_dashboard(
             if not m.get("latency_ms"):
                 continue
             
-            # Check user match - if user_id is provided, metric MUST have matching user_id
+            # Check user match - if user_id is provided (and not admin), metric MUST have matching user_id
             if user_id:
                 metric_user_id = m.get("user_id")
                 if not metric_user_id or str(metric_user_id) != str(user_id):
@@ -798,7 +855,7 @@ async def get_latency_dashboard(
     if not latencies:
         return {
             "tenant_id": tenant_id,
-            "user_id": user_id,
+            "user_id": None if is_admin else user_id,  # Return None for admin to indicate aggregate data
             "period_days": days,
             "summary": {
                 "total_calls": 0,
@@ -907,7 +964,7 @@ async def get_latency_dashboard(
     
     return {
         "tenant_id": tenant_id,
-        "user_id": user_id,
+        "user_id": None if is_admin else user_id,  # Return None for admin to indicate aggregate data
         "period_days": days,
         "summary": {
             "total_calls": len(filtered_calls),
@@ -923,9 +980,156 @@ async def get_latency_dashboard(
     }
 
 
+@router.get("/logs")
+async def get_logs(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(7, description="Number of days to retrieve logs"),
+    limit: int = Query(1000, description="Maximum number of log entries to return"),
+    event_type: Optional[str] = Query(None, description="Filter by event type"),
+):
+    """
+    Get system logs from metrics data.
+    
+    Returns log entries from:
+    - LLM calls (queries, errors, successes)
+    - Cache operations
+    - Feature usage
+    - Document processing
+    
+    Args:
+        days: Number of days to retrieve logs for
+        limit: Maximum number of entries to return
+        event_type: Optional filter by event type (query, error, success, warning, info, cache)
+    """
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    
+    # Check if user is admin - if admin, don't filter by user_id to get all logs
+    is_admin = False
+    try:
+        from apps.api.routes.admin import check_admin_role
+        is_admin = await check_admin_role(request, db)
+    except Exception:
+        pass
+    
+    metrics = get_metrics_collector()
+    cutoff_date = datetime.utcnow() - timedelta(days=days)
+    
+    logs = []
+    
+    with metrics._lock:
+        # Get LLM calls as log entries
+        llm_calls = list(metrics._llm_calls)
+        if tenant_id:
+            llm_calls = [m for m in llm_calls if str(m.get("tenant_id")) == str(tenant_id)]
+        if user_id and not is_admin:
+            llm_calls = [m for m in llm_calls if str(m.get("user_id")) == str(user_id)]
+        
+        for call in llm_calls:
+            try:
+                call_time = datetime.fromisoformat(call.get("timestamp", ""))
+                if call_time >= cutoff_date:
+                    # Determine event type based on latency and errors
+                    event_type_log = "query"
+                    message = f"LLM call: {call.get('model', 'unknown')} - {call.get('total_tokens', 0)} tokens"
+                    
+                    if call.get("latency_ms", 0) > 10000:
+                        event_type_log = "warning"
+                        message = f"Slow LLM call: {call.get('model', 'unknown')} - {call.get('latency_ms', 0):.0f}ms latency"
+                    
+                    logs.append({
+                        "timestamp": call.get("timestamp"),
+                        "event_type": event_type_log,
+                        "user": call.get("user_id", "unknown"),
+                        "message": message,
+                        "level": "info",
+                        "metadata": {
+                            "model": call.get("model"),
+                            "tokens": call.get("total_tokens"),
+                            "cost": call.get("cost"),
+                            "latency_ms": call.get("latency_ms"),
+                            "feature": call.get("feature_tag"),
+                        }
+                    })
+            except:
+                continue
+        
+        # Get cache operations as log entries
+        cache_ops = list(metrics._cache_operations)
+        if tenant_id:
+            cache_ops = [m for m in cache_ops if str(m.get("tenant_id")) == str(tenant_id)]
+        if user_id and not is_admin:
+            cache_ops = [m for m in cache_ops if m.get("user_id") and str(m.get("user_id")) == str(user_id)]
+        
+        for op in cache_ops:
+            try:
+                op_time = datetime.fromisoformat(op.get("timestamp", ""))
+                if op_time >= cutoff_date:
+                    operation = op.get("operation", "unknown")
+                    cache_type = op.get("cache_type", "unknown")
+                    logs.append({
+                        "timestamp": op.get("timestamp"),
+                        "event_type": "cache",
+                        "user": op.get("user_id", "system"),
+                        "message": f"Cache {operation}: {cache_type}",
+                        "level": "info" if operation == "hit" else "warning",
+                        "metadata": {
+                            "operation": operation,
+                            "cache_type": cache_type,
+                            "latency_ms": op.get("latency_ms"),
+                        }
+                    })
+            except:
+                continue
+        
+        # Get feature usage as log entries
+        feature_usage = list(metrics._feature_usage)
+        if tenant_id:
+            feature_usage = [m for m in feature_usage if str(m.get("tenant_id")) == str(tenant_id)]
+        if user_id and not is_admin:
+            feature_usage = [m for m in feature_usage if m.get("user_id") and str(m.get("user_id")) == str(user_id)]
+        
+        for usage in feature_usage:
+            try:
+                usage_time = datetime.fromisoformat(usage.get("timestamp", ""))
+                if usage_time >= cutoff_date:
+                    logs.append({
+                        "timestamp": usage.get("timestamp"),
+                        "event_type": "info",
+                        "user": usage.get("user_id", "unknown"),
+                        "message": f"Feature used: {usage.get('feature', 'unknown')}",
+                        "level": "info",
+                        "metadata": {
+                            "feature": usage.get("feature"),
+                        }
+                    })
+            except:
+                continue
+    
+    # Filter by event type if specified
+    if event_type:
+        logs = [log for log in logs if log.get("event_type") == event_type]
+    
+    # Sort by timestamp descending
+    logs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+    
+    # Limit results
+    logs = logs[:limit]
+    
+    return {
+        "tenant_id": tenant_id,
+        "user_id": None if is_admin else user_id,
+        "period_days": days,
+        "logs": logs,
+        "total": len(logs),
+    }
+
+
 @router.delete("/reset")
 async def reset_all_metrics(
     request: Request,
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Reset all metrics data.

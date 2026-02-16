@@ -6,17 +6,20 @@ Provides admin-only endpoints for managing users and viewing system-wide metrics
 
 from fastapi import APIRouter, Request, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import httpx
+import uuid
 
 from packages.core.database.connection import get_db
 from packages.core.database.models.user import User
+from packages.core.database.models.chat import Chat, Message
 from packages.core.monitoring.metrics import get_metrics_collector
 from packages.core.guardrails.cost_manager import get_cost_manager
 from apps.api.middleware.auth import extract_user_id_from_token
 from config.settings import settings
+from sqlalchemy import func
 
 router = APIRouter()
 
@@ -408,6 +411,146 @@ async def get_user_metrics(
         "summary": summary,
         "usage": usage_summary,
         "endpoints": endpoints,
+    }
+
+
+@router.get("/users/{user_id}/sessions")
+async def get_user_sessions(
+    user_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(30, description="Number of days to analyze"),
+):
+    """
+    Get session data for a specific user (admin only).
+    
+    Returns chat sessions with login/logout times.
+    Each chat is treated as a session, with created_at as login time
+    and last message timestamp as logout time.
+    """
+    # Check admin role
+    is_admin = await check_admin_role(request, db)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    tenant_id = request.state.tenant_id
+    tenant_uuid = uuid.UUID(tenant_id) if isinstance(tenant_id, str) else tenant_id
+    
+    # Calculate date range
+    cutoff_date = datetime.utcnow() - timedelta(days=days)
+    
+    # Get all chats for this user
+    chats_result = await db.execute(
+        select(Chat)
+        .where(Chat.tenant_id == tenant_uuid)
+        .where(Chat.user_id == user_id)
+        .where(Chat.created_at >= cutoff_date)
+        .order_by(Chat.created_at.desc())
+    )
+    chats = chats_result.scalars().all()
+    
+    # Get metrics collector to calculate token consumption per session
+    from packages.core.monitoring.metrics import get_metrics_collector
+    metrics = get_metrics_collector()
+    
+    # Get all LLM calls for this user and tenant
+    with metrics._lock:
+        user_llm_calls = []
+        for call in metrics._llm_calls:
+            # Check tenant match
+            if str(call.get("tenant_id")) != str(tenant_id):
+                continue
+            # Check user match
+            if str(call.get("user_id")) != str(user_id):
+                continue
+            user_llm_calls.append(call)
+    
+    # Get last message timestamp for each chat and calculate token consumption
+    sessions = []
+    for chat in chats:
+        # Get last message in this chat
+        last_message_result = await db.execute(
+            select(Message)
+            .where(Message.chat_id == chat.id)
+            .order_by(Message.created_at.desc())
+            .limit(1)
+        )
+        last_message = last_message_result.scalar_one_or_none()
+        
+        login_time = chat.created_at
+        logout_time = last_message.created_at if last_message else None
+        
+        # Calculate duration if logout time exists
+        duration = None
+        if logout_time:
+            duration_ms = (logout_time - login_time).total_seconds() * 1000
+            if duration_ms < 60000:
+                duration = f"{duration_ms / 1000:.1f}s"
+            elif duration_ms < 3600000:
+                duration = f"{duration_ms / 60000:.1f}min"
+            else:
+                duration = f"{duration_ms / 3600000:.1f}h"
+        
+        # Get message count
+        message_count_result = await db.execute(
+            select(func.count(Message.id))
+            .where(Message.chat_id == chat.id)
+        )
+        message_count = message_count_result.scalar() or 0
+        
+        # Calculate token consumption for this session
+        # Match LLM calls that occurred during this session's time range
+        session_token_consumption = 0
+        session_start = login_time
+        session_end = logout_time if logout_time else datetime.utcnow()
+        
+        # Ensure session_end is timezone-aware if session_start is
+        if session_start and session_start.tzinfo and not session_end.tzinfo:
+            from datetime import timezone
+            session_end = session_end.replace(tzinfo=timezone.utc)
+        elif session_start and not session_start.tzinfo and session_end.tzinfo:
+            session_start = session_start.replace(tzinfo=session_end.tzinfo)
+        
+        for call in user_llm_calls:
+            try:
+                call_timestamp = call.get("timestamp", "")
+                if not call_timestamp:
+                    continue
+                call_time = datetime.fromisoformat(call_timestamp.replace('Z', '+00:00'))
+                
+                # Make timezone-aware if needed
+                if call_time.tzinfo is None:
+                    from datetime import timezone
+                    call_time = call_time.replace(tzinfo=timezone.utc)
+                if session_start.tzinfo is None:
+                    from datetime import timezone
+                    session_start = session_start.replace(tzinfo=timezone.utc)
+                if session_end.tzinfo is None:
+                    from datetime import timezone
+                    session_end = session_end.replace(tzinfo=timezone.utc)
+                
+                # Check if call occurred during this session
+                if session_start <= call_time <= session_end:
+                    session_token_consumption += call.get("total_tokens", 0)
+            except Exception as e:
+                # Skip calls with invalid timestamps
+                continue
+        
+        sessions.append({
+            "session_id": str(chat.id),
+            "login_time": login_time.isoformat() if login_time else None,
+            "logout_time": logout_time.isoformat() if logout_time else None,
+            "duration": duration,
+            "message_count": message_count,
+            "token_consumption": session_token_consumption,
+        })
+    
+    return {
+        "user_id": user_id,
+        "tenant_id": tenant_id,
+        "period_days": days,
+        "sessions": sessions,
+        "total_sessions": len(sessions),
     }
 
 
