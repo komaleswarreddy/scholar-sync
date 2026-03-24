@@ -1,0 +1,330 @@
+{
+  "reranked_chunks": [
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_3",
+      "score": 0.07359648,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Understanding\tPeople\tand\tHuman\tNature\n1\n\t\nThe\tfirst\tstep\tin\tincreasing\tyour\tskill\tin\tdealing\twith\tpeople\t(successful\nhuman\trelations)\tis\tto\tproperly\tunderstand\tpeople\tand\ttheir\tnature.\nWhen\tyou\thave\ta\tproper\tunderstanding\tof\thuman\tnature\tand\tpeople\t\u2013\twhen\nyou\tknow\twhy\tpeople\tdo\tthe\tthings\tthat\tthey\tdo\t-\twhen\tyou\tknow\twhy\tand\thow\npeople\twill\treact\tunder\tcertain\tconditions\t\u2013\tthen\tand\tonly\tthen\tcan\tyou\tbecome\ta\nskillful\tmanager\tof\tpeople.\nUnderstanding\tpeople\tand\thuman\tnature\tsimply\tinvolves\trecognizing\tpeople\nfor\twhat\tthey\tare;\tnot\twhat\tyou\tthink\tthey\tare,\tnor\twhat\tyou\twant\tthem\tto\tbe.\nWhat\tare\tthey?\nPEOPLE\tARE\tPRIMARILY\tINTERESTED\tIN\tTHEMSELVES,\tNOT\nIN\tYOU!\nPutting\tthis\tsame\tthought\tanother\tway\t\u2013\tthe\tother\tperson\tis\t10,000\ttimes\nmore\tinterested\tin\tthemself\tthan\tin\tyou.\nAnd\tvice\tversa!\tYou\tare\tmore\tinterested\tin\tyourself\tthan\tyou\tare\tin\tany\nother\tperson\tin\tthe\tworld.\nRemember\tthat\tpeople\u2019s\tactions\tare\tgoverned\tby\tself-thought\tand\tself-\ninterest.",
+        "chunk_index": 3,
+        "page_start": 11,
+        "page_number": 11,
+        "page_end": 11,
+        "vector_score": 0.133420944,
+        "keyword_score": 0.4146103960331603,
+        "rerank_score": 0.07359648
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_12",
+      "score": 0.06917,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Applaud\tand\tcompliment\tthem.\n\t\nWhen\tthey\tdeserve\tit.\tIt\tmust\tbe\tsincere.\n\t\nRecognition\tand\tappreciation\tare\tbasic\thuman\tneeds.\n\t\nUse\ttheir\tnames\tas\toften\tas\tpossible.\n\t\nCall\tpeople\tby\ttheir\tnames\tand\tthey\twill\tlike\tyou.\n\t\nIt\tis\tmuch\tbetter\tto\tsay,\t\u201cGood\tmorning,\tJohn/Mary\u201d\tthan\tto\tsay,\t\u201cGood\nmorning.\u201d\n\t\nPause\tbefore\tyou\tanswer\tthem.\n\t\nThis\tgives\tthem\tthe\timpression\tyou\thave\tthought\tover\twhat\tthey\tsaid\tand\nthat\tit\twas\tworthy\tof\tthinking\tover.\n\t\nUse\tthe\twords\t-\t\u201c\nyou\n\u201d\tand\t\u201c\nyo\tur\n.\u201d\n\t\nRemember,\tavoid\t\n\u201cI,\tme,\tmy,\tmine.\u201d\n\t\n\u201cYou\u201d\n\tand\t\n\u201cYour\u201d\n\tmake\tthem\tthe\timportant\tones.\n\t\nAcknowledge\tpeople\twho\tare\twaiting\tto\tsee\tyou.\n\t\nIf\tthey\thave\tto\twait,\tlet\tthem\tknow\tyou\tknow\tthey\tare\twaiting.\tThis\tis\nreally\ttreating\tthem\tas\ta\tsomebody.\n\n\t\nPay\tattention\tto\teverybody\tin\ta\tgroup.\n\t\nA\tgroup\tis\tmore\tthan\tone,\tnot\tjust\ta\tleader\tor\tspokesperson.",
+        "chunk_index": 12,
+        "page_start": 16,
+        "page_number": 16,
+        "page_end": 17,
+        "vector_score": 0.165947109,
+        "keyword_score": 0.8584326653155508,
+        "rerank_score": 0.06917
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_43",
+      "score": 0.06247401,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Don\u2019t\ttry\tto\tbuild\tyourself\tup\tby\trunning\tother\tpeople\tdown.\n\t\nAlways\tstand\ton\tyour\town\tmerits;\tdon\u2019t\ttry\tto\tmake\tyourself\tlook\tgood\tby\nmaking\tother\tpeople\tlook\tbad.\n\t\nTrue\tprogress\tin\tlife\twill\tbe\tdetermined\tby\tyour\town\tefforts\tand\tworth.\nYou\tcannot\tget\tfar\t\u201cadvancing\tover\tthe\tbodies\tof\tothers.\u201d\n\t\nKeep\tthe\temphasis\ton\tyourself.\tYou\tdo\tthat\twhen\tyou\tstand\ton\tyour\town\nmerits.\tWhen\tyou\trun\tothers\tdown\tto\tmake\tyourself\tlook\tgood,\tthe\nemphasis\tis\ton\tthem,\tnot\ton\tyour.\n\t\nDon\u2019t\tknock\tanybody\tor\tanything.\n\t\nIf\tyou\tcan\u2019t\tsay\tsomething\tgood,\tsay\tnothing.\n\t\nIt\tis\twrong\tto\tknock,\tbut\tthat\tis\tnot\tthe\tmain\treason\tnot\tto\tknock.\tThe\tmain\nreason\tis\tthat\tknocks\tand\tknocking\tboomerang\tand\thurt\tthe\tknocker\nhimself.\n\t\nKnocking\tjust\treveals\tone\u2019s\tinner\tself.\n\t\nBe\tshrewd,\tbe\tsmooth;\tdon\u2019t\tknock.",
+        "chunk_index": 43,
+        "page_start": 41,
+        "page_number": 41,
+        "page_end": 41,
+        "vector_score": 0.118660785,
+        "keyword_score": 0.37027940691563127,
+        "rerank_score": 0.06247401
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_37",
+      "score": 0.046106957,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "It\tis\tthe\tact\tthat\tshould\tbe\tcriticized,\trather\tthan\tthe\tperson.\n\t\nSupply\tthe\tanswer.\n\t\nThe\tanswer\tmeans\tthe\tright\tway.\tWhen\tyou\ttell\tsomebody\twhat\tthey\tare\ndoing\twrong,\tyou\talso\tshould\ttell\tthem\thow\tto\tdo\tit\tright.\n\t\nAsk\tfor\tcooperation,\tdon\u2019t\tdemand\tit.\n\t\nIt\tis\ta\tfact\tthat\tyou\twill\tget\tmore\tcooperation\tfrom\tpeople\tif\tyou\task\tthem\nfor\tit\tthan\tif\tyou\tdemand\tit.\n\t\nDemanding\tis\ta\tlast\tresort\tmeasure.\n\t\nOne\tcriticism\tper\toffense\n\t\nThe\tmost\tjustified\tcriticism\tis\tjustified\tjust\tONCE.\n\t\nFinish\tthe\tcriticism\ton\ta\tfriendly\tnote.\n\t\nFinish\ton\ta\tnote\tof,\t\u201cwe\u2019re\tfriends,\twe\u2019ve\tsolved\tour\tproblems,\tlet\u2019s\twork\ntogether\tand\thelp\teach\tother,\u201d\tnot\ton\tthe\tnote,\t\u201cyou\u2019ve\tbeen\ttold\toff,\tnow\nget\ton\tthe\tball.\u201d\nThis\tis\tthe\tmost\timportant\trule\tof\tthe\tseven.",
+        "chunk_index": 37,
+        "page_start": 36,
+        "page_number": 36,
+        "page_end": 36,
+        "vector_score": 0.187762797,
+        "keyword_score": 0.122370534055658,
+        "rerank_score": 0.046106957
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_14",
+      "score": 0.04057502,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "\t\nDo\tnot\ttell\tpeople\twhen\tyou\tdisagree\twith\tthem\tunless\tit\tis\tabsolutely\nnecessary.\n\t\nIf\tyou\tcan\u2019t\tagree\twith\tpeople,\tand\tmany\ttimes\tyou\tcan\u2019t,\tthen\tjust\tdon\u2019t\ndisagree\twith\tthem\tunless\tit\tis\tabsolutely\tnecessary.\n\t\nYou\twill\tbe\tamazed\tat\thow\tseldom\tthis\twill\tbe.\n\t\nAdmit\twhen\tyou\tare\twrong.\n\t\nWhenever\tyou\tare\twrong,\tsay\tso\tout\tloud\t\u2013\t\u201cI\tmade\ta\tmistake,\u201d\t\u201cI\twas\nwrong,\u201d\t\netc.\n\t\nIt\ttakes\ta\tbig\tperson\tto\tdo\tthis\tand\tpeople\tadmire\tanyone\twho\tcan\tdo\tit\n\t\nThe\taverage\tperson\twill\tlie,\tdeny\tor\talibi.\n\t\nRefrain\tfrom\targuing.\n\t\nThe\tpoorest\ttechnique\tknown\tin\thuman\trelations\tis\targuing.\tEven\tif\tyou\tare\nright,\tdon\u2019t\targue.\n\t\nNobody\twins\targuments\tor\tfriends\tby\targuing.\n\t\nHandle\tfighters\tproperly.\n\t\nFighters\twant\tone\tthing\t\u2013\ta\tfight.\n\t\nThe\tbest\ttechnique\tto\thandle\tthem\tis\tto\trefuse\tto\tfight\twith\tthem.\tThey\twill",
+        "chunk_index": 14,
+        "page_start": 19,
+        "page_number": 19,
+        "page_end": 19,
+        "vector_score": 0.134222806,
+        "keyword_score": 0.8492974448726547,
+        "rerank_score": 0.04057502
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_6",
+      "score": 0.039627768,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "How\tTo\tSkillfully\tTalk\tTo\tPeople\n2\n\t\nWhen\tyou\tare\ttalking\tto\tpeople,\tpick\tout\tthe\tmost\tinteresting\tsubject\tin\tthe\nworld\tto\tthem\tto\ttalk\tabout.\nWhat\tis\tthe\tmost\tinteresting\tsubject\tin\tthe\tworld\tto\tthem?\nTHEMSELVES!\nWhen\tyou\ttalk\tto\tthem\tabout\tthemselves\tthey\twill\tbe\tdeeply\tinterested\tand\nutterly\tfascinated.\tThey\twill\tthink\twell\tof\tyou\tfor\tdoing\tthis.\nWhen\tyou\ttalk\tto\tpeople\tabout\tthemselves,\tyou\tare\trubbing\tthem\tthe\tright\nway.\tYou\tare\tworking\twith\thuman\tnature.\tWhen\tyou\ttalk\tto\tpeople\tabout\nyourself,\tyou\tare\trubbing\tthem\tthe\twrong\tway\tand\tworking\tagainst\thuman\nnature.\nTake\tthese\tfour\twords\tout\tof\tyour\tvocabulary\t-\n\u201cI,\tme,\tmy,\tmine\u201d\nFor\tthose\tfour\twords,\tsubstitute\tone\tword\t\u2013\tthe\tmost\tpowerful\tword\tspoken\nby\tthe\thuman\ttongue:\n\u201cYOU\u201d\nE.g.,\t\n\u201cThis\tis\tfor\tYOU,\u201d\t\u201cYOU\twill\tbenefit\tif\tYOU\tdo\tthis,\u201d\t\u201cThis\twill\nplease\tYOUR\tfamily,\u201d\t\u201cYOU\tget\tboth\tadvantages,\u201d\t\netc.",
+        "chunk_index": 6,
+        "page_start": 13,
+        "page_number": 13,
+        "page_end": 13,
+        "vector_score": 0.122168504,
+        "keyword_score": 0.9815264087237413,
+        "rerank_score": 0.039627768
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_35",
+      "score": 0.035521045,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "\t\nExample\t2:\t\u201cMary,\tyou\tdid\ta\tsplendid\tjob\ton\tthe\tyear-end\treports.\u201d\t(Rather\nthan,\t\u201cMary,\tyou\tare\ta\tgood\tworker.\u201d)\n\t\nExample\t3:\t\u201cMr.\tSmith,\tyour\tlawn\tand\tlandscaping\tis\tsimply\tbeautiful.\u201d\n(Rather\tthan,\t\u201cMr.\tSmith,\tyou\twork\thard.\u201d)\n\t\nMake\tthe\tpraise\tspecific\t\u2013\tpinpoint\tit.\nHAPPINESS\tFORMULA\n\t\u2013\n\t\nGet\tinto\tthe\thabit\tof\tsaying\tdaily\tone\tkind\tthing\tto\tat\tleast\tthree\tdifferent\npeople.\tThen\tsee\thow\tYOU\tfeel\tfor\thaving\tdone\tso!\n\t\nThis\tis\ta\thappiness\tformula\tfor\tYOU!\n\t\nWhen\tyou\tsee\tthe\thappiness,\tgratitude\tand\tpleasure\tyou\tbring\tothers\tby\ndoing\tthis,\tYOU\twill\tfeel\tgood.\tThere\tis\tmore\tjoy\tin\tgiving\tthan\tin\nreceiving.\nTry\tit.",
+        "chunk_index": 35,
+        "page_start": 34,
+        "page_number": 34,
+        "page_end": 34,
+        "vector_score": 0.11511682,
+        "keyword_score": 1.0,
+        "rerank_score": 0.035521045
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_36",
+      "score": 0.032592896,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "How\tto\tSkillfully\tCritique\tPeople\n11\n\t\nThe\tkey\tto\tsuccessful\tcritiques\tlies\tin\tthe\tspirit\tof\tthe\tcritiques.\nIf\tyou\tcritique\tmostly\tto\t\u201ctell\tthe\tother\tperson\toff,\u201d\tor\t\u201cto\tgive\tthem\ta\tpiece\nof\tyour\tmind,\u201d\tor\t\u201cto\tput\tthem\tin\ttheir\tplace,\u201d\tthen\tyou\twill\tget\tnothing\tfrom\tthe\ncritique\tother\tthan\tthe\tsatisfaction\tof\tventing\tyour\tspleen\tand\tthe\tother\tperson\u2019s\nresentment;\tfor\tno\tone\tenjoys\tbeing\tcritiqued.\nHowever,\tif\tyou\tare\tinterested\tin\tcorrective\taction\t\u2013\tin\tresults\t\u2013\tyou\tcan\naccomplish\tmuch\twith\tyour\tcritique\tif\tyou\tgo\tat\tit\tin\tthe\tright\tway.\tHere\tare\nsome\trules\twhich\twill\thelp\tyou\tdo\tjust\tthat.\nThe\t7\tMusts\tfor\tSuccessful\tCriticism:\n\t\n1.\t\nCriticism\tshould\tbe\tmade\tin\tabsolute\tprivacy.\n\t\nThere\tshould\tbe\tno\tdoors\topen,\tno\traising\tof\tthe\tvoice,\tnobody\tlistening.\n\t\nPreface\tcriticism\twith\ta\tkind\tword\tor\tcompliment.\n\t\nCreate\ta\tfriendly\tatmosphere\t\u2013\tsoften\tthe\tblow.\t(Kiss\t\u2018em\tbefore\tyou\tkick\n\u2018em.)\n\t\nMake\tthe\tcriticism\timpersonal\t\u2013\tcriticize\tthe\tact,\tnot\tthe\tperson.\n\t",
+        "chunk_index": 36,
+        "page_start": 35,
+        "page_number": 35,
+        "page_end": 35,
+        "vector_score": 0.186884671,
+        "keyword_score": 1.0,
+        "rerank_score": 0.032592896
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_17",
+      "score": 0.03193431,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "\t\nAsk\tquestions.\n\t\nThis\tlets\tthe\tperson\twho\tis\ttalking\tknow\tyou\tare\tlistening.\n\t\nAsking\tquestions\tis\ta\thigh\tform\tof\tflattery.\n\t\nQuestions\tcan\tbe\tsimple\tas:\n\t\t\t\t\n\u201cWhat\thappened\tthen?\u201d\n\t\t\t\t\n\u201cThen\twhat\tdid\tyou\tdo?\u201d\n\t\nStick\tto\tthe\tspeakers\u2019s\tsubject\tand\tdon\u2019t\tinterrupt.\n\t\nDon\u2019t\tchange\tsubjects\ton\ta\tperson\tuntil\tthey\tare\tfinished,\tno\tmatter\thow\nanxious\tyou\tare\tto\tget\tstarted\ton\ta\tnew\tone.\n\t\nUse\tthe\tspeaker\u2019s\twords\t\u2013\t\u201cyou\u201d\tand\t\u201cyour.\u201d\n\t\nIf\tyou\tuse\t\u201cI,\tme,\tmy,\tmine\u201d\tyou\tare\tswitching\tthe\tfocus\tfrom\tthe\tspeaker\nto\tyourself.\tThat\tis\ttalking,\tnot\tlistening.\nThese\tfive\trules\tare\tnothing\tmore\tthan\tcourtesy.\tNever\twill\tcourtesy\tpay\toff\nfor\tyou\tso\tmuch\tas\tit\twill\tin\tlistening.",
+        "chunk_index": 17,
+        "page_start": 22,
+        "page_number": 22,
+        "page_end": 22,
+        "vector_score": 0.184416071,
+        "keyword_score": 0.27218544628494296,
+        "rerank_score": 0.03193431
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_33",
+      "score": 0.029830731,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "How\tto\tSkillfully\tPraise\tPeople\n10\n\t\n\t\nPeople\tdo\tnot\tlive\ton\tbread\talone!\n\t\nPeople\tneed\tfood\tfor\tthe\tspirit\tas\twell\tas\tfor\tthe\tbody.\tRemember\thow\tyou\nfeel\twhen\ta\tkind\tword\tor\tcompliment\tis\tgiven\tyou?\tRemember\thow\tyour\nwhole\tday\tor\tevening\tis\tbrightened\tup\tby\tthat\tkind\tword\tor\tcompliment?\nRemember\thow\tlong\tthe\tgood\tfeeling\tlasts?\n\t\nWell,\tothers\twill\treact\tjust\tas\tyou\tdo.\tSo,\tsay\tthe\tkind\tword\tor\tthings\tthat\npeople\twant\tto\thear.\tThey\twill\tlove\tyou\tfor\tsaying\tkind\tthings;\tand\tyou\twill\nfell\tgood\tfor\thaving\tsaid\tthem.\nBE\tGENEROUS\tWITH\tYOUR\tPRAISE.\tLook\tfor\tsomebody\tand\nsomething\tto\tpraise\tand\tthen\tdo\tit.\nBut\n\t\u2013\n\t\t\t\t\ta.\tThe\tpraise\tmust\tbe\tsincere.\nIt\tif\tisn\u2019t\tsincere,\tdon\u2019t\tgive\tit.\n\t\t\t\t\tb.\tPraise\tthe\tact,\tnot\tthe\tperson.\nPraising\tthe\tact\tavoids\tembarrassment\tand\tconfusion.\tIt\thas\ta\tmuch\nmore\tsincere\tring\tto\tit.\tIt\tavoids\tcharges\tof\tfavoritism,\tand\tit\tcreates\tan\nincentive\tfor\tmore\tof\tthe\tsame\tact.",
+        "chunk_index": 33,
+        "page_start": 33,
+        "page_number": 33,
+        "page_end": 33,
+        "vector_score": 0.1001122,
+        "keyword_score": 0.35072591993040586,
+        "rerank_score": 0.029830731
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_29",
+      "score": 0.027798323,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "definitely\tgive\tthem\tthe\timpression\tthat\tthey\tare\texpected\tto\tsay\tyes.\n\t\nAlmost\tall\tpeople\tstart\toff\tin\t\u201cNeutral\u201d\tand\tcan\tbe\tled.\tMany\tnever\tdoubt\nor\twaver\tdoing\twhat\tyou\twant,\tonce\tyou\tlet\tthem\tknow\tit\tis\texpected\tof\nthem.\n\t\nThis\tis\texcellent\tpsychology\tand\twill\tbe\teasy\tfor\tyou\tto\tpractice\tafter\tthe\nfirst\tfew\tsuccesses.",
+        "chunk_index": 29,
+        "page_start": 30,
+        "page_number": 30,
+        "page_end": 30,
+        "vector_score": 0.114617079,
+        "keyword_score": 0.5172754248725173,
+        "rerank_score": 0.027798323
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_27",
+      "score": 0.025028326,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Yes\tmeans\tthey\twill\tdo\tit.\tNo\tmeans\tthey\twon\u2019t\tdo\tit.\n\t\nThe\tskill\tis\tto\thave\tthem\tchoose\tbetween\tdoing\twhat\tyou\twant\tone\tway\tor\nanother\tway.\tIf\tyou\twant\tan\tappointment\twith\tMr.\tSmith,\tfor\texample,\tyou\nmight\tsay:\n\t\t\n\u201cWould\tthis\tafternoon\tbe\tsatisfactory,\tMr.\tSmith,\tor\tdo\tyou\tprefer\ntomorrow\tmorning\tor\tafternoon?\u201d\t(You\tare\tgiving\tMr.\tSmith\ta\tchoice\tof\ntimes\tto\tsee\tyou\t-\ta\tchoice\tof\tyeses.)\n\t\nThe\tleast\teffective\tway\twould\tbe\tto\task\tfor\tan\tappointment.\tThis\tway\tyou\nare\tgiving\thim\ta\tchoice\tbetween\tyes\t(you\tcan\thave\tthe\tappointment)\tand\tno\n(you\tcan\u2019t\thave\tthe\tappointment.)\nExamples\n\t\u2013\n\u201cDo\tyou\twant\tthe\tblack\tor\tdo\tyou\twant\tthe\twhite?\u201d\n(Rather\tthan,\t\u201cDo\tyou\twant\tone\tof\tthese?\u201d)\n\u201cSo\tdo\tyou\twant\tto\tstart\twork\ttomorrow\tor\tTuesday?\u201d\n(Rather\tthan,\t\u201cDo\tyou\twant\tto\tstart\twork?\u201d)\n\u201cDo\tyou\twant\tthis\tcharged\tor\tdo\tyou\twant\tto\tpay\tcash?\u201d\n(Rather\tthan,\t\u201cDo\tyou\twant\tthis?\u201d)\nThis\tmethod\twon\u2019t\twork\tevery\ttime,\tbut\tit\twill\twork\ta\tgood\tdeal\tof\tthe\ttime.",
+        "chunk_index": 27,
+        "page_start": 29,
+        "page_number": 29,
+        "page_end": 29,
+        "vector_score": 0.137389317,
+        "keyword_score": 0.46323776275153955,
+        "rerank_score": 0.025028326
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_13",
+      "score": 0.024800576,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "How\tto\tSkillfully\tAgree\tWith\tPeople\n4\n\t\nJust\tabout\tthe\tsingle\tmost\timportant\tstep\tyou\tcan\ttake\tto\tbe\tskillful\tin\nhuman\trelations\tis\tfor\tyou\tto\tmaster\tthe\tArt\tof\tBeing\tAgreeable.\nTruly,\tthis\tis\tone\tof\tthe\tgems\tof\twisdom\tof\tour\ttime.\tProbably\tnothing\twill\nhelp\tyou\tso\tmuch\tin\tyour\tlifetime\tas\tthis\teasy-to-do\ttechnique\tof\tbeing\nagreeable.\nAs\tlong\tas\tyou\tlive,\tnever\tforget\tthat\tany\tfool\tcan\tdisagree\twith\tpeople.\tIt\ntakes\ta\twise\tperson,\ta\tshrewd\tperson,\ta\tbig\tperson,\tto\tagree\t\u2013\tparticularly\twhen\nthe\tother\tperson\tis\twrong.\nThe\tArt\tof\tBeing\tAgreeable\thas\tsix\tparts:\n\t\n1.\t\nLearn\tto\tbe\tagreeable,\tto\tagree\twith\tpeople.\n\t\nGet\tyourself\tinto\ta\tframe\tof\tmind,\tan\tattitude\tof\tbeing\tagreeable.\n\t\nDevelop\tan\tagreeable\tnature.\tBe\ta\tnaturally\tagreeable\tperson.\n\t\nTell\tpeople\twhen\tyou\tagree\twith\tthem.\n\t\nIt\tis\tnot\tenough\tto\tbe\tagreeable\twith\tpeople,\tlet\tpeople\tknow\tthat\tyou\tagree\nwith\tthem.\n\t\nNod\tyour\thead\t\u201cyes\u201d\tand\tlook\tat\tthem\twhen\tyou\tdo\tit\tand\tsay\tto\tthem,\t\u201cI\nagree\twith\tyou\u201d\tor\t\u201cyou\tare\tright.\u201d",
+        "chunk_index": 13,
+        "page_start": 18,
+        "page_number": 18,
+        "page_end": 18,
+        "vector_score": 0.0965949446,
+        "keyword_score": 0.4005379243840094,
+        "rerank_score": 0.024800576
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_30",
+      "score": 0.023691783,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "How\tto\tSkillfully\tSet\tPeoples\tMoods\n9\n\t\nYou\tcan\tmake\tnine\tout\tof\tten\tpeople\tlike\tyou\timmediately!\nYou\tcan\tmake\tnine\tout\tof\tten\tpeople\tcourteous,\tcooperative\tand\tfriendly\tin\none\tsecond!\t(With\tthe\tsame\tmagic.)\nHere\u2019s\thow\t-\n\t\n1.\t\nRemember\tthat\tthe\tfirst\tfew\tseconds\tof\tany\trelationship\tusually\tsets\tthe\ntone\tand\tspirit\tof\tit.\n\t\n2.\t\nUtilize\tthe\t2nd\tBasic\tLaw\tof\tHuman\tBehavior\t\u2013\t\nPeople\tstrongly\ttend\tto\nrespond\tin\tkind\tto\tthe\tbehavior\tof\tother\tpeople.\n(Let\u2019s\tshorten\tthis\tto:\tPeople\trespond\tin\tkind.)\nSo,\tin\tthe\tfirst\tsecond,\tthat\tinstant\twhen\tyou\tfirst\testablish\teye\tcontact\nbefore\tyou\tsay\tanything,\tand\tbefore\tyou\tbreak\tsilence\t\u2013\ngive\tpeople\tyour\tsincere\nsmile.\nWhat\twill\thappen?\t\nThey\twill\trespond\tin\tkind\t\u2013\tthey\twill\treturn\tyour\tsmile\nand\tbe\tpleasant.\n\t\nIn\tevery\thuman\trelations\tact\t\u2013\ta\tdealing\tbetween\ttwo\tpersons\t\u2013\tthere\tis\tan\natmosphere,\ta\tmood,\ta\tstage\tset.\n\t\nThe\tskill\there\tis\tfor\tyou\tto\tset\tthe\tatmosphere,\tthe\tmood\tand\tthe\tstage.\nEither\tyou\tor\tthe\tother\tperson\twill\tset\tit.",
+        "chunk_index": 30,
+        "page_start": 31,
+        "page_number": 31,
+        "page_end": 31,
+        "vector_score": 0.116535932,
+        "keyword_score": 0.5251371100788123,
+        "rerank_score": 0.023691783
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_8",
+      "score": 0.021469228,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Admittedly,\tit\tis\thard\tto\tdo\tand\tit\tdoes\ttake\tpractice,\tbut\tthe\trewards\tmake\tit\nwell\tworth\tit.\nAnother\tgood\tway\tof\tusing\tpeoples\u2019\tinterest\tin\tthemselves\tin\tconversation\tis\nto\tget\tthem\ttalking\tabout\tthemselves.\tYou\twill\tfind\tthat\tpeople\twould\trather\ttalk\nabout\tthemselves\tthan\tabout\tany\tother\tsubject.\nIf\tyou\twill\tmaneuver\tpeople,\tinto\ttalking\tabout\tthemselves\tthey\twill\tlike\tyou\nvery\tmuch.\tThis\tis\tdone\tby\tasking\tthem\tquestions\tabout\tthemselves\tsuch\tas:\n\u201cHow\tis\tyour\tfamily,\tJohn?\u201d\n\u201cHow\tis\tthat\tboy\tof\tyours\tin\tthe\tarmy\tcoming\talong?\u201d\n\u201cWhere\tis\tyour\tmarried\tdaughter\tliving\tnow?\u201d\n\u201cHow\tlong\thave\tyou\tbeen\twith\tthe\tcompany?\u201d\n\u201cIs\tthis\tyour\thome\ttown,\tMrs.\t_____________?\u201d\n\u201cWhat\tdo\tyou\tthink\tof\t___________,\tMr.\t_________?\u201d\n\u201cIs\tthat\ta\tpicture\tof\tyour\tfamily?\u201d\n\u201cDid\tyou\tenjoy\tyour\ttrip?\u201d\n\u201cDid\tyour\tfamily\tgo\twith\tyou,\tMary?\u201d\nMost\tof\tus\tare\tnot\teffective\ton\tothers\tbecause\twe\tkeep\tbusy\tthinking\tand\ntalking\tabout\tourselves.",
+        "chunk_index": 8,
+        "page_start": 14,
+        "page_number": 14,
+        "page_end": 14,
+        "vector_score": 0.09395127,
+        "keyword_score": 0.29272951805305847,
+        "rerank_score": 0.021469228
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_25",
+      "score": 0.021322012,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "When\tyou\tare\ttrying\tto\tget\tpeople\tto\tsay\t\u201cyes\u201d\tto\tyou,\tfirst\tget\tthem\tinto\ta\n\u201cyes\u201d\tframe\tof\tmind.\tThis\tis\tdone\tby\tasking\tthem\ttwo\tor\tthree\t\u201cyes\u201d\nquestions.\nExamples\n\t\u2013\n\t\n\u201cYou\twant\tyour\tfamily\tto\tbe\thappy,\tdon\u2019t\tyou?\u201d\t(Of\tcourse\tthey\tdo.)\n\t\n\u201cYou\twant\tthe\tbest\tvalue\tfor\tyour\tmoney,\tdon\u2019t\tyou?\u201d\t(Of\tcourse\tthey\tdo.)\n\t\nA\t\u201cyes\u201d\tquestion\tis\ta\tquestion\tthat\tcan\tonly\tbe\tanswered\twith\t\u201cyes.\u201d\n\t\nThe\tidea\tbehind\t\u201cyes\u201d\tquestions\tis\tthat\tif\tyou\tget\tpeople\tinto\ta\tyes\tframe\tof\nmind,\tit\tmakes\tit\tmore\tprobably\tthey\twill\tsay\tyes\tto\tyou.\n\t\t\nBe\tsure,\thowever,\tto\task\t\u201cyes\u201d\tquestions\tproperly.\tNOD\tYOUR\tHEAD\nWHILE\tYOU\tARE\tASKING\tTHE\tQUESTION\tAND\tBEGIN\tTHE\nQUESTION\tWITH\tTHE\tWORD\t\u201cYOU.\u201d\n\t\n\u201cYou\twant\tthe\tbest\tproduct,\tdon\u2019t\tyou?\u201d\n(Nodding\tyour\thead.)\n\t\n\u201cYou\tdo\twant\ta\tsecure\tfuture,\tdon\u2019t\tyou?\u201d\n(Nodding\tyour\thead.)\n\t\n3.\t\nGive\tpeople\ta\tchoice\tbetween\ttwo\tyeses.\n\t\nThis\tsimply\tmeans\tgetting\tpeople\tto\tchoose\tbetween\tsaying\tyes\tto\tyou\tone\nway\tor\tsaying\tyes\tto\tyou\tanother\tway.",
+        "chunk_index": 25,
+        "page_start": 28,
+        "page_number": 28,
+        "page_end": 28,
+        "vector_score": 0.133329391,
+        "keyword_score": 0.35797787839983497,
+        "rerank_score": 0.021322012
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_44",
+      "score": 0.021175781,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "How\tto\tSkillfully\tMake\ta\tTalk\n14\n\t\nHere\tare\tfive\trules\tthat,\tif\tyou\tobserve\tthem,\twill\tmake\tyou\tan\tinteresting\nspeaker.\tThey\tmake\tthe\tdifference\tbetween\tinteresting\ttalkers\tand\tuninteresting\nones.\n\t\n1.\t\nKnow\twhat\tyou\twant\tto\tsay.\n\t\nIf\tyou\tdon\u2019t\tknow\texactly\twhat\tyou\twant\tto\tsay,\tdon\u2019t\tget\ton\tyour\tfeet\tor\nopen\tyour\tmouth.\n\t\nSpeak\twith\tauthority,\tfrom\tknowledge,\tand\twith\tconfidence.\tThis\tcan\tonly\nbe\tif\tyou\tknow\twhat\tyou\twant\tto\tsay.\n\t\nSay\tit\tand\tsit\tdown.\n\t\nBe\tbrief,\tbe\tto\tthe\tpoint\tand\tthen\tsit\tdown.\n\t\nRemember,\tno\tone\twas\tever\tcriticized\tfor\tsaying\ttoo\tlittle.\tIf\tmore\tis\ndesired\tfrom\tyou,\tit\twill\tbe\tasked\tof\tyou.\n\t\nQuit\ta\twinner.\n\t\nLook\tat\tthe\taudience\twhile\tyou\ttalk.\n\t",
+        "chunk_index": 44,
+        "page_start": 42,
+        "page_number": 42,
+        "page_end": 42,
+        "vector_score": 0.111516953,
+        "keyword_score": 0.5360564944912979,
+        "rerank_score": 0.021175781
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_19",
+      "score": 0.015414207,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Applying\tthis\tprinciple,\t\u201cFind\tOut\tWhat\tPeople\tWant,\u201d\tyou\twould\tfirst\ndetermine\tjust\twhat\tin\ta\tposition\tand\tcompany\tthe\tengineer\twas\tlooking\tfor\tand\nwhat\tappealed\tto\tthis\tperson\tmost.\tIf\tyou\tfound\tout\tthat\tit\twas\tadvancement\nopportunity,\tyou\twould\tshow\thow\tmuch\tadvancement\topportunity\tyou\thad\tto\noffer.\nIf\tthe\tcandidate\twas\tafter\tsecurity,\tyou\twould\ttalk\tsecurity.\tIf\tfurther\neducation\tand\texperience\twas\timportant,\tyou\twould\ttalk\tabout\tthat.\tThe\tpoint\tis",
+        "chunk_index": 19,
+        "page_start": 23,
+        "page_number": 23,
+        "page_end": 23,
+        "vector_score": 0.104271889,
+        "keyword_score": 0.2744685346732576,
+        "rerank_score": 0.015414207
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_22",
+      "score": 0.013924864,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "If\tyou\twere\ttrying\tto\trent\tyour\tapartment\tand\tthe\tpeople\tyou\twere\ttrying\tto\nrent\tto\twondered\tif\tit\twas\tquiet\tyou\twould\tmention\tthat\tthe\tpast\ttenants\nremarked\thow\tquiet\tthe\tapartment\twas.\nNow,\tin\tall\tthese\texamples,\tyou\tdo\tnot\tanswer\tthe\tinquiry\tor\tquestion.\tYour\nnext\tdoor\tneighbor,\tyour\tpart\temployers\tand\tyour\tpast\ttenants\tdo\tthe\tanswering\nfor\tyou.",
+        "chunk_index": 22,
+        "page_start": 25,
+        "page_number": 25,
+        "page_end": 25,
+        "vector_score": 0.182807863,
+        "keyword_score": 0.504902607303809,
+        "rerank_score": 0.013924864
+      }
+    },
+    {
+      "id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d_chunk_0",
+      "score": 0.01379672,
+      "metadata": {
+        "source_id": "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Introducing\tthe\t\nSkill\tWith\tPeople\n\tMobile\tApplication\nDo\tyou\thave\tskill\twith\tpeople?\tPut\tLes\tGiblin\u2019s\tclassic\tguide\tto\tcareer\tsuccess,\na\tbetter\tsocial\tlife\tand\timproved\tfamily\tlife\tat\tyour\tfingertips.\nThis\thow-to\tguide\tgives\tyou\tquick\taccess\tto\tcommon\tsense\ttips\tand\ttechniques\nthat\twill\thelp\tyou\tmeet\tnew\tpeople,\tclose\tthe\tdeal,\tor\tdazzle\tthe\tcrowd.\nAnswer\t10\tquestions\tto\tfind\tout\tif\tyou\tare\tpeople\tsmart.\tThen\tscroll\tthrough\tthe\nskills\tthat\tyou\tneed\tto\tbuild\ton.\tHave\ta\tspecific\tchallenge\tyou\tneed\tadvice\ton?\nGo\tto\tReal\tLife\tChallenges\tto\tfind\tout\thow\tto\tace\tthe\tjob\tinterview\tor\tmake\nsmall\ttalk\tat\tyour\tcousin\u2019s\twedding.\nMake\tthe\tmost\tout\tof\tyour\tpersonal\tconnections\tas\ttaught\tby\tthe\tmaster\tof\npeople\tand\tsales\tskills.\tLearn\tto\tcommunicate\twith\timpact;\tinfluence\twith\ncertainty;\tand\tlisten\twith\tsensitivity.\nAvailable\tnow\tfor\tdownload\n",
+        "chunk_index": 0,
+        "page_start": 4,
+        "page_number": 4,
+        "page_end": 4,
+        "vector_score": 0.111747384,
+        "keyword_score": 0.909646084598962,
+        "rerank_score": 0.01379672
+      }
+    }
+  ],
+  "timestamp": 1774090800.5155585,
+  "ttl": 3600,
+  "query": "Clear harassment or slurs against specific groups in educational settings",
+  "source_ids": [
+    "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d"
+  ]
+}

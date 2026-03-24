@@ -1,0 +1,12 @@
+{
+  "rewritten_queries": [
+    "Who is the author of the book on interpersonal skills by Les Giblin?",
+    "Les Giblin written by author of interpersonal skills guide"
+  ],
+  "timestamp": 1774109983.3705153,
+  "ttl": 3600,
+  "query": "Who is the author of the book on interpersonal skills by Les Giblin?",
+  "source_ids": [
+    "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d"
+  ]
+}

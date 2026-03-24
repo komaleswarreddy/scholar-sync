@@ -53,10 +53,12 @@ if "supabase.com" in database_url or "pooler.supabase.com" in database_url:
 
 engine = create_async_engine(
     database_url,
-    echo=True,  # logs SQL queries (safe for dev)
+    echo=getattr(settings, "SQLALCHEMY_ECHO", False),
     pool_pre_ping=True,  # Verify connections before using them
     pool_recycle=3600,  # Recycle connections after 1 hour
-    connect_args=connect_args
+    pool_size=getattr(settings, "DB_POOL_SIZE", 5),
+    max_overflow=getattr(settings, "DB_MAX_OVERFLOW", 10),
+    connect_args=connect_args,
 )
 
 # ======================

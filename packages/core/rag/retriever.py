@@ -6,20 +6,27 @@ Enhanced with Phase 2 retrieval quality agents with guardrails.
 """
 
 from typing import List, Dict, Any, Optional
+import asyncio
 import re
+import time
+
+from packages.core.monitoring.pipeline_trace import trace_async, trace_snippet, record_retrieval_span
 from config.settings import settings
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
 from packages.core.rag.embedder import Embedder
 from packages.core.rag.hybrid_retriever import HybridRetriever
+from packages.core.rag.llama_adapters import LlamaIndexRetrievalAdapter
 from packages.core.rag.agents import (
     IntentClassifier,
-    ScopeNarrower,
     QueryRewriter,
     MMRDiversity,
-    Reranker,
     ContextSelector,
     UserIntent,
     QueryComplexityScorer,
+)
+from packages.core.rag.metadata_query import (
+    extra_retrieval_variants,
+    is_metadata_attribution_query,
 )
 
 
@@ -33,7 +40,7 @@ class Retriever:
     3. Query Rewriting → Generate query variants (preserve semantic intent)
     4. Hybrid Retrieval → Vector + keyword search (normalized scores)
     5. MMR Diversity → Select diverse chunks (skip if < 8 chunks, preserve high relevance)
-    6. Reranking → Rerank by relevance (guardrails: keep original if weak confidence)
+    6. Reranking → Cohere Rerank API only (requires COHERE_API_KEY; no LLM/keyword fallback)
     7. Context Selection → Final filtering (min 6 chunks, token budget, adjacent chunks)
     """
     
@@ -41,13 +48,27 @@ class Retriever:
         self.tenant_id = tenant_id
         self.vector_store = PineconeVectorStore(tenant_id)
         self.embedder = Embedder(tenant_id)
+        self.li_retriever = (
+            LlamaIndexRetrievalAdapter(tenant_id)
+            if getattr(settings, "USE_LLAMA_INDEX_RAG", False)
+            else None
+        )
         # Store previous chunks for conversation-aware retrieval
         self.previous_chunks = []
-        
+
+        # Cohere-only reranking (shared by simple + Phase 2 retrieval paths)
+        self.cohere_reranker = None
+        if getattr(settings, "COHERE_API_KEY", ""):
+            try:
+                from packages.core.rag.rerank.cohere_reranker import CohereReranker
+
+                self.cohere_reranker = CohereReranker()
+            except Exception:
+                self.cohere_reranker = None
+
         # Initialize Phase 2 agents if enabled
         if settings.USE_RETRIEVAL_AGENTS:
             self.intent_classifier = IntentClassifier(tenant_id)
-            self.scope_narrower = ScopeNarrower(tenant_id)
             self.query_rewriter = QueryRewriter(tenant_id)
             self.complexity_scorer = QueryComplexityScorer()
             self.hybrid_retriever = HybridRetriever(
@@ -55,19 +76,16 @@ class Retriever:
                 keyword_weight=settings.HYBRID_KEYWORD_WEIGHT
             )
             self.mmr_diversity = MMRDiversity(lambda_param=settings.MMR_LAMBDA)
-            self.reranker = Reranker(tenant_id, use_llm=settings.USE_LLM_RERANKING)
             self.context_selector = ContextSelector(
                 max_context_chunks=settings.MAX_CONTEXT_CHUNKS,
                 min_relevance_score=settings.SIMILARITY_THRESHOLD
             )
         else:
             self.intent_classifier = None
-            self.scope_narrower = None
             self.query_rewriter = None
             self.complexity_scorer = None
             self.hybrid_retriever = None
             self.mmr_diversity = None
-            self.reranker = None
             self.context_selector = None
         
         # Initialize retrieval cache for query rewrites and reranks
@@ -90,7 +108,25 @@ class Retriever:
     def _estimate_tokens(self, text: str) -> int:
         """Rough token estimation: 1 token ≈ 4 characters."""
         return len(text) // 4
-    
+
+    async def _cohere_rerank_chunks(
+        self, query: str, chunks: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """Rerank via Cohere only. Missing key or errors → keep vector ordering."""
+        if not query or not chunks or len(chunks) <= 1 or self.cohere_reranker is None:
+            return chunks
+        try:
+            return await asyncio.to_thread(
+                lambda: self.cohere_reranker.rerank(
+                    query=query,
+                    matches=chunks,
+                    top_n=len(chunks),
+                )
+            )
+        except Exception as e:
+            print(f"[RAG_PIPELINE] Cohere rerank failed: {e}")
+            return sorted(chunks, key=lambda x: x.get("score", 0), reverse=True)
+
     def get_context_size(self, intent: Optional[UserIntent] = None) -> int:
         """
         Get context size (top_k) based on intent.
@@ -104,17 +140,22 @@ class Retriever:
         if intent is None:
             return settings.TOP_K_CHUNKS
         
-        # Intent-based context sizing
+        # Intent-based context sizing (SUMMARY needs broad retrieval — was incorrectly 3 chunks)
         intent_sizing = {
-            UserIntent.SUMMARY: 3,  # Minimal context for summaries
-            UserIntent.DEFINITION: 5,  # Small context for definitions
-            UserIntent.QUESTION: 7,  # Medium context for questions
-            UserIntent.EXPLANATION: 10,  # Default for explanations
-            UserIntent.HOW_TO: 10,  # Default for how-to
-            UserIntent.COMPARISON: 12,  # More context for comparisons
-            UserIntent.ANALYSIS: 15,  # Large context for analysis
-            UserIntent.CREATION: 10,  # Default for creation
-            UserIntent.GENERAL: 10,  # Default
+            UserIntent.SUMMARY: getattr(
+                settings, "DOCUMENT_SUMMARY_RETRIEVAL_TOP_K", max(settings.TOP_K_CHUNKS * 6, 48)
+            ),
+            UserIntent.WHOLE_DOCUMENT_SUMMARY: getattr(
+                settings, "DOCUMENT_SUMMARY_RETRIEVAL_TOP_K", max(settings.TOP_K_CHUNKS * 6, 48)
+            ),
+            UserIntent.DEFINITION: 8,  # Definitions often need surrounding context, not a single line
+            UserIntent.QUESTION: 14,
+            UserIntent.EXPLANATION: 12,
+            UserIntent.HOW_TO: 12,
+            UserIntent.COMPARISON: 14,
+            UserIntent.ANALYSIS: 16,
+            UserIntent.CREATION: 12,
+            UserIntent.GENERAL: 12,
         }
         
         return intent_sizing.get(intent, settings.TOP_K_CHUNKS)
@@ -154,6 +195,7 @@ class Retriever:
         top_k: int = None,
         filter: Optional[Dict] = None,
         conversation_history: Optional[List[Dict]] = None,
+        classified_intent: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Retrieve relevant chunks from vector store.
@@ -202,19 +244,65 @@ class Retriever:
         
         # If Phase 2 agents disabled, use simple retrieval
         if not settings.USE_RETRIEVAL_AGENTS:
+            # Allow query-only callers; generate embedding here.
             if query_embedding is None:
-                raise ValueError("query_embedding required when USE_RETRIEVAL_AGENTS is False")
-            results = await self.vector_store.query_vectors(
-                query_embedding=query_embedding,
-                top_k=top_k,
-                filter=filter,
+                if not query:
+                    raise ValueError(
+                        "query or query_embedding required when USE_RETRIEVAL_AGENTS is False"
+                    )
+                query_embedding = await trace_async(
+                    "Retrieval/simple_embedding",
+                    self.embedder.generate_embedding(query),
+                    input_summary={"query_preview": trace_snippet(query, 240)},
+                    output_fn=lambda emb: {"embedding_dims": len(emb) if emb else 0},
+                    feature_tag="embedding",
+                )
+
+            async def _simple_retrieve():
+                if self.li_retriever is not None and query:
+                    active_source_ids = None
+                    if filter and isinstance(filter, dict):
+                        active_source_ids = (
+                            filter.get("source_id", {}).get("$in", None)
+                            if isinstance(filter.get("source_id", {}), dict)
+                            else None
+                        )
+                    return await self.li_retriever.retrieve(
+                        query=query,
+                        top_k=top_k,
+                        active_source_ids=active_source_ids,
+                    )
+                return await self.vector_store.query_vectors(
+                    query_embedding=query_embedding,
+                    top_k=top_k,
+                    filter=filter,
+                )
+
+            results = await trace_async(
+                "Retrieval/simple_vector_query",
+                _simple_retrieve(),
+                input_summary={"top_k": top_k, "path": "llama" if self.li_retriever is not None else "pinecone"},
+                output_fn=lambda r: {"match_count": len((r or {}).get("matches") or [])},
             )
+            matches = results.get("matches", []) or []
+            if query and matches:
+                matches = await trace_async(
+                    "Retrieval/simple_cohere_rerank",
+                    self._cohere_rerank_chunks(query, matches),
+                    input_summary={"chunks_in": len(matches)},
+                    output_fn=lambda m: {"chunks_out": len(m) if m else 0},
+                    feature_tag="cohere_rerank",
+                )
+                results["matches"] = matches
             debug_trace["retrieved_chunks_initial"] = {
-                "count": len(results.get("matches", [])),
-                "ids": [m.get("id") for m in results.get("matches", [])]
+                "count": len(matches),
+                "ids": [m.get("id") for m in matches]
             }
             if settings.RAG_DEBUG:
                 results["debug_trace"] = debug_trace
+            # Metadata for downstream (e.g. chat generator prompt) — simple path has no scope/rewrite
+            results["focused_query"] = query
+            results["rewritten_queries"] = [query]
             return results
         
         # Phase 2: Enhanced retrieval pipeline
@@ -223,9 +311,8 @@ class Retriever:
         
         self._log("START", f"Retrieval pipeline started", {"query": query, "top_k": top_k})
         
-        # 0. Query Complexity Scoring (skip expensive ops for simple queries)
+        # 0. Query Complexity Scoring (rerank / confidence only; rewrite always runs)
         complexity_result = self.complexity_scorer.score_complexity(query)
-        should_skip_rewrite = complexity_result.get("should_skip_rewrite", False)
         should_skip_rerank = complexity_result.get("should_skip_rerank", False)
         should_skip_confidence = complexity_result.get("should_skip_confidence", False)
         
@@ -233,39 +320,34 @@ class Retriever:
         debug_trace["word_count"] = complexity_result.get("word_count")
         debug_trace["has_operators"] = complexity_result.get("has_operators")
         
-        if should_skip_rewrite or should_skip_rerank:
-            self._log("COMPLEXITY", f"Simple query detected - skipping expensive operations", {
+        if should_skip_rerank or should_skip_confidence:
+            self._log("COMPLEXITY", f"Simple query detected - skipping some expensive operations", {
                 "complexity": complexity_result.get("complexity"),
-                "skip_rewrite": should_skip_rewrite,
                 "skip_rerank": should_skip_rerank,
                 "skip_confidence": should_skip_confidence
             })
             debug_trace["guardrails_applied"].append("simple_query_skip_expensive_ops")
         
-        # 1. Intent Classification
-        intent_result = await self.intent_classifier.classify_intent(
-            query=query,
-            conversation_history=conversation_history
-        )
-        intent = intent_result.get("intent")
-        intent_confidence = intent_result.get("confidence", 0.5)
-        intent_reasoning = intent_result.get("reasoning", "")
+        # 1. Intent — reuse the classified intent from the LangGraph IntentClassify node
+        #    (no second LLM call). Fall back to local classification only when caller
+        #    does not provide a pre-classified intent (e.g. tests, CLI).
+        from packages.core.rag.agents import UserIntent
+        intent = None
+        intent_confidence = 0.8
+        if classified_intent:
+            _intent_map = {v.value: v for v in UserIntent}
+            intent = _intent_map.get(classified_intent, UserIntent.QUESTION)
+            self._log("INTENT", f"Reusing pre-classified intent: {intent}")
+        else:
+            intent_result = await self.intent_classifier.classify_intent(
+                query=query,
+                conversation_history=conversation_history,
+            )
+            intent = intent_result.get("intent")
+            intent_confidence = intent_result.get("confidence", 0.5)
         
         debug_trace["detected_intent"] = str(intent) if intent else None
         debug_trace["intent_confidence"] = intent_confidence
-        
-        self._log("INTENT", f"Intent classified: {intent} (confidence: {intent_confidence:.2f})", {
-            "intent": str(intent),
-            "confidence": intent_confidence,
-            "reasoning": intent_reasoning
-        })
-        
-        # Intent classifier safety: route to default if confidence low
-        INTENT_CONFIDENCE_THRESHOLD = 0.5
-        if intent_confidence < INTENT_CONFIDENCE_THRESHOLD:
-            self._log("INTENT", f"Low confidence ({intent_confidence:.2f}), using default QA pipeline")
-            debug_trace["guardrails_applied"].append("low_intent_confidence_fallback")
-            # Continue with pipeline but use generic intent
         
         # Set top_k based on intent (replace fixed TOP_K_CHUNKS)
         top_k = self.get_context_size(intent)
@@ -283,74 +365,77 @@ class Retriever:
             # We'll merge previous chunks with new ones later
             top_k = new_chunks_to_retrieve  # Only retrieve a few new chunks
         
-        # 2. Scope Narrowing (skip if we expect small document set)
-        # We'll check document count after initial retrieval
-        scope_result = await self.scope_narrower.narrow_scope(
-            query=query,
-            conversation_history=conversation_history
-        )
-        focused_query = scope_result.get("focused_query", query)
-        key_terms = scope_result.get("key_terms", [])
-        suggested_max_chunks = scope_result.get("max_chunks", top_k)
-        
-        self._log("SCOPE", f"Scope narrowed", {
-            "original": query,
-            "focused": focused_query,
-            "key_terms": key_terms,
-            "suggested_max": suggested_max_chunks
-        })
-        
-        # 3. Query Rewriting (with confidence threshold) - Skip for simple queries
-        rewritten_queries = [focused_query]
+        # 2. Query Rewriting — resolves coreferences, produces optimized retrieval queries
+        focused_query = query
+        key_terms: list = []
+        rewritten_queries = [query]
         rewrite_confidence = 1.0
         used_rewrites = False
-        
-        if not should_skip_rewrite:
-            # Check cache first
-            source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
-            cached_rewrite = self.retrieval_cache.get_rewrite(focused_query, source_ids_list)
-            
-            if cached_rewrite:
-                rewritten_queries = cached_rewrite
-                rewrite_confidence = 1.0
-                used_rewrites = True
-                self._log("CACHE", f"Using cached query rewrite", {"rewritten_queries": rewritten_queries})
-                debug_trace["rewrite_cache_hit"] = True
-            else:
-                rewrite_result = await self.query_rewriter.rewrite_query(
-                    query=focused_query,
+
+        source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
+        cached_rewrite = self.retrieval_cache.get_rewrite(query, source_ids_list)
+
+        if cached_rewrite:
+            rewritten_queries = cached_rewrite
+            rewrite_confidence = 1.0
+            used_rewrites = True
+            self._log("CACHE", f"Using cached query rewrite", {"rewritten_queries": rewritten_queries})
+            debug_trace["rewrite_cache_hit"] = True
+        else:
+            rewrite_result = await trace_async(
+                "Retrieval/query_rewrite",
+                self.query_rewriter.rewrite_query(
+                    query=query,
                     conversation_history=conversation_history,
                     max_rewrites=2,
-                    confidence_threshold=settings.QUERY_REWRITE_CONFIDENCE_THRESHOLD
-                )
-                rewritten_queries = rewrite_result.get("queries", [focused_query])
-                rewrite_confidence = rewrite_result.get("confidence", 0.0)
-                used_rewrites = rewrite_result.get("used_rewrites", False)
-                
-                # Cache the rewrite
-                if used_rewrites and rewritten_queries:
-                    self.retrieval_cache.set_rewrite(focused_query, rewritten_queries, source_ids_list)
-                    debug_trace["rewrite_cache_miss"] = True
-        else:
-            self._log("REWRITE", f"Skipping query rewrite (simple query)")
-            debug_trace["rewrite_skipped"] = True
+                    confidence_threshold=settings.QUERY_REWRITE_CONFIDENCE_THRESHOLD,
+                ),
+                input_summary={"raw_query": trace_snippet(query, 240)},
+                output_fn=lambda r: {
+                    "rewritten_queries": [trace_snippet(x, 160) for x in (r or {}).get("queries", [])[:4]],
+                    "confidence": (r or {}).get("confidence"),
+                },
+                feature_tag="query_rewriter",
+            )
+            rewritten_queries = rewrite_result.get("queries", [query])
+            rewrite_confidence = rewrite_result.get("confidence", 0.0)
+            used_rewrites = rewrite_result.get("used_rewrites", False)
+
+            if used_rewrites and rewritten_queries:
+                self.retrieval_cache.set_rewrite(query, rewritten_queries, source_ids_list)
+                debug_trace["rewrite_cache_miss"] = True
         
+        focused_query = rewritten_queries[0] if rewritten_queries else query
         debug_trace["rewritten_queries"] = rewritten_queries
         debug_trace["rewrite_confidence"] = rewrite_confidence
         
         self._log("REWRITE", f"Query rewritten", {
-            "original": focused_query,
+            "original": query,
             "rewritten": rewritten_queries,
             "confidence": rewrite_confidence,
             "used_rewrites": used_rewrites
         })
+
+        if is_metadata_attribution_query(query) or is_metadata_attribution_query(focused_query):
+            seen_lower = {str(x).strip().lower() for x in rewritten_queries if x}
+            for v in extra_retrieval_variants(focused_query):
+                vl = v.strip().lower()
+                if vl and vl not in seen_lower:
+                    rewritten_queries.append(v)
+                    seen_lower.add(vl)
+            debug_trace["guardrails_applied"].append("metadata_query_variants")
         
-        # Use primary query (first in list, which is always original)
-        primary_query = rewritten_queries[0] if rewritten_queries else focused_query
+        primary_query = rewritten_queries[0] if rewritten_queries else query
         
         # 4. Generate embedding for primary query
         if query_embedding is None:
-            query_embedding = await self.embedder.generate_embedding(primary_query)
+            query_embedding = await trace_async(
+                "Retrieval/embedding",
+                self.embedder.generate_embedding(primary_query),
+                input_summary={"query": trace_snippet(primary_query, 240)},
+                output_fn=lambda emb: {"dimensions": len(emb) if emb else 0},
+                feature_tag="embedding",
+            )
         
         # 5. Hybrid Retrieval (Vector + Keyword)
         # Retrieve more chunks initially to have buffer for filtering
@@ -359,12 +444,27 @@ class Retriever:
         # Store original query embedding for fallback
         original_query_embedding = query_embedding
         
+        _vh_t0 = time.perf_counter()
         # Perform vector search first with primary query
-        vector_results = await self.vector_store.query_vectors(
-            query_embedding=query_embedding,
-            top_k=initial_retrieval_k,
-            filter=filter,
-        )
+        if self.li_retriever is not None:
+            active_source_ids = None
+            if filter and isinstance(filter, dict):
+                active_source_ids = (
+                    filter.get("source_id", {}).get("$in", None)
+                    if isinstance(filter.get("source_id", {}), dict)
+                    else None
+                )
+            vector_results = await self.li_retriever.retrieve(
+                query=primary_query,
+                top_k=initial_retrieval_k,
+                active_source_ids=active_source_ids,
+            )
+        else:
+            vector_results = await self.vector_store.query_vectors(
+                query_embedding=query_embedding,
+                top_k=initial_retrieval_k,
+                filter=filter,
+            )
         vector_matches = vector_results.get("matches", [])
         
         debug_trace["retrieved_chunks_initial"] = {
@@ -383,6 +483,18 @@ class Retriever:
             vector_results=vector_matches,
             query=primary_query,
         )
+        record_retrieval_span(
+            "Retrieval/retrieve",
+            (time.perf_counter() - _vh_t0) * 1000,
+            input_summary={
+                "query": trace_snippet(primary_query, 200),
+                "top_k": initial_retrieval_k,
+            },
+            output_summary={
+                "vector_chunks": len(vector_matches),
+                "after_hybrid_merge": len(hybrid_matches),
+            },
+        )
         
         debug_trace["after_hybrid_merge"] = {"count": len(hybrid_matches)}
         print(f"[RAG_PIPELINE] Stage: HYBRID | Chunks: {len(hybrid_matches)}")
@@ -399,14 +511,28 @@ class Retriever:
         original_hybrid_count = len(hybrid_matches)
         if used_rewrites and len(rewritten_queries) > 1:
             additional_matches = []
-            for rewritten_query in rewritten_queries[1:]:  # Skip original (already searched)
+            for rewritten_query in rewritten_queries[1:]:  # Additional variants (primary already searched)
                 try:
                     rewritten_embedding = await self.embedder.generate_embedding(rewritten_query)
-                    rewritten_results = await self.vector_store.query_vectors(
-                        query_embedding=rewritten_embedding,
-                        top_k=initial_retrieval_k // 2,  # Get fewer for variants
-                        filter=filter,
-                    )
+                    if self.li_retriever is not None:
+                        active_source_ids = None
+                        if filter and isinstance(filter, dict):
+                            active_source_ids = (
+                                filter.get("source_id", {}).get("$in", None)
+                                if isinstance(filter.get("source_id", {}), dict)
+                                else None
+                            )
+                        rewritten_results = await self.li_retriever.retrieve(
+                            query=rewritten_query,
+                            top_k=initial_retrieval_k // 2,
+                            active_source_ids=active_source_ids,
+                        )
+                    else:
+                        rewritten_results = await self.vector_store.query_vectors(
+                            query_embedding=rewritten_embedding,
+                            top_k=initial_retrieval_k // 2,  # Get fewer for variants
+                            filter=filter,
+                        )
                     variant_matches = rewritten_results.get("matches", [])
                     # Combine with keyword search
                     variant_hybrid = self.hybrid_retriever.combine_results(
@@ -466,6 +592,7 @@ class Retriever:
             self._log("GUARDRAIL", f"Skipping MMR diversity (small doc set: {total_chunks_available} chunks)")
         
         # 6. MMR Diversity - Select diverse chunks (skip if small doc set)
+        _mmr_t0 = time.perf_counter()
         if skip_mmr or len(hybrid_matches) <= top_k:
             diverse_matches = hybrid_matches
             print(f"[RAG_PIPELINE] Stage: MMR | Chunks: {len(diverse_matches)} (skipped)")
@@ -484,20 +611,40 @@ class Retriever:
                 "output_count": len(diverse_matches),
                 "lambda": settings.MMR_LAMBDA
             })
+        record_retrieval_span(
+            "Retrieval/mmr",
+            (time.perf_counter() - _mmr_t0) * 1000,
+            input_summary={"chunks_in": len(hybrid_matches), "skipped": skip_mmr},
+            output_summary={"chunks_out": len(diverse_matches)},
+        )
         
         debug_trace["after_mmr"] = {"count": len(diverse_matches)}
         
         # 7. Reranking - Rerank by relevance to query (with guardrails) - Skip for simple queries
-        # Safeguard: Reranker must always keep at least top 6 chunks
+        # Safeguard: Rerank stage must always keep at least top 6 chunks
         if len(diverse_matches) <= 1:
             reranked_matches = diverse_matches
             reranker_confidence = 1.0  # Perfect confidence if only one chunk
+            record_retrieval_span(
+                "Retrieval/cohere_rerank",
+                0.0,
+                input_summary={"chunks_in": len(diverse_matches), "skipped": False, "reason": "single_chunk"},
+                output_summary={"chunks_out": len(reranked_matches)},
+                feature_tag="cohere_rerank",
+            )
         elif should_skip_rerank:
             # Skip reranking for simple queries
             reranked_matches = diverse_matches
             reranker_confidence = 0.8  # Default confidence for simple queries
             self._log("RERANK", f"Skipping reranking (simple query)")
             debug_trace["rerank_skipped"] = True
+            record_retrieval_span(
+                "Retrieval/cohere_rerank",
+                0.0,
+                input_summary={"chunks_in": len(diverse_matches), "skipped": True, "reason": "simple_query"},
+                output_summary={"chunks_out": len(reranked_matches)},
+                feature_tag="cohere_rerank",
+            )
         else:
             # Check cache first
             source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
@@ -508,25 +655,49 @@ class Retriever:
                 reranker_confidence = 0.9  # High confidence for cached results
                 self._log("CACHE", f"Using cached reranked chunks", {"chunk_count": len(reranked_matches)})
                 debug_trace["rerank_cache_hit"] = True
-            else:
-                reranked_result = await self.reranker.rerank(
-                    chunks=diverse_matches,
-                    query=primary_query,
-                    top_k=None  # Don't limit here, let context selector handle it
+                record_retrieval_span(
+                    "Retrieval/cohere_rerank",
+                    0.0,
+                    input_summary={"chunks_in": len(diverse_matches), "cache_hit": True},
+                    output_summary={"chunks_out": len(reranked_matches)},
+                    feature_tag="cohere_rerank",
                 )
-                # Handle both dict and list return formats (backward compatibility)
-                if isinstance(reranked_result, dict):
-                    reranked_matches = reranked_result.get("chunks", diverse_matches)
-                    reranker_confidence = reranked_result.get("confidence", 0.5)
-                else:
-                    # Legacy format (list)
-                    reranked_matches = reranked_result
-                    reranker_confidence = 0.7  # Default confidence for legacy
-                
-                # Cache the reranked chunks
+            elif self.cohere_reranker is not None:
+                try:
+                    reranked_matches = await trace_async(
+                        "Retrieval/cohere_rerank",
+                        asyncio.to_thread(
+                            lambda: self.cohere_reranker.rerank(
+                                query=primary_query,
+                                matches=diverse_matches,
+                                top_n=len(diverse_matches),
+                            )
+                        ),
+                        input_summary={"chunks_in": len(diverse_matches), "query": trace_snippet(primary_query, 120)},
+                        output_fn=lambda m: {"chunks_out": len(m) if m else 0},
+                        feature_tag="cohere_rerank",
+                    )
+                    reranker_confidence = 0.92
+                except Exception as e:
+                    print(f"[RAG_PIPELINE] Cohere rerank failed: {e}")
+                    reranked_matches = sorted(
+                        diverse_matches, key=lambda x: x.get("score", 0), reverse=True
+                    )
+                    reranker_confidence = 0.55
                 if reranked_matches:
                     self.retrieval_cache.set_rerank(primary_query, reranked_matches, source_ids_list)
                     debug_trace["rerank_cache_miss"] = True
+            else:
+                print("[RAG_PIPELINE] COHERE_API_KEY not set; skipping rerank (no LLM/keyword fallback)")
+                reranked_matches = list(diverse_matches)
+                reranker_confidence = 0.82
+                record_retrieval_span(
+                    "Retrieval/cohere_rerank",
+                    0.0,
+                    input_summary={"chunks_in": len(diverse_matches), "skipped": True, "reason": "cohere_missing"},
+                    output_summary={"chunks_out": len(reranked_matches)},
+                    feature_tag="cohere_rerank",
+                )
             
             # Guardrail: if reranker confidence weak, keep original vector order
             RERANKER_CONFIDENCE_THRESHOLD = 0.6
@@ -540,7 +711,7 @@ class Retriever:
             # Safeguard: Ensure we never drop below top 6 chunks after rerank
             min_chunks_after_rerank = max(settings.MIN_CONTEXT_CHUNKS, min(len(diverse_matches), top_k))
             if len(reranked_matches) < min_chunks_after_rerank:
-                print(f"[RAG_PIPELINE] GUARDRAIL: Reranker returned {len(reranked_matches)} chunks, enforcing minimum {min_chunks_after_rerank}")
+                print(f"[RAG_PIPELINE] GUARDRAIL: Rerank returned {len(reranked_matches)} chunks, enforcing minimum {min_chunks_after_rerank}")
                 # Add back top chunks by original score
                 original_sorted = sorted(diverse_matches, key=lambda x: x.get("score", 0), reverse=True)
                 reranked_ids = {m.get("id") for m in reranked_matches}
@@ -566,11 +737,31 @@ class Retriever:
         })
         
         # 8. Context Selection - Final filtering (with guardrails)
+        ctx_budget = settings.CONTEXT_TOKEN_BUDGET
+        min_ctx = settings.MIN_CONTEXT_CHUNKS
+        max_ctx_chunks = settings.MAX_CONTEXT_CHUNKS
+        if intent == UserIntent.SUMMARY:
+            ctx_budget = getattr(settings, "DOCUMENT_SUMMARY_CONTEXT_TOKEN_BUDGET", ctx_budget)
+            min_ctx = max(
+                settings.MIN_CONTEXT_CHUNKS,
+                getattr(settings, "DOCUMENT_SUMMARY_MIN_CHUNKS", min_ctx),
+            )
+            max_ctx_chunks = getattr(settings, "DOCUMENT_SUMMARY_MAX_CONTEXT_CHUNKS", max_ctx_chunks)
+
+        _ctx_t0 = time.perf_counter()
         selected_matches = self.context_selector.select_context(
             retrieved_chunks=reranked_matches,
             query=primary_query,
-            max_tokens=settings.CONTEXT_TOKEN_BUDGET,
-            min_chunks=settings.MIN_CONTEXT_CHUNKS
+            max_tokens=ctx_budget,
+            min_chunks=min_ctx,
+            max_chunks=max_ctx_chunks,
+        )
+        record_retrieval_span(
+            "Retrieval/context_selector",
+            (time.perf_counter() - _ctx_t0) * 1000,
+            input_summary={"chunks_in": len(reranked_matches), "token_budget": ctx_budget},
+            output_summary={"chunks_out": len(selected_matches)},
+            feature_tag="context_selector",
         )
         
         # Calculate final token size

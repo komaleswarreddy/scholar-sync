@@ -1,6 +1,7 @@
 # app/api/v1/endpoints/notes.py
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import DBAPIError, OperationalError
 from typing import Optional, List
 from pydantic import BaseModel
 import uuid
@@ -24,6 +25,22 @@ class NoteResponse(BaseModel):
 
 class NotesListResponse(BaseModel):
     notes: List[NoteResponse]
+
+
+def _is_db_unavailable_error(exc: Exception) -> bool:
+    """
+    Best-effort detector for transient DB connectivity failures.
+    """
+    if isinstance(exc, (OperationalError, DBAPIError, OSError, TimeoutError)):
+        return True
+    msg = str(exc).lower()
+    return (
+        "connect call failed" in msg
+        or "database connection error" in msg
+        or "could not connect" in msg
+        or "connection refused" in msg
+        or "timeout" in msg
+    )
 
 # --- Helper ---
 def get_user_tenant(request: Request):
@@ -64,6 +81,9 @@ async def list_notes(request: Request, db: AsyncSession = Depends(get_db)):
         import traceback
         print(f"[ERROR] [NOTES] Error listing notes: {type(e).__name__}: {str(e)}")
         print(f"[ERROR] [NOTES] Traceback: {traceback.format_exc()}")
+        if _is_db_unavailable_error(e):
+            print("[WARNING] [NOTES] Database unavailable; returning empty notes list fallback")
+            return NotesListResponse(notes=[])
         raise HTTPException(status_code=500, detail=f"Failed to list notes: {str(e)}")
 
 @router.post("", response_model=NoteResponse)

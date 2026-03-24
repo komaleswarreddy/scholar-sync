@@ -55,7 +55,7 @@ class ApiClient {
   ) {
     this.client = axios.create({
       baseURL,
-      timeout: 10000, // 10 second timeout for most requests (reduced from 30s)
+      timeout: 15000, // Default; list/chat/source reads use longer per-request timeouts
       // Don't set default Content-Type - let axios set it based on data type
     });
 
@@ -364,7 +364,9 @@ class ApiClient {
 
   async listSources() {
     await this.refreshToken();
-    const res = await this.client.get('/api/v1/ingest/sources');
+    const res = await this.client.get('/api/v1/ingest/sources', {
+      timeout: 60000, // Presign + DB; backend parallelizes presigns — allow headroom on slow networks
+    });
     return res.data.sources ?? [];
   }
 
@@ -438,16 +440,6 @@ class ApiClient {
         );
 
         clearTimeout(timeoutId);
-
-        // Debug: Log response status
-        if (!response.ok && response.status !== 200) {
-          const errorText = await response.text().catch(() => '');
-          const errorMsg = `Stream request failed with status ${response.status}: ${errorText}`;
-          if (onError) {
-            onError(errorMsg);
-          }
-          throw new Error(errorMsg);
-        }
 
         // Handle 401 Unauthorized - try refreshing token and retry once
         if (response.status === 401 && retryCount < maxRetries) {
@@ -681,8 +673,33 @@ class ApiClient {
 
                 // Handle done event
                 if (currentEventType === 'done') {
+                  const doneText =
+                    (eventData as any).final_output_text ||
+                    (eventData as any).data?.final_output_text;
+                  const tid =
+                    (eventData as any).trace_id ||
+                    (eventData as any).data?.trace_id;
+                  if (tid && typeof tid === 'string') {
+                    // Same id as uvicorn [PIPELINE_TRACE] line and API store
+                    console.info(
+                      '%c[Pipeline trace]%c ' +
+                        tid +
+                        '\nOpen: /analytics/pipeline?trace_id=' +
+                        encodeURIComponent(tid),
+                      'color:#38bdf8;font-weight:bold',
+                      'color:inherit;font-weight:normal'
+                    );
+                  }
                   // Verify we received text content (citations alone don't count)
                   if (!hasReceivedText || accumulatedText.trim() === '') {
+                    // Fallback: if server included final text in done payload, use it.
+                    if (doneText && typeof doneText === 'string' && doneText.trim()) {
+                      hasReceivedText = true;
+                      accumulatedText = doneText;
+                      onChunk(doneText);
+                      onDone();
+                      return;
+                    }
                     // Log for debugging
                     console.warn('[Stream] Done event received but no text was received:', {
                       hasReceivedText,
@@ -810,7 +827,7 @@ class ApiClient {
   async listNotes() {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/notes', {
-      timeout: 5000, // 5 second timeout for simple GET requests
+      timeout: 30000,
     });
     return res.data.notes ?? [];
   }
@@ -846,9 +863,10 @@ class ApiClient {
 
   async listChats(limit: number = 50, offset: number = 0) {
     await this.refreshToken();
+    // Cold DB / first request after server start can exceed a short timeout; align with getChat.
     const res = await this.client.get('/api/v1/chat', {
       params: { limit, offset },
-      timeout: 5000, // 5 second timeout for simple GET requests
+      timeout: 30000,
     });
     return res.data;
   }
@@ -856,7 +874,7 @@ class ApiClient {
   async getChat(chatId: string) {
     await this.refreshToken();
     const res = await this.client.get(`/api/v1/chat/${chatId}`, {
-      timeout: 30000, // 30 second timeout - may have many messages to load
+      timeout: 60000,
     });
     return res.data;
   }
@@ -909,6 +927,28 @@ class ApiClient {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/users');
     return res.data;
+  }
+
+  async getPipelineTrace(traceId: string) {
+    await this.refreshToken();
+    const res = await this.client.get(`/api/v1/pipeline-traces/${encodeURIComponent(traceId)}`);
+    return res.data;
+  }
+
+  async listPipelineTracesRecent(limit: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/pipeline-traces/recent', {
+      params: { limit },
+      timeout: 15000,
+    });
+    return res.data;
+  }
+
+  /** Always 200 when logged in; no 403 — safe for admin UI detection. */
+  async getMyAdminFlags() {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/admin/me/flags');
+    return res.data as { is_admin: boolean };
   }
 
   async getAggregateMetrics(days: number = 30, silent: boolean = false) {

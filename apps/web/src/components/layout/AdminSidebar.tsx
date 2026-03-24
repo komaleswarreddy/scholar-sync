@@ -14,6 +14,7 @@ import {
   DollarSign,
   Bell,
   FileSearch,
+  GitBranch,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -34,6 +35,7 @@ const menuItems: MenuItem[] = [
   { label: 'Cost & Tokens', path: '/analytics/cost-tokens', icon: DollarSign },
   { label: 'Alerts', path: '/analytics/alerts', icon: Bell },
   { label: 'Logs', path: '/analytics/logs', icon: FileSearch },
+  { label: 'Pipeline', path: '/analytics/pipeline', icon: GitBranch },
 ];
 
 interface AdminSidebarProps {
@@ -71,8 +73,8 @@ export function AdminSidebar({ onNavigate, isAdmin = false }: AdminSidebarProps)
       <nav className="flex-1 px-3 py-4 space-y-1">
         {menuItems
           .filter((item) => {
-            // For non-admin users, only show Overview
-            if (!isAdmin && item.path !== '/analytics') {
+            // For non-admin users, show Overview + pipeline debugger (own traces)
+            if (!isAdmin && item.path !== '/analytics' && item.path !== '/analytics/pipeline') {
               return false;
             }
             return true;

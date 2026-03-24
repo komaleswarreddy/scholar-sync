@@ -170,6 +170,7 @@ class MetricsCollector:
         tenant_id: str,
         feature: str,
         user_id: Optional[str] = None,
+        endpoint: Optional[str] = None,
     ):
         """Record feature usage."""
         metric = {
@@ -177,6 +178,7 @@ class MetricsCollector:
             "tenant_id": tenant_id,
             "user_id": user_id,
             "feature": feature,
+            "endpoint": endpoint,
         }
         
         with self._lock:

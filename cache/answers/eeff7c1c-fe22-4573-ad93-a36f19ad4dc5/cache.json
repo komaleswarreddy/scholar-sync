@@ -1,0 +1,62 @@
+{
+  "94de02b0817067b8e484acf6e5adda1351b21108d071e281b8dab3bc00ffdab2": {
+    "answer": "This document details CampusWorks microservices: user authentication, task management, and bidding. It covers API endpoints, database schemas, environment configurations, and future enhancements.",
+    "citations": [
+      {
+        "source_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af",
+        "chunk_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af_chunk_10",
+        "text": "\"department\": \"Computer Science\",\r\n    \"phone\": \"+1234567891\",\r\n    \"userType\": \"WORKER\"\r\n  }'\r\n```\r\n\r\n### **2. Task Creation:**\r\n```bash\r\n# Login and get JWT token\r\ncurl -X POST http://localhost:8080/auth/login \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"email\": \"student@example.com\",\r\n    \"password\": \"password123\"\r\n  }'\r\n\r\n# Create task (use JWT token from login)\r\ncurl -X POST http://localhost:8080/tasks \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -H \"Authorization: Bearer <JWT_TOKEN>\" \\\r\n  -d '{\r\n    \"title\": \"Complete Data Structures Lab Record\",\r\n    \"description\": \"Need help with implementing binary search tree algorithms\",\r\n    \"budget\": 100.00,\r\n    \"category\": \"Programming\",\r\n    \"deadline\": \"2024-01-20T23:59:59\"\r\n  }'\r\n```\r\n\r\n### **3. Bidding Process:**\r\n```bash\r\n# Place bid (use JWT token)\r\ncurl -X POST http://localhost:8080/bids/place \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -H \"Authorization: Bearer <JWT_TOKEN>\" \\\r\n  -d '{\r\n    \"taskId\": 1,",
+        "score": 0.298684925,
+        "source_title": "manishcampus.txt",
+        "page_number": null
+      },
+      {
+        "source_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af",
+        "chunk_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af_chunk_12",
+        "text": "Detailed flow information\r\n- **INFO**: Business operations\r\n- **WARN**: Potential issues\r\n- **ERROR**: System failures\r\n\r\n### **Example Log Flow:**\r\n```\r\n[API Gateway] JWT validation successful for user: student@example.com\r\n[Task Service] Creating new CampusWorks task - Title: Lab Record, Budget: 100.00, Requester: student@example.com\r\n[Task Service] CampusWorks task created successfully - ID: 1, Title: Lab Record, Requester: student@example.com\r\n[Bidding Service] Processing bid request - Task: 1, Amount: 50.00, Bidder: worker@example.com\r\n[Bidding Service] Bid placed successfully - Bid ID: 1, Task: 1, Amount: 50.00, Bidder: worker@example.com\r\n```\r\n\r\n---\r\n\r\n## \ud83d\udd27 **Configuration & Deployment**\r\n\r\n### **Environment Variables:**\r\n```properties\r\n# Database\r\nspring.datasource.url=jdbc:mysql://localhost:3306/campusworks_<service>?createDatabaseIfNotExist=true\r\nspring.datasource.username=root\r\nspring.datasource.password=root\r\n\r\n# JWT\r\njwt.secret=campusworks-secret-key-2024\r\njwt.expiration=8",
+        "score": 0.297616243,
+        "source_title": "manishcampus.txt",
+        "page_number": null
+      },
+      {
+        "source_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af",
+        "chunk_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af_chunk_3",
+        "text": "Computer Science\r\n2024-01-15 10:30:15.789 DEBUG [auth-service] JWT token generated for new CampusWorks user: student@example.com\r\n```\r\n\r\n---\r\n\r\n### **2. Bidding Service (Port: 8083)**\r\n\r\n#### **What I Implemented:**\r\n- **Complete bidding system** with auction management\r\n- **Automatic winner selection** (lowest bidder)\r\n- **Scheduled auction processing** (every minute)\r\n- **Inter-service communication** with Task and Auth services\r\n- **Bid validation** and status management\r\n\r\n#### **API Endpoints:**\r\n```http\r\nPOST /bids/place\r\n{\r\n  \"taskId\": 1,\r\n  \"amount\": 50.00\r\n}\r\n\r\nGET /bids/task/{taskId}\r\nGET /bids/bidder/{bidderId}\r\nPOST /bids/auction/create?taskId=1&endTime=2024-01-16T10:00:00\r\nGET /bids/auction/{taskId}\r\n```\r\n\r\n#### **Database Schema:**\r\n```sql\r\nbids (id, task_id, bidder_id, amount, status, created_at, updated_at)\r\nauctions (id, task_id, start_time, end_time, status, winner_id, winning_bid_id, created_at,",
+        "score": 0.272058576,
+        "source_title": "manishcampus.txt",
+        "page_number": null
+      },
+      {
+        "source_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af",
+        "chunk_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af_chunk_5",
+        "text": "Enhanced Task Service (Port: 8084)**\r\n\r\n#### **What I Implemented:**\r\n- **Complete task lifecycle management** with status tracking\r\n- **CampusWorks-specific task model** with budget, categories, deadlines\r\n- **Task assignment** from bidding service\r\n- **Status updates** for workers and requesters\r\n- **Task filtering** by status, requester, worker\r\n\r\n#### **API Endpoints:**\r\n```http\r\nPOST /tasks\r\n{\r\n  \"title\": \"Complete Data Structures Lab Record\",\r\n  \"description\": \"Need help with implementing binary search tree algorithms\",\r\n  \"budget\": 100.00,\r\n  \"category\": \"Programming\",\r\n  \"deadline\": \"2024-01-20T23:59:59\"\r\n}\r\n\r\nGET /tasks\r\nGET /tasks/{id}\r\nGET /tasks/status/{status}\r\nGET /tasks/requester/{requesterId}\r\nGET /tasks/worker/{workerId}\r\nPUT /tasks/{id}/assign?workerId=2\r\nPUT /tasks/{id}/status?status=COMPLETED\r\n```\r\n\r\n#### **Database Schema:**\r\n```sql\r\ntasks (id, title, description, budget, category, posted_by, assigned_to, status, deadline, completed_at, created_at,",
+        "score": 0.270275146,
+        "source_title": "manishcampus.txt",
+        "page_number": null
+      },
+      {
+        "source_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af",
+        "chunk_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af_chunk_9",
+        "text": "updated_at)\r\n```\r\n\r\n#### **Bidding Service:**\r\n```sql\r\nbids (id, task_id, bidder_id, amount, status, created_at, updated_at)\r\nauctions (id, task_id, start_time, end_time, status, winner_id, winning_bid_id, created_at, updated_at)\r\n```\r\n\r\n#### **Profile Service:**\r\n```sql\r\nprofiles (id, user_id, full_name, department, bio, created_at, updated_at)\r\n```\r\n\r\n---\r\n\r\n## \ud83d\ude80 **Complete Workflow Example**\r\n\r\n### **1. User Registration:**\r\n```bash\r\n# Register as STUDENT\r\ncurl -X POST http://localhost:8080/auth/register \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"email\": \"student@example.com\",\r\n    \"password\": \"password123\",\r\n    \"fullName\": \"John Student\",\r\n    \"department\": \"Computer Science\",\r\n    \"phone\": \"+1234567890\",\r\n    \"userType\": \"STUDENT\"\r\n  }'\r\n\r\n# Register as WORKER\r\ncurl -X POST http://localhost:8080/auth/register \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n    \"email\": \"worker@example.com\",\r\n    \"password\": \"password123\",\r\n    \"fullName\": \"Jane Worker\",",
+        "score": 0.267694741,
+        "source_title": "manishcampus.txt",
+        "page_number": null
+      },
+      {
+        "source_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af",
+        "chunk_id": "9eb4a020-64dc-4baa-a033-c65c90ff24af_chunk_13",
+        "text": "6400000\r\n\r\n# Eureka\r\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\r\n```\r\n\r\n### **Service Ports:**\r\n- **Eureka Server**: 8761\r\n- **API Gateway**: 8080\r\n- **Auth Service**: 8081\r\n- **Profile Service**: 8082\r\n- **Bidding Service**: 8083\r\n- **Task Service**: 8084\r\n\r\n---\r\n\r\n## \ud83c\udfaf **Next Steps & Future Enhancements**\r\n\r\n### **Immediate Next Steps:**\r\n1. **Payment Service Implementation** (UPI integration)\r\n2. **Notification Service** (Email/SMS alerts)\r\n3. **Profile Service Enhancement** (Ratings, reviews)\r\n4. **Frontend Development** (React application)\r\n\r\n### **Future Enhancements:**\r\n1. **Real-time Chat** (WebSocket integration)\r\n2. **File Upload** (Work submission)\r\n3. **Advanced Analytics** (Performance metrics)\r\n4. **Mobile Application** (React Native)\r\n\r\n---",
+        "score": 0.249572322,
+        "source_title": "manishcampus.txt",
+        "page_number": null
+      }
+    ],
+    "timestamp": "2026-03-16T13:44:57.087716",
+    "expires_at": 1773672297.0877166,
+    "query": "can you summerize this file in 20 words",
+    "source_ids": [
+      "9eb4a020-64dc-4baa-a033-c65c90ff24af"
+    ],
+    "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
+  }
+}

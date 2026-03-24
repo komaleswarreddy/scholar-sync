@@ -22,7 +22,7 @@ export default function DashboardPage() {
       const email = (
         user.primaryEmailAddress?.emailAddress ||
         user.emailAddresses?.[0]?.emailAddress ||
-        user.emailAddresses?.[0]?.email_address ||
+        
         ''
       )?.toLowerCase()?.trim();
       

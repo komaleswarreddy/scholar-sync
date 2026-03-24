@@ -268,7 +268,6 @@ backend/app/rag/
     semantic.py          # Vector similarity search
     keyword.py           # Keyword/BM25 search
     hybrid.py            # Combine semantic + keyword
-    reranker.py          # Rerank results
   embedding/
     base.py              # Abstract embedder
     openai_embedder.py   # OpenAI embeddings

@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Does the book 'Skill with People' offer benefits for students in developing interpersonal skills?",
+    "How does 'Skill with People' help students improve their interpersonal skills?",
+    "Does the book 'Skill with People' provide benefits for students in developing interpersonal skills?"
+  ],
+  "timestamp": 1774153791.78617,
+  "ttl": 3600,
+  "query": "Does the book 'Skill with People' provide benefits for students in developing interpersonal skills?",
+  "source_ids": [
+    "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d"
+  ]
+}

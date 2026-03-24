@@ -21,59 +21,33 @@ export default function AnalyticsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { getToken } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [authLoaded, setAuthLoaded] = useState(false);
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  /** Sidebar only — never block page render on this. */
+  const [isAdmin, setIsAdmin] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Check auth loaded
+  // Best-effort admin check for sidebar (403 from /admin/aggregate is expected for non-admins)
   useEffect(() => {
-    if (getToken) {
-      setAuthLoaded(true);
+    if (!isLoaded || !isSignedIn || !getToken) {
+      return;
     }
-  }, [getToken]);
+    let cancelled = false;
+    apiClient.setTokenGetter(getToken);
 
-  // Check if user is admin
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (!authLoaded || !getToken) {
-        return;
-      }
-
-      // Ensure token getter is set in API client
-      apiClient.setTokenGetter(getToken);
-
-      // Wait a bit for token to be fetched
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
+    (async () => {
+      await new Promise((r) => setTimeout(r, 300));
       try {
-        // Use silent=true to suppress error logging for expected 403s
-        await apiClient.getAggregateMetrics(30, true);
-        setIsAdmin(true);
-      } catch (error: any) {
-        if (error?.response?.status === 403) {
-          // Expected 403 for non-admin users
-          setIsAdmin(false);
-        } else if (error?.response?.status === 401) {
-          // Token issue - might need more time
-          setTimeout(async () => {
-            try {
-              await apiClient.getAggregateMetrics(30, true);
-              setIsAdmin(true);
-            } catch (retryError: any) {
-              setIsAdmin(false);
-            }
-          }, 2000);
-        } else {
-          setIsAdmin(false);
-        }
+        const flags = await apiClient.getMyAdminFlags();
+        if (!cancelled) setIsAdmin(Boolean(flags?.is_admin));
+      } catch {
+        if (!cancelled) setIsAdmin(false);
       }
-    };
+    })();
 
-    if (authLoaded && getToken) {
-      checkAdmin();
-    }
-  }, [authLoaded, getToken]);
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoaded, isSignedIn, getToken]);
 
   // Don't redirect non-admin users - they can access their own analytics
 
@@ -121,9 +95,9 @@ export default function AnalyticsLayout({
               />
             </div>
 
-            {/* Main content area */}
+            {/* Main content — show as soon as Clerk token is available (do not wait for admin check) */}
             <main className="flex-1 overflow-y-auto p-4 lg:p-6 min-w-0">
-              {isAdmin === null ? (
+              {!isLoaded || !isSignedIn ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-blue mx-auto mb-4"></div>

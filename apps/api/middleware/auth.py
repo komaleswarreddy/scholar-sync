@@ -8,6 +8,7 @@ from jose import jwt, JWTError
 from fastapi import HTTPException
 import traceback
 from config.settings import settings
+from typing import Optional
 
 
 def extract_user_id_from_token(token: str, require_verification: bool = True) -> str:
@@ -67,5 +68,45 @@ def verify_clerk_token(token: str) -> str:
     This is the full verification method (for production).
     """
     return extract_user_id_from_token(token, require_verification=True)
+
+
+def extract_email_from_token(token: str, require_verification: bool = True) -> Optional[str]:
+    """
+    Extract user email from Clerk JWT token.
+
+    Returns normalized lowercase email when present, else None.
+    """
+    try:
+        if require_verification and settings.CLERK_JWT_PUBLIC_KEY:
+            payload = jwt.decode(
+                token,
+                settings.CLERK_JWT_PUBLIC_KEY,
+                algorithms=["RS256"],
+                audience=settings.CLERK_JWT_AUDIENCE if settings.CLERK_JWT_AUDIENCE else None,
+                issuer=settings.CLERK_ISSUER if settings.CLERK_ISSUER else None,
+                options={"verify_signature": True},
+            )
+        else:
+            payload = jwt.decode(
+                token,
+                key="",
+                options={"verify_signature": False, "verify_exp": False, "verify_aud": False, "verify_iss": False},
+            )
+
+        email = (
+            payload.get("email")
+            or payload.get("primary_email")
+            or payload.get("primaryEmailAddress")
+            or (
+                payload.get("email_addresses")
+                and len(payload.get("email_addresses", [])) > 0
+                and payload.get("email_addresses")[0].get("email_address")
+            )
+        )
+        if not email:
+            return None
+        return str(email).strip().lower()
+    except Exception:
+        return None
 
 

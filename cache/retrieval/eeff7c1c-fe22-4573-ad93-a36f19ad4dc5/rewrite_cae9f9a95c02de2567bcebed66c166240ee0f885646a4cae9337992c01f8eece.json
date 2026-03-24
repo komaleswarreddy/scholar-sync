@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Explain the concept of a foreign key in relational databases, including its purpose and how it maintains referential integrity.",
+    "Describe the idea of a foreign key in relational database systems, detailing its function and how it upholds referential integrity.",
+    "Clarify the notion of a foreign key within relational databases, including its role and the way it ensures referential integrity."
+  ],
+  "timestamp": 1773911921.9831076,
+  "ttl": 3600,
+  "query": "Explain the concept of a foreign key in relational databases, including its purpose and how it maintains referential integrity.",
+  "source_ids": [
+    "10bc81e4-5f02-4439-8b64-f4d80c17f717"
+  ]
+}

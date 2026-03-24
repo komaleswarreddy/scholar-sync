@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "book titled 'Art of Being Alone'",
+    "Art of Being Alone book details",
+    "do you know the  book called art of  being alone?"
+  ],
+  "timestamp": 1774255345.182859,
+  "ttl": 3600,
+  "query": "do you know the  book called art of  being alone?",
+  "source_ids": [
+    "c6b1f023-de07-4535-8c17-cf804b9754ce"
+  ]
+}

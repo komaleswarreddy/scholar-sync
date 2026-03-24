@@ -65,7 +65,7 @@ async def get_retrieval_trace(
             "hybrid_keyword_weight": settings.HYBRID_KEYWORD_WEIGHT,
             "max_context_chunks": settings.MAX_CONTEXT_CHUNKS,
             "min_context_chunks": settings.MIN_CONTEXT_CHUNKS,
-            "use_llm_reranking": settings.USE_LLM_RERANKING,
+            "cohere_rerank_configured": bool(getattr(settings, "COHERE_API_KEY", "")),
             "query_rewrite_confidence_threshold": settings.QUERY_REWRITE_CONFIDENCE_THRESHOLD,
             "context_token_budget": settings.CONTEXT_TOKEN_BUDGET,
         }

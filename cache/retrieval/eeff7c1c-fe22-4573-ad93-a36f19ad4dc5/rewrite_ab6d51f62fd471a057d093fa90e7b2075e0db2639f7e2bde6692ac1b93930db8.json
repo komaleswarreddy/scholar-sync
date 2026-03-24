@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "what are the main points in this book",
+    "key themes and main ideas in this book",
+    "what are the main points in this book?"
+  ],
+  "timestamp": 1774152750.0185716,
+  "ttl": 3600,
+  "query": "what are the main points in this book?",
+  "source_ids": [
+    "490e7fb5-a8e4-46ec-9b40-c4d11e5c1a4d"
+  ]
+}

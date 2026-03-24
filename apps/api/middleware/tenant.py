@@ -11,16 +11,25 @@ from starlette.types import ASGIApp, Scope, Receive, Send
 from sqlalchemy import select
 import re
 import traceback
+import time
+import uuid
 
 from packages.core.database.connection import AsyncSessionLocal
 from packages.core.database.models.tenant import Tenant
-from apps.api.middleware.auth import extract_user_id_from_token
+from packages.core.database.models.user import User
+from apps.api.middleware.auth import extract_user_id_from_token, extract_email_from_token
 from apps.api.middleware.common import add_cors_headers
 from config.settings import settings
 
 # Configuration for Development
 DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
 EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc", "/favicon.ico", "/.well-known", "/metrics"}
+
+# Cache subdomain -> tenant_id to avoid a DB round-trip on every API request (dashboard fires many in parallel)
+_TENANT_CACHE_TTL_SEC = 300.0
+_tenant_id_by_subdomain: dict[str, tuple[str, float]] = {}
+_SYNCED_USERS_TTL_SEC = 600.0
+_synced_user_ids: dict[str, float] = {}
 
 # Paths that require tenant but not user authentication (development only)
 # These paths can work with just tenant_id from subdomain, no JWT required
@@ -88,45 +97,57 @@ class TenantMiddleware:
                 else:
                     raise HTTPException(status_code=403, detail="Invalid Host Header")
 
-            # Step 3: Database lookup for tenant
+            # Step 3: Database lookup for tenant (cached by subdomain)
             tenant_id = None
-            try:
-                async with AsyncSessionLocal() as db:
-                    result = await db.execute(select(Tenant).where(Tenant.subdomain == subdomain))
-                    tenant = result.scalar_one_or_none()
+            now = time.monotonic()
+            cached = _tenant_id_by_subdomain.get(subdomain)
+            if cached is not None:
+                tid, exp = cached
+                if exp > now:
+                    tenant_id = tid
+                    print(f"[MIDDLEWARE] Tenant cache hit: {subdomain} -> {tenant_id}")
 
-                    if tenant:
-                        tenant_id = str(tenant.id)
-                        print(f"[SUCCESS] Tenant found: {subdomain} -> {tenant_id}")
-                    else:
-                        if settings.ENVIRONMENT == "development":
-                            print(f"[WARNING] Tenant '{subdomain}' not found in DB, using fallback: {DEV_TENANT_ID}")
-                            tenant_id = DEV_TENANT_ID
+            if tenant_id is None:
+                try:
+                    async with AsyncSessionLocal() as db:
+                        result = await db.execute(select(Tenant).where(Tenant.subdomain == subdomain))
+                        tenant = result.scalar_one_or_none()
+
+                        if tenant:
+                            tenant_id = str(tenant.id)
+                            _tenant_id_by_subdomain[subdomain] = (tenant_id, now + _TENANT_CACHE_TTL_SEC)
+                            print(f"[SUCCESS] Tenant found: {subdomain} -> {tenant_id}")
                         else:
-                            print(f"[ERROR] [MIDDLEWARE] 404: Tenant '{subdomain}' not found (production mode)")
-                            origin = request.headers.get("Origin", "")
-                            resp = JSONResponse(
-                                status_code=404, 
-                                content={"detail": f"Organization '{subdomain}' not found."}
-                            )
-                            resp = add_cors_headers(resp, origin)
-                            await resp(scope, receive, send)
-                            return
-            except Exception as db_error:
-                error_msg = str(db_error)
-                print(f"[ERROR] Database connection error: {error_msg}")
-                if settings.ENVIRONMENT == "development":
-                    print(f"[WARNING] Database unavailable, using fallback tenant: {DEV_TENANT_ID}")
-                    tenant_id = DEV_TENANT_ID
-                else:
-                    origin = request.headers.get("Origin", "")
-                    resp = JSONResponse(
-                        status_code=503,
-                        content={"detail": "Database unavailable. Please try again later."}
-                    )
-                    resp = add_cors_headers(resp, origin)
-                    await resp(scope, receive, send)
-                    return
+                            if settings.ENVIRONMENT == "development":
+                                print(f"[WARNING] Tenant '{subdomain}' not found in DB, using fallback: {DEV_TENANT_ID}")
+                                tenant_id = DEV_TENANT_ID
+                                _tenant_id_by_subdomain[subdomain] = (tenant_id, now + _TENANT_CACHE_TTL_SEC)
+                            else:
+                                print(f"[ERROR] [MIDDLEWARE] 404: Tenant '{subdomain}' not found (production mode)")
+                                origin = request.headers.get("Origin", "")
+                                resp = JSONResponse(
+                                    status_code=404,
+                                    content={"detail": f"Organization '{subdomain}' not found."}
+                                )
+                                resp = add_cors_headers(resp, origin)
+                                await resp(scope, receive, send)
+                                return
+                except Exception as db_error:
+                    error_msg = str(db_error)
+                    print(f"[ERROR] Database connection error: {error_msg}")
+                    if settings.ENVIRONMENT == "development":
+                        print(f"[WARNING] Database unavailable, using fallback tenant: {DEV_TENANT_ID}")
+                        tenant_id = DEV_TENANT_ID
+                        _tenant_id_by_subdomain[subdomain] = (tenant_id, now + _TENANT_CACHE_TTL_SEC)
+                    else:
+                        origin = request.headers.get("Origin", "")
+                        resp = JSONResponse(
+                            status_code=503,
+                            content={"detail": "Database unavailable. Please try again later."}
+                        )
+                        resp = add_cors_headers(resp, origin)
+                        await resp(scope, receive, send)
+                        return
 
             # Set tenant_id in request state
             request.state.tenant_id = tenant_id
@@ -240,6 +261,35 @@ class TenantMiddleware:
                 return
             
             request.state.user_id = user_id
+
+            # Best-effort user sync: ensure Clerk-authenticated users are present in DB
+            # so admin role checks and analytics user tables can work from local data.
+            try:
+                now = time.monotonic()
+                cache_exp = _synced_user_ids.get(user_id)
+                if cache_exp is None or cache_exp <= now:
+                    email = extract_email_from_token(token, require_verification=is_production)
+                    async with AsyncSessionLocal() as db:
+                        result = await db.execute(select(User).where(User.clerk_user_id == user_id))
+                        db_user = result.scalar_one_or_none()
+                        if db_user is None and email:
+                            result_email = await db.execute(select(User).where(User.email == email))
+                            db_user = result_email.scalar_one_or_none()
+                            if db_user and not db_user.clerk_user_id:
+                                db_user.clerk_user_id = user_id
+                                await db.commit()
+                        if db_user is None and email:
+                            db_user = User(
+                                id=uuid.uuid4(),
+                                email=email,
+                                clerk_user_id=user_id,
+                                role="user",
+                            )
+                            db.add(db_user)
+                            await db.commit()
+                    _synced_user_ids[user_id] = now + _SYNCED_USERS_TTL_SEC
+            except Exception as sync_err:
+                print(f"[WARNING] [MIDDLEWARE] Could not sync user row: {sync_err}")
 
             # Hand over to the next middleware/endpoint
             await self.app(scope, receive, send)

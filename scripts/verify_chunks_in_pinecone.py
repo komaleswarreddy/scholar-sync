@@ -48,7 +48,7 @@ def verify_chunks(source_id: str, tenant_id: str = None):
         
         # Query with a dummy vector (all zeros) to get matches
         # But better: use list operation if available, or query with high top_k
-        dummy_vector = [0.0] * 1536  # OpenAI embedding dimension
+        dummy_vector = [0.0] * settings.OPENAI_EMBEDDING_DIMENSIONS
         
         print(f"Querying Pinecone with filter: {filter_dict}")
         results = index.query(

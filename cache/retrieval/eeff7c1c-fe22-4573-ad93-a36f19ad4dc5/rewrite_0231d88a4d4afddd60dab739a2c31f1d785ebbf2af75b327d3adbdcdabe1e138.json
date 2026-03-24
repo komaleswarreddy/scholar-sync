@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "who is the author of the specified book?",
+    "who is the writer of the mentioned book?",
+    "who authored the particular book in question?"
+  ],
+  "timestamp": 1773940157.917398,
+  "ttl": 3600,
+  "query": "who is the author of the specified book?",
+  "source_ids": [
+    "8c390b0c-63fa-4b35-9524-aa819183c25f"
+  ]
+}

@@ -17,9 +17,16 @@ interface ChatInputProps {
   onSend?: (message: string, activeSourceIds?: string[]) => void;
   disabled?: boolean;
   activeSourceIds?: string[];
+  /** When false, starter suggestion chips are hidden (after first user message in this chat). */
+  showSuggestedPrompts?: boolean;
 }
 
-export function ChatInput({ onSend, disabled = false, activeSourceIds = [] }: ChatInputProps) {
+export function ChatInput({
+  onSend,
+  disabled = false,
+  activeSourceIds = [],
+  showSuggestedPrompts = true,
+}: ChatInputProps) {
   const [message, setMessage] = useState('');
   const { data: sources = [] } = useSources();
   
@@ -72,8 +79,8 @@ export function ChatInput({ onSend, disabled = false, activeSourceIds = [] }: Ch
 
   return (
     <div className="p-4">
-      {/* Suggested Prompts - Dynamic based on selected sources */}
-      {suggestedPrompts.length > 0 && (
+      {/* Suggested Prompts - only before the first user message in this chat */}
+      {showSuggestedPrompts && suggestedPrompts.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
           {suggestedPrompts.slice(0, 3).map((prompt, index) => (
             <button

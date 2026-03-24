@@ -1,0 +1,458 @@
+{
+  "reranked_chunks": [
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_0",
+      "score": 0.22774443,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "The Art of Being Alone\nSolitude is my Home\nLoneliness was my Cage\nRenuka Gavrani\n\nCopyright \u00a9 2023 Renuka Gavrani All rights reserved\nNo part of this book may be reproduced, or stored in a retrieval system, or\ntransmitted in any form or by any means, electronic, mechanical, photocopying,\nrecording, or otherwise, without express written permission of the author .\n\nContents\nAcknowledgment\nIntroduction\nPart One\n\nChapter 1 - Stop Romanticizing Loneliness\nChapter 2 - The Pain of Hiding Y our T rue Self\nChapter 3 - How to Be YOU\nChapter 4 - The Love for Solitude\n\nPart Two\nChapter 5 - Practicing The AR T of Being Alone\nChapter 6 - T urn Loneliness Into Growth Period\nChapter 7 - Make a New Best Bud\nChapter 8 - Building a Dream Life Plan\n\nChapter 9 - The Action Plan\nChapter 10 - Make Y our Alone T ime Addictive\n\nChapter 11 - Become Independent\nDedication,\nTo all the people who ar e caged in their own minds",
+        "chunk_index": 0,
+        "page_start": 2,
+        "page_number": 2,
+        "page_end": 8,
+        "vector_score": 0.395738721,
+        "keyword_score": 1.0,
+        "rerank_score": 0.22774443
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_2",
+      "score": 0.21430515,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Introduction\nDr. Vivek Murthy , former Surgeon General of the United States, recently wrote,\n\u201cLoneliness and weak social conn ections are associated with a reduction in lifespan\nsimilar to that caused by smoking 15 cigar ettes a day\u201d . In fact, there is a huge\namount of evidence showing individuals who report feelings of loneliness are more\nlikely to have health problems later in their life.\nWhen the idea of writing this book came to my mind, I decided that I wouldn\u2019 t\nwrite a book that speaks data but rather a book that speaks from one heart to another\nheart. That\u2019s what you need, right? You don\u2019t care how many people in the world\nare lonely . You care about how you can deal with your loneliness.\nWell, that\u2019s the first problem. Why is loneliness considered such a taboo in our\nsociety? Why do you hate the idea of being with yourself so much that \u2018the time\nyou spend with yourself is now considered as loneliness\u2019  and there should be some\ninstant hacks and techniques to deal with it?",
+        "chunk_index": 2,
+        "page_start": 10,
+        "page_number": 10,
+        "page_end": 10,
+        "vector_score": 0.316565931,
+        "keyword_score": 0.7514905990149633,
+        "rerank_score": 0.21430515
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_181",
+      "score": 0.18151005,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "About the Author\nI am Renuka Gavrani. I like to write about my experiences and observations in\nlife. I have a mission to make this world a better place for my readers with my\nwords. I just want one thing and that is, when you read my words, you feel\nunderstood and loved. I want to make my words feel like a soft kiss. I started\nwriting in 2020 and figured, I am desperately in love with words. My articles have\ngarnished over 2M views till now. I am also an avid reader . I am either writing or\nreading. If not any of them, then you might find me sleeping or eating. You can also\nread my first book, \u201cThe Wounds of My Words\u201d if you like to read fiction with a\nmix of life lessons that can touch your heart.\nAnd if you have anything to say to me, you can reach me here:\ntheartofbeingalone@r enukagavrani.com",
+        "chunk_index": 181,
+        "page_start": 86,
+        "page_number": 86,
+        "page_end": 86,
+        "vector_score": 0.296785355,
+        "keyword_score": 0.5948530927629213,
+        "rerank_score": 0.18151005
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_166",
+      "score": 0.15583521,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "In all three\nyears of my college life and count less years of school, I never found anything worth\napplying in real life. My degree  didn\u2019 t offer a good job so what was the use?\nUgh..books are boring. Why would anyone read them?\nOh wait, that's old Renuka talking.\nIn 2020 I read my first book. Yes, during lockdown. I was suffering from\nextreme frustration, mental breakdown, and various other personal  and professional\nlife problems. And it was during that time, I read my first book \u2018The Monk Who\nSold His Ferrari\u2019  by Robi n Sharm a. Not only did this book help me see everything\nclearly , but it also made me fall in love with\nbooks. Since then I have read more than 200 books. There was a time when I\nwas addicted to books. One page after another . One book after another . Books\nbecame like drugs to me. My college was over. I didn\u2019 t have professors or anyone\nelse to guide me. And being an extremely underconfident person, I always needed\nsomeone to guide me.",
+        "chunk_index": 166,
+        "page_start": 77,
+        "page_number": 77,
+        "page_end": 77,
+        "vector_score": 0.334007263,
+        "keyword_score": 1.0,
+        "rerank_score": 0.15583521
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_135",
+      "score": 0.14124614,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "I started viewing myself as a loved writer . I always believed\nin the power of words but after receiving so much love on Medium, I started\nbelieving in the power of MY words. And that\u2019s how I ended up writing my first\nbook,  \u201cThe Wounds of My Words.\u201d It still feels like a dream. An illusion. If\nsomeone had told my 10-year -old version that I will be an author one day, my little\nversion would have laughed. In fact, if someone had told me in 2020 that I will be\nan author one day , I would have become even\nmore depressed that you are making fun of my situation. I didn\u2019t consider\nmyself a good writer . But",
+        "chunk_index": 135,
+        "page_start": 65,
+        "page_number": 65,
+        "page_end": 65,
+        "vector_score": 0.331771851,
+        "keyword_score": 0.7170422502451558,
+        "rerank_score": 0.14124614
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_68",
+      "score": 0.11311854,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Chapter 4 - The Love for Solitude\n \nWayne W. Dyer once said \u201cYou cannot be lonely if you like the person you\u2019re\nalone with.\u201d  and that I believe should be enough to close this part of the book.\nBut you are reading a self-help book so you want me to keep saying something\nuntil you are forced to believe that solitude is good. Though, I am not going to do it.\nDo you know why?\nBecause that\u2019s our problem. We want others to make us believe in something.\nHold our hands and show us the path. And when people leave us in between the\njourney , we feel lost like it\u2019s all dark and scary . What you don\u2019t realize is that you\nneed to walk alone to reach where you want to go. Everyone has different goals so\nthey cannot take the same route as you. You will meet some good/bad people on the\nway but eventual ly, they will turn the other way to move towards their journey . And\nin the end, you will be left alone.",
+        "chunk_index": 68,
+        "page_start": 36,
+        "page_number": 36,
+        "page_end": 36,
+        "vector_score": 0.342686862,
+        "keyword_score": 0.44480551440219807,
+        "rerank_score": 0.11311854
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_12",
+      "score": 0.10465127,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "As a curse that needs to be dealt with.\nBut the truth is, all of this is just a pretty picture sold to you. Hence, the first\nmyth that you need to unlearn is to stop believing that you are lonely just because\nyou are alone. And I know that it may sound a little clich\u00e9 but being alone and being\nlonely are two dif ferent things.\nBeing alone is a part of life. But being lonely means viewing yourself from the\nlens of sympathy and misery . When you look at yourself through the lens of\nloneliness, you feel insecure and left out. You start thinking that there is something\nwrong with you. And that lowers your self-respect. You start treating the time you\nspend with yourself as a curse - that\u2019s loneliness. And that has nothing to do with\nyou being alone. That just defines what you think of yourself.\nWhile I am writing this book, I am all alone. I don\u2019t have any friends. Not even\na single soul who I can hang out with. Not because I am patheti c or a loner .",
+        "chunk_index": 12,
+        "page_start": 13,
+        "page_number": 13,
+        "page_end": 13,
+        "vector_score": 0.286371678,
+        "keyword_score": 0.5011236913604351,
+        "rerank_score": 0.10465127
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_43",
+      "score": 0.103232384,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Yes, I know this is a self-help book and I am\nsupposed to give you some good-looking techniques. But darling, you are not a\nconstant self-improvement project.\nA Journey to Self,\nKnowing yourse lf is not a one-day job or a 3-week long project. It\u2019s a lifelong\njourney . We are living in a world of distractions. It takes less than a second to\nstart wishing for something that we never wanted just becaus e everyone else\nseems to have it/enjoy it. In such a world, where you are alway s surrounded by\nnoise, it\u2019 s tough to stay connected to the voice deep inside you. And let me repeat it\nagain, it\u2019 s a lifelong process to know yourself and secondly not to lose yourself.\nThere are a few things that helped me and I hope they will help you as well.\nThese are not instant hacks but everyday habits that I follow to date so be ready for\nthe execution of them.",
+        "chunk_index": 43,
+        "page_start": 26,
+        "page_number": 26,
+        "page_end": 26,
+        "vector_score": 0.267507344,
+        "keyword_score": 0.4655522552329216,
+        "rerank_score": 0.103232384
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_124",
+      "score": 0.100128405,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "A few days ago, I shared a post on my Instagram account about finding joy in\nyour day-to-day life. And\none person commented that, and I quote,  \u2018still I don\u2019t understand what should I\ndo for my happiness\u2019\nThis shows how much distance we have grown from ourselves. In the race of\nfinding people, we lost ourselves . And if you are expecting that I can give you some\nhacks or techniques to help you find your happiness or success then I am sorry , you\nare free to burn this book. I cannot tell you what to do. I don\u2019t know who you are,\nwhat\u2019 s your histo ry, what makes your heart beat faster with excitement, what feels\njoy to every nerve of your body . I don\u2019t know any of it. No one knows. And even if\nI tell you a few hacks then maybe you will give this book 5 stars and feel motivated\nat the moment. But after a few days, you will for get about it. Why? Because it didn\u2019 t\ncome from you so it didn\u2019 t fit in your life.\n \nYou need to sit down and start defining things for yourself.",
+        "chunk_index": 124,
+        "page_start": 59,
+        "page_number": 59,
+        "page_end": 59,
+        "vector_score": 0.355688095,
+        "keyword_score": 0.5457712467102156,
+        "rerank_score": 0.100128405
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_82",
+      "score": 0.08377804,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "solitary abode. Her minimalist house with a view of the Cerro Paranal mountains\nbecame her own little haven, where she lived up to almost a hundred years\n\u2018deliciously alone\u2019 , in blissful solitude, making art till her body allowed her .\nHer art and the inspiration behind  it were simple as she used to say, \"I had to\ncreate an equivalent for what I felt about what I was looking at \u2013 not copy it.\"\nGeor gia O\u2019Keef fe is not the first nor the only artist who found inspiration in\nsolitude. History , if you flip the pages, is filled with examples of legendary artists,\nwarriors, and writers who found their hearts speaking to them directly when they\nspent time with themselves. Much  like Geor gia, Nikola Tesla preferred solitude and\nwent on to say, \u201cThe mind is sharper and keener in seclusion and uninterrupted\nsolitude. No big laboratory is needed in which to think. Originality thrives in\nseclusion free of outside influences beating upon us to cripple the creative mind.",
+        "chunk_index": 82,
+        "page_start": 42,
+        "page_number": 42,
+        "page_end": 42,
+        "vector_score": 0.253771484,
+        "keyword_score": 0.4058127882828407,
+        "rerank_score": 0.08377804
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_171",
+      "score": 0.08315053,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "write everything you learned and everything you would want to implement in your\nlife. If there is a person who inspires you, create a profile of that person in your\nnotebook. Write the name of the person, add his/her picture, and then write\neverything you learned about this person. Let this notebook or separate folder be the\nsymbol of your first step toward your transformation. Let this book define that you\nare ready to grow in life and build your best version.\nIn the end, I would say, Don\u2019t let time slip from your  hands. Educate\nyourself, train yourself and most of all have fun with yourself.",
+        "chunk_index": 171,
+        "page_start": 79,
+        "page_number": 79,
+        "page_end": 79,
+        "vector_score": 0.254882812,
+        "keyword_score": 0.7758788970140544,
+        "rerank_score": 0.08315053
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_85",
+      "score": 0.080682985,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "The life of Geor gia O\u2019Keef fe is living proof of how solitude helps us reach our\ngreatest potential. Look around you and you will observe the people who are setting\nboundaries and working on their goals/dreams are the ones who don\u2019t have a large",
+        "chunk_index": 85,
+        "page_start": 42,
+        "page_number": 42,
+        "page_end": 42,
+        "vector_score": 0.282319665,
+        "keyword_score": 0.45783262970212824,
+        "rerank_score": 0.080682985
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_122",
+      "score": 0.07913218,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "The core reason why we follow the crowd is that we don\u2019t trust our decisions\nand choices.  We are afraid at every step so it feels safer to trust the crowd. We don\u2019t\nchoose to walk on a new path because it seems less crowded or rather alone.\nBut enou gh is enough. Aren\u2019 t you tired of wishing to be like everybody else?\nAren\u2019 t you done with keeping up with this race of looking beautiful where beauty\nhas such a vague yet same defin ition for all? Aren\u2019 t you exhauste d with trying to\nachieve success when you aren\u2019 t enjoying the process in your day-to-day life?\nAnd most impor tantly , aren\u2019 t you afraid that you will waste your entire life\ndoing what every one did just to realize that you never lived or did anything that you\nwanted?\nIf you take just one thing from this book, remember this,\n \n \n\u201cLearn to define your definition of everything.\nDon\u2019 t make your life a wishlist of what you think everyone has.\u201d",
+        "chunk_index": 122,
+        "page_start": 58,
+        "page_number": 58,
+        "page_end": 58,
+        "vector_score": 0.343076706,
+        "keyword_score": 0.338098959590115,
+        "rerank_score": 0.07913218
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_111",
+      "score": 0.07887636,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Today when I am writing this book, if I look back, I can see that the only\nperson who was missing fr om my side was ME.\nAnd it\u2019 s not just the case with me but you as well.\nWhen it comes to supporting others, we stand tall with them. When it comes to\nencouraging others, we somehow give a perfect speech that is worthy of featuring in\na TedTalk. When it comes to bringing others back to the positive side of life, we all\nbecome part-time motivational speakers. However , when it\u2019s time to support\nourselves, we somehow manage  to leave every bit of \u2018Gyan\u2019  behind and push\nourselves into a dark tunnel of self-sabotaging.\nWhy you and I don\u2019t have enough courage to stand by ourselves? Why has no\none taught us to first be our friends?\nWell, if no one else, then today let me tell you how to be your friend and how\nyou can use your alone time to turn it into your growth period.",
+        "chunk_index": 111,
+        "page_start": 53,
+        "page_number": 53,
+        "page_end": 53,
+        "vector_score": 0.332375139,
+        "keyword_score": 0.39983702616221506,
+        "rerank_score": 0.07887636
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_15",
+      "score": 0.07744104,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Without anyone\u2019 s\nopinion on my choice, without any intervention when I am lost in the pool of my\nthoughts, and without letting anyone tell me if my idea of fun matches society\u2019 s\nexpectation of fun.\nIn a world where being alone is considered a curse, you should get up and use it\nto your advantage.\nTaylor Swift said once, \u201cthe scary news is, you are on your own now. But the\ncool news is, you ar e on your own now\u201d\nIt\u2019s a complete myth that being alone means being lonely . No darling, that\u2019s not\ntrue. Being alone doesn\u2019 t mean you are lonely .\nBeing alone means YOU ARE WITH YOURSELF .\nI would recommend you close the book and take a minute to think about it. Once\nyou also come to peace with the fact that being alone is not a curse. And it can be a\ngood thing, only then I shall recommend you to read further .\nI have divided the book into two sections. Part one will be about learning to turn\nloneliness into solitude. And part two will be about turning solitude into your\ngrowth period.",
+        "chunk_index": 15,
+        "page_start": 14,
+        "page_number": 14,
+        "page_end": 14,
+        "vector_score": 0.285140604,
+        "keyword_score": 0.41553893683058374,
+        "rerank_score": 0.07744104
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_180",
+      "score": 0.076277,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Because guess what? The world is like a big dinner party where you are\nsupposed to serve yourself. If you expect people to first put your desired dish on\nyour plate, you will be starved. You wouldn\u2019 t get to taste what\u2019 s out there. Everyone\nis busy serving themselves with what they think they want to taste. Take this book\nas a sign to see what\u2019 s available out there, what you would like to explore, and then\ngo get it yourself. Because as I said, you ar e on your own.",
+        "chunk_index": 180,
+        "page_start": 85,
+        "page_number": 85,
+        "page_end": 85,
+        "vector_score": 0.316783905,
+        "keyword_score": 0.5220452395927051,
+        "rerank_score": 0.076277
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_1",
+      "score": 0.074966356,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Acknowledgment\nThis book wouldn\u2019 t have been possible without my support. I know  it\u2019s a weird\nacknowledgment because most people credit their success to someo ne they love the\nmost. Well, the thing is, I love myself the most for standing by myself when I\ncouldn\u2019 t find anyone. When no one was there and I was surrounded by self-doubts,\nuncertainty , and a dark future, I didn\u2019 t give up on myself; for that, I want to thank\nmyself. I want to thank myself for fighting hard against my own mind and doubts. I\nwant to thank myself for doing everything it took to transform my dreams into my\nreality .\nI also want to thank my Instagram followers & Medium readers who have\nshowered immen se love on all my articles & posts. A big thanks for making me feel\nso loved and confident. W ithout my readers, I am anyway , nothing.",
+        "chunk_index": 1,
+        "page_start": 9,
+        "page_number": 9,
+        "page_end": 9,
+        "vector_score": 0.395584464,
+        "keyword_score": 0.5316054854867037,
+        "rerank_score": 0.074966356
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_175",
+      "score": 0.07431881,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "This chapter is the shortest one because what I want to tell you is a simple truth\nabout adulthood and how you can have fun with yourself. Also, this is the last\nchapter because what you will learn in this chapter is probably the last thing you\nwill need to find happiness on your own. The one thing that I want  you to take with\nyou from this book and the one thing that has helped me over the years is this,\n\u201cDo the things that you wanted to do with others\u201d\nI always wanted to do one of those sleepovers where all friends come over, we\nlight some candles, create a good environment and arrange comforting food, and\nwatch one of our favorite movies. I used to see this in movies and I imagined it\nwould be fun to do this with my friends. But after college, you don\u2019t get to do these\nthings. Everyone becomes an adult with baggage of responsibilities. And these little\nthings stop maki ng sense. No one would want to waste their time doing it. So, I\nfigured, so what if my friends cannot come?",
+        "chunk_index": 175,
+        "page_start": 82,
+        "page_number": 82,
+        "page_end": 82,
+        "vector_score": 0.319627762,
+        "keyword_score": 0.6138548142501125,
+        "rerank_score": 0.07431881
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_136",
+      "score": 0.07209274,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "now, oh God, I cannot believe I am writing my second book.\nIt all happened because I made one decision two years back. And it wasn\u2019 t just a\ndecision. It was an action. One action every day for 10 months trans formed me from\nan under confident writer to a loved author .\nI want you to do the same. Forget about big sudden changes. Forget the hope of\nmagic. Take out that list you made earlier (about what you don\u2019t like in your life\nright now) and pick ONE BIG ISSUE from that list.\nWhat do I mean by one big issue?\nWell, back in 2020, a lot of things  were going wrong in my life. I wasn\u2019 t in good\nshape. I had skin allergies all over my body . I didn\u2019 t have any idea where my career\nwas going. And all of it dragged my mental health down. See, you need to\nunderstand one important thing here.\nPeople will ask you to work on your mental health as if it\u2019s homework from\nyour school teacher . Your mental health is a result of the current state of your life.",
+        "chunk_index": 136,
+        "page_start": 66,
+        "page_number": 66,
+        "page_end": 66,
+        "vector_score": 0.312259674,
+        "keyword_score": 0.5155083558492537,
+        "rerank_score": 0.07209274
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_78",
+      "score": 0.06428255,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "The next section of the book is based on - turning solitude into your growth\nperiod. But it can happe n when you start viewing your loneliness as solitu de. As a\nprivilege, not a curse. When you are ready to walk with yourself, let\u2019s learn to walk\ntoward your dream life. Shall we?\n\n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \nPart 2 Turning Solitude Into Growth Period",
+        "chunk_index": 78,
+        "page_start": 39,
+        "page_number": 39,
+        "page_end": 40,
+        "vector_score": 0.306033194,
+        "keyword_score": 0.42462103839133836,
+        "rerank_score": 0.06428255
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_84",
+      "score": 0.06351153,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Cal Newport talks about \u2018how all the great writers, artists and inventors\nchoose to spend time with no distractions so that they can connect with something\ndeep within themselves and cr eate a true masterpiece .\u2019\nThe irony is, where our generation  is treating \u2018solitude\u2019 as lonelines s, something\nto escape and feel ashamed of, there was a time in history when all the great minds\nsought solitude to travel inward . Solitude was once a luxury to experience the\ncalmness of the world that lives inside us.\nI wholeheartedly believe that this cannot be random. The syste m around is\ndesigned very carefully and after a deep analysis of our basic human nature. We, as\nhumans, do need other humans to feel safe and protected. That\u2019 s how we function.\nAnd all these giant companies (not to mention social media platforms especially) are\ndesigned to keep our \u2018need for validation\u2019  as the focal point so that they can trap us\nin the cycle of misery .",
+        "chunk_index": 84,
+        "page_start": 42,
+        "page_number": 42,
+        "page_end": 42,
+        "vector_score": 0.305305868,
+        "keyword_score": 0.29065057466166194,
+        "rerank_score": 0.06351153
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_51",
+      "score": 0.060779896,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "B) Know Thyself\n \n\u201cThe gr eatest thing in the world is to know how to belong to oneself.\u201d\n-Michel de Montaigne\n \nI was in high school when one of my professors said this, \u2018You all seem to act\ntoo smart as if you are the kings/queens of the world while in reality, if I ask you to\nspeak about yourself for as many  minutes as your age, 18 minutes let\u2019s say if that\u2019s\nyour age, then none of you can speak even for a minute .\u2019 He continued,  \u2018and when I\nsay abou t yourse lf, I don\u2019t mean the worldly tags that you have accumulated, I mean\nthe REAL YOU.\u2019\nBack then, I didn\u2019 t understand what he meant. I thought he was being angry for\nno reaso n. But now after reading  a bunch of spiritual books, following the path of\nspirituality mysel f, and paying attention to my soul, I have come to realize that you\nand I are beyond the title of this world. Though, we all have become a collection of\ntags and labels that we have eithe r willingly imposed on ourselves or that the world\nthrew at us.",
+        "chunk_index": 51,
+        "page_start": 30,
+        "page_number": 30,
+        "page_end": 30,
+        "vector_score": 0.22584717,
+        "keyword_score": 0.49080658565044794,
+        "rerank_score": 0.060779896
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_110",
+      "score": 0.05925935,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Chapter 6 - Turn Loneliness Into Growth Period\n \nThe other day I was reading Garden Spells and I really liked a quote from the\nbook that says, \u201cYou ar e who you ar e, whether you like it or not, so why not like it?\u201d\nI believe this quote holds true in all areas of our life.\nYou are alone, whether you like it or not, so why not like it?\nAnd if you cannot find a reason to like it, then create some. You cannot expect\nlife to throw reasons for you to be happy , cheerful, and successful. If you want\nsomething, you go get it.\nWhen I came back to my hometow n after college, I knew nothing. I didn\u2019 t know\nwhat my passion was and how I was going to make a living out of it. I was alone,\ndesperate to achieve something without having any specific skill set with societal\npressure hanging on my head 24/7 to prove my worth and absolute ly no one to talk\nto share how I was feeling. During those few weeks, I was so consumed by self-\ndoubts and pity .",
+        "chunk_index": 110,
+        "page_start": 53,
+        "page_number": 53,
+        "page_end": 53,
+        "vector_score": 0.329813033,
+        "keyword_score": 0.3902624322158891,
+        "rerank_score": 0.05925935
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_167",
+      "score": 0.05418382,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "That\u2019 s when books helped me. Whatever I needed help with, I\nwould start reading a book on that topic. That\u2019 s it. Since then, my life has changed\nin ways I cannot explain to you. And as clich\u00e9 as it may sound,\n\u201cBooks ar e powerful and words hold the power to change your entir e life\u201d\nI have lived that quote. My life is the epitome of this one quote.  Books have\ntransformed me. Books helped me understand myself and the world. Books helped\nme feed my brain with the knowledge and wisdom of those who have experienced\nmore than me in life. Books helped me learn from the mistakes of others and learn\nto be kind and empathetic. Books  made me smarter . Books fueled the air of wisdom\nin me and with every exhale, I became confident and more successful in life.",
+        "chunk_index": 167,
+        "page_start": 77,
+        "page_number": 77,
+        "page_end": 77,
+        "vector_score": 0.25271222,
+        "keyword_score": 0.62356859233505,
+        "rerank_score": 0.05418382
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_114",
+      "score": 0.045188066,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "So, yes I am asking you to chang e your mindset. Transform your perception of\nloneliness. Look  at it with the lens of your own future version who is highly\nsuccessful and expecting you to use this TIME to grow yourself, work on your\ndreams, get closer to your dreamland one step at a time, and feel empowered as you\nthink what all can you do for yourself in your alone time. It\u2019 s honestly that simple.\nJust as I said at the start of the chapter , being alone is your reality now, so why\nnot change it into something where you start loving your solitude? Why don\u2019t you\nturn it into something that being alone feels like an",
+        "chunk_index": 114,
+        "page_start": 54,
+        "page_number": 54,
+        "page_end": 54,
+        "vector_score": 0.263738632,
+        "keyword_score": 0.48476591351281617,
+        "rerank_score": 0.045188066
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_165",
+      "score": 0.04163736,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "And to top it all, the education system in every country is design ed in such a\nway that we are bound to hate books. Isn't it pathetic how every student is supposed\nto be good at every subject that some authorities chose for us years ago? And we all\nare supp osed to study hard and prove our intelligence based on our scores in\nsubjects that were forced on us? No wonder why people hate books.\nBut do you know what\u2019 s the good thing?\nThe good  thing is you are not in school anymore (I hope) and even  if you are in\nschool/college, you can still take the responsibility to feed your brain with the\nknowledge that you think is important to win big in real life. School and that strict\nsystem are over and as we discuss ed, you are on your own. You can choose to read\nthe books that make you feel excited and help you gr ow in life.\nWhen my college came to an end, I promised myself that I will never read a\nbook ever again in my life until I am forced to. I simply hated books.",
+        "chunk_index": 165,
+        "page_start": 77,
+        "page_number": 77,
+        "page_end": 77,
+        "vector_score": 0.353508353,
+        "keyword_score": 0.256134752365159,
+        "rerank_score": 0.04163736
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_25",
+      "score": 0.039986104,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "Chapter 2 - The Pain of Hiding Your True Self\n \n\u201cThe most painful and scariest thing in the world is to look in the mirr or and not\nrecognize the person staring right at you.\u201d\n \nThe false hope that someday someone will magically show up and the fear of\nlooking like a weirdo makes us do things that we never intended to do. Since\nchildhood, we have learned that the kid who is alone is a weirdo. They are alone\nbecause no one chose them. We don\u2019t want to seem a weirdo, we don\u2019t want people\nto think that no one chose us so what do we do? We start becoming like an ideal\nversion of whom everyone loves. We start saying YES to things that we hate. We\nstart dressing up in clothes that make us uncomfortable or are out of our budget but\nat the same time help us get noticed, accepted, and acknowledged. W e start speaking\nthe words we find cringe. We start saying things that are most acceptable and\npopular .",
+        "chunk_index": 25,
+        "page_start": 19,
+        "page_number": 19,
+        "page_end": 19,
+        "vector_score": 0.282718956,
+        "keyword_score": 0.33362334923087533,
+        "rerank_score": 0.039986104
+      }
+    },
+    {
+      "id": "bfca9263-a3de-4a7a-962b-ce51de23fea6_chunk_62",
+      "score": 0.035121746,
+      "metadata": {
+        "source_id": "bfca9263-a3de-4a7a-962b-ce51de23fea6",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "text": "III. Define Who & What You Are Not\n \nLet me tell you one thing. When you will walk on the journey of self-\nexploration, you will realize one thing,  you are not easy which is a good thing. But\nthat is one of the key reasons why people give up on themselves. It becomes a lot\nmore to handle than it sounds.\nIn fact, when I started my self-exploration journey , I was overwhelmed and\nconfused. I didn\u2019 t know where to start. I am not a subject and there wasn\u2019 t any index\nthat I could follow . And after a lot of trial & error , reading, and experimenting, I\nfollowed one piece of advice that helped me get started on my journey .\nThe advice:  If you cannot figur e out who you are, figur e out who you are not\nand who you don\u2019 t want to be.\nIt\u2019s easier to know who you are not and what you never want to be than to start\nwith who you are in the first place.",
+        "chunk_index": 62,
+        "page_start": 34,
+        "page_number": 34,
+        "page_end": 34,
+        "vector_score": 0.251721621,
+        "keyword_score": 0.4604984918740067,
+        "rerank_score": 0.035121746
+      }
+    }
+  ],
+  "timestamp": 1774158255.889341,
+  "ttl": 3600,
+  "query": "who is the author of this book",
+  "source_ids": [
+    "bfca9263-a3de-4a7a-962b-ce51de23fea6"
+  ]
+}

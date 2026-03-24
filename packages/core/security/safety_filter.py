@@ -124,10 +124,16 @@ class SafetyFilter:
                         max_confidence = max(max_confidence, confidence)
         
         # Determine if should block
-        should_block = (
-            len(detected_categories) > 0 and
-            max_confidence >= self.block_threshold
-        )
+        # In strict mode, any explicit pattern hit (after academic exceptions) should block.
+        # The old formula len(matches)/word_count often stays below block_threshold on short
+        # queries (e.g. one match in 5 words => 0.2 < 0.7), letting adult/violence prompts through.
+        if self.strict_mode and detected_categories:
+            should_block = True
+        else:
+            should_block = (
+                len(detected_categories) > 0
+                and max_confidence >= self.block_threshold
+            )
         
         if should_block:
             return {

@@ -1571,60 +1571,51 @@ export default function AnalyticsDashboardPage() {
         return;
       }
 
-      // Check if admin
+      // Admin vs user (no 403 probe — uses /admin/me/flags)
       try {
-        await apiClient.getAggregateMetrics(30, true);
-        // Admin check succeeded - user is admin
-        setIsAdmin(true);
-        // Fetch admin data (errors will be handled by fetchAdminMetrics)
-        await fetchAdminMetrics();
+        const flags = await apiClient.getMyAdminFlags();
+        const admin = Boolean(flags?.is_admin);
+        setIsAdmin(admin);
+        if (admin) {
+          await fetchAdminMetrics();
+        } else {
+          await fetchMyMetrics();
+        }
         await fetchAlerts();
       } catch (error: any) {
-        if (error?.response?.status === 403) {
-          // Not admin - fetch individual user metrics
-          setIsAdmin(false);
-          await fetchMyMetrics();
-          await fetchAlerts();
-        } else if (error?.response?.status === 401) {
-          // Token issue - might need more time
+        if (error?.response?.status === 401) {
           setTimeout(async () => {
             try {
-              await apiClient.getAggregateMetrics(30, true);
-              setIsAdmin(true);
-              await fetchAdminMetrics();
+              const flags = await apiClient.getMyAdminFlags();
+              const admin = Boolean(flags?.is_admin);
+              setIsAdmin(admin);
+              if (admin) {
+                await fetchAdminMetrics();
+              } else {
+                await fetchMyMetrics();
+              }
               await fetchAlerts();
             } catch (retryError: any) {
-              if (retryError?.response?.status === 403) {
-                setIsAdmin(false);
-                await fetchMyMetrics();
-                await fetchAlerts();
-              } else {
-                // Other error - still might be admin, but data fetch failed
-                setIsAdmin(true);
-                setAdminError('Failed to verify admin status. Please refresh the page.');
-              }
+              console.error('[ANALYTICS] Admin flags retry failed:', retryError);
+              setIsAdmin(false);
+              await fetchMyMetrics();
+              await fetchAlerts();
             }
           }, 2000);
         } else {
-          // Network or other error - don't assume not admin
-          // Could be a temporary issue, so we'll show an error state
-          console.error('[ANALYTICS] Error checking admin status:', error);
-          
-          // Check for connection errors
-          const isConnectionError = 
-            error?.code === 'ECONNREFUSED' || 
+          console.error('[ANALYTICS] Error fetching admin flags:', error);
+          const isConnectionError =
+            error?.code === 'ECONNREFUSED' ||
             error?.code === 'ERR_CONNECTION_REFUSED' ||
             error?.message?.includes('CONNECTION_REFUSED') ||
             error?.message?.includes('Network Error') ||
             (!error?.response && error?.request);
-          
+
           if (isConnectionError) {
-            // Connection error - set admin to true but show error
-            setIsAdmin(true);
-            setAdminError('Cannot connect to the backend server. Please ensure the API server is running on port 8000.');
-          } else {
-            // Other error - don't set isAdmin to false
-            // The user might still be admin, just having connection issues
+            setIsAdmin(false);
+            setAdminError(
+              'Cannot connect to the backend server. Please ensure the API server is running on port 8000.'
+            );
           }
         }
       }

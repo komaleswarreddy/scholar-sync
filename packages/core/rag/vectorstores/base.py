@@ -7,6 +7,8 @@ Abstract base class for all vector store implementations.
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 
+from packages.core.rag.vectorstores.namespace import normalize_pinecone_namespace
+
 
 class BaseVectorStore(ABC):
     """
@@ -18,7 +20,7 @@ class BaseVectorStore(ABC):
     
     def __init__(self, tenant_id: str):
         self.tenant_id = tenant_id
-        self.namespace = tenant_id
+        self.namespace = normalize_pinecone_namespace(tenant_id)
     
     @abstractmethod
     async def generate_embedding(self, text: str) -> List[float]:

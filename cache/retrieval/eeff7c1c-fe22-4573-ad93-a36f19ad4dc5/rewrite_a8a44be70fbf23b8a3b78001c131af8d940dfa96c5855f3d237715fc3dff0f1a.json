@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Explain the concept of a foreign key in relational databases, including its purpose and how it relates to primary keys.",
+    "Describe the idea of a foreign key in relational database systems, detailing its function and its relationship to primary keys.",
+    "Clarify the notion of a foreign key in relational databases, including its role and how it connects to primary keys."
+  ],
+  "timestamp": 1773911060.9252129,
+  "ttl": 3600,
+  "query": "Explain the concept of a foreign key in relational databases, including its purpose and how it relates to primary keys.",
+  "source_ids": [
+    "d8ded0e8-5126-4217-b91f-88f608752bd0"
+  ]
+}

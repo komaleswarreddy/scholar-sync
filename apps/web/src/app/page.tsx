@@ -16,8 +16,7 @@ export default function HomePage() {
       // Get user email from Clerk - try multiple ways
       const email = (
         user.primaryEmailAddress?.emailAddress ||
-        user.emailAddresses?.[0]?.emailAddress ||
-        user.emailAddresses?.[0]?.email_address
+        user.emailAddresses?.[0]?.emailAddress
       )?.toLowerCase()?.trim();
       
       // Check if email matches known admin email

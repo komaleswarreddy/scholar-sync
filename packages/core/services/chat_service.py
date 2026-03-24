@@ -7,7 +7,7 @@ Handles chat and message persistence operations.
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete, and_
 from sqlalchemy.orm import selectinload
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import uuid
 
 from packages.core.database.models.chat import Chat, Message
@@ -90,6 +90,26 @@ class ChatService:
         )
         chats = list(result.scalars().all())
         return chats
+
+    async def list_chats_with_message_counts(
+        self, limit: int = 50, offset: int = 0
+    ) -> List[Tuple[Chat, int]]:
+        """
+        List chats with message counts in a single query (avoids N+1 count queries on the API).
+        """
+        stmt = (
+            select(Chat, func.count(Message.id).label("message_count"))
+            .outerjoin(Message, Message.chat_id == Chat.id)
+            .where(Chat.tenant_id == self.tenant_id)
+            .where(Chat.user_id == self.user_id)
+            .group_by(Chat.id)
+            .order_by(Chat.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        result = await self.db.execute(stmt)
+        rows = result.all()
+        return [(row[0], int(row[1] or 0)) for row in rows]
 
     async def update_chat_title(self, chat_id: str, title: str) -> Optional[Chat]:
         """Update chat title."""

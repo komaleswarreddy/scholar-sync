@@ -39,7 +39,8 @@ class ContextSelector:
         retrieved_chunks: List[Dict[str, Any]],
         query: str,
         max_tokens: Optional[int] = None,
-        min_chunks: Optional[int] = None
+        min_chunks: Optional[int] = None,
+        max_chunks: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """
         Select relevant context from retrieved chunks with guardrails.
@@ -58,6 +59,7 @@ class ContextSelector:
         
         min_chunks = min_chunks or self.min_chunks
         max_tokens = max_tokens or self.token_budget
+        max_chunk_limit = max_chunks if max_chunks is not None else self.max_context_chunks
         
         # 1. Filter by relevance score (but be lenient to ensure we have enough chunks)
         # Lower threshold if we don't have enough chunks
@@ -128,19 +130,19 @@ class ContextSelector:
                 total_tokens += chunk_tokens
                 
                 # Try to include adjacent chunks for continuity (if within budget)
-                if len(selected) < self.max_context_chunks:
+                if len(selected) < max_chunk_limit:
                     adjacent = get_adjacent_chunks(chunk_id, source_id)
                     for adj_chunk in adjacent:
                         if adj_chunk.get("id") not in seen_chunk_ids:
                             adj_text = adj_chunk.get("metadata", {}).get("text", "")
                             adj_tokens = estimate_tokens(adj_text)
-                            if total_tokens + adj_tokens <= max_tokens and len(selected) < self.max_context_chunks:
+                            if total_tokens + adj_tokens <= max_tokens and len(selected) < max_chunk_limit:
                                 selected.append(adj_chunk)
                                 seen_chunk_ids.add(adj_chunk.get("id"))
                                 total_tokens += adj_tokens
                 
                 # Check max chunks limit
-                if len(selected) >= self.max_context_chunks:
+                if len(selected) >= max_chunk_limit:
                     break
         
         # Guardrail: Ensure we have minimum chunks (even if lower relevance)

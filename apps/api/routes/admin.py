@@ -24,6 +24,63 @@ from sqlalchemy import func
 router = APIRouter()
 
 
+def _extract_primary_email(clerk_user: Dict[str, Any]) -> Optional[str]:
+    """Pick a stable primary email from Clerk user payload."""
+    email_addresses = clerk_user.get("email_addresses", []) or []
+    if not email_addresses:
+        return None
+    verified_email = next(
+        (e.get("email_address") for e in email_addresses if (e.get("verification") or {}).get("status") == "verified"),
+        None,
+    )
+    email = verified_email or email_addresses[0].get("email_address")
+    if not email:
+        return None
+    return str(email).strip().lower()
+
+
+async def _fetch_all_clerk_users() -> List[Dict[str, Any]]:
+    """Fetch all Clerk users with pagination."""
+    if not settings.CLERK_SECRET_KEY:
+        return []
+    async with httpx.AsyncClient() as client:
+        headers = {
+            "Authorization": f"Bearer {settings.CLERK_SECRET_KEY}",
+            "Content-Type": "application/json",
+        }
+        all_clerk_users: List[Dict[str, Any]] = []
+        limit = 500
+        offset = 0
+        while True:
+            response = await client.get(
+                "https://api.clerk.com/v1/users",
+                headers=headers,
+                params={"limit": limit, "offset": offset},
+                timeout=30.0,
+            )
+            if response.status_code != 200:
+                break
+            data = response.json()
+            if isinstance(data, list):
+                users_page = data
+                total_count = None
+            elif isinstance(data, dict):
+                users_page = data.get("data", [])
+                total_count = data.get("total_count")
+            else:
+                users_page = []
+                total_count = None
+            if not users_page:
+                break
+            all_clerk_users.extend(users_page)
+            if total_count is not None and len(all_clerk_users) >= int(total_count):
+                break
+            if len(users_page) < limit:
+                break
+            offset += limit
+        return all_clerk_users
+
+
 async def check_admin_role(request: Request, db: AsyncSession) -> bool:
     """
     Check if the current user has admin role.
@@ -110,60 +167,11 @@ async def list_all_users(
         raise HTTPException(status_code=403, detail="Admin access required")
     
     # Fetch all users from Clerk
-    clerk_users = []
-    if settings.CLERK_SECRET_KEY:
-        try:
-            async with httpx.AsyncClient() as client:
-                headers = {
-                    "Authorization": f"Bearer {settings.CLERK_SECRET_KEY}",
-                    "Content-Type": "application/json",
-                }
-                
-                all_clerk_users = []
-                limit = 500
-                offset = 0
-                
-                while True:
-                    response = await client.get(
-                        "https://api.clerk.com/v1/users",
-                        headers=headers,
-                        params={"limit": limit, "offset": offset},
-                        timeout=30.0,
-                    )
-                    
-                    if response.status_code != 200:
-                        break
-                    
-                    data = response.json()
-                    
-                    if isinstance(data, list):
-                        users_page = data
-                    elif isinstance(data, dict):
-                        users_page = data.get("data", [])
-                    else:
-                        users_page = []
-                    
-                    if not users_page:
-                        break
-                    
-                    all_clerk_users.extend(users_page)
-                    
-                    total_count = None
-                    if isinstance(data, dict):
-                        total_count = data.get("total_count")
-                    
-                    if total_count is not None:
-                        if len(all_clerk_users) >= total_count:
-                            break
-                    
-                    if len(users_page) < limit:
-                        break
-                    
-                    offset += limit
-                
-                clerk_users = all_clerk_users
-        except Exception:
-            pass
+    clerk_users: List[Dict[str, Any]] = []
+    try:
+        clerk_users = await _fetch_all_clerk_users()
+    except Exception:
+        pass
     
     # If no Clerk users were fetched, fallback to database users
     if not clerk_users:
@@ -195,18 +203,7 @@ async def list_all_users(
     merged_users = []
     for clerk_user in clerk_users:
         clerk_user_id = clerk_user.get("id")
-        email_addresses = clerk_user.get("email_addresses", [])
-        
-        primary_email = None
-        if email_addresses:
-            verified_email = next(
-                (e.get("email_address") for e in email_addresses if e.get("verification", {}).get("status") == "verified"),
-                None
-            )
-            if verified_email:
-                primary_email = verified_email
-            else:
-                primary_email = email_addresses[0].get("email_address") if email_addresses else None
+        primary_email = _extract_primary_email(clerk_user)
 
         # Get role from database (by clerk_user_id or email)
         role = "user"
@@ -231,6 +228,133 @@ async def list_all_users(
         "users": merged_users,
         "total": len(merged_users),
     }
+
+
+@router.post("/users/backfill")
+async def backfill_users_from_clerk(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    One-time backfill: import all Clerk users into local users table.
+    Also fixes malformed placeholder emails (e.g. '{{...}}').
+    """
+    is_admin = await check_admin_role(request, db)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    if not settings.CLERK_SECRET_KEY:
+        raise HTTPException(status_code=400, detail="CLERK_SECRET_KEY is not configured")
+
+    try:
+        clerk_users = await _fetch_all_clerk_users()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Failed to fetch users from Clerk: {str(e)}")
+
+    if not clerk_users:
+        return {
+            "ok": True,
+            "message": "No users returned by Clerk.",
+            "stats": {
+                "clerk_total": 0,
+                "inserted": 0,
+                "updated": 0,
+                "email_fixed": 0,
+                "skipped_no_email": 0,
+            },
+        }
+
+    inserted = 0
+    updated = 0
+    email_fixed = 0
+    skipped_no_email = 0
+
+    db_users_res = await db.execute(select(User))
+    db_users = db_users_res.scalars().all()
+    by_clerk: Dict[str, User] = {u.clerk_user_id: u for u in db_users if u.clerk_user_id}
+    by_email: Dict[str, User] = {str(u.email).strip().lower(): u for u in db_users if u.email}
+
+    for cu in clerk_users:
+        clerk_user_id = str(cu.get("id") or "").strip()
+        email = _extract_primary_email(cu)
+        if not email:
+            skipped_no_email += 1
+            continue
+
+        row = by_clerk.get(clerk_user_id) if clerk_user_id else None
+        if row is None:
+            row = by_email.get(email)
+
+        if row is None:
+            role = "user"
+            new_row = User(
+                id=uuid.uuid4(),
+                email=email,
+                clerk_user_id=clerk_user_id or None,
+                role=role,
+            )
+            db.add(new_row)
+            inserted += 1
+            if clerk_user_id:
+                by_clerk[clerk_user_id] = new_row
+            by_email[email] = new_row
+            continue
+
+        changed = False
+        if clerk_user_id and not row.clerk_user_id:
+            row.clerk_user_id = clerk_user_id
+            changed = True
+
+        existing_email = str(row.email or "").strip().lower()
+        is_placeholder = ("{{" in existing_email) or ("}}" in existing_email) or ("user.primary_email_address" in existing_email)
+        if (not existing_email or is_placeholder) and email:
+            row.email = email
+            changed = True
+            email_fixed += 1
+        elif existing_email != email and is_placeholder:
+            row.email = email
+            changed = True
+            email_fixed += 1
+
+        if changed:
+            updated += 1
+
+        if clerk_user_id:
+            by_clerk[clerk_user_id] = row
+        by_email[email] = row
+
+    try:
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to persist backfill: {str(e)}")
+
+    return {
+        "ok": True,
+        "message": "Backfill completed.",
+        "stats": {
+            "clerk_total": len(clerk_users),
+            "inserted": inserted,
+            "updated": updated,
+            "email_fixed": email_fixed,
+            "skipped_no_email": skipped_no_email,
+        },
+    }
+
+
+@router.get("/me/flags")
+async def get_my_flags(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Lightweight UI flags (200 when authenticated, never 403).
+    Use this instead of probing admin-only routes to detect sidebar role.
+    """
+    user_id = getattr(request.state, "user_id", None)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User authentication required")
+    is_admin = await check_admin_role(request, db)
+    return {"is_admin": is_admin}
 
 
 @router.get("/me/metrics")

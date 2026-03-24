@@ -24,6 +24,7 @@ except ImportError:
 
 from config.settings import settings
 from packages.core.rag.vectorstores.base import BaseVectorStore
+from packages.core.rag.vectorstores.namespace import normalize_pinecone_namespace  # re-export
 
 # Initialize Pinecone (lazy initialization)
 _pc = None
@@ -93,11 +94,13 @@ class PineconeVectorStore(BaseVectorStore):
         
         Uses text-embedding-3-small for cost efficiency.
         """
-        embedding_model = "text-embedding-3-small"
+        embedding_model = settings.OPENAI_EMBEDDING_MODEL
+        embedding_dimensions = settings.OPENAI_EMBEDDING_DIMENSIONS
         print(f"[RAG] Generating embedding: Provider=OpenAI, Model={embedding_model}, TextLength={len(text)} chars")
         response = self.openai_client.embeddings.create(
             model=embedding_model,
             input=text,
+            dimensions=embedding_dimensions,
         )
         embedding_dim = len(response.data[0].embedding)
         print(f"[RAG] Embedding generated: Dimension={embedding_dim}")
@@ -119,8 +122,9 @@ class PineconeVectorStore(BaseVectorStore):
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]
             response = self.openai_client.embeddings.create(
-                model="text-embedding-3-small",
+                model=settings.OPENAI_EMBEDDING_MODEL,
                 input=batch,
+                dimensions=settings.OPENAI_EMBEDDING_DIMENSIONS,
             )
             batch_embeddings = [item.embedding for item in response.data]
             all_embeddings.extend(batch_embeddings)

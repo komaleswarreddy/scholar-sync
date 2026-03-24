@@ -43,8 +43,11 @@ export function useSources() {
         throw new Error(getUserFriendlyMessage(apiError));
       }
     },
-    staleTime: 30 * 1000, // 30 seconds - sources can change frequently
-    refetchInterval: 10 * 1000, // Refetch every 10 seconds for status updates
+    staleTime: 30 * 1000,
+    // Less aggressive polling reduces spurious timeouts while documents are still "READY" in the UI.
+    refetchInterval: 25 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
   });
 }
 

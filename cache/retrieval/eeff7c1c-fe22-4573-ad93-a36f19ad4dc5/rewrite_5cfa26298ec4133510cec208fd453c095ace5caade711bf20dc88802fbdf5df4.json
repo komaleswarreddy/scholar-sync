@@ -1,0 +1,12 @@
+{
+  "rewritten_queries": [
+    "Who is the author of the book 'Renuing Alone' published in 2023?",
+    "Author of 'Renuing Alone', published in 2023"
+  ],
+  "timestamp": 1774158328.1719651,
+  "ttl": 3600,
+  "query": "Who is the author of the book 'Renuing Alone' published in 2023?",
+  "source_ids": [
+    "bfca9263-a3de-4a7a-962b-ce51de23fea6"
+  ]
+}

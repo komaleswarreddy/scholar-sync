@@ -9,7 +9,7 @@ Task C: Chat History - Save and load chat history.
 from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select
 import json
 import uuid
 
@@ -27,9 +27,10 @@ from apps.api.schemas.chat import (
 )
 from typing import Optional
 from pydantic import BaseModel, Field
-from packages.core.services.rag_service import RAGService
 from packages.core.services.chat_service import ChatService
-from packages.core.database.models.chat import Chat, Message
+from packages.core.database.models.chat import Chat
+from packages.core.database.models.source import Source
+from packages.core.langgraph.chat_graph import LangGraphChatPipeline
 
 router = APIRouter()
 
@@ -59,6 +60,41 @@ async def stream_chat(
                 "error": "No source selected",
                 "message": "Please select at least one document source before asking a question. Upload documents or select them from your library."
             }
+        )
+
+    # Security: active_source_ids must belong to the authenticated user (same tenant namespace).
+    # This is required because Pinecone namespace is tenant-scoped; we rely on source ownership
+    # (source.user_id) for per-user isolation.
+    requested_source_ids = list(request_body.active_source_ids or [])
+    requested_uuid_ids = []
+    for sid in requested_source_ids:
+        try:
+            requested_uuid_ids.append(uuid.UUID(sid))
+        except (ValueError, TypeError, AttributeError):
+            # Ignore malformed IDs here; we only proceed with valid + authorized UUIDs.
+            continue
+
+    if not requested_uuid_ids:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Invalid source_id format", "message": "No valid selected sources were provided."},
+        )
+
+    tenant_uuid = uuid.UUID(tenant_id)
+    allowed_uuid_ids = await db.execute(
+        select(Source.id)
+        .where(
+            Source.tenant_id == tenant_uuid,
+            Source.user_id == user_id,
+            Source.id.in_(requested_uuid_ids),
+        )
+    )
+    allowed_source_uuid_set = set(allowed_uuid_ids.scalars().all())
+    validated_source_ids = [str(sid) for sid in requested_uuid_ids if sid in allowed_source_uuid_set]
+    if not validated_source_ids:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "Access denied", "message": "No selected sources are accessible for this user."},
         )
     
     # Phase 4: Rate Limiting & Debounce
@@ -117,7 +153,7 @@ async def stream_chat(
         )
 
     try:
-        service = RAGService(db, tenant_id, user_id)
+        service = LangGraphChatPipeline(tenant_id=tenant_id, user_id=user_id, db=db)
     except Exception as e:
         import traceback
         error_msg = f"Failed to initialize RAG service: {str(e)}"
@@ -137,10 +173,10 @@ async def stream_chat(
                 for msg in request_body.history
             ]
             
-            async for event in service.stream_chat(
+            async for event in service.stream(
                 message=request_body.message,
                 history=history_dicts,
-                active_source_ids=request_body.active_source_ids,
+                active_source_ids=validated_source_ids,
             ):
                 try:
                     event_data = json.dumps(event['data'], ensure_ascii=False)
@@ -271,38 +307,18 @@ async def list_chats(
         raise HTTPException(status_code=401, detail="User ID required")
     
     service = ChatService(db, tenant_id, user_id)
-    chats = await service.list_chats(limit=limit, offset=offset)
-    
-    # If no chats found, check if there are any chats for this tenant at all
-    if len(chats) == 0:
-        from packages.core.database.models.chat import Chat
-        all_tenant_chats_result = await db.execute(
-            select(Chat)
-            .where(Chat.tenant_id == uuid.UUID(tenant_id))
+    chats_with_counts = await service.list_chats_with_message_counts(limit=limit, offset=offset)
+
+    chat_items = [
+        ChatListItemResponse(
+            id=str(chat.id),
+            title=chat.title,
+            created_at=chat.created_at,
+            message_count=message_count,
         )
-        all_tenant_chats = list(all_tenant_chats_result.scalars().all())
-        if all_tenant_chats:
-            print(f"[WARNING] list_chats - No chats found for user {user_id}, but {len(all_tenant_chats)} chats exist for tenant {tenant_id}")
-            print(f"[WARNING] list_chats - Sample user_ids in tenant chats: {[c.user_id for c in all_tenant_chats[:5]]}")
-    
-    # Get message count for each chat
-    chat_items = []
-    for chat in chats:
-        message_count_result = await db.execute(
-            select(func.count(Message.id))
-            .where(Message.chat_id == chat.id)
-        )
-        message_count = message_count_result.scalar() or 0
-        
-        chat_items.append(
-            ChatListItemResponse(
-                id=str(chat.id),
-                title=chat.title,
-                created_at=chat.created_at,
-                message_count=message_count,
-            )
-        )
-    
+        for chat, message_count in chats_with_counts
+    ]
+
     return ChatListResponse(chats=chat_items)
 
 

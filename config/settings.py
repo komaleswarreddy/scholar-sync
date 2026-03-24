@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     
     # Database
     DATABASE_URL: str = Field(..., description="PostgreSQL database connection string (required)")
+    # Echo logs every SQL statement — very noisy and slower; enable only when debugging queries
+    SQLALCHEMY_ECHO: bool = False
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 10
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
     
@@ -32,7 +36,25 @@ class Settings(BaseSettings):
     
     # LLM APIs
     OPENAI_API_KEY: str = ""
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    OPENAI_EMBEDDING_DIMENSIONS: int = 1024
     GEMINI_API_KEY: str = ""
+
+    # Plan B: LangGraph chat orchestration
+    USE_LANGGRAPH_CHAT: bool = True
+    # Route greetings / thanks / small talk away from Pinecone (fast path, no vector search)
+    ENABLE_DIALOG_ROUTER: bool = True
+
+    # OpenAI Moderation
+    OPENAI_MODERATION_MODEL: str = "omni-moderation-latest"
+    # If any category score >= this, treat as blocked (in addition to API `flagged`)
+    MODERATION_CATEGORY_SCORE_THRESHOLD: float = 0.35
+    # When OpenAI key is set: if False (default), moderation API/network errors refuse (fail closed).
+    MODERATION_FAIL_OPEN_ON_ERROR: bool = False
+
+    # Cohere reranking
+    COHERE_API_KEY: str = "AoE2F3Vm5S5sz6OXNxw93mu6vRC1jY2My5J7ecwJ"
+    COHERE_RERANK_MODEL: str = "rerank-v3.5"
     
     # Image Generation
     # Uses DALL-E 3 for image generation
@@ -56,28 +78,50 @@ class Settings(BaseSettings):
     USE_SEMANTIC_CHUNKING: bool = True  # Enable semantic chunking
     
     # RAG Configuration
-    TOP_K_CHUNKS: int = 10
-    SIMILARITY_THRESHOLD: float = 0.7
+    TOP_K_CHUNKS: int = 12  # Initial retrieval pool (was 10)
+    SIMILARITY_THRESHOLD: float = 0.62  # Context selection floor — 0.7 dropped too many marginally relevant chunks
     CHAT_MAX_TOKENS: int = 2048  # Maximum tokens for chat responses
+    # Prior turns included in chat/rag_prompt.j2 (conversation continuity)
+    CHAT_PROMPT_MAX_HISTORY_MESSAGES: int = 16
+    CHAT_PROMPT_MAX_CHARS_PER_MESSAGE: int = 900
     
     # Phase 2: Retrieval Quality & Cost Guardrails
     USE_RETRIEVAL_AGENTS: bool = True  # Enable Phase 2 agents
-    MMR_LAMBDA: float = 0.7  # MMR balance (0.0=diversity, 1.0=relevance)
-    HYBRID_VECTOR_WEIGHT: float = 0.7  # Hybrid retrieval vector weight
-    HYBRID_KEYWORD_WEIGHT: float = 0.3  # Hybrid retrieval keyword weight
-    MAX_CONTEXT_CHUNKS: int = 10  # Maximum chunks for context selection (increased for better coverage)
-    MIN_CONTEXT_CHUNKS: int = 6  # Minimum chunks to ensure quality (increased for better answers)
-    USE_LLM_RERANKING: bool = True  # Use LLM for reranking (more accurate but slower)
+    MMR_LAMBDA: float = 0.72  # MMR balance — slight bias to relevance for answer quality
+    HYBRID_VECTOR_WEIGHT: float = 0.65  # Hybrid retrieval vector weight
+    HYBRID_KEYWORD_WEIGHT: float = 0.35  # Slightly higher keyword weight for names, terms, headings
+    MAX_CONTEXT_CHUNKS: int = 12  # Pack more evidence per answer
+    MIN_CONTEXT_CHUNKS: int = 7  # Minimum chunks before token budget stops selection
     RAG_DEBUG: bool = False  # Enable detailed debug logging for RAG pipeline
-    QUERY_REWRITE_CONFIDENCE_THRESHOLD: float = 0.7  # Minimum confidence to use rewritten query
-    CONTEXT_TOKEN_BUDGET: int = 3500  # Target token budget for context (increased for more complete context)
-    MAX_CHUNK_LENGTH: int = 325  # Maximum characters per chunk in context (300-350 for better precision)
+    QUERY_REWRITE_CONFIDENCE_THRESHOLD: float = 0.7  # Logged / reserved; rewrites apply on successful parse
+    # Shared transcript limits for query rewriter, scope narrow, intent LLM path
+    AGENT_CONVERSATION_MAX_MESSAGES: int = 12
+    AGENT_CONVERSATION_MAX_CHARS_PER_MESSAGE: int = 1200
+    CONTEXT_TOKEN_BUDGET: int = 4500  # Target token budget for context (~18k chars of chunk text)
+    # Whole-document summary: retrieve and pack many chunks (user asked for full-PDF style summaries)
+    DOCUMENT_SUMMARY_RETRIEVAL_TOP_K: int = 72  # Pinecone hybrid pool size for summary/overview queries
+    DOCUMENT_SUMMARY_MAX_CONTEXT_CHUNKS: int = 64  # Chunks allowed into the LLM context for summaries
+    DOCUMENT_SUMMARY_CONTEXT_TOKEN_BUDGET: int = 12000  # Wider token budget for summary context packing
+    DOCUMENT_SUMMARY_MIN_CHUNKS: int = 24  # Floor so summaries are not limited to a handful of chunks
+    DOCUMENT_SUMMARY_CHAT_MAX_TOKENS: int = 4096  # Longer model output for comprehensive summaries
+    DOCUMENT_SUMMARY_MAX_CHUNK_CHARS: int = 550  # Slightly longer excerpts per chunk when summarizing whole docs
+    # Map-reduce: fetch all chunks → summarize batches → final summary (whole-file intent)
+    USE_WHOLE_FILE_MAP_REDUCE: bool = True
+    WHOLE_FILE_MAP_BATCH_SIZE: int = 6  # Chunks per map LLM call (one sentence each)
+    WHOLE_FILE_MAX_CHUNKS: int = 500  # Safety cap on chunks per request
+    MAX_CHUNK_LENGTH: int = 600  # Per-chunk cap when packing context into the prompt
+    # Dedup: only drop chunks if very similar (higher = keep more distinct passages)
+    CONTEXT_DEDUP_SIMILARITY_THRESHOLD: float = 0.82
+    METADATA_QUERY_MAX_CHUNK_CHARS: int = 900  # Author / copyright / title-page questions need longer excerpts
     USE_CHUNK_COMPRESSION: bool = True  # Compress lower-scoring chunks to reduce tokens
+
+    # Plan A: LlamaIndex RAG (ingestion + retrieval + synthesis)
+    USE_LLAMA_INDEX_RAG: bool = True  # Feature flag: use LlamaIndex adapters for RAG
     
     # Phase 3: Output Token Optimization
     USE_OUTPUT_OPTIMIZATION: bool = True  # Enable Phase 3 output optimization
-    ENFORCE_CITATIONS: bool = True  # Enforce citations for all claims
-    DEFAULT_OUTPUT_FORMAT: str = "bullet_points"  # bullet_points, numbered_list, paragraph, structured
+    ENFORCE_CITATIONS: bool = False  # Citations still retrieved server-side; UI hides them — avoid forcing [1] in text
+    DEFAULT_OUTPUT_FORMAT: str = "paragraph"  # paragraph reads better for most Q&A; use bullets in-prose when listing
     USE_EARLY_STOP: bool = True  # Stop early after answering
     MAX_OUTPUT_TOKENS: Optional[int] = None  # Maximum output tokens (None = use CHAT_MAX_TOKENS)
     MAX_OUTPUT_CHARACTERS: Optional[int] = None  # Maximum output characters (None = no limit)
@@ -111,6 +155,12 @@ class Settings(BaseSettings):
     INTENT_ACADEMIC_THRESHOLD: float = 0.5  # Academic intent classification threshold
     APPROVED_SOURCE_IDS: str = ""  # Comma-separated list of approved source IDs for syllabus lock
     
+    # Pipeline debug traces (LangGraph + RAG); in-memory ring buffer, dev-oriented
+    ENABLE_PIPELINE_TRACE: bool = True
+    PIPELINE_TRACE_MAX_STORED: int = 200
+    PIPELINE_TRACE_SNIPPET_CHARS: int = 800
+    PIPELINE_TRACE_VERBOSE: bool = False  # If True, allow longer prompt previews in traces (dev only)
+
     # Continuous Evaluation Loop
     ENABLE_EVALUATION: bool = True  # Enable continuous evaluation
     ENABLE_SCHEDULED_EVALS: bool = True  # Enable scheduled evaluations

@@ -1,0 +1,77 @@
+flowchart TD
+
+%% Agentic RAG flow aligned to ScholarSync codebase
+%% - Studio: apps api routes studio -> StudioService -> Pinecone context -> model routing -> output (plus DALL E for infographic)
+%% - Chat: apps api routes chat -> RAGService -> guardrails -> cache and memory -> retrieval agents -> citations -> stream answer -> output guardrails -> eval signals
+
+A[User input or Studio click] --> B[Tenant and Auth middleware]
+B --> C{Studio or Chat}
+
+%% ---------------- STUDIO ----------------
+subgraph STUDIO
+  C -->|Studio| S0[Studio endpoint POST studio generate]
+  S0 --> S1[Planner and Router agent for Studio
+  choose task type from button]
+  S1 --> S2[Retriever agent for Studio
+  fetch context from Pinecone by source ids]
+  S2 --> S3{Task agent type}
+
+  S3 -->|Quiz Flashcards Mindmap Slide deck| S4[Model selector agent
+  OpenAI gpt 4o mini]
+  S3 -->|Report Infographic| S5[Model selector agent
+  Gemini default with OpenAI fallback]
+
+  S4 --> S6[Response generator agent
+  LLM generate]
+  S5 --> S6
+
+  S6 --> S7{Infographic}
+  S7 -->|Yes| S8[Tool agent DALL E image generation]
+  S7 -->|No| S9[Return Studio JSON]
+  S8 --> S9
+end
+
+%% ---------------- CHAT (RAG) ----------------
+subgraph CHAT
+  C -->|Chat| R0[Chat endpoint POST chat stream]
+  R0 --> R1[Controller and Planner agent
+  route to RAG pipeline]
+
+  R1 --> G0[Moderation input agent
+  PII then Injection then Intent gate then Safety]
+  G0 -->|Blocked| X[Refusal]
+  G0 -->|Allowed| M0[Memory agent
+  cold start then prune then summarize]
+
+  M0 --> C0{Answer cache agent hit}
+  C0 -->|Yes| C1[Return cached answer and citations]
+  C0 -->|No| Q0[Query rewrite agent
+  rewrite and narrow scope]
+
+  Q0 --> R2[Retriever agent
+  Pinecone vector plus keyword hybrid]
+  R2 --> R3[Reranker agent and MMR diversity agent]
+  R3 --> R4[Context selector agent
+  dedupe and token budget]
+
+  R4 --> T0{Two stage grounding}
+  T0 -->|Yes| T1[Source grounding agent
+  answerable with mini context]
+  T0 -->|No| L0[Response generator agent
+  LLM stream generate]
+  T1 --> L0
+
+  L0 --> O0[Output agents
+  early stop length limiter citation checks]
+  O0 --> G1[Moderation output agent
+  safety then PII redact]
+  G1 --> E0[Evaluator agent
+  confidence scoring and done flags]
+  E0 --> D0[Done SSE event]
+end
+
+%% Final join
+C1 --> Z[Final output]
+D0 --> Z
+S9 --> Z
+X --> Z

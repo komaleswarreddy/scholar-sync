@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "What is the content of this offer letter file?",
+    "Who received this offer letter and what is the company name?",
+    "1.what this file is about ?2. whom was got this offer letter ? 3. what is the name of the company ?"
+  ],
+  "timestamp": 1774253542.941797,
+  "ttl": 3600,
+  "query": "1.what this file is about ?2. whom was got this offer letter ? 3. what is the name of the company ?",
+  "source_ids": [
+    "c6b1f023-de07-4535-8c17-cf804b9754ce"
+  ]
+}

@@ -1,19 +1,27 @@
 /**
  * Chat Message Component
- * 
- * Displays individual chat messages with citations.
- * Task B: Citation Display - Citations are clickable and open a modal.
+ *
+ * Assistant text is shown without inline [1] markers or source blocks; citations may still be stored for the backend.
  */
 
 'use client';
 
 import { useState } from 'react';
 import { MessageCircle, User, Copy, Check, Bookmark, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { CitationModal } from './CitationModal';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+
+/** Remove citation UI noise from model text (inline [1] and trailing [n] Source: blocks). */
+export function displayAssistantText(raw: string): string {
+  let t = (raw || '').replace(/\[\d+(?:\s*,\s*\d+)*\]/g, '');
+  const cut = t.search(/\[\d+\]\s*Source:/i);
+  if (cut !== -1) {
+    t = t.slice(0, cut);
+  }
+  return t.replace(/\n{3,}/g, '\n\n').trim();
+}
 
 interface Citation {
   id?: string;
@@ -40,35 +48,24 @@ interface ChatMessageProps {
 export function ChatMessage({ 
   role, 
   content, 
-  citations = [], 
+  citations: _citations = [],
   timestamp,
   messageId,
   feedback: initialFeedback,
   onFeedbackUpdate,
-  question
+  question: _question,
 }: ChatMessageProps) {
-  const [selectedCitation, setSelectedCitation] = useState<Citation | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [feedback, setFeedback] = useState<'thumbs_up' | 'thumbs_down' | null>(initialFeedback || null);
 
-  // Task B.e: Handle citation click
-  const handleCitationClick = (citation: Citation) => {
-    setSelectedCitation(citation);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedCitation(null);
-  };
+  const textForUser = role === 'assistant' ? displayAssistantText(content) : content;
 
   // Copy button functionality
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(content);
+      await navigator.clipboard.writeText(textForUser);
       setCopySuccess(true);
       setTimeout(() => {
         setCopySuccess(false);
@@ -82,7 +79,7 @@ export function ChatMessage({
   const handleSaveToNote = async () => {
     try {
       setIsSavingNote(true);
-      await apiClient.createNote(content);
+      await apiClient.createNote(textForUser);
       setSaveSuccess(true);
       
       // Dispatch custom event to notify NotesSection to refresh
@@ -135,137 +132,34 @@ export function ChatMessage({
     }
   };
 
-  // Render citation badge component
-  const renderCitationBadge = (citationNum: number, numIndex: number, totalNumbers: number) => {
-    const citation = citations[citationNum - 1];
-    if (citation) {
-      return (
-        <span key={numIndex}>
-          {numIndex > 0 && ', '}
-          <button
-            onClick={() => handleCitationClick(citation)}
-            className="
-              bg-citation-badge 
-              text-text-primary 
-              px-1.5 
-              rounded 
-              text-xs 
-              cursor-pointer
-              hover:bg-surface-hover
-              hover:text-text-primary
-              transition-colors
-              align-super
-              font-medium
-            "
-            title={`Click to view citation: ${citation.sourceTitle || 'Source'}`}
-            aria-label={`View citation ${citationNum} from ${citation.sourceTitle || 'source'}`}
-          >
-            {citationNum}
-          </button>
-        </span>
-      );
-    }
-    // Fallback if citation not found
-    return (
-      <span key={numIndex}>
-        {numIndex > 0 && ', '}
-        <span
-          className="
-            bg-citation-badge 
-            text-text-primary 
-            px-1.5 
-            rounded 
-            text-xs 
-            align-super
-          "
-        >
-          {citationNum}
-        </span>
-      </span>
-    );
-  };
-
-  // Parse citations in content and render with markdown formatting
-  const renderContentWithCitations = () => {
-    // Helper to replace citation patterns in text
-    const replaceCitationsInText = (text: string): React.ReactNode => {
-      const citationPattern = /\[(\d+(?:\s*,\s*\d+)*)\]/g;
-      const parts: React.ReactNode[] = [];
-      let lastIndex = 0;
-      let match;
-      let keyCounter = 0;
-      
-      citationPattern.lastIndex = 0;
-      
-      while ((match = citationPattern.exec(text)) !== null) {
-        // Add text before citation
-        if (match.index > lastIndex) {
-          parts.push(text.substring(lastIndex, match.index));
-        }
-        
-        // Parse citation numbers
-        const numbersStr = match[1];
-        const numbers = numbersStr.split(',').map(num => parseInt(num.trim(), 10));
-        
-        // Render citation badge
-        parts.push(
-          <span key={`cite-${keyCounter++}`} className="inline-flex items-baseline">
-            [
-            {numbers.map((citationNum, numIndex) => 
-              renderCitationBadge(citationNum, numIndex, numbers.length)
-            )}
-            ]
-          </span>
-        );
-        
-        lastIndex = match.index + match[0].length;
-      }
-      
-      // Add remaining text
-      if (lastIndex < text.length) {
-        parts.push(text.substring(lastIndex));
-      }
-      
-      return parts.length > 0 ? <>{parts}</> : text;
-    };
-    
-    // Render markdown with custom text component that replaces citations
-    return (
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          h1: ({ children, ...props }) => <h1 className="text-2xl font-bold text-text-primary mt-6 mb-3" {...props}>{children}</h1>,
-          h2: ({ children, ...props }) => <h2 className="text-xl font-semibold text-text-primary mt-5 mb-2" {...props}>{children}</h2>,
-          h3: ({ children, ...props }) => <h3 className="text-lg font-semibold text-text-primary mt-4 mb-2" {...props}>{children}</h3>,
-          ul: ({ children, ...props }) => <ul className="list-disc list-inside space-y-1 my-3 ml-4" {...props}>{children}</ul>,
-          ol: ({ children, ...props }) => <ol className="list-decimal list-inside space-y-1 my-3 ml-4" {...props}>{children}</ol>,
-          li: ({ children, ...props }) => <li className="text-text-primary" {...props}>{children}</li>,
-          code: ({ children, className, ...props }: any) => {
-            const isInline = !className;
-            // Don't process citations in code blocks
-            return isInline ? (
-              <code className="bg-surface-subtle px-1.5 py-0.5 rounded text-sm font-mono text-text-primary" {...props}>{children}</code>
-            ) : (
-              <code className="block bg-surface-subtle p-3 rounded-lg text-sm font-mono text-text-primary overflow-x-auto my-3" {...props}>{children}</code>
-            );
-          },
-          p: ({ children, ...props }) => <p className="mb-3 last:mb-0" {...props}>{children}</p>,
-          br: () => <br />,
-          strong: ({ children, ...props }) => <strong className="font-semibold text-text-primary" {...props}>{children}</strong>,
-          em: ({ children, ...props }) => <em className="italic" {...props}>{children}</em>,
-          // Replace citations in text nodes
-          text: ({ children, ...props }: any) => {
-            if (typeof children === 'string' && /\[\d+/.test(children)) {
-              return <>{replaceCitationsInText(children)}</>;
-            }
-            return <>{children}</>;
-          },
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    );
-  };
+  const renderAssistantMarkdown = () => (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        h1: ({ children, ...props }) => <h1 className="text-2xl font-bold text-text-primary mt-6 mb-3 first:mt-0" {...props}>{children}</h1>,
+        h2: ({ children, ...props }) => <h2 className="text-xl font-semibold text-text-primary mt-6 mb-2 first:mt-0" {...props}>{children}</h2>,
+        h3: ({ children, ...props }) => <h3 className="text-lg font-semibold text-text-primary mt-5 mb-2 first:mt-0" {...props}>{children}</h3>,
+        ul: ({ children, ...props }) => <ul className="list-disc list-outside space-y-2 my-4 ml-5 pl-1" {...props}>{children}</ul>,
+        ol: ({ children, ...props }) => <ol className="list-decimal list-outside space-y-2 my-4 ml-5 pl-1" {...props}>{children}</ol>,
+        li: ({ children, ...props }) => <li className="text-text-primary" {...props}>{children}</li>,
+        code: ({ children, className, ...props }: any) => {
+          const isInline = !className;
+          return isInline ? (
+            <code className="bg-surface-subtle px-1.5 py-0.5 rounded text-sm font-mono text-text-primary" {...props}>{children}</code>
+          ) : (
+            <code className="block bg-surface-subtle p-3 rounded-lg text-sm font-mono text-text-primary overflow-x-auto my-3" {...props}>{children}</code>
+          );
+        },
+        p: ({ children, ...props }) => <p className="mb-3 last:mb-0 leading-relaxed" {...props}>{children}</p>,
+        br: () => <br />,
+        hr: () => <hr className="my-5 border-0 border-t border-border-default" />,
+        strong: ({ children, ...props }) => <strong className="font-semibold text-text-primary" {...props}>{children}</strong>,
+        em: ({ children, ...props }) => <em className="italic" {...props}>{children}</em>,
+      }}
+    >
+      {textForUser}
+    </ReactMarkdown>
+  );
 
   if (role === 'user') {
     return (
@@ -329,50 +223,9 @@ export function ChatMessage({
       </div>
         <div className="flex-1">
           <div className="text-base text-text-primary leading-relaxed prose prose-invert max-w-none">
-          {renderContentWithCitations()}
+          {renderAssistantMarkdown()}
         </div>
-        {/* Task B.e: Make citations clickable in the list as well */}
-        {citations.length > 0 && (
-          <div className="mt-3 space-y-1">
-            {citations.map((citation, index) => {
-              // Ensure unique key: combine available identifiers to prevent duplicate key warnings
-              const uniqueKey = citation.id 
-                ? `citation-${citation.id}` 
-                : citation.chunk_id 
-                ? `chunk-${citation.chunk_id}-${index}` 
-                : `citation-${index}`;
-              
-              return (
-              <button
-                key={uniqueKey}
-                onClick={() => handleCitationClick(citation)}
-                className="
-                  w-full text-left text-xs text-text-secondary 
-                  border-l-2 border-border-default pl-2 py-1
-                  hover:bg-surface-subtle hover:text-text-primary
-                  rounded-r-lg transition-colors
-                  cursor-pointer
-                "
-                title="Click to view full citation details"
-              >
-                <span className="text-accent-blue font-semibold">[{index + 1}]</span>{' '}
-                <span className="font-medium">{citation.sourceTitle || 'Source'}</span>
-                {': '}
-                <span className="line-clamp-1">{citation.text}</span>
-              </button>
-              );
-            })}
-          </div>
-        )}
 
-        {/* Task B.b: Citation Modal */}
-        <CitationModal
-          citation={selectedCitation}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          question={question}
-        />
-        
         {/* Action Buttons */}
         <div className="flex items-center gap-3 mt-3">
           <button

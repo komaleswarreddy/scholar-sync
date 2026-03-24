@@ -96,22 +96,30 @@ export function ChatInterface() {
     setTurnCount(pairs);
   }, [messages]);
 
-  // Task C.c: Load the most recent chat on mount
+  // Task C.c: Load the most recent chat on mount (retry: cold API/DB can exceed a single short window)
   const loadRecentChat = async () => {
+    const maxAttempts = 3;
     try {
       setIsLoadingChat(true);
-      const chatList = await apiClient.listChats(1, 0);
-      if (chatList.chats && chatList.chats.length > 0) {
-        const recentChat = chatList.chats[0];
-        await loadChat(recentChat.id);
+      let lastError: unknown;
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+          if (attempt > 0) {
+            await new Promise((r) => setTimeout(r, 600 * attempt));
+          }
+          const chatList = await apiClient.listChats(1, 0);
+          if (chatList.chats && chatList.chats.length > 0) {
+            await loadChat(chatList.chats[0].id);
+          }
+          return;
+        } catch (e) {
+          lastError = e;
+          if (attempt === maxAttempts - 1) {
+            console.warn('Failed to load recent chat after retries:', lastError);
+            // Do not set streamError — avoids a false "offline" banner when the server is slow or warming up.
+          }
+        }
       }
-    } catch (error: any) {
-      console.error('Failed to load recent chat:', error);
-      // Use standardized error handling
-      const apiError = error.apiError || handleApiError(error);
-      const errorMessage = getUserFriendlyMessage(apiError);
-      setStreamError(errorMessage);
-      // Continue without loading - user can start new chat
     } finally {
       setIsLoadingChat(false);
     }
@@ -255,6 +263,13 @@ export function ChatInterface() {
         setIsLoading(false);
         return;
       }
+    }
+
+    const persistChatId = chatId;
+    if (!persistChatId) {
+      setStreamError('Could not start a chat session. Please try again.');
+      setIsLoading(false);
+      return;
     }
 
     const userMessage: Message = {
@@ -416,7 +431,7 @@ export function ChatInterface() {
             };
             setMessages((prev) => [...prev, assistantMessage]);
 
-            if (currentChatId) {
+            if (persistChatId) {
               try {
                 // Format citations for backend (ensure they have required fields)
                 // Use filteredCitations instead of finalCitations
@@ -429,7 +444,7 @@ export function ChatInterface() {
                 }));
                 
                 const savedMessage = await apiClient.addMessageToChat(
-                  currentChatId,
+                  persistChatId,
                   'assistant',
                   finalResponseText, // Use final response
                   formattedCitations
@@ -622,6 +637,8 @@ export function ChatInterface() {
     }
   };
 
+  const hasUserMessageInChat = messages.some((m) => m.role === 'user');
+
   return (
     <div className="flex h-full bg-surface">
       {/* Chat List Sidebar */}
@@ -772,6 +789,7 @@ export function ChatInterface() {
             onSend={handleSend} 
             disabled={isLoading || !isOnline} 
             activeSourceIds={Array.from(selectedSources)}
+            showSuggestedPrompts={!hasUserMessageInChat}
           />
         </div>
       </div>

@@ -1,0 +1,62 @@
+NOTEBOOK LM
+------------------------------------------------------------
+
+1.OpenAI Moderation API (omni-moderation-latest)
+2.Recommended architecture
+
+.Frontend / studio UI: Next.js
+.Notebook/file metadata: Supabase Postgres
+.Actual uploaded files: Supabase Storage
+.Vector DB: Pinecone
+.Document parsing + indexing + retrieval: LlamaIndex
+.Agent workflow/orchestration: LangGraph
+.LLM: OpenAI or Gemini
+.Moderation/guardrails: OpenAI Moderation API or similar
+
+3.Framework-by-framework verdict
+1) LangGraph
+Best for
+
+.agentic RAG
+.multi-agent systems
+.routing between agents
+.retries and self-correction
+.stateful workflows
+.production orchestration
+
+Why
+LangGraph is designed as a low-level orchestration framework for stateful agents and highlights durable execution, memory, and human oversight. That is extremely useful when your system has planner, retriever, evaluator, citation checker, note-writer, and tool-using agents.
+My take
+For the agent layer, this is the best choice.
+
+2) LlamaIndex
+Best for
+.document ingestion
+.parsing PDFs and structured docs
+.chunking/indexing
+.retrieval pipelines
+.source-grounded document Q&A
+
+Why
+LlamaIndex is now heavily centered on document agents, parsing, indexing, structured extraction, and agentic document workflows. That makes it a very natural fit for a NotebookLM-like app where documents are the center of the experience.
+
+My take
+For the RAG/document layer, this is the best choice.  
+
+
+===========================================================================
+
+
+=================================
+| Task       | Best Model      | Why          |
+| ---------- | --------------- | ------------ |
+| Summarize  | GPT-5 Mini /gpt -4     | Fast + cheap |
+| Mindmap    | GPT-5           | Structure    |
+| Flashcards | GPT-5           | Clarity      |
+| Slide deck | GPT-5           | Balanced     |
+| Quiz       | GPT-5 Reasoning | Logic        |  
+
+|report       |   Gemini Pro      |    Strong deep reasoning + analysis  
+|chat         |OpenAI → GPT-5 Mini | Best for production apps (cost + speed)
+infografic    | DALL·E 3
+

@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "how are you today",
+    "how is your day going",
+    "hi,how are you today"
+  ],
+  "timestamp": 1774251703.288214,
+  "ttl": 3600,
+  "query": "hi,how are you today",
+  "source_ids": [
+    "bfca9263-a3de-4a7a-962b-ce51de23fea6"
+  ]
+}

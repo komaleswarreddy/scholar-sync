@@ -30,9 +30,9 @@ class RefusalTemplates:
         """Initialize refusal templates."""
         self.templates = {
             RefusalReason.INAPPROPRIATE_CONTENT: [
-                "I can't help with that topic. Let's focus on your studies instead!",
-                "That's not something I can discuss. How about we work on your schoolwork?",
-                "I'm here to help with your academic questions. What would you like to learn about?",
+                "ScholarSync is for educational use only. I can help you understand your uploaded sources and coursework—I can't discuss that topic. What would you like to learn from your documents?",
+                "I'm designed for learning: I can answer questions about your selected study materials. That request isn't appropriate here. How can I help with your studies instead?",
+                "Let's keep this space academic. I can't help with that, but I can explain concepts from your sources. What topic from your materials should we work on?",
             ],
             RefusalReason.OUT_OF_SCOPE: [
                 "I'm designed to help with academic questions. Can I help you with your studies instead?",
@@ -45,9 +45,9 @@ class RefusalTemplates:
                 "I specialize in educational topics. What would you like to know about?",
             ],
             RefusalReason.SAFETY_VIOLATION: [
-                "I can't help with that. Let's focus on your studies!",
-                "That's not appropriate. How about we work on your schoolwork instead?",
-                "I'm here to help with your education. What subject are you working on?",
+                "I can't help with that. ScholarSync is for educational questions about your sources and coursework—what would you like to learn?",
+                "That isn't something I can assist with here. I'm here for academic help: ask me about your uploaded documents or study topics.",
+                "Let's stay focused on learning. I can't respond to that, but I can help with material from your selected sources.",
             ],
             RefusalReason.PROMPT_INJECTION: [
                 "I didn't understand that. Can you rephrase your question?",

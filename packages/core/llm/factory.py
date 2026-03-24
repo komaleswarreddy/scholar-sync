@@ -111,8 +111,8 @@ def _get_default_model(provider: LLMProvider) -> str:
     """Get default model for provider."""
     defaults = {
         LLMProvider.OPENAI: LLMModel.GPT_4O_MINI.value,
-        # Use gemini-pro as default (most compatible with v1beta API)
-        LLMProvider.GEMINI: "gemini-pro",
+        # Prefer a broadly available Gemini model for v1beta generateContent
+        LLMProvider.GEMINI: "gemini-2.0-flash",
         LLMProvider.CLAUDE: LLMModel.CLAUDE_3_HAIKU.value,
     }
     return defaults.get(provider, LLMModel.GPT_4O_MINI.value)
@@ -135,15 +135,17 @@ def get_model_for_task(task_type: str) -> tuple:
         "flashcards": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "mind_map": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "slide_deck": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "intent_classifier": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "query_rewriter": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "scope_narrower": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         
         # Content-heavy tasks -> Gemini (larger context window)
-        # Use gemini-pro (most compatible with v1beta API)
-        "report": (LLMProvider.GEMINI, "gemini-pro"),
-        "infographic": (LLMProvider.GEMINI, "gemini-pro"),
+        "report": (LLMProvider.GEMINI, "gemini-2.0-flash"),
+        "infographic": (LLMProvider.GEMINI, "gemini-2.0-flash"),
         
-        # Chat -> Gemini (better for conversational)
-        # Use gemini-pro (most compatible with v1beta API)
-        "chat": (LLMProvider.GEMINI, "gemini-pro"),
+        # Chat -> OpenAI by default (more reliable across envs)
+        "chat": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        
     }
     
     return task_routing.get(task_type, (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value))

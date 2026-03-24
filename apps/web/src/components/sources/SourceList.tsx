@@ -76,7 +76,10 @@ export function SourceList() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Task C.a & C.b: Use TanStack Query for sources with loading states and caching
-  const { data: sources = [], isLoading, error: apiError } = useSources();
+  const { data: sourcesData, isLoading, isError, error: apiError } = useSources();
+  const sources = sourcesData ?? [];
+  /** Only show fetch banner when the list is empty — background refetch failures keep cached sources visible. */
+  const showSourcesFetchError = Boolean(isError && apiError && sources.length === 0);
   const uploadMutation = useUploadSource();
   const deleteMutation = useDeleteSource();
 
@@ -366,7 +369,7 @@ export function SourceList() {
           )}
         </Button>
 
-        {(localError || apiError) && (
+        {(localError || showSourcesFetchError) && (
           <div className="mt-3 p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2">
             <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5" />
             <p className="text-xs text-red-700 flex-1 leading-relaxed">

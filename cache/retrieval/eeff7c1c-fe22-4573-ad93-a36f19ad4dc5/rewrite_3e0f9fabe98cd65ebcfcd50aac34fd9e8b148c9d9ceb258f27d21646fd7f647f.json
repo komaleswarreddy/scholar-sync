@@ -1,0 +1,12 @@
+{
+  "rewritten_queries": [
+    "Is Renuka Gavrani from India?",
+    "What is Renuka Gavrani's nationality?"
+  ],
+  "timestamp": 1774240842.9918385,
+  "ttl": 3600,
+  "query": "Is Renuka Gavrani from India?",
+  "source_ids": [
+    "bfca9263-a3de-4a7a-962b-ce51de23fea6"
+  ]
+}

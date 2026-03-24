@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "who is the author of the book containing sexual content?",
+    "who wrote the book that includes sexual themes?",
+    "who is the writer of the book featuring sexual material?"
+  ],
+  "timestamp": 1773940082.2522423,
+  "ttl": 3600,
+  "query": "who is the author of the book containing sexual content?",
+  "source_ids": [
+    "8c390b0c-63fa-4b35-9524-aa819183c25f"
+  ]
+}

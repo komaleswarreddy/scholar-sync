@@ -4,10 +4,11 @@ Source Service (Ingestion)
 Handles source document ingestion, processing, and management.
 """
 
+import asyncio
 import uuid
 import io
 import pypdf
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -173,6 +174,27 @@ class IngestionService:
                     (chunk_text, {**metadata, 'source_id': source_id, 'tenant_id': self.tenant_id})
                     for chunk_text, metadata in chunks_with_metadata
                 ]
+
+                # LlamaIndex ingestion path from cached chunks (default)
+                try:
+                    from packages.core.rag.llama_adapters import LlamaIndexIngestionAdapter
+
+                    adapter = LlamaIndexIngestionAdapter(self.tenant_id)
+                    result = await adapter.ingest_chunks(
+                        source_id=source_id,
+                        chunks_with_metadata=chunks_with_metadata,
+                    )
+
+                    source.status = SourceStatus.INDEXED.value
+                    source.chunks_count = result.nodes_indexed
+                    await self.db.commit()
+                    print(
+                        f"[INGESTION] (LlamaIndex+Cache) Successfully processed source {source_id}: "
+                        f"{result.nodes_indexed} chunks indexed"
+                    )
+                    return
+                except Exception as e:
+                    raise ValueError(f"LlamaIndex ingestion (cache) failed: {str(e)}") from e
             else:
                 # 1. Extract Text with page metadata (for PDFs)
                 try:
@@ -196,148 +218,32 @@ class IngestionService:
                         text = cleaned_text
                     except Exception as e:
                         print(f"[WARNING] PDF preprocessing failed, using raw text: {e}")
-                
-                # 3. Chunk Text with semantic chunking and metadata
+
+                # LlamaIndex ingestion path (chunk + embed + upsert via LlamaIndex) (default)
                 try:
-                    # Calculate overlap from percentage
-                    overlap_percent = getattr(settings, 'CHUNK_OVERLAP_PERCENT', 0.12)
-                    overlap = int(settings.CHUNK_SIZE * overlap_percent)
-                    
-                    # Use chunk_text_with_metadata for page numbers and other metadata
-                    chunks_with_metadata = self.chunker.chunk_text_with_metadata(
-                        text,
-                        chunk_size=settings.CHUNK_SIZE,
-                        overlap=overlap,
-                        pages=pages,
-                        source_id=source_id,
-                        tenant_id=self.tenant_id
-                    )
-                    
-                    chunks = [chunk_text for chunk_text, _ in chunks_with_metadata]
-                    
-                    if not chunks or len(chunks) == 0:
-                        raise ValueError("No chunks created from text")
-                    
-                    print(f"[CHUNKING] Created {len(chunks)} chunks with semantic chunking and {overlap_percent*100:.1f}% overlap")
-                except Exception as e:
-                    raise ValueError(f"Failed to chunk text: {str(e)}")
-                
-                # 4. Cache processed content for future use
-                try:
-                    self.context_cache.cache_content(
-                        file_content=file_content,
+                    from packages.core.rag.llama_adapters import LlamaIndexIngestionAdapter
+
+                    adapter = LlamaIndexIngestionAdapter(self.tenant_id)
+                    result = await adapter.ingest_text(
                         text=text,
-                        chunks=chunks_with_metadata,
-                        metadata={
-                            'source_id': source_id,
-                            'chunks_count': len(chunks),
-                            'pages_count': len(pages) if pages else None,
-                        }
+                        source_id=source_id,
+                        pages=pages,
                     )
-                    print(f"[CACHE] Cached processed content for source {source_id}")
+
+                    # Update DB status (indexed) and chunks_count
+                    source.status = SourceStatus.INDEXED.value
+                    source.chunks_count = result.nodes_indexed
+                    await self.db.commit()
+                    print(
+                        f"[INGESTION] (LlamaIndex) Successfully processed source {source_id}: "
+                        f"{result.nodes_indexed} chunks indexed"
+                    )
+                    return
                 except Exception as e:
-                    print(f"[WARNING] Failed to cache content: {e}")
-
-            # 5. Generate Embeddings & Upsert
-            try:
-                embeddings = await self.vector_store.batch_generate_embeddings([c for c in chunks])
-                if not embeddings or len(embeddings) != len(chunks):
-                    raise ValueError(f"Embedding count mismatch: {len(embeddings)} embeddings for {len(chunks)} chunks")
-            except Exception as e:
-                error_msg = str(e)
-                if "api key" in error_msg.lower() or "not configured" in error_msg.lower():
-                    raise ValueError(f"Embedding service not configured. Please check your API keys (OpenAI/Pinecone). Original error: {error_msg}")
-                raise ValueError(f"Failed to generate embeddings: {error_msg}")
-            
-            # Build vectors with enriched metadata (page numbers, etc.)
-            vectors_to_upsert = []
-            for i, ((chunk_text, chunk_metadata), embedding) in enumerate(zip(chunks_with_metadata, embeddings)):
-                # Merge chunk metadata with vector metadata
-                vector_metadata = {
-                    "source_id": source_id,
-                    "tenant_id": self.tenant_id,
-                    "text": chunk_text,
-                    "chunk_index": chunk_metadata.get("chunk_index", i),
-                }
-                
-                # Add page metadata if available
-                if "page_start" in chunk_metadata:
-                    vector_metadata["page_start"] = chunk_metadata["page_start"]
-                    vector_metadata["page_number"] = chunk_metadata["page_start"]  # For backward compatibility
-                if "page_end" in chunk_metadata:
-                    vector_metadata["page_end"] = chunk_metadata["page_end"]
-                
-                vectors_to_upsert.append({
-                    "id": f"{source_id}_chunk_{i}",
-                    "values": embedding,
-                    "metadata": vector_metadata
-                })
-
-            try:
-                batch_size = 100
-                for i in range(0, len(vectors_to_upsert), batch_size):
-                    batch = vectors_to_upsert[i:i+batch_size]
-                    await self.vector_store.batch_upsert_vectors(batch)
-            except Exception as e:
-                error_msg = str(e)
-                if "api key" in error_msg.lower() or "not configured" in error_msg.lower():
-                    raise ValueError(f"Vector database not configured. Please check your Pinecone API key. Original error: {error_msg}")
-                raise ValueError(f"Failed to upsert vectors: {error_msg}")
-
-            # 6. Calculate and record document costs
-            try:
-                from packages.core.monitoring.metrics import get_metrics_collector
-                from packages.core.guardrails.cost_manager import get_cost_manager
-                
-                metrics = get_metrics_collector()
-                cost_manager = get_cost_manager()
-                
-                # Calculate embedding cost (using OpenAI embeddings model pricing)
-                # OpenAI text-embedding-3-small: $0.02 per 1M tokens
-                # Rough estimate: each chunk is ~1000 tokens for embedding
-                embedding_tokens = len(chunks) * 1000  # Rough estimate
-                embedding_cost = (embedding_tokens / 1_000_000.0) * 0.02
-                
-                # Processing cost is minimal (just text extraction and chunking)
-                processing_cost = 0.001  # Fixed small cost for processing
-                
-                total_cost = embedding_cost + processing_cost
-                
-                # Get page count if available (for PDFs)
-                pages_count = None
-                if content_type == "application/pdf" or source.type == SourceType.PDF.value:
-                    try:
-                        import pypdf
-                        pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
-                        pages_count = len(pdf_reader.pages)
-                    except:
-                        pass
-                
-                # Record document cost
-                metrics.record_document_cost(
-                    tenant_id=self.tenant_id,
-                    source_id=source_id,
-                    total_cost=round(total_cost, 6),
-                    processing_cost=round(processing_cost, 6),
-                    embedding_cost=round(embedding_cost, 6),
-                    chunks_count=len(chunks),
-                    pages_count=pages_count,
-                )
-                
-                print(f"[INGESTION] Recorded document cost for {source_id}: ${total_cost:.6f} (embedding: ${embedding_cost:.6f}, processing: ${processing_cost:.6f})")
-            except Exception as e:
-                # Don't fail processing if cost tracking fails
-                print(f"[WARNING] Failed to record document cost: {e}")
-            
-            # 7. Update Database Status
-            try:
-                source.status = SourceStatus.INDEXED.value
-                source.chunks_count = len(chunks)
-                await self.db.commit()
-                print(f"[INGESTION] Successfully processed source {source_id}: {len(chunks)} chunks indexed")
-            except Exception as e:
-                await self.db.rollback()
-                raise ValueError(f"Failed to update database: {str(e)}")
+                    raise ValueError(f"LlamaIndex ingestion failed: {str(e)}") from e
+                # Legacy non-LlamaIndex ingestion path removed.
+                # All ingestion is handled above via LlamaIndex adapters (and returns).
+                raise ValueError("Unexpected fallthrough: LlamaIndex ingestion did not return")
 
         except ValueError as e:
             # Re-raise ValueError with clear message
@@ -393,15 +299,24 @@ class IngestionService:
                 Source.user_id == self.user_id
             )
         )
-        sources = result.scalars().all()
-        
-        res_list = []
-        for s in sources:
+        sources = list(result.scalars().all())
+
+        # Presign URLs in parallel — sequential awaits were timing out the dashboard (30s+) with many sources.
+        async def _presign(s: Source) -> Optional[str]:
             try:
-                url = await self.storage_service.get_presigned_url(s.s3_key)
+                return await self.storage_service.get_presigned_url(s.s3_key)
             except Exception:
+                return None
+
+        if not sources:
+            return []
+
+        urls = await asyncio.gather(*(_presign(s) for s in sources), return_exceptions=True)
+
+        res_list = []
+        for s, url in zip(sources, urls):
+            if isinstance(url, Exception):
                 url = None
-                
             res_list.append({
                 "id": str(s.id),
                 "title": s.title,

@@ -76,6 +76,10 @@ class OpenAIClient(LLMClient):
         user_id = kwargs.pop("user_id", None)
         feature_tag = kwargs.pop("feature_tag", None)
         request_id = kwargs.pop("request_id", None)
+        # Back-compat: older callers pass `feature=...`
+        feature = kwargs.pop("feature", None)
+        if feature and not feature_tag:
+            feature_tag = str(feature)
         
         start_time = time.time()
         messages = []
@@ -132,6 +136,8 @@ class OpenAIClient(LLMClient):
         **kwargs
     ) -> AsyncGenerator[LLMStreamChunk, None]:
         """Stream responses from OpenAI."""
+        # Back-compat: older callers pass `feature=...` (not supported by OpenAI API)
+        kwargs.pop("feature", None)
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})

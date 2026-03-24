@@ -16,6 +16,11 @@ from packages.core.security.injection_detector import PromptInjectionDetector, I
 from packages.core.security.restricted_retriever import RestrictedRetriever
 from packages.core.security.intent_gate import IntentGate, IntentCategory
 from packages.core.security.pii_detector import PIIDetector, PIIType
+from packages.core.security.openai_moderation import (
+    check_moderation,
+    moderation_indicates_block,
+    is_openai_moderation_configured,
+)
 
 __all__ = [
     "SafetyFilter",
@@ -29,4 +34,7 @@ __all__ = [
     "IntentCategory",
     "PIIDetector",
     "PIIType",
+    "check_moderation",
+    "moderation_indicates_block",
+    "is_openai_moderation_configured",
 ]

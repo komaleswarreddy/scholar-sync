@@ -10,7 +10,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { MessageCircle, Plus, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
-import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
+import { handleApiError, getUserFriendlyMessage, ErrorType } from '@/lib/error-handler';
 
 interface ChatListItem {
   id: string;
@@ -73,30 +73,34 @@ export function ChatListSidebar({
       const apiError = error.apiError || handleApiError(error);
       const errorMessage = getUserFriendlyMessage(apiError);
       
-      // Auto-retry network errors up to 2 times
-      if (apiError.type === 'NETWORK' && apiError.retryable && retryCountRef.current < 2) {
+      const isRetryableList =
+        apiError.retryable &&
+        (apiError.type === ErrorType.NETWORK || apiError.type === ErrorType.TIMEOUT);
+
+      // Auto-retry slow/offline responses up to 2 times
+      if (isRetryableList && retryCountRef.current < 2) {
         retryCountRef.current += 1;
-        
-        // Only show error if we don't have any chats loaded
+
         if (chats.length === 0) {
           setError(errorMessage);
         }
-        
-        // Auto-retry after a short delay
+
         setTimeout(() => {
           loadChats(true);
-        }, 1000 * retryCountRef.current); // Exponential backoff: 1s, 2s
-        
-        // Don't clear chats on retryable network error - keep previous state
-        setChats((prev) => prev.length > 0 ? prev : []);
+        }, 1000 * retryCountRef.current);
+
+        setChats((prev) => (prev.length > 0 ? prev : []));
       } else {
-        // Show error for non-retryable errors or after retries exhausted
-        setError(errorMessage);
         retryCountRef.current = 0;
-        
-        // Don't clear chats on error - keep previous state to avoid showing "no chats" during errors
-        // Only clear if we don't have any chats yet
-        setChats((prev) => prev.length > 0 ? prev : []);
+        setChats((prev) => {
+          if (prev.length === 0) {
+            setError(errorMessage);
+          } else {
+            setError(null);
+            console.warn('Chat list refresh failed (keeping cached list):', errorMessage);
+          }
+          return prev.length > 0 ? prev : [];
+        });
       }
     } finally {
       setIsLoading(false);

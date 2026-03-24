@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "how can this book be helpful to a 10th class student?",
+    "benefits of this book for 10th grade students",
+    "can you tell this   thing in this book  how it can be help full to a  10th calss student?"
+  ],
+  "timestamp": 1774252045.3136294,
+  "ttl": 3600,
+  "query": "can you tell this   thing in this book  how it can be help full to a  10th calss student? ",
+  "source_ids": [
+    "bfca9263-a3de-4a7a-962b-ce51de23fea6"
+  ]
+}

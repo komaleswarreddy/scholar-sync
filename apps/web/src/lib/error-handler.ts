@@ -47,6 +47,9 @@ function extractErrorMessage(error: any): string {
     
     // FastAPI typically returns { detail: "message" }
     if (data.detail) {
+      if (typeof data.detail === 'object' && data.detail.message) {
+        return data.detail.message;
+      }
       return typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
     }
     
@@ -70,23 +73,34 @@ function extractErrorMessage(error: any): string {
 }
 
 /**
+ * Client-side timeouts (Axios ECONNABORTED, slow server) are not "offline" — avoid mislabeling as NETWORK.
+ */
+function isTimeoutError(error: any): boolean {
+  if (!error) return false;
+  const msg = String(error.message || '').toLowerCase();
+  if (msg.includes('timeout')) return true;
+  if (error.code === 'ETIMEDOUT') return true;
+  // Axios aborts timed-out XHRs with ECONNABORTED + "timeout of Nms exceeded"
+  if (error.code === 'ECONNABORTED' && msg.includes('exceeded')) return true;
+  return false;
+}
+
+/**
  * Determine if error is a network error
  */
 function isNetworkError(error: any): boolean {
-  // Axios network errors
+  if (isTimeoutError(error)) {
+    return false;
+  }
+
+  // Axios: no HTTP response can mean offline *or* other failures — exclude timeouts above
   if (!error.response) {
     return true;
   }
-  
-  // Check for specific network error codes
-  const networkErrorCodes = [
-    'ECONNABORTED',
-    'ECONNREFUSED',
-    'ENOTFOUND',
-    'ETIMEDOUT',
-    'ENETUNREACH',
-  ];
-  
+
+  // Check for specific network error codes (not ECONNABORTED alone — often used for timeouts)
+  const networkErrorCodes = ['ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ENETUNREACH'];
+
   if (error.code && networkErrorCodes.includes(error.code)) {
     return true;
   }
@@ -126,6 +140,14 @@ function getRetryAfter(error: any): number | undefined {
  * Handle HTTP error and return standardized ApiError
  */
 export function handleApiError(error: any): ApiError {
+  if (isTimeoutError(error)) {
+    return {
+      type: ErrorType.TIMEOUT,
+      message: ERROR_MESSAGES[ErrorType.TIMEOUT],
+      retryable: true,
+    };
+  }
+
   // Network errors (no response)
   if (isNetworkError(error)) {
     return {

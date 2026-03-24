@@ -176,11 +176,13 @@ class OutputFormatter:
         return re.sub(r'\n{3,}', '\n\n', text)
     
     def _clean_text(self, text: str) -> str:
-        """Clean up text formatting."""
-        # Remove excessive whitespace
-        text = re.sub(r'\s+', ' ', text)
-        # Remove excessive newlines
-        text = re.sub(r'\n{3,}', '\n\n', text)
+        """Clean up text formatting without destroying Markdown (headings, lists, blank lines)."""
+        text = (text or "").strip()
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+        # Collapse spaces/tabs within each line only — newlines must survive for ReactMarkdown UI
+        lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.split("\n")]
+        text = "\n".join(lines)
+        text = re.sub(r"\n{3,}", "\n\n", text)
         return text.strip()
     
     def _split_into_sentences(self, text: str) -> list:

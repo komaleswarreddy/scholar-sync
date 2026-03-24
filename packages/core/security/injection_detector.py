@@ -20,6 +20,17 @@ class InjectionType(Enum):
     MULTILINGUAL = "multilingual"
 
 
+# Pattern hits for these types are treated as high-confidence (short queries still block).
+_STRONG_INJECTION_TYPES = frozenset(
+    {
+        InjectionType.SYSTEM_PROMPT_LEAK,
+        InjectionType.IGNORE_INSTRUCTIONS,
+        InjectionType.DAN,
+        InjectionType.JAILBREAK,
+    }
+)
+
+
 class PromptInjectionDetector:
     """
     Detects prompt injection and jailbreak attempts.
@@ -68,7 +79,7 @@ class PromptInjectionDetector:
                 r'\b(remove|disable|turn\s+off)\s+(safety|restrictions?|filters?)',
             ],
             InjectionType.ENCODING: [
-                r'[^\x00-\x7F]+',  # Non-ASCII characters (potential encoding attacks)
+                # Do not match all non-ASCII text — that blocks normal multilingual use.
                 r'\\x[0-9a-fA-F]{2}',  # Hex encoding
                 r'%[0-9a-fA-F]{2}',  # URL encoding
             ],
@@ -122,11 +133,17 @@ class PromptInjectionDetector:
         # Check each injection type
         for injection_type, patterns in self.injection_patterns.items():
             for pattern in patterns:
+                if not pattern:
+                    continue
                 matches = re.findall(pattern, text_lower, re.IGNORECASE)
                 if matches:
-                    # Calculate confidence
+                    # Word-ratio scores miss short injection strings (e.g. one phrase in 10 words).
                     confidence = min(len(matches) / max(len(text.split()), 1), 1.0)
-                    
+                    if injection_type in _STRONG_INJECTION_TYPES:
+                        confidence = max(confidence, 0.95)
+                    else:
+                        confidence = max(confidence, 0.72)
+
                     detected_types.append(injection_type.value)
                     patterns_matched.append({
                         "type": injection_type.value,
