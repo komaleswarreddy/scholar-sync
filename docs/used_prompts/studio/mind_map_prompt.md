@@ -1,0 +1,67 @@
+**Source:** `packages/core/prompts/templates/studio/mind_map_prompt.j2`
+
+```jinja
+{# Mind map: hub-and-spoke; multi-source = one integrated synthesis. selected_source_count from service. #}
+
+You are an **expert in visual knowledge mapping** and **instructional design**. Produce a **mind map as Markdown**: **one central hub** with **branches** that show how ideas **connect to the whole**.
+
+**Selected source count for this request:** **{{ selected_source_count }}** document(s). Retrieval pulled chunks **only** from these selected IDs (no other uploads).
+
+---
+
+## Non-negotiable scope (evidence only)
+
+1. **Use ONLY the “Source content” excerpt below.**  
+2. **Do not** import facts from outside that excerpt (no other notebooks, no generic textbook filler).  
+3. If something is **not** in the excerpt, **omit** it—do not invent.  
+{% if selected_source_count | int > 1 %}
+4. **Multi-source synthesis (required):** The excerpt may combine passages from **{{ selected_source_count }}** different documents. You must **analyze them together**, not as if only one document existed.  
+   - Choose **one** central `#` theme that **bridges** the materials when possible—an **overarching idea**, **shared pattern**, or **meaningful contrast** that still **grounds every branch in the excerpt** (e.g. two domains might meet under a hub like “Human response and regulation” if both biological control and interpersonal behavior appear in the text).  
+   - Use **`##` major branches** to organize **by theme or by source-domain**, but **always** tie them back to the hub so the map feels **integrated**, not two disconnected mini-maps.  
+   - **Explicitly surface** where useful: **overlapping concepts**, **parallel structures**, or **contrasts** between the texts—**only** if the excerpt supports them.  
+   - **Forbidden:** Building the entire map from **one** source’s content while **ignoring** the other(s) when the excerpt clearly contains both. Spread attention across **all** represented sources unless one source dominates the excerpt length—in that case still name the secondary source’s ideas in at least one substantial `##` or `###` branch when they appear.  
+{% else %}
+4. **Single source:** The hub and branches should reflect **that one** document’s central theme, arguments, and structure.  
+{% endif %}
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+### Retrieval intent (alignment only — not labels to copy)
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+### Source content (selected sources only)
+{{ context }}
+{% else %}
+### Source content
+No excerpt retrieved. Output a minimal map: `# Insufficient source text` plus `##` branches noting missing indexing/selection—**no** fabricated topic.
+{% endif %}
+
+---
+
+## Structure (Markdown)
+
+- **Exactly one** `# …` = **central hub** (short, specific—**synthetic** when multiple sources, not “Source A and B”).  
+- **`## …`** = major branches (themes, domains, or comparison arms) **linked to the hub**.  
+- **`### …`** and **`-`** = sub-concepts, mechanisms, examples **from the excerpt**.  
+- Headings **2–8 words** where possible; bullets scannable.
+
+Plan **internally**; output **only** the Markdown tree.
+
+---
+
+## Anti-patterns
+
+- More than one `#` hub.  
+- **Multi-source:** two unrelated silos with no hub relationship.  
+- **Multi-source:** map dominated by one document when the excerpt clearly includes **both**.  
+- Vague nodes (“Key ideas”) without **concrete** wording from the text.  
+- External knowledge not in the excerpt.
+
+{% if custom_instructions %}
+### Additional user instructions
+{{ custom_instructions }}
+{% endif %}
+
+**Output:** Markdown only — no code fences, no preamble.
+```

@@ -1,0 +1,59 @@
+**Source:** `packages/core/prompts/templates/studio/quiz_prompt.j2`
+
+```jinja
+Create a high-quality educational quiz from the provided material.
+
+Output requirements (strict):
+- Return ONLY one valid JSON object.
+- Do NOT use markdown, code fences, comments, or extra text.
+- Use exactly this schema:
+{
+  "title": "Short quiz title",
+  "questions": [
+    {
+      "question": "Clear question text",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": "One option string that exactly matches an item in options",
+      "explanation": "1-2 sentence reason"
+    }
+  ]
+}
+
+Question count:
+{% if custom_instructions and custom_instructions.strip() %}
+- Follow the question count range and difficulty given in **Additional user instructions** below. Those instructions override any default below.
+{% else %}
+- Generate between **5 and 7** questions (inclusive) unless the source material is too thin; then use as many solid questions as the material supports (minimum 3 if possible).
+{% endif %}
+
+Quality requirements:
+- Each question must have exactly 4 options.
+- Questions should test understanding, not only memorization.
+- Keep wording unambiguous and learner-friendly.
+- Avoid duplicate questions or near-duplicate options.
+- Keep explanations concise and accurate to the source.
+
+Compliance (when custom instructions are present):
+- Honor the requested difficulty (easy / medium / hard): adjust reasoning depth, distractor quality, and vocabulary accordingly.
+- If instructions ask for a **topic focus**, most questions must clearly relate to that focus while staying grounded in the source.
+- If instructions say **no narrow topic** / **full breadth** / **all selected sources**, distribute questions across the retrieved material so the quiz reflects the whole context, not one subsection.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries used for vector search (ground the quiz in material retrieved with these queries):
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+Source content:
+{{ context }}
+{% else %}
+No source content was provided. Create a general educational quiz on a coherent topic.
+{% endif %}
+
+{% if custom_instructions %}
+Additional user instructions:
+{{ custom_instructions }}
+{% endif %}
+
+Final reminder: output ONLY the JSON object.
+```

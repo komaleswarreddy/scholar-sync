@@ -4,7 +4,7 @@ This document describes **what happens today** when a learner uses **Slide Deck*
 
 **Output shape:** The API returns **`task_type: "slide_deck"`** and a single **`content`** string: a **Markdown** outline (`# Slide N: …` headings with bullets). The **web app** parses that Markdown in **`SlideDeckDisplay`** for step-through navigation—there is **no** PowerPoint/PPTX export in this path.
 
-For comparison, see [`STUDIO_QUIZ_FLOW.md`](STUDIO_QUIZ_FLOW.md) (JSON quiz), [`STUDIO_FLASHCARDS_FLOW.md`](STUDIO_FLASHCARDS_FLOW.md) (JSON flashcards), [`STUDIO_MIND_MAP_FLOW.md`](STUDIO_MIND_MAP_FLOW.md) (Markdown mind map), [`STUDIO_REPORT_FLOW.md`](STUDIO_REPORT_FLOW.md) (tailored report), and [`STUDIO_INFOGRAPHIC_FLOW.md`](STUDIO_INFOGRAPHIC_FLOW.md) (structured JSON + React renderer).
+For comparison, see [`CHAT_FLOW.md`](CHAT_FLOW.md) (document Q&A streaming + LangGraph), [`STUDIO_QUIZ_FLOW.md`](STUDIO_QUIZ_FLOW.md) (JSON quiz), [`STUDIO_FLASHCARDS_FLOW.md`](STUDIO_FLASHCARDS_FLOW.md) (JSON flashcards), [`STUDIO_MIND_MAP_FLOW.md`](STUDIO_MIND_MAP_FLOW.md) (Markdown mind map), [`STUDIO_REPORT_FLOW.md`](STUDIO_REPORT_FLOW.md) (tailored report), and [`STUDIO_INFOGRAPHIC_FLOW.md`](STUDIO_INFOGRAPHIC_FLOW.md) (structured JSON + React renderer).
 
 ---
 
