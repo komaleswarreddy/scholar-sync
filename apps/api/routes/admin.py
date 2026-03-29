@@ -7,8 +7,10 @@ Provides admin-only endpoints for managing users and viewing system-wide metrics
 from fastapi import APIRouter, Request, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
+from sqlalchemy.exc import DBAPIError, OperationalError
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
+import asyncio
 import httpx
 import uuid
 
@@ -22,6 +24,22 @@ from config.settings import settings
 from sqlalchemy import func
 
 router = APIRouter()
+
+
+def _is_db_unavailable_error(exc: Exception) -> bool:
+    if isinstance(exc, (OperationalError, DBAPIError, OSError, TimeoutError)):
+        return True
+    msg = str(exc).lower()
+    return (
+        "connect call failed" in msg
+        or "database connection error" in msg
+        or "could not connect" in msg
+        or "connection refused" in msg
+        or "maxclientsinsessionmode" in msg
+        or "max clients reached" in msg
+        or "too many connections" in msg
+        or "timeout" in msg
+    )
 
 
 def _extract_primary_email(clerk_user: Dict[str, Any]) -> Optional[str]:
@@ -81,7 +99,13 @@ async def _fetch_all_clerk_users() -> List[Dict[str, Any]]:
         return all_clerk_users
 
 
-async def check_admin_role(request: Request, db: AsyncSession) -> bool:
+async def check_admin_role(
+    request: Request,
+    db: AsyncSession,
+    *,
+    raise_on_db_unavailable: bool = False,
+    db_timeout_s: float = 3.0,
+) -> bool:
     """
     Check if the current user has admin role.
     
@@ -93,10 +117,22 @@ async def check_admin_role(request: Request, db: AsyncSession) -> bool:
         return False
     
     # Look up user by clerk_user_id
-    result = await db.execute(
-        select(User).where(User.clerk_user_id == user_id)
-    )
-    user = result.scalar_one_or_none()
+    try:
+        result = await asyncio.wait_for(
+            db.execute(select(User).where(User.clerk_user_id == user_id)),
+            timeout=db_timeout_s,
+        )
+        user = result.scalar_one_or_none()
+    except Exception as e:
+        if _is_db_unavailable_error(e):
+            print(f"[ADMIN] DB unavailable while checking admin role by clerk_user_id: {e}")
+            if raise_on_db_unavailable:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Database unavailable. Please check DATABASE_URL and try again.",
+                )
+            return False
+        raise
     
     if user:
         return user.role == "admin"
@@ -128,10 +164,22 @@ async def check_admin_role(request: Request, db: AsyncSession) -> bool:
                 if email:
                     # Normalize email
                     email = email.lower().strip()
-                    result = await db.execute(
-                        select(User).where(User.email == email)
-                    )
-                    user = result.scalar_one_or_none()
+                    try:
+                        result = await asyncio.wait_for(
+                            db.execute(select(User).where(User.email == email)),
+                            timeout=db_timeout_s,
+                        )
+                        user = result.scalar_one_or_none()
+                    except Exception as e:
+                        if _is_db_unavailable_error(e):
+                            print(f"[ADMIN] DB unavailable while checking admin role by email: {e}")
+                            if raise_on_db_unavailable:
+                                raise HTTPException(
+                                    status_code=503,
+                                    detail="Database unavailable. Please check DATABASE_URL and try again.",
+                                )
+                            return False
+                        raise
                     
                     if user:
                         # If user found and clerk_user_id is not set, update it
@@ -162,7 +210,7 @@ async def list_all_users(
     Fetches all users from Clerk API and merges with local database roles.
     """
     # Check admin role
-    is_admin = await check_admin_role(request, db)
+    is_admin = await check_admin_role(request, db, raise_on_db_unavailable=True)
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
     
@@ -175,7 +223,15 @@ async def list_all_users(
     
     # If no Clerk users were fetched, fallback to database users
     if not clerk_users:
-        result = await db.execute(select(User))
+        try:
+            result = await asyncio.wait_for(db.execute(select(User)), timeout=5.0)
+        except Exception as e:
+            if _is_db_unavailable_error(e):
+                raise HTTPException(
+                    status_code=503,
+                    detail="Database unavailable while listing users. Please check DATABASE_URL and try again.",
+                )
+            raise
         db_users = result.scalars().all()
         return {
             "users": [
@@ -192,7 +248,15 @@ async def list_all_users(
         }
     
     # Get users from database to merge roles
-    result = await db.execute(select(User))
+    try:
+        result = await asyncio.wait_for(db.execute(select(User)), timeout=5.0)
+    except Exception as e:
+        if _is_db_unavailable_error(e):
+            raise HTTPException(
+                status_code=503,
+                detail="Database unavailable while merging user roles. Please check DATABASE_URL and try again.",
+            )
+        raise
     db_users = result.scalars().all()
     
     # Create a map of clerk_user_id -> role

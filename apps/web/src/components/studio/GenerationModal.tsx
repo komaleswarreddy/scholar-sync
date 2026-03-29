@@ -9,7 +9,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, Loader2, AlertCircle, Download, Copy, Check, RotateCcw } from 'lucide-react';
+import { X, Loader2, AlertCircle, Download, Copy, Check, RotateCcw, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Button } from '../ui/Button';
@@ -474,9 +474,44 @@ export function GenerationModal({
   // Render content based on type
   const renderContent = () => {
     if (loading) {
+      if (loadingType === 'quiz') {
+        return (
+          <div className="p-8 sm:p-10 flex flex-col items-center justify-center min-h-[300px]">
+            <div
+              className="mb-6 w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-purple/25 via-accent-blue/15 to-accent-blue/25 flex items-center justify-center shadow-sm border border-border-default/60"
+              aria-hidden
+            >
+              <Sparkles className="w-9 h-9 text-accent-blue animate-pulse" />
+            </div>
+            <h3 className="text-lg font-semibold text-text-primary text-center mb-2">
+              Creating your quiz
+            </h3>
+            <p className="text-sm text-text-secondary text-center max-w-md leading-relaxed mb-8">
+              We&apos;re writing questions tailored to your choices, using your selected sources.
+              {sourceCount ? (
+                <span className="block mt-1 text-text-tertiary">
+                  Reading from {sourceCount} {sourceCount === 1 ? 'source' : 'sources'}…
+                </span>
+              ) : null}
+            </p>
+            <div className="w-full max-w-sm space-y-3">
+              <div className="w-full h-2 bg-surface-subtle rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-accent-blue via-accent-purple/80 to-accent-blue animate-pulse"
+                  style={{ width: '58%' }}
+                />
+              </div>
+              <p className="text-xs text-text-tertiary text-center flex items-center justify-center gap-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                <span>Generating…</span>
+              </p>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="p-6 space-y-4">
-          {/* Progress Indicator */}
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-secondary font-medium">
@@ -484,7 +519,6 @@ export function GenerationModal({
                 {sourceCount ? ` (Processing ${sourceCount} ${sourceCount === 1 ? 'Source' : 'Sources'})` : ''}
               </span>
             </div>
-            {/* Animated Indeterminate Progress Bar */}
             <div className="w-full h-2.5 bg-surface-subtle rounded-full overflow-hidden">
               <div className="h-full bg-accent-blue rounded-full animate-pulse" style={{ width: '60%' }} />
             </div>
@@ -721,9 +755,11 @@ export function GenerationModal({
                 </h2>
                 <p id="generation-modal-description" className="text-xs text-text-tertiary mt-0.5">
                   {loading
-                    ? loadingType
-                      ? `Generating ${loadingType.replace('_', ' ')}${sourceCount ? ` (Processing ${sourceCount} ${sourceCount === 1 ? 'Source' : 'Sources'})` : ''}...`
-                      : 'Generating content...'
+                    ? loadingType === 'quiz'
+                      ? 'Hang tight — almost there.'
+                      : loadingType
+                        ? `Generating ${loadingType.replace('_', ' ')}${sourceCount ? ` (Processing ${sourceCount} ${sourceCount === 1 ? 'Source' : 'Sources'})` : ''}...`
+                        : 'Generating content...'
                     : error
                     ? 'Generation failed'
                     : isQuiz
@@ -744,8 +780,8 @@ export function GenerationModal({
                     ? 'Markdown Content'
                     : 'Text Content'}
                 </p>
-                {/* Custom Instructions Display */}
-                {customInstructions && customInstructions.trim() && (
+                {/* Custom instructions (hidden while loading; not shown for quiz/mind_map/report/flashcards — see StudioSuite) */}
+                {!loading && customInstructions && customInstructions.trim() && (
                   <div className="mt-2 p-2 bg-surface-subtle border border-border-default rounded-md">
                     <p className="text-xs font-medium text-text-secondary mb-1">Custom Instructions:</p>
                     <p className="text-xs text-text-primary italic">{customInstructions}</p>

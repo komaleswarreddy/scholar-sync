@@ -50,14 +50,27 @@ if "supabase.com" in database_url or "pooler.supabase.com" in database_url:
     ssl_context.check_hostname = False
     ssl_context.verify_mode = ssl.CERT_NONE
     connect_args = {"ssl": ssl_context}
+    # Transaction pool (port 6543) + PgBouncer: asyncpg must disable prepared statement cache
+    if ":6543" in database_url:
+        connect_args["statement_cache_size"] = 0
+
+# Pool sizing: Supabase *Session* pooler (often port 5432) limits concurrent clients per
+# project. Holding a connection for long SSE streams + pool_size 5+ can hit
+# MaxClientsInSessionMode. Prefer Transaction pool (6543) in production; keep pool modest.
+_pool_size = getattr(settings, "DB_POOL_SIZE", 5)
+_max_overflow = getattr(settings, "DB_MAX_OVERFLOW", 10)
+if "pooler.supabase.com" in database_url and ":5432" in database_url:
+    _pool_size = min(_pool_size, 3)
+    _max_overflow = min(_max_overflow, 5)
 
 engine = create_async_engine(
     database_url,
     echo=getattr(settings, "SQLALCHEMY_ECHO", False),
     pool_pre_ping=True,  # Verify connections before using them
     pool_recycle=3600,  # Recycle connections after 1 hour
-    pool_size=getattr(settings, "DB_POOL_SIZE", 5),
-    max_overflow=getattr(settings, "DB_MAX_OVERFLOW", 10),
+    pool_size=_pool_size,
+    max_overflow=_max_overflow,
+    pool_timeout=30,
     connect_args=connect_args,
 )
 
@@ -80,9 +93,6 @@ Base = declarative_base()
 # ======================
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+        yield session
 
 

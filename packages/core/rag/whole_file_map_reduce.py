@@ -15,6 +15,7 @@ from config.settings import settings
 from packages.core.rag.vectorstores.pinecone_store import get_pinecone_index
 from packages.core.rag.vectorstores.namespace import normalize_pinecone_namespace
 from packages.core.llm import get_llm_client, get_model_for_task
+from packages.core.prompts import load_prompt
 
 
 def should_whole_file_map_reduce(
@@ -99,12 +100,17 @@ def _fetch_vectors_by_ids(namespace: str, vector_ids: List[str]) -> List[Dict[st
     return matches
 
 
-async def _fallback_query_chunks(tenant_id: str, source_id: str, cap: int) -> List[Dict[str, Any]]:
+async def _fallback_query_chunks(
+    tenant_id: str,
+    source_id: str,
+    cap: int,
+    user_id: Optional[str] = None,
+) -> List[Dict[str, Any]]:
     """If list() is empty, retrieve up to `cap` chunks by similarity (best-effort, not guaranteed full coverage)."""
     from packages.core.rag.embedder import Embedder
     from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
 
-    embedder = Embedder(tenant_id)
+    embedder = Embedder(tenant_id, user_id=user_id)
     emb = await embedder.generate_embedding("full document summary of the entire text content")
     store = PineconeVectorStore(tenant_id)
     raw = await store.query_vectors(
@@ -129,7 +135,11 @@ async def _fallback_query_chunks(tenant_id: str, source_id: str, cap: int) -> Li
     return norm
 
 
-async def fetch_all_chunks_for_sources(tenant_id: str, source_ids: List[str]) -> List[Dict[str, Any]]:
+async def fetch_all_chunks_for_sources(
+    tenant_id: str,
+    source_ids: List[str],
+    user_id: Optional[str] = None,
+) -> List[Dict[str, Any]]:
     """Return all chunk records for the given sources, sorted in reading order."""
     ns = normalize_pinecone_namespace(tenant_id)
     cap = getattr(settings, "WHOLE_FILE_MAX_CHUNKS", 500)
@@ -138,7 +148,7 @@ async def fetch_all_chunks_for_sources(tenant_id: str, source_ids: List[str]) ->
         ids = _list_vector_ids_for_source(ns, sid)
         if not ids:
             print(f"[WHOLE_FILE] list() empty for {sid}; using similarity query fallback.")
-            rows = await _fallback_query_chunks(tenant_id, sid, cap)
+            rows = await _fallback_query_chunks(tenant_id, sid, cap, user_id=user_id)
         else:
             rows = _fetch_vectors_by_ids(ns, ids)
         for row in rows:
@@ -196,14 +206,10 @@ async def _reduce_summaries(
     section_summaries: str,
 ) -> str:
     """Final answer from all map outputs."""
-    prompt = (
-        "You are writing the final answer for the user.\n"
-        "Below are ordered summaries of every section/part of their document(s).\n"
-        "Write a clear, well-structured response that answers their request and reflects the ENTIRE document, "
-        "not just the beginning. Use sections or bullet points if helpful.\n"
-        "Do not include citation markers like [1]. Do not paste raw excerpt lists.\n\n"
-        f"User request:\n{user_message}\n\n"
-        f"Section summaries (in document order):\n{section_summaries}"
+    prompt = load_prompt(
+        "rag/whole_file_reduce_prompt.j2",
+        user_message=user_message,
+        section_summaries=section_summaries,
     )
     provider, model = get_model_for_task("chat")
     llm = get_llm_client(provider=provider, model=model, temperature=0.5)
@@ -240,7 +246,7 @@ async def run_whole_file_map_reduce(
     if not active_source_ids:
         return {"precomputed_answer": None, "section_summaries": "", "used_map_reduce": False}
 
-    chunks = await fetch_all_chunks_for_sources(tenant_id, active_source_ids)
+    chunks = await fetch_all_chunks_for_sources(tenant_id, active_source_ids, user_id=user_id)
     if not chunks:
         return {
             "precomputed_answer": None,

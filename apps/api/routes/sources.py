@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends, Request, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import DBAPIError, OperationalError
 import uuid
 
 from packages.core.database.connection import get_db, AsyncSessionLocal
@@ -10,6 +11,22 @@ from apps.api.schemas.source import SourceResponse, SourceListResponse
 router = APIRouter()
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+def _is_db_unavailable_error(exc: Exception) -> bool:
+    if isinstance(exc, (OperationalError, DBAPIError, OSError, TimeoutError)):
+        return True
+    msg = str(exc).lower()
+    return (
+        "connect call failed" in msg
+        or "database connection error" in msg
+        or "could not connect" in msg
+        or "connection refused" in msg
+        or "maxclientsinsessionmode" in msg
+        or "max clients reached" in msg
+        or "too many connections" in msg
+        or "timeout" in msg
+    )
 
 @router.get("/test")
 async def test_endpoint():
@@ -168,9 +185,15 @@ async def list_sources(request: Request, db: AsyncSession = Depends(get_db)):
     if not user_id:
         raise HTTPException(status_code=401, detail="User authentication required")
 
-    service = IngestionService(db, tenant_id, user_id)
-    sources = await service.list_sources()
-    return SourceListResponse(sources=sources)
+    try:
+        service = IngestionService(db, tenant_id, user_id)
+        sources = await service.list_sources()
+        return SourceListResponse(sources=sources)
+    except Exception as e:
+        if _is_db_unavailable_error(e):
+            print(f"[SOURCES] DB unavailable in list_sources; returning empty list fallback: {e}")
+            return SourceListResponse(sources=[])
+        raise
 
 @router.delete("/sources/{source_id}")
 async def delete_source(source_id: str, request: Request, db: AsyncSession = Depends(get_db)):

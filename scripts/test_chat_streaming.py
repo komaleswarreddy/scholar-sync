@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script to verify chat streaming works with new Gemini models.
+Test script to verify chat streaming works (OpenAI).
 """
 
 import sys
@@ -12,7 +12,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 async def test_chat_streaming():
-    """Test chat streaming with new Gemini model."""
+    """Test chat streaming with OpenAI model."""
     print("=" * 70)
     print("Chat Streaming Test with New Gemini Models")
     print("=" * 70)
@@ -21,17 +21,17 @@ async def test_chat_streaming():
         from packages.core.llm.factory import get_model_for_task, get_llm_client
         
         # Get API key from environment
-        api_key = os.environ.get('GEMINI_API_KEY', '')
+        api_key = os.environ.get('OPENAI_API_KEY', '')
         if not api_key or api_key == 'test-key':
-            print("\n[WARNING] No valid GEMINI_API_KEY found")
+            print("\n[WARNING] No valid OPENAI_API_KEY found")
             print("This test requires a valid API key to test actual streaming")
             print("Skipping actual API call test, but verifying model configuration...")
             
             # Test configuration only
             provider, model = get_model_for_task("chat")
             print(f"\n[OK] Chat routing configured: provider={provider}, model={model}")
-            assert model in ["gemini-2.0-flash-exp", "gemini-2.5-flash", "gemini-pro"], \
-                f"Expected newer model, got {model}"
+            assert str(provider).lower().endswith("openai"), f"Expected OpenAI provider, got {provider}"
+            assert model.startswith("gpt-"), f"Expected GPT model, got {model}"
             print(f"[OK] Model configuration is correct")
             return True
         

@@ -8,6 +8,8 @@ from typing import List, Dict, Optional, Any
 from datetime import datetime
 import re
 
+from packages.core.prompts import load_prompt
+
 
 class ChatSummarizer:
     """
@@ -196,12 +198,11 @@ class ChatSummarizer:
             for msg in old_messages
         ])
         
-        summary_prompt = f"""Summarize the following conversation history in 2-3 sentences, preserving key topics and answers:
+        summary_prompt = load_prompt(
+            "chat/chat_summarizer_prompt.j2",
+            old_conversation=old_conversation,
+        )
 
-{old_conversation}
-
-Summary:"""
-        
         # Use LLM to generate summary
         try:
             from packages.core.llm import get_llm_client, get_model_for_task

@@ -5,7 +5,7 @@ Traces are in-memory per process. GET /recent is available to any authenticated 
 (their traces only); admins see global recent.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -52,15 +52,6 @@ async def list_recent_traces(
     return {"traces": out, "scope": "all" if is_admin else "mine"}
 
 
-def _trace_access_allowed(request: Request, trace_user_id: str, is_admin: bool) -> bool:
-    uid = getattr(request.state, "user_id", None)
-    if not uid:
-        return False
-    if is_admin:
-        return True
-    return uid == trace_user_id
-
-
 @router.get("/{trace_id}")
 async def get_pipeline_trace(
     trace_id: str,
@@ -70,11 +61,19 @@ async def get_pipeline_trace(
     """Return a single trace (owner or admin)."""
     if not getattr(settings, "ENABLE_PIPELINE_TRACE", True):
         raise HTTPException(status_code=404, detail="Pipeline tracing disabled")
+    uid = getattr(request.state, "user_id", None)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Authentication required")
     store = get_pipeline_trace_store()
     tr = store.get_trace(trace_id)
     if not tr:
         raise HTTPException(status_code=404, detail="Trace not found or expired")
-    is_admin = await check_admin_role(request, db)
-    if not _trace_access_allowed(request, tr.user_id, is_admin):
+    # Owner can always load their trace without hitting the DB for admin role.
+    if uid == tr.user_id:
+        return store.to_jsonable(tr)
+    # Cross-tenant / other-user trace: require admin. If DB is down, return 503 — not a
+    # misleading 403 (check_admin_role otherwise returns False when DB errors).
+    is_admin = await check_admin_role(request, db, raise_on_db_unavailable=True)
+    if not is_admin:
         raise HTTPException(status_code=403, detail="Not allowed to view this trace")
     return store.to_jsonable(tr)

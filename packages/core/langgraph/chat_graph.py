@@ -49,6 +49,49 @@ def _split_stream_text(text: str, chunk_size: int = 50) -> List[str]:
     return [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)] if text else []
 
 
+def _normalize_chat_tagged_response(text: str) -> str:
+    """
+    Remove legacy <main_answer> / <follow_ups> XML-style wrappers from model output
+    so the UI shows clean Markdown. Follow-ups become a normal ## section.
+    """
+    if not text or not text.strip():
+        return (text or "").strip()
+    t = text.strip()
+    tl = t.lower()
+    if "<main_answer>" not in tl and "<follow_ups>" not in tl:
+        return t
+
+    main_body: Optional[str] = None
+    follow_body: Optional[str] = None
+
+    m_main = re.search(
+        r"<main_answer>\s*(.*?)\s*</main_answer>",
+        t,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    if m_main:
+        main_body = m_main.group(1).strip()
+
+    m_follow = re.search(
+        r"<follow_ups>\s*(.*?)\s*</follow_ups>",
+        t,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    if m_follow:
+        follow_body = m_follow.group(1).strip()
+
+    if main_body is not None:
+        out = main_body
+        if follow_body:
+            fb = follow_body.strip()
+            out = f"{out}\n\n---\n\n## Suggested questions\n\n{fb}"
+        return out.strip()
+
+    t = re.sub(r"</?main_answer>\s*", "", t, flags=re.IGNORECASE)
+    t = re.sub(r"</?follow_ups>\s*", "", t, flags=re.IGNORECASE)
+    return t.strip()
+
+
 def _history_drop_trailing_duplicate_user(
     history: List[Dict[str, Any]],
     current_message: str,
@@ -170,7 +213,7 @@ class LangGraphChatPipeline:
             else None
         )
 
-        self.retriever = Retriever(tenant_id)
+        self.retriever = Retriever(tenant_id, user_id=user_id)
 
         self.confidence_scorer = (
             ConfidenceScorer(
@@ -205,7 +248,7 @@ class LangGraphChatPipeline:
             max_context_chunks=settings.MAX_CONTEXT_CHUNKS,
             min_relevance_score=settings.SIMILARITY_THRESHOLD,
         )
-        self.embedder = Embedder(tenant_id)
+        self.embedder = Embedder(tenant_id, user_id=user_id)
 
         # Build LangGraph state machine (Plan B orchestration).
         from langgraph.graph import StateGraph, END
@@ -254,12 +297,20 @@ class LangGraphChatPipeline:
         g.add_edge("DirectChat", "ModerationOutput")
 
         def _route_after_intent(s: ChatGraphState) -> str:
+            # Conversational / chat-only intents should bypass retrieval entirely.
+            ci = str(s.get("classified_intent") or "").strip().lower()
+            if ci in {"conversational", "chat_only"} or s.get("skip_rag"):
+                return "DirectChat"
             return "WholeFileMapReduce" if s.get("whole_file_summary") else "Retrieval"
 
         g.add_conditional_edges(
             "IntentClassify",
             _route_after_intent,
-            {"WholeFileMapReduce": "WholeFileMapReduce", "Retrieval": "Retrieval"},
+            {
+                "DirectChat": "DirectChat",
+                "WholeFileMapReduce": "WholeFileMapReduce",
+                "Retrieval": "Retrieval",
+            },
         )
 
         def _route_after_whole_file(s: ChatGraphState) -> str:
@@ -275,7 +326,9 @@ class LangGraphChatPipeline:
         g.add_edge("ContextSelector", "Generate")
         g.add_edge("Generate", "ModerationOutput")
         g.add_edge("ModerationOutput", "Evaluator")
-        g.add_edge("Evaluator", END)
+        g.add_node("CacheStore", tw("CacheStore", self._node_cache_store))
+        g.add_edge("Evaluator", "CacheStore")
+        g.add_edge("CacheStore", END)
 
         self._graph = g.compile()
 
@@ -537,7 +590,9 @@ class LangGraphChatPipeline:
         cached = self.answer_cache.get(q, source_ids, self.tenant_id)
         if cached:
             state["use_cached_response"] = True
-            state["cached_answer"] = cached.get("answer", "")
+            state["cached_answer"] = _normalize_chat_tagged_response(
+                (cached.get("answer", "") or "").strip()
+            )
             state["cached_citations"] = cached.get("citations", []) or []
         else:
             state["use_cached_response"] = False
@@ -602,7 +657,7 @@ class LangGraphChatPipeline:
             user_id=self.user_id,
             feature_tag="chat_langgraph_direct",
         )
-        state["final_answer"] = (resp.content or "").strip()
+        state["final_answer"] = _normalize_chat_tagged_response((resp.content or "").strip())
         return state
 
     async def _node_intent_classify(self, state: ChatGraphState) -> ChatGraphState:
@@ -611,10 +666,22 @@ class LangGraphChatPipeline:
 
         msg = state.get("redacted_message") or state.get("message") or ""
         active = state.get("active_source_ids") or []
-        ic = IntentClassifier(self.tenant_id)
+        ic = IntentClassifier(self.tenant_id, user_id=self.user_id)
         r = await ic.classify_intent(msg, state.get("effective_history") or state.get("history"))
         intent = r.get("intent")
-        state["classified_intent"] = getattr(intent, "value", str(intent)) if intent else ""
+        intent_label = (getattr(intent, "value", str(intent)) if intent else "").strip().lower()
+        state["classified_intent"] = intent_label
+        if intent_label in {"conversational", "chat_only"}:
+            state["skip_rag"] = True
+            state["dialog_route_reason"] = "intent_classifier_conversational"
+            state["matches"] = []
+            state["selected_matches"] = []
+            state["context"] = ""
+            state["citations"] = []
+            state["rewritten_queries"] = []
+            state["rewritten_query"] = ""
+            state["primary_retrieval_query"] = ""
+            state["focused_query"] = ""
         state["whole_file_summary"] = should_whole_file_map_reduce(msg, active, intent)
         return state
 
@@ -789,7 +856,7 @@ class LangGraphChatPipeline:
     async def _node_generate(self, state: ChatGraphState) -> ChatGraphState:
         pre = (state.get("precomputed_answer") or "").strip()
         if pre:
-            state["final_answer"] = pre
+            state["final_answer"] = _normalize_chat_tagged_response(pre)
             state["full_prompt"] = "[map-reduce]"
             return state
 
@@ -901,6 +968,8 @@ class LangGraphChatPipeline:
             )
             answer = (retry_resp.content or "").strip()
 
+        answer = _normalize_chat_tagged_response(answer)
+
         # Post-generation processing (length limit, formatting, citation check)
         if answer and self.length_limiter:
             limited = self.length_limiter.limit_output(answer)
@@ -984,6 +1053,37 @@ class LangGraphChatPipeline:
         state["done_payload"] = done
         return state
 
+    def _node_cache_store(self, state: ChatGraphState) -> ChatGraphState:
+        """
+        Persist successful assistant output so identical (query + sources) turns can hit CacheCheck.
+        Previously only get() was wired; set() was never called, so the cache almost never worked.
+        """
+        if not self.answer_cache:
+            return state
+        if state.get("use_cached_response"):
+            return state
+        if state.get("moderation_block_reason"):
+            return state
+        out = (state.get("final_output_text") or "").strip()
+        if not out:
+            return state
+        q = (state.get("redacted_message") or state.get("message") or "").strip()
+        if not q:
+            return state
+        source_ids = list(state.get("active_source_ids") or [])
+        citations = list(state.get("citations") or [])
+        try:
+            self.answer_cache.set(
+                q,
+                source_ids,
+                out,
+                citations,
+                tenant_id=self.tenant_id,
+            )
+        except Exception as e:
+            print(f"[ANSWER_CACHE] Failed to store entry: {type(e).__name__}: {e}")
+        return state
+
     async def stream(
         self,
         *,
@@ -1051,7 +1151,9 @@ class LangGraphChatPipeline:
 
         # Cache-hit path
         if state.get("use_cached_response"):
-            cached_answer = state.get("cached_answer") or ""
+            cached_answer = _normalize_chat_tagged_response(
+                (state.get("cached_answer") or "").strip()
+            )
             for c in state.get("cached_citations") or []:
                 yield {"event": "citation", "data": c}
             for chunk in _split_stream_text(cached_answer):

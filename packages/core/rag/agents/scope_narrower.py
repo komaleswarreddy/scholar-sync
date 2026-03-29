@@ -11,11 +11,8 @@ from typing import Any, Dict, List, Optional
 from config.settings import settings
 from packages.core.llm import get_llm_client, get_model_for_task
 from packages.core.llm._base import LLMProvider
+from packages.core.prompts import load_prompt
 from packages.core.rag.agents.conversation_context import format_conversation_transcript
-
-_SCOPE_SYSTEM = """You analyze search queries for document retrieval. Output one JSON object only.
-Keys: "key_terms" (array of strings), "focused_query" (string), "max_chunks" (integer 3-15).
-No markdown outside JSON."""
 
 
 def _parse_scope_json(content: str) -> Optional[Dict[str, Any]]:
@@ -89,7 +86,7 @@ and max_chunks (3-15) suggested pool size."""
 
             response = await llm_client.generate(
                 prompt=prompt,
-                system_prompt=_SCOPE_SYSTEM,
+                system_prompt=system_prompt,
                 temperature=0.2,
                 max_tokens=400,
                 **llm_kwargs,

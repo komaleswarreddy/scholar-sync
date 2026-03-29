@@ -10,7 +10,6 @@ from enum import Enum
 from config.settings import settings
 from packages.core.llm._base import LLMClient, LLMProvider
 from packages.core.llm.openai_client import OpenAIClient
-from packages.core.llm.gemini_client import GeminiClient
 
 
 class LLMModel(str, Enum):
@@ -20,14 +19,7 @@ class LLMModel(str, Enum):
     GPT_4O = "gpt-4o"
     GPT_4_TURBO = "gpt-4-turbo"
     GPT_3_5_TURBO = "gpt-3.5-turbo"
-    
-    # Gemini Models
-    # NOTE: gemini-1.5-flash has been RETIRED by Google - auto-upgrades to gemini-2.0-flash-exp
-    GEMINI_1_5_FLASH = "gemini-1.5-flash"  # RETIRED - Auto-upgrades to GEMINI_2_0_FLASH_EXP (kept for backward compatibility)
-    GEMINI_2_0_FLASH_EXP = "gemini-2.0-flash-exp"  # Recommended: Experimental, newer model (works with v1 API)
-    GEMINI_2_5_FLASH = "gemini-2.5-flash"  # Recommended: Stable newer model (works with v1 API)
-    GEMINI_1_5_PRO = "gemini-1.5-pro"  # Alternative: Pro version (more compatible)
-    
+
     # Claude Models (future)
     CLAUDE_3_OPUS = "claude-3-opus"
     CLAUDE_3_SONNET = "claude-3-sonnet"
@@ -66,12 +58,6 @@ def get_llm_client(
     if model is None:
         model = _get_default_model(provider)
     
-    # Intercept retired gemini-1.5-flash model and replace immediately
-    # This model has been retired by Google and is not available in v1beta API
-    if model == "gemini-1.5-flash" or (isinstance(model, str) and "1.5-flash" in model.lower()):
-        print(f"[WARNING] [FACTORY] Model 'gemini-1.5-flash' has been retired by Google. Auto-upgrading to 'gemini-pro'")
-        model = "gemini-pro"
-    
     # Create client based on provider
     if provider == LLMProvider.OPENAI:
         return OpenAIClient(
@@ -80,10 +66,9 @@ def get_llm_client(
             max_tokens=max_tokens
         )
     elif provider == LLMProvider.GEMINI:
-        return GeminiClient(
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens
+        raise ValueError(
+            "Gemini provider is disabled in this codebase. "
+            "Update your routing to use OpenAI models only."
         )
     elif provider == LLMProvider.CLAUDE:
         # Future: ClaudeClient
@@ -98,8 +83,6 @@ def _detect_provider_from_model(model: str) -> LLMProvider:
     
     if model_lower.startswith("gpt") or "openai" in model_lower:
         return LLMProvider.OPENAI
-    elif "gemini" in model_lower:
-        return LLMProvider.GEMINI
     elif "claude" in model_lower:
         return LLMProvider.CLAUDE
     else:
@@ -111,8 +94,6 @@ def _get_default_model(provider: LLMProvider) -> str:
     """Get default model for provider."""
     defaults = {
         LLMProvider.OPENAI: LLMModel.GPT_4O_MINI.value,
-        # Prefer a broadly available Gemini model for v1beta generateContent
-        LLMProvider.GEMINI: "gemini-2.0-flash",
         LLMProvider.CLAUDE: LLMModel.CLAUDE_3_HAIKU.value,
     }
     return defaults.get(provider, LLMModel.GPT_4O_MINI.value)
@@ -130,7 +111,7 @@ def get_model_for_task(task_type: str) -> tuple:
     """
     # Task-based routing (can be configured via settings)
     task_routing = {
-        # Structured tasks -> OpenAI (better JSON adherence)
+        # Studio structured tasks -> OpenAI (better JSON adherence)
         "quiz": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "flashcards": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "mind_map": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
@@ -138,12 +119,13 @@ def get_model_for_task(task_type: str) -> tuple:
         "intent_classifier": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "query_rewriter": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "scope_narrower": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        
-        # Content-heavy tasks -> Gemini (larger context window)
-        "report": (LLMProvider.GEMINI, "gemini-2.0-flash"),
-        "infographic": (LLMProvider.GEMINI, "gemini-2.0-flash"),
-        
-        # Chat -> OpenAI by default (more reliable across envs)
+
+        # Content-heavy Studio tasks -> OpenAI as well
+        # Use gpt-4o for better long-form quality; keep chat on gpt-4o-mini for cost/latency.
+        "report": (LLMProvider.OPENAI, LLMModel.GPT_4O.value),
+        "infographic": (LLMProvider.OPENAI, LLMModel.GPT_4O.value),
+
+        # Chat -> OpenAI
         "chat": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         
     }

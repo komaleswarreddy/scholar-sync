@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "who is Raj Shamani and is he from India?",
+    "Raj Shamani biography and Indian origin",
+    "who is raj shamani? is  he from india?"
+  ],
+  "timestamp": 1774429721.2570884,
+  "ttl": 3600,
+  "query": "who is raj shamani? is  he from india?",
+  "source_ids": [
+    "49720d3e-e98e-44c6-9680-627d15cf6bd2"
+  ]
+}

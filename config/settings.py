@@ -79,7 +79,15 @@ class Settings(BaseSettings):
     
     # RAG Configuration
     TOP_K_CHUNKS: int = 12  # Initial retrieval pool (was 10)
-    SIMILARITY_THRESHOLD: float = 0.62  # Context selection floor — 0.7 dropped too many marginally relevant chunks
+    # Studio: multi-query vector retrieval (no reranker)
+    STUDIO_RETRIEVAL_QUERIES_CAP: int = 3  # Max rewritten queries to embed per topic-focused request
+    STUDIO_RETRIEVAL_TOP_K_PER_QUERY: int = 10  # Pinecone top_k each vector query
+    STUDIO_CONTEXT_MAX_CHUNKS: int = 28  # After merge-by-id, max chunks in context
+    # Infographic: richer multi-query retrieval (single-source task); each line = one embed + Pinecone query
+    STUDIO_INFOGRAPHIC_RETRIEVAL_QUERIES_CAP: int = 14  # Max broad queries to run (full list has 14 lines)
+    STUDIO_INFOGRAPHIC_CONTEXT_MAX_CHUNKS: int = 36  # Wider context merge cap for visual grounding
+    STUDIO_RETRIEVAL_NOTE_MAX_CHARS: int = 900  # Prompt line summarizing queries used for search
+    SIMILARITY_THRESHOLD: float = 0.54  # Context floor; factual/rare terms often score lower than paraphrase-heavy chunks
     CHAT_MAX_TOKENS: int = 2048  # Maximum tokens for chat responses
     # Prior turns included in chat/rag_prompt.j2 (conversation continuity)
     CHAT_PROMPT_MAX_HISTORY_MESSAGES: int = 16

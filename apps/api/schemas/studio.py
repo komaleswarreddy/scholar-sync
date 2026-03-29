@@ -27,6 +27,25 @@ class StudioRequest(BaseModel):
     ] = Field(..., description="Type of generation task")
     source_ids: List[str] = Field(..., min_items=1, description="Source IDs for context")
     custom_instructions: Optional[str] = Field(None, description="Custom generation instructions")
+    retrieval_focus: Optional[str] = Field(
+        None,
+        description=(
+            "Optional raw topic/focus string for vector retrieval (separate from format instructions). "
+            "Ignored for task_type 'flashcards' — flashcards always use broad studio queries only."
+        ),
+    )
+    report_format: Optional[
+        Literal[
+            "integrated",
+            "briefing",
+            "study_guide",
+            "newsletter",
+            "thematic_summary",
+        ]
+    ] = Field(
+        None,
+        description="Tailored report format (Studio Reports modal). Ignored when task_type is not 'report'.",
+    )
 
 
 class QuizQuestion(BaseModel):
@@ -68,12 +87,11 @@ class ReportResponse(BaseModel):
 
 
 class InfographicResponse(BaseModel):
-    """Infographic generation response."""
+    """Infographic generation response — structured data rendered as HTML by the frontend."""
     task_type: Literal["infographic"] = "infographic"
-    content: str = Field(..., description="Visual brief description for infographic")
-    image_url: Optional[str] = Field(None, description="URL of the generated infographic image")
-    revised_prompt: Optional[str] = Field(None, description="DALL-E revised prompt used for image generation")
-    image_error: Optional[str] = Field(None, description="Error message if image generation failed")
+    content: str = Field(..., description="Markdown bullet summary for the infographic")
+    infographic_data: Optional[Dict[str, Any]] = Field(None, description="Structured JSON for frontend rendering (title, layout, sections, etc.)")
+    summary_bullets: Optional[List[str]] = Field(None, description="3-4 short learner-facing takeaway bullets")
 
 
 class SlideDeckResponse(BaseModel):

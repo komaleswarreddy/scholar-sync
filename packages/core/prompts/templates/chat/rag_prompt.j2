@@ -97,6 +97,20 @@ Use **GitHub-flavored Markdown**:
 Match **depth** to the question: brief and structured for narrow questions; more sections and bullets for explanation, comparison, or "list" style asks.
 {% endif %}
 
+### Follow-up question behavior (important)
+
+After writing the main answer, decide if follow-up questions are genuinely helpful.
+
+Only suggest follow-up questions when:
+- the topic is conceptual, complex, exploratory, or learning-focused,
+- the user would benefit from deeper understanding or practical next steps.
+
+Do not suggest follow-up questions when:
+- the user asked for a simple factual/direct one-off answer,
+- a short direct answer fully resolves the request.
+
+If needed, suggest **2 to 4** concise follow-up questions as bullets, tightly related to the current answer.
+
 ---
 
 ## Current user message (answer this)
@@ -105,7 +119,18 @@ Match **depth** to the question: brief and structured for narrow questions; more
 
 ---
 
-Answer:
+### Output format (no XML tags)
+
+Write the **entire** reply as normal **Markdown** only. Do **not** use `<main_answer>`, `<follow_ups>`, or any XML-style tags.
+
+If follow-up questions are appropriate (per the rules above), add them **after** your answer as:
+
+## Suggested questions
+
+- [question 1]
+- [question 2]
+
+If follow-ups are not needed, omit the `## Suggested questions` section entirely.
 {% else %}
 No document context was retrieved for this turn.
 

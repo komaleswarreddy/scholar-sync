@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "who is Paul Langerhans and what did he do?",
+    "information about Paul Langerhans and his contributions",
+    "who is  Paul Langerhans? what  he done?"
+  ],
+  "timestamp": 1774590042.3384268,
+  "ttl": 3600,
+  "query": "who is  Paul Langerhans? what  he done?",
+  "source_ids": [
+    "68a6e692-d192-4a79-a359-f8ed4e29de4b"
+  ]
+}

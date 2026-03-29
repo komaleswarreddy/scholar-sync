@@ -6,9 +6,11 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 import traceback
 import json
+import uuid
 
 from packages.core.database.connection import get_db
 from packages.core.services.studio_service import StudioService
+from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store
 from apps.api.schemas.studio import StudioRequest
 
 router = APIRouter()
@@ -35,14 +37,31 @@ async def generate_studio_content(
         
         service = StudioService(db, tenant_id, user_id)
 
-        result = await service.generate(
-            task_type=request_body.task_type,
-            source_ids=request_body.source_ids,
-            custom_instructions=request_body.custom_instructions,
-        )
-
-        print(f"[STUDIO ENDPOINT] Generation successful, result keys: {list(result.keys()) if isinstance(result, dict) else 'not a dict'}")
-        return JSONResponse(content=result)
+        trace_id = str(uuid.uuid4())
+        store = get_pipeline_trace_store()
+        store.start_trace(trace_id, str(tenant_id), str(user_id or ""))
+        success = False
+        try:
+            result = await service.generate(
+                task_type=request_body.task_type,
+                source_ids=request_body.source_ids,
+                custom_instructions=request_body.custom_instructions,
+                retrieval_focus=request_body.retrieval_focus,
+                report_format=request_body.report_format,
+            )
+            success = True
+            payload = dict(result) if isinstance(result, dict) else {"result": result}
+            payload["trace_id"] = trace_id
+            print(
+                f"[STUDIO ENDPOINT] Generation successful, result keys: {list(payload.keys())}"
+            )
+            print(
+                f"[PIPELINE_TRACE] studio trace_id={trace_id} "
+                f"(analytics/pipeline?trace_id={trace_id})"
+            )
+            return JSONResponse(content=payload)
+        finally:
+            store.finalize_trace(trace_id, success=success)
     except HTTPException:
         # Re-raise HTTPException as-is (FastAPI will handle it)
         raise

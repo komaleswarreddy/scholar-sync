@@ -8,6 +8,14 @@ import { handleApiError, redirectToLogin, getUserFriendlyMessage, ApiError, Erro
 type TokenGetter = () => Promise<string | null>;
 type LogoutFunc = () => Promise<void>;
 
+/** Tailored report format — must match `apps/api/schemas/studio.py` `report_format` and Studio UI. */
+export type StudioReportFormat =
+  | 'integrated'
+  | 'briefing'
+  | 'study_guide'
+  | 'newsletter'
+  | 'thematic_summary';
+
 /**
  * Read tenantId from cookie (set by middleware)
  */
@@ -801,15 +809,24 @@ class ApiClient {
   async generateStudio(
     taskType: string,
     sourceIds: string[],
-    instructions?: string
+    instructions?: string,
+    retrievalFocus?: string,
+    reportFormat?: StudioReportFormat
   ) {
     await this.refreshToken();
-    // Use longer timeout for AI generation (60 seconds) as it can take time
-    const res = await this.client.post('/api/v1/studio/generate', {
+    const body: Record<string, unknown> = {
       task_type: taskType,
       source_ids: sourceIds,
       custom_instructions: instructions,
-    }, {
+    };
+    if (retrievalFocus && retrievalFocus.trim()) {
+      body.retrieval_focus = retrievalFocus.trim();
+    }
+    if (taskType === 'report' && reportFormat) {
+      body.report_format = reportFormat;
+    }
+    // Use longer timeout for AI generation (60 seconds) as it can take time
+    const res = await this.client.post('/api/v1/studio/generate', body, {
       timeout: 60000, // 60 seconds for AI generation
     });
     return res.data;
@@ -903,10 +920,26 @@ class ApiClient {
     citations?: any[]
   ) {
     await this.refreshToken();
-    const res = await this.client.post(`/api/v1/chat/${chatId}/messages`, {
-      role,
-      content,
-      citations: citations || [],
+    const res = await this.client.post(
+      `/api/v1/chat/${chatId}/messages`,
+      {
+        role,
+        content,
+        citations: citations || [],
+      },
+      {
+        // Saving assistant messages can be slower than streaming completion,
+        // especially if the DB is cold or briefly unavailable.
+        timeout: 45000,
+      }
+    );
+    return res.data;
+  }
+
+  async deleteAllMessages(chatId: string) {
+    await this.refreshToken();
+    const res = await this.client.delete(`/api/v1/chat/${chatId}/messages`, {
+      timeout: 30000,
     });
     return res.data;
   }
@@ -925,7 +958,9 @@ class ApiClient {
   // Admin methods
   async listAllUsers() {
     await this.refreshToken();
-    const res = await this.client.get('/api/v1/admin/users');
+    const res = await this.client.get('/api/v1/admin/users', {
+      timeout: 30000, // Admin/Clerk + DB merge can be slow
+    });
     return res.data;
   }
 
@@ -1032,6 +1067,52 @@ class ApiClient {
       params: { days },
     });
     return res.data;
+  }
+
+  async getAgentSummary(days: number = 30, compareDays: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/agents/summary', {
+      params: { days, compare_days: compareDays },
+      timeout: 30000,
+    });
+    return res.data;
+  }
+
+  async getAgentDetails(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/agents/details', {
+      params: { days },
+      timeout: 30000,
+    });
+    return res.data;
+  }
+
+  async getAgentTimeseries(days: number = 30) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/agents/timeseries', {
+      params: { days },
+      timeout: 30000,
+    });
+    return res.data;
+  }
+
+  async getAgentRecent(limit: number = 50) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/agents/recent', {
+      params: { limit },
+      timeout: 30000,
+    });
+    return res.data;
+  }
+
+  async downloadAgentCsv(days: number = 30): Promise<Blob> {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/metrics/agents/export.csv', {
+      params: { days },
+      responseType: 'blob',
+      timeout: 30000,
+    });
+    return res.data as Blob;
   }
 
   async getAlertsStatus() {

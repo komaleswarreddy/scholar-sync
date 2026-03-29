@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Optional, TypedDict
 
 class ChatGraphState(TypedDict, total=False):
     # Input / identity
-    db: Any
     tenant_id: str
     user_id: str
     message: str
@@ -50,6 +49,7 @@ class ChatGraphState(TypedDict, total=False):
     full_prompt: str
     final_answer: str
     final_output_text: str
+    follow_ups: List[str]
 
     # Done metadata
     done_payload: Dict[str, Any]

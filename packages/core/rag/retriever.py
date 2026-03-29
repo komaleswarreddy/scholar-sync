@@ -26,6 +26,8 @@ from packages.core.rag.agents import (
 )
 from packages.core.rag.metadata_query import (
     extra_retrieval_variants,
+    extra_factual_retrieval_variants,
+    is_factual_recall_query,
     is_metadata_attribution_query,
 )
 
@@ -44,10 +46,11 @@ class Retriever:
     7. Context Selection → Final filtering (min 6 chunks, token budget, adjacent chunks)
     """
     
-    def __init__(self, tenant_id: str):
+    def __init__(self, tenant_id: str, user_id: Optional[str] = None):
         self.tenant_id = tenant_id
+        self.user_id = user_id
         self.vector_store = PineconeVectorStore(tenant_id)
-        self.embedder = Embedder(tenant_id)
+        self.embedder = Embedder(tenant_id, user_id=user_id)
         self.li_retriever = (
             LlamaIndexRetrievalAdapter(tenant_id)
             if getattr(settings, "USE_LLAMA_INDEX_RAG", False)
@@ -68,8 +71,8 @@ class Retriever:
 
         # Initialize Phase 2 agents if enabled
         if settings.USE_RETRIEVAL_AGENTS:
-            self.intent_classifier = IntentClassifier(tenant_id)
-            self.query_rewriter = QueryRewriter(tenant_id)
+            self.intent_classifier = IntentClassifier(tenant_id, user_id=user_id)
+            self.query_rewriter = QueryRewriter(tenant_id, user_id=user_id)
             self.complexity_scorer = QueryComplexityScorer()
             self.hybrid_retriever = HybridRetriever(
                 vector_weight=settings.HYBRID_VECTOR_WEIGHT,
@@ -424,6 +427,15 @@ class Retriever:
                     rewritten_queries.append(v)
                     seen_lower.add(vl)
             debug_trace["guardrails_applied"].append("metadata_query_variants")
+
+        if is_factual_recall_query(query) or is_factual_recall_query(focused_query):
+            seen_lower = {str(x).strip().lower() for x in rewritten_queries if x}
+            for v in extra_factual_retrieval_variants(focused_query):
+                vl = v.strip().lower()
+                if vl and vl not in seen_lower:
+                    rewritten_queries.append(v)
+                    seen_lower.add(vl)
+            debug_trace["guardrails_applied"].append("factual_recall_variants")
         
         primary_query = rewritten_queries[0] if rewritten_queries else query
         

@@ -10,6 +10,8 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.exc import DBAPIError, OperationalError
+import asyncio
 import json
 import uuid
 
@@ -145,12 +147,17 @@ async def stream_chat(
                 # This is fine - we're just tracking that a regenerate was attempted
                 message_id = getattr(last_assistant, 'id', None)
         
-        metrics.record_regenerate_attempt(
-            tenant_id=tenant_id,
-            user_id=user_id,
-            chat_id=chat_id,
-            message_id=message_id,
-        )
+        try:
+            if hasattr(metrics, "record_regenerate_attempt"):
+                metrics.record_regenerate_attempt(
+                    tenant_id=tenant_id,
+                    user_id=user_id,
+                    chat_id=chat_id,
+                    message_id=message_id,
+                )
+        except Exception as e:
+            # Analytics should never break chat streaming.
+            print(f"[WARNING] Failed to record regenerate attempt metric: {e}")
 
     try:
         service = LangGraphChatPipeline(tenant_id=tenant_id, user_id=user_id, db=db)
@@ -513,11 +520,14 @@ async def add_message(
             for c in request_body.citations
         ]
         
-        message = await service.add_message(
-            chat_id=chat_id,
-            role=request_body.role,
-            content=request_body.content,
-            citations=citations_dict,
+        message = await asyncio.wait_for(
+            service.add_message(
+                chat_id=chat_id,
+                role=request_body.role,
+                content=request_body.content,
+                citations=citations_dict,
+            ),
+            timeout=30.0,
         )
         
         return MessageResponse(
@@ -530,6 +540,11 @@ async def add_message(
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except (OperationalError, DBAPIError, TimeoutError, asyncio.TimeoutError):
+        raise HTTPException(
+            status_code=503,
+            detail="Message persistence unavailable (database timeout). Please retry.",
+        )
 
 
 class MessageFeedbackRequest(BaseModel):

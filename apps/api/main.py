@@ -31,7 +31,19 @@ app = FastAPI(
     redirect_slashes=True,
 )
 
+# ---------------- Trusted Hosts ----------------
+if settings.ENVIRONMENT == "production":
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=["*.scholarsync.com", "api.scholarsync.com"],
+    )
+
+# ---------------- Tenant + Auth Middleware ----------------
+app.add_middleware(TenantMiddleware)
+
 # ---------------- CORS ----------------
+# NOTE: CORS must be the OUTERMOST middleware so preflight (OPTIONS) and error
+# responses always include Access-Control-* headers.
 # Parse CORS origins from environment variable
 cors_origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
 
@@ -67,16 +79,6 @@ app.add_middleware(
     expose_headers=["Content-Type", "Authorization"],
     max_age=3600,  # Cache preflight requests for 1 hour
 )
-
-# ---------------- Trusted Hosts ----------------
-if settings.ENVIRONMENT == "production":
-    app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=["*.scholarsync.com", "api.scholarsync.com"],
-    )
-
-# ---------------- Tenant + Auth Middleware ----------------
-app.add_middleware(TenantMiddleware)
 
 # ---------------- Routes ----------------
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])

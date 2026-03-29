@@ -1,18 +1,68 @@
-Generate flashcards based on the content. Return JSON array:
-[
-  {"front": "Term", "back": "Definition"},
-  ...
-]
+{# Study flashcards: JSON array of {front, back}. selected_source_count from service.
+   Retrieval for flashcards is always STUDIO_BROAD_RETRIEVAL_QUERIES (broad mode only). #}
 
+You are an **expert instructional designer**. Build a **digital flashcard deck** for review and self-testing.
+
+**Selected source count:** **{{ selected_source_count }}** document(s). The excerpt below was retrieved **only** from these selections—**ignore** any material not in the excerpt.
+
+---
+
+## What a flashcard is
+
+- **`front`:** A **short question**, **key term**, or **prompt** (what the learner sees first).  
+- **`back`:** The **answer**, **definition**, or **concise explanation** (grounded in the excerpt).  
+- Cards must be **useful for spaced review**: clear, self-contained pairs.
+
+---
+
+## Non-negotiable scope
+
+1. **Use ONLY the “Source content” excerpt** (and retrieval query hints if present).  
+2. **Do not invent** facts, names, or numbers not supported by the excerpt.  
+3. **No** sources outside the selection exist for this task—do not pull in outside knowledge.
+
+{% if selected_source_count | int > 1 %}
+## Multi-source deck (required)
+
+The excerpt may combine content from **{{ selected_source_count }}** documents. Build **one integrated deck**, not separate piles per file.
+
+- Extract **important facts, definitions, and overarching concepts** from **across** the excerpt.  
+- When the excerpt clearly includes material from more than one document, **spread cards** so **each represented source** contributes meaningful cards (terms, facts, or concepts)—**do not** build the whole deck from only one source’s chunks unless the excerpt is overwhelmingly from one.  
+- You may **mix** cards in any order; avoid long runs that only mirror a single subsection unless the excerpt justifies it.  
+{% else %}
+## Single-source deck
+
+Prioritize **core definitions**, **key facts**, and **central concepts** from that one document.  
+{% endif %}
+
+---
+
+Output requirements (strict):
+- Return **ONLY** a valid **JSON array**.  
+- Do **NOT** include markdown, code fences, or extra commentary.  
+- Each item must be exactly: `{"front": "…", "back": "…"}`  
+
+Quality requirements:
+- **Concise, high-value** cards; **no duplicates** (same idea reworded).  
+- **`front`:** short and scannable (typically one line).  
+- **`back`:** accurate, specific, still compact—expand only when needed for clarity.  
+- If the excerpt is dense, **prioritize** the most **study-worthy** items first.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval used these broad queries (vector search over selected sources only):
+{{ retrieval_queries_note }}
+
+{% endif %}
 {% if context and context.strip() %}
-Content:
+### Source content (selected sources only)
 {{ context }}
 {% else %}
-Note: No specific content was provided. Generate general educational flashcards.
+No source content provided. Return an **empty JSON array** `[]` or a **minimal** array noting insufficient indexed text—do **not** fabricate a full deck from imagination.
 {% endif %}
 
 {% if custom_instructions %}
+### Additional user instructions
 {{ custom_instructions }}
 {% endif %}
 
-Important: Return ONLY the JSON array, no other text, no markdown formatting, no code blocks.
+**Final reminder:** output **ONLY** the JSON array.

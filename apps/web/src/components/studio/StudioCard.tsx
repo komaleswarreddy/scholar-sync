@@ -14,9 +14,11 @@ interface StudioCardProps {
   title: string;
   onClick?: () => void;
   disabled?: boolean;
+  /** Shown on hover (e.g. when disabled) */
+  disabledHint?: string;
 }
 
-export function StudioCard({ icon, title, onClick, disabled = false }: StudioCardProps) {
+export function StudioCard({ icon, title, onClick, disabled = false, disabledHint }: StudioCardProps) {
   const handleClick = () => {
     if (disabled) return;
     if (onClick) {
@@ -30,6 +32,7 @@ export function StudioCard({ icon, title, onClick, disabled = false }: StudioCar
       hover={!disabled} 
       onClick={handleClick} 
       className={`h-[88px] relative ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      title={disabled && disabledHint ? disabledHint : undefined}
     >
       {/* Icon - Top Left */}
       <div className="absolute top-3 left-3 w-5 h-5 text-accent-blue">

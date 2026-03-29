@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "why is Leonardo da Vinci mentioned in this book?",
+    "what information is provided about Leonardo da Vinci in this book?",
+    "why the Leonardo da vinci  is in this book ? what   the matter about him?"
+  ],
+  "timestamp": 1774589956.6358416,
+  "ttl": 3600,
+  "query": "why the Leonardo da vinci  is in this book ? what   the matter about him?",
+  "source_ids": [
+    "68a6e692-d192-4a79-a359-f8ed4e29de4b"
+  ]
+}

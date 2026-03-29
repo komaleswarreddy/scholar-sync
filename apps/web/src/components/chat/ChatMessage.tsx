@@ -43,6 +43,8 @@ interface ChatMessageProps {
   feedback?: 'thumbs_up' | 'thumbs_down' | null;
   onFeedbackUpdate?: (messageId: string, feedback: 'thumbs_up' | 'thumbs_down' | null) => void;
   question?: string;
+  followUps?: string[];
+  onFollowUpClick?: (question: string) => void;
 }
 
 export function ChatMessage({ 
@@ -54,6 +56,8 @@ export function ChatMessage({
   feedback: initialFeedback,
   onFeedbackUpdate,
   question: _question,
+  followUps = [],
+  onFollowUpClick,
 }: ChatMessageProps) {
   const [copySuccess, setCopySuccess] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
@@ -225,6 +229,27 @@ export function ChatMessage({
           <div className="text-base text-text-primary leading-relaxed prose prose-invert max-w-none">
           {renderAssistantMarkdown()}
         </div>
+
+        {followUps.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-2">
+              Suggested follow-up questions
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {followUps.map((q, idx) => (
+                <button
+                  key={`${idx}-${q}`}
+                  onClick={() => onFollowUpClick?.(q)}
+                  className="px-3 py-1.5 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+                  title="Ask this follow-up question"
+                  aria-label={`Ask follow-up question: ${q}`}
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3 mt-3">

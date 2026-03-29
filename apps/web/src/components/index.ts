@@ -30,6 +30,8 @@ export { FlashcardsDisplay } from './studio/FlashcardsDisplay';
 export { MindMapDisplay } from './studio/MindMapDisplay';
 export { ReportDisplay } from './studio/ReportDisplay';
 export { InfographicBriefDisplay } from './studio/InfographicBriefDisplay';
+export { InfographicRenderer } from './studio/InfographicRenderer';
+export type { InfographicData } from './studio/InfographicRenderer';
 export { SlideDeckDisplay } from './studio/SlideDeckDisplay';
 
 // Notes Components

@@ -17,6 +17,14 @@ _metrics_collector = None
 _lock = threading.Lock()
 
 
+def _default_metrics_log_dir() -> Path:
+    """Resolve repo-root logs/metrics regardless of process cwd (e.g. uvicorn from apps/api)."""
+    here = Path(__file__).resolve()
+    # packages/core/monitoring/metrics.py -> parents[3] == repo root
+    repo_root = here.parents[3]
+    return repo_root / "logs" / "metrics"
+
+
 class MetricsCollector:
     """
     Collects and aggregates metrics.
@@ -36,8 +44,8 @@ class MetricsCollector:
         self._document_costs: deque = deque(maxlen=10000)
         self._regenerate_attempts: deque = deque(maxlen=1000)
         
-        # Log directory
-        self._log_dir = Path("logs/metrics")
+        # Log directory (stable path under repo root)
+        self._log_dir = _default_metrics_log_dir()
         self._log_dir.mkdir(parents=True, exist_ok=True)
         
         # Load persisted metrics on startup
@@ -122,8 +130,8 @@ class MetricsCollector:
         """Record an LLM API call."""
         metric = {
             "timestamp": datetime.utcnow().isoformat(),
-            "tenant_id": tenant_id,
-            "user_id": user_id,
+            "tenant_id": str(tenant_id) if tenant_id is not None else "",
+            "user_id": str(user_id) if user_id is not None else "",
             "model": model,
             "provider": provider,
             "prompt_tokens": prompt_tokens,
@@ -206,6 +214,27 @@ class MetricsCollector:
             self._document_costs.append(metric)
         
         self._write_metric("document_costs", metric)
+
+    def record_regenerate_attempt(
+        self,
+        tenant_id: str,
+        user_id: Optional[str] = None,
+        chat_id: Optional[str] = None,
+        message_id: Optional[str] = None,
+    ):
+        """Record a regenerate attempt event for chat analytics."""
+        metric = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "tenant_id": tenant_id,
+            "user_id": user_id,
+            "chat_id": chat_id,
+            "message_id": message_id,
+        }
+
+        with self._lock:
+            self._regenerate_attempts.append(metric)
+
+        self._write_metric("regenerate_attempts", metric)
     
     def get_metrics_summary(
         self,

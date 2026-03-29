@@ -104,12 +104,12 @@ class OpenAIClient(LLMClient):
             "total_tokens": response.usage.total_tokens if response.usage else None,
         }
         
-        # Record metrics if context provided
-        if tenant_id and user_id and response.usage:
+        # Record metrics when tenant is known (user_id optional for legacy callers; prefer passing user_id)
+        if tenant_id and response.usage:
             cost_manager = get_cost_manager()
             await cost_manager.record_usage(
-                tenant_id=tenant_id,
-                user_id=user_id,
+                tenant_id=str(tenant_id),
+                user_id=str(user_id) if user_id else "__unknown_user__",
                 model=self.model,
                 provider=self.provider.value,
                 prompt_tokens=response.usage.prompt_tokens,

@@ -227,6 +227,27 @@ export function ChatInterface() {
     setStreamError(null);
   };
 
+  const persistMessageWithRetry = async (
+    chatId: string,
+    role: 'user' | 'assistant',
+    content: string,
+    citations: any[],
+    retries: number = 3
+  ) => {
+    let lastError: any = null;
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        return await apiClient.addMessageToChat(chatId, role, content, citations);
+      } catch (error: any) {
+        lastError = error;
+        if (attempt < retries - 1) {
+          await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+        }
+      }
+    }
+    throw lastError;
+  };
+
   const handleSend = async (message: string, activeSourceIds?: string[]) => {
     // Task A.e: Prevent sending if offline
     if (!navigator.onLine) {
@@ -431,49 +452,55 @@ export function ChatInterface() {
             };
             setMessages((prev) => [...prev, assistantMessage]);
 
+            // Clear streaming UI immediately so we don't show a duplicate temporary bubble
+            // while persistence to DB is in progress.
+            resetStreamingState();
+
             if (persistChatId) {
-              try {
-                // Format citations for backend (ensure they have required fields)
-                // Use filteredCitations instead of finalCitations
-                const formattedCitations = filteredCitations.map((citation) => ({
-                  source_id: citation.sourceId || citation.source_id || '',
-                  chunk_id: citation.chunk_id || '',
-                  text: citation.text || '',
-                  page_number: citation.page_number || null,
-                  score: citation.score || 0,
-                }));
-                
-                const savedMessage = await apiClient.addMessageToChat(
-                  persistChatId,
-                  'assistant',
-                  finalResponseText, // Use final response
-                  formattedCitations
-                );
-                if (savedMessage && savedMessage.id) {
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === assistantMessage.id
-                        ? { ...msg, id: savedMessage.id, messageId: savedMessage.id, feedback: savedMessage.feedback || null }
-                        : msg
-                    )
+              void (async () => {
+                try {
+                  // Format citations for backend (ensure they have required fields)
+                  const formattedCitations = filteredCitations.map((citation) => ({
+                    source_id: citation.sourceId || citation.source_id || '',
+                    chunk_id: citation.chunk_id || '',
+                    text: citation.text || '',
+                    page_number: citation.page_number || null,
+                    score: citation.score || 0,
+                  }));
+
+                  const savedMessage = await persistMessageWithRetry(
+                    persistChatId,
+                    'assistant',
+                    finalResponseText, // Use final response
+                    formattedCitations,
+                    3
                   );
-                } else {
-                  // If save failed, still show buttons but they'll be disabled
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === assistantMessage.id
-                        ? { ...msg, messageId: undefined }
-                        : msg
-                    )
-                  );
-                  console.error('Failed to save assistant message: No message ID returned');
+                  if (savedMessage && savedMessage.id) {
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === assistantMessage.id
+                          ? { ...msg, id: savedMessage.id, messageId: savedMessage.id, feedback: savedMessage.feedback || null }
+                          : msg
+                      )
+                    );
+                  } else {
+                    // If save failed, still show buttons but they'll be disabled
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === assistantMessage.id
+                          ? { ...msg, messageId: undefined }
+                          : msg
+                      )
+                    );
+                    console.error('Failed to save assistant message: No message ID returned');
+                  }
+                  setSidebarRefreshTrigger((prev) => prev + 1);
+                } catch (error: any) {
+                  console.error('Failed to save assistant message:', error);
+                  // Show error to user but keep the message visible
+                  setStreamError(`Response received but failed to save: ${error?.message || 'Unknown error'}`);
                 }
-                setSidebarRefreshTrigger((prev) => prev + 1);
-              } catch (error: any) {
-                console.error('Failed to save assistant message:', error);
-                // Show error to user but keep the message visible
-                setStreamError(`Response received but failed to save: ${error?.message || 'Unknown error'}`);
-              }
+              })();
             } else {
               console.error('Cannot save assistant message: No chat ID');
             }
@@ -486,8 +513,10 @@ export function ChatInterface() {
             }
           }
           
-          // Always reset streaming state after done, regardless of whether response was empty
-          resetStreamingState();
+          // For non-text responses, still clear streaming state.
+          if (!finalResponseText || !finalResponseText.trim()) {
+            resetStreamingState();
+          }
         },
         // onError - Task A.b: Handle streaming errors gracefully
         (error: string) => {
@@ -517,6 +546,39 @@ export function ChatInterface() {
               timestamp: new Date().toLocaleTimeString(),
             };
             setMessages((prev) => [...prev, partialMessage]);
+
+            // Best-effort persistence of partial response so refresh/load does not lose it.
+            if (persistChatId) {
+              void (async () => {
+                try {
+                  const partialCitations = citationsAccumulatorRef.current.map((citation) => ({
+                    source_id: citation.sourceId || citation.source_id || '',
+                    chunk_id: citation.chunk_id || '',
+                    text: citation.text || '',
+                    page_number: citation.page_number || null,
+                    score: citation.score || 0,
+                  }));
+                  const savedPartial = await persistMessageWithRetry(
+                    persistChatId,
+                    'assistant',
+                    partialMessage.content,
+                    partialCitations,
+                    2
+                  );
+                  if (savedPartial && savedPartial.id) {
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === partialMessage.id
+                          ? { ...msg, id: savedPartial.id, messageId: savedPartial.id, feedback: savedPartial.feedback || null }
+                          : msg
+                      )
+                    );
+                  }
+                } catch (_e) {
+                  // Non-blocking: partial response is already visible in UI
+                }
+              })();
+            }
           }
           
           // Always reset streaming state on error

@@ -6,6 +6,7 @@ All operations are tenant-scoped using namespaces.
 """
 
 from typing import List, Dict, Any, Optional
+import time
 
 try:
     from pinecone import Pinecone, ServerlessSpec
@@ -88,7 +89,13 @@ class PineconeVectorStore(BaseVectorStore):
                     raise
         return self._openai_client
     
-    async def generate_embedding(self, text: str) -> List[float]:
+    async def generate_embedding(
+        self,
+        text: str,
+        *,
+        metrics_user_id: Optional[str] = None,
+        metrics_feature_tag: Optional[str] = None,
+    ) -> List[float]:
         """
         Generate embedding for text using OpenAI.
         
@@ -97,13 +104,41 @@ class PineconeVectorStore(BaseVectorStore):
         embedding_model = settings.OPENAI_EMBEDDING_MODEL
         embedding_dimensions = settings.OPENAI_EMBEDDING_DIMENSIONS
         print(f"[RAG] Generating embedding: Provider=OpenAI, Model={embedding_model}, TextLength={len(text)} chars")
+        t0 = time.perf_counter()
         response = self.openai_client.embeddings.create(
             model=embedding_model,
             input=text,
             dimensions=embedding_dimensions,
         )
+        latency_ms = (time.perf_counter() - t0) * 1000
         embedding_dim = len(response.data[0].embedding)
         print(f"[RAG] Embedding generated: Dimension={embedding_dim}")
+
+        if metrics_user_id and metrics_feature_tag:
+            try:
+                from packages.core.guardrails.cost_manager import get_cost_manager
+
+                usage = getattr(response, "usage", None)
+                pt = int(getattr(usage, "prompt_tokens", 0) or 0) if usage else 0
+                tt = int(getattr(usage, "total_tokens", 0) or 0) if usage else 0
+                if pt <= 0 and tt > 0:
+                    pt = tt
+                if pt <= 0:
+                    pt = max(1, int(len(text) / 4))
+                cm = get_cost_manager()
+                await cm.record_usage(
+                    tenant_id=str(self.tenant_id),
+                    user_id=str(metrics_user_id),
+                    model=embedding_model,
+                    provider="openai",
+                    prompt_tokens=pt,
+                    completion_tokens=0,
+                    feature_tag=metrics_feature_tag,
+                    latency_ms=latency_ms,
+                )
+            except Exception:
+                pass
+
         return response.data[0].embedding
     
     async def batch_generate_embeddings(self, texts: List[str]) -> List[List[float]]:
@@ -202,15 +237,28 @@ class PineconeVectorStore(BaseVectorStore):
         """
         Delete all vectors for a source.
         
-        Uses metadata filter to find all chunks for source_id.
+        Uses metadata filter on `source_id` (string UUID). Pinecone serverless expects
+        explicit operators for some deployments; we try $eq first, then legacy form.
         """
         try:
             index = get_pinecone_index()
-            index.delete(
-                filter={"source_id": source_id},
-                namespace=self.namespace,
-            )
-            print(f"[VECTOR] Deleted vectors for source {source_id} in namespace {self.namespace}")
+            last_err: Optional[Exception] = None
+            for flt in (
+                {"source_id": {"$eq": str(source_id)}},
+                {"source_id": str(source_id)},
+            ):
+                try:
+                    index.delete(filter=flt, namespace=self.namespace)
+                    print(
+                        f"[VECTOR] Deleted vectors for source {source_id} in namespace {self.namespace} "
+                        f"(filter={list(flt.keys())})"
+                    )
+                    return
+                except Exception as e:
+                    last_err = e
+                    continue
+            if last_err:
+                raise last_err
         except ValueError as e:
             # Pinecone not configured - log and continue
             print(f"[WARNING] [VECTOR] Pinecone not configured, skipping vector deletion: {str(e)}")

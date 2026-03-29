@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "explain kidney transplantation",
+    "information about kidney transplant procedure",
+    "explain about Kidney transplantation"
+  ],
+  "timestamp": 1774589076.837437,
+  "ttl": 3600,
+  "query": "explain about Kidney transplantation",
+  "source_ids": [
+    "68a6e692-d192-4a79-a359-f8ed4e29de4b"
+  ]
+}

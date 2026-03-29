@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "who is the author of this book and what is the book's title?",
+    "what is the name of this book and who is the writer for it?",
+    "who is the   writer to this book?  what is this book name? and  the book is for whom?"
+  ],
+  "timestamp": 1774429152.3052914,
+  "ttl": 3600,
+  "query": "who is the   writer to this book?  what is this book name? and  the book is for whom?",
+  "source_ids": [
+    "49720d3e-e98e-44c6-9680-627d15cf6bd2"
+  ]
+}

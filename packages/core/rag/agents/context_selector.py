@@ -70,11 +70,25 @@ class ContextSelector:
         
         # If filtered results are too few, lower threshold
         if len(filtered) < min_chunks:
-            lowered_threshold = max(0.3, self.min_relevance_score - 0.2)
+            lowered_threshold = max(0.25, self.min_relevance_score - 0.2)
             filtered = [
                 chunk for chunk in retrieved_chunks
                 if chunk.get("score", 0) >= lowered_threshold
             ]
+
+        # If still empty (e.g. LlamaIndex/Pinecone scores are very low but chunks are relevant),
+        # use best-effort top chunks so the LLM always receives *some* evidence from retrieval.
+        if not filtered and retrieved_chunks:
+            retrieved_sorted = sorted(
+                retrieved_chunks,
+                key=lambda c: float(c.get("score", 0) or 0),
+                reverse=True,
+            )
+            take_n = min(
+                max(min_chunks, min(max_chunk_limit, len(retrieved_sorted))),
+                len(retrieved_sorted),
+            )
+            filtered = retrieved_sorted[:take_n]
         
         # 2. Sort by score (highest first) - prioritize by rerank score if available
         def get_sort_score(chunk):

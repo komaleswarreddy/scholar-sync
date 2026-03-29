@@ -10,6 +10,11 @@ import importlib
 import traceback
 from typing import List, Dict, Set, Tuple
 from collections import defaultdict
+from pathlib import Path
+
+# Ensure repo root is on sys.path so imports like `packages.core...` work
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 # Modules to test
 MODULES_TO_TEST = [
@@ -29,7 +34,6 @@ MODULES_TO_TEST = [
     "packages.core.llm",
     "packages.core.llm.factory",
     "packages.core.llm.openai_client",
-    "packages.core.llm.gemini_client",
     
     # Services
     "packages.core.services.chat_service",
@@ -82,7 +86,7 @@ def check_circular_dependencies() -> Dict[str, List[str]]:
     
     # This is a simplified check - full circular dependency detection
     # would require parsing AST and tracking import chains
-    print("\n⚠️  Note: Full circular dependency detection requires AST parsing.")
+    print("\n[NOTE] Full circular dependency detection requires AST parsing.")
     print("   This script verifies imports work, which is the first step.")
     
     return {}
@@ -97,7 +101,7 @@ def main():
     
     for module_name in MODULES_TO_TEST:
         success, error = test_import(module_name)
-        status = "✓" if success else "✗"
+        status = "[OK]" if success else "[FAIL]"
         results.append((module_name, success, error))
         
         if success:
@@ -111,13 +115,13 @@ def main():
     print(f"Results: {len([r for r in results if r[1]])}/{len(results)} passed")
     
     if failed:
-        print(f"\n✗ {len(failed)} modules failed to import:")
+        print(f"\n[FAIL] {len(failed)} modules failed to import:")
         for module_name, error in failed:
             print(f"  - {module_name}: {error}")
         print("\n" + "=" * 60)
         return 1
     else:
-        print("\n✓ All imports verified successfully!")
+        print("\n[OK] All imports verified successfully!")
         print("=" * 60)
         
         # Check for circular dependencies
@@ -127,7 +131,7 @@ def main():
             for module, deps in circular.items():
                 print(f"  {module}: {deps}")
         else:
-            print("\n✓ No obvious circular dependencies detected")
+            print("\n[OK] No obvious circular dependencies detected")
         
         return 0
 

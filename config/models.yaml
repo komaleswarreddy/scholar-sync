@@ -7,7 +7,17 @@ models:
       provider: openai
       max_tokens: 16384
       cost_per_1k_tokens: 0.15
-      
+    gpt-4o:
+      provider: openai
+      max_tokens: 16384
+      # Blended ballpark for mixed input/output (see OpenAI pricing; tune as needed)
+      cost_per_1k_tokens: 0.005
+    text-embedding-3-small:
+      provider: openai
+      max_tokens: 8192
+      # ~$0.02 / 1M tokens → $0.00002 / 1k tokens
+      cost_per_1k_tokens: 0.00002
+
   gemini:
     gemini-2.0-flash-exp:
       provider: gemini

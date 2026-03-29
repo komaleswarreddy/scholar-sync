@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Who performed the first kidney transplantation and when?",
+    "First kidney transplant: who and when?",
+    "The first kidney transplantation was done by whom and when? according to this book"
+  ],
+  "timestamp": 1774588911.7594137,
+  "ttl": 3600,
+  "query": "The first kidney transplantation was done by whom and when? according to this book",
+  "source_ids": [
+    "68a6e692-d192-4a79-a359-f8ed4e29de4b"
+  ]
+}

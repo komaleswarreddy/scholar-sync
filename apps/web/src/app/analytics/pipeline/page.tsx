@@ -102,10 +102,16 @@ export default function PipelineTracePage() {
 
   const displaySpans = useMemo(() => {
     if (!sortedSpans.length) return [];
-    const hasRetrievalChildren = sortedSpans.some((s) => s.name.startsWith('Retrieval/'));
-    if (!hasRetrievalChildren) return sortedSpans;
-    // Hide the parent wrapper row when nested retrieval spans are present.
-    return sortedSpans.filter((s) => s.name !== 'Retrieval');
+    const hasChatRetrievalChildren = sortedSpans.some((s) => s.name.startsWith('Retrieval/'));
+    const hasStudioRetrievalChildren = sortedSpans.some((s) => s.name.startsWith('StudioRetrieval/'));
+    return sortedSpans.filter((s) => {
+      // Parent aggregate is recorded with the same wall-clock start as the block but appended last;
+      // sorting by start_ms would put it above the real first step (e.g. QueryRewrite). Hide the
+      // wrapper when detailed sub-spans exist so order matches backend: QueryRewrite → VectorQuery → Generate.
+      if (s.name === 'Retrieval' && hasChatRetrievalChildren) return false;
+      if (s.name === 'StudioRetrieval' && hasStudioRetrievalChildren) return false;
+      return true;
+    });
   }, [sortedSpans]);
 
   const timeline = useMemo(() => {
@@ -199,7 +205,7 @@ export default function PipelineTracePage() {
                 {timeline.bars.map(({ span, left, width }) => (
                   <div key={span.span_id} className="flex items-center gap-2 text-xs">
                     <span className="w-36 shrink-0 truncate text-text-secondary font-mono" title={span.name}>
-                      {span.name.replace('Retrieval/', 'R·')}
+                      {span.name.replace('StudioRetrieval/', 'S·').replace('Retrieval/', 'R·')}
                     </span>
                     <div className="flex-1 h-5 bg-surface rounded relative min-w-[120px]">
                       <button
@@ -207,7 +213,11 @@ export default function PipelineTracePage() {
                         title={span.name}
                         onClick={() => setSelected(span)}
                         className={`absolute top-0.5 h-4 rounded-sm text-[9px] px-1 truncate text-left text-white shadow-sm transition-opacity hover:opacity-90 ${
-                          span.status === 'error' ? 'bg-red-500' : span.name.startsWith('Retrieval/') ? 'bg-violet-500' : 'bg-emerald-600'
+                          span.status === 'error'
+                            ? 'bg-red-500'
+                            : span.name.startsWith('Retrieval/') || span.name.startsWith('StudioRetrieval/')
+                              ? 'bg-violet-500'
+                              : 'bg-emerald-600'
                         }`}
                         style={{ left: `${left}%`, width: `${Math.min(width, 100 - left)}%` }}
                       />

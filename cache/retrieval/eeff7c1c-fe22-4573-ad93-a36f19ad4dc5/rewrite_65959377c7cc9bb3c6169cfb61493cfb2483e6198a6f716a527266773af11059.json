@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "who is the author of the book Be Ready to Look Stupid",
+    "written by the author of Be Ready to Look Stupid",
+    "who is the author of this book"
+  ],
+  "timestamp": 1774583728.468751,
+  "ttl": 3600,
+  "query": "who is the author of this book",
+  "source_ids": [
+    "49720d3e-e98e-44c6-9680-627d15cf6bd2"
+  ]
+}

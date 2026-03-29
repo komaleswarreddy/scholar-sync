@@ -62,13 +62,16 @@ class AnswerCache:
         normalized = " ".join(query.lower().strip().split())
         return normalized
     
-    def _hash_query(self, query: str, source_ids: List[str]) -> str:
+    def _hash_query(
+        self, query: str, source_ids: List[str], tenant_id: Optional[str] = None
+    ) -> str:
         """
         Create cache key from query and source IDs.
         
         Args:
             query: User query
             source_ids: List of active source IDs
+            tenant_id: Tenant scope (avoids collisions if storage is ever shared)
             
         Returns:
             Cache key (hash)
@@ -77,9 +80,10 @@ class AnswerCache:
         
         # Include source IDs in hash (sorted for consistency)
         sources_str = ",".join(sorted(source_ids)) if source_ids else "none"
+        tid = (tenant_id or "").strip().lower()
         
         # Create hash
-        cache_string = f"{normalized_query}::sources::{sources_str}"
+        cache_string = f"tenant::{tid}::{normalized_query}::sources::{sources_str}"
         cache_key = hashlib.sha256(cache_string.encode()).hexdigest()
         
         return cache_key
@@ -101,7 +105,7 @@ class AnswerCache:
         Returns:
             Cached answer dict with 'answer', 'citations', 'timestamp', or None if not found
         """
-        cache_key = self._hash_query(query, source_ids)
+        cache_key = self._hash_query(query, source_ids, tenant_id)
         
         with self._lock:
             if cache_key in self._cache:
@@ -145,7 +149,7 @@ class AnswerCache:
             tenant_id: Optional tenant identifier
             ttl_seconds: Optional custom TTL (defaults to self.default_ttl)
         """
-        cache_key = self._hash_query(query, source_ids)
+        cache_key = self._hash_query(query, source_ids, tenant_id)
         ttl = ttl_seconds or self.default_ttl
         expires_at = time.time() + ttl
         

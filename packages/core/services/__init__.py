@@ -4,18 +4,15 @@ Core services package.
 Contains business logic services for ScholarSync.
 """
 
-from packages.core.services.chat_service import ChatService
-from packages.core.services.note_service import NotesService
-from packages.core.services.studio_service import StudioService
-from packages.core.services.source_service import IngestionService
+"""
+Avoid importing service modules at package import time.
 
-__all__ = [
-    "ChatService",
-    "NotesService",
-    "StudioService",
-    "IngestionService",
-]
+Some services pull in optional/infra dependencies (S3/Supabase/etc). Importing them
+eagerly makes unrelated code paths fail during startup/tests.
 
-# Alias for backward compatibility
-SourceService = IngestionService
+Import services directly where needed, e.g.:
+  from packages.core.services.studio_service import StudioService
+"""
+
+__all__ = ["ChatService", "NotesService", "StudioService", "IngestionService", "SourceService"]
 

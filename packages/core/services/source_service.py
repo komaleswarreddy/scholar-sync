@@ -15,6 +15,7 @@ from sqlalchemy import select
 
 from config.settings import settings
 from packages.core.database.models.source import Source, SourceType, SourceStatus
+from packages.core.database.models.chat import Chat, Message
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
 from packages.core.storage.s3 import S3Storage
 from packages.core.rag.chunker import Chunker
@@ -179,7 +180,7 @@ class IngestionService:
                 try:
                     from packages.core.rag.llama_adapters import LlamaIndexIngestionAdapter
 
-                    adapter = LlamaIndexIngestionAdapter(self.tenant_id)
+                    adapter = LlamaIndexIngestionAdapter(self.tenant_id, user_id=self.user_id)
                     result = await adapter.ingest_chunks(
                         source_id=source_id,
                         chunks_with_metadata=chunks_with_metadata,
@@ -190,7 +191,7 @@ class IngestionService:
                     await self.db.commit()
                     print(
                         f"[INGESTION] (LlamaIndex+Cache) Successfully processed source {source_id}: "
-                        f"{result.nodes_indexed} chunks indexed"
+                        f"{result.nodes_indexed} chunks indexed (verify Pinecone namespace={self.tenant_id})"
                     )
                     return
                 except Exception as e:
@@ -223,7 +224,7 @@ class IngestionService:
                 try:
                     from packages.core.rag.llama_adapters import LlamaIndexIngestionAdapter
 
-                    adapter = LlamaIndexIngestionAdapter(self.tenant_id)
+                    adapter = LlamaIndexIngestionAdapter(self.tenant_id, user_id=self.user_id)
                     result = await adapter.ingest_text(
                         text=text,
                         source_id=source_id,
@@ -236,7 +237,7 @@ class IngestionService:
                     await self.db.commit()
                     print(
                         f"[INGESTION] (LlamaIndex) Successfully processed source {source_id}: "
-                        f"{result.nodes_indexed} chunks indexed"
+                        f"{result.nodes_indexed} chunks indexed (namespace={self.tenant_id})"
                     )
                     return
                 except Exception as e:
@@ -329,6 +330,36 @@ class IngestionService:
             })
         return res_list
 
+    async def _strip_citations_referencing_source(self, source_id: str) -> int:
+        """Remove citation entries pointing at a source from all of this user's messages (Postgres JSON)."""
+        tenant_uuid = uuid.UUID(self.tenant_id)
+        result = await self.db.execute(
+            select(Message)
+            .join(Chat, Message.chat_id == Chat.id)
+            .where(Chat.tenant_id == tenant_uuid, Chat.user_id == self.user_id)
+        )
+        msgs = result.scalars().all()
+        sid = str(source_id)
+        updated = 0
+        for msg in msgs:
+            cits = msg.citations or []
+            if not isinstance(cits, list) or not cits:
+                continue
+            new_cits = []
+            for c in cits:
+                if not isinstance(c, dict):
+                    new_cits.append(c)
+                    continue
+                if str(c.get("source_id") or "") == sid:
+                    continue
+                new_cits.append(c)
+            if len(new_cits) != len(cits):
+                msg.citations = new_cits
+                updated += 1
+        if updated:
+            await self.db.commit()
+        return updated
+
     async def delete_source(self, source_id: str):
         tenant_uuid = uuid.UUID(self.tenant_id)
         result = await self.db.execute(
@@ -343,16 +374,30 @@ class IngestionService:
         if not source:
             raise ValueError(f"Source not found or access denied: {source_id}")
 
+        # 1) Clean stored citations so UI/history does not reference a deleted document
+        try:
+            n = await self._strip_citations_referencing_source(source_id)
+            if n:
+                print(f"[INGESTION] Removed source {source_id} from citations on {n} message(s)")
+        except Exception as e:
+            print(f"[WARNING] Citation cleanup failed for source {source_id}: {e}")
+
+        # 2) Pinecone vectors (tenant namespace + metadata source_id)
         try:
             await self.vector_store.delete_vectors_by_source(source_id)
-        except Exception:
-            pass # Non-critical failure
+        except Exception as e:
+            print(
+                f"[WARNING] Pinecone delete failed for source {source_id} ({e}). "
+                f"Vectors may remain until manually cleaned; DB and S3 will still be removed."
+            )
 
+        # 3) Object storage
         try:
             await self.storage_service.delete_file(source.s3_key)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[WARNING] S3 delete failed for {source.s3_key}: {e}")
 
+        # 4) Source row (PostgreSQL / Supabase-compatible)
         try:
             await self.db.delete(source)
             await self.db.commit()

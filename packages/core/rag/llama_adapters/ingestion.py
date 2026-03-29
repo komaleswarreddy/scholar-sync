@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from config.settings import settings
@@ -13,6 +14,40 @@ class LlamaIndexIngestionResult:
     nodes_indexed: int
 
 
+async def _record_llamaindex_ingest_embeddings(
+    *,
+    tenant_id: str,
+    user_id: str,
+    nodes: List[Any],
+    latency_ms: float,
+) -> None:
+    """
+    LlamaIndex embeds chunks via OpenAIEmbedding without our LLM client wrappers.
+    Record one aggregate usage row so the Agents dashboard reflects document ingestion.
+    Token counts are estimated from text length (~4 chars/token).
+    """
+    if not nodes or not user_id:
+        return
+    try:
+        from packages.core.guardrails.cost_manager import get_cost_manager
+
+        total_chars = sum(len(getattr(n, "text", "") or "") for n in nodes)
+        prompt_tokens = max(1, int(total_chars / 4))
+        cm = get_cost_manager()
+        await cm.record_usage(
+            tenant_id=str(tenant_id),
+            user_id=str(user_id),
+            model=settings.OPENAI_EMBEDDING_MODEL,
+            provider="openai",
+            prompt_tokens=prompt_tokens,
+            completion_tokens=0,
+            feature_tag="embedding",
+            latency_ms=latency_ms,
+        )
+    except Exception:
+        pass
+
+
 class LlamaIndexIngestionAdapter:
     """
     Ingest text into Pinecone via LlamaIndex while preserving:
@@ -21,8 +56,9 @@ class LlamaIndexIngestionAdapter:
     - metadata keys used by existing retrieval/synthesis
     """
 
-    def __init__(self, tenant_id: str):
+    def __init__(self, tenant_id: str, user_id: Optional[str] = None):
         self.tenant_id = tenant_id
+        self.user_id = user_id
         self._namespace = normalize_pinecone_namespace(tenant_id)
 
     def _require_llamaindex(self):
@@ -179,8 +215,17 @@ class LlamaIndexIngestionAdapter:
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         nodes = self._build_nodes(text=text, source_id=source_id, pages=pages)
 
+        t0 = time.perf_counter()
         # This will embed and write nodes to the vector store.
         VectorStoreIndex(nodes=nodes, storage_context=storage_context)
+        elapsed_ms = (time.perf_counter() - t0) * 1000
+        if self.user_id:
+            await _record_llamaindex_ingest_embeddings(
+                tenant_id=self.tenant_id,
+                user_id=self.user_id,
+                nodes=nodes,
+                latency_ms=elapsed_ms,
+            )
 
         return LlamaIndexIngestionResult(nodes_indexed=len(nodes))
 
@@ -219,6 +264,16 @@ class LlamaIndexIngestionAdapter:
             source_id=source_id, chunks_with_metadata=chunks_with_metadata
         )
 
+        t0 = time.perf_counter()
         VectorStoreIndex(nodes=nodes, storage_context=storage_context)
+        elapsed_ms = (time.perf_counter() - t0) * 1000
+        if self.user_id:
+            await _record_llamaindex_ingest_embeddings(
+                tenant_id=self.tenant_id,
+                user_id=self.user_id,
+                nodes=nodes,
+                latency_ms=elapsed_ms,
+            )
+
         return LlamaIndexIngestionResult(nodes_indexed=len(nodes))
 

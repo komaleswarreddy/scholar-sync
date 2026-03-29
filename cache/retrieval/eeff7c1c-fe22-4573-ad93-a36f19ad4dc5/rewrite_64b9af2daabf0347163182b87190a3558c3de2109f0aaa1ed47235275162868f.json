@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "summarize 'Build, Don\u2019t Talk: Things You Wish You Were Taught in School' and 'Skill with People' in 20 words each",
+    "20-word summaries for 'Build, Don\u2019t Talk: Things You Wish You Were Taught in School' and 'Skill with People'",
+    "summarze these  two  books in 20 words of each"
+  ],
+  "timestamp": 1774437879.204918,
+  "ttl": 3600,
+  "query": "summarze these  two  books in 20 words of each",
+  "source_ids": [
+    "49720d3e-e98e-44c6-9680-627d15cf6bd2",
+    "5a348658-698f-4478-8c0c-9349659157c9"
+  ]
+}

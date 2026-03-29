@@ -4,12 +4,16 @@ Metrics Dashboard API
 Provides endpoints for viewing metrics and dashboard data.
 """
 
-from fastapi import APIRouter, Request, HTTPException, Depends, Query
+from fastapi import APIRouter, Request, HTTPException, Depends, Query, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
+from sqlalchemy.exc import DBAPIError, OperationalError
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
+from collections import defaultdict
 import uuid
+import csv
+import io
 
 from packages.core.database.connection import get_db
 from packages.core.monitoring.metrics import get_metrics_collector
@@ -18,6 +22,205 @@ from packages.core.guardrails.cost_manager import get_cost_manager
 from packages.core.database.models.chat import Message, Chat
 
 router = APIRouter()
+
+_AGENT_CATALOG: Dict[str, Dict[str, str]] = {
+    # Generation agents: use llm_client.generate() to produce user-facing or intermediate text.
+    "generate": {
+        "label": "Generate",
+        "description": "Primary answer generation agent.",
+        "category": "generation",
+    },
+    "direct_chat": {
+        "label": "Direct Chat",
+        "description": "Non-RAG direct chat generation.",
+        "category": "generation",
+    },
+    "intent_classify": {
+        "label": "Intent Classify",
+        "description": "Classifies user intent before retrieval.",
+        "category": "generation",
+    },
+    "query_rewrite": {
+        "label": "Query Rewriter",
+        "description": "Rewrites user query to improve retrieval quality.",
+        "category": "generation",
+    },
+    "chat_summarizer": {
+        "label": "Chat Summarizer",
+        "description": "Summarizes conversation history.",
+        "category": "generation",
+    },
+    "whole_file_map": {
+        "label": "Whole File Map",
+        "description": "Map phase for full-document summarization.",
+        "category": "generation",
+    },
+    "whole_file_reduce": {
+        "label": "Whole File Reduce",
+        "description": "Reduce phase that builds final full-document summary.",
+        "category": "generation",
+    },
+    "studio_generate": {
+        "label": "Studio Generate",
+        "description": "Studio generation flows (quiz, flashcards, report, etc.).",
+        "category": "generation",
+    },
+    # Utility model calls: model APIs used as support stages, not final response generation.
+    "embedding": {
+        "label": "Embedding",
+        "description": "Vector embedding model calls used for retrieval.",
+        "category": "utility",
+    },
+    "cohere_rerank": {
+        "label": "Cohere Rerank",
+        "description": "Cohere rerank model calls for result ordering.",
+        "category": "utility",
+    },
+    "moderation": {
+        "label": "Moderation",
+        "description": "OpenAI moderation model calls for safety checks.",
+        "category": "utility",
+    },
+    "other": {
+        "label": "Other",
+        "description": "Unmapped model calls.",
+        "category": "utility",
+    },
+}
+
+
+def _normalize_agent_id(feature_tag: Optional[str]) -> str:
+    ft = str(feature_tag or "").strip().lower()
+    if not ft:
+        return "other"
+    # Strict mappings for known LLM-calling feature tags.
+    if ft in {"chat_langgraph", "chat_langgraph_retry_not_found", "chat_langgraph_retry_incomplete", "chat"}:
+        return "generate"
+    if ft == "chat_langgraph_direct":
+        return "direct_chat"
+    if ft == "query_rewriter":
+        return "query_rewrite"
+    if ft == "intent_classifier":
+        return "intent_classify"
+    if ft == "embedding":
+        return "embedding"
+    if ft == "cohere_rerank":
+        return "cohere_rerank"
+    if ft == "chat_summarizer":
+        return "chat_summarizer"
+    if ft == "whole_file_map":
+        return "whole_file_map"
+    if ft == "whole_file_reduce":
+        return "whole_file_reduce"
+    if ft.startswith("studio_"):
+        return "studio_generate"
+    if "studio" in ft:
+        return "studio_generate"
+    return "other"
+
+
+def _iso_to_dt(ts: Optional[str]) -> Optional[datetime]:
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _pct_delta(current: float, previous: float) -> Optional[float]:
+    if previous == 0:
+        return None
+    return ((current - previous) / previous) * 100.0
+
+
+async def _is_admin_request(request: Request, db: AsyncSession) -> bool:
+    try:
+        from apps.api.routes.admin import check_admin_role
+        return await check_admin_role(request, db)
+    except Exception:
+        return False
+
+
+def _collect_agent_stats(
+    llm_calls: List[Dict[str, Any]],
+    trace_errors_by_agent: Optional[Dict[str, int]] = None,
+) -> Dict[str, Dict[str, Any]]:
+    stats: Dict[str, Dict[str, Any]] = {}
+    errors = trace_errors_by_agent or {}
+    for call in llm_calls:
+        agent_id = _normalize_agent_id(call.get("feature_tag"))
+        if agent_id not in stats:
+            meta = _AGENT_CATALOG.get(agent_id, _AGENT_CATALOG["other"])
+            stats[agent_id] = {
+                "agent_id": agent_id,
+                "agent_label": meta["label"],
+                "description": meta["description"],
+                "category": meta.get("category", "utility"),
+                "calls": 0,
+                "tokens_in": 0,
+                "tokens_out": 0,
+                "tokens_total": 0,
+                "cost_total": 0.0,
+                "latencies": [],
+                "providers": defaultdict(int),
+                "models": defaultdict(int),
+                "feature_tags": defaultdict(int),
+                "last_seen_at": None,
+            }
+        row = stats[agent_id]
+        row["calls"] += 1
+        row["tokens_in"] += int(call.get("prompt_tokens") or 0)
+        row["tokens_out"] += int(call.get("completion_tokens") or 0)
+        row["tokens_total"] += int(call.get("total_tokens") or 0)
+        row["cost_total"] += float(call.get("cost") or 0.0)
+        lat = call.get("latency_ms")
+        if isinstance(lat, (int, float)):
+            row["latencies"].append(float(lat))
+        provider = str(call.get("provider") or "unknown")
+        model = str(call.get("model") or "unknown")
+        feature_tag = str(call.get("feature_tag") or "unknown")
+        row["providers"][provider] += 1
+        row["models"][model] += 1
+        row["feature_tags"][feature_tag] += 1
+        ts = _iso_to_dt(call.get("timestamp"))
+        if ts:
+            if row["last_seen_at"] is None or ts > row["last_seen_at"]:
+                row["last_seen_at"] = ts
+
+    for agent_id, row in stats.items():
+        lats = sorted(row["latencies"])
+        n = len(lats)
+        avg = (sum(lats) / n) if n else 0.0
+        p95 = lats[min(int(n * 0.95), n - 1)] if n else 0.0
+        err_count = int(errors.get(agent_id, 0))
+        row["latency_avg_ms"] = round(avg, 2)
+        row["latency_p95_ms"] = round(p95, 2)
+        row["error_count"] = err_count
+        row["error_rate"] = round((err_count / row["calls"]) if row["calls"] > 0 else 0.0, 4)
+        row["cost_total"] = round(row["cost_total"], 6)
+        row["providers"] = dict(sorted(row["providers"].items(), key=lambda x: x[1], reverse=True))
+        row["models"] = dict(sorted(row["models"].items(), key=lambda x: x[1], reverse=True))
+        row["feature_tags"] = dict(sorted(row["feature_tags"].items(), key=lambda x: x[1], reverse=True))
+        row["last_seen_at"] = row["last_seen_at"].isoformat() if row["last_seen_at"] else None
+        row.pop("latencies", None)
+    return stats
+
+
+def _is_db_unavailable_error(exc: Exception) -> bool:
+    if isinstance(exc, (OperationalError, DBAPIError, OSError, TimeoutError)):
+        return True
+    msg = str(exc).lower()
+    return (
+        "connect call failed" in msg
+        or "database connection error" in msg
+        or "could not connect" in msg
+        or "connection refused" in msg
+        or "maxclientsinsessionmode" in msg
+        or "max clients reached" in msg
+        or "too many connections" in msg
+        or "timeout" in msg
+    )
 
 
 @router.get("/summary")
@@ -250,24 +453,42 @@ async def get_rag_quality_dashboard(
     if user_id:
         query_conditions.append(Chat.user_id == user_id)
     
-    debug_result = await db.execute(
-        select(func.count(Message.id))
-        .join(Chat)
-        .where(and_(*query_conditions))
-    )
-    total_assistant_messages = debug_result.scalar() or 0
-    
-    feedback_count_result = await db.execute(
-        select(func.count(Message.id))
-        .join(Chat)
-        .where(
-            and_(
-                *query_conditions,
-                Message.feedback.isnot(None),
+    try:
+        debug_result = await db.execute(
+            select(func.count(Message.id))
+            .join(Chat)
+            .where(and_(*query_conditions))
+        )
+        total_assistant_messages = debug_result.scalar() or 0
+        
+        feedback_count_result = await db.execute(
+            select(func.count(Message.id))
+            .join(Chat)
+            .where(
+                and_(
+                    *query_conditions,
+                    Message.feedback.isnot(None),
+                )
             )
         )
-    )
-    total_with_feedback = feedback_count_result.scalar() or 0
+        total_with_feedback = feedback_count_result.scalar() or 0
+    except Exception as e:
+        if _is_db_unavailable_error(e):
+            print(f"[RAG_QUALITY] DB unavailable; returning empty fallback: {e}")
+            return {
+                "tenant_id": tenant_id,
+                "user_id": user_id,
+                "period_days": days,
+                "summary": {
+                    "total_feedback": 0,
+                    "thumbs_up": 0,
+                    "thumbs_down": 0,
+                    "hallucination_rate": 0.0,
+                    "positive_rate": 0.0,
+                },
+                "daily_breakdown": [],
+            }
+        raise
     
     print(f"[RAG_QUALITY] Tenant: {tenant_id}, User: {user_id}, Total assistant messages: {total_assistant_messages}, Messages with feedback: {total_with_feedback}")
     
@@ -282,18 +503,36 @@ async def get_rag_quality_dashboard(
     if user_id:
         date_query_conditions.append(Chat.user_id == user_id)
     
-    result = await db.execute(
-        select(
-            Message.feedback,
-            func.count(Message.id).label('count'),
-            func.date(Message.created_at).label('date')
+    try:
+        result = await db.execute(
+            select(
+                Message.feedback,
+                func.count(Message.id).label('count'),
+                func.date(Message.created_at).label('date')
+            )
+            .join(Chat)
+            .where(and_(*date_query_conditions))
+            .group_by(Message.feedback, func.date(Message.created_at))
         )
-        .join(Chat)
-        .where(and_(*date_query_conditions))
-        .group_by(Message.feedback, func.date(Message.created_at))
-    )
-    
-    feedback_data = result.all()
+        
+        feedback_data = result.all()
+    except Exception as e:
+        if _is_db_unavailable_error(e):
+            print(f"[RAG_QUALITY] DB unavailable during date-range query; returning empty fallback: {e}")
+            return {
+                "tenant_id": tenant_id,
+                "user_id": user_id,
+                "period_days": days,
+                "summary": {
+                    "total_feedback": 0,
+                    "thumbs_up": 0,
+                    "thumbs_down": 0,
+                    "hallucination_rate": 0.0,
+                    "positive_rate": 0.0,
+                },
+                "daily_breakdown": [],
+            }
+        raise
     print(f"[RAG_QUALITY] Found {len(feedback_data)} feedback rows in date range ({start_date} to {end_date})")
     
     # If no data in date range, try without date filter to see if there's any feedback at all
@@ -1124,6 +1363,316 @@ async def get_logs(
         "logs": logs,
         "total": len(logs),
     }
+
+
+@router.get("/agents/summary")
+async def get_agents_summary(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(30, description="Current window in days"),
+    compare_days: int = Query(30, description="Previous comparison window in days"),
+):
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    is_admin = await _is_admin_request(request, db)
+    if is_admin:
+        user_id = None
+
+    metrics = get_metrics_collector()
+    now = datetime.utcnow()
+    cur_start = now - timedelta(days=days)
+    prev_start = cur_start - timedelta(days=compare_days)
+
+    with metrics._lock:
+        all_calls = list(metrics._llm_calls)
+    scoped = [m for m in all_calls if str(m.get("tenant_id")) == str(tenant_id)]
+    if user_id:
+        scoped = [m for m in scoped if str(m.get("user_id")) == str(user_id)]
+
+    cur_calls = [m for m in scoped if (_iso_to_dt(m.get("timestamp")) or datetime.min) >= cur_start]
+    prev_calls = [
+        m for m in scoped
+        if prev_start <= (_iso_to_dt(m.get("timestamp")) or datetime.min) < cur_start
+    ]
+
+    try:
+        from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store
+        store = get_pipeline_trace_store()
+        traces = store.list_recent_traces_filtered(user_id=user_id, limit=200)
+        trace_errors_by_agent: Dict[str, int] = defaultdict(int)
+        for tr in traces:
+            if str(tr.tenant_id) != str(tenant_id):
+                continue
+            for sp in tr.spans:
+                if str(sp.status) == "error":
+                    aid = _normalize_agent_id(sp.feature_tag or sp.name)
+                    trace_errors_by_agent[aid] += 1
+    except Exception:
+        trace_errors_by_agent = defaultdict(int)
+
+    cur_stats = _collect_agent_stats(cur_calls, trace_errors_by_agent)
+    prev_stats = _collect_agent_stats(prev_calls, {})
+
+    totals = {
+        "total_calls": sum(v["calls"] for v in cur_stats.values()),
+        "total_cost": round(sum(v["cost_total"] for v in cur_stats.values()), 6),
+        "total_tokens": sum(v["tokens_total"] for v in cur_stats.values()),
+        "active_agents": len([v for v in cur_stats.values() if v["calls"] > 0]),
+        "avg_latency_ms": round(
+            (sum(v["latency_avg_ms"] * v["calls"] for v in cur_stats.values()) / max(sum(v["calls"] for v in cur_stats.values()), 1)),
+            2,
+        ),
+        "p95_latency_ms": round(max([v["latency_p95_ms"] for v in cur_stats.values()] or [0.0]), 2),
+        "error_rate": round(
+            (sum(v["error_count"] for v in cur_stats.values()) / max(sum(v["calls"] for v in cur_stats.values()), 1)),
+            4,
+        ),
+    }
+
+    prev_totals = {
+        "total_calls": sum(v["calls"] for v in prev_stats.values()),
+        "total_cost": round(sum(v["cost_total"] for v in prev_stats.values()), 6),
+        "total_tokens": sum(v["tokens_total"] for v in prev_stats.values()),
+        "avg_latency_ms": round(
+            (sum(v["latency_avg_ms"] * v["calls"] for v in prev_stats.values()) / max(sum(v["calls"] for v in prev_stats.values()), 1)),
+            2,
+        ),
+    }
+
+    top_agents = sorted(cur_stats.values(), key=lambda x: x["calls"], reverse=True)[:10]
+    return {
+        "tenant_id": tenant_id,
+        "user_id": user_id,
+        "period_days": days,
+        "compare_days": compare_days,
+        "totals": totals,
+        "deltas": {
+            "calls_pct": _pct_delta(float(totals["total_calls"]), float(prev_totals["total_calls"])),
+            "cost_pct": _pct_delta(float(totals["total_cost"]), float(prev_totals["total_cost"])),
+            "tokens_pct": _pct_delta(float(totals["total_tokens"]), float(prev_totals["total_tokens"])),
+            "latency_pct": _pct_delta(float(totals["avg_latency_ms"]), float(prev_totals["avg_latency_ms"])),
+        },
+        "top_agents": top_agents,
+    }
+
+
+@router.get("/agents/details")
+async def get_agents_details(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(30),
+):
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    is_admin = await _is_admin_request(request, db)
+    if is_admin:
+        user_id = None
+    metrics = get_metrics_collector()
+    cutoff = datetime.utcnow() - timedelta(days=days)
+
+    with metrics._lock:
+        calls = list(metrics._llm_calls)
+    calls = [m for m in calls if str(m.get("tenant_id")) == str(tenant_id)]
+    if user_id:
+        calls = [m for m in calls if str(m.get("user_id")) == str(user_id)]
+    calls = [m for m in calls if (_iso_to_dt(m.get("timestamp")) or datetime.min) >= cutoff]
+
+    try:
+        from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store
+        store = get_pipeline_trace_store()
+        traces = store.list_recent_traces_filtered(user_id=user_id, limit=200)
+        err_counts: Dict[str, int] = defaultdict(int)
+        for tr in traces:
+            if str(tr.tenant_id) != str(tenant_id):
+                continue
+            for sp in tr.spans:
+                if str(sp.status) == "error":
+                    err_counts[_normalize_agent_id(sp.feature_tag or sp.name)] += 1
+    except Exception:
+        err_counts = defaultdict(int)
+
+    rows = list(_collect_agent_stats(calls, err_counts).values())
+    # Always include the known LLM agent catalog so admins can see missing/idle agents too.
+    existing_ids = {r["agent_id"] for r in rows}
+    for agent_id, meta in _AGENT_CATALOG.items():
+        if agent_id == "other":
+            continue
+        if agent_id in existing_ids:
+            continue
+        rows.append(
+            {
+                "agent_id": agent_id,
+                "agent_label": meta["label"],
+                "description": meta["description"],
+                "category": meta.get("category", "utility"),
+                "calls": 0,
+                "tokens_in": 0,
+                "tokens_out": 0,
+                "tokens_total": 0,
+                "cost_total": 0.0,
+                "latency_avg_ms": 0.0,
+                "latency_p95_ms": 0.0,
+                "error_count": 0,
+                "error_rate": 0.0,
+                "providers": {},
+                "models": {},
+                "feature_tags": {},
+                "last_seen_at": None,
+            }
+        )
+    rows.sort(key=lambda x: (x["calls"], x["tokens_total"]), reverse=True)
+    return {"tenant_id": tenant_id, "user_id": user_id, "period_days": days, "rows": rows}
+
+
+@router.get("/agents/timeseries")
+async def get_agents_timeseries(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(30),
+):
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    is_admin = await _is_admin_request(request, db)
+    if is_admin:
+        user_id = None
+    metrics = get_metrics_collector()
+    cutoff = datetime.utcnow() - timedelta(days=days)
+
+    with metrics._lock:
+        calls = list(metrics._llm_calls)
+    calls = [m for m in calls if str(m.get("tenant_id")) == str(tenant_id)]
+    if user_id:
+        calls = [m for m in calls if str(m.get("user_id")) == str(user_id)]
+    calls = [m for m in calls if (_iso_to_dt(m.get("timestamp")) or datetime.min) >= cutoff]
+
+    buckets: Dict[str, Dict[str, Any]] = {}
+    for c in calls:
+        ts = _iso_to_dt(c.get("timestamp"))
+        if not ts:
+            continue
+        day = ts.date().isoformat()
+        if day not in buckets:
+            buckets[day] = {"date": day, "calls": 0, "tokens": 0, "cost": 0.0, "latencies": []}
+        b = buckets[day]
+        b["calls"] += 1
+        b["tokens"] += int(c.get("total_tokens") or 0)
+        b["cost"] += float(c.get("cost") or 0.0)
+        lat = c.get("latency_ms")
+        if isinstance(lat, (float, int)):
+            b["latencies"].append(float(lat))
+
+    series = []
+    for day in sorted(buckets.keys()):
+        b = buckets[day]
+        latencies = sorted(b["latencies"])
+        n = len(latencies)
+        avg = (sum(latencies) / n) if n else 0.0
+        p95 = latencies[min(int(n * 0.95), n - 1)] if n else 0.0
+        series.append(
+            {
+                "date": day,
+                "calls": b["calls"],
+                "tokens": b["tokens"],
+                "cost": round(b["cost"], 6),
+                "avg_latency_ms": round(avg, 2),
+                "p95_latency_ms": round(p95, 2),
+            }
+        )
+
+    return {"tenant_id": tenant_id, "user_id": user_id, "period_days": days, "series": series}
+
+
+@router.get("/agents/recent")
+async def get_agents_recent(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    limit: int = Query(50),
+):
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    is_admin = await _is_admin_request(request, db)
+    if is_admin:
+        user_id = None
+    limit = max(1, min(int(limit), 200))
+
+    out: List[Dict[str, Any]] = []
+    try:
+        from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store
+        store = get_pipeline_trace_store()
+        traces = store.list_recent_traces_filtered(user_id=user_id, limit=limit)
+        for tr in traces:
+            if str(tr.tenant_id) != str(tenant_id):
+                continue
+            for sp in tr.spans:
+                out.append(
+                    {
+                        "trace_id": tr.trace_id,
+                        "timestamp": datetime.utcfromtimestamp((sp.end_ms or tr.started_at_ms) / 1000.0).isoformat(),
+                        "agent_id": _normalize_agent_id(sp.feature_tag or sp.name),
+                        "agent_name": sp.name,
+                        "status": sp.status,
+                        "duration_ms": round(float(sp.duration_ms or 0.0), 2),
+                        "error_message": sp.error_message,
+                        "feature_tag": sp.feature_tag,
+                    }
+                )
+        out.sort(key=lambda x: x["timestamp"], reverse=True)
+        out = out[:limit]
+    except Exception:
+        out = []
+
+    return {"tenant_id": tenant_id, "user_id": user_id, "limit": limit, "rows": out}
+
+
+@router.get("/agents/export.csv")
+async def export_agents_csv(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(30),
+):
+    details = await get_agents_details(request, db, days)
+    rows = details.get("rows", [])
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(
+        [
+            "agent_id",
+            "agent_label",
+            "calls",
+            "tokens_in",
+            "tokens_out",
+            "tokens_total",
+            "cost_total",
+            "latency_avg_ms",
+            "latency_p95_ms",
+            "error_count",
+            "error_rate",
+            "last_seen_at",
+        ]
+    )
+    for r in rows:
+        writer.writerow(
+            [
+                r.get("agent_id"),
+                r.get("agent_label"),
+                r.get("calls"),
+                r.get("tokens_in"),
+                r.get("tokens_out"),
+                r.get("tokens_total"),
+                r.get("cost_total"),
+                r.get("latency_avg_ms"),
+                r.get("latency_p95_ms"),
+                r.get("error_count"),
+                r.get("error_rate"),
+                r.get("last_seen_at"),
+            ]
+        )
+    csv_body = buf.getvalue()
+    return Response(
+        content=csv_body,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename=\"agents_{days}d.csv\"'},
+    )
 
 
 @router.delete("/reset")
