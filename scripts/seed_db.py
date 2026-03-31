@@ -1,8 +1,19 @@
+from __future__ import annotations
+
 import asyncio
+import sys
 import uuid
+from pathlib import Path
+
+from sqlalchemy import select
+
+# Ensure repo root is on sys.path when running `python scripts/seed_db.py`
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from packages.core.database.connection import AsyncSessionLocal, engine
 from packages.core.database.models.tenant import Tenant
-from sqlalchemy import select
 
 async def seed_tenant():
     print("Seeding database...")

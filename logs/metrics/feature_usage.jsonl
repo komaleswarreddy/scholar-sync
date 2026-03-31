@@ -148,3 +148,11 @@
 {"timestamp": "2026-03-28T06:15:07.931188", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=4412.0"}
 {"timestamp": "2026-03-28T06:23:57.063128", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=3078.4"}
 {"timestamp": "2026-03-28T16:57:37.767511", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2534.1"}
+{"timestamp": "2026-03-30T04:41:02.473371", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=3338.3"}
+{"timestamp": "2026-03-30T04:43:02.161791", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=3360.6"}
+{"timestamp": "2026-03-30T04:44:23.998577", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2710.6"}
+{"timestamp": "2026-03-30T04:48:37.865710", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2309.6"}
+{"timestamp": "2026-03-30T04:50:02.438580", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2257.1"}
+{"timestamp": "2026-03-30T04:53:24.886998", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=3142.0"}
+{"timestamp": "2026-03-30T11:10:43.279998", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=4511.6"}
+{"timestamp": "2026-03-30T11:14:07.219135", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=8440.3"}

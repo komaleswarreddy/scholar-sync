@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "explain dental caries",
+    "what are dental cavities",
+    "explain about Dental caries"
+  ],
+  "timestamp": 1774845785.6606476,
+  "ttl": 3600,
+  "query": "explain about Dental caries",
+  "source_ids": [
+    "8007668c-9ef1-493d-ac0b-b64a40ba5820"
+  ]
+}

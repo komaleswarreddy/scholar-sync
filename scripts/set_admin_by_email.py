@@ -14,7 +14,7 @@ from packages.core.database.connection import AsyncSessionLocal
 from packages.core.database.models.user import User
 
 
-TARGET_EMAIL = "harikapallapothu09@gmail.com"
+TARGET_EMAIL = "scombinator26@gmail.com"
 
 
 async def main() -> None:

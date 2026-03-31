@@ -20,7 +20,7 @@ export default function HomePage() {
       )?.toLowerCase()?.trim();
       
       // Check if email matches known admin email
-      const ADMIN_EMAILS = ['harikapallapothu09@gmail.com'];
+      const ADMIN_EMAILS = ['scombinator26@gmail.com'];
       
       if (email && ADMIN_EMAILS.includes(email)) {
         // Use window.location for a hard redirect to ensure it happens

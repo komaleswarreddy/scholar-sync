@@ -82,6 +82,7 @@ The backend is **not** a separate `backend/` folder. The HTTP app lives under **
    - Copy **`.env.example`** → **`.env`** at the monorepo root (same folder as `alembic.ini`).  
    - Required for the API, Alembic, `scripts/seed_db.py`, and Docker Compose: `DATABASE_URL`, Clerk JWT verification keys, Pinecone, storage, LLM keys, `CORS_ORIGINS`, etc.  
    - Full key-by-key guide: [`docs/API_KEYS_EXPLAINED.md`](docs/API_KEYS_EXPLAINED.md)
+   - If your DB password contains special characters (common ones: `@`, `#`, `$`, `:`), **URL-encode** them in `DATABASE_URL` (example: `$` → `%24`, `@` → `%40`). Otherwise you may see `password authentication failed` even when the password is correct.
 
    **`apps/web/.env.local` (Next.js — not committed)**  
    - Create **`apps/web/.env.local`** for variables that must be available in the browser or to the Next.js dev server.  
@@ -117,9 +118,43 @@ The backend is **not** a separate `backend/` folder. The HTTP app lives under **
 
    ```bash
    python scripts/seed_db.py
+   # (or) python -m scripts.seed_db
    ```
 
    On Windows, use the same command after `venv\Scripts\activate`.
+
+### Supabase quick schema setup (minimal)
+
+If you are using **Supabase**, you have two supported ways to create tables:
+
+#### Option A (recommended): Alembic migrations
+
+Run this from the repo root (with venv active and `DATABASE_URL` set):
+
+```bash
+alembic upgrade head
+python scripts/seed_db.py
+```
+
+#### Option B (quick start): Run a single SQL file in Supabase
+
+Use this if you prefer setting up tables directly in the Supabase UI (or if you want a single copy/paste script):
+
+1. Supabase dashboard → **SQL Editor** → run:
+   - `scripts/supabase_schema.sql`
+
+2. Then mark Alembic as applied (so future `alembic upgrade head` doesn't try to recreate tables):
+
+   ```bash
+   alembic stamp head
+   ```
+
+3. Then run the seed (safe to run even if the SQL inserted `default`):
+
+   ```bash
+   python scripts/seed_db.py
+   # (or) python -m scripts.seed_db
+   ```
 
 ### Running locally
 

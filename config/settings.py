@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     MODERATION_FAIL_OPEN_ON_ERROR: bool = False
 
     # Cohere reranking
-    COHERE_API_KEY: str = "AoE2F3Vm5S5sz6OXNxw93mu6vRC1jY2My5J7ecwJ"
+    COHERE_API_KEY: str = "ysYZLxCido5L8eEgEnGAQwXX4Hz8wkYVenrXni1w"
     COHERE_RERANK_MODEL: str = "rerank-v3.5"
     
     # Image Generation
