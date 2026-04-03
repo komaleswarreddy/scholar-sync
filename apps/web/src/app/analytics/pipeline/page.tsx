@@ -34,7 +34,41 @@ type TraceRecord = {
   total_duration_ms: number;
   success: boolean;
   spans: SpanRecord[];
+  trace_summary?: {
+    query_preview?: string;
+    response_preview?: string;
+  };
+  usage?: {
+    summary?: {
+      llm_calls?: number;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+      cost_usd?: number;
+    };
+    by_agent?: Array<{
+      agent_id: string;
+      agent_label: string;
+      feature_tag: string;
+      calls: number;
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+      cost_usd: number;
+      latency_ms_avg: number;
+      models?: Record<string, number>;
+      providers?: Record<string, number>;
+    }>;
+  };
 };
+
+function formatNumber(value: number | undefined) {
+  return new Intl.NumberFormat('en-US').format(value || 0);
+}
+
+function formatUsd(value: number | undefined) {
+  return `$${(value || 0).toFixed(6)}`;
+}
 
 export default function PipelineTracePage() {
   const { getToken } = useAuth();
@@ -142,6 +176,9 @@ export default function PipelineTracePage() {
       .reduce((a, s) => a + s.duration_ms, 0);
   }, [displaySpans]);
 
+  const usageSummary = trace?.usage?.summary;
+  const usageByAgent = trace?.usage?.by_agent || [];
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-start gap-3">
@@ -181,7 +218,57 @@ export default function PipelineTracePage() {
       )}
 
       {trace && (
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-xl border border-border-default bg-surface/40 p-4">
+              <div className="text-xs uppercase tracking-wide text-text-secondary">Trace Total</div>
+              <div className="mt-1 text-2xl font-semibold text-text-primary">{trace.total_duration_ms.toFixed(0)} ms</div>
+              <div className="mt-2 text-xs text-text-secondary">
+                Spans: <span className="text-text-primary">{displaySpans.length}</span>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border-default bg-surface/40 p-4">
+              <div className="text-xs uppercase tracking-wide text-text-secondary">LLM Usage</div>
+              <div className="mt-1 text-2xl font-semibold text-text-primary">{formatNumber(usageSummary?.total_tokens)}</div>
+              <div className="mt-2 text-xs text-text-secondary">
+                In: <span className="text-text-primary">{formatNumber(usageSummary?.prompt_tokens)}</span>
+                {' '}· Out: <span className="text-text-primary">{formatNumber(usageSummary?.completion_tokens)}</span>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border-default bg-surface/40 p-4">
+              <div className="text-xs uppercase tracking-wide text-text-secondary">Trace Cost</div>
+              <div className="mt-1 text-2xl font-semibold text-text-primary">{formatUsd(usageSummary?.cost_usd)}</div>
+              <div className="mt-2 text-xs text-text-secondary">
+                LLM calls: <span className="text-text-primary">{formatNumber(usageSummary?.llm_calls)}</span>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border-default bg-surface/40 p-4">
+              <div className="text-xs uppercase tracking-wide text-text-secondary">Status</div>
+              <div className={`mt-1 text-2xl font-semibold ${trace.success ? 'text-green-400' : 'text-amber-400'}`}>
+                {trace.success ? 'ok' : 'failed'}
+              </div>
+              <div className="mt-2 text-xs text-text-secondary">
+                LLM-ish time: <span className="text-text-primary">{llmMs.toFixed(0)} ms</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-xl border border-border-default bg-surface/30 p-4">
+              <h3 className="text-sm font-semibold text-text-primary mb-2">User query</h3>
+              <pre className="text-sm whitespace-pre-wrap break-words text-text-secondary font-sans">
+                {trace.trace_summary?.query_preview || 'Not captured for this trace.'}
+              </pre>
+            </div>
+            <div className="rounded-xl border border-border-default bg-surface/30 p-4">
+              <h3 className="text-sm font-semibold text-text-primary mb-2">Final response</h3>
+              <pre className="text-sm whitespace-pre-wrap break-words text-text-secondary font-sans">
+                {trace.trace_summary?.response_preview || 'Not captured for this trace.'}
+              </pre>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
             <div className="p-4 rounded-xl border border-border-default bg-surface/50">
               <div className="flex flex-wrap gap-4 text-sm text-text-secondary mb-2">
@@ -256,6 +343,52 @@ export default function PipelineTracePage() {
                 </tbody>
               </table>
             </div>
+
+            <div className="rounded-xl border border-border-default overflow-hidden">
+              <div className="px-4 py-3 bg-surface border-b border-border-default">
+                <h3 className="text-sm font-semibold text-text-primary">Per-agent token and cost breakdown</h3>
+                <p className="text-xs text-text-secondary mt-1">
+                  Real usage rows whose request id matches this trace id.
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-background text-text-secondary text-left">
+                    <tr>
+                      <th className="px-3 py-2">Agent</th>
+                      <th className="px-3 py-2">Feature tag</th>
+                      <th className="px-3 py-2">Calls</th>
+                      <th className="px-3 py-2">Input</th>
+                      <th className="px-3 py-2">Output</th>
+                      <th className="px-3 py-2">Total</th>
+                      <th className="px-3 py-2">Cost</th>
+                      <th className="px-3 py-2">Avg ms</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {usageByAgent.map((row) => (
+                      <tr key={row.feature_tag} className="border-t border-border-default">
+                        <td className="px-3 py-2 text-text-primary">{row.agent_label}</td>
+                        <td className="px-3 py-2 font-mono text-xs text-text-secondary">{row.feature_tag}</td>
+                        <td className="px-3 py-2">{formatNumber(row.calls)}</td>
+                        <td className="px-3 py-2">{formatNumber(row.prompt_tokens)}</td>
+                        <td className="px-3 py-2">{formatNumber(row.completion_tokens)}</td>
+                        <td className="px-3 py-2">{formatNumber(row.total_tokens)}</td>
+                        <td className="px-3 py-2">{formatUsd(row.cost_usd)}</td>
+                        <td className="px-3 py-2">{row.latency_ms_avg.toFixed(1)}</td>
+                      </tr>
+                    ))}
+                    {usageByAgent.length === 0 && (
+                      <tr className="border-t border-border-default">
+                        <td colSpan={8} className="px-3 py-6 text-center text-text-secondary">
+                          No per-trace token data captured for this trace yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <div className="rounded-xl border border-border-default bg-surface/30 p-4 min-h-[200px]">
@@ -282,6 +415,7 @@ export default function PipelineTracePage() {
               <p className="text-text-secondary text-sm">Select a row or bar.</p>
             )}
           </div>
+        </div>
         </div>
       )}
 

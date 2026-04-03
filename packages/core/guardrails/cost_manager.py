@@ -13,6 +13,7 @@ from datetime import datetime
 from pathlib import Path
 
 from packages.core.monitoring.metrics import get_metrics_collector
+from packages.core.monitoring.pipeline_trace import get_active_trace_id
 
 
 class CostManager:
@@ -132,7 +133,10 @@ class CostManager:
         """
         if cost is None:
             cost = self.calculate_cost(model, prompt_tokens, completion_tokens)
-        
+
+        if not request_id:
+            request_id = get_active_trace_id()
+
         total_tokens = prompt_tokens + completion_tokens
         
         # Record in metrics collector

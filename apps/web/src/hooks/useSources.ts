@@ -23,7 +23,7 @@ export interface Source {
   file_type: string;
   file_size: number;
   upload_date: string;
-  status: 'processing' | 'completed' | 'failed';
+  status: 'processing' | 'indexed' | 'error' | 'completed' | 'failed';
   chunks_count?: number;
   error_message?: string;
 }
@@ -43,9 +43,13 @@ export function useSources() {
         throw new Error(getUserFriendlyMessage(apiError));
       }
     },
-    staleTime: 30 * 1000,
-    // Less aggressive polling reduces spurious timeouts while documents are still "READY" in the UI.
-    refetchInterval: 25 * 1000,
+    staleTime: 5 * 1000,
+    // Poll more aggressively while any source is still processing so the UI flips to READY
+    // shortly after the background ingestion commits the indexed status.
+    refetchInterval: (query) => {
+      const sources = (query.state.data as Source[] | undefined) ?? [];
+      return sources.some((source) => source.status === 'processing') ? 2 * 1000 : 25 * 1000;
+    },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
   });
@@ -78,8 +82,10 @@ export function useUploadSource() {
       }
     },
     onSuccess: () => {
-      // Invalidate and refetch sources list
+      // Force an immediate refresh after upload so we do not sit on the initial
+      // "processing" snapshot until the next polling interval.
       queryClient.invalidateQueries({ queryKey: sourceKeys.list() });
+      queryClient.refetchQueries({ queryKey: sourceKeys.list(), type: 'active' });
     },
   });
 }
