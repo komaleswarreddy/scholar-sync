@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Which response is most effective in emergencies: hormonal, reflex, or voluntary?",
+    "Emergency response types: hormonal, reflex, voluntary\u2014what is most useful?",
+    "Which type of response would be most useful in an emergency: hormonal, reflex, or voluntary? Why?"
+  ],
+  "timestamp": 1774980776.3550074,
+  "ttl": 3600,
+  "query": "Which type of response would be most useful in an emergency: hormonal, reflex, or voluntary? Why?",
+  "source_ids": [
+    "3a1669db-59a6-4b12-9a0b-08a3e475a8e0"
+  ]
+}

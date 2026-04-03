@@ -10,7 +10,6 @@ Uses Pydantic Settings for validation and type safety.
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from typing import Optional
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -26,6 +25,13 @@ class Settings(BaseSettings):
     SQLALCHEMY_ECHO: bool = False
     DB_POOL_SIZE: int = 5
     DB_MAX_OVERFLOW: int = 10
+    # Supabase session pooler (often port 5432) is connection-limited; this repo caps pool_size/max_overflow
+    # to avoid MaxClientsInSessionMode. In development you may disable the cap if you control concurrency.
+    DB_SUPABASE_5432_POOL_CAP_ENABLED: bool = True
+    # Production gate: if True, DB pool timeouts return safe empty fallbacks for list endpoints
+    # instead of raising 500s. Prefer fixing root causes (pool sizing / transaction pooler) but this
+    # prevents noisy UI failures during incidents.
+    DB_FAIL_OPEN_ON_POOL_TIMEOUT: bool = True
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
     
@@ -49,11 +55,26 @@ class Settings(BaseSettings):
     OPENAI_MODERATION_MODEL: str = "omni-moderation-latest"
     # If any category score >= this, treat as blocked (in addition to API `flagged`)
     MODERATION_CATEGORY_SCORE_THRESHOLD: float = 0.35
+    # Production gate: disable score-threshold blocking by default to avoid false positives on benign educational content.
+    # When False, only `flagged` or explicit True categories will block.
+    MODERATION_BLOCK_ON_CATEGORY_SCORES: bool = False
     # When OpenAI key is set: if False (default), moderation API/network errors refuse (fail closed).
     MODERATION_FAIL_OPEN_ON_ERROR: bool = False
+    # Output path: omni-moderation often false-flags educational biology (pain, injury, reflex arcs) as
+    # violence/self-harm. When True (default), allow answers that look like scholarly RAG output if only
+    # soft categories fire and scores stay below MODERATION_OUTPUT_SENSITIVE_ALLOW_UNDER_SCORE.
+    MODERATION_OUTPUT_LENIENT: bool = True
+    # Max score for soft categories (violence non-graphic, self-harm non-instructions) to permit bypass with heuristic.
+    MODERATION_OUTPUT_SENSITIVE_ALLOW_UNDER_SCORE: float = 0.78
+    # Always block output if these substrings appear in a True category name (OpenAI slash or underscore forms).
+    # Comma-separated; empty uses built-in defaults in code.
+    MODERATION_OUTPUT_HARD_CATEGORY_SUBSTRINGS: str = ""
+    # If self-harm/instructions or violence/graphic exceeds this, never bypass.
+    MODERATION_OUTPUT_INSTRUCTIONS_BLOCK_MIN: float = 0.22
+    MODERATION_OUTPUT_GRAPHIC_VIOLENCE_BLOCK_MIN: float = 0.22
 
-    # Cohere reranking
-    COHERE_API_KEY: str = "ysYZLxCido5L8eEgEnGAQwXX4Hz8wkYVenrXni1w"
+    # Cohere reranking (set via environment in production)
+    COHERE_API_KEY: str = ""
     COHERE_RERANK_MODEL: str = "rerank-v3.5"
     
     # Image Generation
@@ -122,6 +143,95 @@ class Settings(BaseSettings):
     CONTEXT_DEDUP_SIMILARITY_THRESHOLD: float = 0.82
     METADATA_QUERY_MAX_CHUNK_CHARS: int = 900  # Author / copyright / title-page questions need longer excerpts
     USE_CHUNK_COMPRESSION: bool = True  # Compress lower-scoring chunks to reduce tokens
+
+    # ---------------------------
+    # Contextual Retrieval (ingestion-time chunk enrichment)
+    # ---------------------------
+    # Feature flag: enrich chunks with chunk_context/summary/type/section/concept_hint and embed concatenation.
+    ENABLE_CONTEXTUAL_RETRIEVAL_INGESTION: bool = True
+    # Generate document-level summary once per ingestion to reduce repeated whole-doc tokens.
+    ENABLE_CONTEXTUAL_RETRIEVAL_DOC_SUMMARY: bool = True
+    # Safety/cost controls (chars, not tokens; token estimation is approximate in code).
+    CONTEXTUAL_RETRIEVAL_MAX_DOC_CONTEXT_CHARS: int = 24000
+    CONTEXTUAL_RETRIEVAL_MAX_CHUNK_CHARS_FOR_PROMPT: int = 3500
+    # Output size targets for contextual metadata.
+    CONTEXTUAL_RETRIEVAL_TARGET_CONTEXT_TOKENS: int = 50
+    CONTEXTUAL_RETRIEVAL_TARGET_SUMMARY_TOKENS: int = 50
+    CONTEXTUAL_RETRIEVAL_TARGET_CONCEPT_HINT_TERMS: int = 8
+    # Ingestion throughput guardrails.
+    CONTEXTUAL_RETRIEVAL_MAX_CONCURRENCY_PER_DOCUMENT: int = 6
+    CONTEXTUAL_RETRIEVAL_MAX_RETRIES: int = 2
+    # NCERT global ingest: same long document was repeated per chunk (was ~24k chars × N chunks → huge
+    # prompt tokens, slow requests, client timeouts). Cap document excerpt per contextualization call.
+    CONTEXTUAL_RETRIEVAL_NCERT_DOC_CONTEXT_CHARS: int = 5000
+    CONTEXTUAL_RETRIEVAL_NCERT_MAX_CONCURRENCY: int = 3
+    # Optional: generate a one-time compact document sketch and reuse it for each chunk contextualization call.
+    # This reduces repeated document tokens and stabilizes section/topic extraction.
+    CONTEXTUAL_RETRIEVAL_NCERT_USE_DOC_SKETCH: bool = True
+    CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_CACHE_TTL_SECONDS: int = 3600  # 1 hour
+    CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_MAX_INPUT_CHARS: int = 12000
+    CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_MAX_OUTPUT_TOKENS: int = 700
+    CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_MAX_CHARS: int = 3500
+    CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_MODEL: str = ""  # default: reuse NCERT_GLOBAL_CONTEXT_MODEL
+    # Sketch cache backend: disk (default) or redis.
+    CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_CACHE_BACKEND: str = "redis"
+    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_TIMEOUT_S: float = 1.5
+    REDIS_KEY_PREFIX: str = "ncert:doc_sketch:"
+    # Normal (tenant) uploads: one-time document sketch for contextual retrieval (reduces repeated doc tokens).
+    CONTEXTUAL_RETRIEVAL_USE_DOC_SKETCH: bool = True
+    CONTEXTUAL_RETRIEVAL_DOC_SKETCH_CACHE_BACKEND: str = "redis"
+    CONTEXTUAL_RETRIEVAL_DOC_SKETCH_CACHE_TTL_SECONDS: int = 3600
+    # Redis key prefix for upload sketches; full key is {prefix}{tenant_id}:{content_sha256}
+    CONTEXTUAL_RETRIEVAL_DOC_SKETCH_REDIS_KEY_PREFIX: str = "upload:doc_sketch:"
+    CONTEXTUAL_RETRIEVAL_DOC_SKETCH_MAX_INPUT_CHARS: int = 12000
+    CONTEXTUAL_RETRIEVAL_DOC_SKETCH_MAX_OUTPUT_TOKENS: int = 700
+    CONTEXTUAL_RETRIEVAL_DOC_SKETCH_MAX_CHARS: int = 3500
+    # Empty: use chunk_contextualization task model from factory (gpt-4o-mini by default)
+    CONTEXTUAL_RETRIEVAL_DOC_SKETCH_MODEL: str = ""
+
+    # Optional retrieval upgrades (production-gated)
+    ENABLE_QUERY_DECOMPOSITION: bool = False
+    # Log decomposition output in pipeline trace without mutating retrieval queries (staging).
+    ENABLE_QUERY_DECOMPOSITION_SHADOW: bool = True
+    QUERY_DECOMPOSITION_MAX_SUB_QUERIES: int = 4
+    # Minimum query words for explanation-intent decomposition when intent routing is active.
+    QUERY_DECOMPOSITION_MIN_QUERY_WORDS_EXPLANATION: int = 12
+    ENABLE_CONTEXT_AWARE_RETRIEVAL_WEIGHTING: bool = True
+    CONTEXT_AWARE_WEIGHTING_MAX_BOOST: float = 0.15
+    # Below this intent confidence, retrieval uses neutral multipliers (legacy top_k * 3 behavior).
+    RETRIEVAL_INTENT_ROUTING_MIN_CONFIDENCE: float = 0.55
+
+    # Contextual BM25 + rank fusion (closest to Contextual Retrieval guide)
+    ENABLE_BM25_RANK_FUSION: bool = True
+    BM25_FUSION_TOP_K: int = 150  # candidate pool after fusion
+    BM25_CORPUS_MAX_CHUNKS: int = 5000  # cap chunks fetched per request for BM25 corpus
+
+    # ---------------------------
+    # NCERT global knowledge (admin Pinecone namespace; separate from tenant chat embeddings)
+    # ---------------------------
+    NCERT_GLOBAL_PINECONE_NAMESPACE: str = "NcertDataGlobal"
+    # Contextualization model for NCERT chunk enrichment (OpenAI chat model id).
+    # Use a model your OpenAI account actually serves; override in .env when newer IDs ship.
+    NCERT_GLOBAL_CONTEXT_MODEL: str = "gpt-4o-mini"
+    # Embeddings for vectors stored under NCERT_GLOBAL_PINECONE_NAMESPACE — dimensions MUST match Pinecone index.
+    NCERT_GLOBAL_EMBEDDING_MODEL: str = "text-embedding-3-large"
+    NCERT_GLOBAL_EMBEDDING_DIMENSIONS: int = 1024
+    # Max chunks to pull from global namespace per query before merge (cost/latency cap).
+    NCERT_GLOBAL_RETRIEVAL_TOP_K: int = 24
+    # Feature flag: merge NCERT global namespace into chat retrieval when client requests it.
+    ENABLE_NCERT_GLOBAL_IN_CHAT: bool = True
+
+    # ---------------------------
+    # Response Quality (single-pass, production-gated)
+    # ---------------------------
+    # Deterministic hallucination guard: scores whether high-risk sentences appear supported by retrieved context.
+    ENABLE_HALLUCINATION_GUARD: bool = False
+    HALLUCINATION_GUARD_MIN_SUPPORTED_RATIO: float = 0.65
+    HALLUCINATION_GUARD_MAX_RETRY: int = 1
+    # Token overlap threshold per checked sentence. Higher => stricter.
+    HALLUCINATION_GUARD_MIN_OVERLAP_SCORE: float = 0.22
+    HALLUCINATION_GUARD_MIN_SENTENCE_CHARS: int = 28
 
     # Plan A: LlamaIndex RAG (ingestion + retrieval + synthesis)
     USE_LLAMA_INDEX_RAG: bool = True  # Feature flag: use LlamaIndex adapters for RAG

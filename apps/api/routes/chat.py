@@ -27,7 +27,7 @@ from apps.api.schemas.chat import (
     MessageResponse,
     MessageCreateRequest,
 )
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, Field
 from packages.core.services.chat_service import ChatService
 from packages.core.database.models.chat import Chat
@@ -35,6 +35,12 @@ from packages.core.database.models.source import Source
 from packages.core.langgraph.chat_graph import LangGraphChatPipeline
 
 router = APIRouter()
+
+from packages.core.memory.chat_summary_button import (
+    CHAT_SUMMARY_PREFIX as _CHAT_SUMMARY_PREFIX,
+    filter_out_prior_summaries,
+    format_conversation_lines,
+)
 
 
 @router.post("/stream")
@@ -54,14 +60,20 @@ async def stream_chat(
         # This should rarely happen as middleware handles it, but keep as safety check
         raise HTTPException(status_code=401, detail="User ID required")
     
-    # Validate that at least one source is selected
-    if not request_body.active_source_ids or len(request_body.active_source_ids) == 0:
+    include_ncert = bool(getattr(request_body, "include_ncert_global", False)) and getattr(
+        settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
+    )
+
+    # Require at least one of: user-selected sources OR NCERT global (when enabled).
+    if (
+        not request_body.active_source_ids or len(request_body.active_source_ids) == 0
+    ) and not include_ncert:
         raise HTTPException(
             status_code=400,
             detail={
                 "error": "No source selected",
-                "message": "Please select at least one document source before asking a question. Upload documents or select them from your library."
-            }
+                "message": "Please select at least one document source before asking a question, or enable NCERT global knowledge.",
+            },
         )
 
     # Security: active_source_ids must belong to the authenticated user (same tenant namespace).
@@ -73,31 +85,26 @@ async def stream_chat(
         try:
             requested_uuid_ids.append(uuid.UUID(sid))
         except (ValueError, TypeError, AttributeError):
-            # Ignore malformed IDs here; we only proceed with valid + authorized UUIDs.
             continue
 
-    if not requested_uuid_ids:
-        raise HTTPException(
-            status_code=400,
-            detail={"error": "Invalid source_id format", "message": "No valid selected sources were provided."},
+    validated_source_ids: List[str] = []
+    if requested_uuid_ids:
+        tenant_uuid = uuid.UUID(tenant_id)
+        allowed_uuid_ids = await db.execute(
+            select(Source.id)
+            .where(
+                Source.tenant_id == tenant_uuid,
+                Source.user_id == user_id,
+                Source.id.in_(requested_uuid_ids),
+            )
         )
-
-    tenant_uuid = uuid.UUID(tenant_id)
-    allowed_uuid_ids = await db.execute(
-        select(Source.id)
-        .where(
-            Source.tenant_id == tenant_uuid,
-            Source.user_id == user_id,
-            Source.id.in_(requested_uuid_ids),
-        )
-    )
-    allowed_source_uuid_set = set(allowed_uuid_ids.scalars().all())
-    validated_source_ids = [str(sid) for sid in requested_uuid_ids if sid in allowed_source_uuid_set]
-    if not validated_source_ids:
-        raise HTTPException(
-            status_code=403,
-            detail={"error": "Access denied", "message": "No selected sources are accessible for this user."},
-        )
+        allowed_source_uuid_set = set(allowed_uuid_ids.scalars().all())
+        validated_source_ids = [str(sid) for sid in requested_uuid_ids if sid in allowed_source_uuid_set]
+        if not validated_source_ids:
+            raise HTTPException(
+                status_code=403,
+                detail={"error": "Access denied", "message": "No selected sources are accessible for this user."},
+            )
     
     # Phase 4: Rate Limiting & Debounce
     if settings.USE_SESSION_MEMORY and settings.ENABLE_RATE_LIMITING:
@@ -184,6 +191,9 @@ async def stream_chat(
                 message=request_body.message,
                 history=history_dicts,
                 active_source_ids=validated_source_ids,
+                include_ncert_global=include_ncert,
+                ncert_class=request_body.ncert_class,
+                ncert_subject=request_body.ncert_subject,
             ):
                 try:
                     event_data = json.dumps(event['data'], ensure_ascii=False)
@@ -576,6 +586,84 @@ async def delete_all_messages(
         print(f"[ERROR] Failed to delete messages for chat {chat_id}: {type(e).__name__}: {str(e)}")
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Failed to delete messages: {str(e)}")
+
+
+@router.post("/{chat_id}/summarize", response_model=MessageResponse)
+async def summarize_chat_so_far(
+    chat_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Summarize all messages in the current chat and append the summary as a new assistant message.
+
+    - Does NOT delete existing messages.
+    - Repeated calls summarize the full conversation up to that point (excluding prior summary messages).
+    """
+    tenant_id = request.state.tenant_id
+    user_id = getattr(request.state, "user_id", None)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User ID required")
+
+    service = ChatService(db, tenant_id, user_id)
+    chat = await service.get_chat(chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+    msgs = list(chat.messages or [])
+    pairs = [(m.role, m.content) for m in msgs]
+    pairs = filter_out_prior_summaries(pairs)
+    if not pairs:
+        raise HTTPException(status_code=400, detail="No messages to summarize")
+
+    # Build plain conversation transcript for LLM summarization.
+    old_conversation = format_conversation_lines(pairs)
+
+    from packages.core.prompts import load_prompt
+
+    summary_prompt = load_prompt(
+        "chat/chat_summarizer_prompt.j2",
+        old_conversation=old_conversation,
+    )
+
+    try:
+        from packages.core.llm import get_llm_client, get_model_for_task
+
+        provider, model = get_model_for_task("chat")
+        llm_client = get_llm_client(provider=provider, model=model, temperature=0.3)
+        resp = await llm_client.generate(
+            prompt=summary_prompt,
+            temperature=0.3,
+            max_tokens=220,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            feature_tag="chat_summarize_button",
+        )
+        summary = (resp.content or "").strip()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to summarize chat: {type(e).__name__}: {e}")
+
+    if not summary:
+        raise HTTPException(status_code=500, detail="Failed to summarize chat: empty summary")
+
+    summary_content = f"{_CHAT_SUMMARY_PREFIX}\n\n{summary}"
+    try:
+        saved = await service.add_message(
+            chat_id=chat_id,
+            role="assistant",
+            content=summary_content,
+            citations=[],
+        )
+        return MessageResponse(
+            id=str(saved.id),
+            role=saved.role,
+            content=saved.content,
+            citations=saved.citations or [],
+            feedback=saved.feedback,
+            created_at=saved.created_at,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save summary message: {type(e).__name__}: {e}")
 
 
 @router.patch("/messages/{message_id}/feedback", response_model=MessageResponse)

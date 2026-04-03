@@ -1,0 +1,262 @@
+{
+  "reranked_chunks": [
+    {
+      "id": "contextual_ctxret_smoke_chunk_6",
+      "score": 0.77873385,
+      "metadata": {
+        "char_end": 6183.0,
+        "char_start": 5252.0,
+        "chunk_context": "Contextual Retrieval improves AI search by adding relevant context to document chunks, enhancing retrieval accuracy.",
+        "chunk_index": 6.0,
+        "chunk_summary": "Contextual Retrieval reduces retrieval failures in AI systems by incorporating contextual embeddings and BM25 indexing.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, AI systems, retrieval failures, embeddings, BM25, search accuracy, document chunks, Anthropic",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "*Full Contextual Retrieval pipeline with reranking.*\n\n---\n\n# Flow Diagram: The Full Pipeline (with Reranking)\n\n```mermaid\nflowchart LR\n    subgraph P[Preprocessing (one-time)]\n        A[Documents<br/>Chunked + Claude adds context]\n        B[Contextual Embeddings<br/>semantic]\n        C[Contextual BM25<br/>exact word match]\n        A --> B\n        A --> C\n    end\n\n    subgraph Q[At query time]\n        D[Rank fusion<br/>Top 150 combined results]\n        E[Reranker<br/>Scores & filters to top 20 chunks]\n        F[LLM generates final answer<br/>Top 20 relevant chunks passed as context]\n        D --> E --> F\n    end\n\n    B --> D\n    C --> D\n\n    G[User query<br/>\"ACME Q2 2023 revenue?\"] --> B\n    G --> C\n```\n\n*Documents are preprocessed into Contextual Embeddings and Contextual BM25 indexes. At query time, results are combined via rank fusion, filtered by a reranker, then passed to the LLM.*\n\n---\n\n# Performance Results",
+        "vector_score": 0.478467345,
+        "keyword_score": 1.0,
+        "rerank_score": 0.77873385
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_5",
+      "score": 0.69870013,
+      "metadata": {
+        "char_end": 5252.0,
+        "char_start": 4252.0,
+        "chunk_context": "This chunk is part of a guide on Contextual Retrieval, detailing how to enhance AI systems for better information retrieval from large knowledge bases.",
+        "chunk_index": 5.0,
+        "chunk_summary": "Contextual Retrieval reduces retrieval failures significantly by adding context to document chunks before embedding them, improving search accuracy.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, retrieval failures, AI systems, knowledge bases, embeddings, BM25, reranking, information retrieval",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "| Query Type | Embeddings | BM25 |\n|---|---|---|\n| Semantic: \u201chow plants make food\u201d | \u2713 Finds photosynthesis content | May miss if exact words differ |\n| Exact: \u201cError code TS-999\u201d | Finds general error content | \u2713 Finds exact string `TS-999` |\n| Technical: \u201cATP synthesis Class 10\u201d | \u2713 Finds related biology | \u2713 Finds exact chapter match |\n| Mixed query | Partial match | \u2713 Combined: best of both |\n\n*Embeddings and BM25 complement each other.*\n\n---\n\n# The Full Pipeline: Contextual Retrieval + Reranking\n\nFor maximum performance, combine:\n\n- Contextual Embeddings\n- Contextual BM25\n- A Reranker\n\nEach layer adds an incremental improvement, and all benefits stack.\n\n```mermaid\nflowchart LR\n    A[Documents] --> B[Chunked + Claude adds context]\n    B --> C[Contextual embeddings]\n    B --> D[BM25 Index<br/>Exact match index]\n    C --> E[Rank Fusion<br/>Top 150 combined]\n    D --> E\n    F[User query] --> C\n    F --> D\n    E --> G[Reranker<br/>Filter to top 20]\n    G --> H[LLM<br/>Final answer]\n```",
+        "vector_score": 0.465080321,
+        "keyword_score": 1.0,
+        "rerank_score": 0.69870013
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_10",
+      "score": 0.06909459,
+      "metadata": {
+        "char_end": 9876.0,
+        "char_start": 8933.0,
+        "chunk_context": "This section discusses the Contextual Retrieval technique developed by Anthropic, which enhances AI systems' ability to retrieve relevant information from large knowledge bases by adding contextual summaries to document chunks.",
+        "chunk_index": 10.0,
+        "chunk_summary": "Contextual Retrieval reduces retrieval failures in AI knowledge systems by adding context to document chunks, improving the accuracy of responses.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, retrieval failures, AI systems, knowledge bases, embeddings, BM25, reranking, Anthropic",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "| Component | Cost | Notes |\n|---|---|---|\n| Claude API (context generation) | ~$1.02 / million tokens | One-time with prompt caching |\n| BM25 index (`rank_bm25` library) | Free | Runs locally, no API |\n| Pinecone | Existing plan | No change needed |\n| Embeddings | Same as current | No change |\n| Reranker (Cohere Rerank) | ~$1 / 1000 queries | Optional, at query time |\n| 50M token NCERT corpus | ~$50\u201360 one-time | Never pay again after this |\n| Per user upload (~50 pages) | ~$0.025\u2013$0.05 | Very affordable at scale |\n\n---\n\n# Key Takeaways\n\n1. **Embeddings + BM25 together outperform embeddings alone**  \n   Semantic + exact-match retrieval covers more query types.\n\n2. **Context-enriched chunks are dramatically easier to retrieve**  \n   A chunk that knows where it came from will always be found more reliably.\n\n3. **Reranking on top adds the biggest single jump**  \n   67% failure reduction vs baseline \u2014 worth the small latency cost.",
+        "vector_score": 0.430940777,
+        "keyword_score": 0.3818713898778608,
+        "rerank_score": 0.06909459
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_7",
+      "score": 0.04735984,
+      "metadata": {
+        "char_end": 7153.0,
+        "char_start": 6183.0,
+        "chunk_context": "This section discusses Contextual Retrieval, an advanced technique by Anthropic that enhances AI systems' ability to retrieve relevant information from large knowledge bases by adding context to document chunks.",
+        "chunk_index": 7.0,
+        "chunk_summary": "Contextual Retrieval reduces retrieval failures significantly by incorporating contextual information into document chunks, improving the accuracy of AI responses.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, retrieval failures, AI systems, knowledge bases, embeddings, BM25, reranking, Anthropic",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "| Method | Failure Rate | Improvement |\n|---|---|---|\n| Traditional RAG (baseline) | 5.7% | \u2014 |\n| + Contextual Embeddings | 3.7% | \u2193 35% fewer failures |\n| + Contextual Embeddings + BM25 | 2.9% | \u2193 49% fewer failures |\n| + Contextual Embeddings + BM25 + Reranking | 1.9% | \u2193 67% fewer failures |\n\n*All improvements measured using top-20-chunk retrieval failure rate (`1 - recall@20`).*\n\n---\n\n# The Contextualization Prompt\n\nAnthropic uses Claude to automatically generate context for each chunk.\n\nThe following prompt is run for every chunk during preprocessing:\n\n```\n{{WHOLE_DOCUMENT}}\n\nHere is the chunk we want to situate within the whole document:\n\n{{CHUNK_CONTENT}}\n\nPlease give a short succinct context to situate this chunk within the overall document for the purposes of improving search retrieval of the chunk.\n\nAnswer only with the succinct context and nothing else.\n```\n\nThe resulting context is 50\u2013100 tokens and is prepended to the chunk before embedding.",
+        "vector_score": 0.361486495,
+        "keyword_score": 0.1648782028703699,
+        "rerank_score": 0.04735984
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_8",
+      "score": 0.03315172,
+      "metadata": {
+        "char_end": 8112.0,
+        "char_start": 7153.0,
+        "chunk_context": "Contextual Retrieval improves AI search by adding context to document chunks, enhancing retrieval accuracy.",
+        "chunk_index": 8.0,
+        "chunk_summary": "Contextual Retrieval reduces retrieval failures in AI systems by incorporating contextual information into document chunks.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, retrieval failures, AI systems, document chunks, accuracy, embeddings, BM25, reranking",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "With prompt caching, the full document is loaded into Claude's cache once and reused across all chunks \u2014 making this extremely cost-efficient.\n\n---\n\n# Normal RAG vs Contextual Retrieval \u2014 Side by Side\n\n| Aspect | Normal RAG | Contextual Retrieval |\n|---|---|---|\n| Approach | Traditional approach | Anthropic's approach |\n| Chunks | Raw text, no context | Claude prepends 50\u2013100 token context |\n| Search method | Embeddings only (semantic) | Embeddings + BM25 (semantic + exact) |\n| Filtering | None at retrieval time | Optional reranker (Cohere / Voyage) |\n| Failure rate | Baseline (5.7%) | Up to 67% fewer failures (1.9%) |\n| Attribution | Hard \u2014 chunk lacks identity | Easy \u2014 chunk carries source info |\n| Upfront cost | Lower | Small one-time preprocessing cost |\n| Recurring cost | Query cost only | Same query cost as normal RAG |\n| Best for | Small, simple knowledge bases | Any production knowledge system |\n\n---\n\n# Why Contextual Retrieval Matters",
+        "vector_score": 0.356650949,
+        "keyword_score": 0.18616253940107988,
+        "rerank_score": 0.03315172
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_3",
+      "score": 0.03277815,
+      "metadata": {
+        "char_end": 3474.0,
+        "char_start": 2594.0,
+        "chunk_context": "This chunk is from an SEC filing on ACME Corp's Q2 2023 performance, detailing revenue growth.",
+        "chunk_index": 3.0,
+        "chunk_summary": "ACME Corp's revenue increased by 3% in Q2 2023 compared to the previous quarter.",
+        "chunk_type": "qa",
+        "concept_hint": "ACME Corp, Q2 2023, revenue, SEC filing, financial performance, growth, earnings, report",
+        "contextual_version": 1.0,
+        "section_title": "Q2 2023 Financial Performance",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "subgraph C[Contextual Retrieval]\n        A2[Full document<br/>SEC filing, legal doc, etc.] --> B2[Claude adds context<br/>\"ACME Corp, Q2 2023 SEC filing... Revenue grew 3% over prev quarter.\"]\n        B2 --> C2[Embeddings + BM25<br/>Semantic + exact match index]\n        D2[Query: \"ACME Q2 2023 revenue?\"] --> C2\n        C2 --> E2[Retrieval succeeds<br/>Chunk matched on ACME + date]\n    end\n```\n\n### Failure Rate Reduction with Contextual Retrieval\n\n| Method | Improvement |\n|---|---|\n| Contextual Embeddings alone | \u2193 35% fewer failures |\n| + Contextual BM25 | \u2193 49% fewer failures |\n| + Reranking on top | \u2193 67% fewer failures |\n\n*Normal RAG loses context during chunking, causing retrieval to fail. Contextual Retrieval adds Claude-generated context before embedding, enabling successful retrieval.*\n\n---\n\n# The Two Core Techniques\n\n## Technique 1: Contextual Embeddings",
+        "vector_score": 0.407694936,
+        "keyword_score": 0.11528498319290612,
+        "rerank_score": 0.03277815
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_0",
+      "score": 0.028829927,
+      "metadata": {
+        "char_end": 807.0,
+        "char_start": 0.0,
+        "chunk_context": "Contextual Retrieval is an advanced technique by Anthropic for improving AI systems' ability to search knowledge bases effectively.",
+        "chunk_index": 0.0,
+        "chunk_summary": "This guide explains how Contextual Retrieval reduces retrieval failures in AI knowledge systems by enhancing the traditional RAG approach.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, retrieval failures, AI systems, knowledge bases, RAG, embeddings, BM25, reranking",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "# Contextual Retrieval: A Complete Guide to Anthropic's Advanced RAG Technique\n\n**How to reduce retrieval failures by up to 67% in AI knowledge systems**\n\nPublished by Anthropic \u00b7 September 2024\n\n---\n\n# What is Contextual Retrieval?\n\nContextual Retrieval is an improved technique for building AI systems that search large knowledge bases \u2014 like customer support docs, legal databases, or financial filings \u2014 and find the right information before answering a question.\n\nIt was published by Anthropic in September 2024.\n\n> **Key Result:** Contextual Retrieval can reduce retrieval failures by 49% (embeddings + BM25) and up to 67% when combined with reranking \u2014 directly translating to better AI responses.\n\n---\n\n# The Problem with Traditional RAG\n\nTraditional RAG (Retrieval-Augmented Generation) works by:",
+        "vector_score": 0.315557361,
+        "keyword_score": 0.4461151135213739,
+        "rerank_score": 0.028829927
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_1",
+      "score": 0.024574842,
+      "metadata": {
+        "char_end": 1604.0,
+        "char_start": 807.0,
+        "chunk_context": "This section outlines the traditional RAG process for document retrieval in AI systems, highlighting its limitations.",
+        "chunk_index": 1.0,
+        "chunk_summary": "Traditional RAG involves chunking documents, embedding them, and retrieving relevant chunks for LLMs, but it often loses context.",
+        "chunk_type": "procedure",
+        "concept_hint": "RAG, retrieval, embeddings, AI systems, context, document chunking, LLM, failure",
+        "contextual_version": 1.0,
+        "section_title": "The Problem with Traditional RAG",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "1. Breaking documents into small chunks\n2. Converting them into vector embeddings\n3. Storing them in a vector database\n4. Retrieving the most relevant chunks at query time\n5. Passing those chunks to the LLM\n6. Generating the final answer\n\n## How Standard RAG Works\n\n```mermaid\nflowchart LR\n    A[Chunk docs<br/>300\u2013500 tokens] --> B[Embed chunks]\n    B --> C[Store<br/>Pinecone / Weaviate]\n    C --> D[Query time<br/>Semantic search]\n    D --> E[Return chunks<br/>Top-K results]\n    E --> F[LLM answers<br/>Final response]\n```\n\n*Standard RAG pipeline \u2014 6-step process from document to answer.*\n\n---\n\n# The Core Problem: Loss of Context\n\nWhen documents are split into chunks, each chunk loses its surrounding context. This is the **context conundrum** \u2014 and it causes retrievals to fail silently.",
+        "vector_score": 0.335969269,
+        "keyword_score": 0.18751038430801364,
+        "rerank_score": 0.024574842
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_11",
+      "score": 0.021816617,
+      "metadata": {
+        "char_end": 10431.0,
+        "char_start": 9876.0,
+        "chunk_context": "This section discusses the advantages of Contextual Retrieval over traditional RAG, emphasizing the importance of context in improving retrieval accuracy.",
+        "chunk_index": 11.0,
+        "chunk_summary": "Contextual Retrieval enhances AI systems by adding context to document chunks, significantly reducing retrieval failures compared to traditional methods.",
+        "chunk_type": "argument",
+        "concept_hint": "Contextual Retrieval, traditional RAG, retrieval failures, embeddings, BM25, reranking, prompt caching, AI systems",
+        "contextual_version": 1.0,
+        "section_title": "Key Takeaways",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "4. **Prompt caching makes this affordable**  \n   Load the document once; generate context for all chunks at ~$1/M tokens.\n\n5. **Improvements stack and work across all domains**  \n   Tested on code, fiction, papers, and science \u2014 universally better.\n\n6. **Pass top-20 chunks to the model, not top-5**  \n   More context = better answer, up to a point \u2014 20 was optimal in tests.\n\n---\n\n# Source\n\nAnthropic Engineering Blog \u2014 *Introducing Contextual Retrieval* (September 2024)\n\n- anthropic.com/engineering/contextual-retrieval\n- platform.claude.com/cookbook",
+        "vector_score": 0.351723641,
+        "keyword_score": 0.4532986432936539,
+        "rerank_score": 0.021816617
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_4",
+      "score": 0.018834975,
+      "metadata": {
+        "char_end": 4252.0,
+        "char_start": 3474.0,
+        "chunk_context": "This chunk is from a guide on Contextual Retrieval, detailing how AI systems can improve information retrieval by adding context to document chunks.",
+        "chunk_index": 4.0,
+        "chunk_summary": "Contextual Retrieval reduces retrieval failures in AI systems by adding contextual summaries to document chunks before embedding them.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, AI systems, retrieval failures, embeddings, BM25, document chunks, information retrieval, Anthropic",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "Before storing each chunk, Claude reads the entire document and writes a 50\u2013100 token context summary specifically for that chunk.\n\nThis context is prepended to the chunk before it is embedded and stored.\n\n```mermaid\nflowchart LR\n    A[Full document] --> B[Passed to Claude]\n    B --> C[Claude reads whole document]\n    C --> D[Generates 50\u2013100 token context]\n    D --> E[Prepend context + chunk]\n    E --> F[Embed contextualized text]\n    F --> G[Store in vector DB]\n```\n\n*Contextual Embeddings preprocessing pipeline.*\n\n---\n\n## Technique 2: Contextual BM25\n\nBM25 (Best Matching 25) is a lexical ranking function that finds exact word or phrase matches.\n\nWhile embedding models excel at semantic similarity, they can miss exact technical terms. BM25 fills this gap perfectly.",
+        "vector_score": 0.335291713,
+        "keyword_score": 0.040763260986425257,
+        "rerank_score": 0.018834975
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_2",
+      "score": 0.01667148,
+      "metadata": {
+        "char_end": 2594.0,
+        "char_start": 1604.0,
+        "chunk_context": "This chunk is from an article discussing Contextual Retrieval, an advanced technique for improving AI search in knowledge systems.",
+        "chunk_index": 2.0,
+        "chunk_summary": "Contextual Retrieval reduces retrieval failures in AI systems by adding context to document chunks before embedding.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, AI systems, retrieval failures, knowledge bases, embeddings, BM25, reranking, Anthropic",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "| WITHOUT context (Normal RAG) | WITH context (Contextual Retrieval) |\n|---|---|\n| \u201cThe company's revenue grew by 3% over the previous quarter.\u201d | \u201cThis chunk is from an SEC filing on ACME Corp's Q2 2023 performance; previous quarter revenue was $314M. The company's revenue grew by 3% over the previous quarter.\u201d |\n| \u274c No company name. No date. Query for `ACME Corp Q2 2023` fails to retrieve this. | \u2705 Now contains ACME Corp and Q2 2023. Query succeeds \u2014 chunk is retrieved correctly. |\n\n*The same chunk \u2014 one fails retrieval, one succeeds. The only difference is context.*\n\n---\n\n# Flow Diagram: Normal RAG vs Contextual Retrieval\n\n```mermaid\nflowchart LR\n    subgraph N[Normal RAG]\n        A1[Full document<br/>SEC filing, legal doc, etc.] --> B1[Chunk: \"revenue grew 3%\"<br/>No company name, no date]\n        B1 --> C1[Vector embedding<br/>Stored as-is in DB]\n        D1[Query: \"ACME Q2 2023 revenue?\"] --> C1\n        C1 --> E1[Retrieval fails<br/>Chunk had no ACME/date info]\n    end",
+        "vector_score": 0.353865713,
+        "keyword_score": 0.026731379157590933,
+        "rerank_score": 0.01667148
+      }
+    },
+    {
+      "id": "contextual_ctxret_smoke_chunk_9",
+      "score": 0.010694812,
+      "metadata": {
+        "char_end": 8933.0,
+        "char_start": 8112.0,
+        "chunk_context": "Contextual Retrieval enhances AI systems by reducing retrieval failures through improved context awareness and dual retrieval methods.",
+        "chunk_index": 9.0,
+        "chunk_summary": "Contextual Retrieval combines embeddings with BM25 and reranking to significantly improve information retrieval accuracy in AI systems.",
+        "chunk_type": "definition",
+        "concept_hint": "Contextual Retrieval, retrieval failures, embeddings, BM25, reranking, AI systems, information retrieval, Anthropic",
+        "contextual_version": 1.0,
+        "section_title": "What is Contextual Retrieval?",
+        "source_id": "contextual_ctxret_smoke",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "text": "| Use Case | Why Contextual Retrieval Helps |\n|---|---|\n| Customer support bots | Product manuals, policy docs, FAQs \u2014 precise answers from exact policies |\n| Legal AI tools | Case law, contracts, SEC filings \u2014 exact clause and case retrieval |\n| Financial analysts | Earnings reports, 10-K filings \u2014 company + date specific retrieval |\n| Medical / Scientific | Research papers, clinical guidelines \u2014 precise fact retrieval |\n| Education (NCERT etc.) | Textbooks, class-specific content \u2014 subject + chapter aware retrieval |\n| Code assistants | Large codebases \u2014 function, module, and file-level context |\n\nThe method was tested across multiple knowledge domains \u2014 codebases, fiction, ArXiv papers, and science papers \u2014 and contextualizing improved performance in every single combination tested.\n\n---\n\n# Cost Breakdown",
+        "vector_score": 0.343309075,
+        "keyword_score": 0.05598028395754011,
+        "rerank_score": 0.010694812
+      }
+    }
+  ],
+  "timestamp": 1774975705.090188,
+  "ttl": 3600,
+  "query": "Rank Fusion Top 150 and reranker Top 20",
+  "source_ids": [
+    "contextual_ctxret_smoke"
+  ]
+}

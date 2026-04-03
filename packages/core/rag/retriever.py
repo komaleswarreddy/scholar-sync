@@ -15,6 +15,7 @@ from config.settings import settings
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
 from packages.core.rag.embedder import Embedder
 from packages.core.rag.hybrid_retriever import HybridRetriever
+from packages.core.rag.bm25_fusion import LocalBM25, rrf_fuse
 from packages.core.rag.llama_adapters import LlamaIndexRetrievalAdapter
 from packages.core.rag.agents import (
     IntentClassifier,
@@ -23,6 +24,7 @@ from packages.core.rag.agents import (
     ContextSelector,
     UserIntent,
     QueryComplexityScorer,
+    QueryDecomposer,
 )
 from packages.core.rag.metadata_query import (
     extra_retrieval_variants,
@@ -30,6 +32,9 @@ from packages.core.rag.metadata_query import (
     is_factual_recall_query,
     is_metadata_attribution_query,
 )
+from packages.core.rag.context_aware_weighting import apply_context_aware_scores
+from packages.core.rag.retrieval_strategy import resolve_retrieval_strategy
+from packages.core.services.ncert_global_service import METRICS_TENANT_NCERT
 
 
 class Retriever:
@@ -73,6 +78,7 @@ class Retriever:
         if settings.USE_RETRIEVAL_AGENTS:
             self.intent_classifier = IntentClassifier(tenant_id, user_id=user_id)
             self.query_rewriter = QueryRewriter(tenant_id, user_id=user_id)
+            self.query_decomposer = QueryDecomposer(tenant_id, user_id=user_id)
             self.complexity_scorer = QueryComplexityScorer()
             self.hybrid_retriever = HybridRetriever(
                 vector_weight=settings.HYBRID_VECTOR_WEIGHT,
@@ -86,6 +92,7 @@ class Retriever:
         else:
             self.intent_classifier = None
             self.query_rewriter = None
+            self.query_decomposer = None
             self.complexity_scorer = None
             self.hybrid_retriever = None
             self.mmr_diversity = None
@@ -190,6 +197,73 @@ class Retriever:
             if re.search(pattern, query_lower):
                 return True
         return False
+
+    async def _merge_ncert_global_hybrid(
+        self,
+        *,
+        primary_query: str,
+        query_embedding: List[float],
+        hybrid_matches: List[Dict[str, Any]],
+        ncert_class: Optional[int],
+        ncert_subject: Optional[str],
+    ) -> List[Dict[str, Any]]:
+        """Append hybrid-scored hits from Pinecone namespace NcertDataGlobal (same embed model as ingest)."""
+        ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
+        top_k = int(getattr(settings, "NCERT_GLOBAL_RETRIEVAL_TOP_K", 24))
+        emb_model = getattr(settings, "NCERT_GLOBAL_EMBEDDING_MODEL", None)
+        emb_dims = int(getattr(settings, "NCERT_GLOBAL_EMBEDDING_DIMENSIONS", 1024))
+
+        ncert_vs = PineconeVectorStore(
+            METRICS_TENANT_NCERT,
+            namespace_override=ns,
+            embedding_model_override=emb_model,
+            embedding_dimensions_override=emb_dims,
+        )
+        emb = await ncert_vs.generate_embedding(
+            primary_query,
+            metrics_user_id=self.user_id,
+            metrics_feature_tag="ncert_global_query_embedding",
+        )
+
+        meta_filter: Dict[str, Any] = {"source": {"$eq": "ncert"}}
+        if ncert_class is not None:
+            meta_filter["class"] = {"$eq": int(ncert_class)}
+        if ncert_subject and str(ncert_subject).strip():
+            meta_filter["subject"] = {"$eq": str(ncert_subject).strip().lower()}
+
+        raw = await ncert_vs.query_vectors(emb, top_k=top_k, filter=meta_filter)
+        gmatches = list(raw.get("matches") or [])
+
+        def _norm(m: Any) -> Dict[str, Any]:
+            if isinstance(m, dict):
+                return {
+                    "id": m.get("id"),
+                    "score": float(m.get("score") or 0),
+                    "metadata": dict(m.get("metadata") or {}),
+                }
+            return {
+                "id": getattr(m, "id", None),
+                "score": float(getattr(m, "score", 0) or 0),
+                "metadata": dict(getattr(m, "metadata", None) or {}),
+            }
+
+        norm_list = [_norm(m) for m in gmatches if _norm(m).get("id")]
+        if not norm_list:
+            return hybrid_matches
+
+        global_hybrid = self.hybrid_retriever.combine_results(norm_list, primary_query)
+        seen: Dict[Any, Dict[str, Any]] = {}
+        for m in hybrid_matches:
+            mid = m.get("id")
+            if mid:
+                seen[mid] = m
+        for m in global_hybrid:
+            mid = m.get("id")
+            if not mid:
+                continue
+            if mid not in seen or float(m.get("score") or 0) > float(seen[mid].get("score") or 0):
+                seen[mid] = m
+        return sorted(seen.values(), key=lambda x: float(x.get("score") or 0), reverse=True)
     
     async def retrieve(
         self,
@@ -199,6 +273,10 @@ class Retriever:
         filter: Optional[Dict] = None,
         conversation_history: Optional[List[Dict]] = None,
         classified_intent: Optional[str] = None,
+        classified_intent_confidence: Optional[float] = None,
+        include_ncert_global: bool = False,
+        ncert_class: Optional[int] = None,
+        ncert_subject: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Retrieve relevant chunks from vector store.
@@ -211,7 +289,9 @@ class Retriever:
             top_k: Number of results (defaults to settings.TOP_K_CHUNKS)
             filter: Optional metadata filter
             conversation_history: Optional conversation history for context
-            
+            classified_intent: Optional pre-classified intent slug (e.g. from LangGraph)
+            classified_intent_confidence: Confidence for pre-classified intent (enables routing gate)
+
         Returns:
             Query results with matches and metadata (intent, etc.)
         """
@@ -341,6 +421,11 @@ class Retriever:
             _intent_map = {v.value: v for v in UserIntent}
             intent = _intent_map.get(classified_intent, UserIntent.QUESTION)
             self._log("INTENT", f"Reusing pre-classified intent: {intent}")
+            if classified_intent_confidence is not None:
+                try:
+                    intent_confidence = float(classified_intent_confidence)
+                except (TypeError, ValueError):
+                    intent_confidence = 0.8
         else:
             intent_result = await self.intent_classifier.classify_intent(
                 query=query,
@@ -356,6 +441,23 @@ class Retriever:
         top_k = self.get_context_size(intent)
         debug_trace["intent_based_top_k"] = top_k
         self._log("INTENT", f"Using intent-based top_k: {top_k} (intent: {intent})")
+
+        retrieval_strategy = resolve_retrieval_strategy(
+            intent=intent or UserIntent.QUESTION,
+            intent_confidence=intent_confidence,
+            query=query,
+            complexity_result=complexity_result,
+            min_confidence=float(getattr(settings, "RETRIEVAL_INTENT_ROUTING_MIN_CONFIDENCE", 0.55)),
+            explanation_min_words_for_decomposition=int(
+                getattr(settings, "QUERY_DECOMPOSITION_MIN_QUERY_WORDS_EXPLANATION", 12)
+            ),
+        )
+        debug_trace["retrieval_strategy"] = {
+            "initial_retrieval_k_multiplier": retrieval_strategy.initial_retrieval_k_multiplier,
+            "enable_query_decomposition": retrieval_strategy.enable_query_decomposition_for_this_request,
+            "skip_mmr": retrieval_strategy.skip_mmr,
+            "mmr_target_multiplier": retrieval_strategy.mmr_target_multiplier,
+        }
         
         # Conversation-aware retrieval: if follow-up query, reuse previous chunks + add 2-3 new
         if is_follow_up and self.previous_chunks:
@@ -438,6 +540,52 @@ class Retriever:
             debug_trace["guardrails_applied"].append("factual_recall_variants")
         
         primary_query = rewritten_queries[0] if rewritten_queries else query
+
+        # 3. Optional: Query Decomposition (intent-gated; shadow mode logs only)
+        decompose_on = getattr(settings, "ENABLE_QUERY_DECOMPOSITION", False)
+        decompose_shadow = getattr(settings, "ENABLE_QUERY_DECOMPOSITION_SHADOW", False)
+        run_decomposer = (
+            self.query_decomposer is not None
+            and (decompose_on or decompose_shadow)
+            and retrieval_strategy.enable_query_decomposition_for_this_request
+            and not should_skip_rerank
+        )
+        if run_decomposer:
+            dec = await trace_async(
+                "Retrieval/query_decompose",
+                self.query_decomposer.decompose(
+                    query=primary_query,
+                    max_sub_queries=getattr(settings, "QUERY_DECOMPOSITION_MAX_SUB_QUERIES", 4),
+                ),
+                input_summary={"query": trace_snippet(primary_query, 240)},
+                output_fn=lambda r: {
+                    "primary_concept": trace_snippet((r or {}).get("primary_concept", ""), 120),
+                    "sub_queries": [trace_snippet(x, 120) for x in ((r or {}).get("sub_queries") or [])[:6]],
+                },
+                feature_tag="query_decomposer",
+            )
+            sub_queries = (dec or {}).get("sub_queries") or []
+            debug_trace["decomposition_used"] = bool(sub_queries)
+            debug_trace["decomposition_sub_query_count"] = len(sub_queries)
+            debug_trace["query_decomposition"] = {
+                "primary_concept": (dec or {}).get("primary_concept", ""),
+                "sub_queries": sub_queries,
+                "shadow_only": bool(decompose_shadow and not decompose_on),
+            }
+            if decompose_shadow and not decompose_on:
+                debug_trace["guardrails_applied"].append("query_decomposition_shadow")
+            elif decompose_on and sub_queries:
+                seen = {str(x).strip().lower() for x in rewritten_queries if x}
+                for sq in sub_queries:
+                    s = str(sq or "").strip()
+                    if not s:
+                        continue
+                    sl = s.lower()
+                    if sl in seen:
+                        continue
+                    rewritten_queries.append(s)
+                    seen.add(sl)
+                debug_trace["guardrails_applied"].append("query_decomposition")
         
         # 4. Generate embedding for primary query
         if query_embedding is None:
@@ -451,7 +599,10 @@ class Retriever:
         
         # 5. Hybrid Retrieval (Vector + Keyword)
         # Retrieve more chunks initially to have buffer for filtering
-        initial_retrieval_k = max(top_k * 3, 20)  # Get at least 20 chunks for filtering
+        initial_retrieval_k = max(
+            int(top_k * retrieval_strategy.initial_retrieval_k_multiplier),
+            20,
+        )
         
         # Store original query embedding for fallback
         original_query_embedding = query_embedding
@@ -490,11 +641,68 @@ class Retriever:
             "top_k_requested": initial_retrieval_k
         })
         
-        # Combine with keyword search using hybrid retriever (normalized scores)
-        hybrid_matches = self.hybrid_retriever.combine_results(
-            vector_results=vector_matches,
-            query=primary_query,
-        )
+        # Contextual BM25 + rank fusion (optional; closest to guide).
+        if getattr(settings, "ENABLE_BM25_RANK_FUSION", False) and self.li_retriever is None:
+            try:
+                # Build BM25 corpus from all chunks in active sources (via Pinecone filter query).
+                # For large corpora, use a cap to avoid runaway costs.
+                source_ids = []
+                if filter and isinstance(filter, dict):
+                    if isinstance(filter.get("source_id"), dict) and "$in" in filter.get("source_id", {}):
+                        source_ids = list(filter.get("source_id", {}).get("$in", []) or [])
+                bm25_corpus_cap = int(getattr(settings, "BM25_CORPUS_MAX_CHUNKS", 5000))
+                bm25_top_k = max(200, min(bm25_corpus_cap, 10000))
+                bm25_docs = []
+                if source_ids:
+                    dummy = [0.0] * int(getattr(settings, "OPENAI_EMBEDDING_DIMENSIONS", 1024))
+                    raw = await self.vector_store.query_vectors(
+                        query_embedding=dummy,
+                        top_k=bm25_top_k,
+                        filter={"source_id": {"$in": source_ids}},
+                    )
+                    all_matches = raw.get("matches", []) or []
+                else:
+                    all_matches = vector_matches
+
+                for m in all_matches[:bm25_corpus_cap]:
+                    md = (m.get("metadata", {}) if isinstance(m, dict) else getattr(m, "metadata", {})) or {}
+                    raw_text = str(md.get("text", "") or "")
+                    if not raw_text:
+                        continue
+                    bm25_docs.append(
+                        (
+                            str((m.get("id") if isinstance(m, dict) else getattr(m, "id", "")) or ""),
+                            raw_text,
+                            {"metadata": md},
+                        )
+                    )
+
+                bm25 = LocalBM25(bm25_docs) if bm25_docs else None
+                sparse_matches = bm25.query(primary_query, top_n=int(getattr(settings, "BM25_FUSION_TOP_K", 150))) if bm25 else []
+
+                fused = rrf_fuse(
+                    dense=[dict(x) for x in vector_matches if isinstance(x, dict)],
+                    sparse=sparse_matches,
+                    top_n=int(getattr(settings, "BM25_FUSION_TOP_K", 150)),
+                )
+
+                # Now apply hybrid keyword normalization on fused list (small candidate pool).
+                hybrid_matches = self.hybrid_retriever.combine_results(
+                    vector_results=fused,
+                    query=primary_query,
+                )
+            except Exception:
+                hybrid_matches = self.hybrid_retriever.combine_results(
+                    vector_results=vector_matches,
+                    query=primary_query,
+                )
+        else:
+            # Combine with keyword search using hybrid retriever (normalized scores)
+            hybrid_matches = self.hybrid_retriever.combine_results(
+                vector_results=vector_matches,
+                query=primary_query,
+            )
+
         record_retrieval_span(
             "Retrieval/retrieve",
             (time.perf_counter() - _vh_t0) * 1000,
@@ -510,6 +718,25 @@ class Retriever:
         
         debug_trace["after_hybrid_merge"] = {"count": len(hybrid_matches)}
         print(f"[RAG_PIPELINE] Stage: HYBRID | Chunks: {len(hybrid_matches)}")
+
+        if (
+            include_ncert_global
+            and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
+            and settings.USE_RETRIEVAL_AGENTS
+            and self.hybrid_retriever is not None
+        ):
+            try:
+                hybrid_matches = await self._merge_ncert_global_hybrid(
+                    primary_query=primary_query,
+                    query_embedding=query_embedding,
+                    hybrid_matches=hybrid_matches,
+                    ncert_class=ncert_class,
+                    ncert_subject=ncert_subject,
+                )
+                debug_trace["guardrails_applied"].append("ncert_global_merged")
+                debug_trace["after_hybrid_merge"] = {"count": len(hybrid_matches)}
+            except Exception as e:
+                print(f"[RAG_PIPELINE] NCERT global merge skipped: {e}")
         
         self._log("HYBRID", f"Hybrid retrieval completed", {
             "vector_count": len(vector_matches),
@@ -591,6 +818,7 @@ class Retriever:
         # Safeguard: Disable MMR and scope narrowing if document has < 40 chunks
         total_chunks_available = len(hybrid_matches)
         skip_mmr = total_chunks_available < 8  # Skip MMR if < 8 chunks
+        skip_mmr = skip_mmr or retrieval_strategy.skip_mmr
         skip_scope_narrowing = total_chunks_available < 40  # Skip scope narrowing if < 40 chunks
         
         if skip_scope_narrowing:
@@ -612,10 +840,14 @@ class Retriever:
         else:
             # Extract embeddings for MMR (if available in metadata)
             # Note: Pinecone may not return embeddings by default, so we'll use scores
+            mmr_pool = max(
+                1,
+                int(top_k * float(retrieval_strategy.mmr_target_multiplier)),
+            )
             diverse_matches = self.mmr_diversity.select_diverse_chunks(
                 chunks=hybrid_matches,
                 query_embedding=query_embedding,
-                top_k=min(top_k * 2, len(hybrid_matches))  # Get more for reranking
+                top_k=min(mmr_pool, len(hybrid_matches))  # Get more for reranking
             )
             print(f"[RAG_PIPELINE] Stage: MMR | Chunks: {len(diverse_matches)} (from {len(hybrid_matches)})")
             self._log("MMR", f"MMR diversity applied", {
@@ -747,6 +979,30 @@ class Retriever:
             "output_count": len(reranked_matches),
             "confidence": reranker_confidence if 'reranker_confidence' in locals() else 1.0
         })
+
+        _cw_t0 = time.perf_counter()
+        ca_enabled = bool(getattr(settings, "ENABLE_CONTEXT_AWARE_RETRIEVAL_WEIGHTING", False))
+        if ca_enabled:
+            try:
+                reranked_matches = apply_context_aware_scores(
+                    list(reranked_matches),
+                    primary_query,
+                    max_boost=float(getattr(settings, "CONTEXT_AWARE_WEIGHTING_MAX_BOOST", 0.15)),
+                    intent=intent,
+                )
+                debug_trace["guardrails_applied"].append("context_aware_weighting_post_rerank")
+            except Exception:
+                pass
+        record_retrieval_span(
+            "Retrieval/context_aware_weighting",
+            (time.perf_counter() - _cw_t0) * 1000,
+            input_summary={
+                "enabled": ca_enabled,
+                "chunks_in": len(reranked_matches),
+            },
+            output_summary={"chunks_out": len(reranked_matches)},
+            feature_tag="context_aware_weighting",
+        )
         
         # 8. Context Selection - Final filtering (with guardrails)
         ctx_budget = settings.CONTEXT_TOKEN_BUDGET

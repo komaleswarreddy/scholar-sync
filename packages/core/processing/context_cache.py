@@ -148,7 +148,8 @@ class ContextCache:
         cache_path = self.get_cache_path(file_hash)
         
         try:
-            # Convert chunks to JSON-serializable format
+            # Convert chunks to JSON-serializable format.
+            # Note: chunk_metadata may include contextual retrieval enrichment fields; persist them.
             chunks_data = [
                 {
                     'text': chunk_text,

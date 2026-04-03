@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "key": "ec3350caa03e80b7eaa777d73e95d610f4a8b4ef6c0bdfe437cd1ac6f73f1db8",
+  "created_at": 1775204861.7742956,
+  "expires_at": 1777796861.7742956,
+  "sketch": {
+    "chapter_title": "Metals and Non-metals",
+    "main_sections": [
+      "3.1 Metals",
+      "3.2 Chemical Properties of Metals",
+      "3.1.1 Physical Properties of Metals",
+      "3.1.2 Non-metals"
+    ],
+    "key_definitions": {
+      "Malleability": "Ability of metals to be beaten into thin sheets.",
+      "Ductility": "Ability of metals to be drawn into wires.",
+      "Sonorous": "Property of metals to produce sound when struck.",
+      "Metallic Lustre": "Shining surface of metals in their pure state.",
+      "Oxide": "Compound formed when a metal reacts with oxygen."
+    },
+    "concepts": [
+      "Metals",
+      "Non-metals",
+      "Malleability",
+      "Ductility",
+      "Sonority",
+      "Metallic Lustre",
+      "Conductors",
+      "Reactivity",
+      "Oxides",
+      "Alkali Metals",
+      "Chemical Properties",
+      "Physical Properties",
+      "Gallium",
+      "Caesium",
+      "Copper",
+      "Aluminium",
+      "Iron",
+      "Magnesium",
+      "Zinc",
+      "Sodium",
+      "Carbon",
+      "Sulphur",
+      "Iodine",
+      "Hydrogen",
+      "Bromine",
+      "Anodising",
+      "Amphoteric Oxides",
+      "Electric Circuit"
+    ]
+  }
+}

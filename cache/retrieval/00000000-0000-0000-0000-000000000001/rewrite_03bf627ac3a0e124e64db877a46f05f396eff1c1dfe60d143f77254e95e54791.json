@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Rank Fusion Top 150 and reranker Top 20",
+    "Top 150 Rank Fusion and Top 20 reranker",
+    "Find the part about Rank Fusion Top 150 and reranker Top 20."
+  ],
+  "timestamp": 1774974514.3588278,
+  "ttl": 3600,
+  "query": "Find the part about Rank Fusion Top 150 and reranker Top 20.",
+  "source_ids": [
+    "baseline_ctxret_smoke"
+  ]
+}

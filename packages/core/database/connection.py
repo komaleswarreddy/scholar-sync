@@ -59,7 +59,8 @@ if "supabase.com" in database_url or "pooler.supabase.com" in database_url:
 # MaxClientsInSessionMode. Prefer Transaction pool (6543) in production; keep pool modest.
 _pool_size = getattr(settings, "DB_POOL_SIZE", 5)
 _max_overflow = getattr(settings, "DB_MAX_OVERFLOW", 10)
-if "pooler.supabase.com" in database_url and ":5432" in database_url:
+cap_enabled = bool(getattr(settings, "DB_SUPABASE_5432_POOL_CAP_ENABLED", True))
+if cap_enabled and "pooler.supabase.com" in database_url and ":5432" in database_url:
     _pool_size = min(_pool_size, 3)
     _max_overflow = min(_max_overflow, 5)
 

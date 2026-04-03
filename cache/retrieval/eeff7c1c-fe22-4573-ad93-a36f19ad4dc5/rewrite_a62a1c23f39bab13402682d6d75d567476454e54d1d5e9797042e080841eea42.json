@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Does the forebrain directly release adrenaline into the bloodstream?",
+    "Can the forebrain secrete adrenaline into the blood?",
+    "Can the forebrain directly release adrenaline into the blood?"
+  ],
+  "timestamp": 1775020912.8656938,
+  "ttl": 3600,
+  "query": "Can the forebrain directly release adrenaline into the blood?",
+  "source_ids": [
+    "3a1669db-59a6-4b12-9a0b-08a3e475a8e0"
+  ]
+}

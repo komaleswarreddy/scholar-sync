@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Which gland may not be functioning properly in a child who is much shorter than peers?",
+    "What gland affects growth in children and may cause short stature?",
+    "A child is much shorter than other children of the same age. Which gland may not be functioning properly?"
+  ],
+  "timestamp": 1774980716.2391155,
+  "ttl": 3600,
+  "query": "A child is much shorter than other children of the same age. Which gland may not be functioning properly?",
+  "source_ids": [
+    "3a1669db-59a6-4b12-9a0b-08a3e475a8e0"
+  ]
+}

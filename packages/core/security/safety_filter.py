@@ -68,6 +68,9 @@ class SafetyFilter:
         self.academic_exceptions = [
             r'\b(history|historical|literature|novel|book|study|research)\b',
             r'\b(medical|health|biology|science|education)\b',
+            # STEM / course answers (reflex arcs, neuro, etc.) — avoids false blocks on "harm"/"pain" in context
+            r'\b(reflex|neuron|spinal|physiology|anatomy|neuroscience|cortex|stimulus|pathway)\b',
+            r'\b(cellular|enzyme|mitosis|photosynthesis|molecule|tissue|organ|muscle)\b',
         ]
     
     def check_input(

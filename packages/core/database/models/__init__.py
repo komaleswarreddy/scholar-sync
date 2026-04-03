@@ -8,7 +8,19 @@ from .note import Note
 from .user import User
 from .alert_user_session import AlertUserSession
 from .guardrail_user_block import GuardrailUserBlock
+from .ncert_global import NcertGlobalDocument, NcertGlobalIngestionRun
 
-__all__ = ["Tenant", "Source", "Chat", "Message", "Note", "User", "AlertUserSession", "GuardrailUserBlock"]
+__all__ = [
+    "Tenant",
+    "Source",
+    "Chat",
+    "Message",
+    "Note",
+    "User",
+    "AlertUserSession",
+    "GuardrailUserBlock",
+    "NcertGlobalDocument",
+    "NcertGlobalIngestionRun",
+]
 
 

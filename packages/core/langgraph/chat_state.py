@@ -10,6 +10,9 @@ class ChatGraphState(TypedDict, total=False):
     message: str
     history: List[Dict[str, Any]]
     active_source_ids: List[str]
+    include_ncert_global: bool
+    ncert_class: Optional[int]
+    ncert_subject: Optional[str]
 
     # Control flow
     blocked: bool
@@ -31,6 +34,7 @@ class ChatGraphState(TypedDict, total=False):
 
     # Intent / whole-document map-reduce
     classified_intent: str
+    intent_classification_confidence: float
     whole_file_summary: bool
     map_reduce_ok: bool
     precomputed_answer: str
@@ -50,6 +54,9 @@ class ChatGraphState(TypedDict, total=False):
     final_answer: str
     final_output_text: str
     follow_ups: List[str]
+
+    # Response quality signals (optional, for tracing / debugging)
+    hallucination_guard: Dict[str, Any]
 
     # Done metadata
     done_payload: Dict[str, Any]

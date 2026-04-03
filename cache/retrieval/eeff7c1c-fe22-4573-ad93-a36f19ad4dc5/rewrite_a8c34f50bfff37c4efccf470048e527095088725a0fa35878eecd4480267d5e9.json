@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Does adenosine triphosphate (ATP) travel through the xylem to the lungs?",
+    "Is ATP transported via xylem to the human lungs?",
+    "Does ATP travel through the xylem to the lungs?"
+  ],
+  "timestamp": 1775031280.3092828,
+  "ttl": 3600,
+  "query": "Does ATP travel through the xylem to the lungs?",
+  "source_ids": [
+    "94253dd1-f3d9-4df1-865d-e9dd6279987b"
+  ]
+}

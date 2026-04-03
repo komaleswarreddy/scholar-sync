@@ -180,7 +180,11 @@ class IngestionService:
                 try:
                     from packages.core.rag.llama_adapters import LlamaIndexIngestionAdapter
 
-                    adapter = LlamaIndexIngestionAdapter(self.tenant_id, user_id=self.user_id)
+                    adapter = LlamaIndexIngestionAdapter(
+                        self.tenant_id,
+                        user_id=self.user_id,
+                        sketch_document_title=source.title,
+                    )
                     result = await adapter.ingest_chunks(
                         source_id=source_id,
                         chunks_with_metadata=chunks_with_metadata,
@@ -224,7 +228,11 @@ class IngestionService:
                 try:
                     from packages.core.rag.llama_adapters import LlamaIndexIngestionAdapter
 
-                    adapter = LlamaIndexIngestionAdapter(self.tenant_id, user_id=self.user_id)
+                    adapter = LlamaIndexIngestionAdapter(
+                        self.tenant_id,
+                        user_id=self.user_id,
+                        sketch_document_title=source.title,
+                    )
                     result = await adapter.ingest_text(
                         text=text,
                         source_id=source_id,

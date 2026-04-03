@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Which part of the brain is responsible for balance and its function?",
+    "What brain region aids in maintaining balance and why?",
+    "Which part of the brain helps in balance and why?"
+  ],
+  "timestamp": 1774981749.5877428,
+  "ttl": 3600,
+  "query": "Which part of the brain helps in balance and why?",
+  "source_ids": [
+    "3a1669db-59a6-4b12-9a0b-08a3e475a8e0"
+  ]
+}

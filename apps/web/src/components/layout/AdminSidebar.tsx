@@ -15,6 +15,7 @@ import {
   Bell,
   FileSearch,
   GitBranch,
+  GraduationCap,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -27,6 +28,7 @@ const menuItems: MenuItem[] = [
   { label: 'Overview', path: '/analytics', icon: LayoutDashboard },
   { label: 'Users', path: '/analytics/users', icon: Users },
   { label: 'Documents', path: '/analytics/documents', icon: FileText },
+  { label: 'NCERT Global', path: '/analytics/ncert-global', icon: GraduationCap },
   { label: 'Queries', path: '/analytics/queries', icon: Search },
   { label: 'RAG Metrics', path: '/analytics/rag-metrics', icon: BarChart3 },
   { label: 'Agents', path: '/analytics/agents', icon: Bot },

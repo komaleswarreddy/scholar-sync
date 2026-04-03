@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "explain this document with real-time examples and its real-life applications",
+    "how can we relate the content of this file to our everyday life and what lessons can we learn from it",
+    "can you please explain this document with  real  time examples  ? and how it can be relate it into our  real life ? and  what should we  learn from this   file ?"
+  ],
+  "timestamp": 1774977807.3026946,
+  "ttl": 3600,
+  "query": "can you please explain this document with  real  time examples  ? and how it can be relate it into our  real life ? and  what should we  learn from this   file ?",
+  "source_ids": [
+    "3a1669db-59a6-4b12-9a0b-08a3e475a8e0"
+  ]
+}

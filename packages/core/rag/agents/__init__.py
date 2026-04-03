@@ -15,6 +15,7 @@ from packages.core.rag.agents.early_stop_detector import EarlyStopDetector
 from packages.core.rag.agents.output_length_limiter import OutputLengthLimiter
 from packages.core.rag.agents.context_deduper import ContextDeduper
 from packages.core.rag.agents.query_complexity_scorer import QueryComplexityScorer, QueryComplexity
+from packages.core.rag.agents.query_decomposer import QueryDecomposer
 
 __all__ = [
     "QueryRewriter",
@@ -31,4 +32,5 @@ __all__ = [
     "ContextDeduper",
     "QueryComplexityScorer",
     "QueryComplexity",
+    "QueryDecomposer",
 ]

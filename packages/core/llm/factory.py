@@ -119,6 +119,12 @@ def get_model_for_task(task_type: str) -> tuple:
         "intent_classifier": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "query_rewriter": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         "scope_narrower": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        # Ingestion-time chunk contextualization (Contextual Retrieval)
+        "chunk_contextualization": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        # Admin NCERT global corpus (overridable via settings.NCERT_GLOBAL_CONTEXT_MODEL at call site)
+        "ncert_chunk_contextualization": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        # Optional: query decomposition for retrieval (production-gated)
+        "query_decomposer": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
 
         # Content-heavy Studio tasks -> OpenAI as well
         # Use gpt-4o for better long-form quality; keep chat on gpt-4o-mini for cost/latency.

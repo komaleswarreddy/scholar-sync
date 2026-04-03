@@ -27,6 +27,20 @@ class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, description="User's question")
     history: List[ChatMessage] = Field(default=[], description="Conversation history")
     active_source_ids: List[str] = Field(default=[], description="Source IDs for context")
+    include_ncert_global: bool = Field(
+        default=False,
+        description="When true, merge NCERT global corpus (Pinecone namespace NcertDataGlobal) into retrieval.",
+    )
+    ncert_class: Optional[int] = Field(
+        default=None,
+        ge=6,
+        le=10,
+        description="Optional filter for NCERT class when include_ncert_global is true.",
+    )
+    ncert_subject: Optional[str] = Field(
+        default=None,
+        description="Optional subject slug filter (e.g. science) when include_ncert_global is true.",
+    )
 
 
 class Citation(BaseModel):

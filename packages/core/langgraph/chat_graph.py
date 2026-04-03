@@ -20,6 +20,7 @@ from packages.core.security import (
 from packages.core.security.openai_moderation import (
     is_openai_moderation_configured,
     moderation_indicates_block,
+    moderation_indicates_block_output,
 )
 from packages.core.memory import AnswerCache, ChatSummarizer, MemoryManager
 from packages.core.rag.embedder import Embedder
@@ -587,7 +588,10 @@ class LangGraphChatPipeline:
             return state
         q = state.get("redacted_message") or state.get("message") or ""
         source_ids = state.get("active_source_ids") or []
-        cached = self.answer_cache.get(q, source_ids, self.tenant_id)
+        cache_extra = ""
+        if state.get("include_ncert_global"):
+            cache_extra = f"ncert|{state.get('ncert_class')}|{state.get('ncert_subject')}"
+        cached = self.answer_cache.get(q, source_ids, self.tenant_id, cache_extra=cache_extra)
         if cached:
             state["use_cached_response"] = True
             state["cached_answer"] = _normalize_chat_tagged_response(
@@ -671,6 +675,10 @@ class LangGraphChatPipeline:
         intent = r.get("intent")
         intent_label = (getattr(intent, "value", str(intent)) if intent else "").strip().lower()
         state["classified_intent"] = intent_label
+        try:
+            state["intent_classification_confidence"] = float(r.get("confidence", 0.5) or 0.5)
+        except (TypeError, ValueError):
+            state["intent_classification_confidence"] = 0.5
         if intent_label in {"conversational", "chat_only"}:
             state["skip_rag"] = True
             state["dialog_route_reason"] = "intent_classifier_conversational"
@@ -713,17 +721,27 @@ class LangGraphChatPipeline:
 
     async def _node_retrieval(self, state: ChatGraphState) -> ChatGraphState:
         q = state.get("redacted_message") or state.get("message") or ""
-        filter_dict = (
-            {"source_id": {"$in": state.get("active_source_ids")}}
-            if state.get("active_source_ids")
-            else None
+        active = list(state.get("active_source_ids") or [])
+        include_g = bool(state.get("include_ncert_global")) and getattr(
+            settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
         )
+        if active:
+            filter_dict: Optional[Dict[str, Any]] = {"source_id": {"$in": active}}
+        elif include_g:
+            # No user sources: avoid querying the whole tenant namespace; NCERT merge supplies chunks.
+            filter_dict = {"source_id": {"$in": ["00000000-0000-0000-0000-000000000001"]}}
+        else:
+            filter_dict = None
         results = await self.retriever.retrieve(
             query=q,
             top_k=settings.TOP_K_CHUNKS,
             filter=filter_dict,
             conversation_history=state.get("effective_history") or state.get("history") or [],
             classified_intent=state.get("classified_intent") or None,
+            classified_intent_confidence=state.get("intent_classification_confidence"),
+            include_ncert_global=include_g,
+            ncert_class=state.get("ncert_class"),
+            ncert_subject=state.get("ncert_subject"),
         )
         state["matches"] = results.get("matches", []) or []
         rw = results.get("rewritten_queries")
@@ -970,6 +988,45 @@ class LangGraphChatPipeline:
 
         answer = _normalize_chat_tagged_response(answer)
 
+        # Hallucination guard (deterministic) + conditional single retry (production-gated)
+        # Not a multi-pass pipeline: only triggers on high-risk unsupported sentences.
+        if getattr(settings, "ENABLE_HALLUCINATION_GUARD", False) and context.strip() and answer:
+            try:
+                from packages.core.rag.hallucination_guard import (
+                    analyze_answer_support,
+                    strict_retry_suffix,
+                )
+
+                hg = analyze_answer_support(
+                    answer=answer,
+                    context=context,
+                    min_sentence_chars=int(getattr(settings, "HALLUCINATION_GUARD_MIN_SENTENCE_CHARS", 28)),
+                    min_overlap_score=float(getattr(settings, "HALLUCINATION_GUARD_MIN_OVERLAP_SCORE", 0.22)),
+                )
+                state["hallucination_guard"] = {
+                    "supported_ratio": hg.supported_ratio,
+                    "checked_sentences": hg.checked_sentences,
+                    "unsupported_sentences_preview": hg.unsupported_sentences[:3],
+                    "retried": False,
+                }
+
+                min_ratio = float(getattr(settings, "HALLUCINATION_GUARD_MIN_SUPPORTED_RATIO", 0.65))
+                max_retry = int(getattr(settings, "HALLUCINATION_GUARD_MAX_RETRY", 1))
+                if hg.checked_sentences > 0 and hg.supported_ratio < min_ratio and max_retry > 0:
+                    retry_prompt = full_prompt + strict_retry_suffix(hg.unsupported_sentences)
+                    retry_resp = await llm_client.generate(
+                        prompt=retry_prompt,
+                        temperature=0.25,
+                        max_tokens=max_gen,
+                        tenant_id=self.tenant_id,
+                        user_id=self.user_id,
+                        feature_tag="chat_langgraph_retry_hallucination_guard",
+                    )
+                    answer = _normalize_chat_tagged_response((retry_resp.content or "").strip())
+                    state["hallucination_guard"]["retried"] = True
+            except Exception:
+                pass
+
         # Post-generation processing (length limit, formatting, citation check)
         if answer and self.length_limiter:
             limited = self.length_limiter.limit_output(answer)
@@ -996,7 +1053,7 @@ class LangGraphChatPipeline:
 
         try:
             res = check_moderation(answer)
-            if moderation_indicates_block(res):
+            if moderation_indicates_block_output(res, answer):
                 state["moderation_block_reason"] = "openai_moderation_output_block"
                 state["final_output_text"] = self._moderation_refusal()
                 return state
@@ -1050,6 +1107,14 @@ class LangGraphChatPipeline:
             done["confidence_score"] = conf.get("confidence", 0.0)
             if conf.get("flagged"):
                 done["low_confidence"] = True
+        if state.get("hallucination_guard"):
+            # Keep only small, non-sensitive summary fields in API payload.
+            hg = dict(state.get("hallucination_guard") or {})
+            done["hallucination_guard"] = {
+                "supported_ratio": hg.get("supported_ratio"),
+                "checked_sentences": hg.get("checked_sentences"),
+                "retried": hg.get("retried", False),
+            }
         state["done_payload"] = done
         return state
 
@@ -1072,6 +1137,9 @@ class LangGraphChatPipeline:
             return state
         source_ids = list(state.get("active_source_ids") or [])
         citations = list(state.get("citations") or [])
+        cache_extra = ""
+        if state.get("include_ncert_global"):
+            cache_extra = f"ncert|{state.get('ncert_class')}|{state.get('ncert_subject')}"
         try:
             self.answer_cache.set(
                 q,
@@ -1079,6 +1147,7 @@ class LangGraphChatPipeline:
                 out,
                 citations,
                 tenant_id=self.tenant_id,
+                cache_extra=cache_extra,
             )
         except Exception as e:
             print(f"[ANSWER_CACHE] Failed to store entry: {type(e).__name__}: {e}")
@@ -1090,6 +1159,9 @@ class LangGraphChatPipeline:
         message: str,
         history: List[Dict[str, Any]],
         active_source_ids: List[str],
+        include_ncert_global: bool = False,
+        ncert_class: Optional[int] = None,
+        ncert_subject: Optional[str] = None,
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Produce SSE events preserving the existing event/data shapes.
@@ -1099,6 +1171,7 @@ class LangGraphChatPipeline:
             trace_id_opt = str(uuid.uuid4())
             get_pipeline_trace_store().start_trace(trace_id_opt, self.tenant_id, self.user_id)
 
+        subj = (ncert_subject or "").strip().lower() or None
         state: ChatGraphState = {
             "db": self.db,
             "tenant_id": self.tenant_id,
@@ -1106,6 +1179,9 @@ class LangGraphChatPipeline:
             "message": message,
             "history": history,
             "active_source_ids": active_source_ids,
+            "include_ncert_global": bool(include_ncert_global),
+            "ncert_class": ncert_class,
+            "ncert_subject": subj,
             "trace_id": trace_id_opt or "",
         }
 

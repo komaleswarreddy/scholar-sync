@@ -6,6 +6,7 @@ Ensures relevant chunks appear in top results.
 """
 
 from typing import List, Dict, Any, Optional
+from collections.abc import Mapping
 from collections import Counter
 import math
 
@@ -50,6 +51,34 @@ class HybridRetriever:
         """
         if not vector_results:
             return []
+
+        def _mget(obj: Any, key: str, default: Any = None) -> Any:
+            if obj is None:
+                return default
+            if isinstance(obj, Mapping):
+                return obj.get(key, default)
+            # Some SDK objects are dict-like (have .get) but are not dict subclasses.
+            getter = getattr(obj, "get", None)
+            if callable(getter):
+                try:
+                    return getter(key, default)
+                except Exception:
+                    return default
+            return default
+
+        def _as_dict(obj: Any) -> Dict[str, Any]:
+            if obj is None:
+                return {}
+            if isinstance(obj, dict):
+                return obj
+            if isinstance(obj, Mapping):
+                return dict(obj)
+            # Best-effort for pinecone match objects
+            return {
+                "id": _mget(obj, "id", ""),
+                "score": _mget(obj, "score", 0.0),
+                "metadata": _mget(obj, "metadata", {}) or {},
+            }
         
         # Use vector results for keyword search if all_chunks not provided
         chunks_to_search = all_chunks if all_chunks else vector_results
@@ -61,14 +90,14 @@ class HybridRetriever:
         chunk_scores = {}
         for chunk in vector_results:
             # Skip None or invalid chunks
-            if not chunk or not isinstance(chunk, dict):
+            if not chunk:
                 continue
                 
-            chunk_id = chunk.get("id", "")
+            chunk_id = _mget(chunk, "id", "")
             if not chunk_id:
                 continue
                 
-            vector_score = chunk.get("score", 0.0)
+            vector_score = _mget(chunk, "score", 0.0) or 0.0
             keyword_score = keyword_scores.get(chunk_id, 0.0)
             
             # Normalize scores to 0-1 range
@@ -84,7 +113,7 @@ class HybridRetriever:
             )
             
             chunk_scores[chunk_id] = {
-                "chunk": chunk,
+                "chunk": _as_dict(chunk),
                 "vector_score": vector_score,
                 "keyword_score": normalized_keyword,
                 "combined_score": combined_score
@@ -139,9 +168,38 @@ class HybridRetriever:
         term_frequencies = {}  # term -> {chunk_id: count}
         doc_frequencies = {}  # term -> number of docs containing it
         
+        def _keyword_text(md: Dict[str, Any]) -> str:
+            """
+            Contextual Retrieval: keyword scoring should include contextual metadata
+            (context/summary/hints) to improve lexical recall, while citations remain
+            based on metadata['text'] (raw chunk).
+            """
+            raw = str(md.get("text", "") or "")
+            ctx = str(md.get("chunk_context", "") or "")
+            summ = str(md.get("chunk_summary", "") or "")
+            hint = str(md.get("concept_hint", "") or "")
+            # Compact concatenation; if contextual fields absent, this is just raw.
+            return "\n".join([ctx, summ, hint, raw]).strip()
+
+        def _mget(obj: Any, key: str, default: Any = None) -> Any:
+            if obj is None:
+                return default
+            if isinstance(obj, Mapping):
+                return obj.get(key, default)
+            getter = getattr(obj, "get", None)
+            if callable(getter):
+                try:
+                    return getter(key, default)
+                except Exception:
+                    return default
+            return default
+
         for chunk in chunks:
-            chunk_id = chunk.get("id", "")
-            chunk_text = chunk.get("metadata", {}).get("text", "").lower()
+            if not chunk:
+                continue
+            chunk_id = _mget(chunk, "id", "")
+            md = _mget(chunk, "metadata", {}) or {}
+            chunk_text = _keyword_text(md).lower()
             chunk_texts[chunk_id] = chunk_text
             
             # Count term frequencies in this chunk

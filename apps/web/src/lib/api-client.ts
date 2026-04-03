@@ -383,6 +383,62 @@ class ApiClient {
     await this.client.delete(`/api/v1/ingest/sources/${sourceId}`);
   }
 
+  /** Admin: NCERT global corpus (requires admin role). */
+  async listNcertGlobalDocuments(params?: {
+    class_num?: number;
+    subject?: string;
+    status?: string;
+    limit?: number;
+  }) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/admin/ncert-global/documents', {
+      params,
+      timeout: 120000,
+    });
+    return res.data;
+  }
+
+  async uploadNcertGlobalDocument(formData: FormData) {
+    await this.refreshToken();
+    const res = await this.client.post('/api/v1/admin/ncert-global/documents', formData, {
+      timeout: 10 * 60 * 1000,
+      // Omit Content-Type so the browser sets multipart boundary automatically.
+    });
+    return res.data;
+  }
+
+  async deleteNcertGlobalDocument(documentId: string) {
+    await this.refreshToken();
+    await this.client.delete(`/api/v1/admin/ncert-global/documents/${documentId}`, {
+      timeout: 120000,
+    });
+  }
+
+  async listNcertGlobalIngestionRuns(params?: { document_id?: string; limit?: number }) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/admin/ncert-global/ingestion-runs', {
+      params,
+      timeout: 120000,
+    });
+    return res.data;
+  }
+
+  async getNcertGlobalIngestionRun(runId: string) {
+    await this.refreshToken();
+    const res = await this.client.get(`/api/v1/admin/ncert-global/ingestion-runs/${runId}`, {
+      timeout: 120000,
+    });
+    return res.data;
+  }
+
+  async getNcertSubjectsByClass() {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/admin/ncert-global/subjects-by-class', {
+      timeout: 120000,
+    });
+    return res.data as Record<string, string[]>;
+  }
+
   // Streaming Chat
   async streamChat(
     message: string,
@@ -391,7 +447,10 @@ class ApiClient {
     onChunk: (text: string) => void,
     onCitation: (citation: any) => void,
     onDone: () => void,
-    onError?: (error: string) => void
+    onError?: (error: string) => void,
+    includeNcertGlobal?: boolean,
+    ncertClass?: number,
+    ncertSubject?: string
   ) {
     await this.refreshToken();
 
@@ -442,6 +501,9 @@ class ApiClient {
               message,
               history,
               active_source_ids: activeSourceIds,
+              include_ncert_global: Boolean(includeNcertGlobal),
+              ncert_class: ncertClass ?? null,
+              ncert_subject: ncertSubject?.trim() || null,
             }),
             signal: controller.signal,
           }
@@ -941,6 +1003,18 @@ class ApiClient {
     const res = await this.client.delete(`/api/v1/chat/${chatId}/messages`, {
       timeout: 30000,
     });
+    return res.data;
+  }
+
+  async summarizeChat(chatId: string) {
+    await this.refreshToken();
+    const res = await this.client.post(
+      `/api/v1/chat/${chatId}/summarize`,
+      {},
+      {
+        timeout: 60000,
+      }
+    );
     return res.data;
   }
 

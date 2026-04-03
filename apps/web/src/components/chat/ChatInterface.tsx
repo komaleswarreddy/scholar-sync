@@ -57,7 +57,12 @@ export function ChatInterface() {
   const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
-  
+  const [includeNcertGlobal, setIncludeNcertGlobal] = useState(false);
+  /** Optional Pinecone metadata filter (class 6–10); null = all classes */
+  const [ncertFilterClass, setNcertFilterClass] = useState<number | null>(null);
+  /** Optional subject slug filter, e.g. science */
+  const [ncertFilterSubject, setNcertFilterSubject] = useState('');
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<string>(''); 
   const responseAccumulatorRef = useRef<string>(''); 
@@ -256,9 +261,11 @@ export function ChatInterface() {
     }
 
     const sourceIds = activeSourceIds || Array.from(selectedSources);
-    
-    if (sourceIds.length === 0) {
-      setStreamError('Please select at least one source to chat with.');
+
+    if (sourceIds.length === 0 && !includeNcertGlobal) {
+      setStreamError(
+        'Select at least one notebook source, or turn on “Include NCERT global library” to query the shared corpus.'
+      );
       return;
     }
     
@@ -337,6 +344,11 @@ export function ChatInterface() {
           role: m.role,
           content: m.content,
         }));
+
+      const ncertClassOpt =
+        includeNcertGlobal && ncertFilterClass != null ? ncertFilterClass : undefined;
+      const subj = ncertFilterSubject.trim().toLowerCase().replace(/\s+/g, '_');
+      const ncertSubjectOpt = includeNcertGlobal && subj ? subj : undefined;
 
       await apiClient.streamChat(
         message,
@@ -619,71 +631,24 @@ export function ChatInterface() {
       return;
     }
 
-    const nonSummaryMessages = messages.filter((m) => !m.isSummary);
-    if (nonSummaryMessages.length === 0) return;
-
-    const userQuestions = nonSummaryMessages
-      .filter((m) => m.role === 'user')
-      .map((m) => m.content.trim())
-      .filter(Boolean);
-
-    const assistantAnswers = nonSummaryMessages
-      .filter((m) => m.role === 'assistant')
-      .map((m) => m.content.trim())
-      .filter(Boolean);
-
-    const topUserQuestions = userQuestions.slice(0, 5);
-    const topAssistantAnswers = assistantAnswers.slice(0, 5);
-
-    const summaryParts: string[] = [];
-
-    if (topUserQuestions.length > 0) {
-      const questionsText = topUserQuestions
-        .map((q, idx) => `${idx + 1}. ${q.length > 160 ? `${q.slice(0, 157)}...` : q}`)
-        .join('\n');
-      summaryParts.push(`Questions so far:\n${questionsText}`);
-    }
-
-    if (topAssistantAnswers.length > 0) {
-      const answersText = topAssistantAnswers
-        .map((a, idx) => `${idx + 1}. ${a.length > 200 ? `${a.slice(0, 197)}...` : a}`)
-        .join('\n');
-      summaryParts.push(`Answers so far:\n${answersText}`);
-    }
-
-    const summaryText =
-      summaryParts.length > 0
-        ? summaryParts.join('\n\n')
-        : 'Conversation so far covered multiple questions and responses.';
-
-    const summaryContent = `Summary of this chat so far:\n\n${summaryText}`;
-
     try {
       setIsLoading(true);
       setStreamError(null);
+      const savedSummary = await apiClient.summarizeChat(currentChatId);
 
-      // Step 1: Delete all existing messages from backend
-      await apiClient.deleteAllMessages(currentChatId);
-
-      // Step 2: Save the summary message to backend
-      const savedSummary = await apiClient.addMessageToChat(
-        currentChatId,
-        'assistant',
-        summaryContent,
-        []
-      );
-
-      // Step 3: Update frontend state with the saved summary
       const summaryMessage: Message = {
         id: savedSummary.id,
         role: 'assistant',
-        content: summaryContent,
-        timestamp: new Date().toLocaleTimeString(),
+        content: savedSummary.content,
+        citations: savedSummary.citations || [],
+        timestamp: new Date(savedSummary.created_at).toLocaleTimeString(),
         isSummary: true,
         messageId: savedSummary.id,
+        feedback: savedSummary.feedback || null,
       };
 
-      setMessages([summaryMessage]);
+      // Append summary into the same thread (do not delete existing messages)
+      setMessages((prev) => [...prev, summaryMessage]);
       setStreamError(null);
       resetStreamingState();
       
@@ -776,7 +741,7 @@ export function ChatInterface() {
         ) : messages.length === 0 && !currentChatId ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
             <p className="text-text-secondary text-center mb-2">
-              Start a conversation by selecting sources and asking a question.
+              Select notebook sources and/or enable the NCERT global library, then ask a question.
             </p>
           </div>
         ) : (
@@ -846,10 +811,53 @@ export function ChatInterface() {
         )}
       </div>
 
-        <div className="p-4 bg-surface border-t border-border-default">
-          <ChatInput 
-            onSend={handleSend} 
-            disabled={isLoading || !isOnline} 
+        <div className="p-4 bg-surface border-t border-border-default space-y-3">
+          <div className="flex flex-col gap-2 max-w-3xl mx-auto">
+            <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={includeNcertGlobal}
+                onChange={(e) => setIncludeNcertGlobal(e.target.checked)}
+                className="rounded border-border-default"
+              />
+              <span>Include NCERT global library (classes 6–10, shared across tenants)</span>
+            </label>
+            {includeNcertGlobal && (
+              <div className="flex flex-wrap items-center gap-3 pl-6 text-sm">
+                <label className="flex items-center gap-2 text-text-secondary">
+                  <span className="whitespace-nowrap">Filter class</span>
+                  <select
+                    value={ncertFilterClass === null ? '' : String(ncertFilterClass)}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setNcertFilterClass(v === '' ? null : parseInt(v, 10));
+                    }}
+                    className="rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
+                  >
+                    <option value="">All</option>
+                    {[6, 7, 8, 9, 10].map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-text-secondary min-w-[200px] flex-1">
+                  <span className="whitespace-nowrap">Subject slug</span>
+                  <input
+                    type="text"
+                    value={ncertFilterSubject}
+                    onChange={(e) => setNcertFilterSubject(e.target.value)}
+                    placeholder="e.g. science (optional)"
+                    className="flex-1 min-w-0 rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+          <ChatInput
+            onSend={handleSend}
+            disabled={isLoading || !isOnline}
             activeSourceIds={Array.from(selectedSources)}
             showSuggestedPrompts={!hasUserMessageInChat}
           />

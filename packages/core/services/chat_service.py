@@ -107,9 +107,27 @@ class ChatService:
             .limit(limit)
             .offset(offset)
         )
-        result = await self.db.execute(stmt)
-        rows = result.all()
-        return [(row[0], int(row[1] or 0)) for row in rows]
+        try:
+            result = await self.db.execute(stmt)
+            rows = result.all()
+            return [(row[0], int(row[1] or 0)) for row in rows]
+        except Exception as e:
+            # Production-gated fallback for DB pool timeouts (prevents UI hard-fail on incident).
+            try:
+                from config.settings import settings
+                import sqlalchemy
+
+                if getattr(settings, "DB_FAIL_OPEN_ON_POOL_TIMEOUT", True) and isinstance(
+                    e, sqlalchemy.exc.TimeoutError
+                ):
+                    print(
+                        "[WARNING] [CHAT] Database pool timeout; returning empty chats list fallback. "
+                        "Consider using Supabase transaction pooler (port 6543) or increasing DB pool size."
+                    )
+                    return []
+            except Exception:
+                pass
+            raise
 
     async def update_chat_title(self, chat_id: str, title: str) -> Optional[Chat]:
         """Update chat title."""

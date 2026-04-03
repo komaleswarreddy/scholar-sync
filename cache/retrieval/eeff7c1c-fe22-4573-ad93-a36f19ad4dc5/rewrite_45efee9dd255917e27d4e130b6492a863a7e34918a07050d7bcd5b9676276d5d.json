@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "Explain the body systems involved when a frightened squirrel runs away quickly",
+    "Which physiological systems work together in a frightened squirrel's flight response",
+    "A frightened squirrel runs away quickly. Explain which body systems are involved and how they work together."
+  ],
+  "timestamp": 1775023761.4725435,
+  "ttl": 3600,
+  "query": "A frightened squirrel runs away quickly. Explain which body systems are involved and how they work together.",
+  "source_ids": [
+    "3a1669db-59a6-4b12-9a0b-08a3e475a8e0"
+  ]
+}

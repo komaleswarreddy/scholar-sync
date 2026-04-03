@@ -11,7 +11,7 @@ load_dotenv()
  
 from config.settings import settings
 from apps.api.middleware.tenant import TenantMiddleware
-from apps.api.routes import chat, sources, studio, notes, health, metrics, dashboards, alerts, admin, pipeline_traces
+from apps.api.routes import chat, sources, studio, notes, health, metrics, dashboards, alerts, admin, admin_ncert_global, pipeline_traces
 
 # ---------------- Lifespan ----------------
 @asynccontextmanager
@@ -90,6 +90,7 @@ app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["metrics"])
 app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashboards"])
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(admin_ncert_global.router, prefix="/api/v1/admin", tags=["admin-ncert-global"])
 app.include_router(pipeline_traces.router, prefix="/api/v1/pipeline-traces", tags=["pipeline-traces"])
 
 # ---------------- Health ----------------

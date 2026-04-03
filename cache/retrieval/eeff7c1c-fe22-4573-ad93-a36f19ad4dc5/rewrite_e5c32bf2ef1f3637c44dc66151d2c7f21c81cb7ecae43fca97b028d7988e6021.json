@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "How does the Query rewrite node use the generative large language model?",
+    "Utilization of generative LLM by the Query rewrite node",
+    "How does the Query rewrite node utilize the generative LLM?"
+  ],
+  "timestamp": 1774947580.4954941,
+  "ttl": 3600,
+  "query": "How does the Query rewrite node utilize the generative LLM?",
+  "source_ids": [
+    "ee1a66b9-c91a-4e9d-b1f0-7f3cd79b189a"
+  ]
+}

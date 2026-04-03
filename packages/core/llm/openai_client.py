@@ -5,6 +5,8 @@ Implements LLMClient interface for OpenAI models.
 """
 
 from typing import AsyncGenerator, Optional, Dict, Any, List
+import asyncio
+import functools
 import openai
 import time
 try:
@@ -86,15 +88,19 @@ class OpenAIClient(LLMClient):
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
-        
-        response = self.client.chat.completions.create(
+
+        # Sync OpenAI client blocks the asyncio event loop; offload so other requests
+        # (e.g. admin health / DB checks during long ingests) can still run.
+        call_api = functools.partial(
+            self.client.chat.completions.create,
             model=self.model,
             messages=messages,
             temperature=temperature or self.temperature,
             max_tokens=max_tokens or self.max_tokens,
-            **kwargs
+            **kwargs,
         )
-        
+        response = await asyncio.to_thread(call_api)
+
         latency_ms = (time.time() - start_time) * 1000
         
         content = response.choices[0].message.content or ""

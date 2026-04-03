@@ -9,6 +9,7 @@ import asyncio
 from fastapi import UploadFile
 from typing import Optional
 from supabase import create_client, Client
+import httpx
 
 from config.settings import settings
 from packages.core.storage.base import BaseStorage
@@ -144,23 +145,48 @@ class S3Storage(BaseStorage):
         Returns:
             File content as bytes
         """
+        supabase = get_supabase_client()
+
+        # Workaround: storage3 download() can throw an internal UnboundLocalError
+        # after transient HTTP/2 disconnects. Prefer downloading via signed URL
+        # using httpx so errors are actionable and retryable.
         try:
-            supabase = get_supabase_client()
-            loop = asyncio.get_event_loop()
-            
-            # Download file from Supabase Storage
-            # Note: Supabase Python client is synchronous, so we run it in executor
-            file_content = await loop.run_in_executor(
-                None,
-                lambda: supabase.storage.from_(self.bucket_name).download(file_path)
+            signed = supabase.storage.from_(self.bucket_name).create_signed_url(
+                path=file_path,
+                expires_in=3600,
             )
-            
-            if not file_content:
-                raise ValueError(f"Downloaded file content is empty for path: {file_path}")
-            
-            return file_content
+            signed_url = (
+                signed.get("signedURL") if isinstance(signed, dict) else str(signed or "").strip()
+            )
+            if not signed_url:
+                # Fallback for public buckets
+                signed_url = supabase.storage.from_(self.bucket_name).get_public_url(file_path)
+            if not signed_url:
+                raise ValueError(f"Could not generate download URL for path: {file_path}")
+
+            # Retry a couple times for transient disconnects.
+            last_err: Optional[Exception] = None
+            for attempt in range(1, 4):
+                try:
+                    timeout = httpx.Timeout(30.0, connect=10.0)
+                    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+                        resp = await client.get(signed_url)
+                    if resp.status_code >= 400:
+                        raise ValueError(
+                            f"Storage download HTTP {resp.status_code}: {resp.text[:200]}"
+                        )
+                    if not resp.content:
+                        raise ValueError(f"Downloaded file content is empty for path: {file_path}")
+                    return resp.content
+                except Exception as e:
+                    last_err = e
+                    if attempt < 3:
+                        await asyncio.sleep(0.5 * attempt)
+                        continue
+                    raise
+            raise last_err or ValueError("Unknown download failure")
+
         except ValueError:
-            # Re-raise ValueError as-is
             raise
         except Exception as e:
             import traceback

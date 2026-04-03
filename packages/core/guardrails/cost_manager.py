@@ -39,7 +39,11 @@ class CostManager:
         if not config_path.exists():
             # Default pricing if config doesn't exist
             return {
-                "gpt-4o-mini": {"cost_per_1k_tokens": 0.15, "provider": "openai"},
+                "gpt-4o-mini": {
+                    "provider": "openai",
+                    "cost_per_1m_input_usd": 0.15,
+                    "cost_per_1m_output_usd": 0.60,
+                },
                 "gemini-2.0-flash-exp": {"cost_per_1k_tokens": 0.075, "provider": "gemini"},
                 "gemini-2.5-flash": {"cost_per_1k_tokens": 0.075, "provider": "gemini"},
             }
@@ -51,10 +55,11 @@ class CostManager:
             pricing = {}
             for provider, models in config.get("models", {}).items():
                 for model_name, model_config in models.items():
-                    pricing[model_name] = {
-                        "cost_per_1k_tokens": model_config.get("cost_per_1k_tokens", 0.0),
-                        "provider": provider,
-                    }
+                    if not isinstance(model_config, dict):
+                        continue
+                    entry = dict(model_config)
+                    entry["provider"] = provider
+                    pricing[model_name] = entry
             
             return pricing
         except Exception as e:
@@ -79,16 +84,23 @@ class CostManager:
             Cost in USD
         """
         if model not in self.pricing_config:
-            # Default pricing if model not found
             print(f"[WARNING] Model {model} not in pricing config, using default $0.10 per 1k tokens")
-            cost_per_1k = 0.10
-        else:
-            cost_per_1k = self.pricing_config[model]["cost_per_1k_tokens"]
-        
+            return round((prompt_tokens + completion_tokens) / 1000.0 * 0.10, 6)
+
+        cfg = self.pricing_config[model]
+        cin = cfg.get("cost_per_1m_input_usd")
+        cout = cfg.get("cost_per_1m_output_usd")
+        if cin is not None:
+            cin_f = float(cin)
+            cout_f = float(cout) if cout is not None else cin_f
+            return round(
+                (prompt_tokens / 1_000_000.0) * cin_f + (completion_tokens / 1_000_000.0) * cout_f,
+                6,
+            )
+
+        cost_per_1k = float(cfg.get("cost_per_1k_tokens", 0.0))
         total_tokens = prompt_tokens + completion_tokens
-        cost = (total_tokens / 1000.0) * cost_per_1k
-        
-        return round(cost, 6)  # Round to 6 decimal places
+        return round((total_tokens / 1000.0) * cost_per_1k, 6)
     
     async def record_usage(
         self,

@@ -63,7 +63,11 @@ class AnswerCache:
         return normalized
     
     def _hash_query(
-        self, query: str, source_ids: List[str], tenant_id: Optional[str] = None
+        self,
+        query: str,
+        source_ids: List[str],
+        tenant_id: Optional[str] = None,
+        cache_extra: str = "",
     ) -> str:
         """
         Create cache key from query and source IDs.
@@ -72,6 +76,7 @@ class AnswerCache:
             query: User query
             source_ids: List of active source IDs
             tenant_id: Tenant scope (avoids collisions if storage is ever shared)
+            cache_extra: Optional suffix (e.g. NCERT global flags) so cache keys stay distinct.
             
         Returns:
             Cache key (hash)
@@ -81,9 +86,10 @@ class AnswerCache:
         # Include source IDs in hash (sorted for consistency)
         sources_str = ",".join(sorted(source_ids)) if source_ids else "none"
         tid = (tenant_id or "").strip().lower()
+        extra = (cache_extra or "").strip()
         
         # Create hash
-        cache_string = f"tenant::{tid}::{normalized_query}::sources::{sources_str}"
+        cache_string = f"tenant::{tid}::{normalized_query}::sources::{sources_str}::extra::{extra}"
         cache_key = hashlib.sha256(cache_string.encode()).hexdigest()
         
         return cache_key
@@ -92,7 +98,8 @@ class AnswerCache:
         self,
         query: str,
         source_ids: List[str],
-        tenant_id: Optional[str] = None
+        tenant_id: Optional[str] = None,
+        cache_extra: str = "",
     ) -> Optional[Dict[str, Any]]:
         """
         Get cached answer for query.
@@ -105,7 +112,7 @@ class AnswerCache:
         Returns:
             Cached answer dict with 'answer', 'citations', 'timestamp', or None if not found
         """
-        cache_key = self._hash_query(query, source_ids, tenant_id)
+        cache_key = self._hash_query(query, source_ids, tenant_id, cache_extra)
         
         with self._lock:
             if cache_key in self._cache:
@@ -136,7 +143,8 @@ class AnswerCache:
         answer: str,
         citations: List[Dict[str, Any]],
         tenant_id: Optional[str] = None,
-        ttl_seconds: Optional[int] = None
+        ttl_seconds: Optional[int] = None,
+        cache_extra: str = "",
     ):
         """
         Cache answer for query.
@@ -149,7 +157,7 @@ class AnswerCache:
             tenant_id: Optional tenant identifier
             ttl_seconds: Optional custom TTL (defaults to self.default_ttl)
         """
-        cache_key = self._hash_query(query, source_ids, tenant_id)
+        cache_key = self._hash_query(query, source_ids, tenant_id, cache_extra)
         ttl = ttl_seconds or self.default_ttl
         expires_at = time.time() + ttl
         

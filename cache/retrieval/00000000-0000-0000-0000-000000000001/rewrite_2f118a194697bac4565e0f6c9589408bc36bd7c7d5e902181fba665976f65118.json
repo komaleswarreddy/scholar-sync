@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "How does contextual BM25 compare to embeddings in information retrieval?",
+    "Benefits of contextual BM25 versus embedding methods",
+    "How does contextual BM25 help compared to embeddings?"
+  ],
+  "timestamp": 1774974565.0306437,
+  "ttl": 3600,
+  "query": "How does contextual BM25 help compared to embeddings?",
+  "source_ids": [
+    "contextual_ctxret_smoke"
+  ]
+}

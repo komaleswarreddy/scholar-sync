@@ -19,6 +19,7 @@ from packages.core.security.pii_detector import PIIDetector, PIIType
 from packages.core.security.openai_moderation import (
     check_moderation,
     moderation_indicates_block,
+    moderation_indicates_block_output,
     is_openai_moderation_configured,
 )
 
@@ -36,5 +37,6 @@ __all__ = [
     "PIIType",
     "check_moderation",
     "moderation_indicates_block",
+    "moderation_indicates_block_output",
     "is_openai_moderation_configured",
 ]

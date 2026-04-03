@@ -125,7 +125,10 @@ async def check_admin_role(
         user = result.scalar_one_or_none()
     except Exception as e:
         if _is_db_unavailable_error(e):
-            print(f"[ADMIN] DB unavailable while checking admin role by clerk_user_id: {e}")
+            print(
+                f"[ADMIN] DB unavailable while checking admin role by clerk_user_id: "
+                f"{type(e).__name__}: {e}"
+            )
             if raise_on_db_unavailable:
                 raise HTTPException(
                     status_code=503,
@@ -172,7 +175,10 @@ async def check_admin_role(
                         user = result.scalar_one_or_none()
                     except Exception as e:
                         if _is_db_unavailable_error(e):
-                            print(f"[ADMIN] DB unavailable while checking admin role by email: {e}")
+                            print(
+                                f"[ADMIN] DB unavailable while checking admin role by email: "
+                                f"{type(e).__name__}: {e}"
+                            )
                             if raise_on_db_unavailable:
                                 raise HTTPException(
                                     status_code=503,

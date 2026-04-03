@@ -51,11 +51,35 @@ class PineconeVectorStore(BaseVectorStore):
     All operations use tenant namespace for data isolation:
     - Namespace format: "{tenant_id}"
     - Every query/upsert includes namespace
+    
+    Optional ``namespace_override`` (e.g. NcertDataGlobal) and embedding overrides
+    support admin global corpus and query-time retrieval without changing tenant defaults.
     """
     
-    def __init__(self, tenant_id: str):
+    def __init__(
+        self,
+        tenant_id: str,
+        *,
+        namespace_override: Optional[str] = None,
+        embedding_model_override: Optional[str] = None,
+        embedding_dimensions_override: Optional[int] = None,
+    ):
         super().__init__(tenant_id)
+        if namespace_override is not None:
+            self.namespace = namespace_override
+        self._embedding_model_override = embedding_model_override
+        self._embedding_dimensions_override = embedding_dimensions_override
         self._openai_client = None
+
+    def _embedding_model(self) -> str:
+        return self._embedding_model_override or settings.OPENAI_EMBEDDING_MODEL
+
+    def _embedding_dimensions(self) -> int:
+        return (
+            self._embedding_dimensions_override
+            if self._embedding_dimensions_override is not None
+            else settings.OPENAI_EMBEDDING_DIMENSIONS
+        )
     
     @property
     def openai_client(self):
@@ -101,8 +125,8 @@ class PineconeVectorStore(BaseVectorStore):
         
         Uses text-embedding-3-small for cost efficiency.
         """
-        embedding_model = settings.OPENAI_EMBEDDING_MODEL
-        embedding_dimensions = settings.OPENAI_EMBEDDING_DIMENSIONS
+        embedding_model = self._embedding_model()
+        embedding_dimensions = self._embedding_dimensions()
         print(f"[RAG] Generating embedding: Provider=OpenAI, Model={embedding_model}, TextLength={len(text)} chars")
         t0 = time.perf_counter()
         response = self.openai_client.embeddings.create(
@@ -157,9 +181,9 @@ class PineconeVectorStore(BaseVectorStore):
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]
             response = self.openai_client.embeddings.create(
-                model=settings.OPENAI_EMBEDDING_MODEL,
+                model=self._embedding_model(),
                 input=batch,
-                dimensions=settings.OPENAI_EMBEDDING_DIMENSIONS,
+                dimensions=self._embedding_dimensions(),
             )
             batch_embeddings = [item.embedding for item in response.data]
             all_embeddings.extend(batch_embeddings)
