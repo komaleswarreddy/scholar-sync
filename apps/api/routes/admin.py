@@ -12,6 +12,7 @@ from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import asyncio
 import httpx
+import time
 import uuid
 
 from packages.core.database.connection import get_db
@@ -24,6 +25,8 @@ from config.settings import settings
 from sqlalchemy import func
 
 router = APIRouter()
+_admin_role_cache: Dict[str, tuple[bool, float]] = {}
+_ADMIN_ROLE_CACHE_TTL_S = 60.0
 
 
 def _is_db_unavailable_error(exc: Exception) -> bool:
@@ -115,6 +118,10 @@ async def check_admin_role(
     user_id = getattr(request.state, "user_id", None)
     if not user_id:
         return False
+    now = time.monotonic()
+    cached = _admin_role_cache.get(user_id)
+    if cached and cached[1] > now:
+        return bool(cached[0])
     
     # Look up user by clerk_user_id
     try:
@@ -129,6 +136,8 @@ async def check_admin_role(
                 f"[ADMIN] DB unavailable while checking admin role by clerk_user_id: "
                 f"{type(e).__name__}: {e}"
             )
+            if cached and cached[1] > now:
+                return bool(cached[0])
             if raise_on_db_unavailable:
                 raise HTTPException(
                     status_code=503,
@@ -138,7 +147,9 @@ async def check_admin_role(
         raise
     
     if user:
-        return user.role == "admin"
+        is_admin = user.role == "admin"
+        _admin_role_cache[user_id] = (is_admin, now + _ADMIN_ROLE_CACHE_TTL_S)
+        return is_admin
     
     # If not found by clerk_user_id, try to get email from token and check by email
     try:
@@ -179,6 +190,8 @@ async def check_admin_role(
                                 f"[ADMIN] DB unavailable while checking admin role by email: "
                                 f"{type(e).__name__}: {e}"
                             )
+                            if cached and cached[1] > now:
+                                return bool(cached[0])
                             if raise_on_db_unavailable:
                                 raise HTTPException(
                                     status_code=503,
@@ -196,7 +209,9 @@ async def check_admin_role(
                             except Exception:
                                 await db.rollback()
                         
-                        return user.role == "admin"
+                        is_admin = user.role == "admin"
+                        _admin_role_cache[user_id] = (is_admin, now + _ADMIN_ROLE_CACHE_TTL_S)
+                        return is_admin
             except Exception:
                 pass
     except Exception:

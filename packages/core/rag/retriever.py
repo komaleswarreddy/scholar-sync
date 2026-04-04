@@ -74,16 +74,19 @@ class Retriever:
             except Exception:
                 self.cohere_reranker = None
 
+        # Hybrid scoring is also used when NCERT global results are merged into
+        # non-agent retrieval, so keep it available for both paths.
+        self.hybrid_retriever = HybridRetriever(
+            vector_weight=settings.HYBRID_VECTOR_WEIGHT,
+            keyword_weight=settings.HYBRID_KEYWORD_WEIGHT
+        )
+
         # Initialize Phase 2 agents if enabled
         if settings.USE_RETRIEVAL_AGENTS:
             self.intent_classifier = IntentClassifier(tenant_id, user_id=user_id)
             self.query_rewriter = QueryRewriter(tenant_id, user_id=user_id)
             self.query_decomposer = QueryDecomposer(tenant_id, user_id=user_id)
             self.complexity_scorer = QueryComplexityScorer()
-            self.hybrid_retriever = HybridRetriever(
-                vector_weight=settings.HYBRID_VECTOR_WEIGHT,
-                keyword_weight=settings.HYBRID_KEYWORD_WEIGHT
-            )
             self.mmr_diversity = MMRDiversity(lambda_param=settings.MMR_LAMBDA)
             self.context_selector = ContextSelector(
                 max_context_chunks=settings.MAX_CONTEXT_CHUNKS,
@@ -94,7 +97,6 @@ class Retriever:
             self.query_rewriter = None
             self.query_decomposer = None
             self.complexity_scorer = None
-            self.hybrid_retriever = None
             self.mmr_diversity = None
             self.context_selector = None
         
@@ -198,16 +200,69 @@ class Retriever:
                 return True
         return False
 
-    async def _merge_ncert_global_hybrid(
+    def _build_retrieval_cache_scope(
         self,
         *,
-        primary_query: str,
-        query_embedding: List[float],
-        hybrid_matches: List[Dict[str, Any]],
+        include_ncert_global: bool,
+        ncert_class: Optional[int],
+        ncert_subject: Optional[str],
+    ) -> str:
+        subject = (str(ncert_subject or "").strip().lower() or "all")
+        class_part = str(int(ncert_class)) if ncert_class is not None else "all"
+        return f"ncert_v2:{int(bool(include_ncert_global))}|class:{class_part}|subject:{subject}"
+
+    def _build_ncert_global_filter(
+        self,
+        *,
+        include_ncert: bool,
+        selected_class: Optional[int],
+        selected_subject: Optional[str],
+    ) -> Optional[Dict[str, Any]]:
+        if not include_ncert:
+            return None
+
+        ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
+        conditions: List[Dict[str, Any]] = [
+            {"tenant_id": {"$eq": ns}},
+            {"source": {"$eq": "ncert"}},
+        ]
+
+        if selected_class is not None:
+            conditions.append({"class": {"$eq": int(selected_class)}})
+
+        subject = (str(selected_subject or "").strip().lower() or None)
+        if subject:
+            conditions.append({"subject": {"$eq": subject}})
+
+        if len(conditions) == 1:
+            return conditions[0]
+        return {"$and": conditions}
+
+    def _merge_scored_matches(
+        self,
+        *match_groups: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        merged: Dict[str, Dict[str, Any]] = {}
+        for group in match_groups:
+            for match in group or []:
+                if not isinstance(match, dict):
+                    continue
+                match_id = str(match.get("id") or "").strip()
+                if not match_id:
+                    continue
+                existing = merged.get(match_id)
+                if existing is None or float(match.get("score") or 0.0) > float(existing.get("score") or 0.0):
+                    merged[match_id] = match
+        return sorted(merged.values(), key=lambda x: float(x.get("score") or 0.0), reverse=True)
+
+    async def _retrieve_ncert_global_matches(
+        self,
+        *,
+        query: str,
         ncert_class: Optional[int],
         ncert_subject: Optional[str],
     ) -> List[Dict[str, Any]]:
-        """Append hybrid-scored hits from Pinecone namespace NcertDataGlobal (same embed model as ingest)."""
+        """Retrieve and hybrid-score NCERT global matches from Pinecone namespace NcertDataGlobal."""
         ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
         top_k = int(getattr(settings, "NCERT_GLOBAL_RETRIEVAL_TOP_K", 24))
         emb_model = getattr(settings, "NCERT_GLOBAL_EMBEDDING_MODEL", None)
@@ -220,50 +275,107 @@ class Retriever:
             embedding_dimensions_override=emb_dims,
         )
         emb = await ncert_vs.generate_embedding(
-            primary_query,
+            query,
             metrics_user_id=self.user_id,
             metrics_feature_tag="ncert_global_query_embedding",
         )
 
-        meta_filter: Dict[str, Any] = {"source": {"$eq": "ncert"}}
-        if ncert_class is not None:
-            meta_filter["class"] = {"$eq": int(ncert_class)}
-        if ncert_subject and str(ncert_subject).strip():
-            meta_filter["subject"] = {"$eq": str(ncert_subject).strip().lower()}
+        meta_filter = self._build_ncert_global_filter(
+            include_ncert=True,
+            selected_class=ncert_class,
+            selected_subject=ncert_subject,
+        )
 
         raw = await ncert_vs.query_vectors(emb, top_k=top_k, filter=meta_filter)
         gmatches = list(raw.get("matches") or [])
 
+        target_subject = (str(ncert_subject or "").strip().lower() or None)
+        requested_class = int(ncert_class) if ncert_class is not None else None
+
+        def _coerce_int(value: Any) -> Optional[int]:
+            if value is None:
+                return None
+            if isinstance(value, bool):
+                return None
+            if isinstance(value, (int, float)):
+                return int(value)
+            if isinstance(value, str):
+                v = value.strip()
+                if v.isdigit():
+                    return int(v)
+            return None
+
+        filtered = []
+        for m in gmatches:
+            md = (m.get("metadata") if isinstance(m, dict) else getattr(m, "metadata", None)) or {}
+            md_class = _coerce_int(md.get("class") or md.get("class_num"))
+            md_subject = str(md.get("subject") or "").strip().lower()
+            md_tenant = str(md.get("tenant_id") or md.get("knowledge_namespace") or "").strip()
+            md_source = str(md.get("source") or "").strip().lower()
+
+            if md_tenant and md_tenant != ns:
+                continue
+            if md_source and md_source != "ncert":
+                continue
+            if requested_class is not None and md_class != requested_class:
+                continue
+            if target_subject and md_subject != target_subject:
+                continue
+            filtered.append(m)
+
+        if len(filtered) != len(gmatches):
+            print(
+                f"[NCERT_FILTER] ns={ns} class={requested_class} subject={target_subject or 'all'} "
+                f"pinecone_filter={meta_filter} raw={len(gmatches)} kept={len(filtered)}"
+            )
+        gmatches = filtered
+
         def _norm(m: Any) -> Dict[str, Any]:
             if isinstance(m, dict):
-                return {
-                    "id": m.get("id"),
-                    "score": float(m.get("score") or 0),
-                    "metadata": dict(m.get("metadata") or {}),
-                }
+                metadata = dict(m.get("metadata") or {})
+                match_id = m.get("id")
+                score = float(m.get("score") or 0)
+            else:
+                metadata = dict(getattr(m, "metadata", None) or {})
+                match_id = getattr(m, "id", None)
+                score = float(getattr(m, "score", 0) or 0)
+            metadata.setdefault("source", "ncert")
+            metadata.setdefault("knowledge_namespace", ns)
+            metadata.setdefault("source_type", "ncert_global")
             return {
-                "id": getattr(m, "id", None),
-                "score": float(getattr(m, "score", 0) or 0),
-                "metadata": dict(getattr(m, "metadata", None) or {}),
+                "id": match_id,
+                "score": score,
+                "metadata": metadata,
             }
 
-        norm_list = [_norm(m) for m in gmatches if _norm(m).get("id")]
-        if not norm_list:
-            return hybrid_matches
+        normalized = []
+        for match in gmatches:
+            item = _norm(match)
+            if item.get("id"):
+                normalized.append(item)
+        if not normalized:
+            return []
 
-        global_hybrid = self.hybrid_retriever.combine_results(norm_list, primary_query)
-        seen: Dict[Any, Dict[str, Any]] = {}
-        for m in hybrid_matches:
-            mid = m.get("id")
-            if mid:
-                seen[mid] = m
-        for m in global_hybrid:
-            mid = m.get("id")
-            if not mid:
-                continue
-            if mid not in seen or float(m.get("score") or 0) > float(seen[mid].get("score") or 0):
-                seen[mid] = m
-        return sorted(seen.values(), key=lambda x: float(x.get("score") or 0), reverse=True)
+        return self.hybrid_retriever.combine_results(normalized, query)
+
+    async def _merge_ncert_global_hybrid(
+        self,
+        *,
+        primary_query: str,
+        query_embedding: List[float],
+        hybrid_matches: List[Dict[str, Any]],
+        ncert_class: Optional[int],
+        ncert_subject: Optional[str],
+    ) -> List[Dict[str, Any]]:
+        """Append hybrid-scored hits from Pinecone namespace NcertDataGlobal."""
+        global_hybrid = await self._retrieve_ncert_global_matches(
+            query=primary_query,
+            ncert_class=ncert_class,
+            ncert_subject=ncert_subject,
+        )
+        if not global_hybrid:
+            return hybrid_matches
+        return self._merge_scored_matches(hybrid_matches, global_hybrid)
     
     async def retrieve(
         self,
@@ -327,6 +439,11 @@ class Retriever:
         
         # If Phase 2 agents disabled, use simple retrieval
         if not settings.USE_RETRIEVAL_AGENTS:
+            cache_scope = self._build_retrieval_cache_scope(
+                include_ncert_global=include_ncert_global,
+                ncert_class=ncert_class,
+                ncert_subject=ncert_subject,
+            )
             # Allow query-only callers; generate embedding here.
             if query_embedding is None:
                 if not query:
@@ -368,6 +485,22 @@ class Retriever:
                 output_fn=lambda r: {"match_count": len((r or {}).get("matches") or [])},
             )
             matches = results.get("matches", []) or []
+            if (
+                query
+                and include_ncert_global
+                and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
+            ):
+                try:
+                    ncert_matches = await self._retrieve_ncert_global_matches(
+                        query=query,
+                        ncert_class=ncert_class,
+                        ncert_subject=ncert_subject,
+                    )
+                    if ncert_matches:
+                        matches = self._merge_scored_matches(matches, ncert_matches)
+                        debug_trace["guardrails_applied"].append("ncert_global_merged")
+                except Exception as e:
+                    print(f"[RAG_PIPELINE] NCERT global merge skipped: {e}")
             if query and matches:
                 matches = await trace_async(
                     "Retrieval/simple_cohere_rerank",
@@ -386,6 +519,7 @@ class Retriever:
             # Metadata for downstream (e.g. chat generator prompt) — simple path has no scope/rewrite
             results["focused_query"] = query
             results["rewritten_queries"] = [query]
+            results["retrieval_cache_scope"] = cache_scope
             return results
         
         # Phase 2: Enhanced retrieval pipeline
@@ -476,9 +610,18 @@ class Retriever:
         rewritten_queries = [query]
         rewrite_confidence = 1.0
         used_rewrites = False
+        cache_scope = self._build_retrieval_cache_scope(
+            include_ncert_global=include_ncert_global,
+            ncert_class=ncert_class,
+            ncert_subject=ncert_subject,
+        )
 
         source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
-        cached_rewrite = self.retrieval_cache.get_rewrite(query, source_ids_list)
+        cached_rewrite = self.retrieval_cache.get_rewrite(
+            query,
+            source_ids_list,
+            cache_extra=cache_scope,
+        )
 
         if cached_rewrite:
             rewritten_queries = cached_rewrite
@@ -507,7 +650,12 @@ class Retriever:
             used_rewrites = rewrite_result.get("used_rewrites", False)
 
             if used_rewrites and rewritten_queries:
-                self.retrieval_cache.set_rewrite(query, rewritten_queries, source_ids_list)
+                self.retrieval_cache.set_rewrite(
+                    query,
+                    rewritten_queries,
+                    source_ids_list,
+                    cache_extra=cache_scope,
+                )
                 debug_trace["rewrite_cache_miss"] = True
         
         focused_query = rewritten_queries[0] if rewritten_queries else query
@@ -778,6 +926,19 @@ class Retriever:
                         vector_results=variant_matches,
                         query=rewritten_query,
                     )
+                    if (
+                        include_ncert_global
+                        and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
+                    ):
+                        ncert_variant_matches = await self._retrieve_ncert_global_matches(
+                            query=rewritten_query,
+                            ncert_class=ncert_class,
+                            ncert_subject=ncert_subject,
+                        )
+                        variant_hybrid = self._merge_scored_matches(
+                            variant_hybrid,
+                            ncert_variant_matches,
+                        )
                     additional_matches.extend(variant_hybrid)
                 except Exception as e:
                     self._log("REWRITE", f"Error searching with rewritten query: {e}")
@@ -892,7 +1053,11 @@ class Retriever:
         else:
             # Check cache first
             source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
-            cached_rerank = self.retrieval_cache.get_rerank(primary_query, source_ids_list)
+            cached_rerank = self.retrieval_cache.get_rerank(
+                primary_query,
+                source_ids_list,
+                cache_extra=cache_scope,
+            )
             
             if cached_rerank:
                 reranked_matches = cached_rerank
@@ -929,7 +1094,12 @@ class Retriever:
                     )
                     reranker_confidence = 0.55
                 if reranked_matches:
-                    self.retrieval_cache.set_rerank(primary_query, reranked_matches, source_ids_list)
+                    self.retrieval_cache.set_rerank(
+                        primary_query,
+                        reranked_matches,
+                        source_ids_list,
+                        cache_extra=cache_scope,
+                    )
                     debug_trace["rerank_cache_miss"] = True
             else:
                 print("[RAG_PIPELINE] COHERE_API_KEY not set; skipping rerank (no LLM/keyword fallback)")

@@ -1,0 +1,15 @@
+{
+  "rewritten_queries": [
+    "Thomson's model of the atom explanation",
+    "Thomson's atomic theory overview",
+    "explain about THOMSON\u2019S MODEL OF AN ATOM"
+  ],
+  "timestamp": 1775280826.530434,
+  "ttl": 3600,
+  "query": "explain about THOMSON\u2019S MODEL OF AN ATOM",
+  "source_ids": [
+    "ba6b2a0b-47f9-403c-8ac0-f7d4798f5f21",
+    "35a6358e-87ce-46ea-8ae4-3e5992e1f5ea"
+  ],
+  "cache_extra": "ncert_v2:0|class:all|subject:all"
+}

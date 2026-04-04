@@ -62,7 +62,12 @@ class RetrievalCache:
         """Normalize query for cache key generation."""
         return " ".join(query.lower().strip().split())
     
-    def _hash_query(self, query: str, source_ids: Optional[List[str]] = None) -> str:
+    def _hash_query(
+        self,
+        query: str,
+        source_ids: Optional[List[str]] = None,
+        cache_extra: Optional[str] = None,
+    ) -> str:
         """
         Create cache key from query and source IDs.
         
@@ -78,8 +83,10 @@ class RetrievalCache:
         # Include source IDs in hash (sorted for consistency)
         sources_str = ",".join(sorted(source_ids)) if source_ids else "none"
         
+        extra_str = (cache_extra or "").strip() or "none"
+
         # Create hash
-        cache_string = f"{normalized_query}::sources::{sources_str}"
+        cache_string = f"{normalized_query}::sources::{sources_str}::extra::{extra_str}"
         cache_key = hashlib.sha256(cache_string.encode()).hexdigest()
         
         return cache_key
@@ -87,7 +94,8 @@ class RetrievalCache:
     def get_rewrite(
         self,
         query: str,
-        source_ids: Optional[List[str]] = None
+        source_ids: Optional[List[str]] = None,
+        cache_extra: Optional[str] = None,
     ) -> Optional[List[str]]:
         """
         Get cached rewritten query.
@@ -99,7 +107,7 @@ class RetrievalCache:
         Returns:
             List of rewritten queries, or None if not cached
         """
-        cache_key = self._hash_query(query, source_ids)
+        cache_key = self._hash_query(query, source_ids, cache_extra)
         
         with self._lock:
             if cache_key in self._rewrite_cache:
@@ -123,6 +131,7 @@ class RetrievalCache:
         query: str,
         rewritten_queries: List[str],
         source_ids: Optional[List[str]] = None,
+        cache_extra: Optional[str] = None,
         ttl_seconds: Optional[int] = None
     ):
         """
@@ -134,7 +143,7 @@ class RetrievalCache:
             source_ids: Optional list of active source IDs
             ttl_seconds: Time-to-live in seconds (uses default if None)
         """
-        cache_key = self._hash_query(query, source_ids)
+        cache_key = self._hash_query(query, source_ids, cache_extra)
         ttl = ttl_seconds or self.default_ttl
         
         with self._lock:
@@ -147,7 +156,8 @@ class RetrievalCache:
                 "timestamp": time.time(),
                 "ttl": ttl,
                 "query": query,
-                "source_ids": source_ids or []
+                "source_ids": source_ids or [],
+                "cache_extra": cache_extra or "",
             }
             
             # Save to disk
@@ -156,7 +166,8 @@ class RetrievalCache:
     def get_rerank(
         self,
         query: str,
-        source_ids: Optional[List[str]] = None
+        source_ids: Optional[List[str]] = None,
+        cache_extra: Optional[str] = None,
     ) -> Optional[List[Dict[str, Any]]]:
         """
         Get cached reranked chunks.
@@ -168,7 +179,7 @@ class RetrievalCache:
         Returns:
             List of reranked chunk dicts, or None if not cached
         """
-        cache_key = self._hash_query(query, source_ids)
+        cache_key = self._hash_query(query, source_ids, cache_extra)
         
         with self._lock:
             if cache_key in self._rerank_cache:
@@ -192,6 +203,7 @@ class RetrievalCache:
         query: str,
         reranked_chunks: List[Dict[str, Any]],
         source_ids: Optional[List[str]] = None,
+        cache_extra: Optional[str] = None,
         ttl_seconds: Optional[int] = None
     ):
         """
@@ -203,7 +215,7 @@ class RetrievalCache:
             source_ids: Optional list of active source IDs
             ttl_seconds: Time-to-live in seconds (uses default if None)
         """
-        cache_key = self._hash_query(query, source_ids)
+        cache_key = self._hash_query(query, source_ids, cache_extra)
         ttl = ttl_seconds or self.default_ttl
         
         with self._lock:
@@ -216,7 +228,8 @@ class RetrievalCache:
                 "timestamp": time.time(),
                 "ttl": ttl,
                 "query": query,
-                "source_ids": source_ids or []
+                "source_ids": source_ids or [],
+                "cache_extra": cache_extra or "",
             }
             
             # Save to disk

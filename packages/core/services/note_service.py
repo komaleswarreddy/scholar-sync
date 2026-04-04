@@ -1,5 +1,6 @@
 # packages/core/services/note_service.py
 from typing import List, Optional
+import asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import uuid
@@ -25,13 +26,41 @@ class NotesService:
         return note
 
     async def list_notes(self) -> List[Note]:
-        result = await self.db.execute(
-            select(Note).where(
-                Note.tenant_id == uuid.UUID(self.tenant_id),
-                Note.user_id == self.user_id,
+        def _is_pool_exhaustion(err: Exception) -> bool:
+            msg = str(err).lower()
+            return "maxclientsinsessionmode" in msg or "max clients" in msg
+
+        db_timeout_s = 5.0
+
+        try:
+            result = await asyncio.wait_for(
+                self.db.execute(
+                    select(Note).where(
+                        Note.tenant_id == uuid.UUID(self.tenant_id),
+                        Note.user_id == self.user_id,
+                    )
+                ),
+                timeout=db_timeout_s,
             )
-        )
-        return result.scalars().all()
+            return result.scalars().all()
+        except Exception as e:
+            try:
+                from config.settings import settings
+                import sqlalchemy
+
+                if getattr(settings, "DB_FAIL_OPEN_ON_POOL_TIMEOUT", True) and (
+                    isinstance(e, (TimeoutError, asyncio.TimeoutError))
+                    or isinstance(e, sqlalchemy.exc.TimeoutError)
+                    or _is_pool_exhaustion(e)
+                ):
+                    print(
+                        "[WARNING] [NOTES] Database pool timeout; returning empty notes list fallback. "
+                        "Consider using Supabase transaction pooler (port 6543) or increasing DB pool size."
+                    )
+                    return []
+            except Exception:
+                pass
+            raise
 
     async def get_note_by_id(self, note_id: str) -> Optional[Note]:
         result = await self.db.execute(

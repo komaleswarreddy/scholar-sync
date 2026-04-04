@@ -302,11 +302,14 @@ class IngestionService:
 
     async def list_sources(self) -> List[dict]:
         tenant_uuid = uuid.UUID(self.tenant_id)
-        result = await self.db.execute(
-            select(Source).where(
-                Source.tenant_id == tenant_uuid,
-                Source.user_id == self.user_id
-            )
+        result = await asyncio.wait_for(
+            self.db.execute(
+                select(Source).where(
+                    Source.tenant_id == tenant_uuid,
+                    Source.user_id == self.user_id
+                )
+            ),
+            timeout=5.0,
         )
         sources = list(result.scalars().all())
 
@@ -530,4 +533,3 @@ class IngestionService:
                 raise ValueError(f"Failed to decode text file. File may not be UTF-8 encoded: {str(e)}")
         else:
             raise ValueError(f"Unsupported file type: {content_type}")
-

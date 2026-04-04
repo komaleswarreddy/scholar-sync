@@ -41,6 +41,7 @@ export function ChatListSidebar({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const retryCountRef = useRef(0);
+  const chatCountRef = useRef(0);
   const { apiClient } = useApi();
 
   // Load chat list with automatic retry for network errors
@@ -57,8 +58,10 @@ export function ChatListSidebar({
       // Handle different response formats
       if (response) {
         if (Array.isArray(response)) {
+          chatCountRef.current = response.length;
           setChats(response);
         } else if (response.chats && Array.isArray(response.chats)) {
+          chatCountRef.current = response.chats.length;
           setChats(response.chats);
         }
         // Clear any previous errors on successful load
@@ -81,7 +84,7 @@ export function ChatListSidebar({
       if (isRetryableList && retryCountRef.current < 2) {
         retryCountRef.current += 1;
 
-        if (chats.length === 0) {
+        if (chatCountRef.current === 0) {
           setError(errorMessage);
         }
 
@@ -105,7 +108,7 @@ export function ChatListSidebar({
     } finally {
       setIsLoading(false);
     }
-  }, [apiClient, chats.length]);
+  }, [apiClient]);
 
   useEffect(() => {
     loadChats();

@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Rutherford's model of an atom",
+    "Rutherford atomic theory",
+    "RUTHERFORD\u2019S MODEL OF AN ATOM?"
+  ],
+  "timestamp": 1775278525.1347148,
+  "ttl": 3600,
+  "query": " RUTHERFORD\u2019S MODEL OF AN ATOM?",
+  "source_ids": [
+    "ba6b2a0b-47f9-403c-8ac0-f7d4798f5f21"
+  ],
+  "cache_extra": "ncert_v2:0|class:all|subject:all"
+}

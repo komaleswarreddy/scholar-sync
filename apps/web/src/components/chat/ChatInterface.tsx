@@ -19,6 +19,7 @@ import { useApi } from '@/hooks/useApi';
 import { useSourceContext } from '@/contexts/SourceContext';
 import { useChatContext } from '@/contexts/ChatContext';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
+import { DEFAULT_NCERT_SUBJECTS_BY_CLASS } from '@/config/ncertSubjectsByClass';
 
 interface Citation {
   id?: string;
@@ -62,6 +63,22 @@ export function ChatInterface() {
   const [ncertFilterClass, setNcertFilterClass] = useState<number | null>(null);
   /** Optional subject slug filter, e.g. science */
   const [ncertFilterSubject, setNcertFilterSubject] = useState('');
+  const ncertSubjectOptions = (() => {
+    if (ncertFilterClass != null) {
+      return DEFAULT_NCERT_SUBJECTS_BY_CLASS[String(ncertFilterClass)] || [];
+    }
+    return Array.from(
+      new Set(
+        Object.values(DEFAULT_NCERT_SUBJECTS_BY_CLASS).flat()
+      )
+    );
+  })();
+
+  const formatNcertSubjectLabel = (subject: string) =>
+    subject
+      .split('_')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<string>(''); 
@@ -830,7 +847,14 @@ export function ChatInterface() {
                     value={ncertFilterClass === null ? '' : String(ncertFilterClass)}
                     onChange={(e) => {
                       const v = e.target.value;
-                      setNcertFilterClass(v === '' ? null : parseInt(v, 10));
+                      const nextClass = v === '' ? null : parseInt(v, 10);
+                      setNcertFilterClass(nextClass);
+                      const nextSubjectOptions = nextClass == null
+                        ? Array.from(new Set(Object.values(DEFAULT_NCERT_SUBJECTS_BY_CLASS).flat()))
+                        : (DEFAULT_NCERT_SUBJECTS_BY_CLASS[String(nextClass)] || []);
+                      if (ncertFilterSubject && !nextSubjectOptions.includes(ncertFilterSubject)) {
+                        setNcertFilterSubject('');
+                      }
                     }}
                     className="rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
                   >
@@ -843,14 +867,19 @@ export function ChatInterface() {
                   </select>
                 </label>
                 <label className="flex items-center gap-2 text-text-secondary min-w-[200px] flex-1">
-                  <span className="whitespace-nowrap">Subject slug</span>
-                  <input
-                    type="text"
+                  <span className="whitespace-nowrap">Subject</span>
+                  <select
                     value={ncertFilterSubject}
                     onChange={(e) => setNcertFilterSubject(e.target.value)}
-                    placeholder="e.g. science (optional)"
                     className="flex-1 min-w-0 rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
-                  />
+                  >
+                    <option value="">All subjects</option>
+                    {ncertSubjectOptions.map((subject) => (
+                      <option key={subject} value={subject}>
+                        {formatNcertSubjectLabel(subject)}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </div>
             )}

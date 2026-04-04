@@ -474,9 +474,17 @@ class LangGraphChatPipeline:
             import uuid as uuid_lib
             from sqlalchemy import select
             from packages.core.database.models.source import Source
+            from packages.core.database.models.ncert_global import NcertGlobalDocument
 
             tenant_uuid = uuid_lib.UUID(self.tenant_id)
-            source_uuids = [uuid_lib.UUID(sid) for sid in source_ids]
+            source_uuids = []
+            for sid in source_ids:
+                try:
+                    source_uuids.append(uuid_lib.UUID(sid))
+                except Exception:
+                    continue
+            if not source_uuids:
+                return {}
             result = await self.db.execute(
                 select(Source.id, Source.title).where(
                     Source.id.in_(source_uuids),
@@ -484,8 +492,29 @@ class LangGraphChatPipeline:
                     Source.user_id == self.user_id,
                 )
             )
-            rows = result.all()
-            return {str(r.id): r.title for r in rows if r and r.title}
+            title_map = {str(r.id): r.title for r in result.all() if r and r.title}
+
+            unresolved = [sid for sid in source_uuids if str(sid) not in title_map]
+            if unresolved:
+                global_result = await self.db.execute(
+                    select(
+                        NcertGlobalDocument.id,
+                        NcertGlobalDocument.title,
+                        NcertGlobalDocument.class_num,
+                        NcertGlobalDocument.subject,
+                    ).where(NcertGlobalDocument.id.in_(unresolved))
+                )
+                for row in global_result.all():
+                    if not row:
+                        continue
+                    title = row.title
+                    if not title:
+                        subject = str(row.subject or "").replace("_", " ").title().strip()
+                        title = f"NCERT Class {row.class_num} {subject}".strip()
+                    if title:
+                        title_map[str(row.id)] = title
+
+            return title_map
         except Exception:
             return {}
 
@@ -590,7 +619,7 @@ class LangGraphChatPipeline:
         source_ids = state.get("active_source_ids") or []
         cache_extra = ""
         if state.get("include_ncert_global"):
-            cache_extra = f"ncert|{state.get('ncert_class')}|{state.get('ncert_subject')}"
+            cache_extra = f"ncert_v2|{state.get('ncert_class')}|{state.get('ncert_subject')}"
         cached = self.answer_cache.get(q, source_ids, self.tenant_id, cache_extra=cache_extra)
         if cached:
             state["use_cached_response"] = True
@@ -798,7 +827,8 @@ class LangGraphChatPipeline:
                     chunk_text = chunk_text[:max_chars]
 
                 source_id = md.get("source_id")
-                source_title = titles.get(source_id) if source_id else None
+                metadata_title = md.get("display_source") or md.get("topic")
+                source_title = (titles.get(source_id) if source_id else None) or metadata_title
                 display_title = source_title or f"doc_{(source_id or 'unknown')[:8]}"
                 page_num = md.get("page_start") or md.get("page_number")
                 page_str = f"p{page_num}" if page_num else f"chunk{i}"
@@ -849,7 +879,8 @@ class LangGraphChatPipeline:
             md = m.get("metadata", {}) or {}
             chunk_text = md.get("text", "") or ""
             source_id = md.get("source_id")
-            source_title = titles.get(source_id) if source_id else None
+            metadata_title = md.get("display_source") or md.get("topic")
+            source_title = (titles.get(source_id) if source_id else None) or metadata_title
             display_title = source_title or f"doc_{(source_id or 'unknown')[:8]}"
             page_num = md.get("page_start") or md.get("page_number")
             page_str = f"p{page_num}" if page_num else f"chunk{i}"
@@ -1139,7 +1170,7 @@ class LangGraphChatPipeline:
         citations = list(state.get("citations") or [])
         cache_extra = ""
         if state.get("include_ncert_global"):
-            cache_extra = f"ncert|{state.get('ncert_class')}|{state.get('ncert_subject')}"
+            cache_extra = f"ncert_v2|{state.get('ncert_class')}|{state.get('ncert_subject')}"
         try:
             self.answer_cache.set(
                 q,
@@ -1264,4 +1295,3 @@ class LangGraphChatPipeline:
         if trace_id_opt:
             done_data["trace_id"] = trace_id_opt
         yield {"event": "done", "data": done_data}
-

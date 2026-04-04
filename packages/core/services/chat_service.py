@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete, and_
 from sqlalchemy.orm import selectinload
 from typing import List, Optional, Tuple
+import asyncio
 import uuid
 
 from packages.core.database.models.chat import Chat, Message
@@ -97,6 +98,12 @@ class ChatService:
         """
         List chats with message counts in a single query (avoids N+1 count queries on the API).
         """
+        def _is_pool_exhaustion(err: Exception) -> bool:
+            msg = str(err).lower()
+            return "maxclientsinsessionmode" in msg or "max clients" in msg
+
+        db_timeout_s = 5.0
+
         stmt = (
             select(Chat, func.count(Message.id).label("message_count"))
             .outerjoin(Message, Message.chat_id == Chat.id)
@@ -108,7 +115,7 @@ class ChatService:
             .offset(offset)
         )
         try:
-            result = await self.db.execute(stmt)
+            result = await asyncio.wait_for(self.db.execute(stmt), timeout=db_timeout_s)
             rows = result.all()
             return [(row[0], int(row[1] or 0)) for row in rows]
         except Exception as e:
@@ -117,8 +124,10 @@ class ChatService:
                 from config.settings import settings
                 import sqlalchemy
 
-                if getattr(settings, "DB_FAIL_OPEN_ON_POOL_TIMEOUT", True) and isinstance(
-                    e, sqlalchemy.exc.TimeoutError
+                if getattr(settings, "DB_FAIL_OPEN_ON_POOL_TIMEOUT", True) and (
+                    isinstance(e, (TimeoutError, asyncio.TimeoutError))
+                    or isinstance(e, sqlalchemy.exc.TimeoutError)
+                    or _is_pool_exhaustion(e)
                 ):
                     print(
                         "[WARNING] [CHAT] Database pool timeout; returning empty chats list fallback. "
@@ -153,38 +162,59 @@ class ChatService:
         citations: Optional[List[dict]] = None
     ) -> Message:
         """Add a message to a chat."""
-        chat_uuid = uuid.UUID(chat_id) if isinstance(chat_id, str) else chat_id
-        
-        # Verify chat exists and belongs to user
-        chat_result = await self.db.execute(
-            select(Chat)
-            .where(Chat.id == chat_uuid)
-            .where(Chat.tenant_id == self.tenant_id)
-            .where(Chat.user_id == self.user_id)
-        )
-        chat = chat_result.scalar_one_or_none()
-        if not chat:
-            raise ValueError(f"Chat {chat_id} not found or access denied")
+        def _is_pool_exhaustion(err: Exception) -> bool:
+            msg = str(err).lower()
+            return "maxclientsinsessionmode" in msg or "max clients" in msg
 
-        message = Message(
-            chat_id=chat_uuid,
-            role=role,
-            content=content,
-            citations=citations or [],
-        )
-        self.db.add(message)
-        
-        # Auto-generate title from first user message if not set
-        if not chat.title and role == 'user':
-            # Use first 50 characters of first message as title
-            chat.title = content[:50] + ('...' if len(content) > 50 else '')
-        
-        await self.db.commit()
-        await self.db.refresh(message)
-        # Refresh chat to ensure title is updated in the session
-        if not chat.title and role == 'user':
-            await self.db.refresh(chat)
-        return message
+        chat_uuid = uuid.UUID(chat_id) if isinstance(chat_id, str) else chat_id
+        retries = 3
+        backoff_seconds = 0.3
+
+        for attempt in range(retries):
+            try:
+                # Verify chat exists and belongs to user
+                chat_result = await self.db.execute(
+                    select(Chat)
+                    .where(Chat.id == chat_uuid)
+                    .where(Chat.tenant_id == self.tenant_id)
+                    .where(Chat.user_id == self.user_id)
+                )
+                chat = chat_result.scalar_one_or_none()
+                if not chat:
+                    raise ValueError(f"Chat {chat_id} not found or access denied")
+
+                message = Message(
+                    chat_id=chat_uuid,
+                    role=role,
+                    content=content,
+                    citations=citations or [],
+                )
+                self.db.add(message)
+
+                # Auto-generate title from first user message if not set
+                if not chat.title and role == 'user':
+                    # Use first 50 characters of first message as title
+                    chat.title = content[:50] + ('...' if len(content) > 50 else '')
+
+                await self.db.commit()
+                await self.db.refresh(message)
+                # Refresh chat to ensure title is updated in the session
+                if not chat.title and role == 'user':
+                    await self.db.refresh(chat)
+                return message
+            except Exception as e:
+                if _is_pool_exhaustion(e):
+                    try:
+                        await self.db.rollback()
+                    except Exception:
+                        pass
+                    if attempt < retries - 1:
+                        await asyncio.sleep(backoff_seconds * (2 ** attempt))
+                        continue
+                    raise TimeoutError(
+                        "Database pool exhausted while saving message. Please retry."
+                    ) from e
+                raise
 
     async def delete_chat(self, chat_id: str) -> bool:
         """Delete a chat and all its messages."""
