@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "explain extracting metals in the middle of the activity series",
+    "describe the process of extracting metals from the middle of the activity series",
+    "explain this topic  Extracting Metals in the Middle of the Activity Series"
+  ],
+  "timestamp": 1775306392.8027413,
+  "ttl": 3600,
+  "query": "explain this topic  Extracting Metals in the Middle of the Activity Series",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

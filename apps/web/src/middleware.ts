@@ -8,6 +8,7 @@ import type { NextRequest } from 'next/server';
  */
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
+  '/tutor-mode(.*)',
   '/studio(.*)',
   '/notes(.*)',
   '/analytics(.*)',

@@ -10,7 +10,6 @@
 import { useState, KeyboardEvent, useMemo } from 'react';
 import { Send } from 'lucide-react';
 import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
 import { useSources } from '@/hooks/useSources';
 
 interface ChatInputProps {
@@ -19,6 +18,8 @@ interface ChatInputProps {
   activeSourceIds?: string[];
   /** When false, starter suggestion chips are hidden (after first user message in this chat). */
   showSuggestedPrompts?: boolean;
+  helperText?: string;
+  disabledReason?: string | null;
 }
 
 export function ChatInput({
@@ -26,6 +27,8 @@ export function ChatInput({
   disabled = false,
   activeSourceIds = [],
   showSuggestedPrompts = true,
+  helperText,
+  disabledReason,
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
   const { data: sources = [] } = useSources();
@@ -85,8 +88,9 @@ export function ChatInput({
           {suggestedPrompts.slice(0, 3).map((prompt, index) => (
             <button
               key={index}
-              className="px-4 py-2 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
+              className="px-4 py-2 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => setMessage(prompt)}
+              disabled={disabled}
             >
               {prompt}
             </button>
@@ -117,7 +121,7 @@ export function ChatInput({
       
       <div className="flex items-center justify-between mt-3 px-2">
         <p className="text-xs text-text-tertiary">
-          {disabled ? 'Configure API keys to enable chat' : '1 source'}
+          {disabled ? (disabledReason || 'Chat unavailable right now') : (helperText || 'Chat ready')}
         </p>
         <p className="text-xs text-text-tertiary italic">
           NotebookLM can be inaccurate; please double check its responses.

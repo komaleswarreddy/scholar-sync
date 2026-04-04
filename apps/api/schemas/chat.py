@@ -41,6 +41,15 @@ class ChatRequest(BaseModel):
         default=None,
         description="Optional subject slug filter (e.g. science) when include_ncert_global is true.",
     )
+    ncert_chapter_no: Optional[int] = Field(
+        default=None,
+        ge=1,
+        description="Optional NCERT chapter number filter when include_ncert_global is true.",
+    )
+    ncert_chapter_name: Optional[str] = Field(
+        default=None,
+        description="Optional NCERT chapter name filter when include_ncert_global is true.",
+    )
 
 
 class Citation(BaseModel):

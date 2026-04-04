@@ -71,7 +71,7 @@ function formatUsd(value: number | undefined) {
 }
 
 export default function PipelineTracePage() {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const searchParams = useSearchParams();
   const traceIdFromUrl = searchParams.get('trace_id') || '';
 
@@ -89,7 +89,7 @@ export default function PipelineTracePage() {
   }, [traceIdFromUrl]);
 
   const loadTrace = useCallback(async () => {
-    if (!getToken || !traceId.trim()) return;
+    if (!getToken || !isLoaded || !isSignedIn || !traceId.trim()) return;
     setLoading(true);
     setError(null);
     try {
@@ -103,31 +103,34 @@ export default function PipelineTracePage() {
     } finally {
       setLoading(false);
     }
-  }, [getToken, traceId]);
+  }, [getToken, isLoaded, isSignedIn, traceId]);
 
   const loadRecent = useCallback(async () => {
-    if (!getToken) return;
+    if (!getToken || !isLoaded || !isSignedIn) return;
     setListLoading(true);
     try {
       apiClient.setTokenGetter(getToken);
       const data = await apiClient.listPipelineTracesRecent(40);
       setRecent(data?.traces || []);
       setRecentScope(data?.scope === 'all' ? 'all' : 'mine');
-    } catch {
+    } catch (e: any) {
       setRecent([]);
       setRecentScope(null);
+      setError(e?.response?.data?.detail || e?.message || 'Failed to load recent traces');
     } finally {
       setListLoading(false);
     }
-  }, [getToken]);
+  }, [getToken, isLoaded, isSignedIn]);
 
   useEffect(() => {
-    if (traceId.trim()) loadTrace();
-  }, [traceId, loadTrace]);
+    if (!isLoaded || !isSignedIn || !getToken || !traceId.trim()) return;
+    loadTrace();
+  }, [isLoaded, isSignedIn, getToken, traceId, loadTrace]);
 
   useEffect(() => {
+    if (!isLoaded || !isSignedIn || !getToken) return;
     loadRecent();
-  }, [loadRecent]);
+  }, [isLoaded, isSignedIn, getToken, loadRecent]);
 
   const sortedSpans = useMemo(() => {
     if (!trace?.spans?.length) return [];
@@ -193,6 +196,12 @@ export default function PipelineTracePage() {
           </p>
         </div>
       </div>
+
+      {(!isLoaded || !isSignedIn) && (
+        <div className="rounded-lg border border-border-default bg-surface/40 p-3 text-sm text-text-secondary">
+          Waiting for authentication to finish before loading pipeline traces. If this persists, refresh the page.
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2 items-center">
         <input

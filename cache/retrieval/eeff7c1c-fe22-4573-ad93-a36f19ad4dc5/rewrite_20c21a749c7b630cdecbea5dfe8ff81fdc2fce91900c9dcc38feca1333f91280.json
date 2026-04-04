@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Clinical thermometer: explanation, usage, and purpose",
+    "What is a clinical thermometer and when is it used?",
+    "Clinical thermometer  explain about it ? why and when we use this?"
+  ],
+  "timestamp": 1775307427.8977845,
+  "ttl": 3600,
+  "query": "Clinical thermometer  explain about it ? why and when we use this?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:9|subject:science|chapter_no:5|chapter_name:all"
+}

@@ -13,6 +13,8 @@ class ChatGraphState(TypedDict, total=False):
     include_ncert_global: bool
     ncert_class: Optional[int]
     ncert_subject: Optional[str]
+    ncert_chapter_no: Optional[int]
+    ncert_chapter_name: Optional[str]
 
     # Control flow
     blocked: bool
@@ -63,4 +65,3 @@ class ChatGraphState(TypedDict, total=False):
 
     # Debug: pipeline trace id (when ENABLE_PIPELINE_TRACE)
     trace_id: str
-

@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Properties of Ionic Compounds",
+    "Characteristics of Ionic Compounds",
+    "Properties of Ionic Compounds?"
+  ],
+  "timestamp": 1775297724.9841096,
+  "ttl": 3600,
+  "query": " Properties of Ionic Compounds?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

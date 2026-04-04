@@ -4,7 +4,7 @@
  * Provides loading states, caching, and optimistic updates for source operations
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 
@@ -30,6 +30,8 @@ export interface Source {
 
 /**
  * Hook to fetch all sources
+ * Uses keepPreviousData so that a failed background refetch
+ * (e.g. DB timeout returns 503) does NOT blank the list.
  */
 export function useSources() {
   return useQuery({
@@ -44,17 +46,18 @@ export function useSources() {
       }
     },
     staleTime: 5 * 1000,
+    // Keep showing previous data while a refetch is in progress
+    placeholderData: keepPreviousData,
     // Poll more aggressively while any source is still processing so the UI flips to READY
     // shortly after the background ingestion commits the indexed status.
     refetchInterval: (query) => {
       const sources = (query.state.data as Source[] | undefined) ?? [];
-      return sources.some((source) => source.status === 'processing') ? 2 * 1000 : 25 * 1000;
+      return sources.some((source) => source.status === 'processing') ? 2 * 1000 : 30 * 1000;
     },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
   });
 }
-
 /**
  * Hook to upload a source file
  */

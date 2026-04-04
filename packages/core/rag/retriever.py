@@ -206,10 +206,17 @@ class Retriever:
         include_ncert_global: bool,
         ncert_class: Optional[int],
         ncert_subject: Optional[str],
+        ncert_chapter_no: Optional[int],
+        ncert_chapter_name: Optional[str],
     ) -> str:
         subject = (str(ncert_subject or "").strip().lower() or "all")
         class_part = str(int(ncert_class)) if ncert_class is not None else "all"
-        return f"ncert_v2:{int(bool(include_ncert_global))}|class:{class_part}|subject:{subject}"
+        chapter_no = str(int(ncert_chapter_no)) if ncert_chapter_no is not None else "all"
+        chapter_name = (str(ncert_chapter_name or "").strip().lower() or "all")
+        return (
+            f"ncert_v3:{int(bool(include_ncert_global))}|class:{class_part}|subject:{subject}|"
+            f"chapter_no:{chapter_no}|chapter_name:{chapter_name}"
+        )
 
     def _build_ncert_global_filter(
         self,
@@ -217,13 +224,14 @@ class Retriever:
         include_ncert: bool,
         selected_class: Optional[int],
         selected_subject: Optional[str],
+        selected_chapter_no: Optional[int],
+        selected_chapter_name: Optional[str],
     ) -> Optional[Dict[str, Any]]:
         if not include_ncert:
             return None
 
         ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
         conditions: List[Dict[str, Any]] = [
-            {"tenant_id": {"$eq": ns}},
             {"source": {"$eq": "ncert"}},
         ]
 
@@ -234,9 +242,24 @@ class Retriever:
         if subject:
             conditions.append({"subject": {"$eq": subject}})
 
+        if selected_chapter_no is not None:
+            conditions.append({"chapter_no": {"$eq": int(selected_chapter_no)}})
+
+        chapter_name = (str(selected_chapter_name or "").strip().lower() or None)
+        if chapter_name:
+            conditions.append({"chapter_name": {"$eq": chapter_name}})
+
         if len(conditions) == 1:
-            return conditions[0]
-        return {"$and": conditions}
+            meta_filter = conditions[0]
+        else:
+            meta_filter = {"$and": conditions}
+        
+        print(
+            f"[TUTOR_FILTER_BUILD] class={selected_class} subject={selected_subject} "
+            f"chapter_no={selected_chapter_no} chapter_name={selected_chapter_name} "
+            f"→ filter={meta_filter}"
+        )
+        return meta_filter
 
     def _merge_scored_matches(
         self,
@@ -261,6 +284,8 @@ class Retriever:
         query: str,
         ncert_class: Optional[int],
         ncert_subject: Optional[str],
+        ncert_chapter_no: Optional[int],
+        ncert_chapter_name: Optional[str],
     ) -> List[Dict[str, Any]]:
         """Retrieve and hybrid-score NCERT global matches from Pinecone namespace NcertDataGlobal."""
         ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
@@ -284,13 +309,20 @@ class Retriever:
             include_ncert=True,
             selected_class=ncert_class,
             selected_subject=ncert_subject,
+            selected_chapter_no=ncert_chapter_no,
+            selected_chapter_name=ncert_chapter_name,
         )
 
+        print(f"[TUTOR_QUERY_PINECONE] Querying {ns} with filter={meta_filter}")
         raw = await ncert_vs.query_vectors(emb, top_k=top_k, filter=meta_filter)
         gmatches = list(raw.get("matches") or [])
+        print(f"[TUTOR_QUERY_PINECONE_RESULT] Got {len(gmatches)} raw matches from Pinecone")
+
 
         target_subject = (str(ncert_subject or "").strip().lower() or None)
         requested_class = int(ncert_class) if ncert_class is not None else None
+        requested_chapter_no = int(ncert_chapter_no) if ncert_chapter_no is not None else None
+        requested_chapter_name = (str(ncert_chapter_name or "").strip().lower() or None)
 
         def _coerce_int(value: Any) -> Optional[int]:
             if value is None:
@@ -306,27 +338,43 @@ class Retriever:
             return None
 
         filtered = []
+        failed_filters_count = 0
         for m in gmatches:
             md = (m.get("metadata") if isinstance(m, dict) else getattr(m, "metadata", None)) or {}
             md_class = _coerce_int(md.get("class") or md.get("class_num"))
             md_subject = str(md.get("subject") or "").strip().lower()
-            md_tenant = str(md.get("tenant_id") or md.get("knowledge_namespace") or "").strip()
+            md_chapter_no = _coerce_int(md.get("chapter_no"))
+            md_chapter_name = str(md.get("chapter_name") or "").strip().lower()
             md_source = str(md.get("source") or "").strip().lower()
 
-            if md_tenant and md_tenant != ns:
-                continue
+            # Apply post-processing filters for backward compatibility and safety
             if md_source and md_source != "ncert":
+                failed_filters_count += 1
                 continue
             if requested_class is not None and md_class != requested_class:
+                print(f"[TUTOR_FILTER_MISMATCH] Class mismatch: requested={requested_class}, got={md_class}")
+                failed_filters_count += 1
                 continue
             if target_subject and md_subject != target_subject:
+                print(f"[TUTOR_FILTER_MISMATCH] Subject mismatch: requested={target_subject}, got={md_subject}")
+                failed_filters_count += 1
+                continue
+            if requested_chapter_no is not None and md_chapter_no != requested_chapter_no:
+                print(f"[TUTOR_FILTER_MISMATCH] Chapter_no mismatch: requested={requested_chapter_no}, got={md_chapter_no}")
+                failed_filters_count += 1
+                continue
+            if requested_chapter_name and md_chapter_name != requested_chapter_name:
+                print(f"[TUTOR_FILTER_MISMATCH] Chapter_name mismatch: requested={requested_chapter_name}, got={md_chapter_name}")
+                failed_filters_count += 1
                 continue
             filtered.append(m)
 
-        if len(filtered) != len(gmatches):
+        if len(filtered) != len(gmatches) or failed_filters_count > 0:
             print(
-                f"[NCERT_FILTER] ns={ns} class={requested_class} subject={target_subject or 'all'} "
-                f"pinecone_filter={meta_filter} raw={len(gmatches)} kept={len(filtered)}"
+                f"[TUTOR_POSTPROCESS_FILTER] class={requested_class} subject={target_subject or 'all'} "
+                f"chapter_no={requested_chapter_no if requested_chapter_no is not None else 'all'} "
+                f"chapter_name={requested_chapter_name or 'all'} "
+                f"raw={len(gmatches)} filtered_out={failed_filters_count} kept={len(filtered)}"
             )
         gmatches = filtered
 
@@ -366,12 +414,16 @@ class Retriever:
         hybrid_matches: List[Dict[str, Any]],
         ncert_class: Optional[int],
         ncert_subject: Optional[str],
+        ncert_chapter_no: Optional[int],
+        ncert_chapter_name: Optional[str],
     ) -> List[Dict[str, Any]]:
         """Append hybrid-scored hits from Pinecone namespace NcertDataGlobal."""
         global_hybrid = await self._retrieve_ncert_global_matches(
             query=primary_query,
             ncert_class=ncert_class,
             ncert_subject=ncert_subject,
+            ncert_chapter_no=ncert_chapter_no,
+            ncert_chapter_name=ncert_chapter_name,
         )
         if not global_hybrid:
             return hybrid_matches
@@ -389,6 +441,8 @@ class Retriever:
         include_ncert_global: bool = False,
         ncert_class: Optional[int] = None,
         ncert_subject: Optional[str] = None,
+        ncert_chapter_no: Optional[int] = None,
+        ncert_chapter_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Retrieve relevant chunks from vector store.
@@ -443,6 +497,8 @@ class Retriever:
                 include_ncert_global=include_ncert_global,
                 ncert_class=ncert_class,
                 ncert_subject=ncert_subject,
+                ncert_chapter_no=ncert_chapter_no,
+                ncert_chapter_name=ncert_chapter_name,
             )
             # Allow query-only callers; generate embedding here.
             if query_embedding is None:
@@ -495,6 +551,8 @@ class Retriever:
                         query=query,
                         ncert_class=ncert_class,
                         ncert_subject=ncert_subject,
+                        ncert_chapter_no=ncert_chapter_no,
+                        ncert_chapter_name=ncert_chapter_name,
                     )
                     if ncert_matches:
                         matches = self._merge_scored_matches(matches, ncert_matches)
@@ -614,6 +672,8 @@ class Retriever:
             include_ncert_global=include_ncert_global,
             ncert_class=ncert_class,
             ncert_subject=ncert_subject,
+            ncert_chapter_no=ncert_chapter_no,
+            ncert_chapter_name=ncert_chapter_name,
         )
 
         source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
@@ -880,6 +940,8 @@ class Retriever:
                     hybrid_matches=hybrid_matches,
                     ncert_class=ncert_class,
                     ncert_subject=ncert_subject,
+                    ncert_chapter_no=ncert_chapter_no,
+                    ncert_chapter_name=ncert_chapter_name,
                 )
                 debug_trace["guardrails_applied"].append("ncert_global_merged")
                 debug_trace["after_hybrid_merge"] = {"count": len(hybrid_matches)}
@@ -934,6 +996,8 @@ class Retriever:
                             query=rewritten_query,
                             ncert_class=ncert_class,
                             ncert_subject=ncert_subject,
+                            ncert_chapter_no=ncert_chapter_no,
+                            ncert_chapter_name=ncert_chapter_name,
                         )
                         variant_hybrid = self._merge_scored_matches(
                             variant_hybrid,

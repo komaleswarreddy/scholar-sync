@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "explain the occurrence of metals",
+    "describe the distribution and occurrence of metallic elements",
+    "explain the topic of OCCURRENCE OF METALS"
+  ],
+  "timestamp": 1775306980.2307193,
+  "ttl": 3600,
+  "query": "explain the topic of OCCURRENCE OF METALS",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

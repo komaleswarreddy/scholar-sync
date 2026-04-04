@@ -1,0 +1,43 @@
+{
+  "reranked_chunks": [
+    {
+      "id": "d51a7503-e034-4b52-96bd-0b1b2919564e_chunk_1",
+      "score": 0.01516718,
+      "metadata": {
+        "source_id": "d51a7503-e034-4b52-96bd-0b1b2919564e",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 1,
+        "text": "casual per segment\n4c. Required Integrations\nSystem\nPurpose\nCRM\nLead data, deal stages, activity history\nCalendar\nMeeting triggers, scheduling\nSocial Media APIs\nLead identification, intent signals\nWhatsApp Business API\nMulti-channel outreach\nEmail Provider\nSending, deliverability, tracking\nAnalytics\nOpen rates, click rates, conversions\n4d. Key Metrics to Track\n\u007f Open rate, click rate, reply rate\n\u007f Conversion rate per sequence\n\u007f Time-to-response\n\u007f Unsubscribe rate\n\n\u007f Human approval turnaround time\n\n5. Suggested Email Sequence Templates\nPre-built templates for your development team to implement:\nB2B Outbound Sequence\nDay\nAction\nDay 0\nInitial outreach\nDay 3\nFollow-up #1 (new angle)\nDay 7\nFollow-up #2 (social proof)\nDay 14\nBreak-up email\nPost-Demo Sequence\nDay\nAction\nDay 0\nThank you + recap\nDay 2\nAddress common objections\nDay 5\nCase study relevant to their use case\nDay 10\nCheck-in / decision timeline\nProduct Activation Sequence\nTiming\nAction\nHour 0\nWelcome email\nHour 24\nSetup reminder (if incomplete)\nDay 3\nFirst value prompt\nDay 7\nTips email\nDay 14\nDormant re-engagement",
+        "page_start": 5,
+        "page_end": 6,
+        "page_number": 5,
+        "vector_score": 0.223011643,
+        "keyword_score": 0.7329866234650361,
+        "rerank_score": 0.01516718
+      }
+    },
+    {
+      "id": "d51a7503-e034-4b52-96bd-0b1b2919564e_chunk_0",
+      "score": 0.012261391,
+      "metadata": {
+        "source_id": "d51a7503-e034-4b52-96bd-0b1b2919564e",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 0,
+        "text": "Outbound Email Use Cases\nImplementation Guide for Development Team\nOverview\nThis agent platform automates customer acquisition email workflows across three main channels: B2B Sales,\nB2C Outreach, and Marketing Automation. All workflows include human-in-the-loop approval for s before\nsending.\n1. B2B Sales Emails (Post Lead Generation)\nThese are relationship-driven, high-touch emails for qualified leads moving through a sales pipeline.\nEmail Type\nTrigger\nPurpose\nApproval\nMeeting Follow-up\nCalendar event\ncompleted\nRecap discussion, confirm next steps\nYes\nProduct Info Send\nRep request or lead asks\nDeliver brochures, one-pagers, case\nstudies\nYes\nDemo Scheduling\nLead qualified for demo\nPropose times, set expectations\nYes\nPost-Demo Follow-up\nDemo completed\nAddress questions, share\nrecording/slides\nYes\nNurture/Check-in\nX days since last contact\nKeep relationship warm, gauge interest\nYes\nProposal/Agreement\nDeal stage =\n\"Negotiation\"\nSend SOWs, contracts, pricing\nYes\nFAQ/Objection\nHandling\nCommon objection\ndetected\nProactively address concerns\nYes\nOnboarding Handoff\nDeal closed-won\nIntroduce CS team, share SOPs\nYes\n\n2. B2C Outreach Emails (Lead Generation & Cold Outreach)\nThese are volume-driven, conversion-focused emails for acquiring new customers.\n2a. Lead Identification & Cold Outreach\nEmail Type\nTrigger\nPurpose\nChannel\nInitial Cold Outreach\nLead identified via\nsocial/intent data\nIntroduce product, spark interest\nEmail + WhatsApp\nFollow-up #1\nNo response after 3 days\nGentle reminder with value prop\nEmail\nFollow-up #2\nNo response after 7 days\nDifferent angle or offer\nEmail + WhatsApp\nBreak-up Email\nNo response after 14 days\nFinal attempt, create urgency\nEmail\n2b. Engaged Lead Nurturing\nEmail Type\nTrigger\nPurpose\nProduct Demo/How-to\nLead expressed interest\nShare video walkthroughs, tutorials\nFeature Highlights\nLead viewed specific pages\nDeep-dive on relevant features\nPricing/Access Info\nLead requested pricing\nSend plans, policies, access details\nTestimonials/Reviews\nLead in consideration phase\nBuild trust with social proof\n\n3. Marketing Automation (Lifecycle Emails)\nThese are behavior-triggered, automated emails for both prospects and existing users.\n3a. Newsletter Campaigns\nCampaign Type\nAudience\nFrequency\nContent\nProduct Updates\nAll subscribers\nBi-weekly/Monthly\nNew features, improvements\nFeature Launch\nRelevant segments\nAs released\nDeep-dive on new capability\nIndustry Insights\nB2B subscribers\nMonthly\nThought leadership, trends\nTips & Best Practices\nActive users\nWeekly\nHow to get more value\n3b. Product Activation & Retention\nEmail Type\nTrigger Condition\nGoal\nWelcome\nAccount created\nSet expectations, first action\nSetup Incomplete\nCreated account, no setup after 24h\nComplete onboarding\nFirst Value\nSetup complete, no key action taken\nDrive to \"aha moment\"\nDormant User\nNo login for 7+ days\nRe-engage\nWin-back\nNo login for 30+ days\nPrevent churn\nNew Feature Announcement\nFeature released + user is relevant\nDrive adoption\nUsage Milestone\nUser hits milestone (10 tasks, etc.)\nCelebrate, encourage upgrade\n\n4. Cross-Cutting Concerns (Critical for Implementation)\n4a. Compliance & Legal\n\u007f Unsubscribe handling \u2014 one-click unsubscribe, preference center\n\u007f GDPR/CAN-SPAM \u2014 consent tracking, regional compliance\n\u007f Data retention \u2014 how long to keep contact data\n4b. Agent Workflow Configuration\n\u007f Human approval gate \u2014 all s require approval before send\n\u007f Escalation rules \u2014 when to involve a human (angry reply, legal mention)\n\u007f Personalization depth \u2014 what data the agent can use\n\u007f Tone calibration \u2014 formal vs. casual per segment\n4c. Required Integrations\nSystem\nPurpose\nCRM\nLead data, deal stages, activity history\nCalendar\nMeeting triggers, scheduling\nSocial Media APIs\nLead identification, intent signals\nWhatsApp Business API\nMulti-channel outreach\nEmail Provider\nSending, deliverability, tracking\nAnalytics\nOpen rates, click rates, conversions\n4d. Key Metrics to Track\n\u007f Open rate, click rate, reply rate\n\u007f Conversion rate per sequence\n\u007f Time-to-response\n\u007f Unsubscribe rate\n\n\u007f Human approval turnaround time\n\n5.",
+        "page_start": 1,
+        "page_end": 5,
+        "page_number": 1,
+        "vector_score": 0.189065188,
+        "keyword_score": 1.0,
+        "rerank_score": 0.012261391
+      }
+    }
+  ],
+  "timestamp": 1775307752.8586788,
+  "ttl": 3600,
+  "query": "explain laboratory thermometer, its purpose and when to use it",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

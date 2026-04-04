@@ -191,8 +191,12 @@ async def list_sources(request: Request, db: AsyncSession = Depends(get_db)):
         return SourceListResponse(sources=sources)
     except Exception as e:
         if _is_db_unavailable_error(e):
-            print(f"[SOURCES] DB unavailable in list_sources; returning empty list fallback: {e}")
-            return SourceListResponse(sources=[])
+            print(f"[SOURCES] DB unavailable in list_sources: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail="Database temporarily unavailable. Please try again shortly.",
+                headers={"Retry-After": "5"},
+            )
         raise
 
 @router.delete("/sources/{source_id}")

@@ -51,6 +51,5 @@ export default function DashboardPage() {
     );
   }
 
-  return <ChatInterface />;
+  return <ChatInterface mode="dashboard" />;
 }
-

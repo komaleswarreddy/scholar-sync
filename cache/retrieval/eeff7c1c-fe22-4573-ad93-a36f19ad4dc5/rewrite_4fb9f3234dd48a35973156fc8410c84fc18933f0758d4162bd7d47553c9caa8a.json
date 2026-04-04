@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "explain laboratory thermometer, its purpose and when to use it",
+    "what is a laboratory thermometer and its applications",
+    "explain about Laboratory thermometer why it for and  when we use this?"
+  ],
+  "timestamp": 1775307737.3583694,
+  "ttl": 3600,
+  "query": "explain about Laboratory thermometer why it for and  when we use this?",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

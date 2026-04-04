@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "how to measure human body temperature",
+    "methods for measuring human temperature",
+    "how to measure the human Measuring Temperature?"
+  ],
+  "timestamp": 1775307331.4109626,
+  "ttl": 3600,
+  "query": "how to measure the human Measuring Temperature?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:9|subject:science|chapter_no:5|chapter_name:all"
+}

@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "How do metals react with solutions of other metal salts?",
+    "Reactions of metals with metal salt solutions",
+    "How do Metals react with Solutions of other Metal Salts?"
+  ],
+  "timestamp": 1775296806.9466226,
+  "ttl": 3600,
+  "query": "How do Metals react with Solutions of other Metal Salts?",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}
