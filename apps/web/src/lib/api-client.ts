@@ -534,6 +534,14 @@ class ApiClient {
           }
         );
 
+        // DEBUG: Log the request payload
+        console.debug('[streamChat] Sending request to /api/v1/chat/stream:', {
+          include_ncert_global: Boolean(includeNcertGlobal),
+          active_source_ids: activeSourceIds,
+          ncert_class: ncertClass,
+          ncert_subject: ncertSubject,
+        });
+
         clearTimeout(timeoutId);
 
         // Handle 401 Unauthorized - try refreshing token and retry once

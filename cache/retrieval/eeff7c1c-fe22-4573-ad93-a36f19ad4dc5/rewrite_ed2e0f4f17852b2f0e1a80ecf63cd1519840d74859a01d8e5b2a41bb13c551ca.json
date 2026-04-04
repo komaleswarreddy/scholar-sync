@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "definition of cytoplasm",
+    "what is cytoplasm in a cell",
+    "what is meant by  CYTOPLASM?"
+  ],
+  "timestamp": 1775322420.1549346,
+  "ttl": 3600,
+  "query": "what is meant by  CYTOPLASM?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

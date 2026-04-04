@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Who is J.J. Thomson and his contributions to atomic theory?",
+    "J.J. Thomson biography and his role in the discovery of the electron",
+    "who is J.J. Thomson ?"
+  ],
+  "timestamp": 1775323848.5326328,
+  "ttl": 3600,
+  "query": "who is J.J. Thomson ?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

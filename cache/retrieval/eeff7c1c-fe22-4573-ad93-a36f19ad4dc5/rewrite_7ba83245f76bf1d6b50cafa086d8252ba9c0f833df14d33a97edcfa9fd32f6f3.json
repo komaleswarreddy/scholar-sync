@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "explain mass number in isotopes",
+    "definition of mass number in chemistry",
+    "explain about MASS NUMBER"
+  ],
+  "timestamp": 1775310391.3698084,
+  "ttl": 3600,
+  "query": "explain about MASS NUMBER",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

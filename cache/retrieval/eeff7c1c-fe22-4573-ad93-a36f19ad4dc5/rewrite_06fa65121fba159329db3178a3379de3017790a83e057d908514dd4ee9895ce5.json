@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "What are living organisms composed of?",
+    "Components of living organisms",
+    "What are Living Organisms Made Up of? in  3 lines"
+  ],
+  "timestamp": 1775316315.2256079,
+  "ttl": 3600,
+  "query": "What are Living Organisms Made Up of? in  3 lines",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "what is meant by cell wall in biology?",
+    "definition of cell wall and its function",
+    "what is  meant by  CELL WALL?"
+  ],
+  "timestamp": 1775321780.674354,
+  "ttl": 3600,
+  "query": "what is  meant by  CELL WALL?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

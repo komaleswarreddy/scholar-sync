@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "explain Atomic Number and Mass Number",
+    "definition of Atomic Number and Mass Number",
+    "explain about Atomic Number and Mass Number"
+  ],
+  "timestamp": 1775309789.8594153,
+  "ttl": 3600,
+  "query": "explain about Atomic Number and Mass Number",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

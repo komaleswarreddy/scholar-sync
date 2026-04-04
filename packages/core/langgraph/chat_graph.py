@@ -757,6 +757,13 @@ class LangGraphChatPipeline:
         include_g = bool(state.get("include_ncert_global")) and getattr(
             settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
         )
+        
+        # DEBUG: Log the checkbox state and active sources
+        print(f"[RETRIEVAL_NODE] include_ncert_global={state.get('include_ncert_global')} (raw from state)")
+        print(f"[RETRIEVAL_NODE] ENABLE_NCERT_GLOBAL_IN_CHAT={getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
+        print(f"[RETRIEVAL_NODE] include_g={include_g} (computed, after AND with setting)")
+        print(f"[RETRIEVAL_NODE] active_source_ids={active}")
+        
         if active:
             filter_dict: Optional[Dict[str, Any]] = {"source_id": {"$in": active}}
         elif include_g:
@@ -764,6 +771,10 @@ class LangGraphChatPipeline:
             filter_dict = {"source_id": {"$in": ["00000000-0000-0000-0000-000000000001"]}}
         else:
             filter_dict = None
+        
+        print(f"[RETRIEVAL_NODE] filter_dict={filter_dict}")
+        print(f"[RETRIEVAL_NODE] Passing to retriever: include_ncert_global={include_g}")
+        
         results = await self.retriever.retrieve(
             query=q,
             top_k=settings.TOP_K_CHUNKS,

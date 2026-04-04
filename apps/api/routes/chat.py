@@ -165,6 +165,20 @@ async def stream_chat(
     include_ncert = bool(getattr(request_body, "include_ncert_global", False)) and getattr(
         settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
     )
+    
+    # DEBUG: Log checkbox state received from frontend
+    print(f"[API_CHAT_STREAM] include_ncert_global from request={getattr(request_body, 'include_ncert_global', False)}")
+    print(f"[API_CHAT_STREAM] ENABLE_NCERT_GLOBAL_IN_CHAT setting={getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
+    print(f"[API_CHAT_STREAM] include_ncert (final)={include_ncert}")
+    print(f"[API_CHAT_STREAM] active_source_ids={request_body.active_source_ids}")
+    
+    # DEBUG: Log NCERT tutor mode filters if present
+    if include_ncert:
+        print(f"[TUTOR_MODE_REQUEST] ncert_class={request_body.ncert_class}")
+        print(f"[TUTOR_MODE_REQUEST] ncert_subject={request_body.ncert_subject}")
+        print(f"[TUTOR_MODE_REQUEST] ncert_chapter_no={request_body.ncert_chapter_no}")
+        print(f"[TUTOR_MODE_REQUEST] ncert_chapter_name={request_body.ncert_chapter_name}")
+        print(f"[TUTOR_MODE_REQUEST] query='{request_body.message[:100]}...'" if len(request_body.message) > 100 else f"[TUTOR_MODE_REQUEST] query='{request_body.message}'")
 
     # Require at least one of: user-selected sources OR NCERT global (when enabled).
     if (

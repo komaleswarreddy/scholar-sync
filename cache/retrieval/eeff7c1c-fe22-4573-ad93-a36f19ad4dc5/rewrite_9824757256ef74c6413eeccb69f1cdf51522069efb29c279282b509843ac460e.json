@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "What is the structural organization of a cell?",
+    "Components and structure of a cell",
+    "What is the Structural Organisation of a Cell?"
+  ],
+  "timestamp": 1775321070.4655051,
+  "ttl": 3600,
+  "query": "What is the Structural Organisation of a Cell?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

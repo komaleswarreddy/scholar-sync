@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "what is Christmas pudding",
+    "definition of Christmas pudding",
+    "what is meant by Christmas pudding.?"
+  ],
+  "timestamp": 1775323059.533495,
+  "ttl": 3600,
+  "query": "what is meant by Christmas pudding.?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

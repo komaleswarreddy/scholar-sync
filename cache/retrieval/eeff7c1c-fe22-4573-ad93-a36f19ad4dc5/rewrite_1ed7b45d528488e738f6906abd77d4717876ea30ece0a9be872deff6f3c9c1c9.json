@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Who is Robert Hooke and what are his contributions?",
+    "Robert Hooke biography and scientific achievements",
+    "who is Robert Hooke ?"
+  ],
+  "timestamp": 1775318217.5885592,
+  "ttl": 3600,
+  "query": "who is Robert Hooke ?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

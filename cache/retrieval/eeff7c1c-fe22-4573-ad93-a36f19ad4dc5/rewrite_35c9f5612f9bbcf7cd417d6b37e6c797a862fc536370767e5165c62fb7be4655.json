@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "What are cell organelles?",
+    "Definition and functions of cell organelles",
+    "what  is CELL ORGANELLES?"
+  ],
+  "timestamp": 1775324576.901539,
+  "ttl": 3600,
+  "query": "  what  is CELL ORGANELLES?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

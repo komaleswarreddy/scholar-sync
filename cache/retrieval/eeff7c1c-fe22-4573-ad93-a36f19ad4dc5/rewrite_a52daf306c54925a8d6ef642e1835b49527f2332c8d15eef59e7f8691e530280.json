@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Metals and Non-metals in chemistry",
+    "Characteristics of metals and non-metals",
+    "Metals and Non-metals"
+  ],
+  "timestamp": 1775322676.482776,
+  "ttl": 3600,
+  "query": "Metals and Non-metals",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

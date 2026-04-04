@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "What is a cell made up of?",
+    "Components of a cell structure",
+    "What is a Cell Made Up of?"
+  ],
+  "timestamp": 1775319663.3041275,
+  "ttl": 3600,
+  "query": "What is a Cell Made Up of?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

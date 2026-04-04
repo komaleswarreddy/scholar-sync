@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "who is Anna Mani and what are her contributions?",
+    "Anna Mani biography and achievements",
+    "who is Anna Mani  and what  she done?"
+  ],
+  "timestamp": 1775324475.0637045,
+  "ttl": 3600,
+  "query": "who is Anna Mani  and what  she done?",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:10|subject:science|chapter_no:3|chapter_name:all"
+}

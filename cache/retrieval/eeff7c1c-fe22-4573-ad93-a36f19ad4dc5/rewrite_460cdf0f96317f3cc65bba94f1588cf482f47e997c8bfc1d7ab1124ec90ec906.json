@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Drawbacks of Rutherford's model of the atom",
+    "Limitations of Rutherford's atomic model",
+    "explain about Drawbacks of Rutherford\u2019s model of the atom"
+  ],
+  "timestamp": 1775315237.8868194,
+  "ttl": 3600,
+  "query": "explain about Drawbacks of Rutherford\u2019s model of the atom",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

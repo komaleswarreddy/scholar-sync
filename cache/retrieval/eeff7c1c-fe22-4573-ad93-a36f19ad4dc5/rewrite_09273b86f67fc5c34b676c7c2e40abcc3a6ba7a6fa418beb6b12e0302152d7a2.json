@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "what are isotopes",
+    "definition of isotopes",
+    "what is Isotopes"
+  ],
+  "timestamp": 1775310318.3242164,
+  "ttl": 3600,
+  "query": "what is Isotopes",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

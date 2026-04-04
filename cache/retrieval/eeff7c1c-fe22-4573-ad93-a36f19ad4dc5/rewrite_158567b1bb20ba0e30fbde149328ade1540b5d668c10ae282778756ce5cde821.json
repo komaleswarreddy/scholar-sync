@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "explain the plasma membrane or cell membrane in simple terms",
+    "what is the function of the plasma membrane in cells",
+    "explian about  PLASMA MEMBRANE OR CELL MEMBRANE in simple"
+  ],
+  "timestamp": 1775316577.2076187,
+  "ttl": 3600,
+  "query": "explian about  PLASMA MEMBRANE OR CELL MEMBRANE in simple",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

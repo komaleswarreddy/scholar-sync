@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "occurrence of metals in nature",
+    "natural occurrence of metallic elements",
+    "OCCURRENCE OF METALS explain this topic"
+  ],
+  "timestamp": 1775310578.6623218,
+  "ttl": 3600,
+  "query": "OCCURRENCE OF METALS explain this topic ",
+  "source_ids": [
+    "d51a7503-e034-4b52-96bd-0b1b2919564e"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

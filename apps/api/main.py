@@ -6,8 +6,59 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import traceback
 from dotenv import load_dotenv
+import sys
+import logging
+
+# ========== CONFIGURE LOGGING FOR IMMEDIATE DISPLAY ==========
+# Ensure all logs are immediately flushed and visible in terminal
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(message)s',
+    stream=sys.stdout,
+    force=True
+)
+# DISABLE VERBOSE HTTPX DEBUG LOGGING (HTTP/2 frame encoding/decoding noise)
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('httpcore').setLevel(logging.WARNING)
+logging.getLogger('h2').setLevel(logging.WARNING)
+logging.getLogger('hpack').setLevel(logging.WARNING)
+
+# Also flush print statements immediately
+sys.stdout.flush()
+sys.stderr.flush()
+# ========== END LOGGING CONFIG ==========
+
+# Custom print function with immediate flush
+def log_msg(msg):
+    """Print immediately with flush"""
+    print(msg, flush=True)
+    sys.stdout.flush()
+
+# Export for use in other modules
+import builtins
+_original_print = builtins.print
+def flushed_print(*args, **kwargs):
+    """Override print to always flush"""
+    kwargs['flush'] = True
+    return _original_print(*args, **kwargs)
+builtins.print = flushed_print
 
 load_dotenv()
+
+# ========== MONKEY PATCH: Fix httpx.AsyncClient proxies incompatibility ==========
+# Supabase 2.28.2 tries to pass 'proxies' parameter to httpx.AsyncClient,
+# but httpx 0.25.2 doesn't accept it. This patch removes the proxies argument
+# before AsyncClient initialization.
+import httpx
+_original_async_client_init = httpx.AsyncClient.__init__
+
+def patched_async_client_init(self, *args, **kwargs):
+    # Remove 'proxies' from kwargs if present (supabase passes this but httpx 0.25.2 doesn't support it)
+    kwargs.pop('proxies', None)
+    return _original_async_client_init(self, *args, **kwargs)
+
+httpx.AsyncClient.__init__ = patched_async_client_init
+# ========== END MONKEY PATCH ==========
  
 from config.settings import settings
 from apps.api.middleware.tenant import TenantMiddleware
