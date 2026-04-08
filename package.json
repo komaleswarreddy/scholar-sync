@@ -5,6 +5,7 @@
   "description": "ScholarSync - AI Notebook Platform for Educational Institutions",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web:clean": "pnpm --filter @scholarsync/web dev:clean",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",

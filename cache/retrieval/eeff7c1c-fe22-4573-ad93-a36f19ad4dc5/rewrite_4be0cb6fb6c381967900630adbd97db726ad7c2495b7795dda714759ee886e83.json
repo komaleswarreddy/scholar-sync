@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "Explain the observations and reasoning behind the de-shelled egg osmosis experiment",
+    "What does the de-shelled egg experiment demonstrate about osmosis and water movement?",
+    "Explain the observations and reasoning behind the de-shelled egg experiment."
+  ],
+  "timestamp": 1775304670.9219918,
+  "ttl": 3600,
+  "query": "Explain the observations and reasoning behind the de-shelled egg experiment.",
+  "source_ids": [
+    "ef1079d8-3c01-460f-a587-c205f6e8eaca"
+  ],
+  "cache_extra": "ncert_v2:0|class:all|subject:all"
+}

@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "summarize the experience in two lines",
+    "describe the experience briefly in two sentences",
+    "give me the experience in 2 lines"
+  ],
+  "timestamp": 1775628152.1533031,
+  "ttl": 3600,
+  "query": "give me the experience in 2 lines",
+  "source_ids": [
+    "ffe3c11e-9a58-47d2-9d22-1319186906cb"
+  ],
+  "cache_extra": "ncert_v2:0|class:all|subject:all"
+}

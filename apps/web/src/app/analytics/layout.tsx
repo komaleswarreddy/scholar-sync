@@ -25,6 +25,12 @@ export default function AnalyticsLayout({
   /** Sidebar only — never block page render on this. */
   const [isAdmin, setIsAdmin] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  /** Avoid hydration mismatch: Clerk `isLoaded` can differ SSR vs first client render. */
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Best-effort admin check for sidebar (403 from /admin/aggregate is expected for non-admins)
   useEffect(() => {
@@ -97,7 +103,7 @@ export default function AnalyticsLayout({
 
             {/* Main content — show as soon as Clerk token is available (do not wait for admin check) */}
             <main className="flex-1 overflow-y-auto p-4 lg:p-6 min-w-0">
-              {!isLoaded || !isSignedIn ? (
+              {!mounted || !isLoaded || !isSignedIn ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-blue mx-auto mb-4"></div>

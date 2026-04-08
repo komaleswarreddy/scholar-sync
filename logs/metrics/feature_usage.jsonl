@@ -244,3 +244,17 @@
 {"timestamp": "2026-04-04T05:31:45.472415", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=3125.6"}
 {"timestamp": "2026-04-04T05:33:43.557933", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=3044.9"}
 {"timestamp": "2026-04-04T05:54:55.133843", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=3038.6"}
+{"timestamp": "2026-04-04T11:42:45.148420", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=1690.1"}
+{"timestamp": "2026-04-04T11:55:11.682950", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2181.5"}
+{"timestamp": "2026-04-04T12:09:02.534891", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=1513.3"}
+{"timestamp": "2026-04-04T12:11:08.131079", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2132.8"}
+{"timestamp": "2026-04-04T12:13:03.493019", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2494.1"}
+{"timestamp": "2026-04-04T12:25:22.975552", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2066.3"}
+{"timestamp": "2026-04-04T12:26:49.009305", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2356.2"}
+{"timestamp": "2026-04-04T12:44:13.285513", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=1717.1"}
+{"timestamp": "2026-04-04T12:59:35.831350", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2702.2"}
+{"timestamp": "2026-04-04T13:00:59.242935", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=2028.7"}
+{"timestamp": "2026-04-04T13:03:33.309582", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=1762.1"}
+{"timestamp": "2026-04-04T13:06:01.828660", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=1801.5"}
+{"timestamp": "2026-04-04T13:07:17.122704", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=1719.5"}
+{"timestamp": "2026-04-08T06:02:28.065155", "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5", "user_id": null, "feature": "intent_classifier", "endpoint": "llm_ok|ms=1927.8"}

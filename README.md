@@ -179,6 +179,8 @@ Use this if you prefer setting up tables directly in the Supabase UI (or if you 
   Equivalent: `pnpm --filter @scholarsync/web dev`  
   Default URL: `http://localhost:3000`
 
+  **ChunkLoadError / `_next/static/chunks/...` timeout in dev:** Usually a **stale `.next` cache** or **two `next dev` processes** (one still on port 3000, another on 3001). Stop every dev server, then from repo root run `pnpm dev:web:clean` (clears `apps/web/.next` and starts Next), or manually delete `apps/web/.next` and run `pnpm dev` once. Open the URL printed in the terminal (3000 or 3001) and hard-refresh the browser.
+
 - **Docker (API + Postgres + Redis + worker)**
 
   ```bash

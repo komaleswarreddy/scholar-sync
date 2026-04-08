@@ -26,8 +26,8 @@ export default function RootLayout({
   
   // Only wrap with ClerkProvider if Clerk is properly configured
   const content = (
-    <html lang="en">
-      <body className={`${inter.variable} font-sans`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

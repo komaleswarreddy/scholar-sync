@@ -18,10 +18,11 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  // Check if Clerk is configured
-  const isClerkConfigured = typeof window !== 'undefined' && 
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
-    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('...');
+  // Must match server and client (never gate on `window` — that breaks hydration).
+  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const isClerkConfigured = Boolean(
+    clerkKey && !clerkKey.includes('...')
+  );
   
   // Use Clerk hooks - must be called unconditionally
   // If ClerkProvider isn't present, hooks will still work but return defaults
@@ -36,8 +37,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (!clerkGetToken) {
         return null;
       }
-      const token = await clerkGetToken({ template: 'default' });
-      return token ?? null;
+      // Prefer the explicit JWT template (if you created it), but gracefully
+      // fall back to Clerk's default token if the template doesn't exist yet.
+      try {
+        const token = await clerkGetToken({ template: 'default' });
+        if (token) return token;
+      } catch {
+        // continue to fallback below
+      }
+
+      const fallback = await clerkGetToken();
+      return fallback ?? null;
     } catch (err) {
       console.error('[AUTH] Error fetching token:', err);
       return null;

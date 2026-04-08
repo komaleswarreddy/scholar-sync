@@ -63,6 +63,7 @@ function formatUsd(n: number | undefined | null): string {
 
 export default function NcertGlobalAdminPage() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<WizardStep>(1);
   const [classNum, setClassNum] = useState<number | null>(null);
   const [subject, setSubject] = useState<string>('');
@@ -112,6 +113,10 @@ export default function NcertGlobalAdminPage() {
       setListLoading(false);
     }
   }, [getToken]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !getToken) return;
@@ -209,7 +214,7 @@ export default function NcertGlobalAdminPage() {
     }
   };
 
-  if (!isLoaded || !isSignedIn) {
+  if (!mounted || !isLoaded || !isSignedIn) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
         <Loader2 className="w-8 h-8 animate-spin text-text-tertiary" />

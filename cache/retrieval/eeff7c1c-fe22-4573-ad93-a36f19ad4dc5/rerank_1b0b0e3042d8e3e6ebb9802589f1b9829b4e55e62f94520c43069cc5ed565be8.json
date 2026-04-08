@@ -1,0 +1,80 @@
+{
+  "reranked_chunks": [
+    {
+      "id": "ef1079d8-3c01-460f-a587-c205f6e8eaca_chunk_0",
+      "score": 0.17326054,
+      "metadata": {
+        "source_id": "ef1079d8-3c01-460f-a587-c205f6e8eaca",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 0,
+        "text": "Class IXth (Biology Notes )\nChapter -5 (The Fundamental Unit Of Life )\nA) Cell - Cell is the smallest structural and functional unit of life. It is called structural unit as\nall living organism are made up of cells and functional unit as it is the smallest structure\ncapable of performing basic life processes.\nTwo postulates of the cell theory are -\n1. All organisms are made up of cells.\n2. All cells exist f rom pre - existing cells.\nB) Who discovered cell -It was discovered by Robert Hooke in 1665.Other discoveries about\ncell ar e:\na) Robert Brown \u2013Nucleus of the cell in 1831\nb) Anton Van Lee uwenhoek \u2013 Free living cells in pond water (bacteria) in 1674\nc) Purkinje \u2013 Fluid substance of cell (Protoplasm) in 1839\nd) J.E.Virchow - Expanded cell theory (all cells arise from pre -existing cells) in 1855\ne) M.J. Schleiden and T. Schwann \u2013 Gave cell theory (cell is basic unit of life) in 1838 -39\nf) The discovery of electron microscope in 1940 helped to understand complex structure of\ncell and its organelles.\nC) What are cell organelles - Each cell has got certain basi c components within it known as cell\norganell es. Each kind of cell organelle performs a special function that is why a cell is able\nto live and perform all its function in any organism. These organelles are suspended in the\ncytoplasm.\nD) Basic components of cell - Plasma membrane, Nucleus and cytoplasm.\nE) PLASMA MEMBRANE :\na) It is the outermost layer of animal cell.\nb) It gives shape to the cell and provides mechanical support and protection to the inner\ncontents of the cell .\nc) It is protective covering of the cell.\nd) It is called selectively permeable membrane as it allows the entry and exit of s ome\nmaterials in and out of the cell.\ne) It is highly flexible , living membrane made up of organic molecules - proteins and lipids.\nF) What is difference between diffusion and osmosis -\n\nDIFFUSION OSMOSIS\n1. The process of movement of\nmolecules from a region of\nhigher concentration to lower\nconcentration to spread\nuniformly in given space . 1. The process of movement of\nwater molecules from region of\nhigher concentration to lower\nconcentration through semi -\npermeable membrane .\n2. It is seen in solids, liquids and\ngases . 2. It is seen only in liquids .\n3. It helps in exchange of gases\nlike CO 2 and O2 between cell as\nwell as its external environment. 3. It helps in absorption of water by\nplant cells and unicellular\norganisms.\n4.\n4.\nG) What happens when we put an animal cell into a solution of salt or sugar?\n** Solute + Solvent ---------- SOLUTION\nThree things can happen -\na) Higher water concentration than a cell in surrounding medium i.e. the solution is dilute -\nforms hypotonic solution -Cell gains water and swells up ( becomes turgid) -process is\nEndosmosis.\nb) Lower concentration of water than a cell in surrounding medium i.e. the solution is\nconcentrated -forms Hypertonic solution - Cell lo ses water and shrinks (plasmolysed i.e.\nbecomes flaccid )-process is Exosmos is.\nc) Same concentration inside and outside the cell -forms Isotonic solution - No change and\nremains normal cell.\nConclusion: Osmosis is special kind of diffusion through plasma membrane which can be\naffected by the amount of substance dissolved in water.\n\nH) What is Plasmolysis - When living plant cell lo ses water through osmosis, there is\nshrinkage or contraction of the contents of the cell away from the cell wall. This\nphenomenon is called as PLASMOLYSIS .\nI) What is Endocytosis \u2013 It is the process which enables the cell to engulf in food and other\nmaterial from its external environment. It takes place as cell membrane is highly flexible.\nExample \u2013 Unicellular organism Amoeba acquires its food through this process.\n\nJ) What is Cytoplasm - It is fluid medium present within a cell between cell membrane and\nnucleus in which all the cell organelles remain suspended . It is the main medium in which all\ncellular reaction s take place in the cell .",
+        "page_start": 1,
+        "page_end": 3,
+        "page_number": 1,
+        "chunk_context": "This chunk discusses the fundamental unit of life, focusing on cells, their discovery, organelles, and key processes like diffusion and osmosis.",
+        "chunk_summary": "The chunk covers the definition of cells, their discovery, organelles, and differences between diffusion and osmosis, including effects of solutions on animal cells.",
+        "chunk_type": "qa",
+        "section_title": "The Fundamental Unit Of Life",
+        "concept_hint": "Cell, Cell Theory, Plasma Membrane, Diffusion, Osmosis, Plasmolysis, Endocytosis, Cytoplasm",
+        "contextual_version": 1,
+        "topic": "The Fundamental Unit Of Life",
+        "vector_score": 0.382505774,
+        "keyword_score": 1.0,
+        "rerank_score": 0.17326054
+      }
+    },
+    {
+      "id": "ef1079d8-3c01-460f-a587-c205f6e8eaca_chunk_2",
+      "score": 0.14710155,
+      "metadata": {
+        "source_id": "ef1079d8-3c01-460f-a587-c205f6e8eaca",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 2,
+        "text": "Gregorios School, Dwarka\nClass 9th (Session 2020 -21)\nBiology Worksheet \u2013 1 (Chapter \u2013 5 The Fundamental Unit Of Life )\nQ1 Draw a labelled diagram of plant cell and animal cell.\nQ2 What are genes? Where are they located?\nQ3 Name the two nucleic acids found in cells. Expand them.\nQ4 What is Plasmolysis? What happens to a plasmolysed cell when it is placed\nin a hypotonic solution ?\nQ5 Differentiate between -\na) Cytopla sm, N ucleoplasm and Protop lasm\nb) Chromatin and Chromosome\nQ6 Differentiate between Hypotonic, Hypertonic and Isotonic solution.\nWhat will happen to a n animal cell if placed in them?\nQ7 Why is plasma membrane called selectively permeable membrane ?\nQ8 Justify the statement \u201ca cell is the structural and functional unit of life\u201d.\nQ9 List three distinguishing features between prokaryotic cells and Eukaryotic\ncells in terms of ( i) size of the cells (ii) number of chromosomes in the cell and\n(iii) nuclear region.\nQ10 A unicellular algae put in distilled water does not burst whereas an\nAmoeba would burst. Why?\nQ11 Define Osmosis. How is it different from d iffusion?\nQ12 how does an Amoeba obtain its food?\nQ13 Who presented the cell theory? What does the cel l theory state?\nQ14 How is a bacterial cell different from an onion peel cell?\nQ15 What is the difference between cell membrane and cell wall?\n\nSt. Gregorios School, Dwarka\nClass 8th (Session 2020 -21)\nBiology Worksheet - 1 (Chapter -2 Microorganisms)\nQ1 What are microorganisms?\nQ2 What are the major groups of microorganisms?\nQ3 How do Virus differ from other microorganisms?\nQ4 Identify the causative microbe f or the diseases mentioned below :\na) Influenza\nb) Typhoid\nc) Malaria\nd) Polio\nQ5 What is meant by Fermentation? Name the scientist who discovered fermentation.\nQ6 Which microorganism is used to make bread and cakes soft and fluffy? Describe how this\nhappens?\nQ7 Explain the formation of curd from the milk.\nQ8 Explain the discovery of penicillin.\nQ9 How does a vaccine works?\nQ10 What are antibiotics? What precautions must be taken while taking antibioti cs?\nQ11 How do microorganisms help in cleaning the environment?\nQ12 Where do rhizobium bacteria live? What is their function?\nQ13 Differentiate between antibiotics and antibodies?\nQ14 Identify and draw the microorganisms ( algae, fungi and protozoa ) given below -\na) Amoeba\nb) Chlamydomonas\nc) Bread M ould\nd) Spirogyra\nQ15 Name them:\na) The scientist who discovered the vaccine for smallpox.\nb) Two antibiotics\nc) The instrument used to see microorganisms.\nd) Two nitrogen fixers",
+        "page_start": 6,
+        "page_end": 7,
+        "page_number": 6,
+        "chunk_context": "This chunk contains a worksheet for Class 9th Biology focusing on Chapter 5, covering various questions related to cell structure and function.",
+        "chunk_summary": "The worksheet includes questions on cell diagrams, genes, nucleic acids, plasmolysis, and differences between cell types, among others.",
+        "chunk_type": "qa",
+        "section_title": "The Fundamental Unit Of Life",
+        "concept_hint": "plant cell, animal cell, genes, plasmolysis, hypotonic solution, prokaryotic cells, eukaryotic cells, osmosis",
+        "contextual_version": 1,
+        "topic": "The Fundamental Unit Of Life",
+        "vector_score": 0.347159266,
+        "keyword_score": 0.8075944404930194,
+        "rerank_score": 0.14710155
+      }
+    },
+    {
+      "id": "ef1079d8-3c01-460f-a587-c205f6e8eaca_chunk_1",
+      "score": 0.13051823,
+      "metadata": {
+        "source_id": "ef1079d8-3c01-460f-a587-c205f6e8eaca",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 1,
+        "text": "I) What is Endocytosis \u2013 It is the process which enables the cell to engulf in food and other\nmaterial from its external environment. It takes place as cell membrane is highly flexible.\nExample \u2013 Unicellular organism Amoeba acquires its food through this process.\n\nJ) What is Cytoplasm - It is fluid medium present within a cell between cell membrane and\nnucleus in which all the cell organelles remain suspended . It is the main medium in which all\ncellular reaction s take place in the cell .\nK) NUCLEUS -\na) It is known as the brain of the cell as it regulates all major activities of the cell.\nb) It is surrounded by double layered covering called as nuclear membrane whic h has tiny\npores called NUCLEO PORES.\nc) The fluid within the nucleus is called NUCLEOPLASM. It contains two types of nuclear\nstructures - NUCLEOLUS and CHROMATIN .\nd) In the nucleoplasm thread like coiled structures are present called chromatin network.\nThey carry chromosomes which carry genes. They are highly coiled and made up of\nDNA molecules.\ne) A small spherical structure called NUCLEOLUS is also present within the nucleus which\nhelps in making RNA (Ribo nucleic acid) molecules. It is a site where ribosomes are\nformed.\nf) When a cell divides the chromatin condenses to form shor t thread like structures called\nchromosomes which are com posed of DNA ( Deoxy -Ribo Nucleic Acid) and proteins.\ng) Nucleus also regulates cell division ( formation of cells from one cell), synthesis and\nstorage of proteins.\nh) Functional segments of the chromosomes are called genes, whic h are the carriers of\nhereditary information from one generation to the next.\nL) CELL WALL -\na) It is composed of cellulose i.e. Complex carbohydrate. It provide s structural strength and\nrigidity to plants.\nb) It is present only in plant cell, is non-living, fully permeable .\nc) It gives proper shape to the cell.\nd) It protects aquatic plants living in hypotonic medium by preventing them from bursting.\nM) What is difference between Prokaryotes and Eukaryotes?\nPROKARY OTES EUKARYOTES\n1) Don\u2019t have a well organized\nnucleus. 1) They have well organized\nnucleus.\n2) Don\u2019t have nuclear membrane . 2) They have a nuclear membrane .\n3) E.g. bacteria, blue green algae. 3) E.g. Amoeba, onion cell.\n4) Size of cell is small i.e. 1 -10\nmicrons. 4) Size of cell is large i.e. 5 -100\nmicrons.\n5) The nucleus region is with a 5) The nucl eus region is well\n\nnuclear membrane and so it is\ncalled nucleoid. defined area surrounded by a\nnuclear memb rane.\n6) A single chromosome is present 6) More than one chromosome is\npresent\n7) Membrane bound cell organelles\nare absent. 7) Membrane bound cell organelles\nis present.\nN) Difference between plant cell and animal cell -\nPLANT CELL ANIMAL CELL\n1. Cell wall present 1. Cell wall absent\n2. Plastids present 2. Plastids absent\n3. Vacuole single and large 3. Vacuole many and small\n4. Nucleus present near\nperiphery and not in centre 4. Nucleus present in centre\n5. Mitochondria less in\nnumber 5. Mitochondria more in number\n6. Golgi body many and\nscattered called as\nDictysomes 6. Golgi body single and near the\nnucleus\n7. Centriole absent 7. Centriole present with centrosomes\n\nSt. Gregorios School, Dwarka\nClass 9th (Session 2020 -21)\nBiology Worksheet \u2013 1 (Chapter \u2013 5 The Fundamental Unit Of Life )\nQ1 Draw a labelled diagram of plant cell and animal cell.\nQ2 What are genes? Where are they located?\nQ3 Name the two nucleic acids found in cells. Expand them.\nQ4 What is Plasmolysis? What happens to a plasmolysed cell when it is placed\nin a hypotonic solution ?",
+        "page_start": 3,
+        "page_end": 6,
+        "page_number": 3,
+        "chunk_context": "This chunk discusses key cellular processes and structures, including endocytosis, cytoplasm, nucleus, cell wall, and differences between prokaryotes and eukaryotes, as well as plant and animal cells.",
+        "chunk_summary": "The chunk explains endocytosis, cytoplasm, nucleus structure and function, cell wall composition, and contrasts prokaryotic and eukaryotic cells, along with differences between plant and animal cells.",
+        "chunk_type": "definition",
+        "section_title": "Cell Organelles",
+        "concept_hint": "Endocytosis,Cytoplasm,Nucleus,Cell Wall,Prokaryotes,Eukaryotes,Plant Cell,Animal Cell",
+        "contextual_version": 1,
+        "topic": "Cell Organelles",
+        "vector_score": 0.349982232,
+        "keyword_score": 0.2906963430411865,
+        "rerank_score": 0.13051823
+      }
+    }
+  ],
+  "timestamp": 1775304796.1173298,
+  "ttl": 3600,
+  "query": "Explain gaseous exchange in a cell, focusing on CO\u2082 movement and O\u2082 uptake",
+  "source_ids": [
+    "ef1079d8-3c01-460f-a587-c205f6e8eaca"
+  ],
+  "cache_extra": "ncert_v2:0|class:all|subject:all"
+}

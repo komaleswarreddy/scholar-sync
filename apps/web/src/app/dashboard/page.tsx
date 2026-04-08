@@ -13,6 +13,11 @@ import { ChatInterface } from '@/components/chat/ChatInterface';
 export default function DashboardPage() {
   const { isSignedIn, isLoaded, user } = useUser();
   const [shouldRedirect, setShouldRedirect] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -41,6 +46,14 @@ export default function DashboardPage() {
       setShouldRedirect(false);
     }
   }, [isLoaded, isSignedIn, user]);
+
+  if (!mounted) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <p className="text-text-secondary">Loading...</p>
+      </div>
+    );
+  }
 
   // Show loading while checking or redirecting
   if (shouldRedirect === true || (isLoaded && isSignedIn && user && shouldRedirect === null)) {
