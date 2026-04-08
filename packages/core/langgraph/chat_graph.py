@@ -619,7 +619,10 @@ class LangGraphChatPipeline:
         source_ids = state.get("active_source_ids") or []
         cache_extra = ""
         if state.get("include_ncert_global"):
-            cache_extra = f"ncert_v2|{state.get('ncert_class')}|{state.get('ncert_subject')}"
+            cache_extra = (
+                f"ncert_v3|{state.get('ncert_class')}|{state.get('ncert_subject')}|"
+                f"{state.get('ncert_chapter_no')}|{state.get('ncert_chapter_name')}"
+            )
         cached = self.answer_cache.get(q, source_ids, self.tenant_id, cache_extra=cache_extra)
         if cached:
             state["use_cached_response"] = True
@@ -754,6 +757,13 @@ class LangGraphChatPipeline:
         include_g = bool(state.get("include_ncert_global")) and getattr(
             settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
         )
+        
+        # DEBUG: Log the checkbox state and active sources
+        print(f"[RETRIEVAL_NODE] include_ncert_global={state.get('include_ncert_global')} (raw from state)")
+        print(f"[RETRIEVAL_NODE] ENABLE_NCERT_GLOBAL_IN_CHAT={getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
+        print(f"[RETRIEVAL_NODE] include_g={include_g} (computed, after AND with setting)")
+        print(f"[RETRIEVAL_NODE] active_source_ids={active}")
+        
         if active:
             filter_dict: Optional[Dict[str, Any]] = {"source_id": {"$in": active}}
         elif include_g:
@@ -761,6 +771,10 @@ class LangGraphChatPipeline:
             filter_dict = {"source_id": {"$in": ["00000000-0000-0000-0000-000000000001"]}}
         else:
             filter_dict = None
+        
+        print(f"[RETRIEVAL_NODE] filter_dict={filter_dict}")
+        print(f"[RETRIEVAL_NODE] Passing to retriever: include_ncert_global={include_g}")
+        
         results = await self.retriever.retrieve(
             query=q,
             top_k=settings.TOP_K_CHUNKS,
@@ -771,6 +785,8 @@ class LangGraphChatPipeline:
             include_ncert_global=include_g,
             ncert_class=state.get("ncert_class"),
             ncert_subject=state.get("ncert_subject"),
+            ncert_chapter_no=state.get("ncert_chapter_no"),
+            ncert_chapter_name=state.get("ncert_chapter_name"),
         )
         state["matches"] = results.get("matches", []) or []
         rw = results.get("rewritten_queries")
@@ -1170,7 +1186,10 @@ class LangGraphChatPipeline:
         citations = list(state.get("citations") or [])
         cache_extra = ""
         if state.get("include_ncert_global"):
-            cache_extra = f"ncert_v2|{state.get('ncert_class')}|{state.get('ncert_subject')}"
+            cache_extra = (
+                f"ncert_v3|{state.get('ncert_class')}|{state.get('ncert_subject')}|"
+                f"{state.get('ncert_chapter_no')}|{state.get('ncert_chapter_name')}"
+            )
         try:
             self.answer_cache.set(
                 q,
@@ -1193,6 +1212,8 @@ class LangGraphChatPipeline:
         include_ncert_global: bool = False,
         ncert_class: Optional[int] = None,
         ncert_subject: Optional[str] = None,
+        ncert_chapter_no: Optional[int] = None,
+        ncert_chapter_name: Optional[str] = None,
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Produce SSE events preserving the existing event/data shapes.
@@ -1203,6 +1224,7 @@ class LangGraphChatPipeline:
             get_pipeline_trace_store().start_trace(trace_id_opt, self.tenant_id, self.user_id)
 
         subj = (ncert_subject or "").strip().lower() or None
+        chapter_name = (ncert_chapter_name or "").strip() or None
         state: ChatGraphState = {
             "db": self.db,
             "tenant_id": self.tenant_id,
@@ -1213,6 +1235,8 @@ class LangGraphChatPipeline:
             "include_ncert_global": bool(include_ncert_global),
             "ncert_class": ncert_class,
             "ncert_subject": subj,
+            "ncert_chapter_no": ncert_chapter_no,
+            "ncert_chapter_name": chapter_name,
             "trace_id": trace_id_opt or "",
         }
 

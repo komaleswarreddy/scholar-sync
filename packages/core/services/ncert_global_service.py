@@ -242,7 +242,7 @@ async def process_ncert_upload_background(
 
         static_meta: Dict[str, Any] = {
             "source": "ncert",
-            "subject": subject,
+            "subject": subject.lower(),  # Normalize to lowercase for consistent filtering
             "class": class_num,
             "display_source": _display_source(class_num, subject, chapter_no, chapter_name),
             "topic": doc_title or _display_source(class_num, subject, chapter_no, chapter_name),
@@ -252,7 +252,8 @@ async def process_ncert_upload_background(
         if chapter_no is not None:
             static_meta["chapter_no"] = int(chapter_no)
         if chapter_name:
-            static_meta["chapter_name"] = chapter_name
+            static_meta["chapter_name"] = chapter_name.lower()  # Normalize to lowercase for consistent filtering
+
 
         adapter = LlamaIndexIngestionAdapter(
             METRICS_TENANT_NCERT,

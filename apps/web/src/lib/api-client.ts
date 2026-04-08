@@ -16,6 +16,18 @@ export type StudioReportFormat =
   | 'newsletter'
   | 'thematic_summary';
 
+export interface NcertTutorChapterOption {
+  chapter_no?: number | null;
+  chapter_name?: string | null;
+  title?: string | null;
+}
+
+export interface NcertTutorFiltersResponse {
+  classes: number[];
+  subjects_by_class: Record<string, string[]>;
+  chapters: NcertTutorChapterOption[];
+}
+
 /**
  * Read tenantId from cookie (set by middleware)
  */
@@ -439,6 +451,15 @@ class ApiClient {
     return res.data as Record<string, string[]>;
   }
 
+  async getNcertTutorFilters(params?: { class_num?: number; subject?: string }) {
+    await this.refreshToken();
+    const res = await this.client.get('/api/v1/chat/ncert-filters', {
+      params,
+      timeout: 30000,
+    });
+    return res.data as NcertTutorFiltersResponse;
+  }
+
   // Streaming Chat
   async streamChat(
     message: string,
@@ -450,7 +471,9 @@ class ApiClient {
     onError?: (error: string) => void,
     includeNcertGlobal?: boolean,
     ncertClass?: number,
-    ncertSubject?: string
+    ncertSubject?: string,
+    ncertChapterNo?: number,
+    ncertChapterName?: string
   ) {
     await this.refreshToken();
 
@@ -504,10 +527,20 @@ class ApiClient {
               include_ncert_global: Boolean(includeNcertGlobal),
               ncert_class: ncertClass ?? null,
               ncert_subject: ncertSubject?.trim() || null,
+              ncert_chapter_no: ncertChapterNo ?? null,
+              ncert_chapter_name: ncertChapterName?.trim() || null,
             }),
             signal: controller.signal,
           }
         );
+
+        // DEBUG: Log the request payload
+        console.debug('[streamChat] Sending request to /api/v1/chat/stream:', {
+          include_ncert_global: Boolean(includeNcertGlobal),
+          active_source_ids: activeSourceIds,
+          ncert_class: ncertClass,
+          ncert_subject: ncertSubject,
+        });
 
         clearTimeout(timeoutId);
 

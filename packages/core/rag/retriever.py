@@ -206,10 +206,17 @@ class Retriever:
         include_ncert_global: bool,
         ncert_class: Optional[int],
         ncert_subject: Optional[str],
+        ncert_chapter_no: Optional[int],
+        ncert_chapter_name: Optional[str],
     ) -> str:
         subject = (str(ncert_subject or "").strip().lower() or "all")
         class_part = str(int(ncert_class)) if ncert_class is not None else "all"
-        return f"ncert_v2:{int(bool(include_ncert_global))}|class:{class_part}|subject:{subject}"
+        chapter_no = str(int(ncert_chapter_no)) if ncert_chapter_no is not None else "all"
+        chapter_name = (str(ncert_chapter_name or "").strip().lower() or "all")
+        return (
+            f"ncert_v3:{int(bool(include_ncert_global))}|class:{class_part}|subject:{subject}|"
+            f"chapter_no:{chapter_no}|chapter_name:{chapter_name}"
+        )
 
     def _build_ncert_global_filter(
         self,
@@ -217,13 +224,14 @@ class Retriever:
         include_ncert: bool,
         selected_class: Optional[int],
         selected_subject: Optional[str],
+        selected_chapter_no: Optional[int],
+        selected_chapter_name: Optional[str],
     ) -> Optional[Dict[str, Any]]:
         if not include_ncert:
             return None
 
         ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
         conditions: List[Dict[str, Any]] = [
-            {"tenant_id": {"$eq": ns}},
             {"source": {"$eq": "ncert"}},
         ]
 
@@ -234,9 +242,24 @@ class Retriever:
         if subject:
             conditions.append({"subject": {"$eq": subject}})
 
+        if selected_chapter_no is not None:
+            conditions.append({"chapter_no": {"$eq": int(selected_chapter_no)}})
+
+        chapter_name = (str(selected_chapter_name or "").strip().lower() or None)
+        if chapter_name:
+            conditions.append({"chapter_name": {"$eq": chapter_name}})
+
         if len(conditions) == 1:
-            return conditions[0]
-        return {"$and": conditions}
+            meta_filter = conditions[0]
+        else:
+            meta_filter = {"$and": conditions}
+        
+        print(
+            f"[TUTOR_FILTER_BUILD] class={selected_class} subject={selected_subject} "
+            f"chapter_no={selected_chapter_no} chapter_name={selected_chapter_name} "
+            f"→ filter={meta_filter}"
+        )
+        return meta_filter
 
     def _merge_scored_matches(
         self,
@@ -261,6 +284,8 @@ class Retriever:
         query: str,
         ncert_class: Optional[int],
         ncert_subject: Optional[str],
+        ncert_chapter_no: Optional[int],
+        ncert_chapter_name: Optional[str],
     ) -> List[Dict[str, Any]]:
         """Retrieve and hybrid-score NCERT global matches from Pinecone namespace NcertDataGlobal."""
         ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
@@ -284,13 +309,37 @@ class Retriever:
             include_ncert=True,
             selected_class=ncert_class,
             selected_subject=ncert_subject,
+            selected_chapter_no=ncert_chapter_no,
+            selected_chapter_name=ncert_chapter_name,
         )
 
+        print(f"\n[TUTOR_QUERY_PINECONE] Querying {ns} with filter={meta_filter}")
         raw = await ncert_vs.query_vectors(emb, top_k=top_k, filter=meta_filter)
         gmatches = list(raw.get("matches") or [])
+        print(f"[TUTOR_QUERY_PINECONE_RESULT] Got {len(gmatches)} raw matches from Pinecone")
+        
+        # DEBUG: Log metadata of each raw match
+        if gmatches:
+            print(f"\n[DEBUG] Raw Pinecone Results - Metadata of each chunk:")
+            for idx, match in enumerate(gmatches, 1):
+                md = (match.get("metadata") if isinstance(match, dict) else getattr(match, "metadata", None)) or {}
+                match_class = md.get("class") or md.get("class_num")
+                match_subject = md.get("subject")
+                match_chapter_no = md.get("chapter_no")
+                match_chapter_name = md.get("chapter_name")
+                match_score = float(match.get("score") or 0) if isinstance(match, dict) else float(getattr(match, "score", 0) or 0)
+                print(f"  [{idx}] class={match_class}, subject={match_subject}, chapter_no={match_chapter_no}, chapter_name={match_chapter_name}, score={match_score:.4f}")
 
         target_subject = (str(ncert_subject or "").strip().lower() or None)
         requested_class = int(ncert_class) if ncert_class is not None else None
+        requested_chapter_no = int(ncert_chapter_no) if ncert_chapter_no is not None else None
+        requested_chapter_name = (str(ncert_chapter_name or "").strip().lower() or None)
+        
+        print(f"\n[DEBUG] FILTER CRITERIA:")
+        print(f"  requested_class={requested_class} (type={type(requested_class)})")
+        print(f"  target_subject={target_subject} (type={type(target_subject)})")
+        print(f"  requested_chapter_no={requested_chapter_no} (type={type(requested_chapter_no)})")
+        print(f"  requested_chapter_name={requested_chapter_name} (type={type(requested_chapter_name)})")
 
         def _coerce_int(value: Any) -> Optional[int]:
             if value is None:
@@ -306,27 +355,44 @@ class Retriever:
             return None
 
         filtered = []
-        for m in gmatches:
+        failed_filters_count = 0
+        print(f"\n[DEBUG] POST-PROCESSING FILTER VALIDATION:")
+        for idx, m in enumerate(gmatches, 1):
             md = (m.get("metadata") if isinstance(m, dict) else getattr(m, "metadata", None)) or {}
             md_class = _coerce_int(md.get("class") or md.get("class_num"))
             md_subject = str(md.get("subject") or "").strip().lower()
-            md_tenant = str(md.get("tenant_id") or md.get("knowledge_namespace") or "").strip()
+            md_chapter_no = _coerce_int(md.get("chapter_no"))
+            md_chapter_name = str(md.get("chapter_name") or "").strip().lower()
             md_source = str(md.get("source") or "").strip().lower()
 
-            if md_tenant and md_tenant != ns:
-                continue
+            # Apply post-processing filters for backward compatibility and safety
             if md_source and md_source != "ncert":
+                print(f"  [{idx}] ❌ REJECTED: source mismatch (requested='ncert', got='{md_source}')")
+                failed_filters_count += 1
                 continue
             if requested_class is not None and md_class != requested_class:
+                print(f"  [{idx}] ❌ REJECTED: class mismatch (requested={requested_class}, got={md_class})")
+                failed_filters_count += 1
                 continue
             if target_subject and md_subject != target_subject:
+                print(f"  [{idx}] ❌ REJECTED: subject mismatch (requested='{target_subject}', got='{md_subject}')")
+                failed_filters_count += 1
                 continue
+            if requested_chapter_no is not None and md_chapter_no != requested_chapter_no:
+                print(f"  [{idx}] ❌ REJECTED: chapter_no mismatch (requested={requested_chapter_no}, got={md_chapter_no})")
+                failed_filters_count += 1
+                continue
+            if requested_chapter_name and md_chapter_name != requested_chapter_name:
+                print(f"  [{idx}] ❌ REJECTED: chapter_name mismatch (requested='{requested_chapter_name}', got='{md_chapter_name}')")
+                failed_filters_count += 1
+                continue
+            # All filters passed
+            print(f"  [{idx}] ✅ ACCEPTED: class={md_class}, subject={md_subject}, chapter_no={md_chapter_no}, chapter_name={md_chapter_name}")
             filtered.append(m)
 
-        if len(filtered) != len(gmatches):
+        if len(filtered) != len(gmatches) or failed_filters_count > 0:
             print(
-                f"[NCERT_FILTER] ns={ns} class={requested_class} subject={target_subject or 'all'} "
-                f"pinecone_filter={meta_filter} raw={len(gmatches)} kept={len(filtered)}"
+                f"\n[TUTOR_POSTPROCESS_FILTER] Total matches: {len(gmatches)}, Rejected: {failed_filters_count}, Kept: {len(filtered)}"
             )
         gmatches = filtered
 
@@ -354,9 +420,13 @@ class Retriever:
             if item.get("id"):
                 normalized.append(item)
         if not normalized:
+            print(f"[TUTOR_RETRIEVAL_COMPLETE] No NCERT matches found after filtering")
             return []
-
-        return self.hybrid_retriever.combine_results(normalized, query)
+        
+        print(f"[TUTOR_RETRIEVAL_COMPLETE] Retrieved {len(normalized)} NCERT matches, now applying hybrid scoring")
+        result = self.hybrid_retriever.combine_results(normalized, query)
+        print(f"[TUTOR_HYBRID_SCORE] Hybrid scoring complete: {len(result)} matches after reranking")
+        return result
 
     async def _merge_ncert_global_hybrid(
         self,
@@ -366,16 +436,24 @@ class Retriever:
         hybrid_matches: List[Dict[str, Any]],
         ncert_class: Optional[int],
         ncert_subject: Optional[str],
+        ncert_chapter_no: Optional[int],
+        ncert_chapter_name: Optional[str],
     ) -> List[Dict[str, Any]]:
         """Append hybrid-scored hits from Pinecone namespace NcertDataGlobal."""
+        print(f"[TUTOR_MERGE_START] Merging {len(hybrid_matches)} primary matches with NCERT global")
         global_hybrid = await self._retrieve_ncert_global_matches(
             query=primary_query,
             ncert_class=ncert_class,
             ncert_subject=ncert_subject,
+            ncert_chapter_no=ncert_chapter_no,
+            ncert_chapter_name=ncert_chapter_name,
         )
         if not global_hybrid:
+            print(f"[TUTOR_MERGE_COMPLETE] No NCERT matches to merge, returning {len(hybrid_matches)} original matches")
             return hybrid_matches
-        return self._merge_scored_matches(hybrid_matches, global_hybrid)
+        merged = self._merge_scored_matches(hybrid_matches, global_hybrid)
+        print(f"[TUTOR_MERGE_COMPLETE] Merged {len(hybrid_matches)} primary + {len(global_hybrid)} NCERT = {len(merged)} total matches")
+        return merged
     
     async def retrieve(
         self,
@@ -389,6 +467,8 @@ class Retriever:
         include_ncert_global: bool = False,
         ncert_class: Optional[int] = None,
         ncert_subject: Optional[str] = None,
+        ncert_chapter_no: Optional[int] = None,
+        ncert_chapter_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Retrieve relevant chunks from vector store.
@@ -443,6 +523,8 @@ class Retriever:
                 include_ncert_global=include_ncert_global,
                 ncert_class=ncert_class,
                 ncert_subject=ncert_subject,
+                ncert_chapter_no=ncert_chapter_no,
+                ncert_chapter_name=ncert_chapter_name,
             )
             # Allow query-only callers; generate embedding here.
             if query_embedding is None:
@@ -485,22 +567,32 @@ class Retriever:
                 output_fn=lambda r: {"match_count": len((r or {}).get("matches") or [])},
             )
             matches = results.get("matches", []) or []
+            # DEBUG: Log NCERT global merging decision in simple path
+            print(f"[RETRIEVAL_SIMPLE_NCERT] include_ncert_global={include_ncert_global}")
+            print(f"[RETRIEVAL_SIMPLE_NCERT] ENABLE_NCERT_GLOBAL_IN_CHAT={getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
+            print(f"[RETRIEVAL_SIMPLE_NCERT] Will merge NCERT global: {query and include_ncert_global and getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
+            
             if (
                 query
                 and include_ncert_global
                 and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
             ):
                 try:
+                    print(f"[RETRIEVAL_SIMPLE_NCERT] ✓ Merging NCERT global matches")
                     ncert_matches = await self._retrieve_ncert_global_matches(
                         query=query,
                         ncert_class=ncert_class,
                         ncert_subject=ncert_subject,
+                        ncert_chapter_no=ncert_chapter_no,
+                        ncert_chapter_name=ncert_chapter_name,
                     )
                     if ncert_matches:
                         matches = self._merge_scored_matches(matches, ncert_matches)
                         debug_trace["guardrails_applied"].append("ncert_global_merged")
                 except Exception as e:
                     print(f"[RAG_PIPELINE] NCERT global merge skipped: {e}")
+            else:
+                print(f"[RETRIEVAL_SIMPLE_NCERT] ✗ NOT merging NCERT global (checkbox not checked or setting disabled)")
             if query and matches:
                 matches = await trace_async(
                     "Retrieval/simple_cohere_rerank",
@@ -614,6 +706,8 @@ class Retriever:
             include_ncert_global=include_ncert_global,
             ncert_class=ncert_class,
             ncert_subject=ncert_subject,
+            ncert_chapter_no=ncert_chapter_no,
+            ncert_chapter_name=ncert_chapter_name,
         )
 
         source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
@@ -778,6 +872,17 @@ class Retriever:
             )
         vector_matches = vector_results.get("matches", [])
         
+        # DEBUG: Log source_id of initial vector matches
+        print(f"[VECTOR_PHASE] Retrieved {len(vector_matches)} chunks with filter={filter}")
+        vector_source_ids = set()
+        for chunk in vector_matches[:5]:  # Show first 5
+            src = chunk.get("metadata", {}).get("source_id", "UNKNOWN")
+            vector_source_ids.add(src)
+            print(f"  [VECTOR] chunk_id={chunk.get('id')[:20] if chunk.get('id') else 'UNKNOWN'} | source_id={src}")
+        if len(vector_matches) > 5:
+            print(f"  ... and {len(vector_matches) - 5} more chunks")
+        print(f"[VECTOR_PHASE] Unique sources in initial vector retrieval: {vector_source_ids}")
+        
         debug_trace["retrieved_chunks_initial"] = {
             "count": len(vector_matches),
             "ids": [m.get("id") for m in vector_matches[:10]]  # First 10 IDs
@@ -850,6 +955,17 @@ class Retriever:
                 vector_results=vector_matches,
                 query=primary_query,
             )
+        
+        # DEBUG: Log source_id of hybrid matches (before NCERT merge)
+        print(f"[HYBRID_PHASE] After hybrid combining: {len(hybrid_matches)} chunks")
+        hybrid_source_ids = set()
+        for chunk in hybrid_matches[:5]:  # Show first 5
+            src = chunk.get("metadata", {}).get("source_id", "UNKNOWN")
+            hybrid_source_ids.add(src)
+            print(f"  [HYBRID] chunk_id={chunk.get('id')[:20] if chunk.get('id') else 'UNKNOWN'} | source_id={src}")
+        if len(hybrid_matches) > 5:
+            print(f"  ... and {len(hybrid_matches) - 5} more chunks")
+        print(f"[HYBRID_PHASE] Unique sources after hybrid (before NCERT): {hybrid_source_ids}")
 
         record_retrieval_span(
             "Retrieval/retrieve",
@@ -867,6 +983,13 @@ class Retriever:
         debug_trace["after_hybrid_merge"] = {"count": len(hybrid_matches)}
         print(f"[RAG_PIPELINE] Stage: HYBRID | Chunks: {len(hybrid_matches)}")
 
+        # DEBUG: Log NCERT global merging decision in Phase 2
+        print(f"[RETRIEVAL_PHASE2_NCERT] include_ncert_global={include_ncert_global}")
+        print(f"[RETRIEVAL_PHASE2_NCERT] ENABLE_NCERT_GLOBAL_IN_CHAT={getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
+        print(f"[RETRIEVAL_PHASE2_NCERT] USE_RETRIEVAL_AGENTS={settings.USE_RETRIEVAL_AGENTS}")
+        print(f"[RETRIEVAL_PHASE2_NCERT] hybrid_retriever is not None={self.hybrid_retriever is not None}")
+        print(f"[RETRIEVAL_PHASE2_NCERT] Will merge NCERT global: {include_ncert_global and getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False) and settings.USE_RETRIEVAL_AGENTS and self.hybrid_retriever is not None}")
+        
         if (
             include_ncert_global
             and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
@@ -874,17 +997,22 @@ class Retriever:
             and self.hybrid_retriever is not None
         ):
             try:
+                print(f"[RETRIEVAL_PHASE2_NCERT] ✓ Merging NCERT global matches")
                 hybrid_matches = await self._merge_ncert_global_hybrid(
                     primary_query=primary_query,
                     query_embedding=query_embedding,
                     hybrid_matches=hybrid_matches,
                     ncert_class=ncert_class,
                     ncert_subject=ncert_subject,
+                    ncert_chapter_no=ncert_chapter_no,
+                    ncert_chapter_name=ncert_chapter_name,
                 )
                 debug_trace["guardrails_applied"].append("ncert_global_merged")
                 debug_trace["after_hybrid_merge"] = {"count": len(hybrid_matches)}
             except Exception as e:
                 print(f"[RAG_PIPELINE] NCERT global merge skipped: {e}")
+        else:
+            print(f"[RETRIEVAL_PHASE2_NCERT] ✗ NOT merging NCERT global (checkbox not checked or setting disabled)")
         
         self._log("HYBRID", f"Hybrid retrieval completed", {
             "vector_count": len(vector_matches),
@@ -934,6 +1062,8 @@ class Retriever:
                             query=rewritten_query,
                             ncert_class=ncert_class,
                             ncert_subject=ncert_subject,
+                            ncert_chapter_no=ncert_chapter_no,
+                            ncert_chapter_name=ncert_chapter_name,
                         )
                         variant_hybrid = self._merge_scored_matches(
                             variant_hybrid,
@@ -1322,7 +1452,15 @@ class Retriever:
         if len(selected_matches) == 0:
             raise ValueError(f"[RAG_PIPELINE] CRITICAL ERROR: Cannot proceed with empty context. No chunks available after all fallbacks.")
         
+        # DEBUG: Log source_id and content preview of each chunk
         print(f"[RAG_PIPELINE] FINAL: {len(selected_matches)} chunks ready for LLM (token_size: {final_token_size})")
+        print(f"[CHUNK_SOURCES] Retrieving chunks with filter={filter}:")
+        for i, chunk in enumerate(selected_matches, 1):
+            chunk_meta = chunk.get("metadata", {})
+            source_id = chunk_meta.get("source_id", "UNKNOWN")
+            chunk_id = chunk.get("id", "UNKNOWN")
+            text_preview = (chunk_meta.get("text", "")[:100] + "...") if chunk_meta.get("text") else "NO TEXT"
+            print(f"  [{i}] source_id={source_id} | chunk_id={chunk_id} | text={text_preview}")
         
         # Return results in expected format
         result = {

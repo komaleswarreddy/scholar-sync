@@ -117,6 +117,7 @@ const SLIDE_DECK_LANGUAGES = [
 export function StudioSuite() {
   const { loading, error: apiError, errorDetails, handleRequest, clearError, apiClient } = useApi();
   const { selectedSources } = useSourceContext();
+  const hasSelectedSources = selectedSources.size > 0;
   const [generating, setGenerating] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   
@@ -641,6 +642,7 @@ export function StudioSuite() {
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => setShowCustomInstructions(!showCustomInstructions)}
+            disabled={!hasSelectedSources}
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             <Settings className="w-4 h-4" />
@@ -657,6 +659,7 @@ export function StudioSuite() {
                 setCustomInstructions('');
                 setShowCustomInstructions(false);
               }}
+              disabled={!hasSelectedSources}
               className="text-xs text-text-tertiary hover:text-text-secondary"
             >
               Clear
@@ -669,13 +672,20 @@ export function StudioSuite() {
             onChange={(e) => setCustomInstructions(e.target.value)}
             placeholder="Add custom instructions for generation (e.g., 'Focus on pages 10-12 only', 'Make it suitable for beginners')"
             className="w-full min-h-[80px] px-3 py-2 text-sm bg-surface-subtle border border-border-default rounded-lg text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue resize-none"
-            disabled={generating !== null || loading}
+            disabled={generating !== null || loading || !hasSelectedSources}
           />
         )}
       </div>
 
       {/* Studio Grid */}
       <div className="flex-1 overflow-y-auto p-4">
+        {!hasSelectedSources && (
+          <div className="mb-3 p-3 rounded-xl bg-surface-subtle border border-border-default">
+            <p className="text-xs text-text-secondary leading-relaxed">
+              Select at least one source to unlock Studio tools.
+            </p>
+          </div>
+        )}
         <p className="text-xs text-text-tertiary mb-2">
           Infographic: select exactly one source. Flashcards, reports, mind maps, and other tools use only
           your <strong className="font-medium text-text-secondary">selected</strong> sources. Flashcards
@@ -684,6 +694,7 @@ export function StudioSuite() {
         <div className="grid grid-cols-2 gap-3">
           {STUDIO_TOOLS.map((tool) => {
             const isGenerating = generating === tool.type;
+            const disabledNoSources = !hasSelectedSources;
             const infographicNeedsOne =
               tool.type === 'infographic' && selectedSources.size !== 1;
             return (
@@ -715,9 +726,11 @@ export function StudioSuite() {
                   }
                   void handleGenerate(tool.type);
                 }}
-                disabled={isGenerating || loading || infographicNeedsOne}
+                disabled={isGenerating || loading || infographicNeedsOne || disabledNoSources}
                 disabledHint={
-                  infographicNeedsOne
+                  disabledNoSources
+                    ? 'Select at least one source to enable Studio generation.'
+                    : infographicNeedsOne
                     ? 'Select exactly one source to create an infographic from that document.'
                     : undefined
                 }
@@ -1095,4 +1108,3 @@ export function StudioSuite() {
     </div>
   );
 }
-

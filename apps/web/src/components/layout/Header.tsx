@@ -6,6 +6,7 @@ import {
   BarChart3,
   BookOpen,
   Home,
+  GraduationCap,
 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '../ui/Button';
@@ -17,6 +18,7 @@ export function Header() {
   const pathname = usePathname();
   const isAnalyticsPage = pathname === '/analytics';
   const isDashboardPage = pathname === '/dashboard';
+  const isTutorModePage = pathname === '/tutor-mode';
   // Temporary: Static title - will be made dynamic with user input later
   const notebookTitle = 'NotebookLMSync';
 
@@ -37,6 +39,10 @@ export function Header() {
 
   const handleHome = () => {
     router.push('/dashboard');
+  };
+
+  const handleTutorMode = () => {
+    router.push('/tutor-mode');
   };
 
   return (
@@ -71,8 +77,20 @@ export function Header() {
           <span className="hidden sm:inline">Create notebook</span>
         </Button>
 
+        {isDashboardPage ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleTutorMode}
+            className="flex items-center gap-2"
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span className="hidden sm:inline">Tutor Mode</span>
+          </Button>
+        ) : null}
+
         {/* Show Home button on analytics page, Analytics button on dashboard/home */}
-        {isAnalyticsPage ? (
+        {isAnalyticsPage || isTutorModePage ? (
           <Button
             variant="ghost"
             size="sm"

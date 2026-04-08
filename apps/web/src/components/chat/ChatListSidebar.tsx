@@ -42,6 +42,7 @@ export function ChatListSidebar({
   const [error, setError] = useState<string | null>(null);
   const retryCountRef = useRef(0);
   const chatCountRef = useRef(0);
+  const hasFetchedRef = useRef(false);
   const { apiClient } = useApi();
 
   // Load chat list with automatic retry for network errors
@@ -71,7 +72,6 @@ export function ChatListSidebar({
         setChats((prev) => prev.length > 0 ? prev : []);
       }
     } catch (error: any) {
-      // Error is handled by TanStack Query error state
       // Use standardized error handling
       const apiError = error.apiError || handleApiError(error);
       const errorMessage = getUserFriendlyMessage(apiError);
@@ -110,15 +110,20 @@ export function ChatListSidebar({
     }
   }, [apiClient]);
 
+  // Initial load — guarded to prevent React Strict Mode double-fetch
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
     loadChats();
   }, [loadChats]);
 
-  // Refresh when trigger changes (e.g., new chat created)
+  // Refresh when trigger changes (e.g., new chat created) — debounced
   useEffect(() => {
-    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+    if (refreshTrigger === undefined || refreshTrigger <= 0) return;
+    const timer = setTimeout(() => {
       loadChats();
-    }
+    }, 300);
+    return () => clearTimeout(timer);
   }, [refreshTrigger, loadChats]);
 
   const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {

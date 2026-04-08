@@ -6,7 +6,7 @@ Uses Gemini 1.5 Flash for context-heavy tasks.
 Task C: Chat History - Save and load chat history.
 """
 
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -32,7 +32,9 @@ from pydantic import BaseModel, Field
 from packages.core.services.chat_service import ChatService
 from packages.core.database.models.chat import Chat
 from packages.core.database.models.source import Source
+from packages.core.database.models.ncert_global import NcertGlobalDocument
 from packages.core.langgraph.chat_graph import LangGraphChatPipeline
+from packages.core.services.ncert_global_service import load_ncert_subjects_by_class
 
 router = APIRouter()
 
@@ -41,6 +43,106 @@ from packages.core.memory.chat_summary_button import (
     filter_out_prior_summaries,
     format_conversation_lines,
 )
+
+
+@router.get("/ncert-filters")
+async def get_ncert_filters(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    class_num: Optional[int] = Query(None, ge=6, le=10),
+    subject: Optional[str] = Query(None),
+):
+    """Return available NCERT tutor filters for class / subject / chapter selectors."""
+    user_id = getattr(request.state, "user_id", None)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User ID required")
+
+    fallback_subjects = await asyncio.to_thread(load_ncert_subjects_by_class)
+    result = {
+        "classes": [6, 7, 8, 9, 10],
+        "subjects_by_class": {
+            str(int(k)): [str(v).strip().lower() for v in vals]
+            for k, vals in (fallback_subjects or {}).items()
+        },
+        "chapters": [],
+    }
+
+    try:
+        namespace = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
+        normalized_subject = (subject or "").strip().lower() or None
+
+        subject_stmt = select(
+            NcertGlobalDocument.class_num,
+            NcertGlobalDocument.subject,
+        ).where(
+            NcertGlobalDocument.pinecone_namespace == namespace,
+            NcertGlobalDocument.status.in_(("indexed", "completed")),
+        )
+
+        subject_rows = (
+            await asyncio.wait_for(db.execute(subject_stmt), timeout=8.0)
+        ).all()
+        subjects_by_class = {str(c): [] for c in result["classes"]}
+        for class_value, subject_value in subject_rows:
+            class_key = str(int(class_value))
+            subject_slug = str(subject_value or "").strip().lower()
+            if class_key in subjects_by_class and subject_slug:
+                subjects_by_class[class_key].append(subject_slug)
+        for class_key in list(subjects_by_class.keys()):
+            deduped = sorted(set(subjects_by_class[class_key]))
+            if deduped:
+                subjects_by_class[class_key] = deduped
+        if any(subjects_by_class.values()):
+            result["subjects_by_class"] = subjects_by_class
+
+        if class_num is not None or normalized_subject:
+            chapter_stmt = select(
+                NcertGlobalDocument.chapter_no,
+                NcertGlobalDocument.chapter_name,
+                NcertGlobalDocument.title,
+            ).where(
+                NcertGlobalDocument.pinecone_namespace == namespace,
+                NcertGlobalDocument.status.in_(("indexed", "completed")),
+            )
+            if class_num is not None:
+                chapter_stmt = chapter_stmt.where(NcertGlobalDocument.class_num == class_num)
+            if normalized_subject:
+                chapter_stmt = chapter_stmt.where(NcertGlobalDocument.subject == normalized_subject)
+
+            chapter_rows = (
+                await asyncio.wait_for(db.execute(chapter_stmt), timeout=8.0)
+            ).all()
+            chapters = []
+            seen = set()
+            for chapter_no, chapter_name, title in chapter_rows:
+                key = (
+                    int(chapter_no) if chapter_no is not None else None,
+                    str(chapter_name or "").strip().lower(),
+                    str(title or "").strip().lower(),
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
+                chapters.append(
+                    {
+                        "chapter_no": int(chapter_no) if chapter_no is not None else None,
+                        "chapter_name": str(chapter_name or "").strip() or None,
+                        "title": str(title or "").strip() or None,
+                    }
+                )
+
+            chapters.sort(
+                key=lambda item: (
+                    item["chapter_no"] is None,
+                    item["chapter_no"] if item["chapter_no"] is not None else 10**9,
+                    (item["chapter_name"] or item["title"] or "").lower(),
+                )
+            )
+            result["chapters"] = chapters
+    except Exception as exc:
+        print(f"[NCERT_FILTERS] Falling back to static tutor filters: {type(exc).__name__}: {exc}")
+
+    return result
 
 
 @router.post("/stream")
@@ -63,6 +165,20 @@ async def stream_chat(
     include_ncert = bool(getattr(request_body, "include_ncert_global", False)) and getattr(
         settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
     )
+    
+    # DEBUG: Log checkbox state received from frontend
+    print(f"[API_CHAT_STREAM] include_ncert_global from request={getattr(request_body, 'include_ncert_global', False)}")
+    print(f"[API_CHAT_STREAM] ENABLE_NCERT_GLOBAL_IN_CHAT setting={getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
+    print(f"[API_CHAT_STREAM] include_ncert (final)={include_ncert}")
+    print(f"[API_CHAT_STREAM] active_source_ids={request_body.active_source_ids}")
+    
+    # DEBUG: Log NCERT tutor mode filters if present
+    if include_ncert:
+        print(f"[TUTOR_MODE_REQUEST] ncert_class={request_body.ncert_class}")
+        print(f"[TUTOR_MODE_REQUEST] ncert_subject={request_body.ncert_subject}")
+        print(f"[TUTOR_MODE_REQUEST] ncert_chapter_no={request_body.ncert_chapter_no}")
+        print(f"[TUTOR_MODE_REQUEST] ncert_chapter_name={request_body.ncert_chapter_name}")
+        print(f"[TUTOR_MODE_REQUEST] query='{request_body.message[:100]}...'" if len(request_body.message) > 100 else f"[TUTOR_MODE_REQUEST] query='{request_body.message}'")
 
     # Require at least one of: user-selected sources OR NCERT global (when enabled).
     if (
@@ -194,6 +310,8 @@ async def stream_chat(
                 include_ncert_global=include_ncert,
                 ncert_class=request_body.ncert_class,
                 ncert_subject=request_body.ncert_subject,
+                ncert_chapter_no=request_body.ncert_chapter_no,
+                ncert_chapter_name=request_body.ncert_chapter_name,
             ):
                 try:
                     event_data = json.dumps(event['data'], ensure_ascii=False)

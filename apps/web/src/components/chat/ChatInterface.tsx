@@ -18,8 +18,10 @@ import { MessageCircle, RefreshCw, WifiOff, AlertTriangle, Menu, X } from 'lucid
 import { useApi } from '@/hooks/useApi';
 import { useSourceContext } from '@/contexts/SourceContext';
 import { useChatContext } from '@/contexts/ChatContext';
+import { useUserContext } from '@/contexts/UserContext';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { DEFAULT_NCERT_SUBJECTS_BY_CLASS } from '@/config/ncertSubjectsByClass';
+import type { NcertTutorChapterOption } from '@/lib/api-client';
 
 interface Citation {
   id?: string;
@@ -44,7 +46,14 @@ interface Message {
   question?: string; // The question that was asked (for assistant messages)
 }
 
-export function ChatInterface() {
+type ChatInterfaceMode = 'dashboard' | 'tutor';
+
+interface ChatInterfaceProps {
+  mode?: ChatInterfaceMode;
+}
+
+export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
+  const isTutorMode = mode === 'tutor';
   const [messages, setMessages] = useState<Message[]>([]);
   const { currentChatId, setCurrentChat, setCurrentChatId } = useChatContext();
   const [isLoading, setIsLoading] = useState(false);
@@ -58,20 +67,22 @@ export function ChatInterface() {
   const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
-  const [includeNcertGlobal, setIncludeNcertGlobal] = useState(false);
+  const [includeNcertGlobal, setIncludeNcertGlobal] = useState(true);
   /** Optional Pinecone metadata filter (class 6–10); null = all classes */
   const [ncertFilterClass, setNcertFilterClass] = useState<number | null>(null);
   /** Optional subject slug filter, e.g. science */
   const [ncertFilterSubject, setNcertFilterSubject] = useState('');
+  const [ncertFilterChapterKey, setNcertFilterChapterKey] = useState('');
+  const [ncertSubjectsByClass, setNcertSubjectsByClass] = useState<Record<string, string[]>>(
+    DEFAULT_NCERT_SUBJECTS_BY_CLASS
+  );
+  const [ncertChapterOptions, setNcertChapterOptions] = useState<NcertTutorChapterOption[]>([]);
+  const subjectMap = isTutorMode ? ncertSubjectsByClass : DEFAULT_NCERT_SUBJECTS_BY_CLASS;
   const ncertSubjectOptions = (() => {
     if (ncertFilterClass != null) {
-      return DEFAULT_NCERT_SUBJECTS_BY_CLASS[String(ncertFilterClass)] || [];
+      return subjectMap[String(ncertFilterClass)] || [];
     }
-    return Array.from(
-      new Set(
-        Object.values(DEFAULT_NCERT_SUBJECTS_BY_CLASS).flat()
-      )
-    );
+    return Array.from(new Set(Object.values(subjectMap).flat())).sort();
   })();
 
   const formatNcertSubjectLabel = (subject: string) =>
@@ -80,13 +91,59 @@ export function ChatInterface() {
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
 
+  const buildChapterOptionKey = (chapter: NcertTutorChapterOption) =>
+    `${chapter.chapter_no ?? ''}::${(chapter.chapter_name || '').trim().toLowerCase()}::${(chapter.title || '')
+      .trim()
+      .toLowerCase()}`;
+
+  const formatChapterLabel = (chapter: NcertTutorChapterOption) => {
+    const parts: string[] = [];
+    if (chapter.chapter_no != null) {
+      parts.push(`Ch. ${chapter.chapter_no}`);
+    }
+    if (chapter.chapter_name) {
+      parts.push(chapter.chapter_name);
+    } else if (chapter.title) {
+      parts.push(chapter.title);
+    }
+    return parts.join(' - ') || 'Untitled chapter';
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<string>(''); 
   const responseAccumulatorRef = useRef<string>(''); 
   const citationsAccumulatorRef = useRef<Citation[]>([]); 
+  const hasFetchedRecentRef = useRef(false);
   
   const { apiClient } = useApi();
+  const { loading: userContextLoading } = useUserContext();
   const { selectedSources } = useSourceContext();
+  const selectedSourceIds = Array.from(selectedSources) as string[];
+  const selectedSourceCount = selectedSourceIds.length;
+  const normalizedTutorSubject = ncertFilterSubject.trim().toLowerCase().replace(/\s+/g, '_');
+  const selectedTutorChapter =
+    ncertChapterOptions.find((chapter) => buildChapterOptionKey(chapter) === ncertFilterChapterKey) || null;
+  const effectiveIncludeNcertGlobal = isTutorMode ? true : includeNcertGlobal;
+  const requiresSelectedSource = !isTutorMode;
+  const chatDisabled =
+    isLoading ||
+    isStreaming ||
+    isLoadingChat ||
+    !isOnline ||
+    (requiresSelectedSource && selectedSourceCount === 0);
+  const chatDisabledReason = !isOnline
+    ? 'Reconnect to the internet to continue chatting.'
+    : requiresSelectedSource && selectedSourceCount === 0
+      ? 'Select at least one source to enable dashboard chat.'
+      : null;
+  const chatHelperText = isTutorMode
+    ? 'Tutor Mode searches the NCERT global library only'
+    : `${selectedSourceCount} source${selectedSourceCount === 1 ? '' : 's'} selected`;
+  const emptyStateMessage = isTutorMode
+    ? 'Ask anything from the NCERT library. Narrow the scope with class, subject, or chapter filters if needed.'
+    : selectedSourceCount === 0
+      ? 'Select at least one notebook source to enable dashboard chat. For NCERT-only questions, open Tutor Mode.'
+      : 'Ask questions about your selected sources. NCERT global support is enabled by default and can be turned off anytime.';
 
   // Task A.e: Monitor network status
   useEffect(() => {
@@ -99,10 +156,57 @@ export function ChatInterface() {
     };
   }, []);
 
-  // Task C.c: Load previous chats on page load
+  // Task C.c: Load previous chats on page load — guarded against Strict Mode double-fire AND against UserContext not being ready
   useEffect(() => {
+    if (hasFetchedRecentRef.current || userContextLoading) return;
+    hasFetchedRecentRef.current = true;
     loadRecentChat();
-  }, []);
+  }, [userContextLoading]);
+
+  useEffect(() => {
+    if (isTutorMode) {
+      setIncludeNcertGlobal(true);
+    }
+  }, [isTutorMode]);
+
+  useEffect(() => {
+    if (!isTutorMode || userContextLoading) {
+      return;
+    }
+
+    let cancelled = false;
+    const loadTutorFilters = async () => {
+      try {
+        const data = await apiClient.getNcertTutorFilters({
+          class_num: ncertFilterClass ?? undefined,
+          subject: normalizedTutorSubject || undefined,
+        });
+        if (cancelled || !data) {
+          return;
+        }
+
+        if (data.subjects_by_class && Object.keys(data.subjects_by_class).length > 0) {
+          setNcertSubjectsByClass(data.subjects_by_class);
+        }
+        setNcertChapterOptions(Array.isArray(data.chapters) ? data.chapters : []);
+      } catch (error) {
+        if (!cancelled) {
+          setNcertChapterOptions([]);
+        }
+      }
+    };
+
+    void loadTutorFilters();
+    return () => {
+      cancelled = true;
+    };
+  }, [apiClient, isTutorMode, ncertFilterClass, normalizedTutorSubject, userContextLoading]);
+
+  useEffect(() => {
+    if (!selectedTutorChapter && ncertFilterChapterKey) {
+      setNcertFilterChapterKey('');
+    }
+  }, [ncertFilterChapterKey, selectedTutorChapter]);
 
   // Scroll to bottom when messages or current streaming response changes
   useEffect(() => {
@@ -277,12 +381,10 @@ export function ChatInterface() {
       return;
     }
 
-    const sourceIds = activeSourceIds || Array.from(selectedSources);
+    const sourceIds = isTutorMode ? [] : (activeSourceIds || selectedSourceIds);
 
-    if (sourceIds.length === 0 && !includeNcertGlobal) {
-      setStreamError(
-        'Select at least one notebook source, or turn on “Include NCERT global library” to query the shared corpus.'
-      );
+    if (requiresSelectedSource && sourceIds.length === 0) {
+      setStreamError('Select at least one source to enable dashboard chat.');
       return;
     }
     
@@ -290,6 +392,7 @@ export function ChatInterface() {
 
     // Task A.f: Store message for retry mechanism
     lastUserMessageRef.current = message;
+    setCurrentQuestion(message.trim());
 
     // Task C.b: Create chat if it doesn't exist
     let chatId = currentChatId;
@@ -363,9 +466,17 @@ export function ChatInterface() {
         }));
 
       const ncertClassOpt =
-        includeNcertGlobal && ncertFilterClass != null ? ncertFilterClass : undefined;
-      const subj = ncertFilterSubject.trim().toLowerCase().replace(/\s+/g, '_');
-      const ncertSubjectOpt = includeNcertGlobal && subj ? subj : undefined;
+        effectiveIncludeNcertGlobal && ncertFilterClass != null ? ncertFilterClass : undefined;
+      const ncertSubjectOpt =
+        effectiveIncludeNcertGlobal && normalizedTutorSubject ? normalizedTutorSubject : undefined;
+      const ncertChapterNoOpt =
+        effectiveIncludeNcertGlobal && selectedTutorChapter?.chapter_no != null
+          ? selectedTutorChapter.chapter_no
+          : undefined;
+      const ncertChapterNameOpt =
+        effectiveIncludeNcertGlobal && selectedTutorChapter?.chapter_name
+          ? selectedTutorChapter.chapter_name
+          : undefined;
 
       await apiClient.streamChat(
         message,
@@ -612,7 +723,12 @@ export function ChatInterface() {
           
           // Always reset streaming state on error
           resetStreamingState();
-        }
+        },
+        effectiveIncludeNcertGlobal,
+        ncertClassOpt,
+        ncertSubjectOpt,
+        ncertChapterNoOpt,
+        ncertChapterNameOpt
       );
     } catch (error: any) {
       // Task A.b & A.e
@@ -719,7 +835,9 @@ export function ChatInterface() {
               </button>
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5 text-text-secondary" />
-                <h1 className="text-lg font-medium text-text-primary">Chat</h1>
+                <h1 className="text-lg font-medium text-text-primary">
+                  {isTutorMode ? 'Tutor Mode' : 'Chat'}
+                </h1>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -757,9 +875,7 @@ export function ChatInterface() {
           </div>
         ) : messages.length === 0 && !currentChatId ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
-            <p className="text-text-secondary text-center mb-2">
-              Select notebook sources and/or enable the NCERT global library, then ask a question.
-            </p>
+              <p className="text-text-secondary text-center mb-2">{emptyStateMessage}</p>
           </div>
         ) : (
           <div className="max-w-3xl mx-auto space-y-6">
@@ -830,17 +946,28 @@ export function ChatInterface() {
 
         <div className="p-4 bg-surface border-t border-border-default space-y-3">
           <div className="flex flex-col gap-2 max-w-3xl mx-auto">
-            <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={includeNcertGlobal}
-                onChange={(e) => setIncludeNcertGlobal(e.target.checked)}
-                className="rounded border-border-default"
-              />
-              <span>Include NCERT global library (classes 6–10, shared across tenants)</span>
-            </label>
-            {includeNcertGlobal && (
-              <div className="flex flex-wrap items-center gap-3 pl-6 text-sm">
+            {isTutorMode ? (
+              <div className="rounded-2xl border border-border-default bg-surface-subtle px-4 py-3">
+                <p className="text-sm font-medium text-text-primary">
+                  Tutor Mode always uses the NCERT Global Library.
+                </p>
+                <p className="mt-1 text-xs text-text-secondary">
+                  Narrow the search scope with class, subject, and chapter filters.
+                </p>
+              </div>
+            ) : (
+              <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={includeNcertGlobal}
+                  onChange={(e) => setIncludeNcertGlobal(e.target.checked)}
+                  className="rounded border-border-default"
+                />
+                <span>Use NCERT Global Library</span>
+              </label>
+            )}
+            {isTutorMode && (
+              <div className="flex flex-wrap items-center gap-3 text-sm">
                 <label className="flex items-center gap-2 text-text-secondary">
                   <span className="whitespace-nowrap">Filter class</span>
                   <select
@@ -850,15 +977,16 @@ export function ChatInterface() {
                       const nextClass = v === '' ? null : parseInt(v, 10);
                       setNcertFilterClass(nextClass);
                       const nextSubjectOptions = nextClass == null
-                        ? Array.from(new Set(Object.values(DEFAULT_NCERT_SUBJECTS_BY_CLASS).flat()))
-                        : (DEFAULT_NCERT_SUBJECTS_BY_CLASS[String(nextClass)] || []);
+                        ? Array.from(new Set(Object.values(subjectMap).flat()))
+                        : (subjectMap[String(nextClass)] || []);
                       if (ncertFilterSubject && !nextSubjectOptions.includes(ncertFilterSubject)) {
                         setNcertFilterSubject('');
                       }
+                      setNcertFilterChapterKey('');
                     }}
                     className="rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
                   >
-                    <option value="">All</option>
+                    <option value="">All classes</option>
                     {[6, 7, 8, 9, 10].map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -870,7 +998,10 @@ export function ChatInterface() {
                   <span className="whitespace-nowrap">Subject</span>
                   <select
                     value={ncertFilterSubject}
-                    onChange={(e) => setNcertFilterSubject(e.target.value)}
+                    onChange={(e) => {
+                      setNcertFilterSubject(e.target.value);
+                      setNcertFilterChapterKey('');
+                    }}
                     className="flex-1 min-w-0 rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
                   >
                     <option value="">All subjects</option>
@@ -881,13 +1012,36 @@ export function ChatInterface() {
                     ))}
                   </select>
                 </label>
+                <label className="flex items-center gap-2 text-text-secondary min-w-[220px] flex-1">
+                  <span className="whitespace-nowrap">Chapter</span>
+                  <select
+                    value={ncertFilterChapterKey}
+                    onChange={(e) => setNcertFilterChapterKey(e.target.value)}
+                    disabled={ncertChapterOptions.length === 0}
+                    className="flex-1 min-w-0 rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
+                  >
+                    <option value="">
+                      {ncertChapterOptions.length === 0 ? 'Select class or subject first' : 'All chapters'}
+                    </option>
+                    {ncertChapterOptions.map((chapter) => {
+                      const optionKey = buildChapterOptionKey(chapter);
+                      return (
+                        <option key={optionKey} value={optionKey}>
+                          {formatChapterLabel(chapter)}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </label>
               </div>
             )}
           </div>
           <ChatInput
             onSend={handleSend}
-            disabled={isLoading || !isOnline}
-            activeSourceIds={Array.from(selectedSources)}
+            disabled={chatDisabled}
+            disabledReason={chatDisabledReason}
+            helperText={chatHelperText}
+            activeSourceIds={isTutorMode ? [] : selectedSourceIds}
             showSuggestedPrompts={!hasUserMessageInChat}
           />
         </div>

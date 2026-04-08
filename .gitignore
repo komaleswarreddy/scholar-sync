@@ -69,3 +69,7 @@ Thumbs.db
 *.tar.gz
 *.backup
 backend_backup_*
+
+# Runtime-generated artifacts (do not commit)
+cache/
+logs/metrics/
