@@ -37,13 +37,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (!clerkGetToken) {
         return null;
       }
-      // Prefer the explicit JWT template (if you created it), but gracefully
-      // fall back to Clerk's default token if the template doesn't exist yet.
+      // Prefer JWT template "default" only if defined in Clerk; otherwise session token.
       try {
         const token = await clerkGetToken({ template: 'default' });
         if (token) return token;
       } catch {
-        // continue to fallback below
+        // Template missing or invalid — use session JWT
       }
 
       const fallback = await clerkGetToken();

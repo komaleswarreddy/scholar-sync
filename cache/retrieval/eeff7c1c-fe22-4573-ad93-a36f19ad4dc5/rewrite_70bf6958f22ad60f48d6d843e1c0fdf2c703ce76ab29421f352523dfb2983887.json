@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "explain the reaction 2Na(s) + 2H2O(l) \u2192 2NaOH(aq) + H2(g) + heat",
+    "describe the sodium and water reaction producing sodium hydroxide and hydrogen gas",
+    "explain this ( 2Na(s) + 2H_2O(l) \\rightarrow 2NaOH(aq) + H_2(g) + \\text{heat} )?"
+  ],
+  "timestamp": 1775464350.22267,
+  "ttl": 3600,
+  "query": "explain this ( 2Na(s) + 2H_2O(l) \\rightarrow 2NaOH(aq) + H_2(g) + \\text{heat} )?",
+  "source_ids": [
+    "ba6b2a0b-47f9-403c-8ac0-f7d4798f5f21"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

@@ -23,11 +23,11 @@ class Settings(BaseSettings):
     DATABASE_URL: str = Field(..., description="PostgreSQL database connection string (required)")
     # Echo logs every SQL statement — very noisy and slower; enable only when debugging queries
     SQLALCHEMY_ECHO: bool = False
-    DB_POOL_SIZE: int = 5
-    DB_MAX_OVERFLOW: int = 10
+    DB_POOL_SIZE: int = 15
+    DB_MAX_OVERFLOW: int = 25
     # Supabase session pooler (often port 5432) is connection-limited; this repo caps pool_size/max_overflow
     # to avoid MaxClientsInSessionMode. In development you may disable the cap if you control concurrency.
-    DB_SUPABASE_5432_POOL_CAP_ENABLED: bool = True
+    DB_SUPABASE_5432_POOL_CAP_ENABLED: bool = False
     # Production gate: if True, DB pool timeouts return safe empty fallbacks for list endpoints
     # instead of raising 500s. Prefer fixing root causes (pool sizing / transaction pooler) but this
     # prevents noisy UI failures during incidents.

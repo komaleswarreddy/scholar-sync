@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "What are the components and functions of an animal cell?",
+    "Animal cell organelles and their roles",
+    "Animal cell"
+  ],
+  "timestamp": 1775326420.3031754,
+  "ttl": 3600,
+  "query": "Animal cell",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:science|chapter_no:all|chapter_name:all"
+}

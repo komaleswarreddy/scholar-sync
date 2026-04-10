@@ -1,0 +1,15 @@
+{
+  "rewritten_queries": [
+    "reasons for using copper in hot water tanks instead of steel",
+    "advantages of copper over steel for hot water tank construction",
+    "Give reasons why copper is used to make hot water tanks and not steel (an alloy  of iron)."
+  ],
+  "timestamp": 1775481622.0624268,
+  "ttl": 3600,
+  "query": "Give reasons why copper is used to make hot water tanks and not steel (an alloy  of iron). ",
+  "source_ids": [
+    "316e5d91-f06f-4594-89fb-61219c9c9557",
+    "0ef80149-7735-4255-83c2-445a1581d11e"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

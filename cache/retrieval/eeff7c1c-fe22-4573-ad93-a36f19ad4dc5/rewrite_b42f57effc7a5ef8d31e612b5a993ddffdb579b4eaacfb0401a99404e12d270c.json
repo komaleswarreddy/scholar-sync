@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "what is this PDF about?",
+    "summary of this PDF document",
+    "what is this pdf  about?"
+  ],
+  "timestamp": 1775466961.3609915,
+  "ttl": 3600,
+  "query": "what is this pdf  about?",
+  "source_ids": [
+    "60a93d79-784c-432f-b8e6-86f56d0dfc00"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

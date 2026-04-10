@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "difference between metals and nonmetals",
+    "comparison of metals and nonmetals",
+    "diff between metals and non metals?"
+  ],
+  "timestamp": 1775467421.5679374,
+  "ttl": 3600,
+  "query": "diff between metals and non metals?",
+  "source_ids": [
+    "60a93d79-784c-432f-b8e6-86f56d0dfc00"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

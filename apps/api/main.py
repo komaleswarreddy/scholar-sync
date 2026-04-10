@@ -59,9 +59,32 @@ def patched_async_client_init(self, *args, **kwargs):
 
 httpx.AsyncClient.__init__ = patched_async_client_init
 # ========== END MONKEY PATCH ==========
+
+# ========== MONKEY PATCH: Fix OpenAI client proxies incompatibility ==========
+# LlamaIndex's OpenAIEmbedding tries to pass 'proxies' to OpenAI client,
+# but the SDK doesn't support it. This patches both sync and async clients.
+import openai
+
+_original_openai_init = openai.OpenAI.__init__
+def patched_openai_init(self, *args, **kwargs):
+    # Remove 'proxies' from kwargs if present (LlamaIndex passes this but OpenAI SDK doesn't support it)
+    kwargs.pop('proxies', None)
+    return _original_openai_init(self, *args, **kwargs)
+openai.OpenAI.__init__ = patched_openai_init
+
+_original_async_openai_init = openai.AsyncOpenAI.__init__
+def patched_async_openai_init(self, *args, **kwargs):
+    # Remove 'proxies' from kwargs if present (LlamaIndex passes this but OpenAI SDK doesn't support it)
+    kwargs.pop('proxies', None)
+    return _original_async_openai_init(self, *args, **kwargs)
+openai.AsyncOpenAI.__init__ = patched_async_openai_init
+
+print("[STARTUP] Patched OpenAI client to strip 'proxies' parameter")
+# ========== END MONKEY PATCH ==========
  
 from config.settings import settings
 from apps.api.middleware.tenant import TenantMiddleware
+from apps.api.middleware.request_logging import RequestLoggingMiddleware
 from apps.api.routes import chat, sources, studio, notes, health, metrics, dashboards, alerts, admin, admin_ncert_global, pipeline_traces
 
 # ---------------- Lifespan ----------------
@@ -91,6 +114,7 @@ if settings.ENVIRONMENT == "production":
 
 # ---------------- Tenant + Auth Middleware ----------------
 app.add_middleware(TenantMiddleware)
+app.add_middleware(RequestLoggingMiddleware)
 
 # ---------------- CORS ----------------
 # NOTE: CORS must be the OUTERMOST middleware so preflight (OPTIONS) and error
@@ -205,5 +229,4 @@ if __name__ == "__main__":
         port=8000,
         reload=True if settings.ENVIRONMENT == "development" else False,
     )
-
 

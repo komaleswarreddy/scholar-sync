@@ -1,0 +1,13 @@
+{
+  "rewritten_queries": [
+    "What are the main components of cytoplasm?",
+    "Key components found in cytoplasm"
+  ],
+  "timestamp": 1775469726.5018668,
+  "ttl": 3600,
+  "query": "What are the main components of cytoplasm?",
+  "source_ids": [
+    "60a93d79-784c-432f-b8e6-86f56d0dfc00"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

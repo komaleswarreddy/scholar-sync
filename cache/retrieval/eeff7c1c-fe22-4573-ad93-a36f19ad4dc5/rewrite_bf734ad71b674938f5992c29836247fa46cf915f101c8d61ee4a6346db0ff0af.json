@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "differentiate between metals and non-metals",
+    "distinction between metallic and non-metallic elements",
+    "differicicate  between  metals and non metals?"
+  ],
+  "timestamp": 1775482750.9092228,
+  "ttl": 3600,
+  "query": "differicicate  between  metals and non metals?",
+  "source_ids": [
+    "0ef80149-7735-4255-83c2-445a1581d11e"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

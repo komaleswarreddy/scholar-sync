@@ -9,6 +9,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from config.settings import settings
+from packages.core.llm.openai_compat import build_openai_http_clients
 from packages.core.rag.vectorstores.pinecone_store import get_pinecone_index
 from packages.core.rag.vectorstores.namespace import normalize_pinecone_namespace
 from packages.core.rag.contextual_retrieval import ChunkContextualizer, ChunkEnrichment
@@ -123,6 +124,7 @@ class LlamaIndexIngestionAdapter:
                 "LlamaIndex dependencies not installed. "
                 "Install llama-index-core, llama-index-vector-stores-pinecone, llama-index-embeddings-openai."
             ) from e
+
 
     def _build_nodes(
         self,
@@ -666,7 +668,16 @@ class LlamaIndexIngestionAdapter:
             if self._embedding_dimensions is not None
             else settings.OPENAI_EMBEDDING_DIMENSIONS
         )
-        LISettings.embed_model = OpenAIEmbedding(model=_em, dimensions=_ed)
+        sync_http_client, async_http_client = build_openai_http_clients()
+        embed_kwargs: Dict[str, Any] = {
+            "model": _em,
+            "dimensions": _ed,
+        }
+        if sync_http_client is not None:
+            embed_kwargs["http_client"] = sync_http_client
+        if async_http_client is not None:
+            embed_kwargs["async_http_client"] = async_http_client
+        LISettings.embed_model = OpenAIEmbedding(**embed_kwargs)
 
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         nodes = self._build_nodes(text=text, source_id=source_id, pages=pages)
@@ -770,7 +781,16 @@ class LlamaIndexIngestionAdapter:
             if self._embedding_dimensions is not None
             else settings.OPENAI_EMBEDDING_DIMENSIONS
         )
-        LISettings.embed_model = OpenAIEmbedding(model=_em, dimensions=_ed)
+        sync_http_client, async_http_client = build_openai_http_clients()
+        embed_kwargs: Dict[str, Any] = {
+            "model": _em,
+            "dimensions": _ed,
+        }
+        if sync_http_client is not None:
+            embed_kwargs["http_client"] = sync_http_client
+        if async_http_client is not None:
+            embed_kwargs["async_http_client"] = async_http_client
+        LISettings.embed_model = OpenAIEmbedding(**embed_kwargs)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         nodes = self._build_nodes_from_chunks(
             source_id=source_id, chunks_with_metadata=chunks_with_metadata
@@ -804,4 +824,3 @@ class LlamaIndexIngestionAdapter:
             )
 
         return LlamaIndexIngestionResult(nodes_indexed=len(nodes))
-

@@ -43,7 +43,7 @@ export default clerkMiddleware((auth, req) => {
      * auth().protect() handles three things:
      * a. Checks if a session exists (Task A.a).
      * b. If not, redirects to your sign-in page (Task A.b).
-     * c. Appends the current URL as a redirect_url so the user 
+     * c. Appends the current URL as a redirect_url so the user
      * returns here after login (Task A.c - Deep Linking).
      */
     auth().protect();
@@ -51,15 +51,15 @@ export default clerkMiddleware((auth, req) => {
 
   // --- 2. TENANT INJECTION ---
   const res = NextResponse.next();
-  
+
   // Pass tenant info to backend via headers
   res.headers.set('x-tenant-id', tenantId);
 
   // Store in cookie for client-side components to use (UI branding, etc.)
-  res.cookies.set('tenantId', tenantId, { 
+  res.cookies.set('tenantId', tenantId, {
     path: '/',
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production' 
+    secure: process.env.NODE_ENV === 'production'
   });
 
   return res;

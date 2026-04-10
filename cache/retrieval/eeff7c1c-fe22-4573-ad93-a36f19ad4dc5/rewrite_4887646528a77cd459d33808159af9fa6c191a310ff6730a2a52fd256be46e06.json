@@ -1,0 +1,14 @@
+{
+  "rewritten_queries": [
+    "chemical properties of metals",
+    "metallic properties in chemistry",
+    "CHEMICAL PROPERTIES OF METALs"
+  ],
+  "timestamp": 1775468609.2469869,
+  "ttl": 3600,
+  "query": " CHEMICAL PROPERTIES OF METALs",
+  "source_ids": [
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "cache_extra": "ncert_v3:1|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

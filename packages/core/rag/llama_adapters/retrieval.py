@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 from packages.core.rag.vectorstores.pinecone_store import get_pinecone_index
 from packages.core.rag.vectorstores.namespace import normalize_pinecone_namespace
 from config.settings import settings
+from packages.core.llm.openai_compat import build_openai_http_clients
 
 
 class LlamaIndexRetrievalAdapter:
@@ -56,10 +57,16 @@ class LlamaIndexRetrievalAdapter:
         )
 
         # Match embedding model/dimensions used for ingestion and Pinecone index.
-        LISettings.embed_model = OpenAIEmbedding(
-            model=settings.OPENAI_EMBEDDING_MODEL,
-            dimensions=settings.OPENAI_EMBEDDING_DIMENSIONS,
-        )
+        sync_http_client, async_http_client = build_openai_http_clients()
+        embed_kwargs: Dict[str, Any] = {
+            "model": settings.OPENAI_EMBEDDING_MODEL,
+            "dimensions": settings.OPENAI_EMBEDDING_DIMENSIONS,
+        }
+        if sync_http_client is not None:
+            embed_kwargs["http_client"] = sync_http_client
+        if async_http_client is not None:
+            embed_kwargs["async_http_client"] = async_http_client
+        LISettings.embed_model = OpenAIEmbedding(**embed_kwargs)
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
         index = VectorStoreIndex.from_vector_store(
             vector_store=vector_store, storage_context=storage_context
@@ -123,4 +130,3 @@ class LlamaIndexRetrievalAdapter:
             )
 
         return {"matches": matches}
-

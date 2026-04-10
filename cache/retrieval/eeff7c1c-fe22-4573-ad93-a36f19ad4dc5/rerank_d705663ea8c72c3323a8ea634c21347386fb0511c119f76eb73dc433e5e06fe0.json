@@ -1,0 +1,71 @@
+{
+  "reranked_chunks": [
+    {
+      "id": "60a93d79-784c-432f-b8e6-86f56d0dfc00_chunk_2",
+      "score": 0.02440686,
+      "metadata": {
+        "source_id": "60a93d79-784c-432f-b8e6-86f56d0dfc00",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 2,
+        "text": "It selects which candidate chunks should actually go into the LLM context window.\r\n\r\n### `input_summary`\r\n- `chunks_in: 1`  \r\n  Candidates entering context selection.\r\n- `token_budget: 4500`  \r\n  How many tokens worth of chunk text are allowed for context at this stage (upper limit guardrail).\r\n\r\n### `output_summary`\r\n- `chunks_out: 1`  \r\n  How many chunks were selected to fit within budget.\r\n\r\n**Real-time example:**  \r\n\u201cEven if there are candidates, only keep as much text as fits budget. Here, the answer context fits with 1 chunk.\u201d\r\n\r\n## `ContextSelector` (LangGraph node)\r\n**Meaning (what it does):** This is a second stage that *formats and prepares citations/context* for the prompt.\r\nSo don\u2019t confuse it with `R\u00b7context_selector`:\r\n- `R\u00b7context_selector` = chooses chunks (budget/selection)\r\n- `ContextSelector` = builds the final `context` string and `citations` array the LLM uses\r\n\r\n### `input_summary`\r\n- `chunks_in: 1`  \r\n  How many chunks were available from the retriever selection.\r\n  \r\n### `output_summary`\r\n- `chunks_selected: 1`  \r\n  How many chunks are used for the final context formatting.\r\n- `citation_count: 1`  \r\n  How many citation items were created (usually 1 per selected chunk).\r\n- `context_chars: 660`  \r\n  The size of the formatted context text (character count), which is what the LLM sees.\r\n\r\n**Real-time example:**  \r\n\u201cIt selected the chunk and wrapped it into the numbered context structure, and prepared one citation reference for grounding.\u201d\r\n\r\n## `Generate`\r\n**Meaning (what it does):** This is the actual LLM answer step (takes query + formatted context + citations).\r\n\r\n### `input_summary`\r\n- `query`: what the LLM is answering.\r\n- `context_chars: 660`: indicates how much context it had available.\r\n- `citation_count: 1`: how many grounded citation items it can rely on.\r\n\r\n### `output_summary`\r\n- `answer_preview`: the model\u2019s produced answer (in your example: addressed to **Manikanta**).\r\n\r\n**Real-time example:**  \r\n\u201cNow the LLM reads the single provided chunk and returns the answer.\u201d\r\n\r\n-",
+        "chunk_context": "This section discusses the selection and formatting of context for the LLM, detailing the roles of R\u00b7context_selector and ContextSelector.",
+        "chunk_summary": "It describes how candidate chunks are selected based on token budget and how final context and citations are prepared for the LLM.",
+        "chunk_type": "procedure",
+        "section_title": "ContextSelector",
+        "concept_hint": "context selection, token budget, citation preparation, LLM, chunk formatting, retrieval, context, citations",
+        "contextual_version": 1,
+        "topic": "ContextSelector",
+        "vector_score": 0.153769061,
+        "keyword_score": 1.0,
+        "rerank_score": 0.02440686
+      }
+    },
+    {
+      "id": "60a93d79-784c-432f-b8e6-86f56d0dfc00_chunk_1",
+      "score": 0.022220362,
+      "metadata": {
+        "source_id": "60a93d79-784c-432f-b8e6-86f56d0dfc00",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 1,
+        "text": "- For questions, it sets `skip_rag: false` and proceeds with retrieval.\r\n\r\n**Other possible `reason` values**\r\nExamples you\u2019ll see:\r\n- `greeting_or_acknowledgment` (skip retrieval)\r\n- `small_talk_question` (skip retrieval)\r\n- `question_mark_assume_rag` (use retrieval)\r\n- `content_keywords` (use retrieval)\r\n\r\n---\r\n\r\n### 5) `IntentClassify` (what kind of question is this?)\r\n**input_summary**\r\n- `message`: your question\r\n\r\n**output_summary**\r\n- `classified_intent: \"question\"`: it decided the intent type is a normal \u201cquestion\u201d\r\n- `whole_file_summary: false`: it will NOT do the \u201csummarize the entire document\u201d mode\r\n\r\n**Real-time example meaning**\r\nThis decides the strategy:\r\n- \u201cquestion\u201d \u2192 normal RAG answering flow\r\n- \u201cwhole_document_summary\u201d \u2192 special flow that prepares a bigger summary using many chunks\r\n\r\n**Other possible `classified_intent` values**\r\nFrom your intent classifier, common ones include:\r\n- `explanation`, `summary`, `whole_document_summary`\r\n- `comparison`, `definition`, `how_to`\r\n- `analysis`, `creation`\r\n- `general`\r\n\r\n---\r\n\r\n### 6) `R\u00b7embedding` (convert rewritten query into vectors)\r\n**input_summary**\r\n- `query`: in your dashboard it shows the embedded query as:  \r\n  **\u201cwho received the internship offer letter?\u201d**\r\n\r\n**output_summary**\r\n- `dimensions: 1024`: the embedding vector size produced by your embedding model\r\n\r\n**Real-time example meaning**\r\nEmbedding is like converting your question into a numeric fingerprint so Pinecone can find semantically similar chunks.\r\n\r\n**Other possible outputs**\r\n- If embedding fails, you\u2019d typically see trace spans with `status: error` and the system may fall back/stop depending on the exception handling.\r\n\r\n---\r\n\r\n\r\n\r\n\r\n\r\n7 `R\u00b7retrieve`\r\n**Meaning (what it does):** This is the *retriever\u2019s* main \u201cfind evidence\u201d step. It:\r\n1) searches the vector DB,\r\n2) mixes it with keyword/hybrid signals,\r\n3) produces a candidate set of chunks that will be refined later.\r\n\r\n### `input_summary`\r\n- `query`: the rewritten/primary retrieval query used for searching (your dashboard shows the final retrieval query text).\r\n- `top_k`: this is the **initial candidate pool size** used to fetch enough chunks early (so later stages like MMR and context selection have something to work with).  \r\n  In your trace, `top_k: 42` means it pulled a larger candidate set (42-ish) before trimming down.\r\n\r\n### `output_summary`\r\n- `vector_chunks: 1`  \r\n  How many chunks came back from the vector search part.\r\n- `after_hybrid_merge: 1`  \r\n  How many chunks remain after combining vector + hybrid signals (still candidates, not yet final context).\r\n\r\n**Real-time example:**  \r\nIf your question is \u201cwho received the internship offer letter?\u201d, `R\u00b7retrieve` is basically:  \r\n\u201cSearch all indexed pages for anything that sounds like \u2018internship offer letter\u2019 and \u2018who received it\u2019.\u201d  \r\nThen it returns 1 best candidate chunk in this run.\r\n\r\n## `R\u00b7mmr`\r\n**Meaning (what it does):** MMR is \u201cdiversity selection\u201d. It tries to avoid returning 1 highly-similar chunk repeatedly.  \r\nBut in your case it was skipped.\r\n\r\n### `input_summary`\r\n- `chunks_in: 1`  \r\n  The number of candidate chunks entering MMR.\r\n- `skipped: true`  \r\n  Your retriever decided MMR isn\u2019t needed (because the candidate set is too small to benefit).\r\n\r\n### `output_summary`\r\n- `chunks_out: 1`  \r\n  Final number of chunks after the MMR stage. Since it was skipped, input and output match.\r\n\r\n**Real-time example:**  \r\n\u201cYou only had one candidate chunk. There\u2019s nothing to diversify, so MMR does nothing.\u201d\r\n\r\n## `R\u00b7context_selector`\r\n**Meaning (what it does):** This is the retriever\u2019s **token-budget-aware trimming**. It selects which candidate chunks should actually go into the LLM context window.\r\n\r\n### `input_summary`\r\n- `chunks_in: 1`  \r\n  Candidates entering context selection.\r\n- `token_budget: 4500`  \r\n  How many tokens worth of chunk text are allowed for context at this stage (upper limit guardrail).\r\n\r\n### `output_summary`\r\n- `chunks_out: 1`  \r\n  How many chunks were selected to fit within budget.\r\n\r\n**Real-time example:**  \r\n\u201cEven if there are candidates, only keep as much text as fits budget.",
+        "chunk_context": "This chunk discusses the process of classifying user intents and the retrieval strategy based on those classifications.",
+        "chunk_summary": "It explains how the system classifies user questions and determines whether to use retrieval or skip it based on intent types.",
+        "chunk_type": "procedure",
+        "section_title": "IntentClassify",
+        "concept_hint": "intent classification, retrieval strategy, question types, user questions, RAG, summarization, evidence retrieval, query handling",
+        "contextual_version": 1,
+        "topic": "IntentClassify",
+        "vector_score": 0.148944855,
+        "keyword_score": 0.8990128642351143,
+        "rerank_score": 0.022220362
+      }
+    },
+    {
+      "id": "60a93d79-784c-432f-b8e6-86f56d0dfc00_chunk_0",
+      "score": 0.02206811,
+      "metadata": {
+        "source_id": "60a93d79-784c-432f-b8e6-86f56d0dfc00",
+        "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+        "chunk_index": 0,
+        "text": "`ModerationInput \u2192 Memory \u2192 CacheCheck \u2192 DialogRoute \u2192 IntentClassify \u2192 R\u00b7embedding`\r\n\r\n\u2026it means your system is progressively deciding:\r\n1) is the message safe to process?\r\n2) what conversation history should be used?\r\n3) do we already have an answer cached?\r\n4) should we do retrieval (Pinecone) or direct chat?\r\n5) what type of question is it?\r\n6) now it converts the query into vector form (embedding) so it can search the knowledge base.\r\n\r\n---\r\n\r\n## Step-by-step: your spans up to `R\u00b7embedding`\r\n\r\n### 1) `ModerationInput` (safety + redaction check)\r\n**input_summary**\r\n- `message`: the message after any PII/injection redaction preview (privacy-safe + trimmed)\r\n- `history_turns`: how many history turns were present\r\n\r\n**output_summary**\r\n- `blocked: false`: the message passed safety rules\r\n- `error: null`: no refusal reason\r\n- `redacted_message`: what the system will actually use as \u201ccleaned input\u201d going forward\r\n\r\n**Real-time example meaning**\r\nYour question is a normal academic question, so moderation didn\u2019t block it.\r\n\r\n**Other possible outputs**\r\n- `blocked: true`: for things like detected personal data, prompt injection attempts, or disallowed content\r\n- then `error` would contain a short refusal reason, and the pipeline would stop retrieval and stream a refusal-style response.\r\n\r\n---\r\n\r\n### 2) `Memory` (history pruning/summarization)\r\n**input_summary**\r\n- `raw_history_turns`: history count before cleanup\r\n- `message`: your current question\r\n\r\n**output_summary**\r\n- `effective_history_turns: 2`: after pruning/summarizing, only 2 turns remain as \u201cusable memory\u201d\r\n- `pruned: false`: it didn\u2019t remove turns for dedupe reasons in this run\r\n- `summarized: false`: it didn\u2019t create a compressed summary\r\n\r\n**Real-time example meaning**\r\nIf your chat had extra repeated messages or very long history, Memory would trim/summarize it so the model doesn\u2019t get overloaded.\r\n\r\n**Other possible outputs**\r\n- `pruned: true`: removed unnecessary turns (like accidental duplicates)\r\n- `summarized: true`: created a short \u201csummary\u201d system message (so old turns don\u2019t waste tokens)\r\n\r\n---\r\n\r\n### 3) `CacheCheck` (answer caching)\r\n**input_summary**\r\n- `message`: the cleaned message used for lookup\r\n\r\n**output_summary**\r\n- `use_cached_response: false`: no exact cached answer found\r\n\r\n**Real-time example meaning**\r\nIf someone asks the same question again (and the selected sources match), your system can return a cached answer instantly.\r\n\r\n**Other possible outputs**\r\n- `use_cached_response: true`: then it would stream the cached text without doing retrieval/generation again.\r\n\r\n---\r\n\r\n### 4) `DialogRoute` (cheap router: RAG or direct chat?)\r\n**input_summary**\r\n- `message`: your current message\r\n\r\n**output_summary**\r\n- `skip_rag: false`: it decided this is academic/question-like, so it will use retrieval\r\n- `reason: question_mark_assume_rag`: the routing rule used for the decision\r\n\r\n**Real-time example meaning**\r\n- For greetings like \u201chi\u201d or \u201cthanks\u201d, it would set `skip_rag: true` (direct chat, no Pinecone).\r\n- For questions, it sets `skip_rag: false` and proceeds with retrieval.\r\n\r\n**Other possible `reason` values**\r\nExamples you\u2019ll see:\r\n- `greeting_or_acknowledgment` (skip retrieval)\r\n- `small_talk_question` (skip retrieval)\r\n- `question_mark_assume_rag` (use retrieval)\r\n- `content_keywords` (use retrieval)\r\n\r\n---\r\n\r\n### 5) `IntentClassify` (what kind of question is this?)",
+        "chunk_context": "This section outlines the initial steps in processing user messages, focusing on safety checks, memory management, and routing decisions for effective response generation.",
+        "chunk_summary": "The system checks message safety, prunes conversation history, verifies cached responses, and determines whether to use retrieval or direct chat based on the user's question type.",
+        "chunk_type": "procedure",
+        "section_title": "ModerationInput",
+        "concept_hint": "Moderation, Memory, Cache, Dialog, Intent, Embedding, Retrieval, Safety Check",
+        "contextual_version": 1,
+        "topic": "ModerationInput",
+        "vector_score": 0.156611234,
+        "keyword_score": 0.8598197547426173,
+        "rerank_score": 0.02206811
+      }
+    }
+  ],
+  "timestamp": 1775467444.9353385,
+  "ttl": 3600,
+  "query": "difference between metals and nonmetals",
+  "source_ids": [
+    "60a93d79-784c-432f-b8e6-86f56d0dfc00"
+  ],
+  "cache_extra": "ncert_v3:0|class:all|subject:all|chapter_no:all|chapter_name:all"
+}

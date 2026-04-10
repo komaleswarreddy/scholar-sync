@@ -221,23 +221,41 @@ async def list_recent_traces(
     uid = getattr(request.state, "user_id", None)
     if not uid:
         raise HTTPException(status_code=401, detail="Authentication required")
-    is_admin = await check_admin_role(request, db)
-    store = get_pipeline_trace_store()
-    # None = no filter (admin); else restrict to caller's Clerk user id
-    filter_user: str | None = None if is_admin else uid
-    traces = store.list_recent_traces_filtered(user_id=filter_user, limit=min(limit, 100))
-    out: List[Dict[str, Any]] = [
-        {
-            "trace_id": tr.trace_id,
-            "user_id": tr.user_id,
-            "tenant_id": tr.tenant_id,
-            "total_duration_ms": tr.total_duration_ms,
-            "success": tr.success,
-            "span_count": len(tr.spans),
-        }
-        for tr in traces
-    ]
-    return {"traces": out, "scope": "all" if is_admin else "mine"}
+
+    try:
+        is_admin = await check_admin_role(request, db)
+    except HTTPException as exc:
+        print(
+            f"[PIPELINE_TRACE] recent admin-role check failed for user={uid}: "
+            f"{exc.status_code} {exc.detail}"
+        )
+        is_admin = False
+    except Exception as exc:
+        print(
+            f"[PIPELINE_TRACE] recent admin-role check exception for user={uid}: "
+            f"{type(exc).__name__}: {exc}"
+        )
+        is_admin = False
+
+    try:
+        store = get_pipeline_trace_store()
+        filter_user: str | None = None if is_admin else uid
+        traces = store.list_recent_traces_filtered(user_id=filter_user, limit=min(limit, 100))
+        out: List[Dict[str, Any]] = [
+            {
+                "trace_id": tr.trace_id,
+                "user_id": tr.user_id,
+                "tenant_id": tr.tenant_id,
+                "total_duration_ms": tr.total_duration_ms,
+                "success": tr.success,
+                "span_count": len(tr.spans),
+            }
+            for tr in traces
+        ]
+        return {"traces": out, "scope": "all" if is_admin else "mine"}
+    except Exception as exc:
+        print(f"[PIPELINE_TRACE] recent traces fallback for user={uid}: {type(exc).__name__}: {exc}")
+        return {"traces": [], "scope": "mine", "warning": "recent_traces_unavailable"}
 
 
 @router.get("/{trace_id}")
