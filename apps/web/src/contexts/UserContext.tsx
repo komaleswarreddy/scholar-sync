@@ -37,21 +37,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (!clerkGetToken) {
         return null;
       }
-      // Prefer JWT template "default" only if defined in Clerk; otherwise session token.
-      try {
-        const token = await clerkGetToken({ template: 'default' });
-        if (token) return token;
-      } catch {
-        // Template missing or invalid — use session JWT
+      // Avoid triggering Clerk session calls when signed out or not ready yet.
+      // This prevents repeated /v1/client/sessions/* requests during initial load.
+      if (!isClerkConfigured || !userLoaded || !authLoaded || !isSignedIn) {
+        return null;
       }
-
-      const fallback = await clerkGetToken();
-      return fallback ?? null;
+      // Use the session JWT (no JWT template required in Clerk).
+      const token = await clerkGetToken();
+      return token ?? null;
     } catch (err) {
       console.error('[AUTH] Error fetching token:', err);
       return null;
     }
-  }, [clerkGetToken]);
+  }, [authLoaded, clerkGetToken, isClerkConfigured, isSignedIn, userLoaded]);
 
   // Logout handler for ApiClient
   const handleLogout = useCallback(async () => {
@@ -70,13 +68,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
     
     if (isClerkLoaded) {
-      apiClient.setTokenGetter(getToken);
+      // Only attach token getter when signed in; otherwise API calls should be anonymous
+      // and must not trigger Clerk session network calls.
+      apiClient.setTokenGetter(isSignedIn ? getToken : async () => null);
       apiClient.setLogoutHandler(handleLogout);
       setLoading(false);
     } else {
       // Set a timeout to prevent infinite loading if Clerk never loads
       const timeout = setTimeout(() => {
-        apiClient.setTokenGetter(getToken);
+        apiClient.setTokenGetter(isSignedIn ? getToken : async () => null);
         apiClient.setLogoutHandler(handleLogout);
         setLoading(false);
       }, 10000);

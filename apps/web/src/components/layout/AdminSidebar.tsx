@@ -42,10 +42,15 @@ const menuItems: MenuItem[] = [
 
 interface AdminSidebarProps {
   onNavigate?: () => void;
-  isAdmin?: boolean;
+  /**
+   * `null` = role not resolved yet (show full nav so admins are not stuck on two items).
+   * `false` = confirmed non-admin: Overview + Pipeline only.
+   * `true` = full admin nav.
+   */
+  isAdmin?: boolean | null;
 }
 
-export function AdminSidebar({ onNavigate, isAdmin = false }: AdminSidebarProps) {
+export function AdminSidebar({ onNavigate, isAdmin = null }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 

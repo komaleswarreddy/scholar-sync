@@ -50,6 +50,10 @@ class ChatRequest(BaseModel):
         default=None,
         description="Optional NCERT chapter name filter when include_ncert_global is true.",
     )
+    force_whole_file_map_reduce: bool = Field(
+        default=False,
+        description="When true and exactly one source is selected, run whole-file map-reduce summarization (same pipeline as summary intent).",
+    )
 
 
 class Citation(BaseModel):

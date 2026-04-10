@@ -40,6 +40,8 @@ class ChatGraphState(TypedDict, total=False):
     whole_file_summary: bool
     map_reduce_ok: bool
     precomputed_answer: str
+    # When true (API request): run map-reduce for exactly one active source regardless of dialog router / intent.
+    force_whole_file_map_reduce: bool
 
     # Retrieval
     rewritten_query: str  # primary string used for embedding retrieval (best query first)

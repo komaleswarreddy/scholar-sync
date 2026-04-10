@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Checkbox } from '../ui/Checkbox';
 import { Button } from '../ui/Button';
 import { FileText, Plus, X, Loader2, AlertCircle, CheckCircle2, Trash2, File, Globe, FileType } from 'lucide-react';
@@ -61,7 +61,17 @@ function getFileTypeIcon(type?: string) {
 }
 
 export function SourceList() {
-  const { selectedSources, toggleSource, removeSource, clearSelection } = useSourceContext();
+  const { data: sourcesData, isLoading, isError, error: apiError } = useSources();
+  const sources = sourcesData ?? [];
+  const {
+    selectedSources,
+    toggleSource,
+    removeSource,
+    clearSelection,
+    queueUploadAutoSummary,
+    setSelectedSources,
+  } = useSourceContext();
+
   const [uploadProgress, setUploadProgress] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
   const [pdfPassword, setPdfPassword] = useState<string>('');
@@ -74,10 +84,40 @@ export function SourceList() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Task C.a & C.b: Use TanStack Query for sources with loading states and caching
-  const { data: sourcesData, isLoading, isError, error: apiError } = useSources();
-  const sources = sourcesData ?? [];
+
+  // Drop IDs that are no longer in the library (deleted docs, stale localStorage).
+  useEffect(() => {
+    if (isLoading && sources.length === 0) return;
+    const validIds = new Set(
+      sources.map((s) => String(s.id).trim()).filter((id) => id.length > 0)
+    );
+    setSelectedSources((prev) => {
+      const next = new Set<string>();
+      for (const raw of prev) {
+        const id = String(raw).trim();
+        if (id && validIds.has(id)) next.add(id);
+      }
+      if (next.size === prev.size) {
+        for (const raw of prev) {
+          if (!next.has(String(raw).trim())) return next;
+        }
+        return prev;
+      }
+      return next;
+    });
+  }, [sources, isLoading, setSelectedSources]);
+
+  const selectedCountInLibrary = useMemo(() => {
+    const valid = new Set(
+      sources.map((s) => String(s.id).trim()).filter((id) => id.length > 0)
+    );
+    const seen = new Set<string>();
+    for (const raw of selectedSources) {
+      const id = String(raw).trim();
+      if (id && valid.has(id)) seen.add(id);
+    }
+    return seen.size;
+  }, [sources, selectedSources]);
   /** Only show fetch banner when the list is empty — background refetch failures keep cached sources visible. */
   const showSourcesFetchError = Boolean(isError && apiError && sources.length === 0);
   const uploadMutation = useUploadSource();
@@ -133,7 +173,7 @@ export function SourceList() {
 
     try {
       // Task C.a: Use TanStack Query mutation with loading state
-      await uploadMutation.mutateAsync({
+      const uploadResult = await uploadMutation.mutateAsync({
         file,
         title: file.name,
         pdfPassword: password || undefined,
@@ -141,7 +181,11 @@ export function SourceList() {
           setUploadProgress(percent);
         },
       });
-      
+
+      if (uploadResult && typeof uploadResult === 'object' && 'id' in uploadResult && uploadResult.id) {
+        queueUploadAutoSummary(String(uploadResult.id));
+      }
+
       // Reset state on success
       if (fileInputRef.current) fileInputRef.current.value = '';
       setShowPasswordInput(false);
@@ -251,7 +295,7 @@ export function SourceList() {
             <FileText className="w-5 h-5 text-text-primary" />
             <h2 className="text-lg font-bold text-text-primary tracking-tight">Sources</h2>
           </div>
-          {selectedSources.size > 0 && (
+          {selectedCountInLibrary > 0 && (
             <button 
               onClick={clearSelection}
               className="text-xs font-medium text-text-tertiary hover:text-text-primary transition-colors"
@@ -420,7 +464,10 @@ export function SourceList() {
         ) : (
           <div className="space-y-1.5">
             {sources.map((source) => {
-              const isSelected = selectedSources.has(source.id);
+              const sourceKey = String(source.id).trim();
+              const isSelected = [...selectedSources].some(
+                (x) => String(x).trim() === sourceKey
+              );
               const isDeleting = deletingId === source.id;
               // Use type or file_type from API, or infer from title
               const sourceType = source.type || source.file_type || 
@@ -444,8 +491,17 @@ export function SourceList() {
                   `}
                   onClick={() => !isDeleting && toggleSource(source.id)}
                 >
-                  <div className="mt-0.5 flex-shrink-0">
-                    <Checkbox checked={isSelected} onChange={() => {}} disabled={isDeleting} />
+                  <div
+                    className="mt-0.5 flex-shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    role="presentation"
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={() => toggleSource(source.id)}
+                      disabled={isDeleting}
+                    />
                   </div>
                   
                   {/* File Type Icon */}
@@ -525,7 +581,7 @@ export function SourceList() {
       <div className="p-4 border-t border-border-default bg-surface-subtle">
         <div className="flex flex-col gap-1">
             <p className="text-xs font-bold text-text-primary">
-              {selectedSources.size} selected
+              {selectedCountInLibrary} selected
             </p>
             <p className="text-xs text-text-tertiary font-medium">
               {sources.length} total sources in library

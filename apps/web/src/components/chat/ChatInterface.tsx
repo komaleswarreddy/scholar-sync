@@ -22,6 +22,12 @@ import { useUserContext } from '@/contexts/UserContext';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { DEFAULT_NCERT_SUBJECTS_BY_CLASS } from '@/config/ncertSubjectsByClass';
 import type { NcertTutorChapterOption } from '@/lib/api-client';
+import { useSources } from '@/hooks/useSources';
+import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
+
+/** Shown after upload when ingestion completes; triggers same map-reduce path as summary intent. */
+const POST_UPLOAD_SUMMARY_PROMPT =
+  'Summarize the entire document I just added.';
 
 interface Citation {
   id?: string;
@@ -48,6 +54,21 @@ interface Message {
 
 type ChatInterfaceMode = 'dashboard' | 'tutor';
 
+type HandleSendOptions = {
+  /** Same pipeline as explicit whole-document summary; requires exactly one source. */
+  forceWholeFileMapReduce?: boolean;
+  /** Start a fresh chat (e.g. post-upload auto-summary). */
+  forceNewChat?: boolean;
+  newChatTitle?: string;
+  /** When set, overrides dashboard NCERT checkbox for this request only. */
+  includeNcertGlobalOverride?: boolean;
+  /**
+   * Do not show or persist a user message; only the assistant reply appears (e.g. post-upload auto-summary).
+   * The `message` string is still sent to the API for routing.
+   */
+  omitUserFacingPrompt?: boolean;
+};
+
 interface ChatInterfaceProps {
   mode?: ChatInterfaceMode;
 }
@@ -67,6 +88,8 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
+  /** Shown instead of "Thinking" while map-reduce runs after upload (omitUserFacingPrompt). */
+  const [isAutoSummaryStreamLoading, setIsAutoSummaryStreamLoading] = useState(false);
   const [includeNcertGlobal, setIncludeNcertGlobal] = useState(true);
   /** Optional Pinecone metadata filter (class 6–10); null = all classes */
   const [ncertFilterClass, setNcertFilterClass] = useState<number | null>(null);
@@ -110,16 +133,29 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const lastUserMessageRef = useRef<string>(''); 
+  const lastUserMessageRef = useRef<string>('');
+  /** Retry after error for streams that did not show a user prompt (auto-upload summary). */
+  const lastHiddenStreamRetryRef = useRef<{
+    message: string;
+    sourceIds: string[];
+    retryOptions: Omit<HandleSendOptions, 'forceNewChat' | 'newChatTitle'>;
+  } | null>(null); 
   const responseAccumulatorRef = useRef<string>(''); 
   const citationsAccumulatorRef = useRef<Citation[]>([]); 
   const hasFetchedRecentRef = useRef(false);
+  const uploadAutoSummaryRunRef = useRef<string | null>(null);
   
   const { apiClient } = useApi();
   const { loading: userContextLoading } = useUserContext();
-  const { selectedSources } = useSourceContext();
-  const selectedSourceIds = Array.from(selectedSources) as string[];
-  const selectedSourceCount = selectedSourceIds.length;
+  const { data: sourcesList = [] } = useSources();
+  const {
+    setSelectedSources,
+    pendingUploadSummarySourceId,
+    clearPendingUploadAutoSummary,
+    postUploadAutoSummaryScheduledRef,
+  } = useSourceContext();
+  const { validSelectedIds: selectedSourceIds, validSelectedCount: selectedSourceCount } =
+    useValidSelectedSourceIds();
   const normalizedTutorSubject = ncertFilterSubject.trim().toLowerCase().replace(/\s+/g, '_');
   const selectedTutorChapter =
     ncertChapterOptions.find((chapter) => buildChapterOptionKey(chapter) === ncertFilterChapterKey) || null;
@@ -159,9 +195,13 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   // Task C.c: Load previous chats on page load — guarded against Strict Mode double-fire AND against UserContext not being ready
   useEffect(() => {
     if (hasFetchedRecentRef.current || userContextLoading) return;
+    if (postUploadAutoSummaryScheduledRef.current) {
+      hasFetchedRecentRef.current = true;
+      return;
+    }
     hasFetchedRecentRef.current = true;
     loadRecentChat();
-  }, [userContextLoading]);
+  }, [userContextLoading, postUploadAutoSummaryScheduledRef]);
 
   useEffect(() => {
     if (isTutorMode) {
@@ -224,6 +264,10 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
 
   // Task C.c: Load the most recent chat on mount (retry: cold API/DB can exceed a single short window)
   const loadRecentChat = async () => {
+    if (postUploadAutoSummaryScheduledRef.current) {
+      setIsLoadingChat(false);
+      return;
+    }
     const maxAttempts = 3;
     try {
       setIsLoadingChat(true);
@@ -374,7 +418,11 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
     throw lastError;
   };
 
-  const handleSend = async (message: string, activeSourceIds?: string[]) => {
+  const handleSend = async (
+    message: string,
+    activeSourceIds?: string[],
+    options?: HandleSendOptions
+  ) => {
     // Task A.e: Prevent sending if offline
     if (!navigator.onLine) {
       setStreamError("Network disconnected. Please check your internet connection.");
@@ -387,19 +435,41 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
       setStreamError('Select at least one source to enable dashboard chat.');
       return;
     }
-    
-    if (!message.trim() || isLoading) return;
 
-    // Task A.f: Store message for retry mechanism
-    lastUserMessageRef.current = message;
-    setCurrentQuestion(message.trim());
+    if (!message.trim()) return;
+    if (isLoading && !(options?.forceNewChat && options?.forceWholeFileMapReduce)) return;
 
-    // Task C.b: Create chat if it doesn't exist
-    let chatId = currentChatId;
+    const hideUserBubble = Boolean(options?.omitUserFacingPrompt);
+
+    // Task A.f: Retry — visible sends use lastUserMessageRef; hidden-prompt streams use lastHiddenStreamRetryRef
+    if (!hideUserBubble) {
+      lastHiddenStreamRetryRef.current = null;
+      lastUserMessageRef.current = message;
+      setCurrentQuestion(message.trim());
+    } else {
+      lastUserMessageRef.current = '';
+      setCurrentQuestion('');
+      lastHiddenStreamRetryRef.current = {
+        message,
+        sourceIds: [...sourceIds],
+        retryOptions: {
+          forceWholeFileMapReduce: options?.forceWholeFileMapReduce,
+          includeNcertGlobalOverride: options?.includeNcertGlobalOverride,
+          omitUserFacingPrompt: true,
+        },
+      };
+    }
+
+    if (options?.forceNewChat) {
+      resetStreamingState();
+    }
+
+    // Task C.b: Create chat if it doesn't exist (or always new chat for post-upload summary)
+    let chatId: string | null = options?.forceNewChat ? null : currentChatId;
     if (!chatId) {
       try {
         setIsLoading(true);
-        const newChat = await apiClient.createChat();
+        const newChat = await apiClient.createChat(options?.newChatTitle);
         chatId = newChat.id;
         setCurrentChat(newChat);
       } catch (error: any) {
@@ -420,61 +490,77 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
       return;
     }
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: message,
-      timestamp: new Date().toLocaleTimeString(),
-      question: message.trim(),
-    };
-    
-    setMessages((prev) => [...prev, userMessage]);
+    if (!hideUserBubble) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: message,
+        timestamp: new Date().toLocaleTimeString(),
+        question: message.trim(),
+      };
 
-    if (chatId) {
-      try {
-        const savedMessage = await apiClient.addMessageToChat(chatId, 'user', message, []);
-        if (savedMessage && savedMessage.id) {
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === userMessage.id
-                ? { ...msg, id: savedMessage.id, messageId: savedMessage.id, feedback: savedMessage.feedback || null }
-                : msg
-            )
-          );
-          setTimeout(() => {
-            setSidebarRefreshTrigger((prev) => prev + 1);
-          }, 500);
-        }
-      } catch (error: any) {
-        console.error('Failed to save user message:', error);
-        // Non-blocking error - message is already displayed, just log it
-        // Use standardized error handling for logging
-        const apiError = error.apiError || handleApiError(error);
-        // Non-blocking error - message is already displayed
+      if (options?.forceNewChat) {
+        setMessages([userMessage]);
+      } else {
+        setMessages((prev) => [...prev, userMessage]);
       }
+
+      if (chatId) {
+        try {
+          const savedMessage = await apiClient.addMessageToChat(chatId, 'user', message, []);
+          if (savedMessage && savedMessage.id) {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === userMessage.id
+                  ? { ...msg, id: savedMessage.id, messageId: savedMessage.id, feedback: savedMessage.feedback || null }
+                  : msg
+              )
+            );
+            setTimeout(() => {
+              setSidebarRefreshTrigger((prev) => prev + 1);
+            }, 500);
+          }
+        } catch (error: any) {
+          console.error('Failed to save user message:', error);
+        }
+      }
+    } else {
+      if (options?.forceNewChat) {
+        setMessages([]);
+      }
+      setTimeout(() => {
+        setSidebarRefreshTrigger((prev) => prev + 1);
+      }, 300);
     }
     // Reset all streaming state before sending
     resetStreamingState();
     setIsLoading(true);
     setStreamError(null);
+    setIsAutoSummaryStreamLoading(hideUserBubble);
 
     try {
-      const history = messages
-        .map((m) => ({
-          role: m.role,
-          content: m.content,
-        }));
+      const historySource =
+        options?.forceNewChat || hideUserBubble ? [] : messages;
+      const history = historySource.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      const includeNcertThisRequest =
+        options?.includeNcertGlobalOverride !== undefined
+          ? options.includeNcertGlobalOverride
+          : effectiveIncludeNcertGlobal;
 
       const ncertClassOpt =
-        effectiveIncludeNcertGlobal && ncertFilterClass != null ? ncertFilterClass : undefined;
+        includeNcertThisRequest && ncertFilterClass != null ? ncertFilterClass : undefined;
       const ncertSubjectOpt =
-        effectiveIncludeNcertGlobal && normalizedTutorSubject ? normalizedTutorSubject : undefined;
+        includeNcertThisRequest && normalizedTutorSubject ? normalizedTutorSubject : undefined;
       const ncertChapterNoOpt =
-        effectiveIncludeNcertGlobal && selectedTutorChapter?.chapter_no != null
+        includeNcertThisRequest && selectedTutorChapter?.chapter_no != null
           ? selectedTutorChapter.chapter_no
           : undefined;
       const ncertChapterNameOpt =
-        effectiveIncludeNcertGlobal && selectedTutorChapter?.chapter_name
+        includeNcertThisRequest && selectedTutorChapter?.chapter_name
           ? selectedTutorChapter.chapter_name
           : undefined;
 
@@ -582,6 +668,9 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           
           // Task A.d: Handle empty responses
           if (finalResponseText && finalResponseText.trim()) {
+            if (hideUserBubble) {
+              lastHiddenStreamRetryRef.current = null;
+            }
             const assistantMessage: Message = {
               id: (Date.now() + 1).toString(),
               role: 'assistant',
@@ -724,11 +813,12 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           // Always reset streaming state on error
           resetStreamingState();
         },
-        effectiveIncludeNcertGlobal,
+        includeNcertThisRequest,
         ncertClassOpt,
         ncertSubjectOpt,
         ncertChapterNoOpt,
-        ncertChapterNameOpt
+        ncertChapterNameOpt,
+        options?.forceWholeFileMapReduce === true
       );
     } catch (error: any) {
       // Task A.b & A.e
@@ -747,10 +837,73 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
     citationsAccumulatorRef.current = [];
     setIsLoading(false);
     setIsStreaming(false);
+    setIsAutoSummaryStreamLoading(false);
   };
+
+  // After a source finishes indexing, open a new chat and run whole-file map-reduce once.
+  useEffect(() => {
+    if (isTutorMode || !pendingUploadSummarySourceId) return;
+
+    const pid = pendingUploadSummarySourceId;
+    const src = sourcesList.find((s) => s.id === pid);
+    if (!src) return;
+
+    if (src.status === 'error' || src.status === 'failed') {
+      clearPendingUploadAutoSummary();
+      uploadAutoSummaryRunRef.current = null;
+      return;
+    }
+
+    const ready = src.status === 'indexed' || src.status === 'completed';
+    if (!ready) return;
+
+    if (uploadAutoSummaryRunRef.current === pid) return;
+    uploadAutoSummaryRunRef.current = pid;
+
+    const rawTitle = 'title' in src ? (src as { title?: string }).title : undefined;
+    const fileName = 'file_name' in src ? (src as { file_name?: string }).file_name : undefined;
+    const label = (rawTitle || fileName || '').trim();
+    const newChatTitle = label ? `Summary: ${label.slice(0, 80)}` : undefined;
+
+    void (async () => {
+      try {
+        setSelectedSources(new Set([pid]));
+        await handleSend(POST_UPLOAD_SUMMARY_PROMPT, [pid], {
+          forceNewChat: true,
+          newChatTitle,
+          forceWholeFileMapReduce: true,
+          includeNcertGlobalOverride: false,
+          omitUserFacingPrompt: true,
+        });
+        setSidebarRefreshTrigger((x) => x + 1);
+      } catch (e) {
+        console.error('[upload-auto-summary]', e);
+      } finally {
+        clearPendingUploadAutoSummary();
+        uploadAutoSummaryRunRef.current = null;
+      }
+    })();
+    // handleSend is intentionally omitted from deps to avoid re-firing on each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot when source becomes ready
+  }, [
+    isTutorMode,
+    pendingUploadSummarySourceId,
+    sourcesList,
+    clearPendingUploadAutoSummary,
+    setSelectedSources,
+  ]);
 
   // Task A.f: Retry functionality
   const handleRetry = () => {
+    const hidden = lastHiddenStreamRetryRef.current;
+    if (hidden) {
+      setStreamError(null);
+      handleSend(hidden.message, hidden.sourceIds, {
+        ...hidden.retryOptions,
+        forceNewChat: false,
+      });
+      return;
+    }
     if (lastUserMessageRef.current) {
       setStreamError(null);
       handleSend(lastUserMessageRef.current);
@@ -917,7 +1070,17 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
                       <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce [animation-delay:-0.15s]" />
                       <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce" />
                     </div>
-                    <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">Thinking</span>
+                    <span
+                      className={
+                        isAutoSummaryStreamLoading
+                          ? 'text-xs font-medium text-text-tertiary tracking-wide'
+                          : 'text-xs font-medium text-text-tertiary uppercase tracking-wider'
+                      }
+                    >
+                      {isAutoSummaryStreamLoading
+                        ? 'Generating document summary…'
+                        : 'Thinking'}
+                    </span>
                   </div>
                 )}
               </div>

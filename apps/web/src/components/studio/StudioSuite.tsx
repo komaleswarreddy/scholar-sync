@@ -24,7 +24,7 @@ import { StudioCard } from './StudioCard';
 import { GenerationModal, ContentType } from './GenerationModal';
 import { Button } from '../ui/Button';
 import { useApi } from '@/hooks/useApi';
-import { useSourceContext } from '@/contexts/SourceContext';
+import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import type { StudioReportFormat } from '@/lib/api-client';
 
@@ -116,8 +116,8 @@ const SLIDE_DECK_LANGUAGES = [
 
 export function StudioSuite() {
   const { loading, error: apiError, errorDetails, handleRequest, clearError, apiClient } = useApi();
-  const { selectedSources } = useSourceContext();
-  const hasSelectedSources = selectedSources.size > 0;
+  const { validSelectedIds, validSelectedCount } = useValidSelectedSourceIds();
+  const hasSelectedSources = validSelectedCount > 0;
   const [generating, setGenerating] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   
@@ -343,7 +343,7 @@ export function StudioSuite() {
   };
 
   const handleMindMapGenerate = async () => {
-    const n = selectedSources.size;
+    const n = validSelectedCount;
     const block = buildMindMapInstructions(n);
     const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
     await handleGenerate('mind_map', undefined, combined);
@@ -374,7 +374,7 @@ export function StudioSuite() {
   };
 
   const handleFlashcardGenerate = async () => {
-    const n = selectedSources.size;
+    const n = validSelectedCount;
     const block = buildFlashcardInstructions(n);
     const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
     await handleGenerate('flashcards', undefined, combined);
@@ -413,7 +413,7 @@ export function StudioSuite() {
   };
 
   const handleReportGenerate = async () => {
-    const n = selectedSources.size;
+    const n = validSelectedCount;
     const block = buildReportInstructions(reportSpec, n);
     const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
     const focus = reportSpec.retrievalFocus.trim() || undefined;
@@ -428,7 +428,7 @@ export function StudioSuite() {
     retrievalFocusOverride?: string,
     reportFormat?: StudioReportFormat,
   ) => {
-    const sourceIds = sourceIdsOverride || Array.from(selectedSources);
+    const sourceIds = sourceIdsOverride || validSelectedIds;
     const instructions = customInstructionsOverride !== undefined ? customInstructionsOverride : customInstructions;
     const errorDetailsMessage = (errorDetails as { message?: string } | null | undefined)?.message;
 
@@ -696,7 +696,7 @@ export function StudioSuite() {
             const isGenerating = generating === tool.type;
             const disabledNoSources = !hasSelectedSources;
             const infographicNeedsOne =
-              tool.type === 'infographic' && selectedSources.size !== 1;
+              tool.type === 'infographic' && validSelectedCount !== 1;
             return (
               <StudioCard
                 key={tool.type}

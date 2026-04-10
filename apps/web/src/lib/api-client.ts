@@ -473,7 +473,8 @@ class ApiClient {
     ncertClass?: number,
     ncertSubject?: string,
     ncertChapterNo?: number,
-    ncertChapterName?: string
+    ncertChapterName?: string,
+    forceWholeFileMapReduce?: boolean
   ) {
     await this.refreshToken();
 
@@ -529,6 +530,7 @@ class ApiClient {
               ncert_subject: ncertSubject?.trim() || null,
               ncert_chapter_no: ncertChapterNo ?? null,
               ncert_chapter_name: ncertChapterName?.trim() || null,
+              force_whole_file_map_reduce: Boolean(forceWholeFileMapReduce),
             }),
             signal: controller.signal,
           }

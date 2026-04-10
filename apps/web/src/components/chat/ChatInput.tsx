@@ -11,6 +11,7 @@ import { useState, KeyboardEvent, useMemo } from 'react';
 import { Send } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { useSources } from '@/hooks/useSources';
+import { normalizeSourceId } from '@/hooks/useValidSelectedSourceIds';
 
 interface ChatInputProps {
   onSend?: (message: string, activeSourceIds?: string[]) => void;
@@ -36,7 +37,9 @@ export function ChatInput({
   // Get selected source titles for generating relevant prompts
   const selectedSources = useMemo(() => {
     if (activeSourceIds.length === 0) return [];
-    return sources.filter(source => activeSourceIds.includes(source.id));
+    return sources.filter((source) =>
+      activeSourceIds.some((aid) => normalizeSourceId(aid) === normalizeSourceId(source.id))
+    );
   }, [sources, activeSourceIds]);
   
   // Generate dynamic prompts based on selected sources

@@ -1405,15 +1405,12 @@ export default function AnalyticsDashboardPage() {
 
   // Check auth loaded
   useEffect(() => {
-    if (getToken) {
-      setAuthLoaded(true);
-    }
-  }, [getToken]);
+    if (!mounted) return;
+    setAuthLoaded(true);
+  }, [mounted]);
 
   // Fetch alerts status
   const fetchAlerts = useCallback(async () => {
-    if (!getToken) return;
-    
     try {
       apiClient.setTokenGetter(getToken);
       const alertsData = await apiClient.getAlertsStatus();
@@ -1425,8 +1422,6 @@ export default function AnalyticsDashboardPage() {
 
   // Fetch admin aggregate metrics
   const fetchAdminMetrics = useCallback(async () => {
-    if (!getToken) return;
-    
     setAdminLoading(true);
     setAdminError(null);
     try {
@@ -1530,8 +1525,6 @@ export default function AnalyticsDashboardPage() {
 
   // Fetch individual user metrics
   const fetchMyMetrics = useCallback(async () => {
-    if (!getToken) return;
-    
     setLoading(true);
     try {
       apiClient.setTokenGetter(getToken);
@@ -1549,27 +1542,12 @@ export default function AnalyticsDashboardPage() {
   // Check if user is admin and fetch appropriate data
   useEffect(() => {
     const checkAdminAndFetchData = async () => {
-      if (!authLoaded || !getToken) {
+      if (!authLoaded) {
         return;
       }
 
       // Ensure token getter is set in API client
       apiClient.setTokenGetter(getToken);
-
-      // Wait a bit for token to be fetched and verify it's available
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Try to get token to ensure it's ready
-      try {
-        const token = await getToken();
-        if (!token) {
-          console.warn('[ANALYTICS] Token not available yet');
-          return;
-        }
-      } catch (tokenError) {
-        console.warn('[ANALYTICS] Error getting token:', tokenError);
-        return;
-      }
 
       // Admin vs user (no 403 probe — uses /admin/me/flags)
       try {
@@ -1621,7 +1599,7 @@ export default function AnalyticsDashboardPage() {
       }
     };
 
-    if (mounted && authLoaded && getToken) {
+    if (mounted && authLoaded) {
       checkAdminAndFetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2081,14 +2059,15 @@ export default function AnalyticsDashboardPage() {
                   
                   if (tokenConsumption?.daily_breakdown && Array.isArray(tokenConsumption.daily_breakdown) && tokenConsumption.daily_breakdown.length > 0) {
                     // Check if daily_breakdown includes calls field (from updated API)
-                    chartData = tokenConsumption.daily_breakdown
+                    const mapped = tokenConsumption.daily_breakdown
                       .filter((item: any) => item.calls !== undefined && item.calls !== null)
                       .map((item: any) => ({
                         date: item.date,
                         total: item.calls,
                       }));
                     
-                    if (chartData.length > 0) {
+                    if (mapped.length > 0) {
+                      chartData = mapped;
                       // Using call counts from daily breakdown
                     } else {
                       chartData = null;

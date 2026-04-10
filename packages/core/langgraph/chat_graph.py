@@ -298,6 +298,16 @@ class LangGraphChatPipeline:
         g.add_edge("DirectChat", "ModerationOutput")
 
         def _route_after_intent(s: ChatGraphState) -> str:
+            # Forced map-reduce (e.g. post-upload auto-summary): must not short-circuit to DirectChat.
+            active_ids = s.get("active_source_ids") or []
+            forced = (
+                bool(s.get("force_whole_file_map_reduce"))
+                and len(active_ids) == 1
+                and getattr(settings, "USE_WHOLE_FILE_MAP_REDUCE", True)
+                and bool(s.get("whole_file_summary"))
+            )
+            if forced:
+                return "WholeFileMapReduce"
             # Conversational / chat-only intents should bypass retrieval entirely.
             ci = str(s.get("classified_intent") or "").strip().lower()
             if ci in {"conversational", "chat_only"} or s.get("skip_rag"):
@@ -638,6 +648,15 @@ class LangGraphChatPipeline:
         """
         Cheap router: small talk / acknowledgments skip Pinecone + hybrid retrieval.
         """
+        active_ids = state.get("active_source_ids") or []
+        if (
+            bool(state.get("force_whole_file_map_reduce"))
+            and len(active_ids) == 1
+            and getattr(settings, "USE_WHOLE_FILE_MAP_REDUCE", True)
+        ):
+            state["skip_rag"] = False
+            state["dialog_route_reason"] = "force_whole_file_map_reduce"
+            return state
         if not getattr(settings, "ENABLE_DIALOG_ROUTER", True):
             state["skip_rag"] = False
             state["dialog_route_reason"] = "router_disabled"
@@ -723,6 +742,14 @@ class LangGraphChatPipeline:
             state["primary_retrieval_query"] = ""
             state["focused_query"] = ""
         state["whole_file_summary"] = should_whole_file_map_reduce(msg, active, intent)
+        if (
+            bool(state.get("force_whole_file_map_reduce"))
+            and len(active) == 1
+            and getattr(settings, "USE_WHOLE_FILE_MAP_REDUCE", True)
+        ):
+            state["whole_file_summary"] = True
+            state["skip_rag"] = False
+            state["classified_intent"] = "whole_document_summary"
         return state
 
     async def _node_whole_file_map_reduce(self, state: ChatGraphState) -> ChatGraphState:
@@ -1214,6 +1241,7 @@ class LangGraphChatPipeline:
         ncert_subject: Optional[str] = None,
         ncert_chapter_no: Optional[int] = None,
         ncert_chapter_name: Optional[str] = None,
+        force_whole_file_map_reduce: bool = False,
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Produce SSE events preserving the existing event/data shapes.
@@ -1238,6 +1266,7 @@ class LangGraphChatPipeline:
             "ncert_chapter_no": ncert_chapter_no,
             "ncert_chapter_name": chapter_name,
             "trace_id": trace_id_opt or "",
+            "force_whole_file_map_reduce": bool(force_whole_file_map_reduce),
         }
 
         try:

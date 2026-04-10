@@ -23,7 +23,7 @@ export default function AnalyticsLayout({
 }) {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   /** Sidebar only — never block page render on this. */
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   /** Avoid hydration mismatch: Clerk `isLoaded` can differ SSR vs first client render. */
   const [mounted, setMounted] = useState(false);
@@ -41,7 +41,6 @@ export default function AnalyticsLayout({
     apiClient.setTokenGetter(getToken);
 
     (async () => {
-      await new Promise((r) => setTimeout(r, 300));
       try {
         const flags = await apiClient.getMyAdminFlags();
         if (!cancelled) setIsAdmin(Boolean(flags?.is_admin));
@@ -97,7 +96,7 @@ export default function AnalyticsLayout({
             >
               <AdminSidebar 
                 onNavigate={() => setSidebarOpen(false)} 
-                isAdmin={isAdmin === true}
+                isAdmin={isAdmin}
               />
             </div>
 

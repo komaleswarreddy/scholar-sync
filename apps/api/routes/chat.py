@@ -221,7 +221,16 @@ async def stream_chat(
                 status_code=403,
                 detail={"error": "Access denied", "message": "No selected sources are accessible for this user."},
             )
-    
+
+    if bool(getattr(request_body, "force_whole_file_map_reduce", False)) and len(validated_source_ids) != 1:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "Invalid request",
+                "message": "force_whole_file_map_reduce requires exactly one selected source.",
+            },
+        )
+
     # Phase 4: Rate Limiting & Debounce
     if settings.USE_SESSION_MEMORY and settings.ENABLE_RATE_LIMITING:
         from packages.core.memory import RateLimiter
@@ -312,6 +321,9 @@ async def stream_chat(
                 ncert_subject=request_body.ncert_subject,
                 ncert_chapter_no=request_body.ncert_chapter_no,
                 ncert_chapter_name=request_body.ncert_chapter_name,
+                force_whole_file_map_reduce=bool(
+                    getattr(request_body, "force_whole_file_map_reduce", False)
+                ),
             ):
                 try:
                     event_data = json.dumps(event['data'], ensure_ascii=False)
