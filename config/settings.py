@@ -310,6 +310,8 @@ class Settings(BaseSettings):
     ENABLE_SAFETY_FILTERS: bool = True  # Enable input/output moderation
     ENABLE_REFUSAL_TEMPLATES: bool = True  # Enable safe refusal responses
     ENABLE_INJECTION_DETECTION: bool = True  # Enable prompt injection detection
+    # LLM intent classifier labels security_block → block before retrieval (few-shot in intent_classifier_system.j2).
+    ENABLE_INTENT_SECURITY_BLOCK: bool = True
     ENABLE_SYLLABUS_LOCK: bool = False  # Enable syllabus-locked RAG (requires approved sources)
     ENABLE_INTENT_GATE: bool = True  # Enable academic-only intent enforcement
     ENABLE_PII_DETECTION: bool = True  # Enable PII detection and redaction

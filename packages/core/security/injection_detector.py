@@ -66,7 +66,11 @@ _ORDERED_INJECTION_RULES: Tuple[Tuple[str, str], ...] = (
         "Answer using your own knowledge",
     ),
     (
-        r"(show|print|display|reveal|give)\s+(me\s+)?(the\s+)?(hidden\s+)?(system\s+)?prompt",
+        r"(show|print|display|reveal|give|send|share|tell|paste|dump)\s+(me\s+)?(the\s+)?(hidden\s+)?(system\s+)?(prompt|instructions?|promt)\b",
+        "System prompt exposure attempt",
+    ),
+    (
+        r"\b(can\s+you\s+)?(give|send|share|tell)\s+(me\s+)?(your|the)\s+(system\s+)?(prompt|instructions?|promt)\b",
         "System prompt exposure attempt",
     ),
     (
@@ -170,6 +174,7 @@ class PromptInjectionDetector:
             InjectionType.SYSTEM_PROMPT_LEAK: [
                 r"\b(show|print|display|reveal)\s+(your|the)\s+(system|initial|original)\s+(prompt|instructions?)",
                 r"\b(what\s+are\s+your\s+instructions?|what\s+is\s+your\s+prompt)",
+                r"\b(give|send|share|tell)\s+.*\b(your|the)\s+(system\s+)?(prompt|instructions?|promt)\b",
             ],
             InjectionType.ROLE_PLAYING: [
                 r"\byou\s+are\s+now\s+(a\s+)?different\s+assistant",

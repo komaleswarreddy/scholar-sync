@@ -12,4 +12,6 @@ def test_rag_prompt_contains_required_sections():
     assert "## Similarities" in txt
     assert "## Differences" in txt
     assert "## One-line summary" in txt
+    assert "## What to answer" in txt
+    assert "llm_task_query" in txt or "retrieval-aligned" in txt.lower()
 

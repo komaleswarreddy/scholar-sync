@@ -319,6 +319,11 @@ class LangGraphChatPipeline:
         g.add_edge("DirectChat", "ModerationOutput")
 
         def _route_after_intent(s: ChatGraphState) -> str:
+            # LLM intent layer: policy / prompt-injection — skip RAG and emit refusal via ModerationOutput.
+            if str(s.get("classified_intent") or "").strip().lower() == "security_block" and getattr(
+                settings, "ENABLE_INTENT_SECURITY_BLOCK", True
+            ):
+                return "ModerationOutput"
             # Forced map-reduce (e.g. post-upload auto-summary): must not short-circuit to DirectChat.
             active_ids = s.get("active_source_ids") or []
             forced = (
@@ -339,6 +344,7 @@ class LangGraphChatPipeline:
             "IntentClassify",
             _route_after_intent,
             {
+                "ModerationOutput": "ModerationOutput",
                 "DirectChat": "DirectChat",
                 "WholeFileMapReduce": "WholeFileMapReduce",
                 "Retrieval": "Retrieval",
@@ -843,6 +849,33 @@ class LangGraphChatPipeline:
             state["intent_classification_confidence"] = float(r.get("confidence", 0.5) or 0.5)
         except (TypeError, ValueError):
             state["intent_classification_confidence"] = 0.5
+
+        if intent_label == "security_block":
+            if not getattr(settings, "ENABLE_INTENT_SECURITY_BLOCK", True):
+                from packages.core.rag.agents.intent_classifier import UserIntent as _UserIntent
+
+                intent = _UserIntent.GENERAL
+                intent_label = "general"
+                state["classified_intent"] = "general"
+            else:
+                state["skip_rag"] = True
+                state["dialog_route_reason"] = "intent_classifier_security_block"
+                state["matches"] = []
+                state["selected_matches"] = []
+                state["context"] = ""
+                state["citations"] = []
+                state["rewritten_queries"] = []
+                state["rewritten_query"] = ""
+                state["primary_retrieval_query"] = ""
+                state["focused_query"] = ""
+                state["whole_file_summary"] = False
+                state["final_answer"] = self._prompt_injection_refusal_message()
+                state["prompt_injection_detected"] = True
+                state["injection_pattern_matched"] = "intent_classifier:security_block"
+                state["generation_blocked_reason"] = "INTENT_SECURITY_BLOCK"
+                self._merge_guardrails_trace(state)
+                return state
+
         if intent_label in {"conversational", "chat_only"}:
             state["skip_rag"] = True
             state["dialog_route_reason"] = "intent_classifier_conversational"
@@ -1501,6 +1534,8 @@ class LangGraphChatPipeline:
             "chat/rag_prompt.j2",
             context=context,
             message=message,
+            verbatim_user_message=message,
+            llm_task_query=primary_rq,
             document_summary=document_summary,
             conversation_transcript=conversation_transcript,
             has_prior_conversation=has_prior_conversation,
@@ -1769,6 +1804,10 @@ class LangGraphChatPipeline:
             done["retrieval_relevance_passed"] = False
             done["answer_origin"] = "insufficient_context_support"
             done["selected_source_context_used"] = False
+        elif _gbr_early == "INTENT_SECURITY_BLOCK":
+            done["retrieval_relevance_passed"] = False
+            done["answer_origin"] = "intent_security_block"
+            done["selected_source_context_used"] = False
         elif self._tutor_ncert_effective(state):
             done["retrieval_relevance_passed"] = bool(state.get("retrieval_relevance_passed", True))
             reason = (state.get("generation_blocked_reason") or "").strip()
@@ -1808,7 +1847,7 @@ class LangGraphChatPipeline:
         if state.get("moderation_block_reason"):
             return state
         _gbr = (state.get("generation_blocked_reason") or "").strip()
-        if _gbr in ("PROMPT_INTEGRITY", "INSUFFICIENT_CONTEXT_SUPPORT"):
+        if _gbr in ("PROMPT_INTEGRITY", "INSUFFICIENT_CONTEXT_SUPPORT", "INTENT_SECURITY_BLOCK"):
             return state
         if (
             state.get("include_ncert_global")

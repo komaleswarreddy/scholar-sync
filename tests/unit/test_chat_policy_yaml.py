@@ -50,6 +50,8 @@ def test_rag_prompt_with_context_includes_policy_before_evidence():
     block = pl.build_chat_policy_block()
     common = dict(
         message="What is photosynthesis?",
+        verbatim_user_message="What is photosynthesis?",
+        llm_task_query="photosynthesis",
         document_summary=False,
         conversation_transcript="",
         has_prior_conversation=False,
@@ -78,6 +80,8 @@ def test_rag_prompt_no_context_branch_includes_policy():
     block = pl.build_chat_policy_block()
     common = dict(
         message="Hi",
+        verbatim_user_message="Hi",
+        llm_task_query="hi",
         document_summary=False,
         conversation_transcript="",
         has_prior_conversation=False,
@@ -107,6 +111,8 @@ def test_disabled_returns_empty_block():
 def test_empty_block_omits_section():
     common = dict(
         message="x",
+        verbatim_user_message="x",
+        llm_task_query="x",
         document_summary=False,
         conversation_transcript="",
         has_prior_conversation=False,
@@ -136,6 +142,8 @@ def test_chat_graph_includes_policy_in_prompt_construction():
         "chat/rag_prompt.j2",
         context="evidence text",
         message="m",
+        verbatim_user_message="m",
+        llm_task_query="m",
         document_summary=False,
         conversation_transcript="",
         has_prior_conversation=False,

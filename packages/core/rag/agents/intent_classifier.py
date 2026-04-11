@@ -28,6 +28,7 @@ _INTENT_MAX_TOKENS = 320
 class UserIntent(str, Enum):
     """User intent types."""
 
+    SECURITY_BLOCK = "security_block"
     CONVERSATIONAL = "conversational"
     QUESTION = "question"
     EXPLANATION = "explanation"
@@ -42,6 +43,7 @@ class UserIntent(str, Enum):
 
 
 _INTENT_MAP = {
+    "security_block": UserIntent.SECURITY_BLOCK,
     "conversational": UserIntent.CONVERSATIONAL,
     "chat_only": UserIntent.CONVERSATIONAL,
     "question": UserIntent.QUESTION,
