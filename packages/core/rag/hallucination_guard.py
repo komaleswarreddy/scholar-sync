@@ -20,6 +20,95 @@ from typing import Dict, List, Tuple
 _SENT_SPLIT = re.compile(r"(?<=[.!?])\s+")
 _WORD = re.compile(r"[a-zA-Z0-9]+")
 
+# Answer tokens shorter than this are ignored for coarse recall (noise).
+_MIN_TOKEN_LEN = 3
+
+# If sentence-level overlap is harsh (paraphrase, reordering), require this share of
+# substantive answer tokens to appear in context to treat the answer as grounded.
+_DEFAULT_COARSE_RECALL_MIN = 0.26
+
+
+_STOPWORDS = frozenset(
+    {
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "but",
+        "if",
+        "then",
+        "than",
+        "that",
+        "this",
+        "these",
+        "those",
+        "it",
+        "its",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "not",
+        "no",
+        "yes",
+        "to",
+        "of",
+        "in",
+        "on",
+        "for",
+        "with",
+        "as",
+        "at",
+        "by",
+        "from",
+        "into",
+        "about",
+        "your",
+        "you",
+        "we",
+        "our",
+        "they",
+        "their",
+        "can",
+        "could",
+        "would",
+        "should",
+        "may",
+        "might",
+        "will",
+        "just",
+        "also",
+        "very",
+        "more",
+        "most",
+        "some",
+        "any",
+        "each",
+        "all",
+        "both",
+        "such",
+        "when",
+        "where",
+        "which",
+        "who",
+        "what",
+        "how",
+        "why",
+        "there",
+        "here",
+    }
+)
+
 
 def _tokens(text: str) -> List[str]:
     if not text:
@@ -40,6 +129,23 @@ def _overlap_score(sentence: str, context: str) -> float:
     inter = len(st & ct)
     denom = max(1, min(len(st), 20))  # cap to avoid long-sentence dilution
     return inter / float(denom)
+
+
+def _coarse_content_recall(answer: str, context: str) -> float:
+    """
+    Share of substantive answer tokens that appear anywhere in context.
+    Paraphrase-tolerant vs per-sentence overlap (same wording not required).
+    """
+    atoks = [
+        t
+        for t in _tokens(answer)
+        if len(t) >= _MIN_TOKEN_LEN and t not in _STOPWORDS
+    ]
+    if not atoks:
+        return 1.0
+    cset = set(_tokens(context))
+    hits = sum(1 for t in atoks if t in cset)
+    return hits / float(len(atoks))
 
 
 def _looks_like_general_knowledge(sentence: str) -> bool:
@@ -92,6 +198,9 @@ def analyze_answer_support(
     context: str,
     min_sentence_chars: int = 28,
     min_overlap_score: float = 0.22,
+    enable_coarse_rescue: bool = True,
+    coarse_recall_min: float = _DEFAULT_COARSE_RECALL_MIN,
+    coarse_rescue_supported_ratio: float = 0.72,
 ) -> HallucinationGuardResult:
     """
     Analyze answer support against retrieved context evidence.
@@ -135,6 +244,16 @@ def analyze_answer_support(
             unsupported.append(s)
 
     ratio = supported / float(len(to_check))
+    # Rescue: model often paraphrases; sentence-level token overlap can falsely flag support.
+    if (
+        enable_coarse_rescue
+        and to_check
+        and ratio < float(coarse_rescue_supported_ratio)
+        and _coarse_content_recall(a, c) >= float(coarse_recall_min)
+    ):
+        ratio = max(ratio, float(coarse_rescue_supported_ratio))
+        unsupported = []
+
     return HallucinationGuardResult(
         supported_ratio=ratio,
         checked_sentences=len(to_check),

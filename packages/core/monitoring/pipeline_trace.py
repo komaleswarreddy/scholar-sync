@@ -51,6 +51,7 @@ class TraceRecord:
     total_duration_ms: float = 0.0
     success: bool = True
     spans: List[SpanRecord] = field(default_factory=list)
+    artifacts: Dict[str, Any] = field(default_factory=dict)
     _span_seq: int = 0
 
 
@@ -82,11 +83,17 @@ def sanitize_state_for_trace(
     if node_name == "ModerationInput":
         if not outgoing:
             return {"message": _msg, "history_turns": _hist_len}
-        return {
+        out_mi: Dict[str, Any] = {
             "blocked": state.get("blocked", False),
             "error": _snippet(state.get("error"), 200) if state.get("error") else None,
-            "redacted_message": _snippet(state.get("redacted_message"), 300) if state.get("redacted_message") else None,
+            "redacted_message": _snippet(state.get("redacted_message"), 300)
+            if state.get("redacted_message")
+            else None,
+            "prompt_injection_detected": bool(state.get("prompt_injection_detected", False)),
+            "injection_pattern_matched": state.get("injection_pattern_matched"),
+            "generation_blocked_reason": state.get("generation_blocked_reason"),
         }
+        return out_mi
 
     if node_name == "Memory":
         if not outgoing:
@@ -161,6 +168,58 @@ def sanitize_state_for_trace(
             "context_chars": len(state.get("context") or ""),
         }
 
+    if node_name == "ContextGroundingGate":
+        if not outgoing:
+            sel = state.get("selected_matches") or []
+            return {"chunks_in": len(sel), "context_chars": len(state.get("context") or "")}
+        return {
+            "blocked": bool(state.get("context_grounding_blocked", False)),
+            "passed": bool(state.get("context_grounding_passed", False)),
+            "max_cosine": state.get("context_grounding_max_cosine"),
+            "reason": _snippet(state.get("context_grounding_reason"), 320),
+            "generation_blocked_reason": state.get("generation_blocked_reason"),
+        }
+
+    if node_name == "TutorRelevanceGate":
+        if not outgoing:
+            return {
+                "include_ncert_global": state.get("include_ncert_global", False),
+                "chunks_in_prompt": len(state.get("selected_matches") or []),
+            }
+        out: Dict[str, Any] = {
+            "retrieval_relevance_passed": state.get("retrieval_relevance_passed"),
+            "tutor_generation_blocked": state.get("tutor_generation_blocked", False),
+            "tutor_relevance_max_cosine": state.get("tutor_relevance_max_cosine"),
+        }
+        r = (state.get("generation_blocked_reason") or "").strip()
+        if r:
+            out["generation_blocked_reason"] = r
+        if state.get("tutor_generation_blocked"):
+            out["answer_preview"] = _snippet(state.get("final_answer"), 320)
+        return out
+
+    if node_name == "SourceRelevanceGate":
+        if not outgoing:
+            return {
+                "active_sources": len(state.get("active_source_ids") or []),
+                "chunks_in_prompt": len(state.get("selected_matches") or []),
+            }
+        out = {
+            "retrieval_relevance_passed": state.get("retrieval_relevance_passed"),
+            "source_relevance_blocked": state.get("source_relevance_blocked", False),
+            "chat_global_fallback": state.get("chat_global_fallback", False),
+            "source_relevance_max_cosine": state.get("source_relevance_max_cosine"),
+            "chat_selected_sources_max_retrieval_score": state.get(
+                "chat_selected_sources_max_retrieval_score"
+            ),
+        }
+        r = (state.get("generation_blocked_reason") or "").strip()
+        if r:
+            out["generation_blocked_reason"] = r
+        if state.get("source_relevance_blocked"):
+            out["answer_preview"] = _snippet(state.get("final_answer"), 320)
+        return out
+
     if node_name == "Generate":
         if not outgoing:
             return {
@@ -168,7 +227,15 @@ def sanitize_state_for_trace(
                 "context_chars": len(state.get("context") or ""),
                 "citation_count": len(state.get("citations") or []),
             }
-        return {"answer_preview": _snippet(state.get("final_answer"), 500)}
+        gen_out: Dict[str, Any] = {"answer_preview": _snippet(state.get("final_answer"), 500)}
+        gbr = (state.get("generation_blocked_reason") or "").strip()
+        if gbr:
+            gen_out["generation_blocked_reason"] = gbr
+        if state.get("injection_pattern_matched"):
+            gen_out["injection_pattern_matched"] = state.get("injection_pattern_matched")
+        if state.get("prompt_injection_detected") is not None:
+            gen_out["prompt_injection_detected"] = bool(state.get("prompt_injection_detected", False))
+        return gen_out
 
     if node_name == "ModerationOutput":
         if not outgoing:
@@ -263,6 +330,48 @@ class PipelineTraceStore:
             tr.spans.append(sp)
         return span_id
 
+    def set_artifact(self, key: str, value: Any) -> None:
+        """
+        Attach a compact structured artifact to the active trace.
+
+        Artifacts are intended for admin debugging views (e.g. chunk ids, selected matches,
+        retrieval flags). Keep them small and privacy-aware.
+        """
+        if not getattr(settings, "ENABLE_PIPELINE_TRACE", True):
+            return
+        tid = _trace_id_var.get()
+        if not tid:
+            return
+        k = str(key or "").strip()
+        if not k:
+            return
+        with self._lock:
+            tr = self._traces.get(tid)
+            if not tr:
+                return
+            tr.artifacts[k] = value
+
+    def merge_artifact(self, key: str, patch: Dict[str, Any]) -> None:
+        """Merge a dict into an existing artifact dict (active trace)."""
+        if not getattr(settings, "ENABLE_PIPELINE_TRACE", True):
+            return
+        tid = _trace_id_var.get()
+        if not tid:
+            return
+        k = str(key or "").strip()
+        if not k:
+            return
+        if not isinstance(patch, dict):
+            return
+        with self._lock:
+            tr = self._traces.get(tid)
+            if not tr:
+                return
+            existing = tr.artifacts.get(k)
+            if not isinstance(existing, dict):
+                existing = {}
+            tr.artifacts[k] = {**existing, **patch}
+
     def finalize_trace(self, trace_id: str, *, success: bool = True) -> None:
         if not getattr(settings, "ENABLE_PIPELINE_TRACE", True):
             _trace_id_var.set(None)
@@ -322,6 +431,7 @@ class PipelineTraceStore:
             "total_duration_ms": tr.total_duration_ms,
             "success": tr.success,
             "spans": [asdict(s) for s in tr.spans],
+            "artifacts": dict(tr.artifacts or {}),
         }
 
 

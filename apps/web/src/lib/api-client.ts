@@ -1079,6 +1079,14 @@ class ApiClient {
     return res.data;
   }
 
+  async getPipelineTraceExplain(traceId: string) {
+    await this.refreshToken();
+    const res = await this.client.get(`/api/v1/pipeline-traces/${encodeURIComponent(traceId)}/explain`, {
+      timeout: 30000,
+    });
+    return res.data;
+  }
+
   async listPipelineTracesRecent(limit: number = 30) {
     await this.refreshToken();
     const res = await this.client.get('/api/v1/pipeline-traces/recent', {

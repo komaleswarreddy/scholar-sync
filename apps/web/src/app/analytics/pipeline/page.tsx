@@ -34,6 +34,7 @@ type TraceRecord = {
   total_duration_ms: number;
   success: boolean;
   spans: SpanRecord[];
+  artifacts?: Record<string, unknown>;
   trace_summary?: {
     query_preview?: string;
     response_preview?: string;
@@ -59,6 +60,43 @@ type TraceRecord = {
       models?: Record<string, number>;
       providers?: Record<string, number>;
     }>;
+  };
+  explain?: {
+    answer_origin: 'selected_only' | 'global_only' | 'combined' | 'none';
+    namespaces?: {
+      tenant_namespace?: string;
+      global_namespace?: string | null;
+    };
+    pipelines?: {
+      use_retrieval_agents?: boolean;
+      include_ncert_global_effective?: boolean;
+    };
+    sources_searched?: Array<{
+      source_id: string;
+      source_title: string;
+      file_name?: string;
+      namespace?: string;
+      source_kind: 'selected' | 'global';
+    }>;
+    chunks?: Array<{
+      chunk_id: string;
+      source_id?: string;
+      source_title?: string;
+      file_name?: string;
+      namespace?: string;
+      source_kind: 'selected' | 'global';
+      score?: number;
+      preview?: string;
+      page_number?: number | string | null;
+      included_in_prompt?: boolean;
+    }>;
+    prompt_breakdown?: {
+      user_query?: string;
+      selected_sources_context?: string;
+      global_context?: string;
+      final_context_sent_to_llm?: string;
+    };
+    decision_log?: Array<Record<string, unknown>>;
   };
 };
 
@@ -94,7 +132,13 @@ export default function PipelineTracePage() {
     setError(null);
     try {
       apiClient.setTokenGetter(getToken);
-      const data = await apiClient.getPipelineTrace(traceId.trim());
+      // Prefer structured explain payload; fall back to basic trace if endpoint unavailable.
+      let data: any = null;
+      try {
+        data = await apiClient.getPipelineTraceExplain(traceId.trim());
+      } catch (e: any) {
+        data = await apiClient.getPipelineTrace(traceId.trim());
+      }
       setTrace(data as TraceRecord);
       setSelected(null);
     } catch (e: any) {
@@ -181,6 +225,14 @@ export default function PipelineTracePage() {
 
   const usageSummary = trace?.usage?.summary;
   const usageByAgent = trace?.usage?.by_agent || [];
+  const explain = trace?.explain;
+  const sourcesSearched = explain?.sources_searched || [];
+  const chunks = explain?.chunks || [];
+  const selectedChunks = useMemo(
+    () => chunks.filter((c) => c.included_in_prompt),
+    [chunks]
+  );
+  const answerOrigin = explain?.answer_origin || 'none';
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -275,6 +327,160 @@ export default function PipelineTracePage() {
                 {trace.trace_summary?.response_preview || 'Not captured for this trace.'}
               </pre>
             </div>
+          </div>
+
+          <div className="rounded-xl border border-border-default bg-surface/30 p-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <h3 className="text-sm font-semibold text-text-primary">Trace explanation</h3>
+                <p className="text-xs text-text-secondary mt-1">
+                  Structured view of sources, chunks, and decision signals (admin-friendly). No full prompt is shown.
+                </p>
+              </div>
+              <div className="text-xs">
+                <span className="text-text-secondary">Answer origin: </span>
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded-md border ${
+                    answerOrigin === 'selected_only'
+                      ? 'border-emerald-500/30 text-emerald-300 bg-emerald-500/10'
+                      : answerOrigin === 'global_only'
+                        ? 'border-violet-500/30 text-violet-300 bg-violet-500/10'
+                        : answerOrigin === 'combined'
+                          ? 'border-sky-500/30 text-sky-300 bg-sky-500/10'
+                          : 'border-border-default text-text-secondary bg-background/30'
+                  }`}
+                >
+                  {answerOrigin.replace('_', ' ')}
+                </span>
+              </div>
+            </div>
+
+            {!explain && (
+              <div className="mt-3 text-sm text-text-secondary">
+                No structured explainer data for this trace yet. Reload after generating a new trace.
+              </div>
+            )}
+
+            {explain && (
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="rounded-lg border border-border-default bg-background/30 p-3">
+                  <div className="text-xs uppercase tracking-wide text-text-secondary mb-2">Sources searched</div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="text-xs text-text-secondary">
+                        <tr>
+                          <th className="text-left py-1 pr-2">Kind</th>
+                          <th className="text-left py-1 pr-2">Title</th>
+                          <th className="text-left py-1 pr-2">Source ID</th>
+                          <th className="text-left py-1 pr-2">Namespace</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sourcesSearched.map((s) => (
+                          <tr key={`${s.source_kind}:${s.source_id}`} className="border-t border-border-default/50">
+                            <td className="py-2 pr-2 text-xs">{s.source_kind}</td>
+                            <td className="py-2 pr-2 text-text-primary">{s.source_title}</td>
+                            <td className="py-2 pr-2 font-mono text-xs text-text-secondary">{s.source_id}</td>
+                            <td className="py-2 pr-2 font-mono text-xs text-text-secondary">{s.namespace || '—'}</td>
+                          </tr>
+                        ))}
+                        {sourcesSearched.length === 0 && (
+                          <tr className="border-t border-border-default/50">
+                            <td colSpan={4} className="py-3 text-xs text-text-secondary">
+                              No sources recorded.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border-default bg-background/30 p-3">
+                  <div className="text-xs uppercase tracking-wide text-text-secondary mb-2">Decision log</div>
+                  <div className="space-y-2 text-xs font-mono max-h-56 overflow-auto">
+                    {(explain.decision_log || []).map((row, idx) => (
+                      <pre key={idx} className="p-2 rounded bg-background border border-border-default whitespace-pre-wrap break-words">
+                        {JSON.stringify(row, null, 2)}
+                      </pre>
+                    ))}
+                    {(!explain.decision_log || explain.decision_log.length === 0) && (
+                      <div className="text-text-secondary text-sm">No decision rows.</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 rounded-lg border border-border-default bg-background/30 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs uppercase tracking-wide text-text-secondary mb-2">Chunks (retrieved + selected)</div>
+                    <div className="text-xs text-text-secondary">
+                      Included in prompt: <span className="text-text-primary">{selectedChunks.length}</span> /{' '}
+                      <span className="text-text-primary">{chunks.length}</span>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="text-xs text-text-secondary">
+                        <tr>
+                          <th className="text-left py-1 pr-2">In</th>
+                          <th className="text-left py-1 pr-2">Kind</th>
+                          <th className="text-left py-1 pr-2">Score</th>
+                          <th className="text-left py-1 pr-2">Source</th>
+                          <th className="text-left py-1 pr-2">Chunk ID</th>
+                          <th className="text-left py-1 pr-2">Preview</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {chunks.map((c) => (
+                          <tr key={c.chunk_id} className="border-t border-border-default/50 align-top">
+                            <td className="py-2 pr-2 text-xs">{c.included_in_prompt ? 'yes' : 'no'}</td>
+                            <td className="py-2 pr-2 text-xs">{c.source_kind}</td>
+                            <td className="py-2 pr-2 tabular-nums">{(c.score ?? 0).toFixed?.(4) ?? c.score ?? 0}</td>
+                            <td className="py-2 pr-2 text-text-primary">{c.source_title || c.source_id || '—'}</td>
+                            <td className="py-2 pr-2 font-mono text-xs text-text-secondary">{c.chunk_id}</td>
+                            <td className="py-2 pr-2 text-xs text-text-secondary whitespace-pre-wrap break-words">
+                              {(c.preview || '').slice(0, 280)}
+                              {(c.preview || '').length > 280 ? '...' : ''}
+                            </td>
+                          </tr>
+                        ))}
+                        {chunks.length === 0 && (
+                          <tr className="border-t border-border-default/50">
+                            <td colSpan={6} className="py-3 text-xs text-text-secondary">
+                              No chunks recorded.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 rounded-lg border border-border-default bg-background/30 p-3">
+                  <div className="text-xs uppercase tracking-wide text-text-secondary mb-2">Prompt breakdown (structured)</div>
+                  <div className="grid gap-3 lg:grid-cols-2">
+                    <div>
+                      <div className="text-xs text-text-secondary mb-1">Selected sources context</div>
+                      <pre className="p-2 rounded bg-background border border-border-default whitespace-pre-wrap break-words text-xs text-text-secondary font-sans max-h-64 overflow-auto">
+                        {explain.prompt_breakdown?.selected_sources_context || '—'}
+                      </pre>
+                    </div>
+                    <div>
+                      <div className="text-xs text-text-secondary mb-1">Global knowledge context</div>
+                      <pre className="p-2 rounded bg-background border border-border-default whitespace-pre-wrap break-words text-xs text-text-secondary font-sans max-h-64 overflow-auto">
+                        {explain.prompt_breakdown?.global_context || '—'}
+                      </pre>
+                    </div>
+                    <div className="lg:col-span-2">
+                      <div className="text-xs text-text-secondary mb-1">Final context sent to LLM</div>
+                      <pre className="p-2 rounded bg-background border border-border-default whitespace-pre-wrap break-words text-xs text-text-secondary font-sans max-h-72 overflow-auto">
+                        {explain.prompt_breakdown?.final_context_sent_to_llm || '—'}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">

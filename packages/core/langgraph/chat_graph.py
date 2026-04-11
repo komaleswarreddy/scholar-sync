@@ -24,6 +24,11 @@ from packages.core.security.openai_moderation import (
 )
 from packages.core.memory import AnswerCache, ChatSummarizer, MemoryManager
 from packages.core.rag.embedder import Embedder
+from packages.core.rag.tutor_relevance import max_relevance_vs_chunks
+from packages.core.rag.context_grounding_gate import (
+    evaluate_context_grounding,
+    extract_chunk_texts_from_matches,
+)
 from packages.core.rag.retriever import Retriever
 from packages.core.rag.agents import (
     ContextDeduper,
@@ -43,6 +48,10 @@ from packages.core.rag.dialog_router import should_skip_rag
 from packages.core.monitoring.pipeline_trace import (
     get_pipeline_trace_store,
     sanitize_state_for_trace,
+)
+from packages.core.security.prompt_integrity import (
+    validate_direct_chat_prompt,
+    validate_rag_compiled_prompt,
 )
 
 
@@ -113,6 +122,12 @@ def _history_drop_trailing_duplicate_user(
 def _answer_looks_incomplete(text: str) -> bool:
     """Detect cut-off model replies (e.g. ends with 'is' / no terminal punctuation)."""
     s = (text or "").strip()
+    if not s:
+        return True
+    # Short but valid replies (e.g. "Yes.", "DNA.", "Mitochondria.") must NOT trigger a
+    # completion retry — that retry often collapses to `Not found in provided sources.`.
+    if len(s) >= 3 and s.endswith((".", "!", "?", ":", '"', "'", ")", "]", "}")):
+        return False
     if len(s) < 8:
         return True
     if s.endswith((".", "!", "?", ":", '"', "'", ")", "]", "}")):
@@ -265,6 +280,12 @@ class LangGraphChatPipeline:
         g.add_node("WholeFileMapReduce", tw("WholeFileMapReduce", self._node_whole_file_map_reduce))
         g.add_node("Retrieval", tw("Retrieval", self._node_retrieval))
         g.add_node("ContextSelector", tw("ContextSelector", self._node_context_select))
+        g.add_node(
+            "ContextGroundingGate",
+            tw("ContextGroundingGate", self._node_context_grounding_gate),
+        )
+        g.add_node("TutorRelevanceGate", tw("TutorRelevanceGate", self._node_tutor_relevance_gate))
+        g.add_node("SourceRelevanceGate", tw("SourceRelevanceGate", self._node_source_relevance_gate))
         g.add_node("Generate", tw("Generate", self._node_generate))
         g.add_node("ModerationOutput", tw("ModerationOutput", self._node_moderation_output))
         g.add_node("Evaluator", tw("Evaluator", self._node_eval))
@@ -334,7 +355,34 @@ class LangGraphChatPipeline:
         )
 
         g.add_edge("Retrieval", "ContextSelector")
-        g.add_edge("ContextSelector", "Generate")
+        g.add_edge("ContextSelector", "ContextGroundingGate")
+
+        def _route_after_context_grounding(s: ChatGraphState) -> str:
+            return "ModerationOutput" if s.get("context_grounding_blocked") else "TutorRelevanceGate"
+
+        g.add_conditional_edges(
+            "ContextGroundingGate",
+            _route_after_context_grounding,
+            {"ModerationOutput": "ModerationOutput", "TutorRelevanceGate": "TutorRelevanceGate"},
+        )
+
+        def _route_after_tutor_relevance_gate(s: ChatGraphState) -> str:
+            return "ModerationOutput" if s.get("tutor_generation_blocked") else "SourceRelevanceGate"
+
+        g.add_conditional_edges(
+            "TutorRelevanceGate",
+            _route_after_tutor_relevance_gate,
+            {"ModerationOutput": "ModerationOutput", "SourceRelevanceGate": "SourceRelevanceGate"},
+        )
+
+        def _route_after_source_relevance_gate(s: ChatGraphState) -> str:
+            return "ModerationOutput" if s.get("source_relevance_blocked") else "Generate"
+
+        g.add_conditional_edges(
+            "SourceRelevanceGate",
+            _route_after_source_relevance_gate,
+            {"ModerationOutput": "ModerationOutput", "Generate": "Generate"},
+        )
         g.add_edge("Generate", "ModerationOutput")
         g.add_edge("ModerationOutput", "Evaluator")
         g.add_node("CacheStore", tw("CacheStore", self._node_cache_store))
@@ -409,6 +457,22 @@ class LangGraphChatPipeline:
 
     def _moderation_refusal(self) -> str:
         return self.refusals.get_refusal(RefusalReason.SAFETY_VIOLATION)
+
+    def _prompt_injection_refusal_message(self) -> str:
+        m = (getattr(settings, "PROMPT_INJECTION_REFUSAL_MESSAGE", "") or "").strip()
+        return m or self.refusals.get_refusal(RefusalReason.PROMPT_INJECTION)
+
+    def _merge_guardrails_trace(self, state: ChatGraphState) -> None:
+        if not getattr(settings, "ENABLE_PIPELINE_TRACE", True):
+            return
+        get_pipeline_trace_store().merge_artifact(
+            "guardrails",
+            {
+                "prompt_injection_detected": bool(state.get("prompt_injection_detected", False)),
+                "injection_pattern_matched": state.get("injection_pattern_matched"),
+                "generation_blocked_reason": (state.get("generation_blocked_reason") or None),
+            },
+        )
 
     async def _record_guardrail_block_event(self, reason: str, session_id: Optional[str] = None) -> None:
         """
@@ -528,8 +592,10 @@ class LangGraphChatPipeline:
         except Exception:
             return {}
 
-    def _node_moderation_input(self, state: ChatGraphState) -> ChatGraphState:
+    async def _node_moderation_input(self, state: ChatGraphState) -> ChatGraphState:
         text = state.get("message", "")
+        state["prompt_injection_detected"] = False
+        state["injection_pattern_matched"] = None
 
         # Diagram order: PII -> injection -> intent gate -> safety; then OpenAI moderation API.
         if settings.ENABLE_PII_DETECTION:
@@ -537,14 +603,27 @@ class LangGraphChatPipeline:
             if pii.get("has_pii"):
                 state["blocked"] = True
                 state["error"] = self.refusals.get_refusal(RefusalReason.PII_DETECTED)
+                self._merge_guardrails_trace(state)
                 return state
             text = redacted
 
         if settings.ENABLE_INJECTION_DETECTION:
             inj = self.injection_detector.detect(text)
+            if not inj.get("is_injection") and getattr(
+                settings, "ENABLE_PROMPT_INJECTION_EMBEDDING_SIM", False
+            ):
+                emb = await self.injection_detector.detect_with_embedding_guard(text, self.embedder)
+                if emb.get("is_injection"):
+                    inj = emb
             if inj.get("is_injection"):
                 state["blocked"] = True
-                state["error"] = self.refusals.get_refusal(RefusalReason.PROMPT_INJECTION)
+                state["error"] = self._prompt_injection_refusal_message()
+                state["prompt_injection_detected"] = True
+                state["injection_pattern_matched"] = inj.get("injection_pattern_matched") or inj.get(
+                    "message"
+                )
+                state["generation_blocked_reason"] = "PROMPT_INJECTION"
+                self._merge_guardrails_trace(state)
                 return state
 
         if settings.ENABLE_INTENT_GATE:
@@ -555,6 +634,7 @@ class LangGraphChatPipeline:
                     intent.get("message")
                     or self.refusals.get_refusal(RefusalReason.ACADEMIC_ONLY)
                 )
+                self._merge_guardrails_trace(state)
                 return state
 
         if settings.ENABLE_SAFETY_FILTERS:
@@ -562,6 +642,7 @@ class LangGraphChatPipeline:
             if safe.get("blocked"):
                 state["blocked"] = True
                 state["error"] = self.refusals.get_refusal(RefusalReason.INAPPROPRIATE_CONTENT)
+                self._merge_guardrails_trace(state)
                 return state
 
         try:
@@ -569,6 +650,7 @@ class LangGraphChatPipeline:
             if moderation_indicates_block(res):
                 state["blocked"] = True
                 state["error"] = self.refusals.get_refusal(RefusalReason.INAPPROPRIATE_CONTENT)
+                self._merge_guardrails_trace(state)
                 return state
         except ValueError as e:
             msg = str(e).lower()
@@ -577,15 +659,18 @@ class LangGraphChatPipeline:
             elif is_openai_moderation_configured() and not settings.MODERATION_FAIL_OPEN_ON_ERROR:
                 state["blocked"] = True
                 state["error"] = self.refusals.get_refusal(RefusalReason.GENERAL)
+                self._merge_guardrails_trace(state)
                 return state
         except Exception:
             if is_openai_moderation_configured() and not settings.MODERATION_FAIL_OPEN_ON_ERROR:
                 state["blocked"] = True
                 state["error"] = self.refusals.get_refusal(RefusalReason.GENERAL)
+                self._merge_guardrails_trace(state)
                 return state
 
         state["redacted_message"] = text
         state["blocked"] = False
+        self._merge_guardrails_trace(state)
         return state
 
     def _redact_history_contents(self, history: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -623,6 +708,24 @@ class LangGraphChatPipeline:
 
     def _node_cache(self, state: ChatGraphState) -> ChatGraphState:
         if not self.answer_cache:
+            state["use_cached_response"] = False
+            return state
+        if (
+            state.get("include_ncert_global")
+            and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
+            and getattr(settings, "TUTOR_NCERT_BYPASS_ANSWER_CACHE", True)
+        ):
+            state["use_cached_response"] = False
+            return state
+        if (
+            (state.get("active_source_ids") or [])
+            and not (
+                bool(state.get("include_ncert_global"))
+                and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
+            )
+            and getattr(settings, "CHAT_SELECTED_SOURCES_RELEVANCE_GATE_ENABLED", True)
+            and getattr(settings, "CHAT_SELECTED_SOURCES_BYPASS_ANSWER_CACHE", True)
+        ):
             state["use_cached_response"] = False
             return state
         q = state.get("redacted_message") or state.get("message") or ""
@@ -699,6 +802,16 @@ class LangGraphChatPipeline:
             chat_rolling_summary=chat_rolling_summary,
             has_chat_summary=has_chat_summary,
         )
+        if getattr(settings, "ENABLE_PROMPT_INTEGRITY_CHECK", True):
+            ok_dc, reason_dc = validate_direct_chat_prompt(full_prompt)
+            if not ok_dc:
+                state["full_prompt"] = f"[prompt_integrity:{reason_dc}]"
+                state["final_answer"] = self._prompt_injection_refusal_message()
+                state["prompt_injection_detected"] = False
+                state["injection_pattern_matched"] = f"compiled_prompt:{reason_dc}"
+                state["generation_blocked_reason"] = "PROMPT_INTEGRITY"
+                self._merge_guardrails_trace(state)
+                return state
         state["full_prompt"] = full_prompt
 
         provider, model = get_model_for_task("chat")
@@ -816,6 +929,65 @@ class LangGraphChatPipeline:
             ncert_chapter_name=state.get("ncert_chapter_name"),
         )
         state["matches"] = results.get("matches", []) or []
+
+        # Attach compact retrieval artifacts for admin trace explain view (no full prompt).
+        try:
+            from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store, trace_snippet
+
+            max_chunks = int(getattr(settings, "PIPELINE_TRACE_ARTIFACT_MAX_RETRIEVED_CHUNKS", 200))
+            matches = list(state.get("matches") or [])[: max(0, max_chunks)]
+
+            def _md(m: Dict[str, Any]) -> Dict[str, Any]:
+                md = (m.get("metadata") or {}) if isinstance(m, dict) else {}
+                text = str(md.get("text", "") or "")
+                return {
+                    "source_id": md.get("source_id"),
+                    "source_type": md.get("source_type"),
+                    "knowledge_namespace": md.get("knowledge_namespace"),
+                    "page_number": md.get("page_number") or md.get("page_start"),
+                    "text_preview": trace_snippet(text, 260) if text else "",
+                }
+
+            retrieved = []
+            for m in matches:
+                if not isinstance(m, dict):
+                    continue
+                cid = m.get("id")
+                if not cid:
+                    continue
+                retrieved.append(
+                    {
+                        "chunk_id": cid,
+                        "score": float(m.get("score", 0.0) or 0.0),
+                        "metadata": _md(m),
+                    }
+                )
+
+            store = get_pipeline_trace_store()
+            store.set_artifact(
+                "chat_request",
+                {
+                    "active_source_ids": active,
+                    "include_ncert_global": bool(state.get("include_ncert_global")),
+                    "include_ncert_global_effective": bool(include_g),
+                    "ncert_class": state.get("ncert_class"),
+                    "ncert_subject": state.get("ncert_subject"),
+                    "ncert_chapter_no": state.get("ncert_chapter_no"),
+                    "ncert_chapter_name": state.get("ncert_chapter_name"),
+                    "tenant_namespace": str(self.tenant_id),
+                    "ncert_global_namespace": getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal"),
+                    "filter_dict": filter_dict,
+                },
+            )
+            store.set_artifact(
+                "retrieval",
+                {
+                    "primary_query": state.get("primary_retrieval_query") or "",
+                    "retrieved_chunks": retrieved,
+                },
+            )
+        except Exception:
+            pass
         rw = results.get("rewritten_queries")
         if isinstance(rw, list) and rw:
             state["rewritten_queries"] = [str(x).strip() for x in rw if str(x).strip()]
@@ -891,6 +1063,42 @@ class LangGraphChatPipeline:
 
             state["citations"] = citations
             state["context"] = "\n\n".join(context_parts)
+
+            # Attach compact selected-chunks artifact for trace explain view.
+            try:
+                from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store, trace_snippet
+
+                max_sel = int(getattr(settings, "PIPELINE_TRACE_ARTIFACT_MAX_SELECTED_CHUNKS", 120))
+                selected_now = list(selected or [])[: max(0, max_sel)]
+                selected_desc = []
+                for m in selected_now:
+                    if not isinstance(m, dict):
+                        continue
+                    md = m.get("metadata", {}) or {}
+                    text = str(md.get("text", "") or "")
+                    selected_desc.append(
+                        {
+                            "chunk_id": m.get("id"),
+                            "score": float(m.get("score", 0.0) or 0.0),
+                            "metadata": {
+                                "source_id": md.get("source_id"),
+                                "source_type": md.get("source_type"),
+                                "knowledge_namespace": md.get("knowledge_namespace"),
+                                "page_number": md.get("page_number") or md.get("page_start"),
+                                "text_preview": trace_snippet(text, 260) if text else "",
+                            },
+                        }
+                    )
+                get_pipeline_trace_store().set_artifact(
+                    "context_selector",
+                    {
+                        "selected_chunks": selected_desc,
+                        "context_chars": len(state.get("context") or ""),
+                        "final_context_sent_to_llm": trace_snippet(state.get("context") or "", 12000),
+                    },
+                )
+            except Exception:
+                pass
             return state
 
         # Deduplicate first
@@ -943,6 +1151,293 @@ class LangGraphChatPipeline:
 
         state["citations"] = citations
         state["context"] = "\n\n".join(context_parts)
+
+        # Attach compact selected-chunks artifact for trace explain view.
+        try:
+            from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store, trace_snippet
+
+            max_sel = int(getattr(settings, "PIPELINE_TRACE_ARTIFACT_MAX_SELECTED_CHUNKS", 120))
+            selected_now = list(selected or [])[: max(0, max_sel)]
+            selected_desc = []
+            for m in selected_now:
+                if not isinstance(m, dict):
+                    continue
+                md = m.get("metadata", {}) or {}
+                text = str(md.get("text", "") or "")
+                selected_desc.append(
+                    {
+                        "chunk_id": m.get("id"),
+                        "score": float(m.get("score", 0.0) or 0.0),
+                        "metadata": {
+                            "source_id": md.get("source_id"),
+                            "source_type": md.get("source_type"),
+                            "knowledge_namespace": md.get("knowledge_namespace"),
+                            "page_number": md.get("page_number") or md.get("page_start"),
+                            "text_preview": trace_snippet(text, 260) if text else "",
+                        },
+                    }
+                )
+            get_pipeline_trace_store().set_artifact(
+                "context_selector",
+                {
+                    "selected_chunks": selected_desc,
+                    "context_chars": len(state.get("context") or ""),
+                    "final_context_sent_to_llm": trace_snippet(state.get("context") or "", 12000),
+                },
+            )
+        except Exception:
+            pass
+        return state
+
+    async def _node_context_grounding_gate(self, state: ChatGraphState) -> ChatGraphState:
+        """
+        Require packed context to be semantically and (by default) lexically related to the query
+        before any answer LLM call. Prevents answers from model knowledge when chunks are weak/off-topic.
+        """
+        state["context_grounding_blocked"] = False
+        state["context_grounding_passed"] = False
+        state["context_grounding_eval_skipped"] = False
+        state["context_grounding_max_cosine"] = 0.0
+        state["context_grounding_reason"] = ""
+
+        if not getattr(settings, "CHAT_STRICT_CONTEXT_GROUNDING", True):
+            return state
+
+        q = (
+            state.get("primary_retrieval_query")
+            or state.get("rewritten_query")
+            or state.get("redacted_message")
+            or state.get("message")
+            or ""
+        ).strip()
+
+        # Whole-doc synthesis uses many excerpts; lexical overlap with a short query is misleading.
+        if _is_document_summary_query(q):
+            state["context_grounding_eval_skipped"] = True
+            return state
+
+        selected = state.get("selected_matches") or []
+        chunk_texts = extract_chunk_texts_from_matches(selected)
+        if not chunk_texts or not (state.get("context") or "").strip():
+            return state
+
+        use_lexical = not is_metadata_attribution_query(q)
+
+        decision = await evaluate_context_grounding(
+            embedder=self.embedder,
+            query=q,
+            selected_matches=selected,
+            chunk_texts=chunk_texts,
+            enable_lexical=use_lexical,
+        )
+
+        state["context_grounding_max_cosine"] = float(decision.max_cosine)
+        state["context_grounding_reason"] = f"{decision.reason}:{decision.detail}"[:500]
+
+        if decision.ok:
+            state["context_grounding_passed"] = True
+            return state
+
+        state["context_grounding_blocked"] = True
+        state["retrieval_relevance_passed"] = False
+        state["generation_blocked_reason"] = "INSUFFICIENT_CONTEXT_SUPPORT"
+        state["final_answer"] = "Not found in provided sources."
+        state["citations"] = []
+        state["context"] = ""
+        state["selected_matches"] = []
+        return state
+
+    def _tutor_ncert_effective(self, state: ChatGraphState) -> bool:
+        return bool(state.get("include_ncert_global")) and getattr(
+            settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
+        )
+
+    def _tutor_ncert_blocked_user_message(self, state: ChatGraphState) -> str:
+        cls = state.get("ncert_class")
+        subj_raw = (state.get("ncert_subject") or "").strip()
+        subj_disp = subj_raw.replace("_", " ").title() if subj_raw else "Science"
+        if cls is not None:
+            return (
+                f"The requested information was not found in the selected NCERT Class {cls} "
+                f"{subj_disp} chapters."
+            )
+        return (
+            "The requested information was not found in the selected NCERT class/chapter filters."
+        )
+
+    async def _node_tutor_relevance_gate(self, state: ChatGraphState) -> ChatGraphState:
+        state["tutor_generation_blocked"] = False
+        state["generation_blocked_reason"] = ""
+        state["retrieval_relevance_passed"] = True
+        state["tutor_relevance_max_cosine"] = 0.0
+
+        if not self._tutor_ncert_effective(state):
+            return state
+
+        if getattr(settings, "CHAT_STRICT_CONTEXT_GROUNDING", True) and state.get(
+            "context_grounding_passed"
+        ):
+            state["tutor_relevance_max_cosine"] = float(state.get("context_grounding_max_cosine") or 0.0)
+            state["retrieval_relevance_passed"] = True
+            return state
+
+        if not getattr(settings, "TUTOR_NCERT_RELEVANCE_GATE_ENABLED", True):
+            state["retrieval_relevance_passed"] = True
+            return state
+
+        selected = state.get("selected_matches") or []
+        q = (
+            state.get("primary_retrieval_query")
+            or state.get("rewritten_query")
+            or state.get("redacted_message")
+            or state.get("message")
+            or ""
+        ).strip()
+
+        chunk_texts: List[str] = []
+        for m in selected:
+            if not isinstance(m, dict):
+                continue
+            md = m.get("metadata") or {}
+            if not isinstance(md, dict):
+                md = {}
+            t = (md.get("text") or "").strip()
+            if t:
+                chunk_texts.append(t)
+
+        def _block(reason: str) -> None:
+            state["retrieval_relevance_passed"] = False
+            state["generation_blocked_reason"] = reason
+            state["tutor_generation_blocked"] = True
+            state["final_answer"] = self._tutor_ncert_blocked_user_message(state)
+            state["citations"] = []
+            state["context"] = ""
+            state["selected_matches"] = []
+
+        if not chunk_texts:
+            _block("NO_MATCHING_CHUNKS")
+            return state
+
+        max_sim, err = await max_relevance_vs_chunks(self.embedder, q, chunk_texts)
+        state["tutor_relevance_max_cosine"] = float(max_sim)
+        if err:
+            _block("IRRELEVANT_CONTEXT")
+            return state
+
+        thresh = float(getattr(settings, "TUTOR_NCERT_MIN_CHUNK_RELEVANCE_COSINE", 0.34))
+        if max_sim < thresh:
+            _block("IRRELEVANT_CONTEXT")
+            return state
+
+        state["retrieval_relevance_passed"] = True
+        return state
+
+    def _source_relevance_gate_applies(self, state: ChatGraphState) -> bool:
+        if self._tutor_ncert_effective(state):
+            return False
+        if not getattr(settings, "CHAT_SELECTED_SOURCES_RELEVANCE_GATE_ENABLED", True):
+            return False
+        return bool(state.get("active_source_ids"))
+
+    def _chat_sources_blocked_user_message(self) -> str:
+        return "Not found in the selected sources."
+
+    async def _node_source_relevance_gate(self, state: ChatGraphState) -> ChatGraphState:
+        state["source_relevance_blocked"] = False
+        state["chat_global_fallback"] = False
+        state["source_relevance_max_cosine"] = 0.0
+        state["chat_selected_sources_max_retrieval_score"] = 0.0
+
+        if not self._source_relevance_gate_applies(state):
+            return state
+
+        if getattr(settings, "CHAT_STRICT_CONTEXT_GROUNDING", True) and state.get(
+            "context_grounding_passed"
+        ):
+            state["source_relevance_blocked"] = False
+            state["chat_global_fallback"] = False
+            state["retrieval_relevance_passed"] = True
+            state["generation_blocked_reason"] = ""
+            state["source_relevance_max_cosine"] = float(state.get("context_grounding_max_cosine") or 0.0)
+            sm = state.get("selected_matches") or []
+            scores = [float(m.get("score", 0.0) or 0.0) for m in sm if isinstance(m, dict)]
+            state["chat_selected_sources_max_retrieval_score"] = float(max(scores) if scores else 0.0)
+            return state
+
+        state["retrieval_relevance_passed"] = True
+        state["generation_blocked_reason"] = ""
+
+        selected = state.get("selected_matches") or []
+        q = (
+            state.get("primary_retrieval_query")
+            or state.get("rewritten_query")
+            or state.get("redacted_message")
+            or state.get("message")
+            or ""
+        ).strip()
+
+        chunk_texts: List[str] = []
+        scores: List[float] = []
+        for m in selected:
+            if not isinstance(m, dict):
+                continue
+            md = m.get("metadata") or {}
+            if not isinstance(md, dict):
+                md = {}
+            t = (md.get("text") or "").strip()
+            if t:
+                chunk_texts.append(t)
+                scores.append(float(m.get("score", 0.0) or 0.0))
+
+        max_score = max(scores) if scores else 0.0
+        state["chat_selected_sources_max_retrieval_score"] = float(max_score)
+
+        def _block_hard(reason: str) -> None:
+            state["retrieval_relevance_passed"] = False
+            state["generation_blocked_reason"] = reason
+            state["source_relevance_blocked"] = True
+            state["final_answer"] = self._chat_sources_blocked_user_message()
+            state["citations"] = []
+            state["context"] = ""
+            state["selected_matches"] = []
+
+        def _use_global_fallback() -> bool:
+            if not getattr(settings, "CHAT_ALLOW_GLOBAL_KNOWLEDGE_FALLBACK", False):
+                return False
+            state["chat_global_fallback"] = True
+            state["retrieval_relevance_passed"] = False
+            state["generation_blocked_reason"] = "GLOBAL_FALLBACK_USED"
+            state["source_relevance_blocked"] = False
+            state["citations"] = []
+            state["context"] = ""
+            state["selected_matches"] = []
+            return True
+
+        if not chunk_texts:
+            if not _use_global_fallback():
+                _block_hard("NO_MATCHING_CHUNKS")
+            return state
+
+        min_ret = float(getattr(settings, "CHAT_SELECTED_SOURCES_MIN_RETRIEVAL_SCORE", 0.30))
+        if max_score < min_ret:
+            if not _use_global_fallback():
+                _block_hard("LOW_SIMILARITY")
+            return state
+
+        max_sim, err = await max_relevance_vs_chunks(self.embedder, q, chunk_texts)
+        state["source_relevance_max_cosine"] = float(max_sim)
+        if err:
+            if not _use_global_fallback():
+                _block_hard("IRRELEVANT_CONTEXT")
+            return state
+
+        cos_thresh = float(getattr(settings, "CHAT_SELECTED_SOURCES_MIN_CHUNK_RELEVANCE_COSINE", 0.34))
+        if max_sim < cos_thresh:
+            if not _use_global_fallback():
+                _block_hard("IRRELEVANT_CONTEXT")
+            return state
+
+        state["retrieval_relevance_passed"] = True
         return state
 
     async def _node_generate(self, state: ChatGraphState) -> ChatGraphState:
@@ -950,6 +1445,16 @@ class LangGraphChatPipeline:
         if pre:
             state["final_answer"] = _normalize_chat_tagged_response(pre)
             state["full_prompt"] = "[map-reduce]"
+            return state
+
+        if state.get("tutor_generation_blocked"):
+            state.setdefault("final_answer", "")
+            state["full_prompt"] = "[tutor-relevance-blocked]"
+            return state
+
+        if state.get("source_relevance_blocked"):
+            state.setdefault("final_answer", "")
+            state["full_prompt"] = "[source-relevance-blocked]"
             return state
 
         message = state.get("redacted_message") or state.get("message") or ""
@@ -984,6 +1489,14 @@ class LangGraphChatPipeline:
         )
 
         is_metadata_query = is_metadata_attribution_query(message)
+        tutor_strict_ncert_only = self._tutor_ncert_effective(state)
+        chat_global_fallback = bool(state.get("chat_global_fallback"))
+        try:
+            from packages.core.knowledge.policy_loader import build_chat_policy_block
+
+            chat_policy_block = build_chat_policy_block()
+        except Exception:
+            chat_policy_block = ""
         full_prompt = load_prompt(
             "chat/rag_prompt.j2",
             context=context,
@@ -999,7 +1512,28 @@ class LangGraphChatPipeline:
             classified_intent=intent_label,
             context_chunk_count=chunk_n,
             is_metadata_query=is_metadata_query,
+            tutor_strict_ncert_only=tutor_strict_ncert_only,
+            chat_global_fallback=chat_global_fallback,
+            chat_policy_block=chat_policy_block,
         )
+        if getattr(settings, "ENABLE_PROMPT_INTEGRITY_CHECK", True):
+            policy_injected = bool((chat_policy_block or "").strip())
+            has_ctx = len((context or "").strip()) > 80
+            ok_rag, reason_rag = validate_rag_compiled_prompt(
+                full_prompt,
+                has_substantive_context=has_ctx,
+                tutor_strict_ncert_only=bool(tutor_strict_ncert_only),
+                chat_global_fallback=bool(chat_global_fallback),
+                policy_block_injected=policy_injected,
+            )
+            if not ok_rag:
+                state["final_answer"] = self._prompt_injection_refusal_message()
+                state["full_prompt"] = f"[prompt_integrity:{reason_rag}]"
+                state["prompt_injection_detected"] = False
+                state["injection_pattern_matched"] = f"compiled_prompt:{reason_rag}"
+                state["generation_blocked_reason"] = "PROMPT_INTEGRITY"
+                self._merge_guardrails_trace(state)
+                return state
         state["full_prompt"] = full_prompt
 
         provider, model = get_model_for_task("chat")
@@ -1018,15 +1552,18 @@ class LangGraphChatPipeline:
         # Retry: if the model says "not found" but we *do* have citations/context,
         # it likely missed evidence. Re-prompt once with an explicit retry instruction.
         if (
-            "not found in provided sources" in answer.lower()
+            not tutor_strict_ncert_only
+            and not chat_global_fallback
+            and "not found in provided sources" in answer.lower()
             and state.get("citations")
             and context.strip()
         ):
             retry_prompt = (
                 full_prompt
-                + "\n\nRetry instruction: You previously replied with `Not found in provided sources.`. "
-                  "Re-check the provided context evidence carefully. If the answer is supported by the context, "
-                  "answer fully without citation markers. Only respond with `Not found in provided sources.` if there is truly no supporting evidence."
+                + "\n\nRetry instruction: You previously replied with `Not found in provided sources.`, but "
+                  f"{len(state.get('citations') or [])} context chunk(s) were supplied above. "
+                  "Re-read **Context evidence** line by line. If **any** excerpt is relevant, you **must** answer from it "
+                  "(paraphrase is fine). Only use `Not found in provided sources.` if **every** excerpt is clearly irrelevant."
             )
             retry_resp = await llm_client.generate(
                 prompt=retry_prompt,
@@ -1040,7 +1577,9 @@ class LangGraphChatPipeline:
 
         # Retry: incomplete or truncated natural-language answer (common when context is marginal)
         if (
-            _answer_looks_incomplete(answer)
+            not tutor_strict_ncert_only
+            and not chat_global_fallback
+            and _answer_looks_incomplete(answer)
             and context.strip()
             and "not found in provided sources" not in answer.lower()
         ):
@@ -1076,6 +1615,12 @@ class LangGraphChatPipeline:
                     context=context,
                     min_sentence_chars=int(getattr(settings, "HALLUCINATION_GUARD_MIN_SENTENCE_CHARS", 28)),
                     min_overlap_score=float(getattr(settings, "HALLUCINATION_GUARD_MIN_OVERLAP_SCORE", 0.22)),
+                    enable_coarse_rescue=bool(
+                        getattr(settings, "HALLUCINATION_GUARD_COARSE_RESCUE_ENABLED", True)
+                    ),
+                    coarse_recall_min=float(
+                        getattr(settings, "HALLUCINATION_GUARD_COARSE_RECALL_MIN", 0.26)
+                    ),
                 )
                 state["hallucination_guard"] = {
                     "supported_ratio": hg.supported_ratio,
@@ -1098,6 +1643,32 @@ class LangGraphChatPipeline:
                     )
                     answer = _normalize_chat_tagged_response((retry_resp.content or "").strip())
                     state["hallucination_guard"]["retried"] = True
+
+                # If we still appear unsupported after optional retry, refuse deterministically.
+                # This prevents answers that look confident but are not grounded in the retrieved evidence.
+                hg2 = analyze_answer_support(
+                    answer=answer,
+                    context=context,
+                    min_sentence_chars=int(getattr(settings, "HALLUCINATION_GUARD_MIN_SENTENCE_CHARS", 28)),
+                    min_overlap_score=float(getattr(settings, "HALLUCINATION_GUARD_MIN_OVERLAP_SCORE", 0.22)),
+                    enable_coarse_rescue=bool(
+                        getattr(settings, "HALLUCINATION_GUARD_COARSE_RESCUE_ENABLED", True)
+                    ),
+                    coarse_recall_min=float(
+                        getattr(settings, "HALLUCINATION_GUARD_COARSE_RECALL_MIN", 0.26)
+                    ),
+                )
+                state["hallucination_guard"]["supported_ratio_after"] = hg2.supported_ratio
+                state["hallucination_guard"]["checked_sentences_after"] = hg2.checked_sentences
+                # Do not overwrite a normal answer with "not found" based on brittle overlap — that caused
+                # false refusals when chunks contained the answer but the model paraphrased.
+                if (
+                    getattr(settings, "HALLUCINATION_GUARD_FORCE_NOT_FOUND_ON_FAILURE", False)
+                    and hg2.checked_sentences > 0
+                    and hg2.supported_ratio < min_ratio
+                    and "not found in provided sources" not in answer.lower()
+                ):
+                    answer = "Not found in provided sources."
             except Exception:
                 pass
 
@@ -1162,6 +1733,11 @@ class LangGraphChatPipeline:
 
     def _node_eval(self, state: ChatGraphState) -> ChatGraphState:
         done: Dict[str, Any] = dict(state.get("done_payload") or {})
+        done["prompt_injection_detected"] = bool(state.get("prompt_injection_detected", False))
+        done["injection_pattern_matched"] = state.get("injection_pattern_matched")
+        _gbr_early = (state.get("generation_blocked_reason") or "").strip()
+        if _gbr_early:
+            done["generation_blocked_reason"] = _gbr_early
         if state.get("trace_id"):
             done["trace_id"] = state["trace_id"]
         if state.get("use_cached_response"):
@@ -1189,6 +1765,30 @@ class LangGraphChatPipeline:
                 "checked_sentences": hg.get("checked_sentences"),
                 "retried": hg.get("retried", False),
             }
+        if _gbr_early == "INSUFFICIENT_CONTEXT_SUPPORT":
+            done["retrieval_relevance_passed"] = False
+            done["answer_origin"] = "insufficient_context_support"
+            done["selected_source_context_used"] = False
+        elif self._tutor_ncert_effective(state):
+            done["retrieval_relevance_passed"] = bool(state.get("retrieval_relevance_passed", True))
+            reason = (state.get("generation_blocked_reason") or "").strip()
+            if reason:
+                done["generation_blocked_reason"] = reason
+        elif state.get("chat_global_fallback"):
+            done["retrieval_relevance_passed"] = False
+            done["generation_blocked_reason"] = "GLOBAL_FALLBACK_USED"
+            done["answer_origin"] = "global_only"
+            done["selected_source_context_used"] = False
+        elif self._source_relevance_gate_applies(state):
+            done["retrieval_relevance_passed"] = bool(state.get("retrieval_relevance_passed", True))
+            reason = (state.get("generation_blocked_reason") or "").strip()
+            if reason:
+                done["generation_blocked_reason"] = reason
+            if bool(state.get("retrieval_relevance_passed", True)) and (
+                state.get("final_output_text") or state.get("final_answer") or ""
+            ).strip():
+                done["answer_origin"] = "selected_sources"
+                done["selected_source_context_used"] = True
         state["done_payload"] = done
         return state
 
@@ -1201,7 +1801,30 @@ class LangGraphChatPipeline:
             return state
         if state.get("use_cached_response"):
             return state
+        if state.get("tutor_generation_blocked"):
+            return state
+        if state.get("source_relevance_blocked"):
+            return state
         if state.get("moderation_block_reason"):
+            return state
+        _gbr = (state.get("generation_blocked_reason") or "").strip()
+        if _gbr in ("PROMPT_INTEGRITY", "INSUFFICIENT_CONTEXT_SUPPORT"):
+            return state
+        if (
+            state.get("include_ncert_global")
+            and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
+            and getattr(settings, "TUTOR_NCERT_BYPASS_ANSWER_CACHE", True)
+        ):
+            return state
+        if (
+            (state.get("active_source_ids") or [])
+            and not (
+                bool(state.get("include_ncert_global"))
+                and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
+            )
+            and getattr(settings, "CHAT_SELECTED_SOURCES_RELEVANCE_GATE_ENABLED", True)
+            and getattr(settings, "CHAT_SELECTED_SOURCES_BYPASS_ANSWER_CACHE", True)
+        ):
             return state
         out = (state.get("final_output_text") or "").strip()
         if not out:
@@ -1292,7 +1915,9 @@ class LangGraphChatPipeline:
         if state.get("blocked") or state.get("error"):
             err_msg = (state.get("error") or "I'm not able to help with that.").strip()
             await self._record_guardrail_block_event(
-                reason=(state.get("error") or "guardrail_blocked_input"),
+                reason=(state.get("generation_blocked_reason") or state.get("error") or "guardrail_blocked_input")[
+                    :200
+                ],
                 session_id=trace_id_opt,
             )
             for chunk in _split_stream_text(err_msg):
@@ -1304,6 +1929,9 @@ class LangGraphChatPipeline:
                         "moderated": True,
                         "blocked": True,
                         "final_output_text": err_msg,
+                        "prompt_injection_detected": bool(state.get("prompt_injection_detected", False)),
+                        "injection_pattern_matched": state.get("injection_pattern_matched"),
+                        "generation_blocked_reason": state.get("generation_blocked_reason"),
                     }
                 ),
             }

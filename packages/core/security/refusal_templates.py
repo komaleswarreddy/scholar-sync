@@ -50,7 +50,8 @@ class RefusalTemplates:
                 "Let's stay focused on learning. I can't respond to that, but I can help with material from your selected sources.",
             ],
             RefusalReason.PROMPT_INJECTION: [
-                "I didn't understand that. Can you rephrase your question?",
+                "Your request contains instructions that are not allowed because they attempt to bypass "
+                "the system's safety or source restrictions.",
                 "Could you ask that differently? I'm here to help with your studies.",
                 "Let's focus on your academic questions. What would you like to learn?",
             ],

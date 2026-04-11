@@ -26,7 +26,9 @@ from sqlalchemy import func
 
 router = APIRouter()
 _admin_role_cache: Dict[str, tuple[bool, float]] = {}
-_ADMIN_ROLE_CACHE_TTL_S = 60.0
+# Cache admin role longer to reduce DB dependency for read-only admin UX (analytics, pipeline traces).
+# This is safe because role changes are rare; if roles are edited, a short delay is acceptable.
+_ADMIN_ROLE_CACHE_TTL_S = 10 * 60.0
 
 
 def _is_db_unavailable_error(exc: Exception) -> bool:
@@ -136,7 +138,8 @@ async def check_admin_role(
                 f"[ADMIN] DB unavailable while checking admin role by clerk_user_id: "
                 f"{type(e).__name__}: {e}"
             )
-            if cached and cached[1] > now:
+            # Prefer cached decision during DB incidents (even if slightly stale).
+            if cached:
                 return bool(cached[0])
             if raise_on_db_unavailable:
                 raise HTTPException(
@@ -153,67 +156,71 @@ async def check_admin_role(
     
     # If not found by clerk_user_id, try to get email from token and check by email
     try:
-        # Extract email from token if available
         auth_header = request.headers.get("Authorization", "")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.replace("Bearer ", "").strip()
-            from jose import jwt
-            
-            # Decode token to get email
+        token = auth_header.replace("Bearer ", "").strip() if auth_header.startswith("Bearer ") else ""
+
+        # Prefer the shared extractor (handles more Clerk claim shapes).
+        email: Optional[str] = None
+        if token:
             try:
-                payload = jwt.decode(
-                    token,
-                    key="",
-                    options={"verify_signature": False, "verify_exp": False}
-                )
-                
-                # Try multiple possible email fields in token
-                email = (
-                    payload.get("email") or 
-                    payload.get("primary_email") or 
-                    payload.get("primaryEmailAddress") or
-                    (payload.get("email_addresses") and len(payload.get("email_addresses", [])) > 0 and payload.get("email_addresses")[0].get("email_address"))
-                )
-                
-                if email:
-                    # Normalize email
-                    email = email.lower().strip()
-                    try:
-                        result = await asyncio.wait_for(
-                            db.execute(select(User).where(User.email == email)),
-                            timeout=db_timeout_s,
-                        )
-                        user = result.scalar_one_or_none()
-                    except Exception as e:
-                        if _is_db_unavailable_error(e):
-                            print(
-                                f"[ADMIN] DB unavailable while checking admin role by email: "
-                                f"{type(e).__name__}: {e}"
-                            )
-                            if cached and cached[1] > now:
-                                return bool(cached[0])
-                            if raise_on_db_unavailable:
-                                raise HTTPException(
-                                    status_code=503,
-                                    detail="Database unavailable. Please check DATABASE_URL and try again.",
-                                )
-                            return False
-                        raise
-                    
-                    if user:
-                        # If user found and clerk_user_id is not set, update it
-                        if not user.clerk_user_id and user_id:
-                            try:
-                                user.clerk_user_id = user_id
-                                await db.commit()
-                            except Exception:
-                                await db.rollback()
-                        
-                        is_admin = user.role == "admin"
-                        _admin_role_cache[user_id] = (is_admin, now + _ADMIN_ROLE_CACHE_TTL_S)
-                        return is_admin
+                email = extract_email_from_token(token, require_verification=(settings.ENVIRONMENT == "production"))
             except Exception:
-                pass
+                email = None
+
+        # If token doesn't carry an email (common for some session JWTs), fall back to Clerk API.
+        if not email and settings.CLERK_SECRET_KEY and user_id:
+            try:
+                async with httpx.AsyncClient() as client:
+                    resp = await client.get(
+                        f"https://api.clerk.com/v1/users/{user_id}",
+                        headers={
+                            "Authorization": f"Bearer {settings.CLERK_SECRET_KEY}",
+                            "Content-Type": "application/json",
+                        },
+                        timeout=15.0,
+                    )
+                    if resp.status_code == 200:
+                        email = _extract_primary_email(resp.json())
+            except Exception:
+                email = email  # keep whatever we had (likely None)
+
+        if email:
+            email = email.lower().strip()
+            try:
+                result = await asyncio.wait_for(
+                    db.execute(select(User).where(User.email == email)),
+                    timeout=db_timeout_s,
+                )
+                user = result.scalar_one_or_none()
+            except Exception as e:
+                if _is_db_unavailable_error(e):
+                    print(
+                        f"[ADMIN] DB unavailable while checking admin role by email: "
+                        f"{type(e).__name__}: {e}"
+                    )
+                    # Prefer cached decision during DB incidents (even if slightly stale).
+                    if cached:
+                        return bool(cached[0])
+                    if raise_on_db_unavailable:
+                        raise HTTPException(
+                            status_code=503,
+                            detail="Database unavailable. Please check DATABASE_URL and try again.",
+                        )
+                    return False
+                raise
+
+            if user:
+                # If user found and clerk_user_id is not set, update it so future checks are fast.
+                if user_id and not user.clerk_user_id:
+                    try:
+                        user.clerk_user_id = user_id
+                        await db.commit()
+                    except Exception:
+                        await db.rollback()
+
+                is_admin = user.role == "admin"
+                _admin_role_cache[user_id] = (is_admin, now + _ADMIN_ROLE_CACHE_TTL_S)
+                return is_admin
     except Exception:
         pass
     

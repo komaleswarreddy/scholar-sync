@@ -19,6 +19,8 @@ class ChatGraphState(TypedDict, total=False):
     # Control flow
     blocked: bool
     error: str
+    prompt_injection_detected: bool
+    injection_pattern_matched: Optional[str]
     use_cached_response: bool
     cold_start: bool
 
@@ -52,6 +54,26 @@ class ChatGraphState(TypedDict, total=False):
     selected_matches: List[Dict[str, Any]]
     context: str
     citations: List[Dict[str, Any]]
+
+    # Tutor / NCERT strict grounding (post-context-selector gate)
+    tutor_generation_blocked: bool
+    retrieval_relevance_passed: bool
+    # e.g. NO_MATCHING_CHUNKS | LOW_SIMILARITY | IRRELEVANT_CONTEXT | GLOBAL_FALLBACK_USED
+    generation_blocked_reason: Optional[str]
+    tutor_relevance_max_cosine: float
+
+    # Normal chat selected-sources relevance gate (after TutorRelevanceGate)
+    source_relevance_blocked: bool
+    source_relevance_max_cosine: float
+    chat_selected_sources_max_retrieval_score: float
+    chat_global_fallback: bool
+
+    # Unified context support gate (post ContextSelector, pre Tutor/Source gates)
+    context_grounding_blocked: bool
+    context_grounding_passed: bool
+    context_grounding_eval_skipped: bool
+    context_grounding_max_cosine: float
+    context_grounding_reason: str
 
     # Generation
     full_prompt: str

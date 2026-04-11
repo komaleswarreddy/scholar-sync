@@ -8,8 +8,8 @@ Uses Pydantic Settings for validation and type safety.
 """
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
-from typing import Optional
+from pydantic import Field, field_validator
+from typing import Any, Optional
 
 
 class Settings(BaseSettings):
@@ -221,17 +221,62 @@ class Settings(BaseSettings):
     NCERT_GLOBAL_RETRIEVAL_TOP_K: int = 24
     # Feature flag: merge NCERT global namespace into chat retrieval when client requests it.
     ENABLE_NCERT_GLOBAL_IN_CHAT: bool = True
+    # Tutor mode: after retrieval, require semantic overlap between query and selected chunk text
+    # before calling the answer LLM (blocks general-knowledge answers when NCERT context is off-topic).
+    TUTOR_NCERT_RELEVANCE_GATE_ENABLED: bool = True
+    # Max cosine similarity between query embedding and any selected chunk text embedding (same model).
+    # Unrelated pairs (e.g. electrons vs temperature) typically sit well below ~0.30 with text-embedding-3-small.
+    TUTOR_NCERT_MIN_CHUNK_RELEVANCE_COSINE: float = 0.34
+    # When Tutor NCERT relevance gate is on, skip answer cache read/write so responses are always re-validated.
+    TUTOR_NCERT_BYPASS_ANSWER_CACHE: bool = True
+
+    # Normal chat: when the user explicitly selects one or more library sources, block answers that
+    # are not grounded in retrieved chunk text (same embedding relevance idea as Tutor NCERT gate).
+    CHAT_SELECTED_SOURCES_RELEVANCE_GATE_ENABLED: bool = True
+    # Max hybrid/retrieval score (0–1) among chunks packed into the prompt; below this → LOW_SIMILARITY.
+    CHAT_SELECTED_SOURCES_MIN_RETRIEVAL_SCORE: float = 0.30
+    # Min cosine(query, chunk_text) for at least one selected chunk (tenant embedder).
+    CHAT_SELECTED_SOURCES_MIN_CHUNK_RELEVANCE_COSINE: float = 0.34
+    # When True, if relevance fails we still call the LLM with no document context (general answer)
+    # and mark done_payload (answer_origin=global_only, GLOBAL_FALLBACK_USED).
+    CHAT_ALLOW_GLOBAL_KNOWLEDGE_FALLBACK: bool = False
+    # Skip answer cache for gated turns so stale ungrounded answers are not reused.
+    CHAT_SELECTED_SOURCES_BYPASS_ANSWER_CACHE: bool = True
+
+    # Strict RAG: after context is packed, require semantic + score (+ lexical) support before
+    # calling the answer LLM. Prevents confident answers from model knowledge when chunks are weak/off-topic.
+    CHAT_STRICT_CONTEXT_GROUNDING: bool = True
+    CONTEXT_GROUNDING_MIN_COSINE: float = 0.40
+    CONTEXT_GROUNDING_MIN_RETRIEVAL_SCORE: float = 0.28
+    CONTEXT_GROUNDING_LEXICAL_ENABLED: bool = True
+    CONTEXT_GROUNDING_LEXICAL_MIN_TERM_LEN: int = 3
+    # Fraction of (capped) significant query terms that must appear in chunk text, unless cosine bypass fires.
+    CONTEXT_GROUNDING_LEXICAL_MIN_TERM_FRACTION: float = 0.5
+    CONTEXT_GROUNDING_LEXICAL_MAX_TERMS: int = 8
+    # If max cosine meets this, skip lexical check (handles paraphrases without literal token overlap).
+    CONTEXT_GROUNDING_LEXICAL_BYPASS_MIN_COSINE: float = 0.52
+
+    # Central chat policy YAML (tone, rules, safety) injected into RAG system prompt
+    ENABLE_CHAT_POLICY_YAML: bool = True
+    CHAT_POLICY_YAML_PATH: str = ""  # empty = packages/core/prompts/policies/chat_policy.default.yaml
 
     # ---------------------------
     # Response Quality (single-pass, production-gated)
     # ---------------------------
     # Deterministic hallucination guard: scores whether high-risk sentences appear supported by retrieved context.
+    # Off by default: the overlap-based retry often pushed the model to refuse even when chunks were relevant.
     ENABLE_HALLUCINATION_GUARD: bool = False
     HALLUCINATION_GUARD_MIN_SUPPORTED_RATIO: float = 0.65
-    HALLUCINATION_GUARD_MAX_RETRY: int = 1
+    # Extra LLM call with "remove unsupported" — keep 0 unless you are debugging grounding only.
+    HALLUCINATION_GUARD_MAX_RETRY: int = 0
     # Token overlap threshold per checked sentence. Higher => stricter.
     HALLUCINATION_GUARD_MIN_OVERLAP_SCORE: float = 0.22
     HALLUCINATION_GUARD_MIN_SENTENCE_CHARS: int = 28
+    # When sentence overlap is low but many answer terms appear in context, treat as grounded (paraphrase).
+    HALLUCINATION_GUARD_COARSE_RESCUE_ENABLED: bool = True
+    HALLUCINATION_GUARD_COARSE_RECALL_MIN: float = 0.26
+    # If True, replace answers that still fail the guard with "Not found..." (causes false refusals on paraphrase).
+    HALLUCINATION_GUARD_FORCE_NOT_FOUND_ON_FAILURE: bool = False
 
     # Plan A: LlamaIndex RAG (ingestion + retrieval + synthesis)
     USE_LLAMA_INDEX_RAG: bool = True  # Feature flag: use LlamaIndex adapters for RAG
@@ -268,8 +313,20 @@ class Settings(BaseSettings):
     ENABLE_SYLLABUS_LOCK: bool = False  # Enable syllabus-locked RAG (requires approved sources)
     ENABLE_INTENT_GATE: bool = True  # Enable academic-only intent enforcement
     ENABLE_PII_DETECTION: bool = True  # Enable PII detection and redaction
+    # Injected into central chat policy YAML as age-appropriate guidance (k5 | 6-8 | 9-17 | adult). Default: ages 9–17.
+    STUDENT_AGE_TIER: str = "9-17"
     SAFETY_STRICT_MODE: bool = True  # Strict safety filtering
     INJECTION_DETECTION_THRESHOLD: float = 0.6  # Prompt injection detection threshold
+    # Second line of defense: cosine similarity vs paraphrased injection probes (OpenAI embeddings).
+    ENABLE_PROMPT_INJECTION_EMBEDDING_SIM: bool = True
+    PROMPT_INJECTION_EMBEDDING_SIM_THRESHOLD: float = 0.78
+    PROMPT_INJECTION_EMBEDDING_FAIL_OPEN: bool = True  # On embedding errors, allow the request
+    # After Jinja compilation: ensure grounding / context / policy sections are present before LLM call.
+    ENABLE_PROMPT_INTEGRITY_CHECK: bool = True
+    PROMPT_INJECTION_REFUSAL_MESSAGE: str = (
+        "Your request contains instructions that are not allowed because they attempt to bypass "
+        "the system's safety or source restrictions."
+    )
     INTENT_ACADEMIC_THRESHOLD: float = 0.5  # Academic intent classification threshold
     APPROVED_SOURCE_IDS: str = ""  # Comma-separated list of approved source IDs for syllabus lock
     
@@ -298,6 +355,17 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore",  # Prevents extra env vars from causing errors
     )
+
+    @field_validator("STUDENT_AGE_TIER", mode="before")
+    @classmethod
+    def _normalize_student_age_tier(cls, v: Any) -> str:
+        if v is None or (isinstance(v, str) and not v.strip()):
+            return "9-17"
+        s = str(v).strip().lower()
+        if s == "9-12":
+            s = "9-17"
+        allowed = {"k5", "6-8", "9-17", "adult"}
+        return s if s in allowed else "9-17"
 
 
 # Singleton instance of settings
