@@ -25,15 +25,9 @@ async def generate_studio_content(
         tenant_id = request.state.tenant_id
         user_id = getattr(request.state, 'user_id', None)
         print(f"[STUDIO ENDPOINT] Generating {request_body.task_type} for tenant {tenant_id}, user {user_id}")
+        print(f"[STUDIO ENDPOINT] context_mode={getattr(request_body, 'context_mode', 'sources_only')}")
         print(f"[STUDIO ENDPOINT] Source IDs: {request_body.source_ids}")
         print(f"[STUDIO ENDPOINT] Source IDs count: {len(request_body.source_ids) if request_body.source_ids else 0}")
-        
-        # Additional validation
-        if not request_body.source_ids or len(request_body.source_ids) == 0:
-            raise HTTPException(
-                status_code=400,
-                detail="At least one source ID is required. Please select at least one source document."
-            )
         
         service = StudioService(db, tenant_id, user_id)
 
@@ -48,6 +42,9 @@ async def generate_studio_content(
                 custom_instructions=request_body.custom_instructions,
                 retrieval_focus=request_body.retrieval_focus,
                 report_format=request_body.report_format,
+                context_mode=request_body.context_mode,
+                chat_transcript=request_body.chat_transcript,
+                selection_text=request_body.selection_text,
             )
             success = True
             payload = dict(result) if isinstance(result, dict) else {"result": result}

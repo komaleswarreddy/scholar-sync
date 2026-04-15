@@ -11,7 +11,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChatMessage } from './ChatMessage';
+import { ChatMessage, displayAssistantText } from './ChatMessage';
+import { ChatStudioSelectionToolbar } from './ChatStudioSelectionToolbar';
 import { ChatInput } from './ChatInput';
 import { ChatListSidebar } from './ChatListSidebar';
 import { MessageCircle, RefreshCw, WifiOff, AlertTriangle, Menu, X } from 'lucide-react';
@@ -24,6 +25,7 @@ import { DEFAULT_NCERT_SUBJECTS_BY_CLASS } from '@/config/ncertSubjectsByClass';
 import type { NcertTutorChapterOption } from '@/lib/api-client';
 import { useSources } from '@/hooks/useSources';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
+import { useStudioChatBridgeSafe } from '@/contexts/StudioChatBridgeContext';
 
 /** Shown after upload when ingestion completes; triggers same map-reduce path as summary intent. */
 const POST_UPLOAD_SUMMARY_PROMPT =
@@ -133,6 +135,8 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatMessagesScrollRef = useRef<HTMLDivElement>(null);
+  const studioChatBridge = useStudioChatBridgeSafe();
   const lastUserMessageRef = useRef<string>('');
   /** Retry after error for streams that did not show a user prompt (auto-upload summary). */
   const lastHiddenStreamRetryRef = useRef<{
@@ -952,6 +956,21 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
 
   const hasUserMessageInChat = messages.some((m) => m.role === 'user');
 
+  useEffect(() => {
+    if (isTutorMode || !studioChatBridge) return;
+    const transcript = messages
+      .filter((m) => (m.content || '').trim())
+      .map((m) => {
+        const c =
+          m.role === 'assistant'
+            ? displayAssistantText(m.content)
+            : m.content.trim();
+        return `${m.role === 'user' ? 'User' : 'Assistant'}: ${c}`;
+      })
+      .join('\n\n');
+    studioChatBridge.setChatTranscript(transcript);
+  }, [messages, isTutorMode, studioChatBridge]);
+
   return (
     <div className="flex h-full bg-surface">
       {/* Chat List Sidebar */}
@@ -967,7 +986,13 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        {!isTutorMode && (
+          <ChatStudioSelectionToolbar
+            scrollContainerRef={chatMessagesScrollRef}
+            enabled={Boolean(studioChatBridge)}
+          />
+        )}
         {/* Task A.e: Network status indicator */}
         {!isOnline && (
           <div className="bg-red-600 text-white text-xs py-1.5 px-4 flex items-center justify-center gap-2">
@@ -1016,7 +1041,7 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           </div>
         </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div ref={chatMessagesScrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {isLoadingChat ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
             <div className="flex gap-1 mb-2">

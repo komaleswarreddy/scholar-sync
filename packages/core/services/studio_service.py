@@ -196,6 +196,25 @@ _REPORT_FORMAT_ALLOWED = frozenset({
 })
 
 
+def compose_studio_hybrid_context(chat_transcript: str, source_excerpts: str) -> str:
+    """
+    Merge chat + retrieved sources with explicit 60/40 weighting instructions for the model.
+    Transcript is capped by STUDIO_HYBRID_CHAT_MAX_CHARS.
+    """
+    cap = int(getattr(settings, "STUDIO_HYBRID_CHAT_MAX_CHARS", 48_000))
+    ct = (chat_transcript or "").strip()
+    if len(ct) > cap:
+        ct = ct[: max(0, cap - 80)].rstrip() + "\n\n[... conversation truncated for length ...]"
+    src = (source_excerpts or "").strip()
+    header_conv = "## Conversation (primary — reflect this discussion; target ~60% of your focus)\n\n"
+    header_src = "\n\n## Source excerpts (supporting — ground facts and terminology here; target ~40% of your focus)\n\n"
+    tail = (
+        "\n\nPrioritize themes and goals evident in the conversation; use source excerpts to "
+        "support, extend, or fact-check — do not ignore the discussion in favor of generic document summary."
+    )
+    return header_conv + ct + header_src + src + tail
+
+
 def _normalize_report_format(value: Optional[str]) -> str:
     """Map API/UI report_format to a template key; default integrated."""
     if value is None or not str(value).strip():
@@ -248,33 +267,76 @@ class StudioService:
         custom_instructions: Optional[str] = None,
         retrieval_focus: Optional[str] = None,
         report_format: Optional[str] = None,
+        *,
+        context_mode: str = "sources_only",
+        chat_transcript: Optional[str] = None,
+        selection_text: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Generate Studio content based on task type.
 
+        context_mode: sources_only | chat_hybrid | selection_only
         retrieval_focus: optional topic string for query-conditioned vector retrieval
         (separate from custom_instructions formatting).
         report_format: optional tailored report style when task_type is "report"
             (integrated | briefing | study_guide | newsletter | thematic_summary).
         """
-        if task_type == "infographic" and len(source_ids) != 1:
-            raise ValueError(
-                "Infographic requires exactly one selected source. "
-                "Select a single document and try again."
-            )
+        mode = (context_mode or "sources_only").strip().lower()
+        if mode not in ("sources_only", "chat_hybrid", "selection_only"):
+            mode = "sources_only"
 
-        context, retrieval_meta = await self._retrieve_studio_context(
-            source_ids, retrieval_focus, task_type
-        )
-        retrieval_queries_note = self._format_retrieval_queries_note(
-            retrieval_meta.get("queries_used") or []
-        )
+        n_sources = len(source_ids or [])
+
+        if task_type == "infographic":
+            if mode == "sources_only" and n_sources != 1:
+                raise ValueError(
+                    "Infographic requires exactly one selected source in sources_only mode. "
+                    "Select a single document and try again."
+                )
+            if mode == "chat_hybrid" and n_sources < 1:
+                raise ValueError("Infographic in chat_hybrid requires at least one selected source.")
+
+        retrieval_meta: Dict[str, Any] = {
+            "mode": mode,
+            "queries_used": [],
+            "chunk_count": 0,
+            "matches_before_merge": 0,
+            "unique_vectors": 0,
+        }
+
+        if mode == "selection_only":
+            context = (selection_text or "").strip()
+            retrieval_meta["mode"] = "selection_only"
+            retrieval_queries_note = ""
+        elif mode == "chat_hybrid":
+            frac = float(getattr(settings, "STUDIO_HYBRID_SOURCE_CHUNK_FRACTION", 0.4))
+            base_chunks = int(getattr(settings, "STUDIO_CONTEXT_MAX_CHUNKS", 28))
+            hybrid_max = max(4, int(base_chunks * frac))
+            source_ctx, retrieval_meta = await self._retrieve_studio_context(
+                source_ids,
+                retrieval_focus,
+                task_type,
+                max_chunks_override=hybrid_max,
+            )
+            context = compose_studio_hybrid_context(chat_transcript or "", source_ctx)
+            retrieval_queries_note = self._format_retrieval_queries_note(
+                retrieval_meta.get("queries_used") or []
+            )
+        else:
+            context, retrieval_meta = await self._retrieve_studio_context(
+                source_ids, retrieval_focus, task_type
+            )
+            retrieval_queries_note = self._format_retrieval_queries_note(
+                retrieval_meta.get("queries_used") or []
+            )
 
         if not context or not context.strip():
             print(
-                f"[WARNING] Empty context for sources: {source_ids}. "
+                f"[WARNING] Empty Studio context (mode={mode}, sources={source_ids}). "
                 "Generation may produce generic content."
             )
+
+        eff_source_count = max(1, n_sources) if mode != "selection_only" else 1
 
         if task_type in ["quiz", "flashcards", "mind_map", "slide_deck"]:
             return await self._generate_structured_task(
@@ -282,7 +344,7 @@ class StudioService:
                 context,
                 custom_instructions,
                 retrieval_queries_note,
-                selected_source_count=len(source_ids),
+                selected_source_count=eff_source_count,
             )
         if task_type == "report":
             return await self._generate_report(
@@ -290,7 +352,7 @@ class StudioService:
                 context,
                 custom_instructions,
                 retrieval_queries_note,
-                selected_source_count=len(source_ids),
+                selected_source_count=eff_source_count,
                 report_format=report_format,
             )
         if task_type == "infographic":
@@ -302,7 +364,7 @@ class StudioService:
             context,
             custom_instructions,
             retrieval_queries_note,
-            selected_source_count=len(source_ids),
+            selected_source_count=eff_source_count,
             report_format=report_format,
         )
 
@@ -324,6 +386,8 @@ class StudioService:
         source_ids: list,
         retrieval_focus: Optional[str],
         task_type: str,
+        *,
+        max_chunks_override: Optional[int] = None,
     ) -> Tuple[str, Dict[str, Any]]:
         feature_tag = f"studio_{task_type}"
         meta: Dict[str, Any] = {
@@ -350,7 +414,9 @@ class StudioService:
         top_k = int(getattr(settings, "STUDIO_RETRIEVAL_TOP_K_PER_QUERY", 10))
         query_cap = int(getattr(settings, "STUDIO_RETRIEVAL_QUERIES_CAP", 3))
         max_chunks = int(getattr(settings, "STUDIO_CONTEXT_MAX_CHUNKS", 28))
-        if task_type == "infographic":
+        if max_chunks_override is not None:
+            max_chunks = max(1, int(max_chunks_override))
+        elif task_type == "infographic":
             max_chunks = int(
                 getattr(settings, "STUDIO_INFOGRAPHIC_CONTEXT_MAX_CHUNKS", max_chunks)
             )

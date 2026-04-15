@@ -908,7 +908,12 @@ class ApiClient {
     sourceIds: string[],
     instructions?: string,
     retrievalFocus?: string,
-    reportFormat?: StudioReportFormat
+    reportFormat?: StudioReportFormat,
+    studioExtras?: {
+      contextMode?: 'sources_only' | 'chat_hybrid' | 'selection_only';
+      chatTranscript?: string;
+      selectionText?: string;
+    }
   ) {
     await this.refreshToken();
     const body: Record<string, unknown> = {
@@ -916,6 +921,15 @@ class ApiClient {
       source_ids: sourceIds,
       custom_instructions: instructions,
     };
+    if (studioExtras?.contextMode) {
+      body.context_mode = studioExtras.contextMode;
+    }
+    if (studioExtras?.chatTranscript != null && studioExtras.chatTranscript.trim()) {
+      body.chat_transcript = studioExtras.chatTranscript.trim();
+    }
+    if (studioExtras?.selectionText != null && studioExtras.selectionText.trim()) {
+      body.selection_text = studioExtras.selectionText.trim();
+    }
     if (retrievalFocus && retrievalFocus.trim()) {
       body.retrieval_focus = retrievalFocus.trim();
     }

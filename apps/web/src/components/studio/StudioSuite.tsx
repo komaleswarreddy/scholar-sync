@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   FileQuestion, 
   Layers, 
@@ -21,12 +21,11 @@ import {
   Check
 } from 'lucide-react';
 import { StudioCard } from './StudioCard';
-import { GenerationModal, ContentType } from './GenerationModal';
 import { Button } from '../ui/Button';
-import { useApi } from '@/hooks/useApi';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
-import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import type { StudioReportFormat } from '@/lib/api-client';
+import { useStudioChatBridge } from '@/contexts/StudioChatBridgeContext';
+import { useStudioGeneration } from '@/contexts/StudioGenerationContext';
 
 const STUDIO_TOOLS = [
   { icon: <Network className="w-5 h-5" />, title: 'Mind Map', type: 'mind_map' },
@@ -115,26 +114,18 @@ const SLIDE_DECK_LANGUAGES = [
 ];
 
 export function StudioSuite() {
-  const { loading, error: apiError, errorDetails, handleRequest, clearError, apiClient } = useApi();
   const { validSelectedIds, validSelectedCount } = useValidSelectedSourceIds();
+  const { hasChatContext } = useStudioChatBridge();
+  const {
+    generate,
+    generating,
+    loading,
+    apiError,
+    clearError,
+    validationError,
+    clearValidationError,
+  } = useStudioGeneration();
   const hasSelectedSources = validSelectedCount > 0;
-  const [generating, setGenerating] = useState<string | null>(null);
-  const [localError, setLocalError] = useState<string | null>(null);
-  
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<string | object | null>(null);
-  const [modalContentType, setModalContentType] = useState<ContentType>('text');
-  const [modalTitle, setModalTitle] = useState<string>('Generated Content');
-  const [modalError, setModalError] = useState<string | null>(null);
-  
-  // Store last generation parameters for retry
-  const [lastGenerationType, setLastGenerationType] = useState<string | null>(null);
-  const [lastSourceIds, setLastSourceIds] = useState<string[]>([]);
-  const [lastCustomInstructions, setLastCustomInstructions] = useState<string>('');
-  const [lastRetrievalFocus, setLastRetrievalFocus] = useState<string>('');
-  const [lastReportFormat, setLastReportFormat] = useState<StudioReportFormat | null>(null);
-  const [sourceCount, setSourceCount] = useState<number>(0);
   
   // Custom instructions state
   const [customInstructions, setCustomInstructions] = useState<string>('');
@@ -145,107 +136,6 @@ export function StudioSuite() {
   const [quizSpec, setQuizSpec] = useState<QuizSpec>(DEFAULT_QUIZ_SPEC);
   const [isReportConfigOpen, setIsReportConfigOpen] = useState<boolean>(false);
   const [reportSpec, setReportSpec] = useState<ReportSpec>(DEFAULT_REPORT_SPEC);
-
-  // Watch for API errors and update modal error
-  useEffect(() => {
-    if (isModalOpen) {
-      if (errorDetails?.message) {
-        setModalError(errorDetails.message);
-        setModalContent(null);
-      } else if (apiError) {
-        setModalError(typeof apiError === 'string' ? apiError : 'An error occurred during generation');
-        setModalContent(null);
-      }
-    }
-  }, [apiError, errorDetails, isModalOpen]);
-
-  // Determine content type based on task type and response structure
-  const determineContentType = (taskType: string, result: any): ContentType => {
-    // Check if result has a 'content' field (markdown/text) or 'data' field (JSON)
-    if (result?.content) {
-      // Mind maps, reports, infographics, slide decks return markdown
-      if (['mind_map', 'report', 'infographic', 'slide_deck'].includes(taskType)) {
-        return 'markdown';
-      }
-      return 'text';
-    }
-    
-    // Quiz and flashcards return structured JSON data
-    if (result?.data) {
-      return 'json';
-    }
-    
-    // Default to text
-    return 'text';
-  };
-
-  // Format content for display
-  const formatContent = (taskType: string, result: any): string | object | null => {
-    if (result?.content) {
-      const content = result.content;
-      // Validate content is not empty
-      if (typeof content === 'string' && !content.trim()) {
-        return null; // Return null to trigger error display
-      }
-
-      // Preserve full object fields (infographic structured data, image metadata, etc.).
-      if (typeof result === 'object' && result !== null) {
-        return {
-          task_type: result.task_type || taskType,
-          content,
-          ...(result.infographic_data ? { infographic_data: result.infographic_data } : {}),
-          ...(result.summary_bullets ? { summary_bullets: result.summary_bullets } : {}),
-          ...(result.image_url ? { image_url: result.image_url } : {}),
-          ...(result.image_error ? { image_error: result.image_error } : {}),
-        };
-      }
-
-      return content;
-    }
-    
-    if (result?.data) {
-      // For structured data (quiz, flashcards), validate it's not empty
-      if (Array.isArray(result.data) && result.data.length === 0) {
-        return null; // Return null to trigger error display
-      }
-      if (typeof result.data === 'object' && Object.keys(result.data).length === 0) {
-        return null; // Return null to trigger error display
-      }
-      
-      // Ensure task_type is included
-      if (result.task_type) {
-        return result;
-      } else if (taskType) {
-        return {
-          task_type: taskType,
-          ...result
-        };
-      }
-      
-      return result;
-    }
-    
-    // If result is empty string or falsy, return null
-    if (!result || (typeof result === 'string' && !result.trim())) {
-      return null;
-    }
-    
-    // If result is an object without task_type, add it
-    if (typeof result === 'object' && !result.task_type && taskType) {
-      return {
-        task_type: taskType,
-        ...result
-      };
-    }
-    
-    return result;
-  };
-
-  // Get display title based on task type
-  const getTitleForType = (type: string): string => {
-    const tool = STUDIO_TOOLS.find(t => t.type === type);
-    return tool ? `Generated ${tool.title}` : 'Generated Content';
-  };
 
   const buildSlideDeckInstructions = (spec: SlideDeckSpec): string => {
     const formatLabel = spec.format === 'detailed'
@@ -346,7 +236,7 @@ export function StudioSuite() {
     const n = validSelectedCount;
     const block = buildMindMapInstructions(n);
     const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
-    await handleGenerate('mind_map', undefined, combined);
+    await generate({ taskType: 'mind_map', instructions: combined });
   };
 
   /**
@@ -377,7 +267,7 @@ export function StudioSuite() {
     const n = validSelectedCount;
     const block = buildFlashcardInstructions(n);
     const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
-    await handleGenerate('flashcards', undefined, combined);
+    await generate({ taskType: 'flashcards', instructions: combined });
   };
 
   /**
@@ -418,164 +308,12 @@ export function StudioSuite() {
     const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
     const focus = reportSpec.retrievalFocus.trim() || undefined;
     setIsReportConfigOpen(false);
-    await handleGenerate('report', undefined, combined, focus, reportSpec.format);
-  };
-
-  const handleGenerate = async (
-    type: string,
-    sourceIdsOverride?: string[],
-    customInstructionsOverride?: string,
-    retrievalFocusOverride?: string,
-    reportFormat?: StudioReportFormat,
-  ) => {
-    const sourceIds = sourceIdsOverride || validSelectedIds;
-    const instructions = customInstructionsOverride !== undefined ? customInstructionsOverride : customInstructions;
-    const errorDetailsMessage = (errorDetails as { message?: string } | null | undefined)?.message;
-
-    const retrievalForApi =
-      retrievalFocusOverride !== undefined && retrievalFocusOverride.trim()
-        ? retrievalFocusOverride.trim()
-        : undefined;
-
-    if (sourceIds.length === 0) {
-      setLocalError('Please select at least one source to generate content');
-      return;
-    }
-
-    if (type === 'infographic' && sourceIds.length !== 1) {
-      setLocalError(
-        'Infographic uses one document at a time. Select exactly one source, then try again.',
-      );
-      return;
-    }
-    
-    // Check network status
-    if (!navigator.onLine) {
-      setLocalError('Network disconnected. Please check your internet connection.');
-      return;
-    }
-    
-    // Store generation parameters for retry
-    setLastGenerationType(type);
-    setLastSourceIds(sourceIds);
-    setLastCustomInstructions(instructions);
-    setLastRetrievalFocus(
-      retrievalFocusOverride !== undefined ? (retrievalFocusOverride.trim() || '') : '',
-    );
-    setLastReportFormat(type === 'report' ? (reportFormat ?? 'integrated') : null);
-    setSourceCount(sourceIds.length);
-    
-    setGenerating(type);
-    setLocalError(null);
-    setModalError(null);
-    
-    // Open modal with loading state
-    setIsModalOpen(true);
-    setModalTitle(getTitleForType(type));
-    setModalContent(null);
-    
-    try {
-      const result = await handleRequest(() =>
-        apiClient.generateStudio(
-          type as any,
-          sourceIds,
-          instructions.trim() || undefined,
-          retrievalForApi,
-          type === 'report' ? (reportFormat ?? 'integrated') : undefined,
-        )
-      );
-      
-      // Wait a bit for error state to update (React state updates are async)
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      // Check if there was an error (check both immediately and after state update)
-      if (errorDetails || apiError) {
-        const errorMessage = errorDetailsMessage || apiError || 'An error occurred during generation';
-        setModalError(errorMessage);
-        setModalContent(null);
-      } else if (result) {
-        const contentType = determineContentType(type, result);
-        const formattedContent = formatContent(type, result);
-        
-        // Check if formatted content is null or empty
-        if (formattedContent === null || formattedContent === undefined) {
-          const errorMessage = errorDetailsMessage || apiError || 'No content was generated. The model may have been blocked or returned empty content. Please try again.';
-          setModalError(errorMessage);
-          setModalContent(null);
-          return;
-        }
-        
-        // Validate quiz data structure
-        if (type === 'quiz' && formattedContent && typeof formattedContent === 'object') {
-          const quizData = (formattedContent as any).data || formattedContent;
-          if (!quizData.questions || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
-            setModalError('Quiz was generated but has an invalid structure. Please try again.');
-            setModalContent(null);
-            return;
-          }
-        }
-        
-        // Validate flashcards data structure
-        if (type === 'flashcards' && formattedContent && typeof formattedContent === 'object') {
-          const flashcardsData = (formattedContent as any).data || formattedContent;
-          if (Array.isArray(flashcardsData) && flashcardsData.length === 0) {
-            setModalError('Flashcards were generated but the list is empty. Please try again.');
-            setModalContent(null);
-            return;
-          }
-        }
-        
-        setModalContentType(contentType);
-        setModalContent(formattedContent);
-        setModalError(null);
-        
-        // Auto-save the generated feature
-        const featureType = type;
-        window.dispatchEvent(new CustomEvent('studioFeatureGenerated', {
-          detail: {
-            type: featureType,
-            title: getTitleForType(type),
-            content: formattedContent
-          }
-        }));
-      } else {
-        // If we have error details, use them; otherwise show generic message
-        const errorMessage = errorDetailsMessage || apiError || 'No content was generated. Please check the backend logs for details.';
-        setModalError(errorMessage);
-        setModalContent(null);
-      }
-    } catch (err: any) {
-      // Use standardized error handling
-      const apiError = err.apiError || handleApiError(err);
-      const errorMessage = getUserFriendlyMessage(apiError);
-      setModalError(errorMessage);
-      setModalContent(null);
-    } finally {
-      setGenerating(null);
-    }
-  };
-
-
-  // Handle save action - feature is already auto-saved, just close modal
-  const handleSave = async (_content: string) => {
-    setIsModalOpen(false);
-    setModalContent(null);
-    setModalError(null);
-  };
-
-  // Handle retry - regenerate with last parameters
-  const handleRetry = async () => {
-    if (lastGenerationType && lastSourceIds.length > 0) {
-      // Restore custom instructions for retry
-      setCustomInstructions(lastCustomInstructions);
-      await handleGenerate(
-        lastGenerationType,
-        lastSourceIds,
-        lastCustomInstructions,
-        lastRetrievalFocus.trim() || undefined,
-        lastGenerationType === 'report' ? (lastReportFormat ?? 'integrated') : undefined,
-      );
-    }
+    await generate({
+      taskType: 'report',
+      instructions: combined,
+      retrievalFocus: focus,
+      reportFormat: reportSpec.format,
+    });
   };
 
   const handleSlideDeckGenerate = async () => {
@@ -584,12 +322,11 @@ export function StudioSuite() {
       .filter(Boolean)
       .join('\n\n');
     setIsSlideDeckConfigOpen(false);
-    await handleGenerate(
-      'slide_deck',
-      undefined,
-      combinedInstructions,
-      slideDeckSpec.objective.trim() || undefined,
-    );
+    await generate({
+      taskType: 'slide_deck',
+      instructions: combinedInstructions,
+      retrievalFocus: slideDeckSpec.objective.trim() || undefined,
+    });
   };
 
   const handleQuizGenerate = async () => {
@@ -598,12 +335,11 @@ export function StudioSuite() {
       .filter(Boolean)
       .join('\n\n');
     setIsQuizConfigOpen(false);
-    await handleGenerate(
-      'quiz',
-      undefined,
-      combinedInstructions,
-      quizSpec.topicFocus.trim() || undefined,
-    );
+    await generate({
+      taskType: 'quiz',
+      instructions: combinedInstructions,
+      retrievalFocus: quizSpec.topicFocus.trim() || undefined,
+    });
   };
 
   return (
@@ -617,16 +353,17 @@ export function StudioSuite() {
       </div>
 
       {/* Error Display */}
-      {(localError || apiError) && (
+      {(validationError || apiError) && (
         <div className="p-3 mx-4 mt-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-xs text-red-700 dark:text-red-300 font-medium">
-              {localError || (typeof apiError === 'string' ? apiError : apiError || 'An error occurred')}
+              {validationError ||
+                (typeof apiError === 'string' ? apiError : apiError || 'An error occurred')}
             </p>
             <button
               onClick={() => {
-                setLocalError(null);
+                clearValidationError();
                 clearError();
               }}
               className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 mt-1 underline cursor-pointer"
@@ -687,16 +424,27 @@ export function StudioSuite() {
           </div>
         )}
         <p className="text-xs text-text-tertiary mb-2">
-          Infographic: select exactly one source. Flashcards, reports, mind maps, and other tools use only
-          your <strong className="font-medium text-text-secondary">selected</strong> sources. Flashcards
-          use broad retrieval across those sources to build one integrated deck.
+          {hasChatContext ? (
+            <>
+              With an active chat, Studio uses <strong className="font-medium text-text-secondary">chat + selected sources</strong> (~60/40).
+              Infographic: one source in the rail, or multiple sources when chat is active.
+            </>
+          ) : (
+            <>
+              Infographic: select exactly one source. Other tools use your{' '}
+              <strong className="font-medium text-text-secondary">selected</strong> sources.
+            </>
+          )}{' '}
+          Highlight text in chat for selection-only generation. Flashcards use broad retrieval across
+          selected sources.
         </p>
         <div className="grid grid-cols-2 gap-3">
           {STUDIO_TOOLS.map((tool) => {
             const isGenerating = generating === tool.type;
             const disabledNoSources = !hasSelectedSources;
-            const infographicNeedsOne =
-              tool.type === 'infographic' && validSelectedCount !== 1;
+            const infographicOk =
+              validSelectedCount === 1 || (hasChatContext && validSelectedCount >= 1);
+            const infographicNeedsOne = tool.type === 'infographic' && !infographicOk;
             return (
               <StudioCard
                 key={tool.type}
@@ -724,14 +472,14 @@ export function StudioSuite() {
                     setIsReportConfigOpen(true);
                     return;
                   }
-                  void handleGenerate(tool.type);
+                  void generate({ taskType: tool.type });
                 }}
                 disabled={isGenerating || loading || infographicNeedsOne || disabledNoSources}
                 disabledHint={
                   disabledNoSources
                     ? 'Select at least one source to enable Studio generation.'
                     : infographicNeedsOne
-                    ? 'Select exactly one source to create an infographic from that document.'
+                    ? 'Select one source for infographic, or enable chat + at least one source for hybrid.'
                     : undefined
                 }
               />
@@ -1083,28 +831,6 @@ export function StudioSuite() {
         </>
       )}
 
-      {/* Generation Modal */}
-      <GenerationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSave}
-        onRetry={handleRetry}
-        title={modalTitle}
-        contentType={modalContentType}
-        content={modalContent}
-        loading={generating !== null}
-        loadingType={generating || undefined}
-        sourceCount={sourceCount}
-        customInstructions={
-          lastGenerationType === 'quiz' ||
-          lastGenerationType === 'mind_map' ||
-          lastGenerationType === 'report' ||
-          lastGenerationType === 'flashcards'
-            ? undefined
-            : lastCustomInstructions
-        }
-        error={modalError}
-      />
     </div>
   );
 }

@@ -108,6 +108,9 @@ class Settings(BaseSettings):
     STUDIO_INFOGRAPHIC_RETRIEVAL_QUERIES_CAP: int = 14  # Max broad queries to run (full list has 14 lines)
     STUDIO_INFOGRAPHIC_CONTEXT_MAX_CHUNKS: int = 36  # Wider context merge cap for visual grounding
     STUDIO_RETRIEVAL_NOTE_MAX_CHARS: int = 900  # Prompt line summarizing queries used for search
+    # Studio chat_hybrid: ~40% of chunk budget for sources vs conversation (see studio_service)
+    STUDIO_HYBRID_SOURCE_CHUNK_FRACTION: float = 0.4
+    STUDIO_HYBRID_CHAT_MAX_CHARS: int = 48_000  # Cap formatted transcript size in hybrid prompt
     SIMILARITY_THRESHOLD: float = 0.54  # Context floor; factual/rare terms often score lower than paraphrase-heavy chunks
     CHAT_MAX_TOKENS: int = 2048  # Maximum tokens for chat responses
     # Prior turns included in chat/rag_prompt.j2 (conversation continuity)
