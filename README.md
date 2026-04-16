@@ -136,12 +136,26 @@ alembic upgrade head
 python scripts/seed_db.py
 ```
 
+**Supabase security baseline (important)**  
+This repo assumes **all database access goes through the FastAPI backend** (Clerk-authenticated), not Supabase PostgREST from the browser. To prevent accidental data exposure via the Supabase Data API, the Alembic migrations also apply a security baseline on Supabase:
+
+- Enable **Row Level Security (RLS)** on all app tables in `public`
+- **Revoke** all table privileges from `anon` and `authenticated`
+- Remove **default privileges** so future tables don’t auto-grant to those roles
+
+In Supabase Security Advisor this may show as **Info**: “RLS enabled, no policy”. That is expected for a backend-only architecture.
+
 #### Option B (quick start): Run a single SQL file in Supabase
 
 Use this if you prefer setting up tables directly in the Supabase UI (or if you want a single copy/paste script):
 
 1. Supabase dashboard → **SQL Editor** → run:
    - `scripts/supabase_schema.sql`
+
+2. **Apply the Supabase security baseline** (required). After running the schema SQL, also run:
+   - Enable RLS + FORCE RLS on the tables you created
+   - Revoke privileges from `anon` and `authenticated`
+   - Alter default privileges in `public` to revoke future grants
 
 2. Then mark Alembic as applied (so future `alembic upgrade head` doesn't try to recreate tables):
 

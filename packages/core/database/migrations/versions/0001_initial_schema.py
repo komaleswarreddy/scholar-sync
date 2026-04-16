@@ -130,6 +130,47 @@ def upgrade() -> None:
     op.create_index("ix_alert_user_sessions_alert_type", "alert_user_sessions", ["alert_type"], unique=False)
     op.create_index("ix_alert_user_sessions_created_at", "alert_user_sessions", ["created_at"], unique=False)
 
+    # --------------------------
+    # Supabase security baseline
+    # --------------------------
+    # This repo uses FastAPI + SQLAlchemy for DB access (not Supabase PostgREST from the browser).
+    # On Supabase, tables in the `public` schema can be exposed via PostgREST, so we lock them down:
+    # - Enable RLS (deny-by-default unless explicit policies exist)
+    # - Revoke all table privileges from `anon` and `authenticated`
+    # - Remove default privileges so future tables don't auto-grant to those roles
+    op.execute("ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.sources ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.chats ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.notes ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.guardrail_user_blocks ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.alert_user_sessions ENABLE ROW LEVEL SECURITY;")
+
+    # FORCE RLS is optional but recommended; it prevents owners from bypassing RLS accidentally.
+    op.execute("ALTER TABLE public.tenants FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.users FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.sources FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.chats FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.messages FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.notes FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.guardrail_user_blocks FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.alert_user_sessions FORCE ROW LEVEL SECURITY;")
+
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.tenants FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.users FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.sources FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.chats FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.messages FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.notes FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.guardrail_user_blocks FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.alert_user_sessions FROM anon, authenticated;")
+
+    # Prevent future tables in public from inheriting unsafe grants.
+    op.execute("ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM anon, authenticated;")
+    op.execute("ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM anon, authenticated;")
+    op.execute("ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON FUNCTIONS FROM anon, authenticated;")
+
 
 def downgrade() -> None:
     op.drop_index("ix_alert_user_sessions_created_at", table_name="alert_user_sessions")

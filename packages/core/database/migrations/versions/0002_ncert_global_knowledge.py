@@ -93,6 +93,18 @@ def upgrade() -> None:
         unique=False,
     )
 
+    # --------------------------
+    # Supabase security baseline
+    # --------------------------
+    # These tables live in `public` and may be exposed via PostgREST on Supabase.
+    # We use FastAPI + SQLAlchemy for access, so lock down anon/auth.
+    op.execute("ALTER TABLE public.ncert_global_documents ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.ncert_global_ingestion_runs ENABLE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.ncert_global_documents FORCE ROW LEVEL SECURITY;")
+    op.execute("ALTER TABLE public.ncert_global_ingestion_runs FORCE ROW LEVEL SECURITY;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.ncert_global_documents FROM anon, authenticated;")
+    op.execute("REVOKE ALL PRIVILEGES ON TABLE public.ncert_global_ingestion_runs FROM anon, authenticated;")
+
 
 def downgrade() -> None:
     op.drop_index("ix_ncert_global_ingestion_runs_status", table_name="ncert_global_ingestion_runs")

@@ -252,7 +252,15 @@ def analyze_answer_support(
         and _coarse_content_recall(a, c) >= float(coarse_recall_min)
     ):
         ratio = max(ratio, float(coarse_rescue_supported_ratio))
-        unsupported = []
+        # Keep numeric/date-heavy unsupported sentences if their numbers do not appear in context.
+        # Coarse recall can be high due to other supported content, but specific numbers are high-risk.
+        cnums = set(re.findall(r"\b\d{2,}\b", c))
+        still_unsupported: List[str] = []
+        for s in unsupported:
+            snums = set(re.findall(r"\b\d{2,}\b", s))
+            if snums and not (snums & cnums):
+                still_unsupported.append(s)
+        unsupported = still_unsupported
 
     return HallucinationGuardResult(
         supported_ratio=ratio,
