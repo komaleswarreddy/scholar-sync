@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   FileQuestion, 
   Layers, 
@@ -136,6 +136,53 @@ export function StudioSuite() {
   const [quizSpec, setQuizSpec] = useState<QuizSpec>(DEFAULT_QUIZ_SPEC);
   const [isReportConfigOpen, setIsReportConfigOpen] = useState<boolean>(false);
   const [reportSpec, setReportSpec] = useState<ReportSpec>(DEFAULT_REPORT_SPEC);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let intent: any = null;
+    try {
+      const raw = window.localStorage.getItem('studioIntentV1');
+      if (raw) intent = JSON.parse(raw);
+    } catch {
+      intent = null;
+    }
+    if (!intent || typeof intent !== 'object') return;
+
+    // Clear intent immediately to avoid loops.
+    try {
+      window.localStorage.removeItem('studioIntentV1');
+    } catch {
+      // ignore
+    }
+
+    const type = String(intent.type || '');
+    if (!type) return;
+
+    // If no sources are selected, we keep behavior unchanged: Studio will show its normal hint.
+    if (!hasSelectedSources) return;
+
+    if (type === 'slide_deck') {
+      setIsSlideDeckConfigOpen(true);
+      return;
+    }
+    if (type === 'quiz') {
+      setIsQuizConfigOpen(true);
+      return;
+    }
+    if (type === 'report') {
+      setIsReportConfigOpen(true);
+      return;
+    }
+    if (type === 'mind_map') {
+      void handleMindMapGenerate();
+      return;
+    }
+    if (type === 'flashcards') {
+      void handleFlashcardGenerate();
+      return;
+    }
+    void generate({ taskType: type });
+  }, [generate, hasSelectedSources]); // intentionally not depending on local config state
 
   const buildSlideDeckInstructions = (spec: SlideDeckSpec): string => {
     const formatLabel = spec.format === 'detailed'

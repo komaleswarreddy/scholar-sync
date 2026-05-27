@@ -7,10 +7,13 @@ import type { NextRequest } from 'next/server';
  * This protects /dashboard, /studio, /notes, and all their sub-paths.
  */
 const isProtectedRoute = createRouteMatcher([
+  '/home(.*)',
   '/dashboard(.*)',
+  '/tutor(.*)',
   '/tutor-mode(.*)',
   '/studio(.*)',
   '/notes(.*)',
+  '/studios(.*)',
   '/analytics(.*)',
   '/api/v1/(.*)', // Optional: Protect API routes if they aren't handled by backend middleware
 ]);

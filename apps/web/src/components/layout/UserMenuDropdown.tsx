@@ -2,12 +2,16 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { User, LogOut, ChevronDown } from 'lucide-react';
-import { useUserContext } from '@/contexts/UserContext';
+import { useAuth, useUser } from '@clerk/nextjs';
 import { checkForNoteDrafts, removeDraft } from '@/lib/note-draft-utils';
 import { DraftSaveModal } from '../notes/DraftSaveModal';
 
 export function UserMenuDropdown() {
-  const { fullName, email, avatarUrl, signOut } = useUserContext();
+  const { user } = useUser();
+  const { signOut } = useAuth();
+  const fullName = user?.fullName ?? null;
+  const email = user?.primaryEmailAddress?.emailAddress ?? null;
+  const avatarUrl = user?.imageUrl ?? null;
   const [isOpen, setIsOpen] = useState(false);
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [draftInfo, setDraftInfo] = useState<{

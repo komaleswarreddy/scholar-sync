@@ -29,9 +29,9 @@ export default function HomePage() {
         return;
       }
       
-      // Not admin - redirect to dashboard
+      // Not admin - redirect to home (new landing)
       setRedirected(true);
-      router.replace('/dashboard');
+      router.replace('/home');
     } else if (isLoaded && !isSignedIn) {
       router.push('/sign-in');
     }

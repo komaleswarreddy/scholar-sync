@@ -18,6 +18,7 @@ export function Header() {
   const pathname = usePathname();
   const isAnalyticsPage = pathname === '/analytics';
   const isDashboardPage = pathname === '/dashboard';
+  const isHomePage = pathname === '/home';
   const isTutorModePage = pathname === '/tutor-mode';
   // Temporary: Static title - will be made dynamic with user input later
   const notebookTitle = 'NotebookLMSync';
@@ -38,7 +39,7 @@ export function Header() {
   };
 
   const handleHome = () => {
-    router.push('/dashboard');
+    router.push('/home');
   };
 
   const handleTutorMode = () => {
@@ -78,6 +79,16 @@ export function Header() {
         </Button>
 
         {isDashboardPage ? (
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleTutorMode}
+            className="flex items-center gap-2"
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span className="hidden sm:inline">Tutor Mode</span>
+          </Button>
+        ) : isHomePage ? (
           <Button
             variant="secondary"
             size="sm"

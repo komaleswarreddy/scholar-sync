@@ -6,8 +6,8 @@ export default function SignInPage() {
       <SignIn 
         // This component automatically reads the "redirect_url" 
         // provided by the middleware to handle deep links.
-        // Default redirect to root page, which will handle admin redirect
-        redirectUrl="/"
+        // Default redirect for non-deep-link sign-ins
+        redirectUrl="/home"
         appearance={{
           elements: {
             formButtonPrimary: "bg-blue-600 hover:bg-blue-700",
