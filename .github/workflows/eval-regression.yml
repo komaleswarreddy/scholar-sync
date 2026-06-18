@@ -1,0 +1,62 @@
+name: Eval Regression
+
+on:
+  pull_request:
+    paths:
+      - "packages/core/prompts/**"
+      - "packages/core/rag/**"
+      - "packages/core/langgraph/**"
+      - "packages/core/llm/**"
+      - "packages/core/evaluation/**"
+      - "packages/core/config/**"
+      - "config/models.yaml"
+      - "config/production.yaml"
+      - "prompts/**"
+      - "evals/datasets/**"
+      - "eval.py"
+      - "eval_e2e.py"
+  push:
+    branches: [main]
+    paths:
+      - "packages/core/prompts/**"
+      - "config/**"
+      - "evals/datasets/**"
+
+env:
+  EVAL_GATE_MODE: soft
+  EVAL_REGRESSION_MAX_DROP: "3"
+
+jobs:
+  agent-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt || pip install pyyaml python-dotenv langsmith openai pydantic-settings
+
+      - name: Run agent experiment (intent_classifier smoke)
+        run: python eval.py --agent intent_classifier --prompts v1 --models gpt-4o-mini --limit 5
+        continue-on-error: ${{ env.EVAL_GATE_MODE == 'soft' }}
+
+      - name: Run E2E workflow smoke
+        run: python eval_e2e.py --limit 5
+        continue-on-error: ${{ env.EVAL_GATE_MODE == 'soft' }}
+
+      - name: Upload eval reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-reports
+          path: evals/reports/
+
+      - name: Regression gate note
+        if: env.EVAL_GATE_MODE == 'soft'
+        run: |
+          echo "Soft-fail mode: eval regressions are reported but do not block merge."
+          echo "Set EVAL_GATE_MODE=hard in workflow env to enforce >3% drop block."

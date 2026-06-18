@@ -27,6 +27,7 @@ class Tenant(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
+    notebooks = relationship("Notebook", back_populates="tenant", cascade="all, delete-orphan")
     sources = relationship("Source", back_populates="tenant", cascade="all, delete-orphan")
     chats = relationship("Chat", back_populates="tenant", cascade="all, delete-orphan")
     notes = relationship("Note", back_populates="tenant", cascade="all, delete-orphan")

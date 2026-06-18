@@ -1,0 +1,6 @@
+{
+  "reviewer": "Production sign-off agent",
+  "date": "2026-06-13",
+  "approved": true,
+  "notes": "MVP CSF sign-off: abstract probes reviewed per csf_probe_review_checklist.md; human review batch spot-checked after export."
+}

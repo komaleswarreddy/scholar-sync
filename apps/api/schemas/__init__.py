@@ -29,8 +29,6 @@ from apps.api.schemas.studio import (
     Flashcard,
     FlashcardsResponse,
     MindMapResponse,
-    ReportResponse,
-    InfographicResponse,
     SlideDeckResponse,
 )
 
@@ -58,7 +56,5 @@ __all__ = [
     "Flashcard",
     "FlashcardsResponse",
     "MindMapResponse",
-    "ReportResponse",
-    "InfographicResponse",
     "SlideDeckResponse",
 ]

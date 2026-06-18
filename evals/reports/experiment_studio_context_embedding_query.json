@@ -1,0 +1,315 @@
+{
+  "agent_name": "studio_context_embedding_query",
+  "generated_at": "2026-06-18T03:33:28.314576+00:00",
+  "dataset_id": "studio_context_embedding_query",
+  "dataset_hash": "448652cb3191b03a",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000412,
+      "input_cost_usd": 6.6e-05,
+      "output_cost_usd": 0.000346,
+      "prompt_tokens": 440,
+      "completion_tokens": 576,
+      "latency_ms": 9541.9,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.00171,
+      "input_cost_usd": 1e-05,
+      "output_cost_usd": 0.0017,
+      "prompt_tokens": 70,
+      "completion_tokens": 2833,
+      "latency_ms": 13495.74,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000412,
+      "input_cost_usd": 6.6e-05,
+      "output_cost_usd": 0.000346
+    },
+    "composite_score": 0.9045
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "studio_context_embedding_query-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "flashcards",
+        "source_title": "Human Digestion",
+        "topic": "Human Digestion"
+      },
+      "expected": {
+        "embedding_query": "digestive enzymes absorption villi NCERT overview"
+      },
+      "actual": {
+        "output": "Certainly! Here\u2019s an overview of educational source material and some key concepts associated with it:\n\n### Overview of Educational Source Material\n\nEducational source material refers to a variety of resources used to support teaching and learning. These materials can be primary or secondary sources and can include textbooks, articles, videos, websites, and more. They are designed to provide information, context, and examples that facilitate understanding of a subject.\n\n### Types of Educational Source Material\n\n1. **Textbooks**: Comprehensive books that cover specific subjects in detail, often used in formal education settings.\n\n2. **Academic Journals**: Peer-reviewed articles that present original research, reviews, and theoretical discussions in various fields.\n\n3. **Online Resources**: Websites, e-books, and online courses that provide accessible information and learning opportunities.\n\n4. **Multimedia**: Videos, podcasts, and interactive simulations that engage different learning styles and enhance understanding.\n\n5. **Primary Sources**: Original documents or artifacts, such as historical texts, interviews, and research data, that provide firsthand evidence.\n\n6. **Secondary Sources**: Analyses, interpretations, or summaries of primary sources, such as biographies, reviews, and critiques.\n\n7. **Open Educational Resources (OER)**: Freely accessible, openly licensed materials that can be used for teaching, learning, and research.\n\n### Key Concepts\n\n1. **Curriculum Development**: The process of designing and organizing educational content and learning experiences.\n\n2. **Learning Objectives**: Specific goals that outline what students should know or be able to do by the end of a lesson or course.\n\n3. **Pedagogy**: The art and science of teaching, including methods and strategies used to facilitate learning.\n\n4. **Assessment and Evaluation**: Techniques used to measure student learning and the effectiveness of educational materials.\n\n5. **Differentiated Instruction**: Tailoring teaching methods and resources to accommodate diverse learning styles and abilities.\n\n6. **Constructivism**: A learning theory that emphasizes the learner's active role in constructing knowledge through experiences and reflection.\n\n7. **Bloom's Taxonomy**: A framework for categorizing educational goals and objectives, often used to design assessments and learning activities.\n\n8. **Digital Literacy**: The ability to effectively find, evaluate, and use information from digital sources.\n\n9. **Collaborative Learning**: An educational approach that involves students working together to solve problems or complete tasks.\n\n10. **Lifelong Learning**: The ongoing, voluntary, and self-motivated pursuit of knowledge for personal or professional development.\n\n### Conclusion\n\nEducational source material plays a crucial role in the learning process, providing the necessary information and context for students to engage with and understand various subjects. By utilizing a diverse range of materials and understanding key educational concepts, educators can create effective learning environments that cater to the needs of all students."
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "quiz",
+        "source_title": "Chemical Bonding",
+        "topic": "Chemical Bonding"
+      },
+      "expected": {
+        "embedding_query": "ionic covalent bonds electronegativity key concepts"
+      },
+      "actual": {
+        "output": "Certainly! Here\u2019s an overview of educational source material and some key concepts associated with it:\n\n### Overview of Educational Source Material\n\nEducational source material refers to a variety of resources used to support teaching and learning. These materials can be primary or secondary sources and can include textbooks, articles, videos, websites, and more. They are designed to provide information, context, and examples that facilitate understanding of a subject.\n\n### Types of Educational Source Material\n\n1. **Textbooks**: Comprehensive books that cover specific subjects in detail, often used in formal education settings.\n\n2. **Academic Journals**: Peer-reviewed articles that present original research, reviews, and theoretical discussions in various fields.\n\n3. **Online Resources**: Websites, e-books, and online courses that provide accessible information and learning opportunities.\n\n4. **Multimedia**: Videos, podcasts, and interactive simulations that engage different learning styles and enhance understanding.\n\n5. **Primary Sources**: Original documents or artifacts, such as historical documents, interviews, and original research data.\n\n6. **Secondary Sources**: Analyses, interpretations, or summaries of primary sources, such as textbooks and review articles.\n\n7. **Open Educational Resources (OER)**: Freely accessible, openly licensed materials that can be used for teaching, learning, and research.\n\n### Key Concepts\n\n1. **Curriculum Alignment**: Ensuring that educational materials align with learning objectives and standards.\n\n2. **Differentiated Instruction**: Adapting educational resources to meet the diverse needs of learners, including varying levels of ability and learning styles.\n\n3. **Critical Thinking**: Encouraging students to analyze, evaluate, and synthesize information from various sources.\n\n4. **Digital Literacy**: The ability to find, evaluate, and use information from digital sources effectively and responsibly.\n\n5. **Constructivism**: A learning theory that emphasizes the role of learners in constructing their own understanding and knowledge through experiences and reflection.\n\n6. **Assessment and Evaluation**: Using educational materials to assess student understanding and progress, including formative and summative assessments.\n\n7. **Collaborative Learning**: Utilizing resources that promote group work and peer interaction to enhance learning experiences.\n\n8. **Cultural Relevance**: Ensuring that educational materials reflect diverse perspectives and are relevant to the backgrounds of all learners.\n\n### Conclusion\n\nEducational source material plays a crucial role in the learning process by providing the necessary information and context for students to engage with content meaningfully. Understanding the types of materials available and the key concepts associated with their use can enhance teaching effectiveness and improve student outcomes."
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "mind_map",
+        "source_title": "Photosynthesis",
+        "topic": "Photosynthesis"
+      },
+      "expected": {
+        "embedding_query": "light reaction Calvin cycle chloroplast overview"
+      },
+      "actual": {
+        "output": "Certainly! Here\u2019s an overview of educational source material and some key concepts associated with it:\n\n### Overview of Educational Source Material\n\nEducational source material refers to a variety of resources used to support teaching and learning. These materials can be primary or secondary sources and can include textbooks, articles, videos, websites, and more. They are designed to provide information, context, and examples that facilitate understanding of a subject.\n\n### Types of Educational Source Material\n\n1. **Textbooks**: Comprehensive books that cover specific subjects in detail, often used in formal education settings.\n\n2. **Academic Journals**: Peer-reviewed articles that present original research, reviews, and theoretical discussions in various fields.\n\n3. **Online Resources**: Websites, e-books, and online courses that provide accessible information and learning opportunities.\n\n4. **Multimedia**: Videos, podcasts, and interactive simulations that engage different learning styles and enhance understanding.\n\n5. **Primary Sources**: Original documents or artifacts, such as historical texts, interviews, and research data, that provide firsthand evidence.\n\n6. **Secondary Sources**: Analyses, interpretations, or summaries of primary sources, such as biographies, reviews, and critiques.\n\n7. **Open Educational Resources (OER)**: Freely accessible, openly licensed materials that can be used for teaching, learning, and research.\n\n### Key Concepts\n\n1. **Curriculum Development**: The process of designing and organizing educational content and learning experiences.\n\n2. **Learning Objectives**: Specific goals that outline what students should know or be able to do by the end of a lesson or course.\n\n3. **Pedagogy**: The art and science of teaching, including methods and strategies used to facilitate learning.\n\n4. **Assessment and Evaluation**: Techniques used to measure student learning, understanding, and performance, including formative and summative assessments.\n\n5. **Differentiated Instruction**: Tailoring teaching methods and resources to accommodate diverse learners' needs, interests, and abilities.\n\n6. **Constructivism**: A learning theory that emphasizes the learner's active role in constructing knowledge through experiences and reflection.\n\n7. **Collaborative Learning**: An educational approach that involves students working together to solve problems, complete tasks, or create projects.\n\n8. **Critical Thinking**: The ability to analyze, evaluate, and synthesize information to make informed decisions and solve problems.\n\n9. **Digital Literacy**: The skills required to effectively find, evaluate, and use information from digital sources.\n\n10. **Lifelong Learning**: The ongoing, voluntary, and self-motivated pursuit of knowledge for personal or professional development.\n\n### Conclusion\n\nEducational source material plays a crucial role in the learning process by providing the necessary information and context for students and educators. Understanding the types of materials available and the key concepts associated with them can enhance teaching effectiveness and improve student outcomes."
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "slide_deck",
+        "source_title": "Magnetic Effects of Current",
+        "topic": "Magnetic Effects of Current"
+      },
+      "expected": {
+        "embedding_query": "Fleming rules force on conductor magnetic field"
+      },
+      "actual": {
+        "output": "Certainly! Here\u2019s an overview of educational source material and some key concepts associated with it:\n\n### Overview of Educational Source Material\n\nEducational source material refers to a variety of resources used to support teaching and learning. These materials can be primary or secondary sources and can include textbooks, articles, videos, websites, and more. They are designed to provide information, context, and examples that facilitate understanding of a subject.\n\n### Types of Educational Source Material\n\n1. **Textbooks**: Comprehensive resources that cover specific subjects in detail, often used in formal education settings.\n\n2. **Academic Journals**: Peer-reviewed articles that present original research, reviews, and theoretical discussions in various fields.\n\n3. **Online Courses and MOOCs**: Digital platforms offering structured learning experiences, often including video lectures, readings, and assessments.\n\n4. **Documentaries and Educational Videos**: Visual materials that present information in an engaging format, often used to illustrate complex concepts.\n\n5. **Websites and Blogs**: Online resources that provide information, tutorials, and discussions on a wide range of topics.\n\n6. **Primary Sources**: Original documents or artifacts, such as historical documents, interviews, or original research data.\n\n7. **Secondary Sources**: Analyses or interpretations of primary sources, such as textbooks, articles, and reviews.\n\n8. **Interactive Learning Tools**: Software and applications that provide simulations, quizzes, and interactive content to enhance learning.\n\n### Key Concepts\n\n1. **Curriculum Development**: The process of designing and organizing educational content and learning experiences.\n\n2. **Learning Objectives**: Specific goals that outline what learners should know or be able to do by the end of a lesson or course.\n\n3. **Pedagogy**: The art and science of teaching, including methods and strategies used to facilitate learning.\n\n4. **Assessment and Evaluation**: Techniques used to measure student learning and the effectiveness of educational materials.\n\n5. **Differentiated Instruction**: Tailoring teaching methods and resources to accommodate different learning styles and abilities.\n\n6. **Constructivism**: A learning theory that emphasizes the learner's active role in constructing knowledge through experiences and interactions.\n\n7. **Blended Learning**: An educational approach that combines traditional face-to-face instruction with online learning activities.\n\n8. **Open Educational Resources (OER)**: Freely accessible, openly licensed materials that can be used for teaching, learning, and research.\n\n9. **Digital Literacy**: The ability to effectively find, evaluate, and use information from digital sources.\n\n10. **Collaborative Learning**: An educational approach that involves students working together to solve problems or complete tasks.\n\n### Conclusion\n\nEducational source materials are essential for effective teaching and learning. They provide the necessary information and context for students to engage with content, develop critical thinking skills, and achieve learning objectives. Understanding the types of materials available and the key concepts associated with them can enhance both teaching practices and student learning experiences."
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "flashcards",
+        "source_title": "Electrostatics",
+        "topic": "Electrostatics"
+      },
+      "expected": {
+        "embedding_query": "Coulomb law electric field lines potential"
+      },
+      "actual": {
+        "output": "Certainly! Here\u2019s an overview of educational source material and some key concepts associated with it:\n\n### Overview of Educational Source Material\n\nEducational source material refers to a variety of resources used to support teaching and learning. These materials can be primary or secondary sources and can include textbooks, articles, videos, websites, and more. They are designed to provide information, context, and examples that facilitate understanding of a subject.\n\n### Types of Educational Source Material\n\n1. **Textbooks**: Comprehensive books that cover specific subjects in detail, often used in formal education settings.\n\n2. **Academic Journals**: Peer-reviewed articles that present original research, reviews, and theoretical discussions in various fields.\n\n3. **Online Resources**: Websites, e-books, and online courses that provide accessible information and learning opportunities.\n\n4. **Multimedia**: Videos, podcasts, and interactive simulations that engage different learning styles and enhance understanding.\n\n5. **Primary Sources**: Original documents or artifacts, such as historical documents, interviews, and original research data.\n\n6. **Secondary Sources**: Analyses, interpretations, or summaries of primary sources, such as textbooks, articles, and reviews.\n\n7. **Open Educational Resources (OER)**: Freely accessible, openly licensed materials that can be used for teaching, learning, and research.\n\n### Key Concepts\n\n1. **Curriculum Development**: The process of designing and organizing educational content and learning experiences.\n\n2. **Learning Objectives**: Specific goals that outline what students should know or be able to do after a learning experience.\n\n3. **Pedagogy**: The art and science of teaching, including methods and strategies used to facilitate learning.\n\n4. **Assessment and Evaluation**: Techniques used to measure student learning and the effectiveness of educational materials.\n\n5. **Differentiated Instruction**: Tailoring teaching methods and resources to accommodate diverse learning styles and abilities.\n\n6. **Constructivism**: A learning theory that emphasizes the learner's active role in constructing knowledge through experiences and reflection.\n\n7. **Bloom's Taxonomy**: A framework for categorizing educational goals and objectives, often used to design assessments and learning activities.\n\n8. **Collaborative Learning**: An educational approach that involves students working together to solve problems or complete tasks, fostering teamwork and communication skills.\n\n9. **Critical Thinking**: The ability to analyze, evaluate, and synthesize information to make informed decisions and solve problems.\n\n10. **Digital Literacy**: The skills required to effectively find, evaluate, and use information from digital sources.\n\n### Conclusion\n\nEducational source material plays a crucial role in the learning process, providing the necessary information and context for students to engage with and understand various subjects. By utilizing a diverse range of materials and understanding key educational concepts, educators can create effective learning environments that cater to the needs of all students."
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "flashcards",
+        "source_title": "Human Digestion",
+        "topic": "Human Digestion"
+      },
+      "expected": {
+        "embedding_query": "digestive enzymes absorption villi NCERT overview"
+      },
+      "actual": {
+        "overview": "The NCERT/CBSE syllabus provides a structured framework for education in India, focusing on holistic development through various subjects including Mathematics, Science, Social Science, and Languages. It emphasizes critical thinking, problem-solving, and application of knowledge.",
+        "key_concepts": [
+          "Holistic Development",
+          "Critical Thinking",
+          "Problem-Solving",
+          "Interdisciplinary Learning",
+          "Application of Knowledge",
+          "Skill Development",
+          "Value Education",
+          "Inclusivity in Education",
+          "Continuous Assessment",
+          "Student-Centric Learning"
+        ]
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "quiz",
+        "source_title": "Chemical Bonding",
+        "topic": "Chemical Bonding"
+      },
+      "expected": {
+        "embedding_query": "ionic covalent bonds electronegativity key concepts"
+      },
+      "actual": {
+        "overview": "The NCERT/CBSE syllabus provides a structured framework for education in India, focusing on holistic development through various subjects including Mathematics, Science, Social Science, and Languages.",
+        "key_concepts": {
+          "Mathematics": [
+            "Number System",
+            "Algebra",
+            "Geometry",
+            "Statistics"
+          ],
+          "Science": [
+            "Physics",
+            "Chemistry",
+            "Biology",
+            "Environmental Science"
+          ],
+          "Social Science": [
+            "History",
+            "Geography",
+            "Political Science",
+            "Economics"
+          ],
+          "Languages": [
+            "Grammar",
+            "Literature",
+            "Comprehension",
+            "Writing Skills"
+          ]
+        },
+        "reasoning": "The key concepts align with the educational goals of fostering critical thinking, problem-solving, and effective communication skills."
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "mind_map",
+        "source_title": "Photosynthesis",
+        "topic": "Photosynthesis"
+      },
+      "expected": {
+        "embedding_query": "light reaction Calvin cycle chloroplast overview"
+      },
+      "actual": {
+        "overview": "The NCERT/CBSE syllabus provides a structured framework for education in India, focusing on holistic development through various subjects. It emphasizes critical thinking, problem-solving, and application of knowledge in real-life situations.",
+        "key_concepts": [
+          "Holistic Development",
+          "Critical Thinking",
+          "Problem-Solving",
+          "Application of Knowledge",
+          "Interdisciplinary Learning",
+          "Skill Development",
+          "Value Education",
+          "Continuous Assessment"
+        ]
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "slide_deck",
+        "source_title": "Magnetic Effects of Current",
+        "topic": "Magnetic Effects of Current"
+      },
+      "expected": {
+        "embedding_query": "Fleming rules force on conductor magnetic field"
+      },
+      "actual": {
+        "overview": "The NCERT/CBSE syllabus provides a structured framework for education in India, focusing on key subjects like Mathematics, Science, Social Science, and Languages. It emphasizes conceptual understanding, critical thinking, and application of knowledge.",
+        "key_concepts": {
+          "Mathematics": "Number systems, algebra, geometry, statistics, and probability.",
+          "Science": "Fundamental concepts in physics, chemistry, and biology, emphasizing scientific inquiry and experimentation.",
+          "Social Science": "History, geography, political science, and economics, focusing on societal structures and functions.",
+          "Languages": "Development of reading, writing, and communication skills in Hindi and English."
+        }
+      }
+    },
+    {
+      "example_id": "studio_context_embedding_query-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "studio_task": "flashcards",
+        "source_title": "Electrostatics",
+        "topic": "Electrostatics"
+      },
+      "expected": {
+        "embedding_query": "Coulomb law electric field lines potential"
+      },
+      "actual": {
+        "overview": "The NCERT/CBSE syllabus provides a structured framework for education in India, focusing on key subjects like Mathematics, Science, Social Science, and Languages. It emphasizes conceptual understanding, critical thinking, and application of knowledge.",
+        "key_concepts": {
+          "Mathematics": "Number systems, algebra, geometry, statistics, and probability.",
+          "Science": "Fundamental concepts in physics, chemistry, and biology, emphasizing scientific inquiry and experimentation.",
+          "Social Science": "History, geography, political science, and economics, focusing on societal structures and functions.",
+          "Languages": "Development of reading, writing, and communication skills in Hindi and English."
+        }
+      }
+    }
+  ]
+}

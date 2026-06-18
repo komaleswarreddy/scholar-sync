@@ -1,0 +1,58 @@
+---
+description: Mandatory clarification questions before planning or large ambiguous work
+alwaysApply: true
+---
+
+# Plan Mode & Clarification Gate
+
+Before proposing a plan, architecture, or multi-step implementation, gather requirements through structured questions. Do not skip this gate because the user did not repeat "ask questions."
+
+## When this applies
+
+- User asks to plan, design, architect, or scope work
+- Task touches multiple files, systems, or layers
+- Requirements are partial, implicit, or could be interpreted multiple ways
+- User switches to Plan mode or asks "how should we…"
+
+## Question count (mandatory)
+
+| Task size | Minimum questions | Target range |
+|-----------|-------------------|--------------|
+| Small / focused | 5 | 5 |
+| Medium | 5 | 6–8 |
+| Large / ambiguous | 5 | 8–10 |
+
+Never proceed with fewer than **5** clarification questions unless the user explicitly says "skip questions" or "just do it."
+
+## Question quality
+
+Each question must:
+
+1. Target one decision (scope, constraint, priority, edge case, or acceptance criteria)
+2. Include **2–4 recommended answers** when choices exist (mark the default recommendation)
+3. Explain briefly **why** the answer matters to the plan
+
+Use the AskQuestion tool when available. Otherwise format as numbered questions with labeled options.
+
+Cover end-to-end dimensions where relevant:
+
+- Goal and success criteria
+- Scope in / scope out
+- Constraints (time, stack, compatibility, performance, accessibility)
+- Data, auth, and error-handling behavior
+- UI/UX expectations when frontend is involved
+- Testing and verification approach
+- Risks, unknowns, and dependencies
+
+## Workflow
+
+1. Read existing code, terminals, and context first
+2. Ask the required questions — wait for answers when the user is present
+3. Summarize understood requirements in 3–5 bullets
+4. Only then produce the plan or start implementation
+
+## Hard stops
+
+- If a critical detail is missing after questions, ask a follow-up — do not guess
+- If two valid approaches exist with different trade-offs, present both and ask which to use
+- If the user attached screenshots or mockups, also follow the screenshot UI fidelity rule

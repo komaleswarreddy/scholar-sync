@@ -1,0 +1,15 @@
+{
+  "passed": 15,
+  "total": 23,
+  "pass_bar": 18,
+  "failed": [
+    "ING-11_concurrent_uploads_succeed.py",
+    "RET-05_multi_document_citations.py",
+    "RET-06_out_of_corpus_refusal.py",
+    "RET-07_cross_user_source_isolation_403.py",
+    "RET-08_paraphrase_robustness.py",
+    "RET-09_formula_retrieval.py",
+    "RET-10_question_type_variants.py",
+    "RET-11_long_question_retrieval.py"
+  ]
+}

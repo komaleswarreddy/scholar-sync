@@ -4,11 +4,44 @@ Authentication Middleware
 Handles JWT token extraction and verification for Clerk authentication.
 """
 
+from datetime import datetime, timedelta, timezone
+
 from jose import jwt, JWTError
 from fastapi import HTTPException
 import traceback
 from config.settings import settings
 from typing import Optional
+
+
+def create_admin_portal_token() -> tuple[str, int]:
+    """Issue HS256 JWT for standalone admin portal login."""
+    ttl_hours = max(1, int(settings.ADMIN_PORTAL_TOKEN_TTL_HOURS))
+    expires_in = ttl_hours * 3600
+    exp = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+    payload = {
+        "sub": settings.ADMIN_PORTAL_USER_ID,
+        "admin_portal": True,
+        "exp": exp,
+    }
+    token = jwt.encode(payload, settings.ADMIN_PORTAL_JWT_SECRET, algorithm="HS256")
+    return token, expires_in
+
+
+def extract_admin_portal_user_id(token: str) -> Optional[str]:
+    """Return admin portal user id when token is a valid admin portal JWT."""
+    if not token or not settings.ADMIN_PORTAL_JWT_SECRET:
+        return None
+    try:
+        payload = jwt.decode(
+            token,
+            settings.ADMIN_PORTAL_JWT_SECRET,
+            algorithms=["HS256"],
+        )
+        if payload.get("admin_portal") and payload.get("sub"):
+            return str(payload["sub"])
+    except JWTError:
+        return None
+    return None
 
 
 def extract_user_id_from_token(token: str, require_verification: bool = True) -> str:

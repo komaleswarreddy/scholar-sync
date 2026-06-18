@@ -1,0 +1,720 @@
+{
+  "agent_name": "query_rewriter",
+  "generated_at": "2026-06-18T03:04:24.316436+00:00",
+  "dataset_id": "query_rewriter",
+  "dataset_hash": "1086eeb5fcb65eec",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 30.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.00081,
+      "input_cost_usd": 0.000591,
+      "output_cost_usd": 0.000219,
+      "prompt_tokens": 3940,
+      "completion_tokens": 365,
+      "latency_ms": 9207.62,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 1.0,
+        "searchability": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 30.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.000919,
+      "input_cost_usd": 0.0007,
+      "output_cost_usd": 0.000219,
+      "prompt_tokens": 4670,
+      "completion_tokens": 365,
+      "latency_ms": 8784.52,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 1.0,
+        "searchability": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 30.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.01388,
+      "input_cost_usd": 0.00985,
+      "output_cost_usd": 0.00403,
+      "prompt_tokens": 3940,
+      "completion_tokens": 403,
+      "latency_ms": 9549.49,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 1.0,
+        "searchability": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 30.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.014815,
+      "input_cost_usd": 0.011675,
+      "output_cost_usd": 0.00314,
+      "prompt_tokens": 4670,
+      "completion_tokens": 314,
+      "latency_ms": 9153.69,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 1.0,
+        "searchability": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": false,
+    "reason": "no_config_above_threshold",
+    "best_effort": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 30.000000000000007,
+      "cost_usd": 0.00081,
+      "input_cost_usd": 0.000591,
+      "output_cost_usd": 0.000219
+    }
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "query_rewriter",
+  "example_results": [
+    {
+      "example_id": "query_rewriter-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "why current inc when resistance dec?",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "Ohm's law current inversely proportional resistance",
+          "relation between current and resistance metallic conductor",
+          "V=IR current decreases resistance increases"
+        ],
+        "confidence": 0.82,
+        "reasoning": "Typo physics query expanded."
+      },
+      "actual": {
+        "queries": [
+          "why does current increase when resistance decreases?",
+          "current increase with decreasing resistance explanation",
+          "relationship between current and resistance changes"
+        ],
+        "confidence": 0.8,
+        "reasoning": "The queries maintain the original question's intent about the relationship between current and resistance, using varied phrasing for improved recall."
+      }
+    },
+    {
+      "example_id": "query_rewriter-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "neet digestion enzymes table",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "NCERT Biology digestive enzymes functions table",
+          "pepsin trypsin lipase site of action",
+          "enzymes in human alimentary canal NEET"
+        ],
+        "confidence": 0.83,
+        "reasoning": "NEET biology table retrieval."
+      },
+      "actual": {
+        "queries": [
+          "NEET digestion enzymes table",
+          "table of digestive enzymes for NEET",
+          "digestive enzymes chart for NEET preparation"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries maintain the focus on a table of digestion enzymes relevant to NEET, ensuring clarity and intent preservation."
+      }
+    },
+    {
+      "example_id": "query_rewriter-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "who wrote dis book",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "author name copyright uploaded document",
+          "writer title page NCERT textbook",
+          "publication details book metadata"
+        ],
+        "confidence": 0.84,
+        "reasoning": "Metadata with typo."
+      },
+      "actual": {
+        "queries": [
+          "who is the author of this book",
+          "written by whom is this book",
+          "who is the writer of this book"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries maintain the user's intent to identify the author of a specific book while using varied phrasing for improved recall."
+      }
+    },
+    {
+      "example_id": "query_rewriter-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "lens formula derivation",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "derivation lens formula refraction spherical surfaces",
+          "thin lens equation proof ray optics",
+          "1/f = 1/v - 1/u derivation steps"
+        ],
+        "confidence": 0.85,
+        "reasoning": "JEE optics derivation."
+      },
+      "actual": {
+        "queries": [
+          "derivation of the lens formula",
+          "lens formula derivation explanation",
+          "how to derive the lens formula"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries maintain the focus on deriving the lens formula while using varied phrasing to enhance recall."
+      }
+    },
+    {
+      "example_id": "query_rewriter-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "it",
+        "transcript_section": "## Transcript\nStudent: Explain photosynthesis.\nAssistant: Light reaction produces ATP...\n",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "photosynthesis light reaction Calvin cycle",
+          "chloroplast thylakoid stroma ATP NADPH"
+        ],
+        "confidence": 0.86,
+        "reasoning": "Coreference from transcript."
+      },
+      "actual": {
+        "queries": [
+          "Explain photosynthesis",
+          "What is photosynthesis?",
+          "Describe the process of photosynthesis"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries focus on explaining photosynthesis, directly addressing the user's request for clarification on the topic discussed in the transcript."
+      }
+    },
+    {
+      "example_id": "query_rewriter-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "typo",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "why current inc when resistance dec?",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "Ohm's law current inversely proportional resistance",
+          "relation between current and resistance metallic conductor",
+          "V=IR current decreases resistance increases"
+        ],
+        "confidence": 0.82,
+        "reasoning": "Typo physics query expanded."
+      },
+      "actual": {
+        "queries": [
+          "why does current increase when resistance decreases",
+          "relationship between current and resistance in circuits",
+          "Ohm's Law explanation for current and resistance changes"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The primary query directly addresses the user's question about the inverse relationship between current and resistance, likely explained by Ohm's Law, ensuring intent preservation."
+      }
+    },
+    {
+      "example_id": "query_rewriter-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "conversational",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "neet digestion enzymes table",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "NCERT Biology digestive enzymes functions table",
+          "pepsin trypsin lipase site of action",
+          "enzymes in human alimentary canal NEET"
+        ],
+        "confidence": 0.83,
+        "reasoning": "NEET biology table retrieval."
+      },
+      "actual": {
+        "queries": [
+          "NEET digestion enzymes table",
+          "digestive enzymes chart for NEET exam",
+          "list of enzymes involved in digestion for NEET preparation"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The primary query directly targets a table of digestion enzymes relevant to NEET, with synonyms and context for exam preparation enhancing recall."
+      }
+    },
+    {
+      "example_id": "query_rewriter-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "who wrote dis book",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "author name copyright uploaded document",
+          "writer title page NCERT textbook",
+          "publication details book metadata"
+        ],
+        "confidence": 0.84,
+        "reasoning": "Metadata with typo."
+      },
+      "actual": {
+        "queries": [
+          "author of this book",
+          "who is the writer of this book",
+          "book written by whom"
+        ],
+        "confidence": 0.7,
+        "reasoning": "The user's intent is to find out the author of a specific book, but the book's title is not provided, leading to some ambiguity."
+      }
+    },
+    {
+      "example_id": "query_rewriter-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "lens formula derivation",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "derivation lens formula refraction spherical surfaces",
+          "thin lens equation proof ray optics",
+          "1/f = 1/v - 1/u derivation steps"
+        ],
+        "confidence": 0.85,
+        "reasoning": "JEE optics derivation."
+      },
+      "actual": {
+        "queries": [
+          "derivation of lens formula",
+          "lens equation derivation",
+          "how to derive the lens formula"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The user's intent is to find the derivation process of the lens formula, and the queries reflect this by using synonymous terms like 'equation' and 'derive'."
+      }
+    },
+    {
+      "example_id": "query_rewriter-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "follow_up",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "it",
+        "transcript_section": "## Transcript\nStudent: Explain photosynthesis.\nAssistant: Light reaction produces ATP...\n",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "photosynthesis light reaction Calvin cycle",
+          "chloroplast thylakoid stroma ATP NADPH"
+        ],
+        "confidence": 0.86,
+        "reasoning": "Coreference from transcript."
+      },
+      "actual": {
+        "queries": [
+          "photosynthesis process",
+          "photosynthesis light reaction",
+          "ATP production in photosynthesis"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The user's reference to 'it' likely pertains to photosynthesis, as it was the last topic discussed, so queries focus on the photosynthesis process and its components."
+      }
+    },
+    {
+      "example_id": "query_rewriter-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "why current inc when resistance dec?",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "Ohm's law current inversely proportional resistance",
+          "relation between current and resistance metallic conductor",
+          "V=IR current decreases resistance increases"
+        ],
+        "confidence": 0.82,
+        "reasoning": "Typo physics query expanded."
+      },
+      "actual": {
+        "queries": [
+          "why does current increase when resistance decreases?",
+          "relationship between current and resistance in circuits",
+          "Ohm's law: current increase with decreasing resistance"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries maintain the user's intent about the relationship between current and resistance, using relevant terminology from electrical concepts."
+      }
+    },
+    {
+      "example_id": "query_rewriter-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "neet digestion enzymes table",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "NCERT Biology digestive enzymes functions table",
+          "pepsin trypsin lipase site of action",
+          "enzymes in human alimentary canal NEET"
+        ],
+        "confidence": 0.83,
+        "reasoning": "NEET biology table retrieval."
+      },
+      "actual": {
+        "queries": [
+          "table of digestion enzymes for NEET",
+          "digestive enzymes chart for NEET preparation",
+          "list of enzymes involved in digestion for NEET"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries maintain the focus on NEET and digestion enzymes, ensuring relevant educational content is retrieved."
+      }
+    },
+    {
+      "example_id": "query_rewriter-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "who wrote dis book",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "author name copyright uploaded document",
+          "writer title page NCERT textbook",
+          "publication details book metadata"
+        ],
+        "confidence": 0.84,
+        "reasoning": "Metadata with typo."
+      },
+      "actual": {
+        "queries": [
+          "who is the author of this book",
+          "written by whom this book",
+          "who wrote this book"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries maintain the user's intent to identify the author of a specific book, using varied phrasing for effective retrieval."
+      }
+    },
+    {
+      "example_id": "query_rewriter-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "lens formula derivation",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "derivation lens formula refraction spherical surfaces",
+          "thin lens equation proof ray optics",
+          "1/f = 1/v - 1/u derivation steps"
+        ],
+        "confidence": 0.85,
+        "reasoning": "JEE optics derivation."
+      },
+      "actual": {
+        "queries": [
+          "derivation of lens formula",
+          "lens formula and its derivation",
+          "how to derive the lens formula"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries maintain the focus on deriving the lens formula, ensuring clarity and relevance to the user's request."
+      }
+    },
+    {
+      "example_id": "query_rewriter-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "it",
+        "transcript_section": "## Transcript\nStudent: Explain photosynthesis.\nAssistant: Light reaction produces ATP...\n",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "photosynthesis light reaction Calvin cycle",
+          "chloroplast thylakoid stroma ATP NADPH"
+        ],
+        "confidence": 0.86,
+        "reasoning": "Coreference from transcript."
+      },
+      "actual": {
+        "queries": [
+          "Explain photosynthesis",
+          "What is photosynthesis?",
+          "Describe the process of photosynthesis"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries focus on explaining photosynthesis, directly addressing the user's request while maintaining clarity and relevance to the topic discussed."
+      }
+    },
+    {
+      "example_id": "query_rewriter-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "typo",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "why current inc when resistance dec?",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "Ohm's law current inversely proportional resistance",
+          "relation between current and resistance metallic conductor",
+          "V=IR current decreases resistance increases"
+        ],
+        "confidence": 0.82,
+        "reasoning": "Typo physics query expanded."
+      },
+      "actual": {
+        "queries": [
+          "why does current increase when resistance decreases",
+          "relationship between current and resistance in Ohm's Law",
+          "effect of decreasing resistance on electric current"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries focus on the inverse relationship between current and resistance, aligning with Ohm's Law, which is likely covered in educational materials."
+      }
+    },
+    {
+      "example_id": "query_rewriter-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "conversational",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "neet digestion enzymes table",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "NCERT Biology digestive enzymes functions table",
+          "pepsin trypsin lipase site of action",
+          "enzymes in human alimentary canal NEET"
+        ],
+        "confidence": 0.83,
+        "reasoning": "NEET biology table retrieval."
+      },
+      "actual": {
+        "queries": [
+          "NEET digestion enzymes table",
+          "digestive enzymes chart for NEET exam",
+          "NEET biology digestive system enzymes list"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries focus on a table of digestive enzymes relevant to NEET, using synonyms and educational context to ensure comprehensive retrieval."
+      }
+    },
+    {
+      "example_id": "query_rewriter-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "who wrote dis book",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "author name copyright uploaded document",
+          "writer title page NCERT textbook",
+          "publication details book metadata"
+        ],
+        "confidence": 0.84,
+        "reasoning": "Metadata with typo."
+      },
+      "actual": {
+        "queries": [
+          "author of this book",
+          "who is the writer of this book",
+          "book written by"
+        ],
+        "confidence": 0.6,
+        "reasoning": "The user's question is ambiguous without context, so queries focus on identifying the author of an unspecified book."
+      }
+    },
+    {
+      "example_id": "query_rewriter-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "lens formula derivation",
+        "transcript_section": "",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "derivation lens formula refraction spherical surfaces",
+          "thin lens equation proof ray optics",
+          "1/f = 1/v - 1/u derivation steps"
+        ],
+        "confidence": 0.85,
+        "reasoning": "JEE optics derivation."
+      },
+      "actual": {
+        "queries": [
+          "derivation of lens formula",
+          "lens formula proof",
+          "lens equation derivation"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The queries focus on deriving the lens formula, aligning with educational materials and NCERT/CBSE syllabus vocabulary."
+      }
+    },
+    {
+      "example_id": "query_rewriter-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "follow_up",
+      "score": 30.0,
+      "passed": false,
+      "inputs": {
+        "query": "it",
+        "transcript_section": "## Transcript\nStudent: Explain photosynthesis.\nAssistant: Light reaction produces ATP...\n",
+        "max_rewrites": 3
+      },
+      "expected": {
+        "queries": [
+          "photosynthesis light reaction Calvin cycle",
+          "chloroplast thylakoid stroma ATP NADPH"
+        ],
+        "confidence": 0.86,
+        "reasoning": "Coreference from transcript."
+      },
+      "actual": {
+        "queries": [
+          "photosynthesis process",
+          "photosynthesis light reaction ATP production",
+          "photosynthesis stages"
+        ],
+        "confidence": 0.9,
+        "reasoning": "The user's 'it' refers to photosynthesis, as inferred from the transcript. Queries focus on the photosynthesis process, specifically the light reaction, aligning with educational context."
+      }
+    }
+  ]
+}

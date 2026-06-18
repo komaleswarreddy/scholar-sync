@@ -6,20 +6,23 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MessageCircle, User, Copy, Check, Bookmark, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { RichMarkdown } from '@/components/common/RichMarkdown';
+import { NotebookDislikeReasonModal } from './NotebookDislikeReasonModal';
 
-/** Remove citation UI noise from model text (inline [1] and trailing [n] Source: blocks). */
+/** Remove citation UI noise and trailing suggested-question sections from model text. */
 export function displayAssistantText(raw: string): string {
   let t = (raw || '').replace(/\[\d+(?:\s*,\s*\d+)*\]/g, '');
   const cut = t.search(/\[\d+\]\s*Source:/i);
   if (cut !== -1) {
     t = t.slice(0, cut);
   }
+  t = t.replace(/\n---?\n+\s*##\s*Suggested questions\b.*/is, '');
+  t = t.replace(/\n+\s*##\s*Suggested questions\b.*/is, '');
+  t = t.replace(/\n+\s*Suggested follow-up questions\b.*/is, '');
   return t.replace(/\n{3,}/g, '\n\n').trim();
 }
 
@@ -41,10 +44,18 @@ interface ChatMessageProps {
   timestamp?: string;
   messageId?: string;
   feedback?: 'thumbs_up' | 'thumbs_down' | null;
-  onFeedbackUpdate?: (messageId: string, feedback: 'thumbs_up' | 'thumbs_down' | null) => void;
+  onFeedbackUpdate?: (
+    messageId: string,
+    feedback: 'thumbs_up' | 'thumbs_down' | null,
+    feedbackReason?: string | null
+  ) => void;
   question?: string;
   followUps?: string[];
+  followUpsLoading?: boolean;
   onFollowUpClick?: (question: string) => void;
+  appearance?: 'dashboard' | 'notebook';
+  /** Hide notebook footer actions while the assistant message is still streaming */
+  showActions?: boolean;
 }
 
 export function ChatMessage({ 
@@ -57,12 +68,21 @@ export function ChatMessage({
   onFeedbackUpdate,
   question: _question,
   followUps = [],
+  followUpsLoading = false,
   onFollowUpClick,
+  appearance = 'dashboard',
+  showActions = true,
 }: ChatMessageProps) {
+  const isNotebook = appearance === 'notebook';
   const [copySuccess, setCopySuccess] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [feedback, setFeedback] = useState<'thumbs_up' | 'thumbs_down' | null>(initialFeedback || null);
+  const [dislikeModalOpen, setDislikeModalOpen] = useState(false);
+
+  useEffect(() => {
+    setFeedback(initialFeedback || null);
+  }, [initialFeedback, messageId]);
 
   const textForUser = role === 'assistant' ? displayAssistantText(content) : content;
 
@@ -122,7 +142,7 @@ export function ChatMessage({
       
       // Notify parent component if callback provided
       if (onFeedbackUpdate) {
-        onFeedbackUpdate(messageId, updatedFeedback);
+        onFeedbackUpdate(messageId, updatedFeedback, null);
       }
     } catch (error: any) {
       console.error('Failed to update feedback:', error);
@@ -136,36 +156,63 @@ export function ChatMessage({
     }
   };
 
+  const handleNotebookThumbsUp = async () => {
+    if (!messageId) return;
+    const updatedFeedback = feedback === 'thumbs_up' ? null : 'thumbs_up';
+    const previous = feedback;
+    try {
+      setFeedback(updatedFeedback);
+      await apiClient.updateMessageFeedback(messageId, updatedFeedback);
+      onFeedbackUpdate?.(messageId, updatedFeedback, null);
+    } catch (error: unknown) {
+      setFeedback(previous);
+      const apiError = (error as { apiError?: ReturnType<typeof handleApiError> }).apiError || handleApiError(error);
+      alert(getUserFriendlyMessage(apiError));
+    }
+  };
+
+  const handleNotebookThumbsDownClick = () => {
+    if (!messageId) return;
+    if (feedback === 'thumbs_down') {
+      void handleNotebookDislikeSubmit(null);
+      return;
+    }
+    setDislikeModalOpen(true);
+  };
+
+  const handleNotebookDislikeSubmit = async (reason: string | null) => {
+    if (!messageId) return;
+    const updatedFeedback = reason ? 'thumbs_down' : null;
+    const previous = feedback;
+    try {
+      setFeedback(updatedFeedback);
+      await apiClient.updateMessageFeedback(messageId, updatedFeedback, reason ?? undefined);
+      onFeedbackUpdate?.(messageId, updatedFeedback, reason);
+    } catch (error: unknown) {
+      setFeedback(previous);
+      const apiError = (error as { apiError?: ReturnType<typeof handleApiError> }).apiError || handleApiError(error);
+      throw new Error(getUserFriendlyMessage(apiError));
+    }
+  };
+
   const renderAssistantMarkdown = () => (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        h1: ({ children, ...props }) => <h1 className="text-2xl font-bold text-text-primary mt-6 mb-3 first:mt-0" {...props}>{children}</h1>,
-        h2: ({ children, ...props }) => <h2 className="text-xl font-semibold text-text-primary mt-6 mb-2 first:mt-0" {...props}>{children}</h2>,
-        h3: ({ children, ...props }) => <h3 className="text-lg font-semibold text-text-primary mt-5 mb-2 first:mt-0" {...props}>{children}</h3>,
-        ul: ({ children, ...props }) => <ul className="list-disc list-outside space-y-2 my-4 ml-5 pl-1" {...props}>{children}</ul>,
-        ol: ({ children, ...props }) => <ol className="list-decimal list-outside space-y-2 my-4 ml-5 pl-1" {...props}>{children}</ol>,
-        li: ({ children, ...props }) => <li className="text-text-primary" {...props}>{children}</li>,
-        code: ({ children, className, ...props }: any) => {
-          const isInline = !className;
-          return isInline ? (
-            <code className="bg-surface-subtle px-1.5 py-0.5 rounded text-sm font-mono text-text-primary" {...props}>{children}</code>
-          ) : (
-            <code className="block bg-surface-subtle p-3 rounded-lg text-sm font-mono text-text-primary overflow-x-auto my-3" {...props}>{children}</code>
-          );
-        },
-        p: ({ children, ...props }) => <p className="mb-3 last:mb-0 leading-relaxed" {...props}>{children}</p>,
-        br: () => <br />,
-        hr: () => <hr className="my-5 border-0 border-t border-border-default" />,
-        strong: ({ children, ...props }) => <strong className="font-semibold text-text-primary" {...props}>{children}</strong>,
-        em: ({ children, ...props }) => <em className="italic" {...props}>{children}</em>,
-      }}
-    >
-      {textForUser}
-    </ReactMarkdown>
+    <RichMarkdown content={textForUser} variant="chat" />
   );
 
   if (role === 'user') {
+    if (isNotebook) {
+      return (
+        <div className="flex justify-end">
+          <div className="notebook-user-bubble">
+            <p className="text-[14px] leading-relaxed">{content}</p>
+            {timestamp && (
+              <p className="text-[10px] opacity-80 mt-1.5 text-right">{timestamp}</p>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex items-start gap-3 p-4">
         <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center flex-shrink-0">
@@ -220,6 +267,101 @@ export function ChatMessage({
     );
   }
 
+  if (isNotebook) {
+    return (
+      <>
+        <div className="flex items-start gap-2.5">
+          <div className="notebook-ai-avatar" aria-hidden>
+            AI
+          </div>
+          <div className="flex-1 min-w-0 pt-0.5">
+            <div
+              className="text-[14px] text-[var(--color-home-text)] leading-relaxed prose prose-sm max-w-none"
+              data-assistant-content="true"
+            >
+              {renderAssistantMarkdown()}
+            </div>
+            {showActions && (
+              <div className="notebook-message-actions">
+                <button
+                  type="button"
+                  onClick={() => void handleCopy()}
+                  className="notebook-message-action-btn"
+                  title="Copy response"
+                  aria-label="Copy response"
+                >
+                  {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleNotebookThumbsUp()}
+                  disabled={!messageId}
+                  className={`notebook-message-action-btn ${
+                    feedback === 'thumbs_up' ? 'notebook-message-action-btn--active' : ''
+                  }`}
+                  title={feedback === 'thumbs_up' ? 'Remove like' : 'Like'}
+                  aria-label={feedback === 'thumbs_up' ? 'Remove like' : 'Like response'}
+                  aria-pressed={feedback === 'thumbs_up'}
+                >
+                  <ThumbsUp
+                    className="w-4 h-4 notebook-feedback-icon"
+                    fill={feedback === 'thumbs_up' ? 'currentColor' : 'none'}
+                    strokeWidth={feedback === 'thumbs_up' ? 0 : 2}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNotebookThumbsDownClick}
+                  disabled={!messageId}
+                  className={`notebook-message-action-btn ${
+                    feedback === 'thumbs_down' ? 'notebook-message-action-btn--active' : ''
+                  }`}
+                  title={feedback === 'thumbs_down' ? 'Remove dislike' : 'Dislike'}
+                  aria-label={feedback === 'thumbs_down' ? 'Remove dislike' : 'Dislike response'}
+                  aria-pressed={feedback === 'thumbs_down'}
+                >
+                  <ThumbsDown
+                    className="w-4 h-4 notebook-feedback-icon"
+                    fill={feedback === 'thumbs_down' ? 'currentColor' : 'none'}
+                    strokeWidth={feedback === 'thumbs_down' ? 0 : 2}
+                  />
+                </button>
+              </div>
+            )}
+            {showActions && followUpsLoading && onFollowUpClick && (
+              <div className="notebook-follow-up-chips" aria-busy="true" aria-label="Loading follow-up suggestions">
+                <span className="notebook-follow-up-chip notebook-follow-up-chip--loading">
+                  Suggesting questions…
+                </span>
+              </div>
+            )}
+            {showActions && !followUpsLoading && followUps.length > 0 && onFollowUpClick && (
+              <div className="notebook-follow-up-chips">
+                {followUps.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className="notebook-follow-up-chip"
+                    onClick={() => onFollowUpClick(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <NotebookDislikeReasonModal
+          open={dislikeModalOpen}
+          onClose={() => setDislikeModalOpen(false)}
+          onSubmit={async (reason) => {
+            await handleNotebookDislikeSubmit(reason);
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="flex items-start gap-3 p-4">
       <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center flex-shrink-0">
@@ -229,27 +371,6 @@ export function ChatMessage({
           <div className="text-base text-text-primary leading-relaxed prose prose-invert max-w-none">
           {renderAssistantMarkdown()}
         </div>
-
-        {followUps.length > 0 && (
-          <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-text-tertiary mb-2">
-              Suggested follow-up questions
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {followUps.map((q, idx) => (
-                <button
-                  key={`${idx}-${q}`}
-                  onClick={() => onFollowUpClick?.(q)}
-                  className="px-3 py-1.5 text-xs bg-surface border border-border-default rounded-full text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors"
-                  title="Ask this follow-up question"
-                  aria-label={`Ask follow-up question: ${q}`}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3 mt-3">

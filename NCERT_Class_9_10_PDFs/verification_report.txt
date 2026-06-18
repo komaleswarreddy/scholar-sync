@@ -1,0 +1,23 @@
+NCERT Class 9 and Class 10 PDF Download Verification
+Folder: C:\Users\KomaleswarReddy\Desktop\NCERT_Class_9_10_PDFs
+Total PDF files in final folder: 93
+Total valid PDFs: 93
+
+Expected vs final folder:
+- Class 10 / Mathematics: expected 14, found valid 14
+- Class 10 / Science: expected 13, found valid 13
+- Class 10 / Social Science / Civics-Polity: expected 5, found valid 5
+- Class 10 / Social Science / Economics: expected 5, found valid 5
+- Class 10 / Social Science / Geography: expected 7, found valid 7
+- Class 10 / Social Science / History: expected 5, found valid 5
+- Class 9 / Mathematics: expected 12, found valid 12
+- Class 9 / Science: expected 12, found valid 12
+- Class 9 / Social Science / Civics-Polity: expected 5, found valid 5
+- Class 9 / Social Science / Economics: expected 4, found valid 4
+- Class 9 / Social Science / Geography: expected 6, found valid 6
+- Class 9 / Social Science / History: expected 5, found valid 5
+
+Invalid PDFs: none
+
+Missing count vs expected: 0
+Extra count vs expected: 0

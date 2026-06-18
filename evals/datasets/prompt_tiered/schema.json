@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScholarSync Tiered Prompt Dataset",
+  "type": "object",
+  "required": ["version", "dataset_id", "agent", "items"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0.0" },
+    "dataset_id": { "type": "string" },
+    "agent": {
+      "type": "object",
+      "required": ["sno", "category", "name", "tier", "target_examples"],
+      "properties": {
+        "sno": { "type": "integer" },
+        "category": { "type": "string" },
+        "name": { "type": "string" },
+        "tier": { "enum": ["tier_1", "tier_2", "tier_3"] },
+        "target_examples": { "type": "integer" },
+        "prompt_template": { "type": "string" }
+      }
+    },
+    "langsmith": {
+      "type": "object",
+      "properties": {
+        "dataset_name_prefix": { "type": "string", "default": "nbm-prompt" },
+        "input_keys": { "type": "array", "items": { "type": "string" } },
+        "output_keys": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "variation", "inputs", "reference_outputs"],
+        "properties": {
+          "id": { "type": "string" },
+          "variation": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "inputs": { "type": "object" },
+          "reference_outputs": { "type": "object" },
+          "evaluators": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  }
+}

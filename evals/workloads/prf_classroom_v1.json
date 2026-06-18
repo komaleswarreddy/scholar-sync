@@ -1,0 +1,22 @@
+{
+  "version": "prf_classroom_v1",
+  "mix": {
+    "chat": 0.70,
+    "studio": 0.20,
+    "ingest": 0.10
+  },
+  "concurrency": {
+    "smoke": 12,
+    "full": 50
+  },
+  "duration": {
+    "smoke": "3m",
+    "full": "15m"
+  },
+  "think_time_s": {
+    "chat": [2, 8],
+    "studio": [5, 12],
+    "ingest": [5, 15]
+  },
+  "studio_task_types": ["quiz", "flashcards", "mind_map", "report", "slide_deck", "infographic"]
+}

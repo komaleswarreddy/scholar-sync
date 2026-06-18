@@ -17,13 +17,28 @@ import uuid
 from packages.core.database.connection import AsyncSessionLocal
 from packages.core.database.models.tenant import Tenant
 from packages.core.database.models.user import User
-from apps.api.middleware.auth import extract_user_id_from_token, extract_email_from_token
+from apps.api.middleware.auth import (
+    extract_user_id_from_token,
+    extract_email_from_token,
+    extract_admin_portal_user_id,
+)
 from apps.api.middleware.common import add_cors_headers
 from config.settings import settings
 
 # Configuration for Development
 DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
-EXCLUDED_PATHS = {"/", "/health", "/openapi.json", "/docs", "/api/docs", "/api/redoc", "/favicon.ico", "/.well-known", "/metrics"}
+EXCLUDED_PATHS = {
+    "/",
+    "/health",
+    "/health/langsmith",
+    "/openapi.json",
+    "/docs",
+    "/api/docs",
+    "/api/redoc",
+    "/favicon.ico",
+    "/.well-known",
+    "/metrics",
+}
 
 # Cache subdomain -> tenant_id to avoid a DB round-trip on every API request (dashboard fires many in parallel)
 _TENANT_CACHE_TTL_SEC = 300.0
@@ -34,6 +49,9 @@ _synced_user_ids: dict[str, float] = {}
 # Paths that require tenant but not user authentication (development only)
 # These paths can work with just tenant_id from subdomain, no JWT required
 TENANT_ONLY_PATHS = {"/api/v1/metrics", "/api/v1/dashboards", "/api/v1/alerts", "/debug"}
+
+# Admin portal login — tenant required, Bearer token not required
+PUBLIC_AUTH_PATHS = {"/api/v1/admin/auth/login"}
 
 
 class TenantMiddleware:
@@ -155,6 +173,11 @@ class TenantMiddleware:
             # Extract origin early for CORS headers
             origin = request.headers.get("Origin", "")
 
+            if current_path in PUBLIC_AUTH_PATHS:
+                request.state.user_id = None
+                await self.app(scope, receive, send)
+                return
+
             # Step 4: Extract user_id from Authorization header
             auth_header = request.headers.get("Authorization", "")
             user_id = None
@@ -173,16 +196,21 @@ class TenantMiddleware:
                 if auth_header and auth_header.startswith("Bearer "):
                     token = auth_header.replace("Bearer ", "").strip()
                     if token:
-                        try:
-                            is_production = settings.ENVIRONMENT == "production"
-                            user_id = extract_user_id_from_token(
-                                token, 
-                                require_verification=is_production
-                            )
-                            print(f"[INFO] [MIDDLEWARE] Extracted user_id for tenant-only path: {user_id}")
-                        except Exception as e:
-                            print(f"[INFO] [MIDDLEWARE] Could not extract user_id from token (non-fatal for tenant-only path): {e}")
-                            user_id = None
+                        admin_user_id = extract_admin_portal_user_id(token)
+                        if admin_user_id:
+                            user_id = admin_user_id
+                            print(f"[INFO] [MIDDLEWARE] Admin portal user for tenant-only path: {user_id}")
+                        else:
+                            try:
+                                is_production = settings.ENVIRONMENT == "production"
+                                user_id = extract_user_id_from_token(
+                                    token,
+                                    require_verification=is_production
+                                )
+                                print(f"[INFO] [MIDDLEWARE] Extracted user_id for tenant-only path: {user_id}")
+                            except Exception as e:
+                                print(f"[INFO] [MIDDLEWARE] Could not extract user_id from token (non-fatal for tenant-only path): {e}")
+                                user_id = None
                 
                 # Set user_id (may be None) and continue
                 request.state.user_id = user_id
@@ -215,12 +243,17 @@ class TenantMiddleware:
                 return
             
             try:
-                is_production = settings.ENVIRONMENT == "production"
-                user_id = extract_user_id_from_token(
-                    token, 
-                    require_verification=is_production
-                )
-                print(f"[SUCCESS] Authenticated user: {user_id}")
+                admin_user_id = extract_admin_portal_user_id(token)
+                if admin_user_id:
+                    user_id = admin_user_id
+                    print(f"[SUCCESS] Authenticated admin portal user: {user_id}")
+                else:
+                    is_production = settings.ENVIRONMENT == "production"
+                    user_id = extract_user_id_from_token(
+                        token,
+                        require_verification=is_production
+                    )
+                    print(f"[SUCCESS] Authenticated user: {user_id}")
             except HTTPException as e:
                 print(f"[WARNING] Token verification failed: {e.detail}")
                 resp = JSONResponse(
@@ -264,6 +297,10 @@ class TenantMiddleware:
 
             # Best-effort user sync: ensure Clerk-authenticated users are present in DB
             # so admin role checks and analytics user tables can work from local data.
+            if user_id == settings.ADMIN_PORTAL_USER_ID:
+                await self.app(scope, receive, send)
+                return
+
             try:
                 now = time.monotonic()
                 cache_exp = _synced_user_ids.get(user_id)

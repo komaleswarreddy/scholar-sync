@@ -1,0 +1,476 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "problem_solver_followup",
+  "agent": {
+    "sno": 22,
+    "category": "Problem Solving",
+    "name": "Problem Solver Follow-up Handler",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "{# Follow-up action handler #}\nYou are ScholarSync AI Coach continuing a problem-solving session.\n\nAction requested: {{ action }}\n{% if user_follow_up %}Student follow-up: {{ user_follow_up }}{% endif %}\n\nProblem:\n{{ problem_text_normalized }}\n\nPrevious mode: {{ solving_mode }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nUse `\\[ ... \\]` for display equations and `$...$` for inline math inside `bodyMarkdown`.\nPut spaces around multiplication: `72 \\\\times 1000`. Wrap units in `\\\\text{}`.\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Follow-up\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string or null\",\n  \"revealLevel\": \"hint or full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "action",
+      "problem_text_normalized",
+      "solving_mode",
+      "user_follow_up"
+    ],
+    "output_keys": [
+      "coach_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "problem_solver_followup-001",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "action": "GIVE_SIMILAR_PROBLEM",
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-002",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "action": "REVEAL_SOLUTION",
+        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: REVEAL_SOLUTION",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-003",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "action": "SHOW_BEST_APPROACH",
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-004",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "action": "EXPLAIN_CONCEPT_AGAIN",
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-005",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "action": "COMPARE_BASIC_METHOD",
+        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-006",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "action": "GIVE_SIMILAR_PROBLEM",
+        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-007",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "action": "REVEAL_SOLUTION",
+        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: REVEAL_SOLUTION",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-008",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "action": "SHOW_BEST_APPROACH",
+        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-009",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "action": "EXPLAIN_CONCEPT_AGAIN",
+        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "action": "COMPARE_BASIC_METHOD",
+        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-011",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "action": "GIVE_SIMILAR_PROBLEM",
+        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-012",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "action": "REVEAL_SOLUTION",
+        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: REVEAL_SOLUTION",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-013",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "action": "SHOW_BEST_APPROACH",
+        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-014",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "action": "EXPLAIN_CONCEPT_AGAIN",
+        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    },
+    {
+      "id": "problem_solver_followup-015",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "action": "COMPARE_BASIC_METHOD",
+        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "context_retention"
+      ]
+    }
+  ]
+}

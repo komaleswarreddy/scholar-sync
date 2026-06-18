@@ -1,0 +1,1104 @@
+{
+  "agent_name": "tutor_notebook_bootstrap",
+  "generated_at": "2026-06-18T04:00:19.853006+00:00",
+  "dataset_id": "tutor_notebook_bootstrap",
+  "dataset_hash": "366ca5eb99b50b19",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.001986,
+      "input_cost_usd": 0.0005,
+      "output_cost_usd": 0.001486,
+      "prompt_tokens": 3332,
+      "completion_tokens": 2477,
+      "latency_ms": 13877.16,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.001992,
+      "input_cost_usd": 0.000445,
+      "output_cost_usd": 0.001547,
+      "prompt_tokens": 2967,
+      "completion_tokens": 2579,
+      "latency_ms": 13172.7,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.001986,
+      "input_cost_usd": 0.0005,
+      "output_cost_usd": 0.001486
+    },
+    "composite_score": 0.8998
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "tutor_notebook_bootstrap-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 12,
+        "chapter_title": "Electricity",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "concept": "Ohm's law and resistance"
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Science Ch.12: Electricity.",
+          "suggestions": [
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Ohm's Law**: Describes the relationship between voltage (V), current (I), and resistance (R) in a circuit, expressed as V = IR.\n- **Resistance (R)**: A measure of how much a material opposes the flow of electric current, calculated using the formula R = \u03c1L/A.\n- **Conductors and Insulators**: Conductors allow current to flow easily, while insulators resist it, affecting resistance values.\n- **Temperature Effects**: Resistance can change with temperature, impacting the application of Ohm's Law.\n\n### Exam highlights\n- Remember the formula for Ohm's Law: V = IR.\n- The resistance formula R = \u03c1L/A includes resistivity (\u03c1), length (L), and cross-sectional area (A).\n- Key distinction: Ohm's Law applies to metallic conductors at constant temperature.\n\n### Ask me for full clarity\n1. Can you explain how temperature affects resistance in conductors?\n2. What are some practical applications of Ohm's Law in everyday life?\n3. How do you calculate the resistance of a wire given its dimensions and material?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Explain Ohm's Law",
+            "prompt": "Can you explain Ohm's Law and its significance in Chapter 12 of Science?"
+          },
+          {
+            "label": "Resistance factors",
+            "prompt": "What factors affect the resistance of a conductor as discussed in Chapter 12?"
+          },
+          {
+            "label": "Applications of Ohm's Law",
+            "prompt": "What are some real-life applications of Ohm's Law from Chapter 12?"
+          },
+          {
+            "label": "Resistance calculation",
+            "prompt": "How do you calculate the resistance of a wire using the formula R = \u03c1L/A in Chapter 12?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "Flashcards will help reinforce key definitions and formulas related to Ohm's Law and resistance.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "A quiz will test understanding of concepts and applications of Ohm's Law and resistance.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "A mind map can visually organize the relationships between voltage, current, and resistance.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "A slide deck can summarize key concepts and formulas for revision.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 16,
+        "chapter_title": "Digestion and Absorption",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "concept": null
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 11 Biology Ch.16: Digestion and Absorption.",
+          "suggestions": [
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Digestion**: The process of breaking down food into smaller components for absorption.\n- **Absorption**: The uptake of nutrients from the digestive tract into the bloodstream.\n- **Enzymes**: Biological catalysts that facilitate the breakdown of food substances.\n- **Digestive System**: Comprises organs like the mouth, stomach, and intestines, each playing a role in digestion.\n\n### Exam highlights\n- The **role of enzymes** in digestion is crucial; they speed up chemical reactions.\n- **Absorption** primarily occurs in the small intestine, where nutrients enter the bloodstream.\n- The **structure of the small intestine** (villi and microvilli) increases surface area for absorption.\n\n### Ask me for full clarity\n1. What specific aspect of digestion or absorption do you find most challenging?\n2. Are you clear on the functions of different digestive enzymes?\n3. Do you need help understanding the structure of the digestive system?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Digestive enzymes role",
+            "prompt": "What is the role of enzymes in digestion as per Chapter 16?"
+          },
+          {
+            "label": "Absorption process",
+            "prompt": "Can you explain the absorption process in the small intestine from Chapter 16?"
+          },
+          {
+            "label": "Digestive system organs",
+            "prompt": "What are the main organs of the digestive system and their functions in Chapter 16?"
+          },
+          {
+            "label": "Villi and microvilli",
+            "prompt": "How do villi and microvilli aid in absorption according to Chapter 16?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "To reinforce key terms and definitions related to digestion and absorption.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "To test understanding of concepts and processes in digestion and absorption.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "To visualize the connections between different components of the digestive system.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "To present information in a structured format for better understanding.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 9,
+        "chapter_title": "Ray Optics and Optical Instruments",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "concept": "Lens formula"
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Physics Ch.9: Ray Optics and Optical Instruments.",
+          "suggestions": [
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Lens formula**: The relationship between focal length (f), image distance (v), and object distance (u) is given by the formula 1/f = 1/v - 1/u.\n- **Sign convention**: Understanding the Cartesian sign convention is crucial for applying the lens formula correctly.\n- **Types of lenses**: Differentiate between convex and concave lenses and their effects on light.\n- **Image formation**: Learn how to determine the nature (real or virtual) and position of images formed by lenses.\n\n### Exam highlights\n- The lens formula is essential for solving problems related to image formation in optics.\n- Remember the sign conventions: positive values for real images and negative for virtual images.\n- Be prepared to apply the lens formula in numerical problems involving different types of lenses.\n\n### Ask me for full clarity\n1. What specific aspect of the lens formula do you find challenging?\n2. Do you need help with the sign conventions used in the lens formula?\n3. Are you looking for examples of problems involving the lens formula?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Lens formula details",
+            "prompt": "Can you explain the lens formula 1/f = 1/v - 1/u in detail?"
+          },
+          {
+            "label": "Sign convention help",
+            "prompt": "What are the sign conventions for the lens formula in ray optics?"
+          },
+          {
+            "label": "Image formation examples",
+            "prompt": "Can you provide examples of image formation using the lens formula?"
+          },
+          {
+            "label": "Convex vs Concave lenses",
+            "prompt": "What are the differences between convex and concave lenses in terms of image formation?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "To reinforce key definitions and formulas related to the lens formula.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "To test understanding of the lens formula and its applications.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "To visualize the relationships between different concepts in ray optics.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "To present key concepts and examples in a structured format.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Quadratic Equations",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "concept": null
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Mathematics Ch.4: Quadratic Equations.",
+          "suggestions": [
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Quadratic Equation**: An equation of the form ax\u00b2 + bx + c = 0, where a, b, and c are constants and a \u2260 0.\n- **Roots of Quadratic Equations**: Solutions to the equation, which can be found using the quadratic formula: x = (-b \u00b1 \u221a(b\u00b2 - 4ac)) / 2a.\n- **Discriminant**: The value of b\u00b2 - 4ac determines the nature of the roots (real and distinct, real and equal, or complex).\n- **Factoring**: A method to solve quadratic equations by expressing them as a product of their linear factors.\n\n### Exam highlights\n- The quadratic formula is essential for finding roots when factoring is not feasible.\n- The discriminant helps predict the type of roots without solving the equation.\n- Understanding the graphical representation of quadratic equations can aid in visualizing the roots.\n\n### Ask me for full clarity\n1. What specific areas of quadratic equations do you find challenging?\n2. Do you need help with solving quadratic equations using the quadratic formula?\n3. Are you interested in understanding how to graph quadratic functions?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Understanding roots",
+            "prompt": "Can you explain how to find the roots of a quadratic equation using the quadratic formula?"
+          },
+          {
+            "label": "Discriminant details",
+            "prompt": "What does the discriminant tell us about the roots of a quadratic equation?"
+          },
+          {
+            "label": "Factoring methods",
+            "prompt": "How can we factor a quadratic equation to find its roots?"
+          },
+          {
+            "label": "Graphing quadratics",
+            "prompt": "What are the key features to consider when graphing a quadratic function?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "quiz",
+            "reason": "Quizzes help reinforce problem-solving skills in quadratic equations.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "Mind maps can visually organize the relationships between concepts in quadratic equations.",
+            "auto_generate": true
+          },
+          {
+            "type": "flashcards",
+            "reason": "Flashcards can aid in memorizing key terms and formulas related to quadratic equations.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "Slide decks can summarize key concepts and examples for better understanding.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 4,
+        "chapter_title": "Chemical Bonding",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r\u00b2; electric field E = F/q.",
+        "concept": "VSEPR"
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Chemistry Ch.4: Chemical Bonding.",
+          "suggestions": [
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **VSEPR Theory**: Explains the shape of molecules based on electron pair repulsion.\n- **Molecular Geometry**: The arrangement of atoms in a molecule, influenced by VSEPR.\n- **Bond Angles**: The angles between bonds in a molecule, determined by the repulsion of electron pairs.\n- **Hybridization**: The mixing of atomic orbitals to form new hybrid orbitals for bonding.\n\n### Exam highlights\n- VSEPR theory helps predict molecular shapes like linear, trigonal planar, and tetrahedral.\n- Key bond angles include 180\u00b0 for linear, 120\u00b0 for trigonal planar, and 109.5\u00b0 for tetrahedral geometries.\n- Remember to consider lone pairs as they affect molecular geometry and bond angles.\n\n### Ask me for full clarity\n1. What specific molecular shapes are you struggling to understand?\n2. Do you need help with the concept of hybridization?\n3. Are you familiar with how lone pairs influence bond angles?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "VSEPR shapes",
+            "prompt": "What are the different molecular shapes predicted by VSEPR theory?"
+          },
+          {
+            "label": "Bond angles",
+            "prompt": "How do lone pairs affect bond angles in molecules?"
+          },
+          {
+            "label": "Hybridization types",
+            "prompt": "Can you explain the different types of hybridization in chemical bonding?"
+          },
+          {
+            "label": "Examples of VSEPR",
+            "prompt": "What are some examples of molecules and their shapes according to VSEPR theory?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "Great for memorizing key terms and definitions related to VSEPR.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "Helps test understanding of molecular shapes and bond angles.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "Useful for visualizing connections between concepts like hybridization and molecular geometry.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "Effective for summarizing and presenting key concepts in VSEPR theory.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 12,
+        "chapter_title": "Electricity",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "concept": "Ohm's law and resistance"
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Science Ch.12: Electricity.",
+          "suggestions": [
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Ohm's Law**: Describes the relationship between voltage (V), current (I), and resistance (R) in a circuit.\n- **Resistance (R)**: Defined as R = \u03c1L/A, where \u03c1 is resistivity, L is length, and A is cross-sectional area.\n- **Conductors**: Metallic conductors follow Ohm's law at constant temperature.\n\n### Exam highlights\n- Ohm's law formula: V = IR, essential for circuit calculations.\n- Resistance depends on material properties (resistivity), dimensions, and temperature.\n\n### Ask me for full clarity\n1. Can you explain how resistance changes with temperature?\n2. What are some practical applications of Ohm's law?\n3. How do you calculate the total resistance in a series circuit?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Explain Ohm's Law",
+            "prompt": "Can you explain Ohm's Law and its significance in Chapter 12 of Science?"
+          },
+          {
+            "label": "Resistance Factors",
+            "prompt": "What factors affect resistance according to Chapter 12 of Science?"
+          },
+          {
+            "label": "Applications of Resistance",
+            "prompt": "What are some real-life applications of resistance discussed in Chapter 12?"
+          },
+          {
+            "label": "Series Circuit Resistance",
+            "prompt": "How do you calculate total resistance in a series circuit as per Chapter 12?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "Flashcards will help memorize key terms and formulas related to Ohm's law and resistance.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "A quiz will test understanding of concepts and calculations in Ohm's law and resistance.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "A mind map can visually organize the relationships between voltage, current, and resistance.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "A slide deck can summarize key concepts and formulas for revision.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 16,
+        "chapter_title": "Digestion and Absorption",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "concept": null
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 11 Biology Ch.16: Digestion and Absorption.",
+          "suggestions": [
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Digestion**: The process of breaking down food into smaller components for absorption.\n- **Absorption**: The uptake of nutrients from the digestive tract into the bloodstream.\n- **Enzymes**: Biological catalysts that facilitate digestion by breaking down macromolecules.\n- **Digestive System**: Comprises organs like the mouth, stomach, and intestines, each playing a role in digestion.\n\n### Exam highlights\n- The **role of enzymes** in digestion is crucial; they are specific to substrates.\n- **Absorption** mainly occurs in the small intestine, where nutrients enter the bloodstream.\n- The **structure of the small intestine** (villi and microvilli) increases surface area for absorption.\n\n### Ask me for full clarity\n1. What specific aspect of digestion or absorption do you find challenging?\n2. Are you clear on the role of different enzymes in the digestive process?\n3. Do you need help understanding how nutrients are absorbed in the small intestine?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Enzymes in Digestion",
+            "prompt": "What are the different types of enzymes involved in digestion and their functions in Chapter 16?"
+          },
+          {
+            "label": "Absorption Process",
+            "prompt": "Can you explain how absorption occurs in the small intestine as described in Chapter 16?"
+          },
+          {
+            "label": "Digestive Organs",
+            "prompt": "What are the main organs of the digestive system and their roles according to Chapter 16?"
+          },
+          {
+            "label": "Nutrient Types",
+            "prompt": "What are the different types of nutrients absorbed during digestion as per Chapter 16?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "Flashcards will help memorize key terms and definitions related to digestion and absorption.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "A quiz will test understanding of the concepts and processes in digestion and absorption.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "A mind map can visually organize the relationships between different digestive processes and organs.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "A slide deck can summarize key concepts and facilitate review for exams.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 9,
+        "chapter_title": "Ray Optics and Optical Instruments",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "concept": "Lens formula"
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Physics Ch.9: Ray Optics and Optical Instruments.",
+          "suggestions": [
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Lens formula**: The relationship between focal length, object distance, and image distance is given by 1/f = 1/v - 1/u.\n- **Sign convention**: Understanding the Cartesian sign convention is crucial for applying the lens formula correctly.\n- **Types of lenses**: Different lenses (convex and concave) have distinct properties affecting the lens formula.\n- **Image formation**: The lens formula helps in determining the characteristics of the image formed by a lens.\n\n### Exam highlights\n- The lens formula is essential for solving problems related to lenses in optics.\n- Remember the sign conventions: positive and negative values for distances based on the lens type and orientation.\n- Be familiar with the characteristics of images formed by convex and concave lenses.\n\n### Ask me for full clarity\n1. What specific aspect of the lens formula do you find challenging?\n2. Are you clear on how to apply the sign convention in problems?\n3. Do you need examples of image formation using the lens formula?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Understanding lens types",
+            "prompt": "What are the differences between convex and concave lenses in the context of the lens formula?"
+          },
+          {
+            "label": "Applying sign conventions",
+            "prompt": "How do I apply the Cartesian sign convention when using the lens formula?"
+          },
+          {
+            "label": "Image characteristics",
+            "prompt": "What are the characteristics of images formed by convex and concave lenses using the lens formula?"
+          },
+          {
+            "label": "Solving lens problems",
+            "prompt": "Can you provide a step-by-step example of solving a problem using the lens formula?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "Flashcards will help reinforce key definitions and formulas related to the lens formula.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "A quiz will test understanding and application of the lens formula and its concepts.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "A mind map can visually organize the relationships between different concepts in ray optics.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "A slide deck can summarize key points and examples for better retention.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Quadratic Equations",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "concept": null
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Mathematics Ch.4: Quadratic Equations.",
+          "suggestions": [
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **Quadratic Equation**: An equation of the form ax\u00b2 + bx + c = 0, where a, b, and c are constants.\n- **Roots of Quadratic Equations**: Solutions can be found using factorization, completing the square, or the quadratic formula.\n- **Discriminant**: The value of b\u00b2 - 4ac determines the nature of the roots (real and distinct, real and equal, or complex).\n- **Graph of Quadratic Functions**: Parabolic shape, opening upwards or downwards based on the coefficient of x\u00b2.\n\n### Exam highlights\n- The quadratic formula is x = (-b \u00b1 \u221a(b\u00b2 - 4ac)) / (2a).\n- The discriminant helps in identifying the type of roots: if > 0, two distinct real roots; if = 0, one real root; if < 0, no real roots.\n\n### Ask me for full clarity\n1. What specific method for solving quadratic equations would you like to understand better?\n2. Do you need help with graphing quadratic functions?\n3. Are you clear on how to calculate the discriminant and its implications?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "Understanding roots",
+            "prompt": "Can you explain how to find the roots of a quadratic equation using the quadratic formula?"
+          },
+          {
+            "label": "Discriminant details",
+            "prompt": "What does the discriminant tell us about the roots of a quadratic equation?"
+          },
+          {
+            "label": "Graphing quadratics",
+            "prompt": "How do you graph a quadratic function and identify its vertex?"
+          },
+          {
+            "label": "Real-life applications",
+            "prompt": "Can you give examples of real-life situations where quadratic equations are used?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "quiz",
+            "reason": "Quizzes help reinforce problem-solving skills in quadratic equations.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "Mind maps can visually organize the relationships between concepts in quadratic equations.",
+            "auto_generate": true
+          },
+          {
+            "type": "flashcards",
+            "reason": "Flashcards can aid in memorizing key terms and formulas related to quadratic equations.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "Slide decks can summarize key concepts and examples effectively.",
+            "auto_generate": false
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_notebook_bootstrap-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 4,
+        "chapter_title": "Chemical Bonding",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r\u00b2; electric field E = F/q.",
+        "concept": "VSEPR"
+      },
+      "expected": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Chemistry Ch.4: Chemical Bonding.",
+          "suggestions": [
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "actual": {
+        "opening_summary": "## Summary\n\n### Key topics\n- **VSEPR Theory**: Explains molecular shapes based on electron pair repulsion.\n- **Electron Geometry**: Determines the spatial arrangement of electron pairs around a central atom.\n- **Molecular Geometry**: Describes the shape of the molecule considering only the bonded atoms.\n- **Bond Angles**: The angles between adjacent bonds, influenced by electron repulsion.\n\n### Exam highlights\n- VSEPR theory is crucial for predicting molecular shapes in organic and inorganic compounds.\n- Key shapes include linear, trigonal planar, tetrahedral, and octahedral, each with specific bond angles.\n\n### Ask me for full clarity\n1. What specific molecular shapes are you struggling to understand?\n2. Do you need help with predicting bond angles?\n3. Are there any examples from the chapter you want to discuss?\n\nTap a suggestion below or ask your own question.",
+        "suggestions": [
+          {
+            "label": "VSEPR shapes",
+            "prompt": "What are the different molecular shapes predicted by VSEPR theory?"
+          },
+          {
+            "label": "Bond angles",
+            "prompt": "How do bond angles vary in different molecular geometries?"
+          },
+          {
+            "label": "Electron pairs",
+            "prompt": "How do lone pairs affect molecular geometry in VSEPR?"
+          },
+          {
+            "label": "Examples",
+            "prompt": "Can you provide examples of molecules for each VSEPR shape?"
+          }
+        ],
+        "studio_recommendations": [
+          {
+            "type": "flashcards",
+            "reason": "Great for memorizing key terms and definitions related to VSEPR theory.",
+            "auto_generate": true
+          },
+          {
+            "type": "quiz",
+            "reason": "Helps assess understanding of molecular shapes and bond angles.",
+            "auto_generate": true
+          },
+          {
+            "type": "mind_map",
+            "reason": "Useful for visualizing connections between different molecular geometries and their properties.",
+            "auto_generate": false
+          },
+          {
+            "type": "slide_deck",
+            "reason": "Effective for summarizing key concepts and examples in a structured format.",
+            "auto_generate": false
+          }
+        ]
+      }
+    }
+  ]
+}

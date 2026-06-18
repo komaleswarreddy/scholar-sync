@@ -1,0 +1,787 @@
+{
+  "agent_name": "document_sketch",
+  "generated_at": "2026-06-18T04:15:28.443828+00:00",
+  "dataset_id": "document_sketch",
+  "dataset_hash": "8046b4c19d7fbb76",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000829,
+      "input_cost_usd": 0.000145,
+      "output_cost_usd": 0.000685,
+      "prompt_tokens": 964,
+      "completion_tokens": 1141,
+      "latency_ms": 10400.75,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000877,
+      "input_cost_usd": 0.000199,
+      "output_cost_usd": 0.000678,
+      "prompt_tokens": 1329,
+      "completion_tokens": 1130,
+      "latency_ms": 15421.78,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000829,
+      "input_cost_usd": 0.000145,
+      "output_cost_usd": 0.000685
+    },
+    "composite_score": 0.8999
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "document_sketch-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "Class 10 Science Notes \u2014 Electricity",
+        "document_text": "Unit III Electricity. Ohm's law. Resistance. Heating effect. Domestic circuits."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "Class 10 Science Notes \u2014 Electricity",
+          "main_sections": [
+            "Unit III Electricity",
+            "Ohm's law",
+            "Resistance",
+            "Heating effect"
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Unit",
+            "III",
+            "Electricity.",
+            "Ohm's",
+            "law.",
+            "Resistance.",
+            "Heating",
+            "effect.",
+            "Domestic",
+            "circuits."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Electricity",
+        "main_sections": [
+          "Ohm's Law",
+          "Resistance",
+          "Heating Effect",
+          "Domestic Circuits"
+        ],
+        "key_definitions": {
+          "Ohm's Law": "Relationship between voltage, current, and resistance.",
+          "Resistance": "Opposition to the flow of electric current.",
+          "Heating Effect": "Heat produced when current passes through a conductor.",
+          "Domestic Circuits": "Electrical systems used in homes."
+        },
+        "concepts": [
+          "Electricity",
+          "Voltage",
+          "Current",
+          "Resistance",
+          "Ohm's Law",
+          "Heating Effect",
+          "Conductor",
+          "Insulator",
+          "Circuit",
+          "Domestic Circuits",
+          "Power",
+          "Energy",
+          "Electrical Safety",
+          "Series Circuit",
+          "Parallel Circuit",
+          "Fuse",
+          "Transformer",
+          "AC",
+          "DC",
+          "Electromagnetism"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "JEE Organic Chemistry Handout",
+        "document_text": "Nomenclature. Isomerism. SN1 SN2 mechanisms. Carbohydrates lipids."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "JEE Organic Chemistry Handout",
+          "main_sections": [
+            "Nomenclature",
+            "Isomerism",
+            "SN1 SN2 mechanisms",
+            "Carbohydrates lipids."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Nomenclature.",
+            "Isomerism.",
+            "SN1",
+            "SN2",
+            "mechanisms.",
+            "Carbohydrates",
+            "lipids."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Organic Chemistry",
+        "main_sections": [
+          "Nomenclature",
+          "Isomerism",
+          "SN1 Mechanism",
+          "SN2 Mechanism",
+          "Carbohydrates",
+          "Lipids"
+        ],
+        "key_definitions": {
+          "Nomenclature": "System of naming compounds.",
+          "Isomerism": "Compounds with the same formula but different structures.",
+          "SN1": "Unimolecular nucleophilic substitution mechanism.",
+          "SN2": "Bimolecular nucleophilic substitution mechanism.",
+          "Carbohydrates": "Organic compounds made of carbon, hydrogen, and oxygen.",
+          "Lipids": "Fats and oils, important for energy storage."
+        },
+        "concepts": [
+          "Organic Chemistry",
+          "Nomenclature",
+          "Isomerism",
+          "SN1",
+          "SN2",
+          "Carbohydrates",
+          "Lipids",
+          "Mechanisms",
+          "Chemical Reactions",
+          "Functional Groups",
+          "Molecular Structure",
+          "Stereochemistry",
+          "Hydrocarbons",
+          "Polymers",
+          "Biomolecules",
+          "Reagents"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "CBSE Maths Assignment Quadratic",
+        "document_text": "Solve by factorization. Quadratic formula. Word problems on area."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "CBSE Maths Assignment Quadratic",
+          "main_sections": [
+            "Solve by factorization",
+            "Quadratic formula",
+            "Word problems on area."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Solve",
+            "by",
+            "factorization.",
+            "Quadratic",
+            "formula.",
+            "Word",
+            "problems",
+            "on",
+            "area."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Quadratic",
+        "main_sections": [
+          "Factorization",
+          "Quadratic Formula",
+          "Word Problems"
+        ],
+        "key_definitions": {
+          "Quadratic": "A polynomial of degree 2.",
+          "Factorization": "Expressing a polynomial as a product of its factors.",
+          "Quadratic Formula": "Formula to find roots: x = (-b \u00b1 \u221a(b\u00b2-4ac)) / 2a.",
+          "Word Problems": "Real-life scenarios requiring quadratic solutions."
+        },
+        "concepts": [
+          "Quadratic",
+          "Factorization",
+          "Roots",
+          "Equation",
+          "Polynomial",
+          "Discriminant",
+          "Area",
+          "Vertex",
+          "Parabola",
+          "Solutions",
+          "Graphing",
+          "Coefficients",
+          "Standard Form",
+          "Vertex Form",
+          "Factored Form",
+          "Completing the Square",
+          "Inequalities",
+          "Real Numbers",
+          "Complex Numbers",
+          "Applications"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NEET Biology Question Paper 2024",
+        "document_text": "Section A MCQs digestion enzymes. Section B case study on genetics."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "NEET Biology Question Paper 2024",
+          "main_sections": [
+            "Section A MCQs digestion enzymes",
+            "Section B case study on genetics."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Section",
+            "A",
+            "MCQs",
+            "digestion",
+            "enzymes.",
+            "Section",
+            "B",
+            "case",
+            "study",
+            "on",
+            "genetics."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "NEET Biology Question Paper 2024",
+        "main_sections": [
+          "Section A: MCQs on Digestion",
+          "Section B: Case Study on Genetics"
+        ],
+        "key_definitions": {
+          "digestion": "Process of breaking down food.",
+          "enzymes": "Proteins that catalyze biochemical reactions.",
+          "genetics": "Study of heredity and variation in organisms."
+        },
+        "concepts": [
+          "MCQs",
+          "digestion",
+          "enzymes",
+          "case study",
+          "genetics",
+          "biochemistry",
+          "metabolism",
+          "nutrients",
+          "DNA",
+          "RNA",
+          "heredity",
+          "chromosomes",
+          "phenotype",
+          "genotype",
+          "cellular processes",
+          "biological systems",
+          "organisms",
+          "food breakdown",
+          "protein synthesis",
+          "genetic variation"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "Teacher's Ray Optics Summary",
+        "document_text": "Reflection refraction. Lens mirror formula. Prism deviation."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "Teacher's Ray Optics Summary",
+          "main_sections": [
+            "Reflection refraction",
+            "Lens mirror formula",
+            "Prism deviation."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Reflection",
+            "refraction.",
+            "Lens",
+            "mirror",
+            "formula.",
+            "Prism",
+            "deviation."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Ray Optics",
+        "main_sections": [
+          "Reflection",
+          "Refraction",
+          "Lens Formula",
+          "Mirror Formula",
+          "Prism Deviation"
+        ],
+        "key_definitions": {
+          "Reflection": "Bouncing of light off a surface.",
+          "Refraction": "Bending of light as it passes through different media.",
+          "Lens": "Optical device that focuses or disperses light.",
+          "Mirror": "Reflective surface that forms images.",
+          "Prism": "Optical element that disperses light into its spectrum."
+        },
+        "concepts": [
+          "Ray Optics",
+          "Light",
+          "Reflection",
+          "Refraction",
+          "Lens",
+          "Convex Lens",
+          "Concave Lens",
+          "Mirror",
+          "Plane Mirror",
+          "Spherical Mirror",
+          "Prism",
+          "Deviation",
+          "Critical Angle",
+          "Total Internal Reflection",
+          "Focal Length",
+          "Image Formation",
+          "Optical Axis",
+          "Magnification",
+          "Snell's Law",
+          "Dispersion"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "Class 10 Science Notes \u2014 Electricity",
+        "document_text": "Unit III Electricity. Ohm's law. Resistance. Heating effect. Domestic circuits."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "Class 10 Science Notes \u2014 Electricity",
+          "main_sections": [
+            "Unit III Electricity",
+            "Ohm's law",
+            "Resistance",
+            "Heating effect"
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Unit",
+            "III",
+            "Electricity.",
+            "Ohm's",
+            "law.",
+            "Resistance.",
+            "Heating",
+            "effect.",
+            "Domestic",
+            "circuits."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Electricity",
+        "main_sections": [
+          "Ohm's Law",
+          "Resistance",
+          "Heating Effect",
+          "Domestic Circuits"
+        ],
+        "key_definitions": {
+          "Ohm's Law": "Current is directly proportional to voltage.",
+          "Resistance": "Opposition to the flow of current.",
+          "Heating Effect": "Heat produced when current passes through a conductor.",
+          "Domestic Circuits": "Electrical systems used in homes."
+        },
+        "concepts": [
+          "Electricity",
+          "Current",
+          "Voltage",
+          "Resistance",
+          "Ohm's Law",
+          "Heating Effect",
+          "Conductor",
+          "Insulator",
+          "Circuit",
+          "Domestic Circuits",
+          "Power",
+          "Energy",
+          "Electrical Appliances",
+          "Series Circuit",
+          "Parallel Circuit",
+          "Fuse",
+          "Switch",
+          "Voltage Drop",
+          "Ampere",
+          "Watt"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "JEE Organic Chemistry Handout",
+        "document_text": "Nomenclature. Isomerism. SN1 SN2 mechanisms. Carbohydrates lipids."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "JEE Organic Chemistry Handout",
+          "main_sections": [
+            "Nomenclature",
+            "Isomerism",
+            "SN1 SN2 mechanisms",
+            "Carbohydrates lipids."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Nomenclature.",
+            "Isomerism.",
+            "SN1",
+            "SN2",
+            "mechanisms.",
+            "Carbohydrates",
+            "lipids."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Organic Chemistry",
+        "main_sections": [
+          "Nomenclature",
+          "Isomerism",
+          "Reaction Mechanisms",
+          "Carbohydrates",
+          "Lipids"
+        ],
+        "key_definitions": {
+          "Nomenclature": "System of naming organic compounds.",
+          "Isomerism": "Compounds with the same formula but different structures.",
+          "SN1": "Unimolecular nucleophilic substitution mechanism.",
+          "SN2": "Bimolecular nucleophilic substitution mechanism.",
+          "Carbohydrates": "Organic compounds made of carbon, hydrogen, and oxygen.",
+          "Lipids": "Fats and oils, important for energy storage."
+        },
+        "concepts": [
+          "Organic Chemistry",
+          "Nomenclature",
+          "Isomerism",
+          "SN1",
+          "SN2",
+          "Carbohydrates",
+          "Lipids",
+          "Functional Groups",
+          "Hydrocarbons",
+          "Alkanes",
+          "Alkenes",
+          "Alkynes",
+          "Aromatic Compounds",
+          "Stereochemistry",
+          "Reagents",
+          "Catalysts",
+          "Polymers",
+          "Biomolecules",
+          "Metabolism",
+          "Chemical Reactions",
+          "Electrophiles",
+          "Nucleophiles"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "CBSE Maths Assignment Quadratic",
+        "document_text": "Solve by factorization. Quadratic formula. Word problems on area."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "CBSE Maths Assignment Quadratic",
+          "main_sections": [
+            "Solve by factorization",
+            "Quadratic formula",
+            "Word problems on area."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Solve",
+            "by",
+            "factorization.",
+            "Quadratic",
+            "formula.",
+            "Word",
+            "problems",
+            "on",
+            "area."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Quadratic Equations",
+        "main_sections": [
+          "Factorization",
+          "Quadratic Formula",
+          "Word Problems"
+        ],
+        "key_definitions": {
+          "Quadratic Equation": "An equation of the form ax\u00b2 + bx + c = 0.",
+          "Factorization": "Expressing a polynomial as a product of its factors.",
+          "Quadratic Formula": "x = (-b \u00b1 \u221a(b\u00b2-4ac)) / 2a."
+        },
+        "concepts": [
+          "Quadratic Equation",
+          "Factorization",
+          "Roots",
+          "Discriminant",
+          "Parabola",
+          "Vertex",
+          "Axis of Symmetry",
+          "Standard Form",
+          "Word Problems",
+          "Area",
+          "Solutions",
+          "Real Numbers",
+          "Complex Numbers",
+          "Graphing",
+          "Polynomial",
+          "Coefficients"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NEET Biology Question Paper 2024",
+        "document_text": "Section A MCQs digestion enzymes. Section B case study on genetics."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "NEET Biology Question Paper 2024",
+          "main_sections": [
+            "Section A MCQs digestion enzymes",
+            "Section B case study on genetics."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Section",
+            "A",
+            "MCQs",
+            "digestion",
+            "enzymes.",
+            "Section",
+            "B",
+            "case",
+            "study",
+            "on",
+            "genetics."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "NEET Biology Question Paper 2024",
+        "main_sections": [
+          "Section A: MCQs",
+          "Section B: Case Study"
+        ],
+        "key_definitions": {
+          "digestion": "Process of breaking down food.",
+          "enzymes": "Biological catalysts that speed up reactions.",
+          "genetics": "Study of heredity and variation in organisms."
+        },
+        "concepts": [
+          "MCQs",
+          "digestion",
+          "enzymes",
+          "case study",
+          "genetics",
+          "heredity",
+          "variation",
+          "biological catalysts",
+          "metabolism",
+          "nutrients",
+          "cellular processes",
+          "DNA",
+          "RNA",
+          "chromosomes",
+          "phenotype",
+          "genotype",
+          "biochemistry",
+          "molecular biology",
+          "cell biology",
+          "organismal biology",
+          "evolution"
+        ]
+      }
+    },
+    {
+      "example_id": "document_sketch-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "Teacher's Ray Optics Summary",
+        "document_text": "Reflection refraction. Lens mirror formula. Prism deviation."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "Teacher's Ray Optics Summary",
+          "main_sections": [
+            "Reflection refraction",
+            "Lens mirror formula",
+            "Prism deviation."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Reflection",
+            "refraction.",
+            "Lens",
+            "mirror",
+            "formula.",
+            "Prism",
+            "deviation."
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Ray Optics",
+        "main_sections": [
+          "Reflection",
+          "Refraction",
+          "Lens Formula",
+          "Mirror Formula",
+          "Prism Deviation"
+        ],
+        "key_definitions": {
+          "Reflection": "Bouncing back of light from a surface.",
+          "Refraction": "Bending of light as it passes from one medium to another.",
+          "Lens Formula": "Relationship between object distance, image distance, and focal length of a lens.",
+          "Mirror Formula": "Relationship for concave and convex mirrors.",
+          "Prism Deviation": "Angle by which light is bent when passing through a prism."
+        },
+        "concepts": [
+          "Light",
+          "Ray",
+          "Optics",
+          "Reflection",
+          "Refraction",
+          "Lens",
+          "Mirror",
+          "Prism",
+          "Focal Length",
+          "Image Distance",
+          "Object Distance",
+          "Deviation",
+          "Concave Mirror",
+          "Convex Mirror",
+          "Critical Angle",
+          "Total Internal Reflection"
+        ]
+      }
+    }
+  ]
+}

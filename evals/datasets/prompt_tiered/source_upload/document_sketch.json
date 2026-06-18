@@ -1,0 +1,224 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "document_sketch",
+  "agent": {
+    "sno": 26,
+    "category": "Source Upload",
+    "name": "Document Sketch Agent",
+    "tier": "tier_3",
+    "target_examples": 5,
+    "prompt_template": "SYSTEM:\nReturn JSON only. Do not include markdown fences.\n\nUSER/TASK TEMPLATE:\nYou are helping build a retrieval index for user-uploaded documents.\n\nGiven the document text and a small header, produce a compact JSON \"document sketch\" that can be reused\nfor contextualizing many chunks from the same document.\n\nHeader:\n{{ header }}\n\nDocument (may be truncated):\n{{ document_text }}\n\nReturn a single JSON object with these keys:\n- chapter_title: best-effort document title or main topic (empty string if unknown)\n- main_sections: array of short section or topic headings (best-effort)\n- key_definitions: object mapping term -> short definition (keep very short; include only important terms)\n- concepts: array of important terms or entities a user might search for (10–30 items)\n\nRules:\n- Output JSON only. No markdown fences. No extra keys.\n- Keep it compact: do not quote long excerpts."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "header",
+      "document_text"
+    ],
+    "output_keys": [
+      "sketch_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "document_sketch-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "header": "Class 10 Science Notes — Electricity",
+        "document_text": "Unit III Electricity. Ohm's law. Resistance. Heating effect. Domestic circuits."
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "Class 10 Science Notes — Electricity",
+          "main_sections": [
+            "Unit III Electricity",
+            "Ohm's law",
+            "Resistance",
+            "Heating effect"
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Unit",
+            "III",
+            "Electricity.",
+            "Ohm's",
+            "law.",
+            "Resistance.",
+            "Heating",
+            "effect.",
+            "Domestic",
+            "circuits."
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "compact_sketch"
+      ]
+    },
+    {
+      "id": "document_sketch-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "header": "JEE Organic Chemistry Handout",
+        "document_text": "Nomenclature. Isomerism. SN1 SN2 mechanisms. Carbohydrates lipids."
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "JEE Organic Chemistry Handout",
+          "main_sections": [
+            "Nomenclature",
+            "Isomerism",
+            "SN1 SN2 mechanisms",
+            "Carbohydrates lipids."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Nomenclature.",
+            "Isomerism.",
+            "SN1",
+            "SN2",
+            "mechanisms.",
+            "Carbohydrates",
+            "lipids."
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "compact_sketch"
+      ]
+    },
+    {
+      "id": "document_sketch-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "header": "CBSE Maths Assignment Quadratic",
+        "document_text": "Solve by factorization. Quadratic formula. Word problems on area."
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Maths Assignment Quadratic",
+          "main_sections": [
+            "Solve by factorization",
+            "Quadratic formula",
+            "Word problems on area."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Solve",
+            "by",
+            "factorization.",
+            "Quadratic",
+            "formula.",
+            "Word",
+            "problems",
+            "on",
+            "area."
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "compact_sketch"
+      ]
+    },
+    {
+      "id": "document_sketch-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "header": "NEET Biology Question Paper 2024",
+        "document_text": "Section A MCQs digestion enzymes. Section B case study on genetics."
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "NEET Biology Question Paper 2024",
+          "main_sections": [
+            "Section A MCQs digestion enzymes",
+            "Section B case study on genetics."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Section",
+            "A",
+            "MCQs",
+            "digestion",
+            "enzymes.",
+            "Section",
+            "B",
+            "case",
+            "study",
+            "on",
+            "genetics."
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "compact_sketch"
+      ]
+    },
+    {
+      "id": "document_sketch-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "header": "Teacher's Ray Optics Summary",
+        "document_text": "Reflection refraction. Lens mirror formula. Prism deviation."
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "Teacher's Ray Optics Summary",
+          "main_sections": [
+            "Reflection refraction",
+            "Lens mirror formula",
+            "Prism deviation."
+          ],
+          "key_definitions": {
+            "Ohm's law": "V=IR"
+          },
+          "concepts": [
+            "Reflection",
+            "refraction.",
+            "Lens",
+            "mirror",
+            "formula.",
+            "Prism",
+            "deviation."
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "compact_sketch"
+      ]
+    }
+  ]
+}

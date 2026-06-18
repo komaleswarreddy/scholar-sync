@@ -1,0 +1,293 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "diagram_label_ocr",
+  "agent": {
+    "sno": 33,
+    "category": "Source Upload",
+    "name": "Diagram Label OCR Agent",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "You are reading a textbook diagram or circuit figure. Extract short English-only labels, variable names, and directional flow hints. Ignore Hindi/non-English text. Return plain text only."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "image_fixture_note"
+    ],
+    "output_keys": [
+      "labels_text"
+    ]
+  },
+  "items": [
+    {
+      "id": "diagram_label_ocr-001",
+      "variation": "circuit_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-002",
+      "variation": "biology_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-003",
+      "variation": "flowchart",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Flowchart: food ingestion → digestion → absorption → assimilation → egestion"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-004",
+      "variation": "ray_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-005",
+      "variation": "chemistry_apparatus",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-006",
+      "variation": "circuit_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-007",
+      "variation": "biology_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-008",
+      "variation": "flowchart",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Flowchart: food ingestion → digestion → absorption → assimilation → egestion"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-009",
+      "variation": "ray_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-010",
+      "variation": "chemistry_apparatus",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-011",
+      "variation": "circuit_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-012",
+      "variation": "biology_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-013",
+      "variation": "flowchart",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Flowchart: food ingestion → digestion → absorption → assimilation → egestion"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-014",
+      "variation": "ray_diagram",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-015",
+      "variation": "chemistry_apparatus",
+      "tags": [
+        "diagram",
+        "ocr"
+      ],
+      "inputs": {
+        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
+      },
+      "reference_outputs": {
+        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
+      },
+      "evaluators": [
+        "label_extraction",
+        "llm_judge"
+      ]
+    }
+  ]
+}

@@ -7,12 +7,14 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
+import { useClerkQueryEnabled } from '@/hooks/useClerkQueryEnabled';
 
 // Query keys
 export const sourceKeys = {
   all: ['sources'] as const,
   lists: () => [...sourceKeys.all, 'list'] as const,
-  list: () => [...sourceKeys.lists()] as const,
+  list: (notebookId?: string) =>
+    notebookId ? [...sourceKeys.lists(), notebookId] as const : [...sourceKeys.lists()] as const,
 };
 
 // Types
@@ -33,18 +35,20 @@ export interface Source {
  * Uses keepPreviousData so that a failed background refetch
  * (e.g. DB timeout returns 503) does NOT blank the list.
  */
-export function useSources() {
+export function useSources(notebookId?: string) {
+  const queryEnabled = useClerkQueryEnabled();
   return useQuery({
-    queryKey: sourceKeys.list(),
+    queryKey: sourceKeys.list(notebookId),
     queryFn: async () => {
       try {
-        const result = await apiClient.listSources();
+        const result = await apiClient.listSources(notebookId);
         return (result || []) as Source[];
       } catch (error: any) {
         const apiError = error.apiError || handleApiError(error);
         throw new Error(getUserFriendlyMessage(apiError));
       }
     },
+    enabled: queryEnabled,
     staleTime: 5 * 1000,
     // Keep showing previous data while a refetch is in progress
     placeholderData: keepPreviousData,
@@ -61,7 +65,7 @@ export function useSources() {
 /**
  * Hook to upload a source file
  */
-export function useUploadSource() {
+export function useUploadSource(notebookId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -77,7 +81,13 @@ export function useUploadSource() {
       pdfPassword?: string;
     }) => {
       try {
-        const result = await apiClient.uploadSource(file, title, onProgress, pdfPassword);
+        const result = await apiClient.uploadSource(
+          file,
+          title,
+          onProgress,
+          pdfPassword,
+          notebookId,
+        );
         return result;
       } catch (error: any) {
         const apiError = error.apiError || handleApiError(error);
@@ -87,8 +97,8 @@ export function useUploadSource() {
     onSuccess: () => {
       // Force an immediate refresh after upload so we do not sit on the initial
       // "processing" snapshot until the next polling interval.
-      queryClient.invalidateQueries({ queryKey: sourceKeys.list() });
-      queryClient.refetchQueries({ queryKey: sourceKeys.list(), type: 'active' });
+      queryClient.invalidateQueries({ queryKey: sourceKeys.lists() });
+      queryClient.refetchQueries({ queryKey: sourceKeys.lists(), type: 'active' });
     },
   });
 }
@@ -96,7 +106,7 @@ export function useUploadSource() {
 /**
  * Hook to delete a source
  */
-export function useDeleteSource() {
+export function useDeleteSource(notebookId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -112,13 +122,13 @@ export function useDeleteSource() {
     // Optimistic update: remove source from cache immediately
     onMutate: async (sourceId) => {
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: sourceKeys.list() });
+      await queryClient.cancelQueries({ queryKey: sourceKeys.list(notebookId) });
 
       // Snapshot the previous value
-      const previousSources = queryClient.getQueryData<Source[]>(sourceKeys.list());
+      const previousSources = queryClient.getQueryData<Source[]>(sourceKeys.list(notebookId));
 
       // Optimistically update to the new value
-      queryClient.setQueryData<Source[]>(sourceKeys.list(), (old) => {
+      queryClient.setQueryData<Source[]>(sourceKeys.list(notebookId), (old) => {
         return old?.filter((source) => source.id !== sourceId) || [];
       });
 
@@ -128,12 +138,12 @@ export function useDeleteSource() {
     // If the mutation fails, use the context returned from onMutate to roll back
     onError: (err, sourceId, context) => {
       if (context?.previousSources) {
-        queryClient.setQueryData(sourceKeys.list(), context.previousSources);
+        queryClient.setQueryData(sourceKeys.list(notebookId), context.previousSources);
       }
     },
     // Always refetch after error or success to ensure consistency
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: sourceKeys.list() });
+      queryClient.invalidateQueries({ queryKey: sourceKeys.lists() });
     },
   });
 }

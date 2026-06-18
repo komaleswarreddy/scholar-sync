@@ -1,0 +1,435 @@
+{
+  "agent_name": "diagram_label_ocr",
+  "generated_at": "2026-06-18T04:34:48.853703+00:00",
+  "dataset_id": "diagram_label_ocr",
+  "dataset_hash": "755283848f1a9764",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000108,
+      "input_cost_usd": 3.1e-05,
+      "output_cost_usd": 7.6e-05,
+      "prompt_tokens": 210,
+      "completion_tokens": 127,
+      "latency_ms": 7606.55,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000356,
+      "input_cost_usd": 8.6e-05,
+      "output_cost_usd": 0.00027,
+      "prompt_tokens": 575,
+      "completion_tokens": 450,
+      "latency_ms": 14676.48,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000108,
+      "input_cost_usd": 3.1e-05,
+      "output_cost_usd": 7.6e-05
+    },
+    "composite_score": 0.9239
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "diagram_label_ocr-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "circuit_diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
+      },
+      "actual": {
+        "output": "Sure! Please provide the diagram or circuit figure you would like me to analyze, and I'll extract the relevant information for you."
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "biology_diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
+      },
+      "actual": {
+        "output": "Sure! Please provide the diagram or circuit figure you would like me to analyze, and I will extract the relevant information for you."
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "flowchart",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Flowchart: food ingestion \u2192 digestion \u2192 absorption \u2192 assimilation \u2192 egestion"
+      },
+      "actual": {
+        "output": "Sure! Please provide the diagram or circuit figure you would like me to analyze, and I'll extract the relevant information for you."
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ray_diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
+      },
+      "actual": {
+        "output": "Sure! Please provide the diagram or circuit figure you would like me to analyze, and I will extract the relevant information for you."
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "chemistry_apparatus",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
+      },
+      "actual": {
+        "output": "Sure! Please provide the diagram or circuit figure you would like me to analyze, and I'll extract the relevant information for you."
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "circuit_diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
+      },
+      "actual": {
+        "labels": [
+          "Voltage",
+          "Current",
+          "Resistance",
+          "Power",
+          "Circuit",
+          "Node",
+          "Source",
+          "Load",
+          "Ground",
+          "Positive",
+          "Negative",
+          "Switch",
+          "Capacitor",
+          "Inductor",
+          "Diode",
+          "Transistor"
+        ],
+        "variables": [
+          "V",
+          "I",
+          "R",
+          "P",
+          "C",
+          "L",
+          "G",
+          "S",
+          "D",
+          "T"
+        ],
+        "flow_hints": [
+          "Input",
+          "Output",
+          "Forward",
+          "Reverse",
+          "Clockwise",
+          "Counterclockwise",
+          "Up",
+          "Down",
+          "Left",
+          "Right"
+        ]
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "biology_diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
+      },
+      "actual": {
+        "labels": [
+          "Voltage",
+          "Current",
+          "Resistance",
+          "Power",
+          "Circuit",
+          "Node",
+          "Source",
+          "Load",
+          "Ground",
+          "Positive",
+          "Negative",
+          "Switch",
+          "Capacitor",
+          "Inductor",
+          "Diode",
+          "Transistor"
+        ],
+        "variables": [
+          "V",
+          "I",
+          "R",
+          "P",
+          "C",
+          "L",
+          "G",
+          "S",
+          "D",
+          "T"
+        ],
+        "flow": [
+          "Input",
+          "Output",
+          "Forward",
+          "Reverse",
+          "Clockwise",
+          "Counterclockwise"
+        ]
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "flowchart",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Flowchart: food ingestion \u2192 digestion \u2192 absorption \u2192 assimilation \u2192 egestion"
+      },
+      "actual": {
+        "labels": [
+          "Voltage",
+          "Current",
+          "Resistance",
+          "Power",
+          "Circuit",
+          "Node",
+          "Source",
+          "Load",
+          "Ground",
+          "Positive",
+          "Negative",
+          "Switch",
+          "Capacitor",
+          "Inductor",
+          "Diode",
+          "Transistor"
+        ],
+        "variables": [
+          "V",
+          "I",
+          "R",
+          "P",
+          "C",
+          "L",
+          "G",
+          "S",
+          "D",
+          "T"
+        ],
+        "flow_hints": [
+          "Input",
+          "Output",
+          "Forward",
+          "Reverse",
+          "Clockwise",
+          "Counterclockwise",
+          "Up",
+          "Down",
+          "Left",
+          "Right"
+        ]
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ray_diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
+      },
+      "actual": {
+        "labels": [
+          "Voltage",
+          "Current",
+          "Resistance",
+          "Power",
+          "Circuit",
+          "Node",
+          "Source",
+          "Load",
+          "Ground",
+          "Positive",
+          "Negative",
+          "Switch",
+          "Capacitor",
+          "Inductor",
+          "Diode",
+          "Transistor"
+        ],
+        "variables": [
+          "V",
+          "I",
+          "R",
+          "P",
+          "C",
+          "L",
+          "G",
+          "S",
+          "D",
+          "T"
+        ],
+        "flow_hints": [
+          "Input",
+          "Output",
+          "Forward",
+          "Reverse",
+          "Clockwise",
+          "Counterclockwise",
+          "Up",
+          "Down",
+          "Left",
+          "Right"
+        ]
+      }
+    },
+    {
+      "example_id": "diagram_label_ocr-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "chemistry_apparatus",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
+      },
+      "expected": {
+        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
+      },
+      "actual": {
+        "labels": [
+          "Voltage",
+          "Current",
+          "Resistance",
+          "Power",
+          "Circuit",
+          "Node",
+          "Source",
+          "Load",
+          "Ground",
+          "Positive",
+          "Negative",
+          "Switch",
+          "Capacitor",
+          "Inductor",
+          "Transistor",
+          "Diode"
+        ],
+        "variables": [
+          "V",
+          "I",
+          "R",
+          "P",
+          "C",
+          "L",
+          "G",
+          "S",
+          "D",
+          "T"
+        ],
+        "flow_hints": [
+          "Input",
+          "Output",
+          "Forward",
+          "Reverse",
+          "Clockwise",
+          "Counterclockwise",
+          "Up",
+          "Down",
+          "Left",
+          "Right"
+        ]
+      }
+    }
+  ]
+}

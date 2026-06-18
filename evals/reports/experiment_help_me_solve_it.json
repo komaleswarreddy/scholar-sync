@@ -1,0 +1,1149 @@
+{
+  "agent_name": "help_me_solve_it",
+  "generated_at": "2026-06-18T03:55:40.635637+00:00",
+  "dataset_id": "help_me_solve_it",
+  "dataset_hash": "a7205879b1f530f0",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 91.0,
+      "pass_rate": 0.6,
+      "cost_usd": 0.000919,
+      "input_cost_usd": 0.000251,
+      "output_cost_usd": 0.000668,
+      "prompt_tokens": 1672,
+      "completion_tokens": 1113,
+      "latency_ms": 9805.32,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.8400000000000001,
+        "progressive_guidance": 0.96,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.8400000000000001
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 91.0,
+      "pass_rate": 0.6,
+      "cost_usd": 0.000997,
+      "input_cost_usd": 0.000196,
+      "output_cost_usd": 0.000801,
+      "prompt_tokens": 1307,
+      "completion_tokens": 1335,
+      "latency_ms": 14512.86,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.8400000000000001,
+        "progressive_guidance": 0.96,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.8400000000000001
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 91.0,
+      "pass_rate": 0.6,
+      "cost_usd": 0.01734,
+      "input_cost_usd": 0.00418,
+      "output_cost_usd": 0.01316,
+      "prompt_tokens": 1672,
+      "completion_tokens": 1316,
+      "latency_ms": 9614.89,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.8400000000000001,
+        "progressive_guidance": 0.96,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.8400000000000001
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 91.0,
+      "pass_rate": 0.6,
+      "cost_usd": 0.025368,
+      "input_cost_usd": 0.003268,
+      "output_cost_usd": 0.0221,
+      "prompt_tokens": 1307,
+      "completion_tokens": 2210,
+      "latency_ms": 12862.46,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.8400000000000001,
+        "progressive_guidance": 0.96,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.8400000000000001
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 91.0,
+      "cost_usd": 0.01734,
+      "input_cost_usd": 0.00418,
+      "output_cost_usd": 0.01316
+    },
+    "composite_score": 0.7681
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "hint_agent",
+  "example_results": [
+    {
+      "example_id": "help_me_solve_it-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Microscope Magnifying Power Calculation",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "We need to find the magnifying power of a microscope given the focal lengths of the objective and eyepiece lenses, as well as the distance between them."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "The magnifying power of a microscope can be calculated using the formula: \\[ M = \\frac{v}{u} \\times \\left(1 + \\frac{D}{f_e}\\right] \\text{ where } v \\text{ is the image distance, } u \\text{ is the object distance, } D \\text{ is the near point distance (usually } 25 \\text{ cm), and } f_e \\text{ is the focal length of the eyepiece.}"
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "To find the image distance for the objective lens, use the lens formula: \\[ \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\text{ where } f \\text{ is the focal length of the objective lens.}"
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use the lens formula for the objective lens."
+            },
+            {
+              "id": "B",
+              "label": "Calculate the total distance between the lenses."
+            },
+            {
+              "id": "C",
+              "label": "Use the formula for magnifying power directly."
+            },
+            {
+              "id": "D",
+              "label": "Find the focal length of the eyepiece only."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "output": "{\n  \"feedback\": \"It seems like you might have chosen an option without fully working through the integral. Let's break it down step by step. To find the definite integral of the function \\(3x^2 + 2x\\) from 0 to 2, we first need to find the antiderivative of the function. Can you recall how to find the antiderivative of each term in the polynomial?\",\n  \"checkpoint\": 2\n}"
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzymes in the Stomach",
+        "sections": [
+          {
+            "heading": "Introduction to Stomach Enzymes",
+            "content": "The stomach is a crucial part of the digestive system where food is broken down. Different enzymes function optimally at different pH levels."
+          },
+          {
+            "heading": "Enzyme Functions and pH Levels",
+            "content": "In the stomach, the environment is highly acidic due to gastric acid. This acidity affects which enzymes can function effectively."
+          },
+          {
+            "heading": "Analyzing the Options",
+            "content": "Let's look at the options provided:\n- (A) Trypsin: This enzyme works best in a more neutral to slightly alkaline pH, typically in the small intestine.\n- (B) Pepsin: This enzyme is specifically adapted to function in acidic conditions, making it a strong candidate.\n- (C) Lipase: While there are different types of lipases, the one that works in the stomach is not primarily active in acidic conditions.\n- (D) Amylase: This enzyme begins the digestion of carbohydrates and is more effective in neutral pH, not acidic."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show next hint",
+            "action": "SHOW_NEXT_HINT"
+          },
+          {
+            "label": "Reveal solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "We need to derive the lens formula for a thin convex lens by analyzing the refraction of light at its two spherical surfaces. This involves applying the principles of refraction and geometry."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "Consider a thin convex lens with focal length \\( f \\). Light rays parallel to the principal axis will converge at the focal point after passing through the lens. Use the lens maker's formula as a starting point."
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "Apply Snell's law at both surfaces of the lens. For a thin lens, the thickness is negligible, and you can assume that the object distance \\( u \\), image distance \\( v \\), and focal length \\( f \\) are related through the geometry of the lens."
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use Snell's law at both surfaces."
+            },
+            {
+              "id": "B",
+              "label": "Consider the geometry of the lens."
+            },
+            {
+              "id": "C",
+              "label": "Apply the lens maker's formula directly."
+            },
+            {
+              "id": "D",
+              "label": "Use the properties of light rays."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "output": "{\n  \"feedback\": \"It seems like you might have chosen an unrelated topic. Let's focus on the problem at hand involving the battery and resistors. To find the current and voltage across each resistor, we can start by calculating the total resistance in the circuit. Since the resistors are in series, the total resistance \\( R_t \\) can be found using the formula: \\\\[ R_t = R_1 + R_2 \\\\] where \\( R_1 = 3 \\\\Omega \\) and \\( R_2 = 6 \\\\Omega \\). Can you calculate the total resistance first?\",\n  \"checkpoint\": 2\n}"
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Understanding Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "We are given a microscope with an objective lens of focal length 2 \\text{ cm} and an eyepiece lens of focal length 6 \\text{ cm}. The lenses are separated by a distance of 16 \\text{ cm}. We need to find the magnifying power of this microscope setup."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "The magnifying power of a compound microscope is given by the product of the magnification of the objective lens and the magnification of the eyepiece lens. The formula for magnifying power is: \n\\[ M = m_o \\times m_e \\] where \\( m_o \\) is the magnification of the objective and \\( m_e \\) is the magnification of the eyepiece."
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "The magnification of the objective lens \\( m_o \\) is given by the formula: \n\\[ m_o = \\frac{L}{f_o} \\] where \\( L \\) is the distance between the lenses and \\( f_o \\) is the focal length of the objective lens. The magnification of the eyepiece lens \\( m_e \\) is given by: \n\\[ m_e = 1 + \\frac{D}{f_e} \\] where \\( D \\) is the least distance of distinct vision, typically taken as 25 \\text{ cm}, and \\( f_e \\) is the focal length of the eyepiece lens."
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use the formula for magnifying power of a simple microscope."
+            },
+            {
+              "id": "B",
+              "label": "Use the formula for magnifying power of a compound microscope."
+            },
+            {
+              "id": "C",
+              "label": "Use the quadratic formula to solve for magnifying power."
+            },
+            {
+              "id": "D",
+              "label": "Use the formula for magnifying power of a telescope."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "response": {
+          "bodyMarkdown": "Great start! You're working on finding the definite integral of the function \\(3x^2 + 2x\\) from 0 to 2. This involves finding the antiderivative of the function and then evaluating it at the upper and lower limits.\n\nLet's break it down:\n\n1. **Find the Antiderivative**: The antiderivative of a function \\(f(x)\\) is a function \\(F(x)\\) such that \\(F'(x) = f(x)\\). For a polynomial like \\(3x^2 + 2x\\), you can find the antiderivative by applying the power rule for integration.\n\n   - The power rule states that \\(\\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C\\), where \\(C\\) is the constant of integration.\n\n2. **Apply the Power Rule**: Apply this rule to each term in the polynomial separately.\n\n   - For \\(3x^2\\), the antiderivative is \\(\\int 3x^2 \\, dx = 3 \\cdot \\frac{x^{2+1}}{2+1} = x^3\\).\n   - For \\(2x\\), the antiderivative is \\(\\int 2x \\, dx = 2 \\cdot \\frac{x^{1+1}}{1+1} = x^2\\).\n\n3. **Combine the Antiderivatives**: Combine these results to get the antiderivative of the entire function.\n\n   - The antiderivative of \\(3x^2 + 2x\\) is \\(x^3 + x^2 + C\\).\n\n4. **Evaluate the Definite Integral**: Now, evaluate this antiderivative from 0 to 2.\n\n   - Substitute the upper limit (2) into the antiderivative and then the lower limit (0), and find the difference.\n\n   - This will give you the value of the definite integral.\n\nWould you like to proceed with evaluating the antiderivative at the limits, or do you have any questions about the steps so far?"
+        }
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzyme Activity in the Stomach",
+        "sections": [
+          {
+            "title": "Introduction to Enzymes",
+            "bodyMarkdown": "Enzymes are biological catalysts that speed up chemical reactions in the body. Each enzyme works best at a specific pH level, which is often related to the environment where it is active."
+          },
+          {
+            "title": "The Stomach Environment",
+            "bodyMarkdown": "The stomach is a highly acidic environment, with a pH ranging from 1.5 to 3.5. This acidity is primarily due to hydrochloric acid (HCl) secreted by the stomach lining."
+          },
+          {
+            "title": "Enzymes in the Stomach",
+            "bodyMarkdown": "In the stomach, enzymes that can function in acidic conditions are active. Let's consider the options:\n\n- **Trypsin**: This enzyme is active in the small intestine and requires a basic pH.\n- **Pepsin**: This enzyme is specifically adapted to work in the acidic environment of the stomach.\n- **Lipase**: While some lipases can function in the stomach, they are more active in the small intestine.\n- **Amylase**: This enzyme is active in the mouth and small intestine, requiring a neutral to slightly basic pH."
+          },
+          {
+            "title": "Conclusion",
+            "bodyMarkdown": "Given the acidic environment of the stomach, the enzyme that acts effectively here is one that can withstand low pH levels."
+          }
+        ],
+        "finalAnswer": "The enzyme that acts in acidic pH in the stomach is Pepsin (B).",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show next hint",
+            "action": "SHOW_NEXT_HINT"
+          },
+          {
+            "label": "Reveal solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "To derive the lens formula for a thin convex lens, we need to consider the refraction of light at two spherical surfaces of the lens. The lens formula relates the object distance \\( u \\), the image distance \\( v \\), and the focal length \\( f \\) of the lens. The formula is given by: \n\\[ \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\]\nOur task is to derive this formula using the principles of refraction at spherical surfaces."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "Start by considering the refraction at the first spherical surface of the lens. Use the lens maker's formula for refraction at a spherical surface, which relates the object distance, image distance, and the radius of curvature of the surface."
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "Next, consider the refraction at the second spherical surface. Again, apply the lens maker's formula. Combine the equations from both surfaces to eliminate the intermediate image distance and derive the lens formula."
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use the quadratic formula to solve for image distance."
+            },
+            {
+              "id": "B",
+              "label": "Apply the lens maker's formula for each spherical surface."
+            },
+            {
+              "id": "C",
+              "label": "Use trigonometry to find angles of refraction."
+            },
+            {
+              "id": "D",
+              "label": "Consider only one surface of the lens."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "response": {
+          "bodyMarkdown": "Great choice starting with the basics of series circuits! Let's break down the problem step by step.\n\nFirst, recall that in a series circuit, the total resistance \\( R_t \\) is the sum of the individual resistances. So, for resistors \\( R_1 = 3 \\, \\Omega \\) and \\( R_2 = 6 \\, \\Omega \\), the total resistance is:\n\n\\[\nR_t = R_1 + R_2\n\\]\n\nNext, Ohm's Law states that the current \\( I \\) through the circuit is given by:\n\n\\[\nI = \\frac{V}{R_t}\n\\]\n\nwhere \\( V \\) is the voltage of the battery. \n\nOnce you have the current, you can find the voltage across each resistor using Ohm's Law again:\n\n- Voltage across \\( R_1 \\):\n  \\[\n  V_1 = I \\times R_1\n  \\]\n\n- Voltage across \\( R_2 \\):\n  \\[\n  V_2 = I \\times R_2\n  \\]\n\nLet's calculate the total resistance first. What do you get for \\( R_t \\)?",
+          "nextStep": "Calculate the total resistance \\( R_t \\) and then use it to find the current \\( I \\)."
+        }
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Microscope Magnifying Power Calculation",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "We need to find the magnifying power of a microscope with given focal lengths of the objective and eyepiece, and the distance between the lenses."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "Recall that the magnifying power of a microscope can be calculated using the formula: \\[ M = \\frac{v}{u} \\times \\frac{D}{f_e} \\text{, where } v \\text{ is the image distance, } u \\text{ is the object distance, } D \\text{ is the near point distance, and } f_e \\text{ is the focal length of the eyepiece.} \\]"
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "You will need to find the image distance for the objective lens first, using the lens formula: \\[ \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\text{, where } f \\text{ is the focal length.} \\]"
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use the lens formula to find image distance."
+            },
+            {
+              "id": "B",
+              "label": "Calculate the total distance between the lenses."
+            },
+            {
+              "id": "C",
+              "label": "Directly apply the magnifying power formula."
+            },
+            {
+              "id": "D",
+              "label": "Use the focal length of the eyepiece only."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "output": "{\n  \"feedback\": \"Great start! To find the definite integral, first, we need to find the antiderivative of the function. Can you identify the antiderivative of \\(3x^2 + 2x\\)?\",\n  \"checkpoint\": 2\n}"
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "actual": {
+        "title": "Enzyme Activity in Stomach",
+        "sections": [
+          {
+            "heading": "Understanding Enzymes",
+            "content": "Enzymes are biological catalysts that speed up chemical reactions. Their activity can depend on pH levels, which vary in different parts of the digestive system."
+          },
+          {
+            "heading": "pH Levels in the Stomach",
+            "content": "The stomach has a highly acidic environment, with a pH typically around 1.5 to 3.5. This acidity is crucial for digestion and enzyme function."
+          },
+          {
+            "heading": "Enzyme Functions",
+            "content": "Different enzymes function optimally at different pH levels. For example, some enzymes work best in alkaline conditions, while others thrive in acidic conditions."
+          },
+          {
+            "heading": "Analyzing the Options",
+            "content": "Let's evaluate the options: (A) Trypsin - works in alkaline pH; (B) Pepsin - works in acidic pH; (C) Lipase - works in neutral to alkaline pH; (D) Amylase - works in neutral pH."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show next hint",
+            "action": "SHOW_NEXT_HINT"
+          },
+          {
+            "label": "Reveal solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "We need to derive the lens formula for a thin convex lens by analyzing the refraction of light at its two spherical surfaces."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "Consider the geometry of the lens and the position of the object and image. Use the lens maker's formula as a starting point."
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "Apply Snell's law at both surfaces of the lens to relate the angles of incidence and refraction."
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use the lens maker's formula directly."
+            },
+            {
+              "id": "B",
+              "label": "Analyze refraction at each surface."
+            },
+            {
+              "id": "C",
+              "label": "Consider only the first surface."
+            },
+            {
+              "id": "D",
+              "label": "Ignore the object distance."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "feedback": "Great choice! To find the current and voltage across each resistor, we first need to calculate the total resistance in the circuit. Remember, in a series circuit, the total resistance is the sum of individual resistances.",
+        "checkpoint": 2
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Understanding Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "We need to find the magnifying power of a compound microscope. The given parameters are the focal lengths of the objective and eyepiece lenses, and the distance between them."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "The magnifying power of a compound microscope is given by the product of the magnification of the objective and the eyepiece. Consider the formula for magnification of each lens."
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "For the objective lens, magnification is given by $\\frac{L}{f_o}$, where $L$ is the tube length and $f_o$ is the focal length of the objective. For the eyepiece, use $\\frac{25}{f_e}$, where $f_e$ is the focal length of the eyepiece."
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use the formula for magnifying power of a simple microscope."
+            },
+            {
+              "id": "B",
+              "label": "Use the formula for magnifying power of a compound microscope."
+            },
+            {
+              "id": "C",
+              "label": "Use the quadratic formula to solve for magnification."
+            },
+            {
+              "id": "D",
+              "label": "Use the formula for resolving power of a microscope."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "response": {
+          "validation": {
+            "is_valid": false,
+            "feedback": "The problem involves integration, not solving a quadratic equation. Let's focus on finding the integral of the given polynomial function."
+          },
+          "next_steps": {
+            "checkpoint": 2,
+            "guidance": "To find the integral of a polynomial, apply the power rule: \\( \\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C \\). Use this to integrate each term of \\( 3x^2 + 2x \\)."
+          }
+        }
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzyme Activity in the Stomach",
+        "sections": [
+          {
+            "title": "Introduction to Enzymes",
+            "bodyMarkdown": "Enzymes are biological catalysts that speed up chemical reactions in the body. Each enzyme works best at a specific pH level."
+          },
+          {
+            "title": "Stomach Environment",
+            "bodyMarkdown": "The stomach has a highly acidic environment, with a pH around 1.5 to 3.5, due to the presence of hydrochloric acid."
+          },
+          {
+            "title": "Enzyme Activity in the Stomach",
+            "bodyMarkdown": "In the acidic environment of the stomach, certain enzymes are active. It's important to identify which enzyme functions optimally at this low pH."
+          },
+          {
+            "title": "Analyzing Options",
+            "bodyMarkdown": "- **Trypsin**: Active in the small intestine, requires alkaline pH.\n- **Pepsin**: Active in the stomach, requires acidic pH.\n- **Lipase**: Primarily active in the small intestine.\n- **Amylase**: Active in the mouth and small intestine, requires neutral to slightly alkaline pH."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show next hint",
+            "action": "SHOW_NEXT_HINT"
+          },
+          {
+            "label": "Reveal solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "title": "Deriving Lens Formula for Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem decode",
+            "bodyMarkdown": "To derive the lens formula for a thin convex lens, we need to consider refraction at two spherical surfaces. This involves understanding how light bends when passing through the lens."
+          },
+          {
+            "heading": "Hint 1",
+            "bodyMarkdown": "Start by considering the refraction at the first spherical surface of the lens. Use the refraction formula for spherical surfaces to relate object distance, image distance, and radius of curvature."
+          },
+          {
+            "heading": "Hint 2",
+            "bodyMarkdown": "Next, consider the refraction at the second spherical surface. Again, apply the refraction formula for spherical surfaces. Combine the equations from both surfaces to derive the lens formula."
+          }
+        ],
+        "checkpoint": {
+          "number": 1,
+          "prompt": "Which idea should we use?",
+          "options": [
+            {
+              "id": "A",
+              "label": "Use the quadratic formula to solve for image distance."
+            },
+            {
+              "id": "B",
+              "label": "Apply the refraction formula for spherical surfaces."
+            },
+            {
+              "id": "C",
+              "label": "Use trigonometry to find angles of refraction."
+            },
+            {
+              "id": "D",
+              "label": "Consider only one surface of the lens."
+            }
+          ]
+        },
+        "revealLevel": "hint",
+        "followUpButtons": []
+      }
+    },
+    {
+      "example_id": "help_me_solve_it-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax\u00b2+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "actual": {
+        "response": {
+          "validation": "You've chosen option A, which is a good start. Let's ensure we understand the series circuit concept.",
+          "feedback": "In a series circuit, the same current flows through each resistor. The total resistance is the sum of individual resistances.",
+          "checkpoint": 2,
+          "ready_for_reveal": false,
+          "reasoning": "Use Ohm's Law: \\( V = IR \\). Total resistance \\( R = R_1 + R_2 \\). Calculate current \\( I \\) using total voltage and resistance."
+        }
+      }
+    }
+  ]
+}

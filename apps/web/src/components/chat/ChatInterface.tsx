@@ -10,9 +10,10 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { ChatMessage, displayAssistantText } from './ChatMessage';
 import { ChatStudioSelectionToolbar } from './ChatStudioSelectionToolbar';
+import { NotebookChatSelectionPopover } from './NotebookChatSelectionPopover';
 import { ChatInput } from './ChatInput';
 import { ChatListSidebar } from './ChatListSidebar';
 import { MessageCircle, RefreshCw, WifiOff, AlertTriangle, Menu, X } from 'lucide-react';
@@ -24,8 +25,11 @@ import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { DEFAULT_NCERT_SUBJECTS_BY_CLASS } from '@/config/ncertSubjectsByClass';
 import type { NcertTutorChapterOption } from '@/lib/api-client';
 import { useSources } from '@/hooks/useSources';
+import { useNotebookScopeId } from '@/contexts/NotebookContext';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
 import { useStudioChatBridgeSafe } from '@/contexts/StudioChatBridgeContext';
+import { TutorNotebookHeader } from './TutorNotebookHeader';
+import { formatTutorScopeChip, type TutorScopeSettings } from '@/lib/tutor-ncert-source';
 
 /** Shown after upload when ingestion completes; triggers same map-reduce path as summary intent. */
 const POST_UPLOAD_SUMMARY_PROMPT =
@@ -52,6 +56,7 @@ interface Message {
   feedback?: 'thumbs_up' | 'thumbs_down' | null;
   messageId?: string; // Backend message ID for feedback
   question?: string; // The question that was asked (for assistant messages)
+  followUps?: string[];
 }
 
 type ChatInterfaceMode = 'dashboard' | 'tutor';
@@ -71,12 +76,58 @@ type HandleSendOptions = {
   omitUserFacingPrompt?: boolean;
 };
 
+interface TutorNcertScope extends TutorScopeSettings {}
+
 interface ChatInterfaceProps {
   mode?: ChatInterfaceMode;
+  appearance?: 'dashboard' | 'notebook';
+  defaultNcertScope?: TutorNcertScope | null;
+  tutorSuggestions?: { label: string; prompt: string }[];
+  tutorBootstrapReady?: boolean;
+  tutorBootstrapping?: boolean;
+  tutorOverviewChatId?: string;
 }
 
-export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
+export function ChatInterface({
+  mode = 'dashboard',
+  appearance = 'dashboard',
+  defaultNcertScope = null,
+  tutorSuggestions,
+  tutorBootstrapReady = true,
+  tutorBootstrapping = false,
+  tutorOverviewChatId,
+}: ChatInterfaceProps) {
   const isTutorMode = mode === 'tutor';
+  const isNotebookAppearance = appearance === 'notebook';
+  const isLockedNotebookTutor = isTutorMode && isNotebookAppearance && defaultNcertScope != null;
+  const lockedNcertScope = useMemo(() => {
+    if (!defaultNcertScope) return null;
+    const subject = String(defaultNcertScope.subject_slug ?? defaultNcertScope.subject_key ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_');
+    const chapterName = String(
+      defaultNcertScope.filter_chapter_name ??
+        defaultNcertScope.chapter_name ??
+        defaultNcertScope.chapter_title ??
+        '',
+    )
+      .trim()
+      .toLowerCase();
+    const conceptRaw = defaultNcertScope.concept;
+    const concept =
+      conceptRaw && String(conceptRaw).trim() && String(conceptRaw).trim().toLowerCase() !== 'all'
+        ? String(conceptRaw).trim()
+        : '';
+    return {
+      class_num: defaultNcertScope.class_num,
+      subject,
+      chapter_no: defaultNcertScope.chapter_no,
+      chapter_name: chapterName || undefined,
+      concept,
+    };
+  }, [defaultNcertScope]);
+  const scopeChipLabel = defaultNcertScope ? formatTutorScopeChip(defaultNcertScope) : '';
   const [messages, setMessages] = useState<Message[]>([]);
   const { currentChatId, setCurrentChat, setCurrentChatId } = useChatContext();
   const [isLoading, setIsLoading] = useState(false);
@@ -92,12 +143,15 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   /** Shown instead of "Thinking" while map-reduce runs after upload (omitUserFacingPrompt). */
   const [isAutoSummaryStreamLoading, setIsAutoSummaryStreamLoading] = useState(false);
+  const [followUpsLoadingForId, setFollowUpsLoadingForId] = useState<string | null>(null);
   const [includeNcertGlobal, setIncludeNcertGlobal] = useState(true);
-  /** Optional Pinecone metadata filter (class 6–10); null = all classes */
+  /** Optional Pinecone metadata filter (Class 12 only); null = all classes */
   const [ncertFilterClass, setNcertFilterClass] = useState<number | null>(null);
   /** Optional subject slug filter, e.g. science */
   const [ncertFilterSubject, setNcertFilterSubject] = useState('');
   const [ncertFilterChapterKey, setNcertFilterChapterKey] = useState('');
+  const [ncertFilterConcept, setNcertFilterConcept] = useState('');
+  const [scopeApplied, setScopeApplied] = useState(false);
   const [ncertSubjectsByClass, setNcertSubjectsByClass] = useState<Record<string, string[]>>(
     DEFAULT_NCERT_SUBJECTS_BY_CLASS
   );
@@ -148,10 +202,12 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   const citationsAccumulatorRef = useRef<Citation[]>([]); 
   const hasFetchedRecentRef = useRef(false);
   const uploadAutoSummaryRunRef = useRef<string | null>(null);
-  
+  const latestAssistantIdRef = useRef<string | null>(null);
+
   const { apiClient } = useApi();
   const { loading: userContextLoading } = useUserContext();
-  const { data: sourcesList = [] } = useSources();
+  const notebookId = useNotebookScopeId();
+  const { data: sourcesList = [] } = useSources(notebookId);
   const {
     setSelectedSources,
     pendingUploadSummarySourceId,
@@ -165,25 +221,31 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
     ncertChapterOptions.find((chapter) => buildChapterOptionKey(chapter) === ncertFilterChapterKey) || null;
   const effectiveIncludeNcertGlobal = isTutorMode ? true : includeNcertGlobal;
   const requiresSelectedSource = !isTutorMode;
-  const chatDisabled =
-    isLoading ||
-    isStreaming ||
-    isLoadingChat ||
-    !isOnline ||
-    (requiresSelectedSource && selectedSourceCount === 0);
+  const chatBusy = isLoading || isStreaming || isLoadingChat || !isOnline;
+  const needsSourceToSend = requiresSelectedSource && selectedSourceCount === 0;
+  const chatDisabled = isNotebookAppearance
+    ? chatBusy
+    : chatBusy || needsSourceToSend;
+  const sendDisabled = chatBusy || needsSourceToSend;
   const chatDisabledReason = !isOnline
     ? 'Reconnect to the internet to continue chatting.'
-    : requiresSelectedSource && selectedSourceCount === 0
-      ? 'Select at least one source to enable dashboard chat.'
+    : needsSourceToSend
+      ? isNotebookAppearance
+        ? 'Select at least one source to send a message.'
+        : 'Select at least one source to enable dashboard chat.'
       : null;
-  const chatHelperText = isTutorMode
-    ? 'Tutor Mode searches the NCERT global library only'
-    : `${selectedSourceCount} source${selectedSourceCount === 1 ? '' : 's'} selected`;
-  const emptyStateMessage = isTutorMode
-    ? 'Ask anything from the NCERT library. Narrow the scope with class, subject, or chapter filters if needed.'
-    : selectedSourceCount === 0
-      ? 'Select at least one notebook source to enable dashboard chat. For NCERT-only questions, open Tutor Mode.'
-      : 'Ask questions about your selected sources. NCERT global support is enabled by default and can be turned off anytime.';
+  const chatHelperText = isLockedNotebookTutor
+    ? `Searching ${scopeChipLabel || 'this NCERT chapter'}`
+    : isTutorMode
+      ? 'Tutor Mode searches the NCERT global library only'
+      : `${selectedSourceCount} source${selectedSourceCount === 1 ? '' : 's'} selected`;
+  const emptyStateMessage = isLockedNotebookTutor
+    ? `Ask anything about ${scopeChipLabel || 'this chapter'}. Answers are grounded in your NCERT scope.`
+    : isTutorMode
+      ? 'Ask anything from the NCERT library. Narrow the scope with class, subject, or chapter filters if needed.'
+      : selectedSourceCount === 0
+        ? 'Select at least one notebook source to enable dashboard chat. For NCERT-only questions, open Tutor Mode.'
+        : 'Ask questions about your selected sources. NCERT global support is enabled by default and can be turned off anytime.';
 
   // Task A.e: Monitor network status
   useEffect(() => {
@@ -199,13 +261,56 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   // Task C.c: Load previous chats on page load — guarded against Strict Mode double-fire AND against UserContext not being ready
   useEffect(() => {
     if (hasFetchedRecentRef.current || userContextLoading) return;
+    if (isLockedNotebookTutor && !tutorBootstrapReady) return;
     if (postUploadAutoSummaryScheduledRef.current) {
       hasFetchedRecentRef.current = true;
       return;
     }
     hasFetchedRecentRef.current = true;
     loadRecentChat();
-  }, [userContextLoading, postUploadAutoSummaryScheduledRef]);
+  }, [userContextLoading, postUploadAutoSummaryScheduledRef, isLockedNotebookTutor, tutorBootstrapReady]);
+
+  useEffect(() => {
+    if (!isLockedNotebookTutor || !tutorSuggestions?.length) return;
+    setMessages((prev) => {
+      const hasUser = prev.some((m) => m.role === 'user');
+      if (hasUser) return prev;
+      for (let i = prev.length - 1; i >= 0; i -= 1) {
+        if (prev[i].role !== 'assistant' || prev[i].followUps?.length) {
+          continue;
+        }
+        const prompts = tutorSuggestions
+          .map((item) => item.prompt)
+          .filter((prompt) => Boolean(prompt?.trim()))
+          .slice(0, 4);
+        if (prompts.length === 0) return prev;
+        const hydrated = [...prev];
+        hydrated[i] = { ...hydrated[i], followUps: prompts };
+        latestAssistantIdRef.current = hydrated[i].id;
+        return hydrated;
+      }
+      return prev;
+    });
+  }, [isLockedNotebookTutor, tutorSuggestions]);
+
+  useEffect(() => {
+    if (!isLockedNotebookTutor) return;
+
+    const onBootstrapComplete = (event: Event) => {
+      const detail = (event as CustomEvent<{ chat_id?: string | null }>).detail;
+      const chatId = detail?.chat_id || tutorOverviewChatId;
+      if (chatId) {
+        void loadChat(chatId);
+      } else {
+        hasFetchedRecentRef.current = false;
+        void loadRecentChat();
+      }
+      setSidebarRefreshTrigger((prev) => prev + 1);
+    };
+
+    window.addEventListener('tutorBootstrapComplete', onBootstrapComplete);
+    return () => window.removeEventListener('tutorBootstrapComplete', onBootstrapComplete);
+  }, [isLockedNotebookTutor, tutorOverviewChatId]);
 
   useEffect(() => {
     if (isTutorMode) {
@@ -214,7 +319,24 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   }, [isTutorMode]);
 
   useEffect(() => {
-    if (!isTutorMode || userContextLoading) {
+    if (!defaultNcertScope || scopeApplied) return;
+    const classNum = defaultNcertScope.class_num;
+    const subjectSlug = defaultNcertScope.subject_slug || defaultNcertScope.subject_key;
+    const chapterNo = defaultNcertScope.chapter_no;
+    const chapterName = defaultNcertScope.chapter_name;
+    const concept = defaultNcertScope.concept;
+
+    if (classNum != null) setNcertFilterClass(classNum);
+    if (subjectSlug) setNcertFilterSubject(String(subjectSlug));
+    if (chapterNo != null && chapterName) {
+      setNcertFilterChapterKey(`${chapterNo}::${chapterName.trim().toLowerCase()}::`);
+    }
+    if (concept) setNcertFilterConcept(String(concept));
+    setScopeApplied(true);
+  }, [defaultNcertScope, scopeApplied]);
+
+  useEffect(() => {
+    if (!isTutorMode || userContextLoading || isLockedNotebookTutor) {
       return;
     }
 
@@ -281,7 +403,11 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           if (attempt > 0) {
             await new Promise((r) => setTimeout(r, 600 * attempt));
           }
-          const chatList = await apiClient.listChats(1, 0);
+          if (tutorOverviewChatId) {
+            await loadChat(tutorOverviewChatId);
+            return;
+          }
+          const chatList = await apiClient.listChats(1, 0, notebookId);
           if (chatList.chats && chatList.chats.length > 0) {
             await loadChat(chatList.chats[0].id);
           }
@@ -298,6 +424,132 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
       setIsLoadingChat(false);
     }
   };
+
+  const attachFollowUpsToAssistant = useCallback((targetId: string, followUps: string[]) => {
+    if (followUps.length === 0) {
+      setFollowUpsLoadingForId(null);
+      return;
+    }
+    setFollowUpsLoadingForId(null);
+    setMessages((prev) => {
+      let matched = false;
+      let matchedId: string | null = null;
+      const updated = prev.map((msg) => {
+        if (msg.id === targetId || msg.messageId === targetId) {
+          matched = true;
+          matchedId = msg.id;
+          return { ...msg, followUps };
+        }
+        return msg;
+      });
+      if (!matched) {
+        for (let i = updated.length - 1; i >= 0; i -= 1) {
+          if (updated[i].role === 'assistant') {
+            updated[i] = { ...updated[i], followUps };
+            latestAssistantIdRef.current = updated[i].id;
+            return updated;
+          }
+        }
+        return updated;
+      }
+      if (matchedId) {
+        latestAssistantIdRef.current = matchedId;
+      }
+      return updated;
+    });
+  }, []);
+
+  const fetchTutorFollowUpsForMessage = useCallback(
+    async ({
+      assistantId,
+      userMessage,
+      assistantText,
+    }: {
+      assistantId: string;
+      userMessage: string;
+      assistantText: string;
+    }) => {
+      if (!isLockedNotebookTutor || !notebookId) return;
+      setFollowUpsLoadingForId(assistantId);
+      latestAssistantIdRef.current = assistantId;
+      try {
+        const result = await apiClient.getTutorFollowUps({
+          notebook_id: notebookId,
+          user_message: userMessage,
+          assistant_message: assistantText,
+        });
+        const followUps = result.follow_ups?.filter(Boolean).slice(0, 3) ?? [];
+        attachFollowUpsToAssistant(assistantId, followUps);
+      } catch (error) {
+        console.warn('Failed to load tutor follow-ups:', error);
+        setFollowUpsLoadingForId(null);
+      }
+    },
+    [apiClient, attachFollowUpsToAssistant, isLockedNotebookTutor, notebookId],
+  );
+
+  const hydrateOverviewFollowUps = useCallback(
+    (formattedMessages: Message[]): Message[] => {
+      if (!isLockedNotebookTutor || !tutorSuggestions?.length) {
+        return formattedMessages;
+      }
+      const hasUser = formattedMessages.some((m) => m.role === 'user');
+      if (hasUser) {
+        return formattedMessages;
+      }
+      const prompts = tutorSuggestions
+        .map((item) => item.prompt)
+        .filter((prompt) => Boolean(prompt?.trim()))
+        .slice(0, 4);
+      if (prompts.length === 0) {
+        return formattedMessages;
+      }
+      for (let i = formattedMessages.length - 1; i >= 0; i -= 1) {
+        if (formattedMessages[i].role === 'assistant') {
+          const hydrated = [...formattedMessages];
+          hydrated[i] = { ...hydrated[i], followUps: prompts };
+          latestAssistantIdRef.current = hydrated[i].id;
+          return hydrated;
+        }
+      }
+      return formattedMessages;
+    },
+    [isLockedNotebookTutor, tutorSuggestions],
+  );
+
+  const maybeFetchFollowUpsForLoadedChat = useCallback(
+    (formattedMessages: Message[]) => {
+      if (!isLockedNotebookTutor || !notebookId) return;
+      const hasUser = formattedMessages.some((m) => m.role === 'user');
+      if (!hasUser) return;
+
+      let lastAssistantIdx = -1;
+      let lastUserMessage = '';
+      for (let i = formattedMessages.length - 1; i >= 0; i -= 1) {
+        if (lastAssistantIdx === -1 && formattedMessages[i].role === 'assistant') {
+          lastAssistantIdx = i;
+        }
+        if (formattedMessages[i].role === 'user') {
+          lastUserMessage = formattedMessages[i].content?.trim() || '';
+          break;
+        }
+      }
+      if (lastAssistantIdx === -1) return;
+
+      const assistant = formattedMessages[lastAssistantIdx];
+      if (assistant.followUps?.length) {
+        latestAssistantIdRef.current = assistant.id;
+        return;
+      }
+
+      void fetchTutorFollowUpsForMessage({
+        assistantId: assistant.id,
+        userMessage: lastUserMessage,
+        assistantText: displayAssistantText(assistant.content),
+      });
+    },
+    [fetchTutorFollowUpsForMessage, isLockedNotebookTutor, notebookId],
+  );
 
   // Task C.c: Load a specific chat
   const loadChat = async (chatId: string) => {
@@ -330,9 +582,12 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
               isSummary: isSummary,
             };
           });
-          setMessages(formattedMessages);
+          const hydrated = hydrateOverviewFollowUps(formattedMessages);
+          setMessages(hydrated);
+          maybeFetchFollowUpsForLoadedChat(hydrated);
         } else {
           setMessages([]);
+          latestAssistantIdRef.current = null;
         }
         setStreamError(null); // Clear error on success
       } else {
@@ -361,7 +616,7 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
       // Clear all streaming state before creating new chat
       resetStreamingState();
       setStreamError(null);
-      const newChat = await apiClient.createChat();
+      const newChat = await apiClient.createChat(undefined, notebookId);
       setCurrentChat(newChat);
       setMessages([]);
       // Refresh sidebar to show new chat
@@ -473,7 +728,7 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
     if (!chatId) {
       try {
         setIsLoading(true);
-        const newChat = await apiClient.createChat(options?.newChatTitle);
+        const newChat = await apiClient.createChat(options?.newChatTitle, notebookId);
         chatId = newChat.id;
         setCurrentChat(newChat);
       } catch (error: any) {
@@ -555,17 +810,39 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           ? options.includeNcertGlobalOverride
           : effectiveIncludeNcertGlobal;
 
-      const ncertClassOpt =
-        includeNcertThisRequest && ncertFilterClass != null ? ncertFilterClass : undefined;
-      const ncertSubjectOpt =
-        includeNcertThisRequest && normalizedTutorSubject ? normalizedTutorSubject : undefined;
-      const ncertChapterNoOpt =
-        includeNcertThisRequest && selectedTutorChapter?.chapter_no != null
-          ? selectedTutorChapter.chapter_no
+      const scopedChapterNo = isLockedNotebookTutor
+        ? lockedNcertScope?.chapter_no
+        : defaultNcertScope?.chapter_no ?? selectedTutorChapter?.chapter_no ?? undefined;
+      const scopedChapterName = isLockedNotebookTutor
+        ? lockedNcertScope?.chapter_name
+        : defaultNcertScope?.filter_chapter_name ??
+          defaultNcertScope?.chapter_name ??
+          selectedTutorChapter?.chapter_name ??
+          undefined;
+      const ncertClassOpt = isLockedNotebookTutor
+        ? includeNcertThisRequest && lockedNcertScope?.class_num != null
+          ? lockedNcertScope.class_num
+          : undefined
+        : includeNcertThisRequest && ncertFilterClass != null
+          ? ncertFilterClass
           : undefined;
+      const ncertSubjectOpt = isLockedNotebookTutor
+        ? includeNcertThisRequest && lockedNcertScope?.subject
+          ? lockedNcertScope.subject
+          : undefined
+        : includeNcertThisRequest && normalizedTutorSubject
+          ? normalizedTutorSubject
+          : undefined;
+      const ncertChapterNoOpt =
+        includeNcertThisRequest && scopedChapterNo != null ? scopedChapterNo : undefined;
       const ncertChapterNameOpt =
-        includeNcertThisRequest && selectedTutorChapter?.chapter_name
-          ? selectedTutorChapter.chapter_name
+        includeNcertThisRequest && scopedChapterName ? scopedChapterName : undefined;
+      const ncertConceptOpt = isLockedNotebookTutor
+        ? includeNcertThisRequest && lockedNcertScope?.concept
+          ? lockedNcertScope.concept
+          : undefined
+        : includeNcertThisRequest && ncertFilterConcept.trim()
+          ? ncertFilterConcept.trim()
           : undefined;
 
       await apiClient.streamChat(
@@ -683,7 +960,21 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
               timestamp: new Date().toLocaleTimeString(),
               question: currentQuestion,
             };
-            setMessages((prev) => [...prev, assistantMessage]);
+            latestAssistantIdRef.current = assistantMessage.id;
+            setMessages((prev) => {
+              const cleared = prev.map((msg) =>
+                msg.role === 'assistant' ? { ...msg, followUps: undefined } : msg,
+              );
+              return [...cleared, assistantMessage];
+            });
+
+            if (isLockedNotebookTutor && notebookId) {
+              void fetchTutorFollowUpsForMessage({
+                assistantId: assistantMessage.id,
+                userMessage: currentQuestion.trim(),
+                assistantText: displayAssistantText(finalResponseText),
+              });
+            }
 
             // Clear streaming UI immediately so we don't show a duplicate temporary bubble
             // while persistence to DB is in progress.
@@ -709,12 +1000,24 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
                     3
                   );
                   if (savedMessage && savedMessage.id) {
+                    const savedId = savedMessage.id;
+                    if (latestAssistantIdRef.current === assistantMessage.id) {
+                      latestAssistantIdRef.current = savedId;
+                    }
+                    setFollowUpsLoadingForId((loadingId) =>
+                      loadingId === assistantMessage.id ? savedId : loadingId,
+                    );
                     setMessages((prev) =>
                       prev.map((msg) =>
-                        msg.id === assistantMessage.id
-                          ? { ...msg, id: savedMessage.id, messageId: savedMessage.id, feedback: savedMessage.feedback || null }
-                          : msg
-                      )
+                        msg.id === assistantMessage.id || msg.messageId === assistantMessage.id
+                          ? {
+                              ...msg,
+                              id: savedId,
+                              messageId: savedId,
+                              feedback: savedMessage.feedback || null,
+                            }
+                          : msg,
+                      ),
                     );
                   } else {
                     // If save failed, still show buttons but they'll be disabled
@@ -822,7 +1125,8 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
         ncertSubjectOpt,
         ncertChapterNoOpt,
         ncertChapterNameOpt,
-        options?.forceWholeFileMapReduce === true
+        options?.forceWholeFileMapReduce === true,
+        ncertConceptOpt
       );
     } catch (error: any) {
       // Task A.b & A.e
@@ -956,6 +1260,15 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
 
   const hasUserMessageInChat = messages.some((m) => m.role === 'user');
 
+  const latestAssistantMessageId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      if (messages[i].role === 'assistant' && !messages[i].isSummary) {
+        return messages[i].id;
+      }
+    }
+    return null;
+  }, [messages]);
+
   useEffect(() => {
     if (isTutorMode || !studioChatBridge) return;
     const transcript = messages
@@ -972,9 +1285,9 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
   }, [messages, isTutorMode, studioChatBridge]);
 
   return (
-    <div className="flex h-full bg-surface">
+    <div className={`flex h-full ${isNotebookAppearance ? 'notebook-chat-shell bg-white' : 'bg-surface'}`}>
       {/* Chat List Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 overflow-hidden border-r border-border-default`}>
+      <div className={`${sidebarOpen ? (isNotebookAppearance ? 'w-52' : 'w-64') : 'w-0'} transition-all duration-300 overflow-hidden ${isNotebookAppearance ? 'border-r border-[var(--color-home-border)]' : 'border-r border-border-default'}`}>
         <ChatListSidebar
           currentChatId={currentChatId}
           onChatSelect={handleChatSelect}
@@ -987,11 +1300,14 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 relative">
-        {!isTutorMode && (
+        {!isTutorMode && !isNotebookAppearance && (
           <ChatStudioSelectionToolbar
             scrollContainerRef={chatMessagesScrollRef}
             enabled={Boolean(studioChatBridge)}
           />
+        )}
+        {isNotebookAppearance && (
+          <NotebookChatSelectionPopover scrollContainerRef={chatMessagesScrollRef} />
         )}
         {/* Task A.e: Network status indicator */}
         {!isOnline && (
@@ -1001,26 +1317,30 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           </div>
         )}
 
-        <div className="h-14 flex items-center px-4 border-b border-border-default">
+        <div className={`${isNotebookAppearance ? 'h-12 px-3 border-b border-[var(--color-home-border)]' : 'h-14 px-4 border-b border-border-default'} flex items-center`}>
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-1.5 rounded-lg hover:bg-surface-hover transition-colors text-text-secondary hover:text-text-primary"
+                className={`p-1.5 rounded-lg transition-colors ${isNotebookAppearance ? 'hover:bg-[var(--color-brand-surface)] text-[var(--color-home-label)] hover:text-[var(--color-brand-text)]' : 'hover:bg-surface-hover text-text-secondary hover:text-text-primary'}`}
                 title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
               >
                 {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
               </button>
-              <div className="flex items-center gap-2">
-                <MessageCircle className="w-5 h-5 text-text-secondary" />
-                <h1 className="text-lg font-medium text-text-primary">
-                  {isTutorMode ? 'Tutor Mode' : 'Chat'}
-                </h1>
+              <div className="flex items-center gap-2 min-w-0">
+                {!isNotebookAppearance && <MessageCircle className="w-5 h-5 text-text-secondary" />}
+                {isLockedNotebookTutor && defaultNcertScope ? (
+                  <TutorNotebookHeader scope={defaultNcertScope} />
+                ) : (
+                  <h1 className={`${isNotebookAppearance ? 'text-[15px] font-bold text-[var(--color-home-text)]' : 'text-lg font-medium text-text-primary'}`}>
+                    {isTutorMode ? 'Tutor Mode' : isNotebookAppearance ? 'Exploratory' : 'Chat'}
+                  </h1>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
               {/* Summarize Chat Button - shown after 5 completed question/answer turns */}
-              {turnCount >= 5 && (
+              {turnCount >= 5 && !isNotebookAppearance && (
                 <button
                   onClick={handleSummarizeChat}
                   disabled={isLoading || isStreaming || isLoadingChat}
@@ -1041,22 +1361,24 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           </div>
         </div>
 
-      <div ref={chatMessagesScrollRef} className="flex-1 overflow-y-auto px-4 py-4">
-        {isLoadingChat ? (
+      <div ref={chatMessagesScrollRef} className={`flex-1 overflow-y-auto ${isNotebookAppearance ? 'notebook-chat-scroll px-3 py-3' : 'px-4 py-4'}`}>
+        {isLoadingChat || (isLockedNotebookTutor && tutorBootstrapping) ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
             <div className="flex gap-1 mb-2">
               <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce [animation-delay:-0.3s]" />
               <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce [animation-delay:-0.15s]" />
               <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce" />
             </div>
-            <p className="text-text-tertiary text-sm">Loading chat...</p>
+            <p className="text-text-tertiary text-sm">
+              {tutorBootstrapping ? 'Preparing your chapter overview…' : 'Loading chat...'}
+            </p>
           </div>
         ) : messages.length === 0 && !currentChatId ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
               <p className="text-text-secondary text-center mb-2">{emptyStateMessage}</p>
           </div>
         ) : (
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className={`${isNotebookAppearance ? 'max-w-none space-y-4' : 'max-w-3xl mx-auto space-y-6'}`}>
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -1067,11 +1389,31 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
                 messageId={message.messageId || message.id}
                 feedback={message.feedback}
                 question={message.question}
+                followUps={
+                  isLockedNotebookTutor &&
+                  message.role === 'assistant' &&
+                  message.id === latestAssistantMessageId
+                    ? message.followUps
+                    : undefined
+                }
+                followUpsLoading={
+                  isLockedNotebookTutor &&
+                  message.role === 'assistant' &&
+                  message.id === latestAssistantMessageId &&
+                  followUpsLoadingForId === message.id
+                }
+                onFollowUpClick={
+                  isLockedNotebookTutor && message.role === 'assistant'
+                    ? (prompt) => void handleSend(prompt)
+                    : undefined
+                }
+                appearance={appearance}
                 onFeedbackUpdate={(messageId, feedback) => {
-                  // Update local state when feedback changes
                   setMessages((prev) =>
                     prev.map((msg) =>
-                      msg.id === messageId ? { ...msg, feedback } : msg
+                      msg.id === messageId || msg.messageId === messageId
+                        ? { ...msg, feedback }
+                        : msg
                     )
                   );
                 }}
@@ -1087,6 +1429,8 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
                     content={currentResponse || (currentCitations.length > 0 ? 'Generating response...' : '')}
                     citations={currentCitations}
                     question={currentQuestion}
+                    appearance={appearance}
+                    showActions={false}
                   />
                 ) : (
                   <div className="flex items-center gap-3 p-4 bg-surface-subtle rounded-2xl w-fit">
@@ -1132,9 +1476,9 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
         )}
       </div>
 
-        <div className="p-4 bg-surface border-t border-border-default space-y-3">
-          <div className="flex flex-col gap-2 max-w-3xl mx-auto">
-            {isTutorMode ? (
+        <div className={`${isNotebookAppearance ? 'p-3 border-t border-[var(--color-home-border)] bg-white' : 'p-4 bg-surface border-t border-border-default'} space-y-3`}>
+          <div className={`flex flex-col gap-2 ${isNotebookAppearance ? '' : 'max-w-3xl mx-auto'}`}>
+            {!isLockedNotebookTutor && isTutorMode ? (
               <div className="rounded-2xl border border-border-default bg-surface-subtle px-4 py-3">
                 <p className="text-sm font-medium text-text-primary">
                   Tutor Mode always uses the NCERT Global Library.
@@ -1143,18 +1487,18 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
                   Narrow the search scope with class, subject, and chapter filters.
                 </p>
               </div>
-            ) : (
-              <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer select-none">
+            ) : !isLockedNotebookTutor ? (
+              <label className={`flex items-center gap-2 cursor-pointer select-none ${isNotebookAppearance ? 'text-[11px] text-[var(--color-home-text-muted)] px-1' : 'text-sm text-text-secondary'}`}>
                 <input
                   type="checkbox"
                   checked={includeNcertGlobal}
                   onChange={(e) => setIncludeNcertGlobal(e.target.checked)}
                   className="rounded border-border-default"
                 />
-                <span>Use NCERT Global Library</span>
+                <span>{isNotebookAppearance ? 'NCERT Global Library' : 'Use NCERT Global Library'}</span>
               </label>
-            )}
-            {isTutorMode && (
+            ) : null}
+            {isTutorMode && !isLockedNotebookTutor && (
               <div className="flex flex-wrap items-center gap-3 text-sm">
                 <label className="flex items-center gap-2 text-text-secondary">
                   <span className="whitespace-nowrap">Filter class</span>
@@ -1175,7 +1519,7 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
                     className="rounded-lg border border-border-default bg-background px-2 py-1 text-text-primary text-sm"
                   >
                     <option value="">All classes</option>
-                    {[6, 7, 8, 9, 10].map((c) => (
+                    {[12].map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
@@ -1227,10 +1571,13 @@ export function ChatInterface({ mode = 'dashboard' }: ChatInterfaceProps) {
           <ChatInput
             onSend={handleSend}
             disabled={chatDisabled}
+            sendDisabled={sendDisabled}
             disabledReason={chatDisabledReason}
             helperText={chatHelperText}
             activeSourceIds={isTutorMode ? [] : selectedSourceIds}
-            showSuggestedPrompts={!hasUserMessageInChat}
+            showSuggestedPrompts={!isLockedNotebookTutor && !hasUserMessageInChat}
+            tutorSuggestions={tutorSuggestions}
+            appearance={appearance}
           />
         </div>
       </div>

@@ -1,0 +1,868 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "tutor_follow_up_questions",
+  "agent": {
+    "sno": 24,
+    "category": "Tutor Mode",
+    "name": "Tutor Follow-up Questions Agent",
+    "tier": "tier_1",
+    "target_examples": 30,
+    "prompt_template": "SYSTEM:\nReturn valid JSON only.\n\nUSER/TASK TEMPLATE:\nYou are ScholarSync Tutor. Given the student's scope and the last exchange, suggest follow-up questions that give **directionality** — deeper understanding, application, exam prep, or fixing misconceptions.\n\n## Scope\nClass {{ class_num }} · {{ subject_label }} · Ch. {{ chapter_no }} {{ chapter_title }}\n{% if concept %}Concept: {{ concept }}{% endif %}\n\n## Last exchange\nStudent: {{ user_message }}\nTutor: {{ assistant_message }}\n\n## Rules\n- Return JSON only: {\"follow_ups\": [\"...\", \"...\", \"...\"]}\n- Exactly 3 questions, each ≤90 characters\n- Must be **specific** to what was just discussed (no generic \"Tell me more\")\n- Mix: 1 clarify/deepen, 1 apply/practice, 1 connect/exam-angle\n- Student tone; no teacher jargon\n- Do not repeat the student's exact question\n- If assistant said \"Not found in provided sources\", suggest rephrases or related NCERT subtopics instead"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "user_message",
+      "assistant_message",
+      "class_num",
+      "subject_label",
+      "chapter_no",
+      "chapter_title"
+    ],
+    "output_keys": [
+      "follow_ups"
+    ]
+  },
+  "items": [
+    {
+      "id": "tutor_follow_up_questions-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 10,
+        "subject_label": "Physics",
+        "chapter_no": 1,
+        "chapter_title": "Chapter topic 1"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 11,
+        "subject_label": "Chemistry",
+        "chapter_no": 2,
+        "chapter_title": "Chapter topic 2"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 12,
+        "subject_label": "Biology",
+        "chapter_no": 3,
+        "chapter_title": "Chapter topic 3"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Chapter topic 4"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u² sin2θ / g for level ground.",
+        "class_num": 11,
+        "subject_label": "Science",
+        "chapter_no": 5,
+        "chapter_title": "Chapter topic 5"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 6,
+        "chapter_title": "Chapter topic 6"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 10,
+        "subject_label": "Chemistry",
+        "chapter_no": 7,
+        "chapter_title": "Chapter topic 7"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 8,
+        "chapter_title": "Chapter topic 8"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
+        "class_num": 12,
+        "subject_label": "Mathematics",
+        "chapter_no": 9,
+        "chapter_title": "Chapter topic 9"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u² sin2θ / g for level ground.",
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 10,
+        "chapter_title": "Chapter topic 10"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 11,
+        "subject_label": "Physics",
+        "chapter_no": 11,
+        "chapter_title": "Chapter topic 11"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 12,
+        "chapter_title": "Chapter topic 12"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 10,
+        "subject_label": "Biology",
+        "chapter_no": 13,
+        "chapter_title": "Chapter topic 13"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
+        "class_num": 11,
+        "subject_label": "Mathematics",
+        "chapter_no": 14,
+        "chapter_title": "Chapter topic 14"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u² sin2θ / g for level ground.",
+        "class_num": 12,
+        "subject_label": "Science",
+        "chapter_no": 15,
+        "chapter_title": "Chapter topic 15"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-016",
+      "variation": "circuit_diagram",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 10,
+        "subject_label": "Physics",
+        "chapter_no": 1,
+        "chapter_title": "Chapter topic 16"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-017",
+      "variation": "biology_diagram",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 11,
+        "subject_label": "Chemistry",
+        "chapter_no": 2,
+        "chapter_title": "Chapter topic 17"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-018",
+      "variation": "flowchart",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 12,
+        "subject_label": "Biology",
+        "chapter_no": 3,
+        "chapter_title": "Chapter topic 18"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-019",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Chapter topic 19"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-020",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u² sin2θ / g for level ground.",
+        "class_num": 11,
+        "subject_label": "Science",
+        "chapter_no": 5,
+        "chapter_title": "Chapter topic 20"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-021",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 6,
+        "chapter_title": "Chapter topic 21"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-022",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 10,
+        "subject_label": "Chemistry",
+        "chapter_no": 7,
+        "chapter_title": "Chapter topic 22"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-023",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 8,
+        "chapter_title": "Chapter topic 23"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-024",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
+        "class_num": 12,
+        "subject_label": "Mathematics",
+        "chapter_no": 9,
+        "chapter_title": "Chapter topic 24"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-025",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u² sin2θ / g for level ground.",
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 10,
+        "chapter_title": "Chapter topic 25"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-026",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 11,
+        "subject_label": "Physics",
+        "chapter_no": 11,
+        "chapter_title": "Chapter topic 26"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-027",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 12,
+        "chapter_title": "Chapter topic 27"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-028",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 10,
+        "subject_label": "Biology",
+        "chapter_no": 13,
+        "chapter_title": "Chapter topic 28"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-029",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
+        "class_num": 11,
+        "subject_label": "Mathematics",
+        "chapter_no": 14,
+        "chapter_title": "Chapter topic 29"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-030",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u² sin2θ / g for level ground.",
+        "class_num": 12,
+        "subject_label": "Science",
+        "chapter_no": 15,
+        "chapter_title": "Chapter topic 30"
+      },
+      "reference_outputs": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "evaluators": [
+        "json_schema",
+        "three_follow_ups"
+      ]
+    }
+  ]
+}

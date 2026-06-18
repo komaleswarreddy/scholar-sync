@@ -1,5 +1,5 @@
 # app/api/v1/endpoints/notes.py
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import DBAPIError, OperationalError
 from typing import Optional, List
@@ -15,11 +15,13 @@ router = APIRouter()
 class NoteRequest(BaseModel):
     content: str
     source_ref_id: Optional[str] = None
+    notebook_id: Optional[str] = None
 
 class NoteResponse(BaseModel):
     id: str
     content: str
     source_ref_id: Optional[str] = None
+    notebook_id: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -58,17 +60,22 @@ def get_user_tenant(request: Request):
 # --- Endpoints ---
 
 @router.get("", response_model=NotesListResponse)
-async def list_notes(request: Request, db: AsyncSession = Depends(get_db)):
+async def list_notes(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    notebook_id: Optional[str] = Query(None),
+):
     try:
         tenant_id, user_id = get_user_tenant(request)
         service = NotesService(db, tenant_id, user_id)
-        notes = await service.list_notes()
+        notes = await service.list_notes(notebook_id=notebook_id)
         return NotesListResponse(
             notes=[
                 NoteResponse(
                     id=str(n.id),
                     content=n.content,
                     source_ref_id=str(n.source_ref_id) if n.source_ref_id else None,
+                    notebook_id=str(n.notebook_id) if n.notebook_id else None,
                     created_at=n.created_at.isoformat() if n.created_at else (n.updated_at.isoformat() if n.updated_at else None),
                     updated_at=n.updated_at.isoformat() if n.updated_at else None,
                 )
@@ -98,11 +105,13 @@ async def create_note(
         note = await service.create_note(
             content=request_body.content,
             source_ref_id=request_body.source_ref_id,
+            notebook_id=request_body.notebook_id,
         )
         return NoteResponse(
             id=str(note.id),
             content=note.content,
             source_ref_id=str(note.source_ref_id) if note.source_ref_id else None,
+            notebook_id=str(note.notebook_id) if note.notebook_id else None,
             created_at=note.created_at.isoformat() if note.created_at else None,
             updated_at=note.updated_at.isoformat() if note.updated_at else None,
         )
@@ -126,6 +135,7 @@ async def get_note(note_id: str, request: Request, db: AsyncSession = Depends(ge
             id=str(note.id),
             content=note.content,
             source_ref_id=str(note.source_ref_id) if note.source_ref_id else None,
+            notebook_id=str(note.notebook_id) if note.notebook_id else None,
             created_at=note.created_at.isoformat() if note.created_at else None,
             updated_at=note.updated_at.isoformat() if note.updated_at else None,
         )
@@ -154,6 +164,7 @@ async def update_note(
             id=str(note.id),
             content=note.content,
             source_ref_id=str(note.source_ref_id) if note.source_ref_id else None,
+            notebook_id=str(note.notebook_id) if note.notebook_id else None,
             created_at=note.created_at.isoformat() if note.created_at else None,
             updated_at=note.updated_at.isoformat() if note.updated_at else None,
         )

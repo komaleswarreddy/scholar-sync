@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "whole_file_map_template",
+  "agent": {
+    "sno": 31,
+    "category": "Source Upload",
+    "name": "Whole File Map Template (Unused file)",
+    "tier": "tier_3",
+    "target_examples": 5,
+    "prompt_template": "You are summarizing parts of a document for a later full-document summary.\nFor each Part below, write EXACTLY ONE concise sentence capturing its main idea.\nNumber your lines Part 1, Part 2, ... matching the order below.\nDo not add an introduction or conclusion.\n\n{{ excerpts }}"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "excerpts"
+    ],
+    "output_keys": [
+      "map_summaries"
+    ]
+  },
+  "items": [
+    {
+      "id": "whole_file_map_template-001",
+      "variation": "metadata",
+      "tags": [
+        "template",
+        "regression"
+      ],
+      "inputs": {
+        "excerpts": "Part 1 excerpt on Physics.\nPart 2 excerpt continued."
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."
+      },
+      "evaluators": [
+        "map_format"
+      ]
+    },
+    {
+      "id": "whole_file_map_template-002",
+      "variation": "metadata",
+      "tags": [
+        "template",
+        "regression"
+      ],
+      "inputs": {
+        "excerpts": "Part 1 excerpt on Chemistry.\nPart 2 excerpt continued."
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."
+      },
+      "evaluators": [
+        "map_format"
+      ]
+    },
+    {
+      "id": "whole_file_map_template-003",
+      "variation": "metadata",
+      "tags": [
+        "template",
+        "regression"
+      ],
+      "inputs": {
+        "excerpts": "Part 1 excerpt on Biology.\nPart 2 excerpt continued."
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."
+      },
+      "evaluators": [
+        "map_format"
+      ]
+    },
+    {
+      "id": "whole_file_map_template-004",
+      "variation": "metadata",
+      "tags": [
+        "template",
+        "regression"
+      ],
+      "inputs": {
+        "excerpts": "Part 1 excerpt on Mathematics.\nPart 2 excerpt continued."
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."
+      },
+      "evaluators": [
+        "map_format"
+      ]
+    },
+    {
+      "id": "whole_file_map_template-005",
+      "variation": "metadata",
+      "tags": [
+        "template",
+        "regression"
+      ],
+      "inputs": {
+        "excerpts": "Part 1 excerpt on Science.\nPart 2 excerpt continued."
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."
+      },
+      "evaluators": [
+        "map_format"
+      ]
+    }
+  ]
+}

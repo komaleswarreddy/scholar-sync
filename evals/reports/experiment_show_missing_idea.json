@@ -1,0 +1,1519 @@
+{
+  "agent_name": "show_missing_idea",
+  "generated_at": "2026-06-18T03:51:32.410457+00:00",
+  "dataset_id": "show_missing_idea",
+  "dataset_hash": "27f092991655db5a",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.001236,
+      "input_cost_usd": 0.00028,
+      "output_cost_usd": 0.000955,
+      "prompt_tokens": 1869,
+      "completion_tokens": 1592,
+      "latency_ms": 11700.13,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 1.0,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.021663,
+      "input_cost_usd": 0.004673,
+      "output_cost_usd": 0.01699,
+      "prompt_tokens": 1869,
+      "completion_tokens": 1699,
+      "latency_ms": 10689.85,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 1.0,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.02634,
+      "input_cost_usd": 0.00376,
+      "output_cost_usd": 0.02258,
+      "prompt_tokens": 1504,
+      "completion_tokens": 2258,
+      "latency_ms": 12064.17,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 1.0,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 96.0,
+      "pass_rate": 0.8,
+      "cost_usd": 0.001497,
+      "input_cost_usd": 0.000226,
+      "output_cost_usd": 0.001271,
+      "prompt_tokens": 1504,
+      "completion_tokens": 2119,
+      "latency_ms": 13652.16,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.9199999999999999,
+        "progressive_guidance": 1.0,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.9199999999999999
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.001236,
+      "input_cost_usd": 0.00028,
+      "output_cost_usd": 0.000955
+    },
+    "composite_score": 0.8999
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "hint_agent",
+  "example_results": [
+    {
+      "example_id": "show_missing_idea-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Microscope Magnifying Power Calculation",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "To find the magnifying power of a microscope, you need to consider both the objective and the eyepiece lenses. The total magnification is the product of the magnification from the objective lens and the eyepiece."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The separation between the lenses and their respective focal lengths can make it challenging to visualize how the light travels through the system and how each lens contributes to the overall magnification."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Think of the microscope as a two-lens system where the objective lens forms a real image that acts as the object for the eyepiece lens. The distances involved and the lens formulas are crucial to determine the final magnification."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by using the lens formula for the objective lens to find the image distance. Then, use this image distance as the object distance for the eyepiece lens to find the final image distance and magnification."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A common mistake is to forget to apply the correct sign conventions for the distances in the lens formula, which can lead to incorrect calculations of the image distances and ultimately the magnification."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "output": "{\n  \"title\": \"Understanding Definite Integrals\",\n  \"sections\": [\n    {\n      \"heading\": \"The Missing Idea\",\n      \"bodyMarkdown\": \"To evaluate the definite integral, you need to find the antiderivative of the function first. This is a crucial step that many overlook.\"\n    },\n    {\n      \"heading\": \"Why It Feels Tricky\",\n      \"bodyMarkdown\": \"Definite integrals can be confusing because they involve both finding an antiderivative and then evaluating it at specific limits. It's easy to mix up the steps.\"\n    },\n    {\n      \"heading\": \"Correct Mental Model\",\n      \"bodyMarkdown\": \"Think of the definite integral as the net area under the curve of the function between the specified limits. This requires understanding both the function's behavior and the process of integration.\"\n    },\n    {\n      \"heading\": \"How to Start\",\n      \"bodyMarkdown\": \"Begin by finding the indefinite integral of the function \\(3x^2 + 2x\\). Once you have the antiderivative, you can evaluate it at the upper and lower limits (2 and 0).\"\n    },\n    {\n      \"heading\": \"Common Mistake\",\n      \"bodyMarkdown\": \"A common mistake is to forget to apply the limits after finding the antiderivative. Make sure to substitute both limits into the antiderivative and subtract the results.\"\n    }\n  ],\n  \"revealLevel\": \"partial\",\n  \"followUpButtons\": [\n    {\"label\": \"Now show full solution\", \"action\": \"REVEAL_SOLUTION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give one similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain this concept\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+      }
+    },
+    {
+      "example_id": "show_missing_idea-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzymes in the Stomach",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "To answer the question correctly, it's essential to know the specific conditions under which each enzyme operates, particularly their optimal pH levels."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Many students confuse the functions of different digestive enzymes and their respective environments, leading to uncertainty about which enzyme is active in the stomach's acidic conditions."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Pepsin is the primary enzyme that functions in the acidic environment of the stomach, breaking down proteins into peptides. Understanding the role of pH in enzyme activity is crucial."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by recalling the functions of each enzyme listed in the options and their optimal pH levels. This will help you identify which enzyme is suited for the stomach's acidic environment."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A frequent error is selecting trypsin, which operates in a more alkaline environment (small intestine), instead of recognizing that pepsin is specifically adapted to the stomach's acidity."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "To derive the lens formula, we need to consider the refraction of light at both surfaces of the lens. Each surface will bend the light according to Snell's law, and we must account for the geometry of the lens."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The challenge arises from the need to apply the sign conventions correctly and to keep track of the distances involved, especially since the lens has two surfaces that affect the light path."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the lens as two spherical surfaces. When light enters the first surface, it refracts towards the normal, and when it exits the second surface, it refracts away from the normal. Understanding these transitions is key to deriving the formula."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by applying Snell's law at each surface. Define the object distance (u), image distance (v), and focal length (f). Set up equations based on the geometry of the lens and the refraction at each surface."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A frequent error is misapplying the sign conventions for distances. Remember that distances measured in the direction of the incoming light are negative, while those in the direction of the outgoing light are positive."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Series Circuits",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "In a series circuit, the total resistance is the sum of individual resistances. This is crucial for calculating the current flowing through the circuit."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Many students confuse the behavior of series and parallel circuits. In series, the same current flows through all components, but the voltage drop across each component depends on its resistance."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the circuit as a single loop. The total voltage from the battery is divided among the resistors based on their resistance values. Use Ohm's law (V = IR) to find the current and voltage across each resistor."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "First, calculate the total resistance of the series circuit. Then, use Ohm's law to find the total current. Finally, apply Ohm's law again to find the voltage across each resistor."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A frequent error is to assume that the voltage across each resistor is the same. Remember, in a series circuit, the voltage drop varies with resistance."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Microscope Magnification",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "To find the magnifying power of a compound microscope, you need to consider both the magnification by the objective lens and the eyepiece lens. The total magnification is the product of these two magnifications."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The challenge often lies in correctly applying the lens formula and understanding the sign conventions. Additionally, the separation between the lenses affects the image formation, which can be confusing."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the microscope as two separate lenses working together. The objective lens creates a real, inverted image, which acts as the object for the eyepiece lens. The eyepiece then magnifies this image for the viewer."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by calculating the magnification of the objective lens using the lens formula and the given focal length. Then, determine the magnification of the eyepiece. Finally, multiply these two values to find the total magnifying power."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A frequent error is neglecting the sign convention, especially when determining the image distance for the objective lens. Remember that the image formed by the objective lens is real and inverted, affecting the sign of the distances."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Unlocking the Integral of a Polynomial",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "To solve the integral \\( \\int (3x^2 + 2x) \\, dx \\) from 0 to 2, you need to apply the power rule for integration. This rule states that \\( \\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C \\) for any real number \\( n \\neq -1 \\)."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The challenge often lies in remembering to apply the power rule correctly and then evaluating the definite integral by substituting the limits. It's easy to forget to apply the limits after finding the antiderivative."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the process in two steps: first, find the antiderivative of each term in the polynomial separately, and then evaluate the result at the upper and lower limits of integration."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by applying the power rule to each term: \\( \\int 3x^2 \\, dx \\) and \\( \\int 2x \\, dx \\). Calculate these antiderivatives separately before combining them."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A frequent error is to forget to subtract the value of the antiderivative at the lower limit from its value at the upper limit. This step is crucial for calculating the definite integral correctly."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Enzyme Activity in the Stomach",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "The key to solving this problem is understanding the environment in which each enzyme operates. The stomach has a highly acidic environment, which is crucial for the activation and function of certain enzymes."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "It might be confusing because multiple enzymes are involved in digestion, but they operate in different parts of the digestive system and under different pH conditions."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the digestive system as a series of compartments, each with its own pH level. The stomach is acidic, and only enzymes that can function in such an environment will be active there."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by recalling which enzymes are secreted in the stomach and their optimal pH levels. This will help you identify which enzyme is active in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A common mistake is to assume that all digestive enzymes work in the same pH environment. Remember that enzymes like trypsin and amylase require a more neutral or basic pH, unlike pepsin."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "The key to deriving the lens formula is understanding how light refracts at each of the two spherical surfaces of the lens. By applying the refraction formula at each surface and considering the geometry of the lens, you can relate the object distance, image distance, and focal length."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "It can be challenging because it involves multiple steps of applying the refraction formula and requires careful attention to the sign convention. The Cartesian sign convention can be particularly confusing, as it dictates the positive and negative directions for distances."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the lens as two separate spherical surfaces. For each surface, apply the refraction formula: \\( \\frac{n_2}{v} - \\frac{n_1}{u} = \\frac{n_2 - n_1}{R} \\). Then, combine the results to eliminate the intermediate image distance and derive the lens formula."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by considering a ray of light passing through the lens. Apply the refraction formula at the first surface to find the image formed by that surface. Then, treat this image as the object for the second surface and apply the refraction formula again."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A common mistake is neglecting the sign convention, especially when determining the radii of curvature and distances. Always remember that distances measured in the direction of the incident light are positive, and those measured against it are negative."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Series Circuits",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "In a series circuit, the same current flows through all components. The total resistance is the sum of individual resistances."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "It can be confusing to determine how voltage is distributed across resistors in series, especially when you're used to thinking about parallel circuits."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the circuit as a single loop where the battery provides a total voltage that is divided among the resistors based on their resistance values."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Calculate the total resistance first, then use Ohm's Law (V = IR) to find the current. Use the current to find the voltage across each resistor."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "A common mistake is to assume that the voltage across each resistor is the same, which is true only for parallel circuits, not series."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Microscope Magnifying Power",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "Understanding how to combine the magnification from both the objective and eyepiece lenses is crucial."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The separation between lenses and their individual focal lengths can complicate calculations."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "The total magnification is the product of the magnification from the objective and the eyepiece."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Use the lens formula for both lenses to find their respective magnifications."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Neglecting the distance between the lenses when calculating the effective focal length."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Definite Integrals",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "You need to recognize that definite integrals represent the area under a curve between two points."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The integration process can be confusing if you're not clear on the limits and the function being integrated."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the function graphically to understand the area you are calculating."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by finding the antiderivative of the function 3x\u00b2 + 2x."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Forgetting to apply the limits of integration after finding the antiderivative."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Stomach Enzymes",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "Enzymes have specific pH ranges where they function optimally. Knowing the pH of the stomach is crucial."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Different enzymes work in various parts of the digestive system, leading to confusion about their pH preferences."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Pepsin is the primary enzyme in the stomach, functioning best in acidic conditions."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Identify the pH of the stomach and match it with the enzyme's optimal activity."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Assuming all digestive enzymes work in the same pH without considering their specific environments."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "Understanding how light refracts at both surfaces of a lens is crucial. Each surface contributes to the overall bending of light, leading to the formation of images."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The interaction of light with two curved surfaces can be complex, especially when applying sign conventions and understanding the direction of light rays."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the lens as two spherical surfaces. Use the principles of refraction at each surface to derive relationships between object distance, image distance, and focal length."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Begin by applying the refraction formula at each surface. Use the sign convention for distances and angles to set up equations for both surfaces."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Neglecting the sign conventions for distances can lead to incorrect results. Ensure to consistently apply the Cartesian sign convention throughout the derivation."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Series Circuits",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "In series circuits, the total resistance affects the current. Understanding how to calculate total resistance is key."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Many struggle with applying Ohm's law to find voltage across individual resistors."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "In a series circuit, current is the same through all components, while voltage divides based on resistance."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Calculate total resistance (R_total = R1 + R2). Then use Ohm's law (I = V/R_total) to find current."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Forgetting that voltage across each resistor depends on its resistance and the total current."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Microscope Magnification",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "The magnifying power of a compound microscope is the product of magnifications by the objective and eyepiece lenses."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "The separation between lenses and focal lengths must be used correctly to find image distances."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the microscope as two lenses working together, each contributing to the total magnification."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Use the lens formula to find image distances, then calculate magnifications for each lens."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Ignoring the lens separation when calculating the image distance for the eyepiece."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Unlocking the Integral of a Polynomial",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "Recognize the need to apply the power rule for integration to each term separately."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Confusion often arises from not knowing how to handle each term in the polynomial."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "View integration as the reverse of differentiation, applying the power rule to each term."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Identify each term in the polynomial and apply the power rule: \u222bx^n dx = x^(n+1)/(n+1)."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Forgetting to evaluate the definite integral by substituting the limits after finding the antiderivative."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Enzyme Activity in Stomach",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "Identify which enzyme functions optimally in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Multiple enzymes are involved in digestion, but only one is active in acidic conditions."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Focus on the stomach's acidic pH and which enzyme is adapted to this environment."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Recall the role of each enzyme in digestion and their optimal pH levels."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Confusing enzymes that work in the stomach with those that work in the intestine."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Deriving Lens Formula for Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "Consider refraction at each spherical surface separately, using the lens maker's formula."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Combining refraction at two surfaces into a single formula can be conceptually challenging."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize the lens as two refracting surfaces, each contributing to the overall lens effect."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Apply Snell's Law at each surface, then use geometry to relate object and image distances."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Ignoring the sign convention can lead to incorrect results; adhere to Cartesian sign rules."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_missing_idea-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "student_attempt": "Student tried random formula without identifying given quantities."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "The unlock",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Key insight without full solution."
+            }
+          ],
+          "revealLevel": "partial"
+        }
+      },
+      "actual": {
+        "title": "Understanding Series Circuits",
+        "sections": [
+          {
+            "heading": "The Missing Idea",
+            "bodyMarkdown": "Use Ohm's Law: V = IR. Total resistance in series is the sum of individual resistances."
+          },
+          {
+            "heading": "Why It Feels Tricky",
+            "bodyMarkdown": "Confusion often arises from not knowing how to distribute voltage across resistors."
+          },
+          {
+            "heading": "Correct Mental Model",
+            "bodyMarkdown": "Visualize current as constant in series; voltage divides based on resistance."
+          },
+          {
+            "heading": "How to Start",
+            "bodyMarkdown": "Calculate total resistance, then use Ohm's Law to find current."
+          },
+          {
+            "heading": "Common Mistake",
+            "bodyMarkdown": "Forgetting that current is the same through all components in series."
+          }
+        ],
+        "revealLevel": "partial",
+        "followUpButtons": [
+          {
+            "label": "Now show full solution",
+            "action": "REVEAL_SOLUTION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give one similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain this concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    }
+  ]
+}

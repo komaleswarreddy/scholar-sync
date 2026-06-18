@@ -1,0 +1,294 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "studio_fallback_legacy",
+  "agent": {
+    "sno": 15,
+    "category": "Studio",
+    "name": "Studio Fallback Task Prompt (Legacy)",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "Generate a {{ task_type }} based on: {% if context and context.strip() %}{{ context }}{% else %}general content{% endif %}"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "task_type",
+      "context"
+    ],
+    "output_keys": [
+      "output"
+    ]
+  },
+  "items": [
+    {
+      "id": "studio_fallback_legacy-001",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "summary",
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2."
+      },
+      "reference_outputs": {
+        "output": "Graceful summary from provided context on Current Electricity."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-002",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "quiz",
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi."
+      },
+      "reference_outputs": {
+        "output": "Graceful quiz from provided context on Human Digestion."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-003",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "flashcards",
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature."
+      },
+      "reference_outputs": {
+        "output": "Graceful flashcards from provided context on Photosynthesis."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-004",
+      "variation": "metadata",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "outline",
+        "context": ""
+      },
+      "reference_outputs": {
+        "output": "Graceful outline from thin context on Chemical Bonding."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-005",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "glossary",
+        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force."
+      },
+      "reference_outputs": {
+        "output": "Graceful glossary from provided context on Magnetic Effects."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-006",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "summary",
+        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall."
+      },
+      "reference_outputs": {
+        "output": "Graceful summary from provided context on Cell Structure."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-007",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "quiz",
+        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a."
+      },
+      "reference_outputs": {
+        "output": "Graceful quiz from provided context on Quadratic Equations."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-008",
+      "variation": "metadata",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "flashcards",
+        "context": ""
+      },
+      "reference_outputs": {
+        "output": "Graceful flashcards from thin context on Human Reproduction."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-009",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "outline",
+        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h."
+      },
+      "reference_outputs": {
+        "output": "Graceful outline from provided context on Thermodynamics."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-010",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "glossary",
+        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals."
+      },
+      "reference_outputs": {
+        "output": "Graceful glossary from provided context on Coordination Compounds."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-011",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "summary",
+        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle."
+      },
+      "reference_outputs": {
+        "output": "Graceful summary from provided context on Ray Optics."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-012",
+      "variation": "metadata",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "quiz",
+        "context": ""
+      },
+      "reference_outputs": {
+        "output": "Graceful quiz from thin context on Ecology."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-013",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "flashcards",
+        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B)."
+      },
+      "reference_outputs": {
+        "output": "Graceful flashcards from provided context on Probability."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-014",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "outline",
+        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration."
+      },
+      "reference_outputs": {
+        "output": "Graceful outline from provided context on Organic Chemistry."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-015",
+      "variation": "cbse",
+      "tags": [
+        "legacy",
+        "fallback"
+      ],
+      "inputs": {
+        "task_type": "glossary",
+        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g."
+      },
+      "reference_outputs": {
+        "output": "Graceful glossary from provided context on Motion in Plane."
+      },
+      "evaluators": [
+        "llm_judge"
+      ]
+    }
+  ]
+}

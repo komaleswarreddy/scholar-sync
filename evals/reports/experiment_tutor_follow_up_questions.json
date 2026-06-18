@@ -1,0 +1,364 @@
+{
+  "agent_name": "tutor_follow_up_questions",
+  "generated_at": "2026-06-18T04:03:35.384424+00:00",
+  "dataset_id": "tutor_follow_up_questions",
+  "dataset_hash": "a13ae1be9c749286",
+  "threshold": 98.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000297,
+      "input_cost_usd": 0.000151,
+      "output_cost_usd": 0.000146,
+      "prompt_tokens": 1005,
+      "completion_tokens": 244,
+      "latency_ms": 12516.96,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000365,
+      "input_cost_usd": 0.000206,
+      "output_cost_usd": 0.000158,
+      "prompt_tokens": 1375,
+      "completion_tokens": 264,
+      "latency_ms": 25047.93,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000297,
+      "input_cost_usd": 0.000151,
+      "output_cost_usd": 0.000146
+    },
+    "composite_score": 0.9
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "tutor_follow_up_questions-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 10,
+        "subject_label": "Physics",
+        "chapter_no": 1,
+        "chapter_title": "Chapter topic 1"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "Can you explain what each symbol in V = I \u00d7 R represents?",
+          "How would you calculate resistance if V = 12V and I = 3A?",
+          "What types of materials follow Ohm's law in your syllabus?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 11,
+        "subject_label": "Chemistry",
+        "chapter_no": 2,
+        "chapter_title": "Chapter topic 2"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What role do chlorophyll and light play in the light reaction?",
+          "Can you explain how ATP and NADPH are used in the dark reaction?",
+          "How might exam questions test your understanding of the light reaction?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 12,
+        "subject_label": "Biology",
+        "chapter_no": 3,
+        "chapter_title": "Chapter topic 3"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What are common mistakes when balancing half-reactions?",
+          "Can you balance this redox equation: MnO4- + I- \u2192 Mn2+ + I2?",
+          "How might redox reactions appear in exam questions?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n\u21922n; meiosis reduction division for gametes.",
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Chapter topic 4"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What are the key stages in mitosis and meiosis?",
+          "Can you explain how meiosis leads to genetic diversity?",
+          "How might these processes be tested in your exams?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u\u00b2 sin2\u03b8 / g for level ground.",
+        "class_num": 11,
+        "subject_label": "Science",
+        "chapter_no": 5,
+        "chapter_title": "Chapter topic 5"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What does each variable in the range formula represent?",
+          "Can you calculate the range for a 30\u00b0 launch angle?",
+          "How does air resistance affect the range in real scenarios?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "What is Ohm's law?",
+        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
+        "class_num": 10,
+        "subject_label": "Physics",
+        "chapter_no": 1,
+        "chapter_title": "Chapter topic 1"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on What is Ohm's law??",
+          "Where is this in NCERT exam?",
+          "Common mistake about What is Ohm's law??"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What happens to current if resistance increases in a circuit?",
+          "Can you calculate the voltage if I is 2A and R is 5\u03a9?",
+          "How does Ohm's law relate to series and parallel circuits in exams?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Explain photosynthesis light reaction.",
+        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "class_num": 11,
+        "subject_label": "Chemistry",
+        "chapter_no": 2,
+        "chapter_title": "Chapter topic 2"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on Explain photosynthesis light r?",
+          "Where is this in NCERT exam?",
+          "Common mistake about Explain photosynthesis li?"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What role do chlorophyll and light play in the light reaction?",
+          "How would you explain the importance of ATP and NADPH in the dark reaction?",
+          "Can you describe how the light reaction connects to the overall process of photosynthesis?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "How to balance redox equations?",
+        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "class_num": 12,
+        "subject_label": "Biology",
+        "chapter_no": 3,
+        "chapter_title": "Chapter topic 3"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on How to balance redox equations?",
+          "Where is this in NCERT exam?",
+          "Common mistake about How to balance redox equa?"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What are common mistakes when balancing redox reactions?",
+          "Can you balance this redox equation: MnO4- + Fe2+ \u2192 Mn2+ + Fe3+?",
+          "How do redox reactions relate to cellular respiration in biology?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Difference mitosis meiosis?",
+        "assistant_message": "Mitosis 2n\u21922n; meiosis reduction division for gametes.",
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Chapter topic 4"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on Difference mitosis meiosis??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Difference mitosis meiosi?"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What are the key stages of mitosis and meiosis?",
+          "Can you explain how meiosis contributes to genetic diversity?",
+          "How might questions on mitosis and meiosis appear in your exams?"
+        ]
+      }
+    },
+    {
+      "example_id": "tutor_follow_up_questions-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Projectile range formula?",
+        "assistant_message": "R = u\u00b2 sin2\u03b8 / g for level ground.",
+        "class_num": 11,
+        "subject_label": "Science",
+        "chapter_no": 5,
+        "chapter_title": "Chapter topic 5"
+      },
+      "expected": {
+        "follow_ups": [
+          "Numerical practice on Projectile range formula??",
+          "Where is this in NCERT exam?",
+          "Common mistake about Projectile range formula??"
+        ]
+      },
+      "actual": {
+        "follow_ups": [
+          "What factors affect the range of a projectile besides angle?",
+          "Can you calculate the range for a projectile launched at 30\u00b0 with u = 20 m/s?",
+          "How does the range change on an inclined plane compared to level ground?"
+        ]
+      }
+    }
+  ]
+}

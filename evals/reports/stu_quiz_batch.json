@@ -1,0 +1,247 @@
+{
+  "bucket": "STU-01/02",
+  "items": [
+    {
+      "chapter_id": "stu_ch_01",
+      "fixture_file": "standard_chapter.pdf",
+      "source_id": "fd4a14f0-558e-4986-adc2-84f2cecfd29f",
+      "run_index": 1,
+      "http_status": 200,
+      "structure_valid": true,
+      "structure_errors": [],
+      "human_verified": null,
+      "correctness": null,
+      "ambiguity_flag": null,
+      "failure_tag": null,
+      "quiz_data": {
+        "title": "Photosynthesis Quiz",
+        "questions": [
+          {
+            "question": "What is the primary role of chlorophyll in photosynthesis?",
+            "options": [
+              "To absorb sunlight",
+              "To release oxygen",
+              "To convert glucose",
+              "To store water"
+            ],
+            "correct_answer": "To absorb sunlight",
+            "explanation": "Chlorophyll is essential for capturing light energy, which is then used in the process of photosynthesis."
+          },
+          {
+            "question": "Which two substances are required for the Calvin cycle?",
+            "options": [
+              "Glucose and oxygen",
+              "Carbon dioxide and water",
+              "Light and chlorophyll",
+              "Oxygen and glucose"
+            ],
+            "correct_answer": "Carbon dioxide and water",
+            "explanation": "The Calvin cycle uses carbon dioxide and water as reactants to produce glucose."
+          },
+          {
+            "question": "What does the equation 6CO2 + 6H2O -> C6H12O6 + 6O2 represent?",
+            "options": [
+              "Cellular respiration",
+              "Photosynthesis",
+              "Transpiration",
+              "Nitrogen fixation"
+            ],
+            "correct_answer": "Photosynthesis",
+            "explanation": "This equation summarizes the process of photosynthesis, where carbon dioxide and water are converted into glucose and oxygen."
+          },
+          {
+            "question": "Which colors of light does chlorophyll absorb most effectively?",
+            "options": [
+              "Green and yellow",
+              "Red and blue",
+              "Blue and orange",
+              "Yellow and green"
+            ],
+            "correct_answer": "Red and blue",
+            "explanation": "Chlorophyll primarily absorbs red and blue wavelengths of light for photosynthesis."
+          },
+          {
+            "question": "What is the main product of photosynthesis?",
+            "options": [
+              "Oxygen",
+              "Water",
+              "Glucose",
+              "Carbon dioxide"
+            ],
+            "correct_answer": "Glucose",
+            "explanation": "The main product of photosynthesis is glucose, which serves as an energy source for plants."
+          }
+        ]
+      },
+      "expected_facts": [
+        "Photosynthesis converts light energy into chemical energy",
+        "Chlorophyll is involved in capturing light"
+      ]
+    },
+    {
+      "chapter_id": "stu_ch_02",
+      "fixture_file": "physics_formulas.pdf",
+      "source_id": "79894da1-eb2f-4f7b-8d5a-0a8dc92a5c1d",
+      "run_index": 1,
+      "http_status": 200,
+      "structure_valid": true,
+      "structure_errors": [],
+      "human_verified": null,
+      "correctness": null,
+      "ambiguity_flag": null,
+      "failure_tag": null,
+      "quiz_data": {
+        "title": "Physics and Chemistry Concepts Quiz",
+        "questions": [
+          {
+            "question": "What does Snell's law describe?",
+            "options": [
+              "The relationship between pressure and volume",
+              "The relationship between light refraction angles",
+              "The relationship between force and mass",
+              "The relationship between pH and acid concentration"
+            ],
+            "correct_answer": "The relationship between light refraction angles",
+            "explanation": "Snell's law relates the angles of incidence and refraction to the indices of refraction of two media."
+          },
+          {
+            "question": "In the Henderson-Hasselbalch equation, what does pKa represent?",
+            "options": [
+              "The acidity constant",
+              "The concentration of the acid",
+              "The pH of the solution",
+              "The ratio of conjugate base to acid"
+            ],
+            "correct_answer": "The acidity constant",
+            "explanation": "pKa is a measure of the strength of an acid in solution, indicating how easily it donates protons."
+          },
+          {
+            "question": "According to Newton's second law, how is force calculated?",
+            "options": [
+              "F = m + a",
+              "F = m - a",
+              "F = ma",
+              "F = a/m"
+            ],
+            "correct_answer": "F = ma",
+            "explanation": "Newton's second law states that the force acting on an object is equal to the mass of that object multiplied by its acceleration."
+          },
+          {
+            "question": "What is the primary application of the Henderson-Hasselbalch equation?",
+            "options": [
+              "Calculating the speed of light",
+              "Determining pH in buffer solutions",
+              "Calculating force in a moving object",
+              "Defining the relationship between energy and mass"
+            ],
+            "correct_answer": "Determining pH in buffer solutions",
+            "explanation": "The equation allows for the calculation of pH based on the concentrations of an acid and its conjugate base."
+          },
+          {
+            "question": "What does the term 'index of refraction' refer to in Snell's law?",
+            "options": [
+              "The speed of light in a vacuum",
+              "The speed of light in a medium",
+              "The angle of incidence",
+              "The angle of refraction"
+            ],
+            "correct_answer": "The speed of light in a medium",
+            "explanation": "The index of refraction is defined as the ratio of the speed of light in a vacuum to the speed of light in a specific medium."
+          },
+          {
+            "question": "Which of the following represents a direct application of Newton's second law?",
+            "options": [
+              "Calculating the refraction of light",
+              "Determining the pH of a solution",
+              "Analyzing the motion of a falling object",
+              "Estimating the acidity of a solution"
+            ],
+            "correct_answer": "Analyzing the motion of a falling object",
+            "explanation": "Newton's second law is fundamental for understanding the motion of objects under the influence of forces."
+          }
+        ]
+      },
+      "expected_facts": [
+        "Newton's second law relates force mass and acceleration"
+      ]
+    },
+    {
+      "chapter_id": "stu_ch_03",
+      "fixture_file": "sample_phrase_alpha.txt",
+      "source_id": "321b8561-9a7e-4f59-a1df-45d11282d5df",
+      "run_index": 1,
+      "http_status": 200,
+      "structure_valid": true,
+      "structure_errors": [],
+      "human_verified": null,
+      "correctness": null,
+      "ambiguity_flag": null,
+      "failure_tag": null,
+      "quiz_data": {
+        "title": "Cell Biology Quiz",
+        "questions": [
+          {
+            "question": "What is the primary function of mitochondria in cells?",
+            "options": [
+              "Protein synthesis",
+              "Energy production",
+              "DNA replication",
+              "Waste removal"
+            ],
+            "correct_answer": "Energy production",
+            "explanation": "Mitochondria are known as the powerhouse of the cell because they generate ATP, the energy currency."
+          },
+          {
+            "question": "Which statement best describes the role of mitochondria?",
+            "options": [
+              "They store genetic information.",
+              "They facilitate photosynthesis.",
+              "They produce energy through respiration.",
+              "They regulate cell division."
+            ],
+            "correct_answer": "They produce energy through respiration.",
+            "explanation": "Mitochondria convert nutrients into energy via cellular respiration, primarily producing ATP."
+          },
+          {
+            "question": "What cellular process primarily occurs in the mitochondria?",
+            "options": [
+              "Glycolysis",
+              "Citric acid cycle",
+              "Protein synthesis",
+              "Cell signaling"
+            ],
+            "correct_answer": "Citric acid cycle",
+            "explanation": "The citric acid cycle, also known as the Krebs cycle, takes place within the mitochondria and is crucial for energy production."
+          },
+          {
+            "question": "How do mitochondria contribute to cellular metabolism?",
+            "options": [
+              "By synthesizing carbohydrates",
+              "By breaking down fatty acids",
+              "By storing calcium ions",
+              "By generating heat"
+            ],
+            "correct_answer": "By breaking down fatty acids",
+            "explanation": "Mitochondria play a key role in metabolizing fatty acids for energy through beta-oxidation."
+          },
+          {
+            "question": "What is a common analogy used to describe mitochondria?",
+            "options": [
+              "The brain of the cell",
+              "The factory of the cell",
+              "The powerhouse of the cell",
+              "The skeleton of the cell"
+            ],
+            "correct_answer": "The powerhouse of the cell",
+            "explanation": "Mitochondria are often referred to as the powerhouse of the cell due to their role in producing ATP."
+          }
+        ]
+      },
+      "expected_facts": [
+        "Mitochondria is the powerhouse of the cell"
+      ]
+    }
+  ],
+  "errors": [],
+  "review_instructions": "Set human_verified=true, correctness=true/false, ambiguity_flag=true/false per item. Run scripts/verify_studio_curriculum_signoff.py when complete."
+}

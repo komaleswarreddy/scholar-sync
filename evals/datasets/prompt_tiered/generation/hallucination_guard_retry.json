@@ -1,0 +1,135 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "hallucination_guard_retry",
+  "agent": {
+    "sno": 9,
+    "category": "Genration",
+    "name": "Hallucination Guard Retry Suffix",
+    "tier": "tier_3",
+    "target_examples": 5,
+    "prompt_template": "Grounding instruction (hallucination guard):\n- Remove, soften, or label as `General knowledge:` any sentence not directly supported by the Context evidence.\n- Prefer restating the evidence using the same terms as the excerpts.\n- Do not add new specific numbers, names, dates, or quotes unless they appear in the evidence.\n+ optional list of unsupported sentences"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "answer",
+      "context",
+      "unsupported_sentences"
+    ],
+    "output_keys": [
+      "corrected_answer"
+    ]
+  },
+  "items": [
+    {
+      "id": "hallucination_guard_retry-001",
+      "variation": "ncert_strict",
+      "tags": [
+        "grounding",
+        "retry"
+      ],
+      "inputs": {
+        "answer": "The heart has five chambers and pumps blue blood.",
+        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "unsupported_sentences": [
+          "The heart has five chambers"
+        ]
+      },
+      "reference_outputs": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "evaluators": [
+        "grounding_check"
+      ],
+      "notes": "The excerpt does not describe heart chambers; remove unsupported claim."
+    },
+    {
+      "id": "hallucination_guard_retry-002",
+      "variation": "ncert_strict",
+      "tags": [
+        "grounding",
+        "retry"
+      ],
+      "inputs": {
+        "answer": "Newton published Principia in 1685 and invented calculus alone.",
+        "context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "unsupported_sentences": [
+          "Newton published Principia in 1685"
+        ]
+      },
+      "reference_outputs": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "evaluators": [
+        "grounding_check"
+      ],
+      "notes": "Date and attribution not in provided optics excerpt."
+    },
+    {
+      "id": "hallucination_guard_retry-003",
+      "variation": "ncert_strict",
+      "tags": [
+        "grounding",
+        "retry"
+      ],
+      "inputs": {
+        "answer": "Photosynthesis occurs only at night in all plants.",
+        "context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "unsupported_sentences": [
+          "Photosynthesis occurs only at night"
+        ]
+      },
+      "reference_outputs": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "evaluators": [
+        "grounding_check"
+      ],
+      "notes": "Contradicts context about light reaction."
+    },
+    {
+      "id": "hallucination_guard_retry-004",
+      "variation": "ncert_strict",
+      "tags": [
+        "grounding",
+        "retry"
+      ],
+      "inputs": {
+        "answer": "Resistance always decreases when temperature rises for all metals.",
+        "context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A.",
+        "unsupported_sentences": [
+          "Resistance always decreases when temperature rises"
+        ]
+      },
+      "reference_outputs": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "evaluators": [
+        "grounding_check"
+      ],
+      "notes": "Overgeneralization beyond excerpt."
+    },
+    {
+      "id": "hallucination_guard_retry-005",
+      "variation": "ncert_strict",
+      "tags": [
+        "grounding",
+        "retry"
+      ],
+      "inputs": {
+        "answer": "Trypsin is secreted by the stomach lining.",
+        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "unsupported_sentences": [
+          "Trypsin is secreted by the stomach"
+        ]
+      },
+      "reference_outputs": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "evaluators": [
+        "grounding_check"
+      ],
+      "notes": "Trypsin acts in duodenum per context."
+    }
+  ]
+}

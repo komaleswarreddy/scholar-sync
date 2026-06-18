@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-13T15:10:40.781491+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "csf_probes_approved": false,
+  "layers": {
+    "generate_ipi_fixtures": 0,
+    "log_ipi_ingestion_survival": 0,
+    "unit_source_content_guard": 0,
+    "ipi_pytest_not_slow": 1
+  },
+  "artifacts": {
+    "ipi_survival": "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\evals\\reports\\ipi_ingestion_survival.json",
+    "ipi_junit": "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\evals\\reports\\ipi_pytest.xml",
+    "ipi_slow_junit": "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\evals\\reports\\ipi_pytest_slow.xml",
+    "csf_junit": "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\evals\\reports\\csf_pytest.xml"
+  }
+}

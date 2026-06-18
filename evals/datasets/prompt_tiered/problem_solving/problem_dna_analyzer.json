@@ -1,0 +1,1382 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "problem_dna_analyzer",
+  "agent": {
+    "sno": 17,
+    "category": "Problem Solving",
+    "name": "Problem DNA Analyzer",
+    "tier": "tier_1",
+    "target_examples": 30,
+    "prompt_template": "{# problem_solver/dna.j2 — PROMPT_VERSION: ps-v1.1.0 #}\nYou are ScholarSync Problem DNA Analyzer for Indian NCERT students (Class 9-10).\n\nAnalyze the problem and return JSON only (no markdown fences).\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nNotebook scope (filter only — do NOT default to the first subject in this list):\n{% if subject_labels %}\n{% for label in subject_labels %}- {{ label }}\n{% endfor %}\n{% else %}\n{% for key in subject_keys %}- {{ key }}\n{% endfor %}\n{% endif %}\nClass: {{ class_num }}\n\n{% if inferred_subject_hint %}\nContent-based subject hint (trust the problem wording over scope order): {{ inferred_subject_hint }}\n{% endif %}\n\nRules:\n1. Classify subject from PROBLEM CONTENT first (physics motion, chemistry equations, maths algebra, etc.).\n2. \"subject\" must be the student-facing name (e.g. Physics, Chemistry, Mathematics) — not a generic bucket unless unsure.\n3. If the problem involves motion, acceleration, velocity, forces, or units like m/s² → subject is Physics (NCERT Science), NOT Mathematics.\n4. Allowed scope limits which NCERT subjects are relevant; never label a physics word problem as Mathematics.\n\nReturn JSON:\n{\n  \"subject\": \"string\",\n  \"chapter\": \"string\",\n  \"conceptTags\": [\"string\"],\n  \"difficulty\": \"Easy\" | \"Medium\" | \"Hard\" | \"Unknown\",\n  \"expectedTimeMinutes\": integer,\n  \"questionType\": \"Numerical\" | \"Conceptual\" | \"Diagram\" | \"Proof\" | \"MCQ\" | \"Mixed\",\n  \"examSkill\": \"string\",\n  \"confidence\": number 0-1,\n  \"problem_dna_summary\": \"one sentence, no final answer\",\n  \"expert_solution_internal\": {\n    \"final_answer\": \"string with units\",\n    \"key_steps\": [\"string\"],\n    \"method_name\": \"string\"\n  }\n}\n\nDo NOT put the final numeric answer in problem_dna_summary."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "problem_text_normalized",
+      "ncert_context",
+      "class_num",
+      "subject_labels"
+    ],
+    "output_keys": [
+      "dna_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "problem_dna_analyzer-001",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Light - Reflection and Refraction",
+          "conceptTags": [
+            "microscope",
+            "magnifying power",
+            "lenses",
+            "optics"
+          ],
+          "difficulty": "Medium",
+          "expectedTimeMinutes": 8,
+          "questionType": "Numerical",
+          "examSkill": "Apply lens formula and microscope magnifying power relation",
+          "confidence": 0.91,
+          "problem_dna_summary": "Compound microscope optics problem asking magnifying power from focal lengths and tube length.",
+          "expert_solution_internal": {
+            "final_answer": "Magnifying power ≈ 8 (depends on near point assumption; verify with standard formula)",
+            "key_steps": [
+              "Identify objective and eyepiece focal lengths",
+              "Use standard microscope magnifying power relation with tube length",
+              "Substitute f_o = 2 cm, f_e = 6 cm, L = 16 cm"
+            ],
+            "method_name": "Microscope magnifying power formula"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "golden_reference"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-002",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "jee_main"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "class_num": 11,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 2",
+          "conceptTags": [
+            "jee",
+            "mathematics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-003",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "class_num": 12,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Life Processes",
+          "conceptTags": [
+            "digestive enzymes",
+            "stomach pH",
+            "pepsin"
+          ],
+          "difficulty": "Easy",
+          "expectedTimeMinutes": 1,
+          "questionType": "MCQ",
+          "examSkill": "Recall enzyme location and pH",
+          "confidence": 0.95,
+          "problem_dna_summary": "NEET-style MCQ on gastric enzyme active in acidic stomach pH.",
+          "expert_solution_internal": {
+            "final_answer": "Pepsin (B)",
+            "key_steps": [
+              "Stomach secretes HCl → acidic pH",
+              "Pepsin is active in acidic medium"
+            ],
+            "method_name": "NCERT digestion enzyme recall"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "golden_reference"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-004",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "physics",
+        "neet"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 4",
+          "conceptTags": [
+            "multi_part",
+            "physics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on multi_part; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-005",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "physics",
+        "board_exam"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r²; electric field E = F/q.",
+        "class_num": 11,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 5",
+          "conceptTags": [
+            "cbse",
+            "physics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-006",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "class_num": 12,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 6",
+          "conceptTags": [
+            "proof",
+            "mathematics"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on proof; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-007",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "jee_main"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
+        "ncert_context": "NCERT Class 12 Biology Ch.5: Mendel's law of segregation; monohybrid cross 3:1 ratio.",
+        "class_num": 10,
+        "subject_labels": [
+          "Chemistry"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Chemistry",
+          "chapter": "Chapter 7",
+          "conceptTags": [
+            "numerical",
+            "chemistry"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Numerical",
+          "confidence": 0.85,
+          "problem_dna_summary": "Chemistry problem on numerical; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-008",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
+        "ncert_context": "NCERT Class 10 Science Ch.13: Fleming's left-hand rule for force on current-carrying conductor.",
+        "class_num": 11,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 8",
+          "conceptTags": [
+            "cbse",
+            "mathematics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-009",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics",
+        "neet"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.4: Ionic vs covalent bonds; electronegativity difference guides bond type.",
+        "class_num": 12,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 9",
+          "conceptTags": [
+            "diagram",
+            "physics"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on diagram; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-010",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "biology",
+        "board_exam"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1.",
+        "class_num": 10,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Chapter 10",
+          "conceptTags": [
+            "ncert_strict",
+            "biology"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Biology problem on ncert_strict; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-011",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A.",
+        "class_num": 11,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 11",
+          "conceptTags": [
+            "jee",
+            "physics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-012",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "jee_main"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "class_num": 12,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 12",
+          "conceptTags": [
+            "jee",
+            "mathematics"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-013",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "class_num": 10,
+        "subject_labels": [
+          "Chemistry"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Chemistry",
+          "chapter": "Chapter 1",
+          "conceptTags": [
+            "numerical",
+            "chemistry"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Numerical",
+          "confidence": 0.85,
+          "problem_dna_summary": "Chemistry problem on numerical; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-014",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "neet"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "class_num": 11,
+        "subject_labels": [
+          "Chemistry"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Chemistry",
+          "chapter": "Chapter 2",
+          "conceptTags": [
+            "cbse",
+            "chemistry"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Chemistry problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-015",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "physics",
+        "board_exam"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r²; electric field E = F/q.",
+        "class_num": 12,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 3",
+          "conceptTags": [
+            "conceptual",
+            "physics"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on conceptual; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-016",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "class_num": 10,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 4",
+          "conceptTags": [
+            "proof",
+            "mathematics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on proof; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-017",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology",
+        "jee_main"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
+        "ncert_context": "NCERT Class 12 Biology Ch.5: Mendel's law of segregation; monohybrid cross 3:1 ratio.",
+        "class_num": 11,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Chapter 5",
+          "conceptTags": [
+            "neet",
+            "biology"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Biology problem on neet; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-018",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
+        "ncert_context": "NCERT Class 10 Science Ch.13: Fleming's left-hand rule for force on current-carrying conductor.",
+        "class_num": 12,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 6",
+          "conceptTags": [
+            "numerical",
+            "physics"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Numerical",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on numerical; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-019",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "neet"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.4: Ionic vs covalent bonds; electronegativity difference guides bond type.",
+        "class_num": 10,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 7",
+          "conceptTags": [
+            "numerical",
+            "mathematics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Numerical",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on numerical; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-020",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics",
+        "board_exam"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1.",
+        "class_num": 11,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 8",
+          "conceptTags": [
+            "diagram",
+            "physics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on diagram; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-021",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A.",
+        "class_num": 12,
+        "subject_labels": [
+          "Chemistry"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Chemistry",
+          "chapter": "Chapter 9",
+          "conceptTags": [
+            "conceptual",
+            "chemistry"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Chemistry problem on conceptual; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-022",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "jee_main"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find area under y=x from 0 to 3.",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "class_num": 10,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 10",
+          "conceptTags": [
+            "cbse",
+            "mathematics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-023",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "class_num": 11,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Chapter 11",
+          "conceptTags": [
+            "case_study",
+            "biology"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Biology problem on case_study; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-024",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics",
+        "neet"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "class_num": 12,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 12",
+          "conceptTags": [
+            "jee",
+            "physics"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-025",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "board_exam"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r²; electric field E = F/q.",
+        "class_num": 10,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 1",
+          "conceptTags": [
+            "numerical",
+            "mathematics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Numerical",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on numerical; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-026",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "class_num": 11,
+        "subject_labels": [
+          "Chemistry"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Chemistry",
+          "chapter": "Chapter 2",
+          "conceptTags": [
+            "cbse",
+            "chemistry"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Chemistry problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-027",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology",
+        "jee_main"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
+        "ncert_context": "NCERT Class 12 Biology Ch.5: Mendel's law of segregation; monohybrid cross 3:1 ratio.",
+        "class_num": 12,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Chapter 3",
+          "conceptTags": [
+            "case_study",
+            "biology"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Biology problem on case_study; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-028",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
+        "ncert_context": "NCERT Class 10 Science Ch.13: Fleming's left-hand rule for force on current-carrying conductor.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 4",
+          "conceptTags": [
+            "numerical",
+            "physics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Numerical",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on numerical; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-029",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "neet"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.4: Ionic vs covalent bonds; electronegativity difference guides bond type.",
+        "class_num": 11,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 5",
+          "conceptTags": [
+            "jee",
+            "mathematics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "problem_dna_analyzer-030",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "board_exam"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1.",
+        "class_num": 12,
+        "subject_labels": [
+          "Chemistry"
+        ]
+      },
+      "reference_outputs": {
+        "dna_json": {
+          "subject": "Chemistry",
+          "chapter": "Chapter 6",
+          "conceptTags": [
+            "conceptual",
+            "chemistry"
+          ],
+          "difficulty": "Hard",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Chemistry problem on conceptual; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "subject_match",
+        "llm_judge"
+      ]
+    }
+  ]
+}

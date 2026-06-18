@@ -1,0 +1,586 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "studio_quiz",
+  "agent": {
+    "sno": 11,
+    "category": "Studio",
+    "name": "Studio Quiz Generator",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\nCreate a high-quality educational quiz from the provided material.\n\nOutput requirements (strict):\n- Return ONLY one valid JSON object.\n- Do NOT use markdown, code fences, comments, or extra text.\n- Use exactly this schema:\n{\n  \"title\": \"Short quiz title\",\n  \"questions\": [\n    {\n      \"question\": \"Clear question text\",\n      \"options\": [\"Option A\", \"Option B\", \"Option C\", \"Option D\"],\n      \"correct_answer\": \"One option string that exactly matches an item in options\",\n      \"explanation\": \"1-2 sentence reason\"\n    }\n  ]\n}\n\nQuestion count:\n{% if custom_instructions and custom_instructions.strip() %}\n- Follow the question count range and difficulty given in **Additional user instructions** below. Those instructions override any default below.\n{% else %}\n- Generate between **5 and 7** questions (inclusive) unless the source material is too thin; then use as many solid questions as the material supports (minimum 3 if possible).\n{% endif %}\n\nQuality requirements:\n- Each question must have exactly 4 options.\n- Questions should test understanding, not only memorization.\n- Keep wording unambiguous and learner-friendly.\n- Avoid duplicate questions or near-duplicate options.\n- Keep explanations concise and accurate to the source.\n\nCompliance (when custom instructions are present):\n- Honor the requested difficulty (easy / medium / hard): adjust reasoning depth, distractor quality, and vocabulary accordingly.\n- If instructions ask for a **topic focus**, most questions must clearly relate to that focus while staying grounded in the source.\n- If instructions say **no narrow topic** / **full breadth** / **all selected sources**, distribute questions across the retrieved material so the quiz reflects the whole context, not one subsection.\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\nRetrieval queries used for vector search (ground the quiz in material retrieved with these queries):\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\nSource content:\n{{ context }}\n{% else %}\nNo source content was provided. Create a general educational quiz on a coherent topic.\n{% endif %}\n\n{% if custom_instructions %}\nAdditional user instructions:\n{{ custom_instructions }}\n{% endif %}\n\nFinal reminder: output ONLY the JSON object."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "context",
+      "custom_instructions"
+    ],
+    "output_keys": [
+      "quiz_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "studio_quiz-001",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics",
+        "ohms_law"
+      ],
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "5 MCQs, medium difficulty, Current Electricity"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Current Electricity Quiz",
+          "questions": [
+            {
+              "question": "According to Ohm's law, if resistance is doubled while voltage stays constant, what happens to current?",
+              "options": [
+                "Current doubles",
+                "Current halves",
+                "Current stays the same",
+                "Current becomes zero"
+              ],
+              "correct_answer": "Current halves",
+              "explanation": "V = IR implies I = V/R, so current is inversely proportional to R."
+            },
+            {
+              "question": "Two resistors 3 Ω and 6 Ω are connected in series. What is the equivalent resistance?",
+              "options": [
+                "2 Ω",
+                "9 Ω",
+                "18 Ω",
+                "3 Ω"
+              ],
+              "correct_answer": "9 Ω",
+              "explanation": "Series resistances add: R_eq = R1 + R2 = 9 Ω."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "grounding_check"
+      ]
+    },
+    {
+      "id": "studio_quiz-002",
+      "variation": "biology_diagram",
+      "tags": [
+        "neet",
+        "biology",
+        "digestion"
+      ],
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "5 MCQs, NEET-style, digestive enzymes"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Human Digestion Quiz",
+          "questions": [
+            {
+              "question": "Which enzyme begins carbohydrate digestion in the mouth?",
+              "options": [
+                "Pepsin",
+                "Salivary amylase",
+                "Trypsin",
+                "Lipase"
+              ],
+              "correct_answer": "Salivary amylase",
+              "explanation": "Salivary amylase acts on starch in the mouth."
+            },
+            {
+              "question": "Where does most nutrient absorption occur?",
+              "options": [
+                "Stomach",
+                "Large intestine",
+                "Small intestine",
+                "Oesophagus"
+              ],
+              "correct_answer": "Small intestine",
+              "explanation": "Villi in the small intestine absorb digested food."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "grounding_check"
+      ]
+    },
+    {
+      "id": "studio_quiz-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Photosynthesis"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Photosynthesis Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Photosynthesis (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Chemical Bonding"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Chemical Bonding Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Chemical Bonding (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Magnetic Effects"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Magnetic Effects Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Magnetic Effects (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Cell Structure"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Cell Structure Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Cell Structure (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Quadratic Equations"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Quadratic Equations Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Quadratic Equations (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Human Reproduction"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Human Reproduction Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Human Reproduction (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Thermodynamics"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Thermodynamics Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Thermodynamics (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Coordination Compounds"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Coordination Compounds Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Coordination Compounds (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Ray Optics"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Ray Optics Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Ray Optics (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_main"
+      ],
+      "inputs": {
+        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Ecology"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Ecology Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Ecology (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "science",
+        "jee_advanced"
+      ],
+      "inputs": {
+        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Probability"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Probability Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Probability (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Organic Chemistry"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Organic Chemistry Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Organic Chemistry (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "science",
+        "board_exam"
+      ],
+      "inputs": {
+        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Motion in Plane"
+      },
+      "reference_outputs": {
+        "quiz_json": {
+          "title": "Motion in Plane Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Motion in Plane (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "quiz_schema",
+        "llm_judge_grounding"
+      ]
+    }
+  ]
+}

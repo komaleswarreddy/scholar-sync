@@ -1,0 +1,924 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "show_best_approach",
+  "agent": {
+    "sno": 19,
+    "category": "Problem Solving",
+    "name": "Show Best Approach Coach",
+    "tier": "tier_1",
+    "target_examples": 30,
+    "prompt_template": "{# Mode: SHOW_BEST_APPROACH #}\nYou are ScholarSync AI Coach showing the most reliable exam approach.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nUse `\\[ ... \\]` for display equations and `$...$` for inline math inside `bodyMarkdown`.\nPut spaces around multiplication: `72 \\\\times 1000` (not `72\\\\times1000`). Wrap units in `\\\\text{}`, e.g. `\\\\text{ km/h}` and `\\\\text{ m/s}^2`.\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem Pattern\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Best Method\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Why This Fits\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Efficient Setup\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Clean Solution\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Exam Note\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"When Not to Use\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Compare with basic method\", \"action\": \"COMPARE_BASIC_METHOD\"},\n    {\"label\": \"Explain why this works\", \"action\": \"EXPLAIN_WHY_WORKS\"},\n    {\"label\": \"Give similar exam problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Show common mistakes\", \"action\": \"SHOW_COMMON_MISTAKES\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "problem_text_normalized",
+      "ncert_context"
+    ],
+    "output_keys": [
+      "coach_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "show_best_approach-001",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-002",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "jee"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-003",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-004",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-005",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-006",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-007",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-008",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-009",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-010",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "biology",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-011",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics",
+        "jee"
+      ],
+      "inputs": {
+        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-012",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "jee"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-013",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-014",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-015",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-016",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-017",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-018",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-019",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-020",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-021",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-022",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find area under y=x from 0 to 3.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-023",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-024",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics",
+        "jee"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-025",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-026",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-027",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-028",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-029",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "jee"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    },
+    {
+      "id": "show_best_approach-030",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "cbse"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "latex_format"
+      ]
+    }
+  ]
+}

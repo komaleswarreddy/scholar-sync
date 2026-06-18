@@ -1,0 +1,51 @@
+{
+  "schema": "prf_report_v1",
+  "generated_at_utc": "2026-06-13T05:57:56.499139+00:00",
+  "test_ids": [
+    "PRF-03"
+  ],
+  "status": "XFAIL",
+  "metrics": {
+    "percentiles": true,
+    "tutor_e2e_ms": {
+      "p50": 42293.75810000056,
+      "p95": 49504.52279999445,
+      "p99": 49504.52279999445,
+      "n": 5,
+      "mean": 43041.55487999669
+    },
+    "exploratory_e2e_ms": {
+      "p50": 22627.007600007346,
+      "p95": 35218.593199999304,
+      "p99": 35218.593199999304,
+      "n": 5,
+      "mean": 27147.784980002325
+    },
+    "tutor_faster": false,
+    "tutor_p95_budget_ms": 15000.0,
+    "mode": "smoke"
+  },
+  "environment": {
+    "timestamp_utc": "2026-06-13T05:57:56.087843+00:00",
+    "hostname": "KOmal",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "cpu_count": 4,
+    "python_version": "3.12.10",
+    "base_url": "http://127.0.0.1:8000",
+    "database_host": "",
+    "gate_classroom_short": "",
+    "prf_attest_no_restart": "1",
+    "notes": ""
+  },
+  "failure_tags": [
+    "latency"
+  ],
+  "notes": "",
+  "duration_s": 352.25510597229004,
+  "sample_size": 10,
+  "guardrails": {
+    "no_pre_test_restart_attested": true,
+    "reports_tail_latency": true,
+    "cold_start_reported_separately": false
+  }
+}

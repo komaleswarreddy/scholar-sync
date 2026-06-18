@@ -1,0 +1,293 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "chat_summarizer",
+  "agent": {
+    "sno": 8,
+    "category": "Genration",
+    "name": "Chat Summarizer Agent",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "You are a study-focused tutor. Summarize the chat for a student so it is easy to review later.\n\n## Output requirements (strict)\n- Output **Markdown** only.\n- Use the following section headings exactly (omit a section if it would be empty):\n  - `## Summary`\n  - `## Key points from the chat`\n  - `## Definitions / formulas (if any)`\n  - `## Examples / analogies used`\n  - `## Open questions / next steps`\n- Keep it concise:\n  - `## Summary`: 2–4 short sentences (not a wall of text).\n  - `## Key points from the chat`: 3–7 bullets, one idea per bullet.\n  - Other sections: up to 3–6 bullets total across all remaining sections.\n- Do not invent facts. Only include what appears in the conversation.\n- If the chat is very short or repetitive, still produce a clean structure with fewer bullets.\n\n## Conversation history\n\n{{ old_conversation }}\n\n## Summary"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "old_conversation"
+    ],
+    "output_keys": [
+      "summary_markdown"
+    ]
+  },
+  "items": [
+    {
+      "id": "chat_summarizer-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 3]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 4]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 5]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 6]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 7]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 8]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 9]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 10]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 11]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 12]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 13]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 14]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "chat_summarizer-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 15]"
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "evaluators": [
+        "markdown_sections",
+        "llm_judge"
+      ]
+    }
+  ]
+}

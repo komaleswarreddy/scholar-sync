@@ -1,0 +1,691 @@
+{
+  "agent_name": "ncert_document_sketch",
+  "generated_at": "2026-06-18T04:19:22.739831+00:00",
+  "dataset_id": "ncert_document_sketch",
+  "dataset_hash": "eaf9268afb8d58ff",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000846,
+      "input_cost_usd": 0.000209,
+      "output_cost_usd": 0.000637,
+      "prompt_tokens": 1396,
+      "completion_tokens": 1061,
+      "latency_ms": 19846.73,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000859,
+      "input_cost_usd": 0.000155,
+      "output_cost_usd": 0.000704,
+      "prompt_tokens": 1031,
+      "completion_tokens": 1174,
+      "latency_ms": 20609.58,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000846,
+      "input_cost_usd": 0.000209,
+      "output_cost_usd": 0.000637
+    },
+    "composite_score": 0.8999
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "ncert_document_sketch-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 12 Physics Ch.1 Electric Charges and Fields",
+        "document_text": "1.1 Introduction. 1.2 Electric charge. Example 1.1 Coulomb force. Exercise 1.1. Figure 1.3 field lines."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "1 Electric Charges and Fields",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Electric Charges and Fields",
+        "main_sections": [
+          "Introduction",
+          "Electric charge",
+          "Coulomb force",
+          "Exercise",
+          "Field lines"
+        ],
+        "key_definitions": {
+          "Electric charge": "A property of matter that causes it to experience a force in an electromagnetic field.",
+          "Coulomb force": "The force between two charged objects, proportional to the product of their charges and inversely proportional to the square of the distance between them.",
+          "Field lines": "Imaginary lines that represent the direction and strength of an electric field."
+        },
+        "concepts": [
+          "Electric charge",
+          "Coulomb's law",
+          "Electric field",
+          "Field lines",
+          "Positive charge",
+          "Negative charge",
+          "Conductors",
+          "Insulators",
+          "Electrostatics",
+          "Force",
+          "Distance",
+          "Magnitude",
+          "Vector",
+          "Point charge",
+          "Superposition principle",
+          "Electric field strength",
+          "Charge conservation",
+          "Polarization",
+          "Electric potential",
+          "Capacitance"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 11 Biology Ch.13 Photosynthesis",
+        "document_text": "13.1 Photosynthetic pigments. Activity 13.1. Calvin cycle. Exercise questions 1-5."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "13 Photosynthesis",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Photosynthesis",
+        "main_sections": [
+          "Photosynthetic pigments",
+          "Calvin cycle",
+          "Exercise questions"
+        ],
+        "key_definitions": {
+          "Photosynthetic pigments": "Molecules that absorb light for photosynthesis.",
+          "Calvin cycle": "Process by which plants convert CO2 into glucose.",
+          "Chlorophyll": "Main pigment in plants that captures light energy.",
+          "Light-dependent reactions": "First stage of photosynthesis, converting light energy to chemical energy.",
+          "Light-independent reactions": "Second stage, using ATP and NADPH to synthesize glucose."
+        },
+        "concepts": [
+          "Photosynthesis",
+          "Chlorophyll",
+          "Calvin cycle",
+          "Light-dependent reactions",
+          "Light-independent reactions",
+          "Carbon fixation",
+          "ATP",
+          "NADPH",
+          "Thylakoid",
+          "Stroma",
+          "Sunlight",
+          "Glucose",
+          "Oxygen",
+          "Pigments",
+          "Chloroplasts",
+          "Photosystems",
+          "Electron transport chain"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 10 Science Ch.12 Electricity",
+        "document_text": "12.1 Electric current. 12.2 Potential difference. Example 12.1. Ohm's law. Exercise."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "12 Electricity",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Electricity",
+        "main_sections": [
+          "Electric current",
+          "Potential difference",
+          "Ohm's law",
+          "Exercise"
+        ],
+        "key_definitions": {
+          "Electric current": "Flow of electric charge.",
+          "Potential difference": "Difference in electric potential between two points.",
+          "Ohm's law": "Current is directly proportional to voltage and inversely proportional to resistance."
+        },
+        "concepts": [
+          "Electric current",
+          "Potential difference",
+          "Ohm's law",
+          "Resistance",
+          "Voltage",
+          "Circuit",
+          "Conductor",
+          "Insulator",
+          "Ampere",
+          "Volt",
+          "Ohm",
+          "Power",
+          "Energy",
+          "Series circuit",
+          "Parallel circuit",
+          "Electromotive force",
+          "Current direction",
+          "Charge",
+          "Electrical energy",
+          "Load"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 12 Chemistry Ch.4 Chemical Bonding",
+        "document_text": "4.1 Kossel-Lewis approach. 4.2 Ionic bond. Example 4.2 lattice enthalpy. Exercise 4.1 VSEPR."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "4 Chemical Bonding",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Chemical Bonding",
+        "main_sections": [
+          "Kossel-Lewis approach",
+          "Ionic bond",
+          "Lattice enthalpy",
+          "VSEPR"
+        ],
+        "key_definitions": {
+          "Ionic bond": "A chemical bond formed by the electrostatic attraction between oppositely charged ions.",
+          "Lattice enthalpy": "The energy required to separate one mole of a solid ionic compound into its gaseous ions.",
+          "VSEPR": "Valence Shell Electron Pair Repulsion theory, used to predict molecular geometry."
+        },
+        "concepts": [
+          "Chemical bonding",
+          "Ionic compounds",
+          "Covalent bonds",
+          "Electronegativity",
+          "Lewis structures",
+          "Molecular geometry",
+          "Polarity",
+          "Dipole moment",
+          "Hybridization",
+          "Bond length",
+          "Bond energy",
+          "Resonance",
+          "Octet rule",
+          "Valence electrons",
+          "Coordination number",
+          "Crystal lattice",
+          "Intermolecular forces",
+          "Molecular orbitals",
+          "Sigma bonds",
+          "Pi bonds"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 11 Mathematics Ch.7 Permutations and Combinations",
+        "document_text": "7.1 Fundamental principle of counting. Example 7.1. Theorem 7.1 nPr formula. Exercise 7.2."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "7 Permutations and Combinations",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Permutations and Combinations",
+        "main_sections": [
+          "Fundamental principle of counting",
+          "Example 7.1",
+          "Theorem 7.1",
+          "nPr formula",
+          "Exercise 7.2"
+        ],
+        "key_definitions": {
+          "Permutation": "Arrangement of objects in a specific order.",
+          "Combination": "Selection of objects without regard to order.",
+          "nPr": "Number of permutations of n items taken r at a time.",
+          "nCr": "Number of combinations of n items taken r at a time.",
+          "Factorial": "Product of all positive integers up to a given number."
+        },
+        "concepts": [
+          "counting principle",
+          "permutations",
+          "combinations",
+          "factorial",
+          "nPr",
+          "nCr",
+          "arrangement",
+          "selection",
+          "theorem",
+          "exercise",
+          "example",
+          "probability",
+          "set theory",
+          "discrete mathematics",
+          "mathematical reasoning",
+          "combinatorial analysis"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 12 Physics Ch.1 Electric Charges and Fields",
+        "document_text": "1.1 Introduction. 1.2 Electric charge. Example 1.1 Coulomb force. Exercise 1.1. Figure 1.3 field lines."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "1 Electric Charges and Fields",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Electric Charges and Fields",
+        "main_sections": [
+          "Introduction",
+          "Electric charge",
+          "Coulomb force",
+          "Exercise",
+          "Field lines"
+        ],
+        "key_definitions": {
+          "Electric charge": "A property of matter causing it to experience a force in an electromagnetic field.",
+          "Coulomb force": "The force between two charged objects.",
+          "Field lines": "Imaginary lines representing the direction of the electric field."
+        },
+        "concepts": [
+          "Electric charge",
+          "Coulomb's law",
+          "Electric field",
+          "Field lines",
+          "Positive charge",
+          "Negative charge",
+          "Conductors",
+          "Insulators",
+          "Electrostatics",
+          "Force",
+          "Interaction",
+          "Point charge",
+          "Superposition principle",
+          "Electric field strength",
+          "Charge conservation",
+          "Quantization of charge"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 11 Biology Ch.13 Photosynthesis",
+        "document_text": "13.1 Photosynthetic pigments. Activity 13.1. Calvin cycle. Exercise questions 1-5."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "13 Photosynthesis",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Photosynthesis",
+        "main_sections": [
+          "Photosynthetic pigments",
+          "Calvin cycle",
+          "Exercise questions"
+        ],
+        "key_definitions": {
+          "Photosynthesis": "Process by which green plants convert light energy into chemical energy.",
+          "Calvin cycle": "Set of chemical reactions in photosynthesis that convert CO2 into glucose.",
+          "Photosynthetic pigments": "Molecules that absorb light energy for photosynthesis."
+        },
+        "concepts": [
+          "Photosynthesis",
+          "Calvin cycle",
+          "Chlorophyll",
+          "Light-dependent reactions",
+          "Light-independent reactions",
+          "Thylakoids",
+          "Stroma",
+          "Carbon fixation",
+          "Glucose",
+          "Oxygen",
+          "Chloroplasts",
+          "Energy conversion",
+          "Photons",
+          "ATP",
+          "NADPH",
+          "RuBisCO"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 10 Science Ch.12 Electricity",
+        "document_text": "12.1 Electric current. 12.2 Potential difference. Example 12.1. Ohm's law. Exercise."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "12 Electricity",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Electricity",
+        "main_sections": [
+          "Electric current",
+          "Potential difference",
+          "Ohm's law",
+          "Exercise"
+        ],
+        "key_definitions": {
+          "Electric current": "Flow of electric charge.",
+          "Potential difference": "Difference in electric potential between two points.",
+          "Ohm's law": "Current is directly proportional to voltage and inversely proportional to resistance."
+        },
+        "concepts": [
+          "Electric current",
+          "Potential difference",
+          "Ohm's law",
+          "Resistance",
+          "Voltage",
+          "Circuit",
+          "Conductor",
+          "Insulator",
+          "Ampere",
+          "Volt",
+          "Ohm",
+          "Power",
+          "Energy",
+          "Series circuit",
+          "Parallel circuit",
+          "Electromotive force",
+          "Current direction",
+          "Electrical safety",
+          "Short circuit",
+          "Load"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 12 Chemistry Ch.4 Chemical Bonding",
+        "document_text": "4.1 Kossel-Lewis approach. 4.2 Ionic bond. Example 4.2 lattice enthalpy. Exercise 4.1 VSEPR."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "4 Chemical Bonding",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Chemical Bonding",
+        "main_sections": [
+          "Kossel-Lewis approach",
+          "Ionic bond",
+          "Lattice enthalpy",
+          "VSEPR"
+        ],
+        "key_definitions": {
+          "Ionic bond": "Electrostatic attraction between oppositely charged ions.",
+          "Lattice enthalpy": "Energy required to separate one mole of an ionic solid into gaseous ions.",
+          "VSEPR": "Valence Shell Electron Pair Repulsion theory for molecular shape prediction."
+        },
+        "concepts": [
+          "Chemical bonding",
+          "Ionic compounds",
+          "Covalent bonds",
+          "Electronegativity",
+          "Lewis structures",
+          "Molecular geometry",
+          "Polarity",
+          "Dipole moment",
+          "Hybridization",
+          "Bond angles",
+          "Resonance",
+          "Valence electrons",
+          "Octet rule",
+          "Coordination number",
+          "Bond length",
+          "Bond energy",
+          "Intermolecular forces",
+          "Molecular orbitals",
+          "Electron affinity",
+          "Ionization energy"
+        ]
+      }
+    },
+    {
+      "example_id": "ncert_document_sketch-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "header": "NCERT Class 11 Mathematics Ch.7 Permutations and Combinations",
+        "document_text": "7.1 Fundamental principle of counting. Example 7.1. Theorem 7.1 nPr formula. Exercise 7.2."
+      },
+      "expected": {
+        "sketch_json": {
+          "chapter_title": "7 Permutations and Combinations",
+          "main_sections": [
+            "Introduction",
+            "Examples",
+            "Exercise"
+          ],
+          "key_definitions": {},
+          "concepts": [
+            "NCERT",
+            "exercise",
+            "activity"
+          ]
+        }
+      },
+      "actual": {
+        "chapter_title": "Permutations and Combinations",
+        "main_sections": [
+          "Fundamental principle of counting",
+          "Theorem 7.1",
+          "nPr formula",
+          "Exercise 7.2"
+        ],
+        "key_definitions": {
+          "Permutation": "Arrangement of objects in a specific order.",
+          "Combination": "Selection of objects without regard to order.",
+          "nPr": "Number of permutations of n items taken r at a time.",
+          "nCr": "Number of combinations of n items taken r at a time."
+        },
+        "concepts": [
+          "counting principle",
+          "factorial",
+          "arrangement",
+          "selection",
+          "nPr",
+          "nCr",
+          "theorem",
+          "exercise",
+          "example",
+          "combinatorial problems",
+          "ordered arrangements",
+          "unordered selections",
+          "discrete mathematics",
+          "probability",
+          "mathematical reasoning",
+          "set theory"
+        ]
+      }
+    }
+  ]
+}

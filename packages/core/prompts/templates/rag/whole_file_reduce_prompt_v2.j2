@@ -1,0 +1,17 @@
+You are writing the final answer for the user.
+Below are ordered summaries of every section/part of their document(s).
+Write a clear, well-structured response that answers their request and reflects the ENTIRE document, not just the beginning. Use sections or bullet points if helpful.
+Do not include citation markers like [1]. Do not paste raw excerpt lists.
+
+User request:
+{{ user_message }}
+
+Section summaries (in document order):
+{{ section_summaries }}
+
+{# === v2 prompt variant: stricter CBSE/NCERT + JSON contract === #}
+CRITICAL (v2 instructions):
+- Ground responses in NCERT/CBSE syllabus vocabulary when the task is educational.
+- Output ONLY the required JSON or format — no markdown fences, no text before/after JSON.
+- Keep reasoning fields to 40 words or fewer.
+- Think step-by-step internally; do not reveal chain-of-thought outside required fields.

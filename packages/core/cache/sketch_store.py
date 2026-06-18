@@ -134,3 +134,39 @@ class DiskSketchStore:
         with open(p, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
 
+
+async def load_document_sketch(content_hash: str) -> Optional[Dict[str, Any]]:
+    """Load NCERT document sketch from Redis (if configured) then disk."""
+    key = (content_hash or "").strip()
+    if not key:
+        return None
+
+    backend = str(
+        getattr(settings, "CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_CACHE_BACKEND", "disk") or "disk"
+    ).strip().lower()
+
+    if backend == "redis":
+        try:
+            sketch = await RedisSketchStore().get(key)
+            if isinstance(sketch, dict):
+                return sketch
+        except Exception:
+            pass
+
+    try:
+        sketch = DiskSketchStore().get(key)
+        return sketch if isinstance(sketch, dict) else None
+    except Exception:
+        return None
+
+
+def save_document_sketch_to_disk(content_hash: str, sketch: Dict[str, Any], ttl_seconds: int) -> None:
+    """Persist sketch to disk (used as fallback and for catalog sync)."""
+    key = (content_hash or "").strip()
+    if not key or not isinstance(sketch, dict):
+        return
+    try:
+        DiskSketchStore().set(key, sketch, ttl_seconds=ttl_seconds)
+    except Exception:
+        return
+

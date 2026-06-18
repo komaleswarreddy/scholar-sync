@@ -1,0 +1,90 @@
+{
+  "pass": true,
+  "report_status": "XFAIL",
+  "checklist_passed": 16,
+  "checklist_total": 16,
+  "items": [
+    {
+      "id": "1_no_pre_test_restart",
+      "ok": true,
+      "note": "PRF_ATTEST_NO_RESTART"
+    },
+    {
+      "id": "2_realistic_classroom_mix",
+      "ok": true,
+      "note": "workload documented"
+    },
+    {
+      "id": "3_pool_scenario_clean",
+      "ok": true,
+      "note": "no OPEN_BUG status"
+    },
+    {
+      "id": "4_p50_p95_p99_error_rate",
+      "ok": true,
+      "note": "percentiles in metrics"
+    },
+    {
+      "id": "5_cold_start_separate",
+      "ok": true,
+      "note": "cold_start block"
+    },
+    {
+      "id": "6_ingest_concurrent_100pg",
+      "ok": true,
+      "note": "PRF-04 metrics present"
+    },
+    {
+      "id": "7_studio_per_type",
+      "ok": true,
+      "note": "per-type or chat-only"
+    },
+    {
+      "id": "8_load_20_50_concurrency",
+      "ok": true,
+      "note": "concurrency documented"
+    },
+    {
+      "id": "9_resources_instrumented",
+      "ok": true,
+      "note": "resource timeseries file"
+    },
+    {
+      "id": "10_soak_full_duration",
+      "ok": true,
+      "note": "soak RSS summary (manual run)"
+    },
+    {
+      "id": "11_end_vs_start_soak",
+      "ok": true,
+      "note": "soak chat bookends"
+    },
+    {
+      "id": "12_environment_documented",
+      "ok": true,
+      "note": "environment block"
+    },
+    {
+      "id": "13_versioned_baseline",
+      "ok": true,
+      "note": "prf_baseline.json"
+    },
+    {
+      "id": "14_cost_captured",
+      "ok": true,
+      "note": "cost or studio metrics"
+    },
+    {
+      "id": "15_failure_tags",
+      "ok": true,
+      "note": "failure_tags field"
+    },
+    {
+      "id": "16_capacity_number",
+      "ok": true,
+      "note": "users/concurrency for capacity"
+    }
+  ],
+  "report_path": "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\evals\\reports\\prf_latest.json",
+  "note": "Partial pass allowed (--allow-partial)"
+}

@@ -1,0 +1,374 @@
+{
+  "agent_name": "chunk_contextualization",
+  "generated_at": "2026-06-18T04:21:34.990488+00:00",
+  "dataset_id": "chunk_contextualization",
+  "dataset_hash": "85aaa7fd1225c07b",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000507,
+      "input_cost_usd": 0.00014,
+      "output_cost_usd": 0.000367,
+      "prompt_tokens": 931,
+      "completion_tokens": 612,
+      "latency_ms": 11921.44,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000558,
+      "input_cost_usd": 0.000194,
+      "output_cost_usd": 0.000364,
+      "prompt_tokens": 1296,
+      "completion_tokens": 606,
+      "latency_ms": 12639.91,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000507,
+      "input_cost_usd": 0.00014,
+      "output_cost_usd": 0.000367
+    },
+    "composite_score": 0.8999
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "chunk_contextualization-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Full chapter on electricity with Ohm's law and resistivity.",
+        "chunk_content": "Ohm's law states V = IR for metallic conductors at constant temperature.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Full chapter on electricity with Ohm's l... section on definition.",
+          "chunk_summary": "Ohm's law states V = IR for metallic conductors at constant temperature.",
+          "chunk_type": "definition",
+          "section_title": "Section 1",
+          "concept_hint": "Ohm, resistance, V=IR"
+        }
+      },
+      "actual": {
+        "chunk_context": "This chapter on electricity covers fundamental concepts including voltage, current, resistance, and their interrelationships. It introduces Ohm's law, which is essential for understanding how electrical circuits function under constant temperature conditions.",
+        "chunk_summary": "Ohm's law defines the relationship between voltage, current, and resistance in metallic conductors, expressed as V = IR.",
+        "chunk_type": "formula",
+        "section_title": "Electricity and Ohm's Law",
+        "concept_hint": "Ohm's law, voltage, current, resistance, metallic conductors"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Photosynthesis chapter.",
+        "chunk_content": "The Calvin cycle occurs in the stroma of chloroplasts.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Photosynthesis chapter.... section on procedure.",
+          "chunk_summary": "The Calvin cycle occurs in the stroma of chloroplasts.",
+          "chunk_type": "procedure",
+          "section_title": "Section 2",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "This section discusses the process of photosynthesis, focusing on the light-dependent reactions and the subsequent Calvin cycle, which is crucial for converting carbon dioxide into glucose. The stroma of chloroplasts plays a vital role in this process.",
+        "chunk_summary": "The Calvin cycle takes place in the stroma of chloroplasts, where carbon fixation occurs.",
+        "chunk_type": "procedure",
+        "section_title": "Photosynthesis",
+        "concept_hint": "Calvin cycle, stroma, chloroplasts, carbon fixation, photosynthesis"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Quadratic equations chapter.",
+        "chunk_content": "Discriminant D = b\u00b2 - 4ac determines nature of roots.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Quadratic equations chapter.... section on formula.",
+          "chunk_summary": "Discriminant D = b\u00b2 - 4ac determines nature of roots.",
+          "chunk_type": "formula",
+          "section_title": "Section 3",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "In the study of quadratic equations, understanding the nature of roots is crucial. The discriminant, represented as D, plays a key role in determining whether the roots are real or complex, and whether they are distinct or repeated.",
+        "chunk_summary": "The discriminant D = b\u00b2 - 4ac is used to determine the nature of the roots of a quadratic equation.",
+        "chunk_type": "formula",
+        "section_title": "Quadratic Equations",
+        "concept_hint": "discriminant, roots, quadratic equation, b\u00b2 - 4ac, nature of roots"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Human digestion.",
+        "chunk_content": "Table 16.1 lists enzymes: salivary amylase, pepsin, trypsin.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Human digestion.... section on table.",
+          "chunk_summary": "Table 16.1 lists enzymes: salivary amylase, pepsin, trypsin.",
+          "chunk_type": "table",
+          "section_title": "Section 4",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "The document provides a comprehensive overview of human digestion, detailing the various enzymes involved in the breakdown of food at different stages. It emphasizes the role of specific enzymes in the digestive process.",
+        "chunk_summary": "Table 16.1 lists key digestive enzymes: salivary amylase, pepsin, and trypsin, highlighting their functions in digestion.",
+        "chunk_type": "table",
+        "section_title": "Digestive Enzymes",
+        "concept_hint": "salivary amylase, pepsin, trypsin, digestion, enzymes"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Ray optics.",
+        "chunk_content": "Figure 9.12: ray diagram for image formation by convex lens.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Ray optics.... section on figure.",
+          "chunk_summary": "Figure 9.12: ray diagram for image formation by convex lens.",
+          "chunk_type": "figure",
+          "section_title": "Section 5",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "This section discusses the principles of ray optics, particularly focusing on how lenses form images. It includes diagrams to illustrate the concepts clearly, aiding in the understanding of light behavior through lenses.",
+        "chunk_summary": "Figure 9.12 illustrates the ray diagram for image formation by a convex lens, showing the paths of light rays.",
+        "chunk_type": "figure",
+        "section_title": "Image Formation by Lenses",
+        "concept_hint": "convex lens, ray diagram, image formation, optics, light rays"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Full chapter on electricity with Ohm's law and resistivity.",
+        "chunk_content": "Ohm's law states V = IR for metallic conductors at constant temperature.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Full chapter on electricity with Ohm's l... section on definition.",
+          "chunk_summary": "Ohm's law states V = IR for metallic conductors at constant temperature.",
+          "chunk_type": "definition",
+          "section_title": "Section 1",
+          "concept_hint": "Ohm, resistance, V=IR"
+        }
+      },
+      "actual": {
+        "chunk_context": "This chapter covers the fundamentals of electricity, including key principles such as Ohm's law, which relates voltage, current, and resistance in metallic conductors. It also discusses resistivity and its significance in electrical circuits.",
+        "chunk_summary": "Ohm's law defines the relationship between voltage, current, and resistance in conductors, expressed as V = IR, applicable at constant temperature.",
+        "chunk_type": "formula",
+        "section_title": "Electricity",
+        "concept_hint": "Ohm's law, voltage, current, resistance, resistivity"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Photosynthesis chapter.",
+        "chunk_content": "The Calvin cycle occurs in the stroma of chloroplasts.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Photosynthesis chapter.... section on procedure.",
+          "chunk_summary": "The Calvin cycle occurs in the stroma of chloroplasts.",
+          "chunk_type": "procedure",
+          "section_title": "Section 2",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "The Calvin cycle is a crucial part of photosynthesis, occurring in the stroma of chloroplasts. It involves the fixation of carbon dioxide and the synthesis of glucose, contributing to the plant's energy needs.",
+        "chunk_summary": "The Calvin cycle takes place in the stroma of chloroplasts, where carbon dioxide is fixed and glucose is synthesized.",
+        "chunk_type": "procedure",
+        "section_title": "Photosynthesis",
+        "concept_hint": "Calvin cycle, stroma, chloroplasts, carbon fixation, glucose synthesis"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Quadratic equations chapter.",
+        "chunk_content": "Discriminant D = b\u00b2 - 4ac determines nature of roots.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Quadratic equations chapter.... section on formula.",
+          "chunk_summary": "Discriminant D = b\u00b2 - 4ac determines nature of roots.",
+          "chunk_type": "formula",
+          "section_title": "Section 3",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "In the study of quadratic equations, understanding the discriminant is crucial for determining the nature of the roots. This concept is fundamental in solving and analyzing quadratic equations effectively.",
+        "chunk_summary": "The discriminant D = b\u00b2 - 4ac is used to determine the nature of the roots of a quadratic equation.",
+        "chunk_type": "formula",
+        "section_title": "Quadratic Equations",
+        "concept_hint": "discriminant, roots, quadratic equation, b\u00b2 - 4ac, nature of roots"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Human digestion.",
+        "chunk_content": "Table 16.1 lists enzymes: salivary amylase, pepsin, trypsin.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Human digestion.... section on table.",
+          "chunk_summary": "Table 16.1 lists enzymes: salivary amylase, pepsin, trypsin.",
+          "chunk_type": "table",
+          "section_title": "Section 4",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "This section discusses the various enzymes involved in human digestion, highlighting their roles and functions in breaking down food substances. Understanding these enzymes is crucial for comprehending the digestive process.",
+        "chunk_summary": "Table 16.1 lists key digestive enzymes: salivary amylase, pepsin, and trypsin, each playing a vital role in food breakdown.",
+        "chunk_type": "table",
+        "section_title": "Digestive Enzymes",
+        "concept_hint": "salivary amylase, pepsin, trypsin, digestion, enzymes"
+      }
+    },
+    {
+      "example_id": "chunk_contextualization-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "whole_document": "Ray optics.",
+        "chunk_content": "Figure 9.12: ray diagram for image formation by convex lens.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "expected": {
+        "contextualization_json": {
+          "chunk_context": "This chunk is from the Ray optics.... section on figure.",
+          "chunk_summary": "Figure 9.12: ray diagram for image formation by convex lens.",
+          "chunk_type": "figure",
+          "section_title": "Section 5",
+          "concept_hint": "chloroplast, Calvin"
+        }
+      },
+      "actual": {
+        "chunk_context": "This section discusses the principles of ray optics, specifically focusing on how convex lenses form images. It includes diagrams to illustrate the concepts clearly, aiding in the understanding of light behavior.",
+        "chunk_summary": "Figure 9.12 illustrates the ray diagram for image formation by a convex lens, showing the paths of light rays and the resulting image.",
+        "chunk_type": "figure",
+        "section_title": "Image Formation by Lenses",
+        "concept_hint": "convex lens, ray diagram, image formation, light rays, optics"
+      }
+    }
+  ]
+}

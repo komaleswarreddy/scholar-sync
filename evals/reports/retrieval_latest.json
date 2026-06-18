@@ -1,0 +1,983 @@
+{
+  "recall_at_1": 0.95,
+  "recall_at_3": 0.95,
+  "recall_at_5": 0.95,
+  "recall_at_10": 0.95,
+  "mrr": 0.95,
+  "context_precision": 0.9578947368421052,
+  "formula_recall_at_3": 1.0,
+  "long_question_recall_at_3": 1.0,
+  "negative_refusal_rate": 1.0,
+  "multi_doc_rate": 0.8,
+  "paraphrase_jaccard_mean": 0.90625,
+  "question_type_recall_at_3": {
+    "DEFINITION": 1.0,
+    "EXPLANATION": 0.9230769230769231,
+    "COMPREHENSION": 1.0,
+    "QUESTION": 1.0,
+    "ASSERTION_REASON": 1.0
+  },
+  "ret10_failed_item_ids": {},
+  "thresholds": {
+    "recall_at_1": 0.65,
+    "recall_at_3": 0.85,
+    "recall_at_5": 0.92,
+    "recall_at_10": 0.97,
+    "mrr": 0.75,
+    "context_precision": 0.7,
+    "multi_doc_top5_min_sources": 0.8,
+    "negative_refusal_rate": 1.0,
+    "paraphrase_jaccard_top5": 0.6,
+    "formula_recall_at_3": 0.85,
+    "question_type_recall_at_3_min": 0.75,
+    "long_question_recall_at_3": 0.75
+  },
+  "pass": {
+    "RET-01": true,
+    "RET-02": true,
+    "RET-03": true,
+    "RET-05": true,
+    "RET-06": true,
+    "RET-08": true,
+    "RET-09": true,
+    "RET-10": true,
+    "RET-11": true
+  },
+  "items": [
+    {
+      "id": "fact-photosynthesis-equation",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-chlorophyll-role",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-mitochondria",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-calvin-reactants",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-light-absorption",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-energy-conversion",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-chapter-intro",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-plant-biology",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-ret-golden",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-energy-transfer",
+      "passed": false,
+      "metrics": {
+        "rank": null,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-page-filler",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-co2-role",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-water-role",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-oxygen-output",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-glucose-output",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-pigment",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-calvin-name",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-assertion-energy",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-assertion-co2",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "fact-comprehension-passage",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-01",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-02",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-03",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-04",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-05",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-06",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-07",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-08",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-09",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-10",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-11",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-12",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-13",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-14",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-15",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-16",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-17",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-18",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-19",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-20",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-21",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-22",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-23",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-24",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-25",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-26",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-27",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-28",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-29",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "formula-30",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-01",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-02",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-03",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-04",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-05",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-06",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-07",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-08",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-09",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "negative-10",
+      "passed": true,
+      "metrics": {
+        "refused": true
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-chlorophyll-1",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-chlorophyll-2",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-chlorophyll-3",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-chlorophyll-4",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-chlorophyll-5",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-1",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-2",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-3",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-4",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-5",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-mitochondria-1",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-mitochondria-2",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-mitochondria-3",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-mitochondria-4",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-mitochondria-5",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-snell-1",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-snell-2",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-snell-3",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-snell-4",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "paraphrase-snell-5",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-01",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-02",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-03",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-04",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-05",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-06",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-07",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-08",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-09",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "multi-doc-10",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 2
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-01",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-02",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-03",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-04",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-05",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-06",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-07",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-08",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-09",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-10",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-11",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-12",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-13",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-14",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    },
+    {
+      "id": "long-question-15",
+      "passed": true,
+      "metrics": {
+        "rank": 1,
+        "top10": 1
+      },
+      "notes": ""
+    }
+  ]
+}

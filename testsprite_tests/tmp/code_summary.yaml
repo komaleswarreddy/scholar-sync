@@ -1,0 +1,105 @@
+version: "2"
+type: backend
+tech_stack:
+  - Python 3.11
+  - FastAPI
+  - Uvicorn
+  - PostgreSQL (SQLAlchemy async)
+  - Pinecone
+  - OpenAI (embeddings + chat)
+  - Redis
+  - Supabase Storage / S3
+  - LangGraph
+  - LlamaIndex
+features:
+  - name: Health Check
+    description: Service health endpoint for liveness probes
+    files:
+      - apps/api/main.py
+    endpoints:
+      - method: GET
+        path: /health
+        description: Returns service health status
+        auth_required: false
+        response_schema:
+          "200": object
+    depends_on: []
+  - name: Document Ingestion
+    description: Upload PDF/TXT sources, background chunking and vector indexing
+    files:
+      - apps/api/routes/sources.py
+      - packages/core/services/source_service.py
+      - packages/core/rag/llama_adapters/ingestion.py
+      - packages/core/security/file_validator.py
+      - packages/core/processing/pdf_upload_validator.py
+    endpoints:
+      - method: POST
+        path: /api/v1/ingest/upload
+        description: Upload a PDF or TXT file for ingestion
+        auth_required: true
+        request_schema:
+          multipart:
+            file: binary
+            title: string
+            pdf_password: string
+        response_schema:
+          "200": SourceResponse
+          "400": Validation error
+          "401": Unauthorized
+          "403": Forbidden
+      - method: GET
+        path: /api/v1/ingest/sources
+        description: List user sources with status and chunk counts
+        auth_required: true
+        response_schema:
+          "200": SourceListResponse
+      - method: DELETE
+        path: /api/v1/ingest/sources/{source_id}
+        description: Delete a source and its vectors
+        auth_required: true
+        response_schema:
+          "200": object
+          "404": Not found
+    depends_on:
+      - Authentication
+  - name: RAG Chat Streaming
+    description: Grounded chat with SSE citations from user-selected sources
+    files:
+      - apps/api/routes/chat.py
+      - packages/core/langgraph/chat_graph.py
+      - packages/core/rag/retriever.py
+    endpoints:
+      - method: POST
+        path: /api/v1/chat/stream
+        description: Stream grounded chat response with citations
+        auth_required: true
+        request_schema:
+          body:
+            message: string
+            history: array
+            active_source_ids: array
+            chat_id: string
+        response_schema:
+          "200": text/event-stream
+          "400": No sources selected
+          "403": Source access denied
+    depends_on:
+      - Authentication
+      - Document Ingestion
+  - name: Authentication and Tenant Middleware
+    description: JWT auth and tenant isolation via subdomain
+    files:
+      - apps/api/middleware/tenant.py
+      - apps/api/middleware/auth.py
+    endpoints: []
+    depends_on: []
+known_limitations:
+  - issue: DOCX upload not supported (PDF and TXT only)
+    location: apps/api/routes/sources.py
+    impact: ING-02 DOCX tests should be skipped
+  - issue: Ingestion status uses indexed not ready
+    location: packages/core/database/models/source.py
+    impact: Tests should treat indexed as ready
+  - issue: Dev JWT accepted without signature verification in development
+    location: apps/api/middleware/tenant.py
+    impact: TestSprite can use unsigned Bearer tokens with sub claim

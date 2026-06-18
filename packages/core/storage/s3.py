@@ -41,7 +41,8 @@ class S3Storage(BaseStorage):
     
     def __init__(self, tenant_id: str):
         super().__init__(tenant_id)
-        self.bucket_name = "scholarsync-files"  # Fixed bucket name
+        # Supabase Storage bucket — create in dashboard; override via S3_BUCKET_NAME in .env
+        self.bucket_name = (settings.S3_BUCKET_NAME or "scholarsync-files").strip()
     
     async def upload_file(self, file: UploadFile, file_path: str):
         """

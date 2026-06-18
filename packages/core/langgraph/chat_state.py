@@ -7,6 +7,7 @@ class ChatGraphState(TypedDict, total=False):
     # Input / identity
     tenant_id: str
     user_id: str
+    chat_id: Optional[str]
     message: str
     history: List[Dict[str, Any]]
     active_source_ids: List[str]
@@ -15,6 +16,7 @@ class ChatGraphState(TypedDict, total=False):
     ncert_subject: Optional[str]
     ncert_chapter_no: Optional[int]
     ncert_chapter_name: Optional[str]
+    ncert_concept: Optional[str]
 
     # Control flow
     blocked: bool
@@ -46,6 +48,7 @@ class ChatGraphState(TypedDict, total=False):
     force_whole_file_map_reduce: bool
 
     # Retrieval
+    retrieval_session_key: str
     rewritten_query: str  # primary string used for embedding retrieval (best query first)
     focused_query: str  # scope-narrower output (when Phase 2 agents on)
     rewritten_queries: List[str]  # all variants used / merged in retrieval
@@ -54,6 +57,11 @@ class ChatGraphState(TypedDict, total=False):
     selected_matches: List[Dict[str, Any]]
     context: str
     citations: List[Dict[str, Any]]
+    use_mini_context: bool
+    stage1_answer: str
+    needs_expansion: bool
+    full_context_backup: str
+    full_citations_backup: List[Dict[str, Any]]
 
     # Tutor / NCERT strict grounding (post-context-selector gate)
     tutor_generation_blocked: bool

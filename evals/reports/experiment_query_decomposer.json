@@ -1,0 +1,356 @@
+{
+  "agent_name": "query_decomposer",
+  "generated_at": "2026-06-18T03:06:03.495895+00:00",
+  "dataset_id": "query_decomposer",
+  "dataset_hash": "6d5be322bc8c5551",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 5.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.000162,
+      "input_cost_usd": 3.7e-05,
+      "output_cost_usd": 0.000124,
+      "prompt_tokens": 250,
+      "completion_tokens": 207,
+      "latency_ms": 8702.0,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 0.5,
+        "searchability": 0.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 5.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.000251,
+      "input_cost_usd": 9.2e-05,
+      "output_cost_usd": 0.000159,
+      "prompt_tokens": 615,
+      "completion_tokens": 265,
+      "latency_ms": 8303.31,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 0.5,
+        "searchability": 0.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": false,
+    "reason": "no_config_above_threshold",
+    "best_effort": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 5.0,
+      "cost_usd": 0.000162,
+      "input_cost_usd": 3.7e-05,
+      "output_cost_usd": 0.000124
+    }
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "query_rewriter",
+  "example_results": [
+    {
+      "example_id": "query_decomposer-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "Explain refraction and derive lens formula"
+      },
+      "expected": {
+        "primary_concept": "refraction and lens formula",
+        "sub_queries": [
+          "laws of refraction at spherical surfaces",
+          "lens maker equation derivation",
+          "sign convention for lenses"
+        ]
+      },
+      "actual": {
+        "primary_concept": "decomposing queries for document retrieval",
+        "sub_queries": [
+          "primary concept of the query",
+          "short sub-queries for optimization",
+          "document retrieval techniques",
+          "query decomposition methods",
+          "importance of query structure"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "Compare mitosis meiosis and list stages of each"
+      },
+      "expected": {
+        "primary_concept": "cell division comparison",
+        "sub_queries": [
+          "mitosis stages prophase metaphase",
+          "meiosis reduction division stages",
+          "differences mitosis meiosis"
+        ]
+      },
+      "actual": {
+        "primary_concept": "decompose query for document retrieval",
+        "sub_queries": [
+          "primary concept",
+          "sub-queries",
+          "document retrieval optimization",
+          "query decomposition",
+          "information retrieval techniques"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "NEET: digestion enzymes + absorption sites in small intestine"
+      },
+      "expected": {
+        "primary_concept": "human digestion",
+        "sub_queries": [
+          "digestive enzymes and pH optimum",
+          "villi microvilli absorption mechanism",
+          "duodenum jejunum ileum functions"
+        ]
+      },
+      "actual": {
+        "primary_concept": "decomposing queries for document retrieval",
+        "sub_queries": [
+          "primary concept",
+          "sub-queries",
+          "document retrieval optimization",
+          "query decomposition techniques",
+          "information retrieval strategies"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "JEE: projectile motion range + time of flight derivation"
+      },
+      "expected": {
+        "primary_concept": "projectile motion",
+        "sub_queries": [
+          "horizontal vertical component equations",
+          "range formula derivation",
+          "time of flight maximum height"
+        ]
+      },
+      "actual": {
+        "primary_concept": "decomposing queries for document retrieval",
+        "sub_queries": [
+          "primary concept of query decomposition",
+          "sub-queries for document retrieval",
+          "optimizing queries for search",
+          "techniques for effective query decomposition",
+          "importance of sub-queries in information retrieval"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "CBSE case study: Ohm's law numerical then graph interpretation"
+      },
+      "expected": {
+        "primary_concept": "Ohm's law and graphs",
+        "sub_queries": [
+          "V-I graph slope resistance",
+          "Ohm's law numerical V=IR",
+          "ohmic vs non-ohmic conductors"
+        ]
+      },
+      "actual": {
+        "primary_concept": "decomposing queries for document retrieval",
+        "sub_queries": [
+          "define primary concept",
+          "identify sub-queries",
+          "optimize for document retrieval",
+          "examples of query decomposition",
+          "importance of query decomposition"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "Explain refraction and derive lens formula"
+      },
+      "expected": {
+        "primary_concept": "refraction and lens formula",
+        "sub_queries": [
+          "laws of refraction at spherical surfaces",
+          "lens maker equation derivation",
+          "sign convention for lenses"
+        ]
+      },
+      "actual": {
+        "primary_concept": "Indian Independence Movement",
+        "sub_queries": [
+          "Causes of Indian Independence",
+          "Key leaders of the Indian Independence Movement",
+          "Major events during the Indian Independence Movement",
+          "Impact of World War II on Indian Independence",
+          "Role of the Indian National Congress in independence"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "Compare mitosis meiosis and list stages of each"
+      },
+      "expected": {
+        "primary_concept": "cell division comparison",
+        "sub_queries": [
+          "mitosis stages prophase metaphase",
+          "meiosis reduction division stages",
+          "differences mitosis meiosis"
+        ]
+      },
+      "actual": {
+        "primary_concept": "Indian Independence Movement",
+        "sub_queries": [
+          "Causes of Indian Independence",
+          "Key leaders of the Indian Independence Movement",
+          "Major events during the Indian Independence Movement",
+          "Impact of World War II on Indian Independence",
+          "Role of the Indian National Congress in independence"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "NEET: digestion enzymes + absorption sites in small intestine"
+      },
+      "expected": {
+        "primary_concept": "human digestion",
+        "sub_queries": [
+          "digestive enzymes and pH optimum",
+          "villi microvilli absorption mechanism",
+          "duodenum jejunum ileum functions"
+        ]
+      },
+      "actual": {
+        "primary_concept": "Indian Independence Movement",
+        "sub_queries": [
+          "Causes of Indian Independence",
+          "Key leaders of the Indian Independence Movement",
+          "Major events during the Indian Independence Movement",
+          "Impact of World War II on Indian Independence",
+          "Role of the Indian National Congress in independence"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "JEE: projectile motion range + time of flight derivation"
+      },
+      "expected": {
+        "primary_concept": "projectile motion",
+        "sub_queries": [
+          "horizontal vertical component equations",
+          "range formula derivation",
+          "time of flight maximum height"
+        ]
+      },
+      "actual": {
+        "primary_concept": "Indian Independence Movement",
+        "sub_queries": [
+          "Causes of Indian Independence",
+          "Key leaders of the Indian Independence Movement",
+          "Major events during the Indian Independence Movement",
+          "Impact of World War II on Indian Independence",
+          "Role of the Indian National Congress in independence"
+        ]
+      }
+    },
+    {
+      "example_id": "query_decomposer-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "CBSE case study: Ohm's law numerical then graph interpretation"
+      },
+      "expected": {
+        "primary_concept": "Ohm's law and graphs",
+        "sub_queries": [
+          "V-I graph slope resistance",
+          "Ohm's law numerical V=IR",
+          "ohmic vs non-ohmic conductors"
+        ]
+      },
+      "actual": {
+        "primary_concept": "Indian Independence Movement",
+        "sub_queries": [
+          "Causes of Indian Independence",
+          "Key leaders of the Indian Independence Movement",
+          "Major events during the Indian Independence Movement",
+          "Impact of World War II on Indian Independence",
+          "Role of the Indian National Congress in independence"
+        ]
+      }
+    }
+  ]
+}

@@ -4,10 +4,9 @@ Task Router
 Routes tasks to appropriate handlers and models.
 """
 
-# TODO: Implement task routing
-# - Route tasks to appropriate skills
-# - Select optimal model for task
-# - Handle task-specific logic
+from typing import Any, Dict
+
+from packages.core.llm.factory import get_model_for_task
 
 
 class TaskRouter:
@@ -17,8 +16,13 @@ class TaskRouter:
         pass
     
     def route(self, task_type: str) -> Dict[str, Any]:
-        """Route task to appropriate handler."""
-        # TODO: Implement routing
-        pass
+        """Route task to provider/model via the shared LLM factory."""
+        provider, model = get_model_for_task(task_type)
+        provider_name = provider.value if hasattr(provider, "value") else str(provider)
+        return {
+            "task_type": task_type,
+            "provider": provider_name,
+            "model": model,
+        }
 
 

@@ -1,0 +1,510 @@
+{
+  "agent_name": "problem_solver_followup",
+  "generated_at": "2026-06-18T03:57:57.983552+00:00",
+  "dataset_id": "problem_solver_followup",
+  "dataset_hash": "cd076ecddf4302d9",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 93.0,
+      "pass_rate": 0.8,
+      "cost_usd": 0.000771,
+      "input_cost_usd": 0.000238,
+      "output_cost_usd": 0.000533,
+      "prompt_tokens": 1588,
+      "completion_tokens": 888,
+      "latency_ms": 11240.35,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.9199999999999999,
+        "progressive_guidance": 0.8800000000000001,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.9199999999999999
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 90.0,
+      "pass_rate": 0.6,
+      "cost_usd": 0.001294,
+      "input_cost_usd": 0.000183,
+      "output_cost_usd": 0.001111,
+      "prompt_tokens": 1223,
+      "completion_tokens": 1851,
+      "latency_ms": 13738.21,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.8400000000000001,
+        "progressive_guidance": 0.9199999999999999,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.8400000000000001
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 93.0,
+      "cost_usd": 0.000771,
+      "input_cost_usd": 0.000238,
+      "output_cost_usd": 0.000533
+    },
+    "composite_score": 0.8179
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "hint_agent",
+  "example_results": [
+    {
+      "example_id": "problem_solver_followup-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "action": "GIVE_SIMILAR_PROBLEM",
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "title": "Similar Problem on Microscope Magnification",
+        "sections": [
+          {
+            "heading": "Follow-up",
+            "bodyMarkdown": "Consider a microscope with an objective lens that has a focal length of 3 cm and an eyepiece with a focal length of 5 cm. The distance between the two lenses is 15 cm. Calculate the magnifying power of this microscope."
+          }
+        ],
+        "finalAnswer": null,
+        "revealLevel": "hint",
+        "followUpButtons": [
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "action": "REVEAL_SOLUTION",
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: REVEAL_SOLUTION",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Solution to the Integral Problem",
+        "sections": [
+          {
+            "heading": "Follow-up",
+            "bodyMarkdown": "To solve the integral \\( \\int (3x^2 + 2x) \\, dx \\) from 0 to 2, we first find the antiderivative of the function. The antiderivative is given by:\n\n\\[ F(x) = x^3 + x^2 + C \\]\n\nNext, we evaluate this antiderivative at the bounds 0 and 2:\n\n\\[ F(2) = 2^3 + 2^2 = 8 + 4 = 12 \\]\n\\[ F(0) = 0^3 + 0^2 = 0 + 0 = 0 \\]\n\nNow, we subtract the value at the lower limit from the value at the upper limit:\n\n\\[ \\int_0^2 (3x^2 + 2x) \\, dx = F(2) - F(0) = 12 - 0 = 12 \\]\n\nThus, the final answer is 12."
+          }
+        ],
+        "finalAnswer": "12",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "action": "SHOW_BEST_APPROACH",
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzymes in the Stomach",
+        "sections": [
+          {
+            "heading": "Follow-up",
+            "bodyMarkdown": "To determine which enzyme acts in acidic pH in the stomach, we need to consider the pH levels at which these enzymes function optimally. The stomach has a highly acidic environment, with a pH typically around 1.5 to 3.5. \n\n- **Trypsin**: This enzyme is active in the small intestine and works best at a neutral to slightly alkaline pH (around 7.5 to 8.5). \n- **Pepsin**: This enzyme is specifically designed to function in the acidic environment of the stomach, with an optimal pH of around 1.5 to 2.5. \n- **Lipase**: While there are different types of lipases, gastric lipase can function in the stomach, but it is not the primary enzyme for protein digestion. \n- **Amylase**: This enzyme primarily works in the mouth and small intestine, functioning best at a neutral pH. \n\nGiven this information, the enzyme that acts in acidic pH in the stomach is **Pepsin**."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "action": "EXPLAIN_CONCEPT_AGAIN",
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "output": "{\n  \"title\": \"Deriving the Lens Formula for a Thin Convex Lens\",\n  \"sections\": [\n    {\n      \"heading\": \"Follow-up\",\n      \"bodyMarkdown\": \"To derive the lens formula for a thin convex lens, we consider the refraction of light at both surfaces of the lens. A thin lens can be approximated as two spherical surfaces. Let's denote the following:\\n\\n- \\( R_1 \\): Radius of curvature of the first surface (convex surface)\\n- \\( R_2 \\): Radius of curvature of the second surface (concave surface)\\n- \\( f \\): Focal length of the lens\\n- \\( u \\): Object distance (distance from the object to the lens)\\n- \\( v \\): Image distance (distance from the image to the lens)\\n\\n### Step 1: Refraction at the First Surface\\nUsing the lens maker's formula, we can express the relationship at the first surface using Snell's law:\\n\\n\\[\\frac{n_2}{\\sin \\theta_2} = \\frac{n_1}{\\sin \\theta_1}\\]\\n\\nFor small angles, we can use the approximation \\( \\sin \\theta \\approx \\tan \\theta \\). Thus, we can write:\\n\\n\\[\\frac{n_2}{h_2} = \\frac{n_1}{h_1}\\]\\n\\nWhere \\( h_1 \\) and \\( h_2 \\) are the heights of the object and image respectively. This leads to:\\n\\n\\[\\frac{h_2}{h_1} = \\frac{n_2}{n_1}\\]\\n\\n### Step 2: Refraction at the Second Surface\\nSimilarly, we apply the same principle at the second surface, leading to another equation relating the object and image distances.\\n\\n### Step 3: Combine the Equations\\nBy combining the equations from both surfaces and applying the sign conventions for a convex lens, we arrive at the lens formula:\\n\\n\\[\\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u}\\]\\n\\nThis can be rearranged to give:\\n\\n\\[\\frac{1}{f} = \\frac{1}{v} + \\frac{1}{u}\\]\\n\\nThis is the lens formula for a thin convex lens, which relates the focal length, object distance, and image distance.\"\n    }\n  ],\n  \"finalAnswer\": null,\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "action": "COMPARE_BASIC_METHOD",
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "output": "{\n  \"title\": \"Comparing Basic Methods for Series Circuits\",\n  \"sections\": [\n    {\n      \"heading\": \"Follow-up\",\n      \"bodyMarkdown\": \"To solve the problem of finding the current and voltage across each resistor in a series circuit, we can use two basic methods: Ohm's Law and the Voltage Divider Rule. Let's compare these methods:\\n\\n1. **Ohm's Law**: This method states that the current ($I$) through a resistor is equal to the voltage ($V$) across it divided by its resistance ($R$). The formula is given by:\\n   \\[ I = \\\\frac{V}{R} \\\\]\\n   In a series circuit, the same current flows through all components. Therefore, we first find the total resistance ($R_{total}$) and then use the total voltage ($V_{total}$) to find the current.\\n\\n2. **Voltage Divider Rule**: This method is used to find the voltage across each resistor in a series circuit. The voltage across a resistor ($V_R$) can be calculated using:\\n   \\[ V_R = I \\\\times R \\\\]\\n   where $I$ is the current through the circuit (which is the same for all resistors in series).\\n\\nBoth methods will yield the same results, but using Ohm's Law first to find the current can simplify the process of finding the voltage across each resistor.\"\n    }\n  ],\n  \"finalAnswer\": null,\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "action": "GIVE_SIMILAR_PROBLEM",
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "title": "Similar Problem on Microscope Magnification",
+        "sections": [
+          {
+            "heading": "Follow-up",
+            "bodyMarkdown": "A microscope has an objective focal length of 3 cm and an eyepiece focal length of 5 cm. The distance between the lenses is 15 cm. Calculate the magnifying power."
+          }
+        ],
+        "finalAnswer": null,
+        "revealLevel": "hint",
+        "followUpButtons": [
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "action": "REVEAL_SOLUTION",
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: REVEAL_SOLUTION",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "output": "{\n  \"title\": \"Definite Integral Solution\",\n  \"sections\": [\n    {\n      \"heading\": \"Follow-up\",\n      \"bodyMarkdown\": \"To find the definite integral of \\(3x^2 + 2x\\) from 0 to 2, we first find the antiderivative and then evaluate it at the limits.\"\n    }\n  ],\n  \"finalAnswer\": \"10\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "action": "SHOW_BEST_APPROACH",
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "title": "Best Approach to the NEET MCQ",
+        "sections": [
+          {
+            "heading": "Follow-up",
+            "bodyMarkdown": "To determine which enzyme acts in acidic pH in the stomach, recall that pepsin is specifically adapted to function optimally in the acidic environment of the stomach, while the others function in neutral to alkaline conditions."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "action": "EXPLAIN_CONCEPT_AGAIN",
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Follow-up",
+            "bodyMarkdown": "To derive the lens formula for a thin convex lens, we consider refraction at both surfaces of the lens. Using the lens maker's formula and the geometry of the lens, we can derive the relationship between object distance ($u$), image distance ($v$), and focal length ($f$). The lens formula is given by \\[ \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\]."
+          }
+        ],
+        "finalAnswer": null,
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "problem_solver_followup-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "follow_up",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "action": "COMPARE_BASIC_METHOD",
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "solving_mode": "HELP_ME_SOLVE_IT",
+        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "sections": [
+            {
+              "heading": "Follow-up",
+              "bodyMarkdown": "Continuation without losing context."
+            }
+          ],
+          "revealLevel": "hint"
+        }
+      },
+      "actual": {
+        "title": "Current and Voltage in Series Circuit",
+        "sections": [
+          {
+            "heading": "Follow-up",
+            "bodyMarkdown": "In a series circuit, the same current flows through all components. To find the current, use Ohm's law: $I = \\frac{V}{R_{total}}$. The voltage across each resistor can be found using $V = I \\times R$."
+          }
+        ],
+        "finalAnswer": null,
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    }
+  ]
+}

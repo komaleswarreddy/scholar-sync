@@ -1,0 +1,254 @@
+{
+  "agent_name": "direct_chat",
+  "generated_at": "2026-06-18T03:11:25.495300+00:00",
+  "dataset_id": "direct_chat",
+  "dataset_hash": "173d60ffc1bc5cc9",
+  "threshold": 98.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000318,
+      "input_cost_usd": 0.000206,
+      "output_cost_usd": 0.000112,
+      "prompt_tokens": 1374,
+      "completion_tokens": 187,
+      "latency_ms": 7392.58,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000373,
+      "input_cost_usd": 0.000261,
+      "output_cost_usd": 0.000112,
+      "prompt_tokens": 1739,
+      "completion_tokens": 187,
+      "latency_ms": 7658.49,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000318,
+      "input_cost_usd": 0.000206,
+      "output_cost_usd": 0.000112
+    },
+    "composite_score": 0.926
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "direct_chat-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "hi",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "Hello! I'm ScholarSync. Ask me to explain a concept, summarize your sources, or solve a problem."
+      },
+      "actual": {
+        "output": "Hi there! How's your studying going? If you need help with anything specific, feel free to ask!"
+      }
+    },
+    {
+      "example_id": "direct_chat-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "what can you do?",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "I help you study from uploaded PDFs and notes\u2014summaries, explanations, quizzes, flashcards, and step-by-step problem help."
+      },
+      "actual": {
+        "output": "I can help you with studying by summarizing concepts, explaining topics, or quizzing you on your selected sources. If you have any specific materials or subjects in mind, just let me know!"
+      }
+    },
+    {
+      "example_id": "direct_chat-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "thanks!",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "You're welcome! Ready when you want to continue with your sources."
+      },
+      "actual": {
+        "output": "You're welcome! If you need help with anything specific or want to dive into your study materials, just let me know!"
+      }
+    },
+    {
+      "example_id": "direct_chat-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "how do I upload a PDF?",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "Use the **Sources** panel \u2192 **Upload** and select your PDF. Once indexed, you can chat or open Studio tools."
+      },
+      "actual": {
+        "output": "It looks like you're trying to upload a PDF! The process usually depends on the platform you're using. Generally, you can find an \"Upload\" button or a drag-and-drop area on the site. Just select your PDF file from your device, and it should upload. If you need help with a specific platform, let me know!"
+      }
+    },
+    {
+      "example_id": "direct_chat-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "good morning",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "Good morning! Pick a notebook or source when you're ready to study."
+      },
+      "actual": {
+        "output": "Good morning! I hope you\u2019re having a great start to your day. If you\u2019re ready to dive into some studying, feel free to ask about your selected sources!"
+      }
+    },
+    {
+      "example_id": "direct_chat-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "hi",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "Hello! I'm ScholarSync. Ask me to explain a concept, summarize your sources, or solve a problem."
+      },
+      "actual": {
+        "output": "Hi there! How's your studying going? If you need help with any specific topics or concepts, feel free to ask!"
+      }
+    },
+    {
+      "example_id": "direct_chat-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "what can you do?",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "I help you study from uploaded PDFs and notes\u2014summaries, explanations, quizzes, flashcards, and step-by-step problem help."
+      },
+      "actual": {
+        "output": "I can help you with studying by summarizing concepts, explaining topics, or quizzing you on your selected sources. If you have specific materials or subjects in mind, feel free to ask!"
+      }
+    },
+    {
+      "example_id": "direct_chat-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "thanks!",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "You're welcome! Ready when you want to continue with your sources."
+      },
+      "actual": {
+        "output": "You're welcome! If you're ready to dive into your studies, feel free to ask about any of your selected sources. I'm here to help!"
+      }
+    },
+    {
+      "example_id": "direct_chat-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "how do I upload a PDF?",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "Use the **Sources** panel \u2192 **Upload** and select your PDF. Once indexed, you can chat or open Studio tools."
+      },
+      "actual": {
+        "output": "It looks like you're trying to upload a PDF! The process usually depends on the platform you're using. Generally, you can find an \"Upload\" button or a paperclip icon, click it, and then select your PDF file from your device. If you need help with a specific platform, just let me know!"
+      }
+    },
+    {
+      "example_id": "direct_chat-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "message": "good morning",
+        "chat_rolling_summary": "",
+        "conversation_transcript": ""
+      },
+      "expected": {
+        "response": "Good morning! Pick a notebook or source when you're ready to study."
+      },
+      "actual": {
+        "output": "Good morning! I hope you're having a great start to your day. If you're ready to dive into some studying, feel free to ask about your selected sources!"
+      }
+    }
+  ]
+}

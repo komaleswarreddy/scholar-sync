@@ -1,0 +1,86 @@
+{
+  "schema": "prf_report_v1",
+  "generated_at_utc": "2026-06-13T06:02:46.165565+00:00",
+  "test_ids": [
+    "PRF-05"
+  ],
+  "status": "PASS",
+  "metrics": {
+    "percentiles": true,
+    "per_type_ms": {
+      "quiz": {
+        "p50": 20589.728200007812,
+        "p95": 20589.728200007812,
+        "p99": 20589.728200007812,
+        "n": 1,
+        "mean": 20589.728200007812
+      },
+      "flashcards": {
+        "p50": 14583.615399998962,
+        "p95": 14583.615399998962,
+        "p99": 14583.615399998962,
+        "n": 1,
+        "mean": 14583.615399998962
+      },
+      "mind_map": {
+        "p50": 11133.353199998965,
+        "p95": 11133.353199998965,
+        "p99": 11133.353199998965,
+        "n": 1,
+        "mean": 11133.353199998965
+      },
+      "report": {
+        "p50": 16310.8263000031,
+        "p95": 16310.8263000031,
+        "p99": 16310.8263000031,
+        "n": 1,
+        "mean": 16310.8263000031
+      },
+      "slide_deck": {
+        "p50": 19764.715999990585,
+        "p95": 19764.715999990585,
+        "p99": 19764.715999990585,
+        "n": 1,
+        "mean": 19764.715999990585
+      },
+      "infographic": {
+        "p50": 21914.21149999951,
+        "p95": 21914.21149999951,
+        "p99": 21914.21149999951,
+        "n": 1,
+        "mean": 21914.21149999951
+      }
+    },
+    "thresholds_ms": {
+      "quiz": 24000.0,
+      "flashcards": 20000.0,
+      "mind_map": 30000.0,
+      "report": 50000.0,
+      "slide_deck": 40000.0,
+      "infographic": 60000.0
+    },
+    "errors": 0,
+    "mode": "smoke"
+  },
+  "environment": {
+    "timestamp_utc": "2026-06-13T06:02:45.796352+00:00",
+    "hostname": "KOmal",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "cpu_count": 4,
+    "python_version": "3.12.10",
+    "base_url": "http://127.0.0.1:8000",
+    "database_host": "",
+    "gate_classroom_short": "",
+    "prf_attest_no_restart": "1",
+    "notes": ""
+  },
+  "failure_tags": [],
+  "notes": "",
+  "duration_s": 105.63285827636719,
+  "sample_size": 6,
+  "guardrails": {
+    "no_pre_test_restart_attested": true,
+    "reports_tail_latency": true,
+    "cold_start_reported_separately": false
+  }
+}

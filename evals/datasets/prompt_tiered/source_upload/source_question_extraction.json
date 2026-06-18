@@ -1,0 +1,1043 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "source_question_extraction",
+  "agent": {
+    "sno": 25,
+    "category": "Source Upload",
+    "name": "Source Question Extraction Agent",
+    "tier": "tier_1",
+    "target_examples": 30,
+    "prompt_template": "You are an expert at parsing exam and homework question papers.\n\nGiven the raw text extracted from a PDF or image, identify every distinct question the student is expected to solve.\n\nReturn **only** valid JSON with this shape:\n{\n  \"sections\": [\n    {\n      \"label\": \"Section A\",\n      \"questions\": [\n        {\n          \"number\": 1,\n          \"preview\": \"Short 1-2 line preview (max 120 chars)\",\n          \"fullText\": \"Complete question text including sub-parts\",\n          \"pageHint\": null,\n          \"confidence\": \"high\"\n        }\n      ]\n    }\n  ]\n}\n\nRules:\n- Include every numbered question you can find; do not invent questions.\n- `preview` must be at most 120 characters.\n- `fullText` must contain the full wording needed to solve the problem.\n- Use `confidence: \"low\"` when numbering or boundaries are uncertain.\n- If there are no section headers, use a single section with `\"label\": null`.\n- Ignore answer keys, instructions-only pages, and headers/footers.\n- Preserve math notation as plain text or LaTeX when present.\n\nDocument text:\n{{ document_text }}"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "document_text"
+    ],
+    "output_keys": [
+      "sections_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "source_question_extraction-001",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-002",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-003",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-004",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 3."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-005",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 4."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-006",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 5."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-007",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 6."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-008",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 7."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-009",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 8."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-010",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 9."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-011",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 10."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-012",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 11."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-013",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 12."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-014",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 13."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-015",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 14."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-016",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 15."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-017",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 16."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-018",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 17."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-019",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 18."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-020",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 19."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-021",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 20."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-022",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 21."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-023",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 22."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-024",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 23."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-025",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 24."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-026",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 25."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-027",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 26."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-028",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 27."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-029",
+      "variation": "mcq_section",
+      "tags": [
+        "cbse",
+        "science",
+        "neet"
+      ],
+      "inputs": {
+        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 28."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    },
+    {
+      "id": "source_question_extraction-030",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "jee"
+      ],
+      "inputs": {
+        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 29."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Define Ohm's law",
+                  "fullText": "Define Ohm's law.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "question_count"
+      ]
+    }
+  ]
+}

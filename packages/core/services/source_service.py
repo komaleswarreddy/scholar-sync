@@ -66,7 +66,8 @@ class IngestionService:
         content_type: str, 
         title: str,
         source_id: str = None,
-        pdf_password: str = None
+        pdf_password: str = None,
+        notebook_id: str | None = None,
     ) -> dict:
         """
         Handles the initial file upload to S3 and creates a 'PROCESSING' record in the DB.
@@ -82,10 +83,21 @@ class IngestionService:
             file_ext = ".txt"
             source_type = SourceType.TEXT.value
 
-            # Detect PDF vs Text
-            if content_type == "application/pdf" or (filename and filename.endswith(".pdf")):
+            from packages.core.processing.image_ocr import (
+                is_image_upload,
+                image_extension,
+                resolve_image_mime,
+            )
+
+            # Detect PDF vs image vs text
+            if content_type == "application/pdf" or (filename and filename.lower().endswith(".pdf")):
                 source_type = SourceType.PDF.value
                 file_ext = ".pdf"
+            elif is_image_upload(filename, content_type):
+                source_type = SourceType.TEXT.value
+                file_ext = image_extension(filename, content_type)
+                if not content_type or content_type == "application/octet-stream":
+                    content_type = resolve_image_mime(filename, content_type)
 
             # Multi-tenant Storage Path: {tenant_id}/{source_id}.{ext}
             s3_key = f"{self.tenant_id}/{source_id}{file_ext}"
@@ -102,6 +114,7 @@ class IngestionService:
                     id=uuid.UUID(source_id),
                     tenant_id=uuid.UUID(self.tenant_id),
                     user_id=self.user_id,
+                    notebook_id=uuid.UUID(notebook_id) if notebook_id else None,
                     title=title,
                     s3_key=s3_key,
                     type=source_type,
@@ -201,9 +214,32 @@ class IngestionService:
                 except Exception as e:
                     raise ValueError(f"LlamaIndex ingestion (cache) failed: {str(e)}") from e
             else:
-                # 1. Extract Text with page metadata (for PDFs)
+                from packages.core.processing.image_ocr import (
+                    is_image_upload,
+                    resolve_image_mime,
+                    ocr_image_bytes,
+                )
+
+                is_pdf = (
+                    content_type == "application/pdf"
+                    or (source.s3_key or "").lower().endswith(".pdf")
+                )
+                is_image = is_image_upload(source.title or "", content_type) or is_image_upload(
+                    source.s3_key or "", content_type
+                )
+
+                # 1. Extract Text with page metadata (for PDFs / images)
                 try:
-                    if content_type == "application/pdf":
+                    if is_image:
+                        mime = resolve_image_mime(source.title or source.s3_key or "", content_type)
+                        text = await ocr_image_bytes(
+                            file_content,
+                            mime_type=mime,
+                            tenant_id=self.tenant_id,
+                            user_id=self.user_id,
+                        )
+                        pages = None
+                    elif is_pdf:
                         text, pages = await self._extract_text_with_pages(file_content, pdf_password)
                     else:
                         text = await self._extract_text(file_content, content_type, pdf_password)
@@ -215,7 +251,7 @@ class IngestionService:
                     raise ValueError(f"Failed to extract text: {str(e)}")
                 
                 # 2. Clean PDF text aggressively (40-70% token reduction)
-                if content_type == "application/pdf" and pages:
+                if is_pdf and pages:
                     try:
                         # Use PDF preprocessor for aggressive cleaning
                         cleaned_text = self.pdf_preprocessor.clean_text(text, pages)
@@ -238,6 +274,20 @@ class IngestionService:
                         source_id=source_id,
                         pages=pages,
                     )
+
+                    if result.chunks_for_cache:
+                        try:
+                            self.context_cache.cache_content(
+                                file_content,
+                                text,
+                                result.chunks_for_cache,
+                                metadata={
+                                    "content_type": content_type,
+                                    "page_count": len(pages) if pages else 0,
+                                },
+                            )
+                        except Exception as cache_err:
+                            print(f"[WARNING] Failed to write context cache: {cache_err}")
 
                     # Update DB status (indexed) and chunks_count
                     source.status = SourceStatus.INDEXED.value
@@ -300,14 +350,17 @@ class IngestionService:
             # Re-raise as ValueError with user-friendly message
             raise ValueError(error_msg)
 
-    async def list_sources(self) -> List[dict]:
+    async def list_sources(self, notebook_id: str | None = None) -> List[dict]:
         tenant_uuid = uuid.UUID(self.tenant_id)
+        filters = [
+            Source.tenant_id == tenant_uuid,
+            Source.user_id == self.user_id,
+        ]
+        if notebook_id:
+            filters.append(Source.notebook_id == uuid.UUID(notebook_id))
         result = await asyncio.wait_for(
             self.db.execute(
-                select(Source).where(
-                    Source.tenant_id == tenant_uuid,
-                    Source.user_id == self.user_id
-                )
+                select(Source).where(*filters)
             ),
             timeout=5.0,
         )
@@ -449,7 +502,21 @@ class IngestionService:
                     continue
             
             if not full_text or not full_text.strip():
-                raise ValueError("PDF contains no extractable text. This may be a scanned image PDF.")
+                from packages.core.processing.image_ocr import ocr_scanned_pdf
+
+                try:
+                    return await ocr_scanned_pdf(
+                        file_content,
+                        pdf_password,
+                        tenant_id=self.tenant_id,
+                        user_id=self.user_id,
+                    )
+                except Exception as ocr_error:
+                    from packages.core.processing.pdf_upload_validator import SCANNED_PDF_MESSAGE
+
+                    raise ValueError(
+                        f"{SCANNED_PDF_MESSAGE} ({ocr_error})"
+                    ) from ocr_error
             
             return full_text.strip(), pages
         except ValueError:
@@ -504,7 +571,22 @@ class IngestionService:
                         continue
                 
                 if not text or not text.strip():
-                    raise ValueError("PDF contains no extractable text. This may be a scanned image PDF. Please use OCR to extract text first.")
+                    from packages.core.processing.image_ocr import ocr_scanned_pdf
+
+                    try:
+                        text, _pages = await ocr_scanned_pdf(
+                            file_content,
+                            pdf_password,
+                            tenant_id=self.tenant_id,
+                            user_id=self.user_id,
+                        )
+                        return text
+                    except Exception as ocr_error:
+                        from packages.core.processing.pdf_upload_validator import SCANNED_PDF_MESSAGE
+
+                        raise ValueError(
+                            f"{SCANNED_PDF_MESSAGE} ({ocr_error})"
+                        ) from ocr_error
                 
                 return text
             except ValueError:
@@ -532,4 +614,18 @@ class IngestionService:
             except UnicodeDecodeError as e:
                 raise ValueError(f"Failed to decode text file. File may not be UTF-8 encoded: {str(e)}")
         else:
+            from packages.core.processing.image_ocr import (
+                is_image_upload,
+                resolve_image_mime,
+                ocr_image_bytes,
+            )
+
+            if is_image_upload("", content_type):
+                mime = resolve_image_mime("", content_type)
+                return await ocr_image_bytes(
+                    file_content,
+                    mime_type=mime,
+                    tenant_id=self.tenant_id,
+                    user_id=self.user_id,
+                )
             raise ValueError(f"Unsupported file type: {content_type}")

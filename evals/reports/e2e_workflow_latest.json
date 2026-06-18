@@ -1,0 +1,269 @@
+{
+  "generated_at": "2026-06-18T04:37:11.251576+00:00",
+  "samples": 5,
+  "workflow_score": 62.27,
+  "passed": false,
+  "threshold": 90.0,
+  "runs": [
+    {
+      "workflow_score": 61.17,
+      "passed": false,
+      "step_scores": {
+        "router": 100.0,
+        "query_rewriter": 100.0,
+        "retriever": 100.0,
+        "answer_generator": 31.000000000000007,
+        "verifier": 100.0,
+        "formatter": 100.0
+      },
+      "metrics": {
+        "final_answer_quality": 31.000000000000007,
+        "retrieval_quality": 100.0,
+        "routing_accuracy": 100.0,
+        "hallucination_rate": 0.0,
+        "latency": 95.0,
+        "cost": 90.0
+      },
+      "details": [
+        {
+          "step": "router",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "query_rewriter",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "retriever",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "answer_generator",
+          "score": 31.000000000000007,
+          "passed": false
+        },
+        {
+          "step": "verifier",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "formatter",
+          "score": 100.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "workflow_score": 55.67,
+      "passed": false,
+      "step_scores": {
+        "router": 100.0,
+        "query_rewriter": 100.0,
+        "retriever": 100.0,
+        "answer_generator": 20.0,
+        "verifier": 100.0,
+        "formatter": 100.0
+      },
+      "metrics": {
+        "final_answer_quality": 20.0,
+        "retrieval_quality": 100.0,
+        "routing_accuracy": 100.0,
+        "hallucination_rate": 0.0,
+        "latency": 95.0,
+        "cost": 90.0
+      },
+      "details": [
+        {
+          "step": "router",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "query_rewriter",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "retriever",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "answer_generator",
+          "score": 20.0,
+          "passed": false
+        },
+        {
+          "step": "verifier",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "formatter",
+          "score": 100.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "workflow_score": 83.17,
+      "passed": false,
+      "step_scores": {
+        "router": 100.0,
+        "query_rewriter": 100.0,
+        "retriever": 100.0,
+        "answer_generator": 75.00000000000001,
+        "verifier": 100.0,
+        "formatter": 100.0
+      },
+      "metrics": {
+        "final_answer_quality": 75.00000000000001,
+        "retrieval_quality": 100.0,
+        "routing_accuracy": 100.0,
+        "hallucination_rate": 0.0,
+        "latency": 95.0,
+        "cost": 90.0
+      },
+      "details": [
+        {
+          "step": "router",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "query_rewriter",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "retriever",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "answer_generator",
+          "score": 75.00000000000001,
+          "passed": false
+        },
+        {
+          "step": "verifier",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "formatter",
+          "score": 100.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "workflow_score": 55.67,
+      "passed": false,
+      "step_scores": {
+        "router": 100.0,
+        "query_rewriter": 100.0,
+        "retriever": 100.0,
+        "answer_generator": 20.0,
+        "verifier": 100.0,
+        "formatter": 100.0
+      },
+      "metrics": {
+        "final_answer_quality": 20.0,
+        "retrieval_quality": 100.0,
+        "routing_accuracy": 100.0,
+        "hallucination_rate": 0.0,
+        "latency": 95.0,
+        "cost": 90.0
+      },
+      "details": [
+        {
+          "step": "router",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "query_rewriter",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "retriever",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "answer_generator",
+          "score": 20.0,
+          "passed": false
+        },
+        {
+          "step": "verifier",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "formatter",
+          "score": 100.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "workflow_score": 55.67,
+      "passed": false,
+      "step_scores": {
+        "router": 100.0,
+        "query_rewriter": 100.0,
+        "retriever": 100.0,
+        "answer_generator": 20.0,
+        "verifier": 100.0,
+        "formatter": 100.0
+      },
+      "metrics": {
+        "final_answer_quality": 20.0,
+        "retrieval_quality": 100.0,
+        "routing_accuracy": 100.0,
+        "hallucination_rate": 0.0,
+        "latency": 95.0,
+        "cost": 90.0
+      },
+      "details": [
+        {
+          "step": "router",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "query_rewriter",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "retriever",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "answer_generator",
+          "score": 20.0,
+          "passed": false
+        },
+        {
+          "step": "verifier",
+          "score": 100.0,
+          "passed": true
+        },
+        {
+          "step": "formatter",
+          "score": 100.0,
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

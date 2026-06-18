@@ -19,7 +19,7 @@ export function Header() {
   const isAnalyticsPage = pathname === '/analytics';
   const isDashboardPage = pathname === '/dashboard';
   const isHomePage = pathname === '/home';
-  const isTutorModePage = pathname === '/tutor-mode';
+  const isTutorModePage = pathname === '/tutor-mode' || pathname === '/tutor';
   // Temporary: Static title - will be made dynamic with user input later
   const notebookTitle = 'NotebookLMSync';
 
@@ -43,7 +43,7 @@ export function Header() {
   };
 
   const handleTutorMode = () => {
-    router.push('/tutor-mode');
+    router.push('/tutor');
   };
 
   return (

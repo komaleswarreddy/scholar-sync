@@ -1,0 +1,19 @@
+Count,Message,Traceback,Nodes
+73,"HTTPConnectionPool(host='127.0.0.1', port=8000): Read timed out.","  File ""C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\venv\Lib\site-packages\locust\user\task.py"", line 363, in run
+    self.execute_next_task()
+  File ""C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\venv\Lib\site-packages\locust\user\task.py"", line 396, in execute_next_task
+    self.execute_task(self._task_queue.popleft())
+  File ""C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\venv\Lib\site-packages\locust\user\task.py"", line 513, in execute_task
+    task(self.user)
+  File ""C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\tests\load\locustfile_classroom.py"", line 148, in stream_chat
+    for line in response.iter_lines(decode_unicode=True):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\venv\Lib\site-packages\requests\models.py"", line 1008, in iter_lines
+    for chunk in self.iter_content(
+                 ^^^^^^^^^^^^^^^^^^
+  File ""C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\venv\Lib\site-packages\requests\utils.py"", line 604, in stream_decode_response_unicode
+    for chunk in iterator:
+                 ^^^^^^^^
+  File ""C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\venv\Lib\site-packages\requests\models.py"", line 943, in generate
+    raise ConnectionError(e)
+",local

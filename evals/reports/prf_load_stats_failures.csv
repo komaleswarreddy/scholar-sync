@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,/api/v1/chat/stream,"CatchResponseError(""HTTP 429: {'error': 'Rate limit exceeded', 'message': 'Please wait 1.2 seconds before sending the same query again.', 'retry_after"")",1,2026-06-13T06:10:23Z,2026-06-13T06:10:23Z

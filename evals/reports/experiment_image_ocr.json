@@ -1,0 +1,234 @@
+{
+  "agent_name": "image_ocr",
+  "generated_at": "2026-06-18T04:32:49.266222+00:00",
+  "dataset_id": "image_ocr",
+  "dataset_hash": "4f34c58bd112b78e",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000116,
+      "input_cost_usd": 2.9e-05,
+      "output_cost_usd": 8.7e-05,
+      "prompt_tokens": 195,
+      "completion_tokens": 145,
+      "latency_ms": 9370.6,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000135,
+      "input_cost_usd": 8.4e-05,
+      "output_cost_usd": 5.1e-05,
+      "prompt_tokens": 560,
+      "completion_tokens": 85,
+      "latency_ms": 9505.95,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000116,
+      "input_cost_usd": 2.9e-05,
+      "output_cost_usd": 8.7e-05
+    },
+    "composite_score": 0.9063
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "image_ocr-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "printed",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Printed CBSE question paper page: 'Section A Q1 Define photosynthesis (2 marks)'"
+      },
+      "expected": {
+        "extracted_text": "Section A\nQ1 Define photosynthesis (2 marks)"
+      },
+      "actual": {
+        "output": "I'm sorry, but I can't process images directly. However, if you can provide the text or describe the content, I'd be happy to help!"
+      }
+    },
+    {
+      "example_id": "image_ocr-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "handwritten",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Handwritten Class 10 maths: 'x\u00b2 - 5x + 6 = 0, solve by factorization'"
+      },
+      "expected": {
+        "extracted_text": "x^2 - 5x + 6 = 0\nsolve by factorization"
+      },
+      "actual": {
+        "output": "I'm sorry, but I can't process images directly. However, if you can provide the text or describe the content, I'd be happy to help!"
+      }
+    },
+    {
+      "example_id": "image_ocr-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "low_quality_scan",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Low-quality scan NEET MCQ: options A B C D for pepsin pH"
+      },
+      "expected": {
+        "extracted_text": "Q. Pepsin optimum pH?\n(A) 1.8  (B) 7.0\n(C) 8.5  (D) 9.2"
+      },
+      "actual": {
+        "output": "I'm sorry, but I can't process images directly. However, if you can provide the text or describe the content, I'd be happy to help!"
+      }
+    },
+    {
+      "example_id": "image_ocr-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Mixed Hindi-English science notes with diagram caption 'Fig 12.3 circuit'"
+      },
+      "expected": {
+        "extracted_text": "Fig 12.3 circuit\nV = IR\nResistance R = 4 ohm"
+      },
+      "actual": {
+        "output": "I'm sorry, but I can't process images directly. However, if you can provide the text or describe the content, I'd be happy to help!"
+      }
+    },
+    {
+      "example_id": "image_ocr-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "table",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Table of trigonometric ratios sin cos tan 0 30 45 60 90"
+      },
+      "expected": {
+        "extracted_text": "| angle | sin | cos | tan |\n| 0\u00b0 | 0 | 1 | 0 |"
+      },
+      "actual": {
+        "output": "I'm sorry, but I can't process images directly. However, if you can provide the text or describe the content, I'd be happy to help!"
+      }
+    },
+    {
+      "example_id": "image_ocr-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "printed",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Printed CBSE question paper page: 'Section A Q1 Define photosynthesis (2 marks)'"
+      },
+      "expected": {
+        "extracted_text": "Section A\nQ1 Define photosynthesis (2 marks)"
+      },
+      "actual": {
+        "output": "I'm sorry, but I cannot process images or extract text from them."
+      }
+    },
+    {
+      "example_id": "image_ocr-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "handwritten",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Handwritten Class 10 maths: 'x\u00b2 - 5x + 6 = 0, solve by factorization'"
+      },
+      "expected": {
+        "extracted_text": "x^2 - 5x + 6 = 0\nsolve by factorization"
+      },
+      "actual": {
+        "output": "I'm sorry, but I cannot extract text from images."
+      }
+    },
+    {
+      "example_id": "image_ocr-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "low_quality_scan",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Low-quality scan NEET MCQ: options A B C D for pepsin pH"
+      },
+      "expected": {
+        "extracted_text": "Q. Pepsin optimum pH?\n(A) 1.8  (B) 7.0\n(C) 8.5  (D) 9.2"
+      },
+      "actual": {
+        "output": "I'm sorry, but I cannot extract text from images."
+      }
+    },
+    {
+      "example_id": "image_ocr-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Mixed Hindi-English science notes with diagram caption 'Fig 12.3 circuit'"
+      },
+      "expected": {
+        "extracted_text": "Fig 12.3 circuit\nV = IR\nResistance R = 4 ohm"
+      },
+      "actual": {
+        "output": "I'm sorry, but I cannot extract text from images. If you have a text document or specific content you would like help with, please provide that, and I'll be happy to assist you."
+      }
+    },
+    {
+      "example_id": "image_ocr-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "table",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "image_fixture_note": "Table of trigonometric ratios sin cos tan 0 30 45 60 90"
+      },
+      "expected": {
+        "extracted_text": "| angle | sin | cos | tan |\n| 0\u00b0 | 0 | 1 | 0 |"
+      },
+      "actual": {
+        "output": "I'm sorry, but I cannot extract text from images."
+      }
+    }
+  ]
+}

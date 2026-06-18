@@ -1,0 +1,302 @@
+{
+  "agent_name": "whole_file_map_summarizer",
+  "generated_at": "2026-06-18T04:26:22.799470+00:00",
+  "dataset_id": "whole_file_map_summarizer",
+  "dataset_hash": "9235ac1c302ee810",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 9.5e-05,
+      "input_cost_usd": 4.7e-05,
+      "output_cost_usd": 4.8e-05,
+      "prompt_tokens": 315,
+      "completion_tokens": 80,
+      "latency_ms": 24817.93,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000503,
+      "input_cost_usd": 0.000102,
+      "output_cost_usd": 0.000401,
+      "prompt_tokens": 680,
+      "completion_tokens": 669,
+      "latency_ms": 30353.12,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 9.5e-05,
+      "input_cost_usd": 4.7e-05,
+      "output_cost_usd": 4.8e-05
+    },
+    "composite_score": 0.9
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "whole_file_map_summarizer-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Physics topic 1.",
+          "Part 2: NCERT section on Chemistry topic 2.",
+          "Part 3: NCERT section on Biology topic 3."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "actual": {
+        "output": "Sure! Please provide the parts of the document you would like me to summarize."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Chemistry topic 1.",
+          "Part 2: NCERT section on Biology topic 2.",
+          "Part 3: NCERT section on Mathematics topic 3.",
+          "Part 4: NCERT section on Science topic 4."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "actual": {
+        "output": "Sure! Please provide the parts of the document you would like me to summarize."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Biology topic 1.",
+          "Part 2: NCERT section on Mathematics topic 2.",
+          "Part 3: NCERT section on Science topic 3.",
+          "Part 4: NCERT section on Physics topic 4.",
+          "Part 5: NCERT section on Chemistry topic 5."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4.\nPart 5: Main idea of section 5."
+      },
+      "actual": {
+        "output": "Sure! Please provide the parts of the document you would like me to summarize."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Mathematics topic 1.",
+          "Part 2: NCERT section on Science topic 2.",
+          "Part 3: NCERT section on Physics topic 3."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "actual": {
+        "output": "Sure! Please provide the parts of the document you would like me to summarize."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Science topic 1.",
+          "Part 2: NCERT section on Physics topic 2.",
+          "Part 3: NCERT section on Chemistry topic 3.",
+          "Part 4: NCERT section on Biology topic 4."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "actual": {
+        "output": "Sure! Please provide the parts of the document you would like me to summarize."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Physics topic 1.",
+          "Part 2: NCERT section on Chemistry topic 2.",
+          "Part 3: NCERT section on Biology topic 3."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "actual": {
+        "Part 1": "The importance of understanding the basic concepts of democracy is emphasized, highlighting its role in promoting equality and justice in society.",
+        "Part 2": "The document discusses the various forms of government, focusing on the characteristics and functions of a parliamentary system.",
+        "Part 3": "It outlines the significance of the Constitution in establishing the framework for governance and protecting citizens' rights.",
+        "Part 4": "The role of political parties in a democracy is examined, including their function in representing diverse interests and facilitating political participation.",
+        "Part 5": "The document addresses the electoral process, detailing the steps involved in conducting free and fair elections."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Chemistry topic 1.",
+          "Part 2: NCERT section on Biology topic 2.",
+          "Part 3: NCERT section on Mathematics topic 3.",
+          "Part 4: NCERT section on Science topic 4."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "actual": {
+        "Part 1": "The importance of understanding the basic concepts of democracy is emphasized, highlighting its role in promoting equality and justice in society.",
+        "Part 2": "The document discusses the various forms of government, focusing on the characteristics and functions of a parliamentary system.",
+        "Part 3": "It outlines the significance of the Constitution in establishing the framework for governance and protecting citizens' rights.",
+        "Part 4": "The role of political parties in a democracy is examined, including their function in representing diverse interests and facilitating political participation.",
+        "Part 5": "The document addresses the electoral process, detailing the steps involved in conducting free and fair elections."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Biology topic 1.",
+          "Part 2: NCERT section on Mathematics topic 2.",
+          "Part 3: NCERT section on Science topic 3.",
+          "Part 4: NCERT section on Physics topic 4.",
+          "Part 5: NCERT section on Chemistry topic 5."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4.\nPart 5: Main idea of section 5."
+      },
+      "actual": {
+        "Part 1": "The importance of understanding the basic concepts of democracy is emphasized, highlighting its role in promoting equality and justice in society.",
+        "Part 2": "The document discusses the various forms of government, focusing on the characteristics and functions of a parliamentary system.",
+        "Part 3": "It outlines the significance of the Constitution in establishing the framework for governance and protecting citizens' rights.",
+        "Part 4": "The role of political parties in a democracy is examined, including their function in representing diverse interests and facilitating political participation.",
+        "Part 5": "The document addresses the electoral process, detailing the steps involved in conducting free and fair elections to ensure public representation."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Mathematics topic 1.",
+          "Part 2: NCERT section on Science topic 2.",
+          "Part 3: NCERT section on Physics topic 3."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "actual": {
+        "Part 1": "The importance of understanding the basic concepts of democracy is emphasized, highlighting its role in promoting equality and justice in society.",
+        "Part 2": "The document discusses the various forms of government, focusing on the characteristics and functions of a democratic system.",
+        "Part 3": "It outlines the fundamental rights and duties of citizens, stressing their significance in maintaining a healthy democracy.",
+        "Part 4": "The role of elections in a democracy is examined, detailing the process and importance of free and fair voting.",
+        "Part 5": "The document concludes with a discussion on the challenges faced by democracies, including corruption and the need for active citizen participation."
+      }
+    },
+    {
+      "example_id": "whole_file_map_summarizer-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Science topic 1.",
+          "Part 2: NCERT section on Physics topic 2.",
+          "Part 3: NCERT section on Chemistry topic 3.",
+          "Part 4: NCERT section on Biology topic 4."
+        ]
+      },
+      "expected": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "actual": {
+        "Part 1": "The importance of understanding the scientific method is emphasized as a systematic approach to inquiry and experimentation in science.",
+        "Part 2": "The role of hypothesis formulation is discussed, highlighting its significance in guiding research and predicting outcomes.",
+        "Part 3": "Data collection methods are outlined, stressing the need for accuracy and reliability in scientific investigations.",
+        "Part 4": "The analysis of results is presented as a critical step in drawing conclusions and validating or refuting hypotheses.",
+        "Part 5": "The document concludes with the importance of peer review in ensuring the credibility and quality of scientific research."
+      }
+    }
+  ]
+}

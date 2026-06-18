@@ -10,11 +10,7 @@
 import { useEffect, useState } from 'react';
 import { 
   FileQuestion, 
-  Layers, 
-  Network, 
   FileText, 
-  Presentation, 
-  Image as ImageIcon,
   AlertCircle,
   Settings,
   X,
@@ -23,18 +19,23 @@ import {
 import { StudioCard } from './StudioCard';
 import { Button } from '../ui/Button';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
-import type { StudioReportFormat } from '@/lib/api-client';
 import { useStudioChatBridge } from '@/contexts/StudioChatBridgeContext';
 import { useStudioGeneration } from '@/contexts/StudioGenerationContext';
-
-const STUDIO_TOOLS = [
-  { icon: <Network className="w-5 h-5" />, title: 'Mind Map', type: 'mind_map' },
-  { icon: <FileText className="w-5 h-5" />, title: 'Reports', type: 'report' },
-  { icon: <Layers className="w-5 h-5" />, title: 'Flashcards', type: 'flashcards' },
-  { icon: <FileQuestion className="w-5 h-5" />, title: 'Quiz', type: 'quiz' },
-  { icon: <ImageIcon className="w-5 h-5" />, title: 'Infographic', type: 'infographic' },
-  { icon: <Presentation className="w-5 h-5" />, title: 'Slide Deck', type: 'slide_deck' },
-];
+import { useNotebookContextOptional } from '@/contexts/NotebookContext';
+import {
+  NOTEBOOK_STUDIO_TOOL_TONES,
+  NOTEBOOK_STUDIO_TOOLS,
+  PROBLEM_SOLVER_NOTEBOOK_STUDIO_TOOLS,
+  PROBLEM_SOLVER_STUDIO_PRIMARY_TYPES,
+  PROBLEM_SOLVER_STUDIO_SECONDARY_TYPES,
+  TUTOR_NOTEBOOK_STUDIO_TOOLS,
+  TUTOR_STUDIO_PRIMARY_TYPES,
+  TUTOR_STUDIO_SECONDARY_TYPES,
+} from '@/lib/notebook-studio-tools';
+import { NotebookSectionHeader } from '@/components/notebook/NotebookSectionHeader';
+import {
+  NOTEBOOK_STUDIO_TONE_STYLES,
+} from '@/lib/notebook-ui-tokens';
 
 type SlideDeckSpec = {
   format: 'detailed' | 'presenter';
@@ -64,16 +65,6 @@ const DEFAULT_QUIZ_SPEC: QuizSpec = {
   volume: 'standard',
   difficulty: 'medium',
   topicFocus: '',
-};
-
-type ReportSpec = {
-  format: StudioReportFormat;
-  retrievalFocus: string;
-};
-
-const DEFAULT_REPORT_SPEC: ReportSpec = {
-  format: 'integrated',
-  retrievalFocus: '',
 };
 
 const SLIDE_DECK_LANGUAGES = [
@@ -113,7 +104,38 @@ const SLIDE_DECK_LANGUAGES = [
   'Swahili',
 ];
 
-export function StudioSuite() {
+export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'notebook' }) {
+  const isNotebookLayout = layout === 'notebook';
+  const notebookCtx = useNotebookContextOptional();
+  const isTutorNotebook = notebookCtx?.notebook.mode === 'tutor';
+  const isProblemSolverNotebook = notebookCtx?.notebook.mode === 'problem_solver';
+  const notebookStudioTools =
+    isNotebookLayout && isProblemSolverNotebook
+      ? PROBLEM_SOLVER_NOTEBOOK_STUDIO_TOOLS
+      : isNotebookLayout && isTutorNotebook
+        ? TUTOR_NOTEBOOK_STUDIO_TOOLS
+        : NOTEBOOK_STUDIO_TOOLS;
+  const [studioExpanded, setStudioExpanded] = useState(false);
+  const isCollapsibleNotebookStudio =
+    isNotebookLayout && (isTutorNotebook || isProblemSolverNotebook);
+  const studioPrimaryTypes = isProblemSolverNotebook
+    ? PROBLEM_SOLVER_STUDIO_PRIMARY_TYPES
+    : TUTOR_STUDIO_PRIMARY_TYPES;
+  const studioSecondaryTypes = isProblemSolverNotebook
+    ? PROBLEM_SOLVER_STUDIO_SECONDARY_TYPES
+    : TUTOR_STUDIO_SECONDARY_TYPES;
+  const visibleTutorTools = isCollapsibleNotebookStudio
+    ? studioExpanded
+      ? notebookStudioTools
+      : notebookStudioTools.filter((tool) => studioPrimaryTypes.includes(tool.type))
+    : notebookStudioTools;
+  const studioGridClass = isCollapsibleNotebookStudio
+    ? studioExpanded
+      ? isProblemSolverNotebook
+        ? 'notebook-studio-grid notebook-studio-grid--count-3'
+        : 'notebook-studio-grid notebook-studio-grid--count-4'
+      : 'notebook-studio-grid notebook-studio-grid--count-2'
+    : 'notebook-studio-grid';
   const { validSelectedIds, validSelectedCount } = useValidSelectedSourceIds();
   const { hasChatContext } = useStudioChatBridge();
   const {
@@ -125,7 +147,8 @@ export function StudioSuite() {
     validationError,
     clearValidationError,
   } = useStudioGeneration();
-  const hasSelectedSources = validSelectedCount > 0;
+  const hasSelectedSources =
+    validSelectedCount > 0 || (isCollapsibleNotebookStudio && isNotebookLayout);
   
   // Custom instructions state
   const [customInstructions, setCustomInstructions] = useState<string>('');
@@ -134,8 +157,6 @@ export function StudioSuite() {
   const [slideDeckSpec, setSlideDeckSpec] = useState<SlideDeckSpec>(DEFAULT_SLIDE_DECK_SPEC);
   const [isQuizConfigOpen, setIsQuizConfigOpen] = useState<boolean>(false);
   const [quizSpec, setQuizSpec] = useState<QuizSpec>(DEFAULT_QUIZ_SPEC);
-  const [isReportConfigOpen, setIsReportConfigOpen] = useState<boolean>(false);
-  const [reportSpec, setReportSpec] = useState<ReportSpec>(DEFAULT_REPORT_SPEC);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -167,10 +188,6 @@ export function StudioSuite() {
     }
     if (type === 'quiz') {
       setIsQuizConfigOpen(true);
-      return;
-    }
-    if (type === 'report') {
-      setIsReportConfigOpen(true);
       return;
     }
     if (type === 'mind_map') {
@@ -317,52 +334,6 @@ export function StudioSuite() {
     await generate({ taskType: 'flashcards', instructions: combined });
   };
 
-  /**
-   * Scope + synthesis rules for the user prompt. Per-format writing rules are enforced in
-   * `packages/core/prompts/templates/studio/report_prompt.j2` via API field `report_format`.
-   */
-  const buildReportInstructions = (spec: ReportSpec, selectedSourceCount: number): string => {
-    const formatUiName: Record<StudioReportFormat, string> = {
-      integrated: 'Integrated synthesis',
-      briefing: 'Executive briefing',
-      study_guide: 'Study guide',
-      newsletter: 'Newsletter style',
-      thematic_summary: 'Thematic summary',
-    };
-    const lines = [
-      'Tailored report — scope (mandatory):',
-      '- Vector retrieval used only the currently selected sources; all other documents are excluded.',
-      '- Ground every claim in the retrieved excerpt; do not invent facts from outside the sources.',
-      `- Selected format: "${formatUiName[spec.format]}" — the server applies the matching REPORT FORMAT SPEC for \`${spec.format}\`.`,
-    ];
-    if (selectedSourceCount === 1) {
-      lines.push(
-        '- Single source: extract and structure the document’s dominant themes, claims, and implications.',
-      );
-    } else {
-      lines.push(
-        `- ${selectedSourceCount} sources: synthesize all selected materials into one cohesive document.`,
-        '- Cross-reference facts and themes across texts where the excerpt supports it; surface overlaps and meaningful contrasts.',
-        '- Avoid siloed “source A / source B” sections unless comparison is the clearest way to aid the reader.',
-      );
-    }
-    return lines.join('\n');
-  };
-
-  const handleReportGenerate = async () => {
-    const n = validSelectedCount;
-    const block = buildReportInstructions(reportSpec, n);
-    const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
-    const focus = reportSpec.retrievalFocus.trim() || undefined;
-    setIsReportConfigOpen(false);
-    await generate({
-      taskType: 'report',
-      instructions: combined,
-      retrievalFocus: focus,
-      reportFormat: reportSpec.format,
-    });
-  };
-
   const handleSlideDeckGenerate = async () => {
     const structuredSlideInstructions = buildSlideDeckInstructions(slideDeckSpec);
     const combinedInstructions = [structuredSlideInstructions, customInstructions.trim()]
@@ -388,6 +359,198 @@ export function StudioSuite() {
       retrievalFocus: quizSpec.topicFocus.trim() || undefined,
     });
   };
+
+  const handleToolClick = (toolType: string) => {
+    if (generating === toolType) return;
+    if (toolType === 'slide_deck') {
+      setIsSlideDeckConfigOpen(true);
+      return;
+    }
+    if (toolType === 'quiz') {
+      setIsQuizConfigOpen(true);
+      return;
+    }
+    if (toolType === 'mind_map') {
+      void handleMindMapGenerate();
+      return;
+    }
+    if (toolType === 'flashcards') {
+      void handleFlashcardGenerate();
+      return;
+    }
+    void generate({ taskType: toolType });
+  };
+
+  const renderToolDisabled = (toolType: string) => {
+    const disabledNoSources = !hasSelectedSources;
+    return {
+      disabled: generating === toolType || loading || disabledNoSources,
+      disabledNoSources,
+    };
+  };
+
+  if (isNotebookLayout) {
+    return (
+      <div className="flex flex-col">
+        {isCollapsibleNotebookStudio ? (
+          <NotebookSectionHeader
+            title="STUDIO"
+            subtitle="Create from this notebook"
+            actionLabel={studioExpanded ? 'Show less' : 'View all'}
+            onAction={() => setStudioExpanded((open) => !open)}
+            showAction={studioSecondaryTypes.length > 0}
+          />
+        ) : (
+          <>
+            <div className="notebook-col-header px-4 pt-3 pb-1">
+              <span>STUDIO</span>
+            </div>
+            <p className="px-4 text-[12px] text-[var(--color-home-text-muted)] mb-3">
+              Create from this notebook
+            </p>
+          </>
+        )}
+
+        {(validationError || apiError) && (
+          <div className="mx-4 mb-3 p-2.5 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-red-700 flex-1">
+              {validationError ||
+                (typeof apiError === 'string' ? apiError : apiError || 'An error occurred')}
+            </p>
+          </div>
+        )}
+
+        {!hasSelectedSources && !isCollapsibleNotebookStudio && (
+          <p className="px-4 pb-2 text-[11px] text-[var(--color-home-text-muted)]">
+            Select sources to enable Studio tools.
+          </p>
+        )}
+
+        <div className={`${studioGridClass} px-4 pb-4`}>
+          {(isCollapsibleNotebookStudio ? visibleTutorTools : notebookStudioTools).map((tool) => {
+            const { disabled } = renderToolDisabled(tool.type);
+            const tone = NOTEBOOK_STUDIO_TOOL_TONES[tool.type] || 'green';
+            const toneStyle = NOTEBOOK_STUDIO_TONE_STYLES[tone];
+            const isGenerating = generating === tool.type;
+            const Icon = tool.icon;
+            return (
+              <button
+                key={tool.type}
+                type="button"
+                disabled={disabled}
+                onClick={() => handleToolClick(tool.type)}
+                className="notebook-studio-card disabled:opacity-45 disabled:cursor-not-allowed"
+              >
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-2"
+                  style={{ backgroundColor: toneStyle.bg, color: toneStyle.color }}
+                >
+                  <Icon className="w-5 h-5" />
+                </div>
+                <p className="text-[13px] font-semibold text-[var(--color-home-text)]">{tool.title}</p>
+                <p className="text-[11px] text-[var(--color-brand-text)] mt-0.5">
+                  {isGenerating ? 'Generating…' : 'Tap to generate'}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        {isSlideDeckConfigOpen && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+              onClick={() => setIsSlideDeckConfigOpen(false)}
+              aria-hidden="true"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="bg-surface border border-border-default rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between p-5 border-b border-border-default">
+                  <h3 className="text-xl font-semibold text-text-primary">Customize Slide Deck</h3>
+                  <button
+                    onClick={() => setIsSlideDeckConfigOpen(false)}
+                    className="p-2 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-5 overflow-y-auto space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                      onClick={() => setSlideDeckSpec((prev) => ({ ...prev, format: 'detailed' }))}
+                      className={`rounded-xl border p-4 text-left transition-colors ${slideDeckSpec.format === 'detailed' ? 'border-accent-blue bg-accent-blue/10' : 'border-border-default bg-surface-subtle hover:bg-surface-hover'}`}
+                    >
+                      <p className="text-base font-semibold text-text-primary">Detailed Deck</p>
+                    </button>
+                    <button
+                      onClick={() => setSlideDeckSpec((prev) => ({ ...prev, format: 'presenter' }))}
+                      className={`rounded-xl border p-4 text-left transition-colors ${slideDeckSpec.format === 'presenter' ? 'border-accent-blue bg-accent-blue/10' : 'border-border-default bg-surface-subtle hover:bg-surface-hover'}`}
+                    >
+                      <p className="text-base font-semibold text-text-primary">Presenter Deck</p>
+                    </button>
+                  </div>
+                  <textarea
+                    value={slideDeckSpec.objective}
+                    onChange={(e) => setSlideDeckSpec((prev) => ({ ...prev, objective: e.target.value }))}
+                    placeholder="Optional focus for this deck"
+                    className="w-full min-h-[90px] px-3 py-2 text-sm bg-surface-subtle border border-border-default rounded-lg resize-none"
+                  />
+                </div>
+                <div className="p-5 border-t border-border-default flex justify-end gap-3">
+                  <Button variant="secondary" onClick={() => setIsSlideDeckConfigOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" onClick={() => void handleSlideDeckGenerate()}>
+                    Generate Slide Deck
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {isQuizConfigOpen && (
+          <>
+            <div className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm" onClick={() => setIsQuizConfigOpen(false)} aria-hidden="true" />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div role="dialog" aria-modal="true" className="bg-surface border border-border-default rounded-xl shadow-2xl w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-text-primary mb-4">Customize Quiz</h3>
+                <select
+                  value={quizSpec.volume}
+                  onChange={(e) => setQuizSpec((prev) => ({ ...prev, volume: e.target.value as QuizSpec['volume'] }))}
+                  className="w-full px-3 py-2 text-sm border border-border-default rounded-lg mb-3"
+                >
+                  <option value="fewer">Fewer (3–4)</option>
+                  <option value="standard">Standard (5–7)</option>
+                  <option value="more">More (8–10)</option>
+                </select>
+                <select
+                  value={quizSpec.difficulty}
+                  onChange={(e) => setQuizSpec((prev) => ({ ...prev, difficulty: e.target.value as QuizSpec['difficulty'] }))}
+                  className="w-full px-3 py-2 text-sm border border-border-default rounded-lg mb-4"
+                >
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+                <div className="flex justify-end gap-2">
+                  <Button variant="secondary" onClick={() => setIsQuizConfigOpen(false)}>Cancel</Button>
+                  <Button variant="primary" onClick={() => void handleQuizGenerate()}>Generate</Button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -473,29 +636,26 @@ export function StudioSuite() {
         <p className="text-xs text-text-tertiary mb-2">
           {hasChatContext ? (
             <>
-              With an active chat, Studio uses <strong className="font-medium text-text-secondary">chat + selected sources</strong> (~60/40).
-              Infographic: one source in the rail, or multiple sources when chat is active.
+              With an active chat, Studio uses{' '}
+              <strong className="font-medium text-text-secondary">chat + selected sources</strong> (~60/40).
             </>
           ) : (
             <>
-              Infographic: select exactly one source. Other tools use your{' '}
-              <strong className="font-medium text-text-secondary">selected</strong> sources.
+              Tools use your <strong className="font-medium text-text-secondary">selected</strong> sources.
             </>
           )}{' '}
           Highlight text in chat for selection-only generation. Flashcards use broad retrieval across
           selected sources.
         </p>
         <div className="grid grid-cols-2 gap-3">
-          {STUDIO_TOOLS.map((tool) => {
+          {NOTEBOOK_STUDIO_TOOLS.map((tool) => {
             const isGenerating = generating === tool.type;
             const disabledNoSources = !hasSelectedSources;
-            const infographicOk =
-              validSelectedCount === 1 || (hasChatContext && validSelectedCount >= 1);
-            const infographicNeedsOne = tool.type === 'infographic' && !infographicOk;
+            const Icon = tool.icon;
             return (
               <StudioCard
                 key={tool.type}
-                icon={tool.icon}
+                icon={<Icon className="w-5 h-5" />}
                 title={tool.title}
                 onClick={() => {
                   if (isGenerating) return;
@@ -515,18 +675,12 @@ export function StudioSuite() {
                     void handleFlashcardGenerate();
                     return;
                   }
-                  if (tool.type === 'report') {
-                    setIsReportConfigOpen(true);
-                    return;
-                  }
                   void generate({ taskType: tool.type });
                 }}
-                disabled={isGenerating || loading || infographicNeedsOne || disabledNoSources}
+                disabled={isGenerating || loading || disabledNoSources}
                 disabledHint={
                   disabledNoSources
                     ? 'Select at least one source to enable Studio generation.'
-                    : infographicNeedsOne
-                    ? 'Select one source for infographic, or enable chat + at least one source for hybrid.'
                     : undefined
                 }
               />
@@ -662,103 +816,6 @@ export function StudioSuite() {
                 </Button>
                 <Button variant="primary" onClick={() => void handleSlideDeckGenerate()}>
                   Generate Slide Deck
-                </Button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Report customization */}
-      {isReportConfigOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
-            onClick={() => setIsReportConfigOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="report-customize-title"
-              className="bg-surface border border-border-default rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-border-default bg-surface-subtle/80">
-                <div className="w-10 h-10 rounded-lg bg-accent-blue/15 flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 text-accent-blue" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 id="report-customize-title" className="text-lg font-semibold text-text-primary">
-                    Tailored report
-                  </h3>
-                  <p className="text-xs text-text-secondary mt-0.5">
-                    Choose a format. Optional topic steers vector retrieval; leave blank for broad coverage
-                    across selected sources.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsReportConfigOpen(false)}
-                  className="p-2 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text-primary shrink-0"
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="p-5 overflow-y-auto space-y-5">
-                <div className="space-y-2 border-l-2 border-accent-blue/40 pl-4">
-                  <label htmlFor="report-format" className="text-sm font-medium text-text-primary">
-                    Report format
-                  </label>
-                  <select
-                    id="report-format"
-                    value={reportSpec.format}
-                    onChange={(e) =>
-                      setReportSpec((prev) => ({
-                        ...prev,
-                        format: e.target.value as ReportSpec['format'],
-                      }))
-                    }
-                    className="w-full px-3 py-2.5 text-sm bg-surface border border-border-default rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-blue/25 focus:border-accent-blue"
-                  >
-                    <option value="integrated">Integrated synthesis</option>
-                    <option value="briefing">Executive briefing</option>
-                    <option value="study_guide">Study guide</option>
-                    <option value="newsletter">Newsletter style</option>
-                    <option value="thematic_summary">Thematic summary</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2 rounded-lg bg-surface-subtle border border-border-default p-4">
-                  <label htmlFor="report-retrieval-focus" className="text-sm font-medium text-text-primary">
-                    Topic for retrieval <span className="text-text-tertiary font-normal">(optional)</span>
-                  </label>
-                  <textarea
-                    id="report-retrieval-focus"
-                    value={reportSpec.retrievalFocus}
-                    onChange={(e) =>
-                      setReportSpec((prev) => ({ ...prev, retrievalFocus: e.target.value }))
-                    }
-                    placeholder="e.g. environmental policy section, or key formulas. Empty = broad queries across all selected sources."
-                    rows={3}
-                    className="w-full px-3 py-2 text-sm bg-surface border border-border-default rounded-lg text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue resize-none"
-                  />
-                </div>
-              </div>
-
-              <div className="px-5 py-4 border-t border-border-default flex flex-col-reverse sm:flex-row sm:justify-end gap-2 bg-surface-subtle/50">
-                <Button
-                  variant="secondary"
-                  onClick={() => setIsReportConfigOpen(false)}
-                  className="w-full sm:w-auto"
-                >
-                  Cancel
-                </Button>
-                <Button variant="primary" onClick={() => void handleReportGenerate()} className="w-full sm:w-auto">
-                  Generate report
                 </Button>
               </div>
             </div>

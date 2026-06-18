@@ -1,0 +1,117 @@
+[
+  {
+    "id": "TC001",
+    "title": "health_check_endpoint_returns_service_status",
+    "description": "Verify GET /health returns 200."
+  },
+  {
+    "id": "ING-01",
+    "title": "happy_path_pdf_upload_and_chat_retrieval",
+    "description": "ING-01: POST /api/v1/ingest/upload with tests/fixtures/ingestion/standard_chapter.pdf using Bearer dev JWT. Poll GET /api/v1/ingest/sources until status=indexed and chunks_count>0. POST /api/v1/chat/stream asking about chlorophyll/photosynthesis with active_source_ids. Assert SSE citation and chunk events."
+  },
+  {
+    "id": "ING-02",
+    "title": "txt_upload_two_distinct_phrases",
+    "description": "ING-02: Upload sample_phrase_alpha.txt and sample_phrase_beta.txt from tests/fixtures/ingestion/. Each reaches indexed. Chat queries retrieve ING02_ALPHA_PHRASE and ING02_BETA_PHRASE. Skip DOCX."
+  },
+  {
+    "id": "ING-03",
+    "title": "encrypted_pdf_password_flow",
+    "description": "ING-03: Upload encrypted_sample.pdf with pdf_password=testpass; poll until status is indexed (product accepts upload and applies password during indexing)."
+  },
+  {
+    "id": "ING-04",
+    "title": "large_pdf_indexes_within_sla",
+    "description": "ING-04: Upload large_50page.pdf, poll until indexed within 300 seconds."
+  },
+  {
+    "id": "ING-05",
+    "title": "corrupt_files_return_400_not_500",
+    "description": "ING-05: Upload truncated.pdf, jpg_renamed.pdf, and empty file. All return 400, never 500."
+  },
+  {
+    "id": "ING-06",
+    "title": "unsupported_file_types_rejected",
+    "description": "ING-06: Upload .exe, .mp4, .zip multipart files. All return 400."
+  },
+  {
+    "id": "ING-07",
+    "title": "duplicate_upload_distinct_source_ids",
+    "description": "ING-07: Upload same TXT twice. Two different source IDs. Both reach indexed."
+  },
+  {
+    "id": "ING-08",
+    "title": "chunking_produces_chunks",
+    "description": "ING-08: After PDF upload, GET sources shows chunks_count greater than 0."
+  },
+  {
+    "id": "ING-09",
+    "title": "scanned_pdf_clear_error",
+    "description": "ING-09: Upload blank_scanned.pdf. Source ends with status error and message about image-only or no extractable text."
+  },
+  {
+    "id": "ING-10",
+    "title": "small_upload_latency",
+    "description": "ING-10: Upload small unique TXT, indexed within 90 seconds."
+  },
+  {
+    "id": "ING-11",
+    "title": "concurrent_uploads_succeed",
+    "description": "ING-11: Three parallel POST uploads. All return 200 and eventually indexed."
+  },
+  {
+    "id": "RET-01",
+    "title": "factual_recall_via_chat_citations",
+    "description": "RET-01: Upload standard_chapter.pdf, ask factual question, verify citation text contains expected photosynthesis content."
+  },
+  {
+    "id": "RET-02",
+    "title": "first_correct_citation_rank",
+    "description": "RET-02: Factual query citations should appear early in SSE citation events."
+  },
+  {
+    "id": "RET-03",
+    "title": "citation_relevance",
+    "description": "RET-03: Citation text must relate to the question topic, not unrelated content."
+  },
+  {
+    "id": "RET-04",
+    "title": "citation_supports_answer",
+    "description": "RET-04: Streamed answer claims should be supported by cited chunk text."
+  },
+  {
+    "id": "RET-05",
+    "title": "multi_document_citations",
+    "description": "RET-05: Upload alpha and beta TXT, ask question needing both, verify citations from multiple source_ids."
+  },
+  {
+    "id": "RET-06",
+    "title": "out_of_corpus_refusal",
+    "description": "RET-06: With only photosynthesis doc selected, ask about Mars colonization. Response should refuse or say not found, not hallucinate."
+  },
+  {
+    "id": "RET-07",
+    "title": "cross_user_source_isolation_403",
+    "description": "RET-07: User A uploads doc. User B POST /api/v1/chat/stream with A's source_id gets 403."
+  },
+  {
+    "id": "RET-08",
+    "title": "paraphrase_robustness",
+    "description": "RET-08: Ask chlorophyll question in 3 different phrasings. Citations should overlap across runs."
+  },
+  {
+    "id": "RET-09",
+    "title": "formula_retrieval",
+    "description": "RET-09: Upload physics_formulas.pdf, ask Snell's law and Henderson-Hasselbalch. Citations contain formula text."
+  },
+  {
+    "id": "RET-10",
+    "title": "question_type_variants",
+    "description": "RET-10: Test definition, explanation, and direct question formats all return grounded answers with citations."
+  },
+  {
+    "id": "RET-11",
+    "title": "long_question_retrieval",
+    "description": "RET-11: Multi-sentence confused-student prompt still returns relevant citations about photosynthesis."
+  }
+]

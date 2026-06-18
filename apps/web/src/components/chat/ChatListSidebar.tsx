@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { MessageCircle, Plus, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
+import { useNotebookScopeId } from '@/contexts/NotebookContext';
 import { handleApiError, getUserFriendlyMessage, ErrorType } from '@/lib/error-handler';
 
 interface ChatListItem {
@@ -44,6 +45,7 @@ export function ChatListSidebar({
   const chatCountRef = useRef(0);
   const hasFetchedRef = useRef(false);
   const { apiClient } = useApi();
+  const notebookId = useNotebookScopeId();
 
   // Load chat list with automatic retry for network errors
   const loadChats = useCallback(async (isRetry: boolean = false) => {
@@ -54,7 +56,7 @@ export function ChatListSidebar({
         retryCountRef.current = 0;
       }
       
-      const response = await apiClient.listChats(50, 0);
+      const response = await apiClient.listChats(50, 0, notebookId);
       
       // Handle different response formats
       if (response) {
@@ -108,7 +110,7 @@ export function ChatListSidebar({
     } finally {
       setIsLoading(false);
     }
-  }, [apiClient]);
+  }, [apiClient, notebookId]);
 
   // Initial load — guarded to prevent React Strict Mode double-fetch
   useEffect(() => {

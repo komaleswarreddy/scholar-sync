@@ -1,0 +1,244 @@
+{
+  "agent_name": "studio_mind_map",
+  "generated_at": "2026-06-18T03:25:04.808166+00:00",
+  "dataset_id": "studio_mind_map",
+  "dataset_hash": "7dbd3d87027cf6e5",
+  "threshold": 98.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.00062,
+      "input_cost_usd": 0.000336,
+      "output_cost_usd": 0.000284,
+      "prompt_tokens": 2239,
+      "completion_tokens": 473,
+      "latency_ms": 8800.42,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000647,
+      "input_cost_usd": 0.000391,
+      "output_cost_usd": 0.000256,
+      "prompt_tokens": 2604,
+      "completion_tokens": 427,
+      "latency_ms": 8583.89,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000647,
+      "input_cost_usd": 0.000391,
+      "output_cost_usd": 0.000256
+    },
+    "composite_score": 0.9141
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "studio_mind_map-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Current Electricity\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Electrical Resistance and Ohm's Law\n\n## Ohm's Law\n### Definition\n- Relationship between voltage (V), current (I), and resistance (R)\n### Formula\n- V = IR\n\n## Resistance\n### Types\n- **Conductor**: Material that allows current to flow\n### Factors\n- **Resistivity (\u03c1)**: Depends on material properties\n\n## Circuit Configurations\n### Series Circuits\n- Total resistance: R_eq = R1 + R2\n### Parallel Circuits\n- Total resistance: 1/R_eq = 1/R1 + 1/R2\n\n## Current Flow\n### Steady Current\n- Described by the application of potential difference (V) across a conductor with resistance (R)"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Human Digestion\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Digestion Process\n\n## Initial Digestion in the Mouth\n### Salivary Amylase\n- Begins carbohydrate breakdown\n\n## Stomach Digestion\n### Secretion of HCl\n- Creates acidic environment\n### Pepsin\n- Enzyme for protein digestion\n\n## Pancreatic Juice Composition\n### Trypsin\n- Protein digestion\n### Lipase\n- Fat digestion\n### Amylase\n- Carbohydrate digestion\n\n## Absorption of Nutrients\n### Small Intestine Villi\n- Main site for nutrient absorption"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Photosynthesis\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Photosynthesis Process\n\n## Light Reaction\n### Location\n- Thylakoid\n### Products\n- ATP\n- NADPH\n\n## Calvin Cycle\n### Location\n- Stroma\n### Function\n- Fixes CO2\n\n## Influencing Factors\n### Light Intensity\n### CO2 Concentration\n### Temperature"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Chemical Bonding\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Chemical Bonding\n\n## Ionic Bonds\n### Formation\n- Occur between metals and non-metals\n\n## Covalent Bonds\n### Characteristics\n- Involve sharing of electron pairs\n\n## Molecular Geometry\n### VSEPR Theory\n- Predicts shapes of molecules"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Magnetic Effects\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Magnetic Fields and Forces\n\n## Moving Charge and Magnetic Fields\n### - Creation of Magnetic Field\n### - Relationship to Electric Current\n\n## Force on a Current-Carrying Conductor\n### - Formula: F = BIL sin \u03b8\n### - Variables Explained\n### - Application in Circuits\n\n## Fleming's Left-Hand Rule\n### - Relation to Magnetic Field, Current, and Force\n### - Practical Use in Determining Direction"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Current Electricity\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Electrical Resistance and Ohm's Law  \n## Ohm's Law  \n### Definition  \n- Relationship between voltage (V), current (I), and resistance (R)  \n### Formula  \n- V = IR  \n\n## Resistance  \n### Types  \n- Conductor  \n### Factors  \n- Material-dependent resistivity (\u03c1)  \n\n## Circuit Configurations  \n### Series Circuits  \n- Equivalent Resistance: R_eq = R1 + R2  \n### Parallel Circuits  \n- Equivalent Resistance: 1/R_eq = 1/R1 + 1/R2"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Human Digestion\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Digestion Process\n\n## Initial Digestion\n### Mouth\n- Salivary amylase begins digestion\n\n## Stomach Functions\n### Secretions\n- Hydrochloric acid (HCl)\n- Pepsin\n\n## Pancreatic Contributions\n### Pancreatic Juice\n- Contains trypsin\n- Contains lipase\n- Contains amylase\n\n## Absorption\n### Small Intestine\n- Main site for absorption\n- Villi facilitate nutrient uptake"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Photosynthesis\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Photosynthesis Process\n\n## Light Reaction\n### Location\n- Thylakoid\n### Products\n- ATP\n- NADPH\n\n## Calvin Cycle\n### Location\n- Stroma\n### Function\n- Fixes CO2\n\n## Influencing Factors\n### Light Intensity\n### CO2 Concentration\n### Temperature"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Chemical Bonding\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Chemical Bonding\n\n## Ionic Bonds\n### Definition\n- Form between metals and non-metals\n\n## Covalent Bonds\n### Definition\n- Share electron pairs\n\n## Molecular Geometry\n### VSEPR Theory\n- Predicts molecular shapes"
+      }
+    },
+    {
+      "example_id": "studio_mind_map-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "mind_map_markdown": "# Magnetic Effects\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "actual": {
+        "output": "# Magnetic Fields and Forces\n\n## Moving Charge and Magnetic Field\n### - Creation of Magnetic Field\n### - Relationship with Electric Current\n\n## Force on a Current-Carrying Conductor\n### - Formula: F = BIL sin \u03b8\n### - Variables Explained\n- B: Magnetic Field Strength\n- I: Current\n- L: Length of Conductor\n- \u03b8: Angle between Field and Current\n\n## Fleming's Left-Hand Rule\n### - Direction of Force\n### - Application in Electromagnetic Devices"
+      }
+    }
+  ]
+}

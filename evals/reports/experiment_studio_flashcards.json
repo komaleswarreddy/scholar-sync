@@ -1,0 +1,500 @@
+{
+  "agent_name": "studio_flashcards",
+  "generated_at": "2026-06-18T03:23:30.801427+00:00",
+  "dataset_id": "studio_flashcards",
+  "dataset_hash": "d8480d5892a61ab3",
+  "threshold": 98.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000747,
+      "input_cost_usd": 0.000361,
+      "output_cost_usd": 0.000385,
+      "prompt_tokens": 2409,
+      "completion_tokens": 642,
+      "latency_ms": 9009.55,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000786,
+      "input_cost_usd": 0.000416,
+      "output_cost_usd": 0.00037,
+      "prompt_tokens": 2774,
+      "completion_tokens": 616,
+      "latency_ms": 8764.12,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000786,
+      "input_cost_usd": 0.000416,
+      "output_cost_usd": 0.00037
+    },
+    "composite_score": 0.9123
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "studio_flashcards-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Current Electricity)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Current Electricity)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What is Ohm's law?",
+          "back": "Ohm's law states that the potential difference V across a conductor is equal to the product of the current I and the resistance R, expressed as V = IR."
+        },
+        {
+          "front": "What does resistivity depend on?",
+          "back": "Resistivity \u03c1 depends on the material of the conductor."
+        },
+        {
+          "front": "How do you calculate equivalent resistance in series?",
+          "back": "In a series circuit, the equivalent resistance R_eq is the sum of the individual resistances: R_eq = R1 + R2."
+        },
+        {
+          "front": "How do you calculate equivalent resistance in parallel?",
+          "back": "In a parallel circuit, the equivalent resistance R_eq is calculated using the formula: 1/R_eq = 1/R1 + 1/R2."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "selected_source_count": 2
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Human Digestion)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Human Digestion)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "Where does digestion begin?",
+          "back": "Digestion begins in the mouth."
+        },
+        {
+          "front": "What enzyme is found in saliva?",
+          "back": "Salivary amylase."
+        },
+        {
+          "front": "What does the stomach secrete?",
+          "back": "The stomach secretes hydrochloric acid (HCl) and pepsin."
+        },
+        {
+          "front": "What are the components of pancreatic juice?",
+          "back": "Pancreatic juice contains trypsin, lipase, and amylase."
+        },
+        {
+          "front": "Where does absorption mainly occur?",
+          "back": "Absorption mainly occurs in the small intestine villi."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Photosynthesis)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Photosynthesis)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What does the light reaction produce?",
+          "back": "ATP and NADPH."
+        },
+        {
+          "front": "Where does the Calvin cycle occur?",
+          "back": "In the stroma."
+        },
+        {
+          "front": "What does the Calvin cycle fix?",
+          "back": "CO2."
+        },
+        {
+          "front": "Name a factor that affects the light reaction.",
+          "back": "Light intensity."
+        },
+        {
+          "front": "Name another factor that affects the Calvin cycle.",
+          "back": "CO2 concentration."
+        },
+        {
+          "front": "What is a third factor influencing photosynthesis?",
+          "back": "Temperature."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "selected_source_count": 2
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Chemical Bonding)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Chemical Bonding)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What type of bonds form between metals and non-metals?",
+          "back": "Ionic bonds."
+        },
+        {
+          "front": "What do covalent bonds do?",
+          "back": "Covalent bonds share electron pairs."
+        },
+        {
+          "front": "What does VSEPR stand for?",
+          "back": "Valence Shell Electron Pair Repulsion."
+        },
+        {
+          "front": "What does VSEPR predict?",
+          "back": "Molecular geometry."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Magnetic Effects)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Magnetic Effects)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What creates a magnetic field?",
+          "back": "Moving charge creates a magnetic field."
+        },
+        {
+          "front": "What is the formula for force in a magnetic field?",
+          "back": "Force F = BIL sin \u03b8."
+        },
+        {
+          "front": "What does Fleming's left-hand rule relate?",
+          "back": "Fleming's left-hand rule relates field, current, and force."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Current Electricity)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Current Electricity)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What is Ohm's law?",
+          "back": "Ohm's law states that the potential difference V across a conductor is equal to the product of the current I and the resistance R, expressed as V = IR."
+        },
+        {
+          "front": "What does resistivity depend on?",
+          "back": "Resistivity \u03c1 depends on the material of the conductor."
+        },
+        {
+          "front": "How do you calculate equivalent resistance in series?",
+          "back": "In a series circuit, the equivalent resistance R_eq is the sum of the individual resistances: R_eq = R1 + R2."
+        },
+        {
+          "front": "How do you calculate equivalent resistance in parallel?",
+          "back": "In a parallel circuit, the equivalent resistance R_eq is calculated using the formula: 1/R_eq = 1/R1 + 1/R2."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "selected_source_count": 2
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Human Digestion)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Human Digestion)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "Where does digestion begin?",
+          "back": "Digestion begins in the mouth."
+        },
+        {
+          "front": "What enzyme is found in saliva?",
+          "back": "Salivary amylase is the enzyme found in saliva."
+        },
+        {
+          "front": "What does the stomach secrete?",
+          "back": "The stomach secretes hydrochloric acid (HCl) and pepsin."
+        },
+        {
+          "front": "What are the components of pancreatic juice?",
+          "back": "Pancreatic juice contains trypsin, lipase, and amylase."
+        },
+        {
+          "front": "Where does absorption mainly occur in the digestive system?",
+          "back": "Absorption mainly occurs in the villi of the small intestine."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Photosynthesis)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Photosynthesis)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What does the light reaction produce?",
+          "back": "ATP and NADPH."
+        },
+        {
+          "front": "Where does the Calvin cycle occur?",
+          "back": "In the stroma."
+        },
+        {
+          "front": "What does the Calvin cycle fix?",
+          "back": "CO2."
+        },
+        {
+          "front": "Name a factor affecting photosynthesis.",
+          "back": "Light intensity."
+        },
+        {
+          "front": "What is another factor affecting photosynthesis?",
+          "back": "CO2 concentration."
+        },
+        {
+          "front": "What is a third factor affecting photosynthesis?",
+          "back": "Temperature."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "selected_source_count": 2
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Chemical Bonding)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Chemical Bonding)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What type of bonds form between metals and non-metals?",
+          "back": "Ionic bonds."
+        },
+        {
+          "front": "What do covalent bonds do?",
+          "back": "Covalent bonds share electron pairs."
+        },
+        {
+          "front": "What does VSEPR stand for?",
+          "back": "Valence Shell Electron Pair Repulsion."
+        },
+        {
+          "front": "What does VSEPR predict?",
+          "back": "VSEPR predicts molecular geometry."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_flashcards-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "selected_source_count": 1
+      },
+      "expected": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Magnetic Effects)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Magnetic Effects)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "actual": [
+        {
+          "front": "What creates a magnetic field?",
+          "back": "Moving charge creates a magnetic field."
+        },
+        {
+          "front": "What is the formula for force in a magnetic field?",
+          "back": "Force F = BIL sin \u03b8."
+        },
+        {
+          "front": "What does Fleming's left-hand rule relate?",
+          "back": "Fleming's left-hand rule relates field, current, and force."
+        }
+      ]
+    }
+  ]
+}

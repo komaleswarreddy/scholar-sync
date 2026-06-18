@@ -43,8 +43,6 @@ export const StudioTaskTypeSchema = z.enum([
   'quiz',
   'flashcards',
   'mind_map',
-  'report',
-  'infographic',
   'slide_deck',
 ]);
 

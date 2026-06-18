@@ -1,0 +1,8 @@
+h.  
+1. For any square matrix A with real entries, if A + A  is a symmetric 
+matrix then :   
+(A) (A – A) cannot be a skew symmetric matrix  
+(B) (A – A) is a skew symmetric matrix  
+(C) A is always a symmetric matrix    
+(D) A is always a skew symmetric matrix  
+2. A matrix B = [bij]m × m  is sa

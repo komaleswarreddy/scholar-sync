@@ -1,0 +1,38 @@
+# Human review baseline for LangSmith datasets
+
+version: "1.0.0"
+project: notebooklm-dev
+
+review_queues:
+  - name: tier1_routing
+    agents: [intent_classifier, query_rewriter]
+    priority: high
+    tags: [tier_1, routing, human_review]
+
+  - name: tier1_problem_solving
+    agents: [problem_dna_analyzer, explain_from_basics, help_me_solve_it]
+    priority: high
+    tags: [tier_1, problem_solving, human_review]
+
+  - name: studio_quality
+    agents: [studio_quiz, studio_flashcards, studio_mind_map, studio_slide_deck]
+    priority: medium
+    tags: [tier_2, studio, human_review]
+
+annotation_template:
+  fields:
+    - key: grounding_correct
+      type: boolean
+      description: Is the output fully grounded in provided context?
+    - key: exam_ready
+      type: boolean
+      description: Suitable for CBSE/JEE/NEET study use?
+    - key: severity
+      type: enum
+      options: [none, minor, major, blocker]
+    - key: reviewer_notes
+      type: text
+
+export:
+  format: json
+  path: evals/reports/human_review_export.json

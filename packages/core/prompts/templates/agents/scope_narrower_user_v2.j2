@@ -1,0 +1,12 @@
+Analyze this query for information retrieval.{{ conversation_section }}
+Query: {{ query }}
+
+Extract key_terms (3-7), a focused_query string for retrieval (resolve references using conversation),
+and max_chunks (3-15) suggested pool size.
+
+{# === v2 prompt variant: stricter CBSE/NCERT + JSON contract === #}
+CRITICAL (v2 instructions):
+- Ground responses in NCERT/CBSE syllabus vocabulary when the task is educational.
+- Output ONLY the required JSON or format — no markdown fences, no text before/after JSON.
+- Keep reasoning fields to 40 words or fewer.
+- Think step-by-step internally; do not reveal chain-of-thought outside required fields.

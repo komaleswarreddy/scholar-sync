@@ -1,0 +1,440 @@
+{
+  "agent_name": "chat_summarizer",
+  "generated_at": "2026-06-18T03:14:39.638243+00:00",
+  "dataset_id": "chat_summarizer",
+  "dataset_hash": "5aed353315a60527",
+  "threshold": 98.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000737,
+      "input_cost_usd": 0.000201,
+      "output_cost_usd": 0.000536,
+      "prompt_tokens": 1343,
+      "completion_tokens": 893,
+      "latency_ms": 10770.81,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.00087,
+      "input_cost_usd": 0.000257,
+      "output_cost_usd": 0.000613,
+      "prompt_tokens": 1713,
+      "completion_tokens": 1021,
+      "latency_ms": 9187.69,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.013868,
+      "input_cost_usd": 0.003358,
+      "output_cost_usd": 0.01051,
+      "prompt_tokens": 1343,
+      "completion_tokens": 1051,
+      "latency_ms": 8608.64,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.016233,
+      "input_cost_usd": 0.004283,
+      "output_cost_usd": 0.01195,
+      "prompt_tokens": 1713,
+      "completion_tokens": 1195,
+      "latency_ms": 8863.23,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "cost_usd": 0.013868,
+      "input_cost_usd": 0.003358,
+      "output_cost_usd": 0.01051
+    },
+    "composite_score": 0.9125
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "chat_summarizer-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nOhm's Law states that voltage (V) is equal to the current (I) multiplied by resistance (R). In series circuits, resistances add up, while in parallel circuits, the total resistance is found using the reciprocal sum.\n\n## Key points from the chat\n- Ohm's Law formula: V = IR.\n- Example: For R = 4\u03a9 and I = 2A, V = 8V.\n- In series circuits, total resistance is the sum of individual resistances.\n- In parallel circuits, total resistance is calculated using the reciprocal sum.\n\n## Definitions / formulas\n- Ohm's Law: V = IR\n\n## Examples / analogies used\n- Numerical example of Ohm's Law with specific values for resistance and current.\n\n## Open questions / next steps\n- Explore more complex circuit configurations.\n- Discuss practical applications of Ohm's Law in real-world scenarios."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat covered two main topics: the process of photosynthesis and a brief overview of enzymes relevant to the NEET exam. Key components of photosynthesis were identified, along with specific enzymes and their locations in the digestive system.\n\n## Key points from the chat\n- Photosynthesis consists of light reactions occurring in the grana and the Calvin cycle in the stroma.\n- Pepsin is an enzyme found in the stomach.\n- Trypsin is an enzyme located in the duodenum.\n\n## Definitions / formulas\n- Photosynthesis: The process by which green plants and some other organisms use sunlight to synthesize foods with the help of chlorophyll.\n\n## Examples / analogies used\n- None provided in the chat.\n\n## Open questions / next steps\n- Explore more enzymes relevant to the NEET exam.\n- Discuss the significance of photosynthesis in ecosystems."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 3]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nOhm's Law describes the relationship between voltage, current, and resistance in electrical circuits. The user requested a numerical example and clarification on series versus parallel circuits.\n\n## Key points from the chat\n- Ohm's Law formula: V = IR.\n- Example: For R = 4\u03a9 and I = 2A, V = 8V.\n- In series circuits, resistances add up.\n- In parallel circuits, resistances are calculated using the reciprocal sum.\n\n## Definitions / formulas\n- Ohm's Law: V = IR\n\n## Examples / analogies used\n- Numerical example of Ohm's Law: R = 4\u03a9, I = 2A, resulting in V = 8V.\n\n## Open questions / next steps\n- Explore more complex circuit examples.\n- Discuss practical applications of series and parallel circuits."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 4]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat covered two main topics: the process of photosynthesis and a brief overview of enzymes relevant to the NEET exam. Key components of photosynthesis were identified, along with specific enzymes and their locations in the digestive system.\n\n## Key points from the chat\n- Photosynthesis consists of light reactions occurring in the grana and the Calvin cycle in the stroma.\n- Pepsin is an enzyme found in the stomach.\n- Trypsin is an enzyme found in the duodenum.\n\n## Definitions / formulas\n- No specific definitions or formulas were provided in the chat.\n\n## Examples / analogies used\n- No examples or analogies were used in the chat.\n\n## Open questions / next steps\n- Consider exploring more details about the Calvin cycle and its significance.\n- Review additional enzymes and their functions for NEET preparation."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 5]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat focused on Ohm's Law and the differences between series and parallel circuits. Key concepts included the formula for Ohm's Law and a numerical example illustrating its application.\n\n## Key points from the chat\n- Ohm's Law is expressed as V = IR for ohmic conductors at constant temperature.\n- A numerical example: If R = 4\u03a9 and I = 2A, then V = 8V.\n- In series circuits, resistances add up.\n- In parallel circuits, resistances are calculated using the reciprocal sum.\n\n## Definitions / formulas\n- Ohm's Law: V = IR\n\n## Examples / analogies used\n- Numerical example of Ohm's Law: R = 4\u03a9, I = 2A, resulting in V = 8V.\n\n## Open questions / next steps\n- Consider exploring more complex circuit configurations or applications of Ohm's Law."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat covered the basics of Ohm's Law, including a numerical example, and briefly touched on the differences between series and parallel circuits. The conversation provided a foundational understanding of these electrical concepts.\n\n## Key points from the chat\n- Ohm's Law is expressed as V = IR for ohmic conductors at constant temperature.\n- A numerical example: If resistance (R) is 4\u03a9 and current (I) is 2A, then voltage (V) is 8V.\n- In a series circuit, resistances add up directly.\n- In a parallel circuit, the total resistance is found using the reciprocal sum of individual resistances.\n\n## Definitions / formulas (if any)\n- **Ohm's Law**: V = IR\n\n## Examples / analogies used\n- Numerical example: R = 4\u03a9, I = 2A, resulting in V = 8V.\n\n## Open questions / next steps\n- Explore more complex circuit problems involving combinations of series and parallel circuits."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat covered the basics of photosynthesis and mentioned enzymes relevant to the NEET exam. Photosynthesis involves light reactions and the Calvin cycle, while specific enzymes like pepsin and trypsin were noted for their locations and functions.\n\n## Key points from the chat\n- Photosynthesis consists of light reactions in the grana and the Calvin cycle in the stroma.\n- Pepsin is an enzyme found in the stomach.\n- Trypsin is an enzyme found in the duodenum.\n\n## Definitions / formulas (if any)\n- **Grana**: Stacks of thylakoids within the chloroplast where light reactions occur.\n- **Stroma**: The fluid-filled space in chloroplasts where the Calvin cycle takes place.\n\n## Open questions / next steps\n- Explore the detailed steps of the light reactions and Calvin cycle.\n- Review the role and mechanism of pepsin and trypsin in digestion."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 3]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat focused on explaining Ohm's Law and the differences between series and parallel circuits. A numerical example was provided to illustrate Ohm's Law.\n\n## Key points from the chat\n- Ohm's Law is expressed as \\( V = IR \\) for ohmic conductors at constant temperature.\n- In a series circuit, resistances add up directly.\n- In a parallel circuit, the total resistance is found using the reciprocal sum of individual resistances.\n\n## Definitions / formulas (if any)\n- **Ohm's Law**: \\( V = IR \\)\n- **Series Circuit Resistance**: \\( R_{\\text{total}} = R_1 + R_2 + \\ldots + R_n \\)\n- **Parallel Circuit Resistance**: \\( \\frac{1}{R_{\\text{total}}} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\ldots + \\frac{1}{R_n} \\)\n\n## Examples / analogies used\n- Numerical example: If \\( R = 4 \\, \\Omega \\) and \\( I = 2 \\, A \\), then \\( V = 8 \\, V \\)."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 4]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat covered the basics of photosynthesis and provided information on enzymes relevant to the NEET exam. Photosynthesis involves light reactions and the Calvin cycle, while specific enzymes like pepsin and trypsin function in different parts of the digestive system.\n\n## Key points from the chat\n- Photosynthesis consists of light reactions in the grana and the Calvin cycle in the stroma.\n- Pepsin is an enzyme that operates in the stomach.\n- Trypsin is an enzyme that functions in the duodenum.\n\n## Definitions / formulas (if any)\n- **Grana**: Stacks of thylakoids within the chloroplast where light reactions occur.\n- **Stroma**: The fluid-filled space in chloroplasts where the Calvin cycle takes place.\n\n## Open questions / next steps\n- Explore the detailed steps of the Calvin cycle.\n- Review the role of other enzymes in the digestive system for NEET preparation."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 5]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat focused on explaining Ohm's Law and the differences between series and parallel circuits. A numerical example was provided to illustrate Ohm's Law in practice.\n\n## Key points from the chat\n- Ohm's Law is expressed as V = IR for ohmic conductors at constant temperature.\n- In a series circuit, resistances add up directly.\n- In a parallel circuit, the total resistance is found using the reciprocal sum of individual resistances.\n\n## Definitions / formulas (if any)\n- Ohm's Law: V = IR\n- Series resistance: R_total = R1 + R2 + ...\n- Parallel resistance: 1/R_total = 1/R1 + 1/R2 + ...\n\n## Examples / analogies used\n- Numerical example: If resistance (R) is 4\u03a9 and current (I) is 2A, then voltage (V) is 8V using Ohm's Law.\n\n## Open questions / next steps\n- Explore more complex circuit problems involving combinations of series and parallel resistances."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nOhm's Law states that voltage (V) equals current (I) times resistance (R). In series circuits, resistances add up, while in parallel circuits, the total resistance is found using the reciprocal sum.\n\n## Key points from the chat\n- Ohm's Law formula: V = IR.\n- Example: For R = 4\u03a9 and I = 2A, V = 8V.\n- In series circuits, total resistance is the sum of individual resistances.\n- In parallel circuits, total resistance is calculated using the reciprocal sum.\n\n## Definitions / formulas\n- Ohm's Law: V = IR\n- Series resistance: R_total = R1 + R2 + ...\n- Parallel resistance: 1/R_total = 1/R1 + 1/R2 + ...\n\n## Examples / analogies used\n- Numerical example of Ohm's Law with specific values for resistance and current.\n\n## Open questions / next steps\n- Explore more complex circuit examples.\n- Discuss applications of Ohm's Law in real-world scenarios."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\nPhotosynthesis involves light reactions occurring in the grana and the Calvin cycle in the stroma. The NEET table for enzymes includes pepsin in the stomach and trypsin in the duodenum.\n\n## Key points from the chat\n- Photosynthesis consists of two main stages: light reactions and the Calvin cycle.\n- Light reactions take place in the grana of chloroplasts.\n- The Calvin cycle occurs in the stroma of chloroplasts.\n- Pepsin is an enzyme found in the stomach.\n- Trypsin is an enzyme located in the duodenum.\n\n## Definitions / formulas\n- Photosynthesis: The process by which green plants convert light energy into chemical energy.\n- Enzymes: Biological catalysts that speed up chemical reactions in the body.\n\n## Examples / analogies used\n- None provided.\n\n## Open questions / next steps\n- Explore more enzymes and their functions in different parts of the digestive system.\n- Discuss the significance of photosynthesis in the ecosystem."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 3]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nOhm's Law states that voltage (V) is equal to the product of current (I) and resistance (R). In series circuits, resistances add up, while in parallel circuits, the total resistance is found using the reciprocal sum.\n\n## Key points from the chat\n- Ohm's Law formula: V = IR.\n- Example: For R = 4\u03a9 and I = 2A, V = 8V.\n- In series circuits, total resistance is the sum of individual resistances.\n- In parallel circuits, total resistance is calculated using the reciprocal sum.\n\n## Definitions / formulas\n- Ohm's Law: V = IR\n\n## Examples / analogies used\n- Numerical example demonstrating Ohm's Law with specific values.\n\n## Open questions / next steps\n- Explore more examples of series and parallel circuits.\n- Discuss applications of Ohm's Law in real-world scenarios."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 4]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat covered the basics of photosynthesis, highlighting the light reactions and the Calvin cycle. It also discussed specific enzymes involved in digestion, such as pepsin and trypsin.\n\n## Key points from the chat\n- Photosynthesis occurs in two main stages: light reactions and the Calvin cycle.\n- Light reactions take place in the grana of chloroplasts.\n- The Calvin cycle occurs in the stroma of chloroplasts.\n- Pepsin is an enzyme found in the stomach.\n- Trypsin is an enzyme that functions in the duodenum.\n\n## Definitions / formulas (if any)\n- Photosynthesis: The process by which green plants use sunlight to synthesize foods with the help of chlorophyll.\n\n## Examples / analogies used\n- No specific examples or analogies were provided in the chat.\n\n## Open questions / next steps\n- Explore more about the role of chlorophyll in photosynthesis.\n- Investigate other enzymes involved in digestion and their functions."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 5]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\nOhm's Law states that voltage (V) equals current (I) times resistance (R). In series circuits, resistances add up, while in parallel circuits, the total resistance is found using the reciprocal sum.\n\n## Key points from the chat\n- Ohm's Law formula: V = IR.\n- Example: For R = 4\u03a9 and I = 2A, V = 8V.\n- In series circuits, total resistance is the sum of individual resistances.\n- In parallel circuits, total resistance is calculated using the reciprocal sum.\n\n## Definitions / formulas\n- Ohm's Law: V = IR\n- Series resistance: R_total = R1 + R2 + ...\n- Parallel resistance: 1/R_total = 1/R1 + 1/R2 + ...\n\n## Examples / analogies used\n- Numerical example demonstrating Ohm's Law with specific values for resistance and current.\n\n## Open questions / next steps\n- Explore more complex circuit configurations.\n- Discuss practical applications of Ohm's Law in real-world scenarios."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\n\nThe chat covers the basics of Ohm's Law and the differences between series and parallel circuits. A numerical example is provided to illustrate Ohm's Law. The conversation also briefly touches on how resistances add in different circuit configurations.\n\n## Key points from the chat\n\n- Ohm's Law is expressed as \\( V = IR \\) for ohmic conductors at constant temperature.\n- In a series circuit, resistances add up directly.\n- In a parallel circuit, the total resistance is found using the reciprocal sum of individual resistances.\n- A numerical example: If \\( R = 4\u03a9 \\) and \\( I = 2A \\), then \\( V = 8V \\).\n\n## Definitions / formulas (if any)\n\n- **Ohm's Law**: \\( V = IR \\)\n- **Series Circuit**: Total resistance \\( R_t = R_1 + R_2 + \\ldots + R_n \\)\n- **Parallel Circuit**: \\( \\frac{1}{R_t} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\ldots + \\frac{1}{R_n} \\)\n\n## Examples / analogies used\n\n- Numerical example for Ohm's Law: \\( R = 4\u03a9 \\), \\( I = 2A \\), resulting in \\( V = 8V \\).\n\n## Open questions / next steps\n\n- Explore more complex circuit problems involving combinations of series and parallel resistances.\n- Investigate the impact of temperature on resistance and Ohm's Law."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum."
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\nThe chat briefly covers the process of photosynthesis and mentions enzymes relevant to the NEET exam. It highlights the locations of the light reaction and Calvin cycle, and lists specific enzymes and their locations in the digestive system.\n\n## Key points from the chat\n- Photosynthesis involves the light reaction in the grana and the Calvin cycle in the stroma.\n- Pepsin is an enzyme found in the stomach.\n- Trypsin is an enzyme found in the duodenum.\n\n## Definitions / formulas (if any)\n- **Grana**: Stacks of thylakoids within the chloroplast where the light reaction occurs.\n- **Stroma**: The fluid-filled space in chloroplasts where the Calvin cycle takes place.\n\n## Open questions / next steps\n- Explore the detailed steps of the light reaction and Calvin cycle.\n- Review the role of other enzymes in the digestive system for NEET preparation."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 3]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\n\nThe chat covers the basics of Ohm's Law and the differences between series and parallel circuits. A numerical example is provided to illustrate Ohm's Law. The conversation also briefly touches on how resistances add in different circuit configurations.\n\n## Key points from the chat\n\n- Ohm's Law is expressed as V = IR for ohmic conductors at constant temperature.\n- In a series circuit, resistances add up directly.\n- In a parallel circuit, the reciprocal of the total resistance is the sum of the reciprocals of individual resistances.\n- A numerical example: If resistance (R) is 4\u03a9 and current (I) is 2A, then voltage (V) is 8V.\n\n## Definitions / formulas (if any)\n\n- Ohm's Law: V = IR\n- Series resistance: R_total = R1 + R2 + ...\n- Parallel resistance: 1/R_total = 1/R1 + 1/R2 + ...\n\n## Examples / analogies used\n\n- Numerical example: R = 4\u03a9, I = 2A, resulting in V = 8V.\n\n## Open questions / next steps\n\n- Explore more complex circuit problems involving combinations of series and parallel resistances."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 4]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction \u2192 ATP, NADPH\n- Calvin cycle fixes CO\u2082\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+      },
+      "actual": {
+        "output": "## Summary\n\nThe chat covered the basics of photosynthesis and mentioned enzymes relevant to the NEET exam. Photosynthesis involves light reactions and the Calvin cycle, while enzymes like pepsin and trypsin play roles in digestion.\n\n## Key points from the chat\n\n- Photosynthesis consists of light reactions in the grana and the Calvin cycle in the stroma.\n- Pepsin is an enzyme active in the stomach.\n- Trypsin is an enzyme active in the duodenum.\n\n## Definitions / formulas (if any)\n\n- **Grana**: Stacks of thylakoids within the chloroplast where light reactions occur.\n- **Stroma**: The fluid-filled space in chloroplasts where the Calvin cycle takes place.\n\n## Open questions / next steps\n\n- Review the detailed steps of the Calvin cycle.\n- Explore the role of other enzymes in digestion for NEET preparation."
+      }
+    },
+    {
+      "example_id": "chat_summarizer-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4\u03a9 and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 5]"
+      },
+      "expected": {
+        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 \u03a9 \u2192 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+      },
+      "actual": {
+        "output": "## Summary\n\nThe chat covers the basics of Ohm's Law and the differences between series and parallel circuits. It includes a numerical example to illustrate Ohm's Law and a brief explanation of how resistances add in different circuit configurations.\n\n## Key points from the chat\n\n- Ohm's Law is expressed as V = IR for ohmic conductors at constant temperature.\n- In a series circuit, resistances add up directly.\n- In a parallel circuit, the total resistance is found using the reciprocal sum of individual resistances.\n- A numerical example: If resistance (R) is 4\u03a9 and current (I) is 2A, then voltage (V) is 8V.\n\n## Definitions / formulas (if any)\n\n- **Ohm's Law**: V = IR\n- **Series Circuit**: Total resistance, R_total = R1 + R2 + ...\n- **Parallel Circuit**: 1/R_total = 1/R1 + 1/R2 + ...\n\n## Examples / analogies used\n\n- Numerical example: R = 4\u03a9, I = 2A, resulting in V = 8V.\n\n## Open questions / next steps\n\n- Explore more complex circuit problems involving combinations of series and parallel resistances."
+      }
+    }
+  ]
+}

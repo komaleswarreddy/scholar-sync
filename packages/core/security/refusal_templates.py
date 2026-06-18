@@ -16,6 +16,7 @@ class RefusalReason(Enum):
     SAFETY_VIOLATION = "safety_violation"
     PROMPT_INJECTION = "prompt_injection"
     PII_DETECTED = "pii_detected"
+    ACADEMIC_INTEGRITY = "academic_integrity"
     GENERAL = "general"
 
 
@@ -59,6 +60,16 @@ class RefusalTemplates:
                 "I noticed some personal information. For your privacy, please rephrase your question without personal details.",
                 "To keep your information safe, please ask your question without including personal details.",
                 "Let's keep your information private. Can you rephrase your question?",
+            ],
+            RefusalReason.ACADEMIC_INTEGRITY: [
+                "I can't help with copying exam or assignment answers—that would violate academic integrity. "
+                "I understand tests and deadlines can feel stressful. I can explain concepts step by step "
+                "from your sources instead. What topic should we review?",
+                "ScholarSync supports learning, not cheating on active assessments. "
+                "I know the pressure can feel overwhelming—I can walk through practice problems and explain ideas, "
+                "but I can't give you answers to copy. What concept from your coursework should we study?",
+                "I'm here to help you learn, not to provide answers during an exam or write work you submit as your own. "
+                "Let's focus on understanding the material together. What would you like help with?",
             ],
             RefusalReason.GENERAL: [
                 "I'm not able to help with that. What academic topic can I assist you with?",

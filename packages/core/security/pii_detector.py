@@ -13,6 +13,8 @@ class PIIType(Enum):
     """Types of PII."""
     EMAIL = "email"
     PHONE = "phone"
+    PHONE_IN = "phone_in"
+    AADHAAR = "aadhaar"
     SSN = "ssn"
     CREDIT_CARD = "credit_card"
     NAME = "name"
@@ -52,6 +54,13 @@ class PIIDetector:
                 r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b',  # US phone
                 r'\b\(\d{3}\)\s?\d{3}[-.]?\d{4}\b',  # (123) 456-7890
                 r'\b\+1[-.]?\d{3}[-.]?\d{3}[-.]?\d{4}\b',  # +1-123-456-7890
+            ],
+            PIIType.PHONE_IN: [
+                r'\b\+91[-\s]?\d{10}\b',
+                r'\b(?:\+91[-\s]?)?[6-9]\d{9}\b',  # Indian mobile (10 digits, leading 6-9)
+            ],
+            PIIType.AADHAAR: [
+                r'\b[2-9]\d{3}\s?\d{4}\s?\d{4}\b',
             ],
             PIIType.SSN: [
                 r'\b\d{3}-\d{2}-\d{4}\b',  # 123-45-6789
@@ -183,11 +192,17 @@ class PIIDetector:
                     masked = f"{parts[0][0]}{self.mask_char * (len(parts[0]) - 1)}@{parts[1]}"
                 else:
                     masked = self.mask_char * len(original_value)
-            elif pii_type == PIIType.PHONE:
+            elif pii_type in (PIIType.PHONE, PIIType.PHONE_IN):
                 # Mask phone: keep last 4 digits
                 digits = re.sub(r'\D', '', original_value)
                 if len(digits) >= 4:
                     masked = f"{self.mask_char * (len(digits) - 4)}{digits[-4:]}"
+                else:
+                    masked = self.mask_char * len(original_value)
+            elif pii_type == PIIType.AADHAAR:
+                digits = re.sub(r'\D', '', original_value)
+                if len(digits) == 12:
+                    masked = f"XXXX XXXX {digits[-4:]}"
                 else:
                     masked = self.mask_char * len(original_value)
             elif pii_type == PIIType.SSN:

@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "studio_context_embedding_query",
+  "agent": {
+    "sno": 16,
+    "category": "Studio",
+    "name": "Studio Context Embedding Query (Legacy)",
+    "tier": "tier_3",
+    "target_examples": 5,
+    "prompt_template": "Educational source material overview and key concepts"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "studio_task",
+      "source_title",
+      "topic"
+    ],
+    "output_keys": [
+      "embedding_query"
+    ]
+  },
+  "items": [
+    {
+      "id": "studio_context_embedding_query-001",
+      "variation": "cbse",
+      "tags": [
+        "retrieval",
+        "studio"
+      ],
+      "inputs": {
+        "studio_task": "flashcards",
+        "source_title": "Human Digestion",
+        "topic": "Human Digestion"
+      },
+      "reference_outputs": {
+        "embedding_query": "digestive enzymes absorption villi NCERT overview"
+      },
+      "evaluators": [
+        "embedding_relevance"
+      ]
+    },
+    {
+      "id": "studio_context_embedding_query-002",
+      "variation": "cbse",
+      "tags": [
+        "retrieval",
+        "studio"
+      ],
+      "inputs": {
+        "studio_task": "quiz",
+        "source_title": "Chemical Bonding",
+        "topic": "Chemical Bonding"
+      },
+      "reference_outputs": {
+        "embedding_query": "ionic covalent bonds electronegativity key concepts"
+      },
+      "evaluators": [
+        "embedding_relevance"
+      ]
+    },
+    {
+      "id": "studio_context_embedding_query-003",
+      "variation": "cbse",
+      "tags": [
+        "retrieval",
+        "studio"
+      ],
+      "inputs": {
+        "studio_task": "mind_map",
+        "source_title": "Photosynthesis",
+        "topic": "Photosynthesis"
+      },
+      "reference_outputs": {
+        "embedding_query": "light reaction Calvin cycle chloroplast overview"
+      },
+      "evaluators": [
+        "embedding_relevance"
+      ]
+    },
+    {
+      "id": "studio_context_embedding_query-004",
+      "variation": "cbse",
+      "tags": [
+        "retrieval",
+        "studio"
+      ],
+      "inputs": {
+        "studio_task": "slide_deck",
+        "source_title": "Magnetic Effects of Current",
+        "topic": "Magnetic Effects of Current"
+      },
+      "reference_outputs": {
+        "embedding_query": "Fleming rules force on conductor magnetic field"
+      },
+      "evaluators": [
+        "embedding_relevance"
+      ]
+    },
+    {
+      "id": "studio_context_embedding_query-005",
+      "variation": "cbse",
+      "tags": [
+        "retrieval",
+        "studio"
+      ],
+      "inputs": {
+        "studio_task": "flashcards",
+        "source_title": "Electrostatics",
+        "topic": "Electrostatics"
+      },
+      "reference_outputs": {
+        "embedding_query": "Coulomb law electric field lines potential"
+      },
+      "evaluators": [
+        "embedding_relevance"
+      ]
+    }
+  ]
+}

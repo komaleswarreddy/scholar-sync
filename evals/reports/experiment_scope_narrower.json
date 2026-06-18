@@ -1,0 +1,396 @@
+{
+  "agent_name": "scope_narrower",
+  "generated_at": "2026-06-18T03:07:42.566678+00:00",
+  "dataset_id": "scope_narrower",
+  "dataset_hash": "081a267d559f4202",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 5.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.00024,
+      "input_cost_usd": 8e-05,
+      "output_cost_usd": 0.00016,
+      "prompt_tokens": 533,
+      "completion_tokens": 266,
+      "latency_ms": 9609.8,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 0.5,
+        "searchability": 0.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 5.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.00035,
+      "input_cost_usd": 0.000189,
+      "output_cost_usd": 0.000161,
+      "prompt_tokens": 1263,
+      "completion_tokens": 268,
+      "latency_ms": 8785.56,
+      "passed": false,
+      "metrics": {
+        "retrieval_recall_improvement": 0.0,
+        "query_relevance": 0.0,
+        "conciseness": 0.5,
+        "searchability": 0.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": false,
+    "reason": "no_config_above_threshold",
+    "best_effort": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 5.0,
+      "cost_usd": 0.00024,
+      "input_cost_usd": 8e-05,
+      "output_cost_usd": 0.00016
+    }
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "query_rewriter",
+  "example_results": [
+    {
+      "example_id": "scope_narrower-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "tell me everything about electricity",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "electricity",
+          "current",
+          "resistance",
+          "Ohm's law",
+          "circuits"
+        ],
+        "focused_query": "electric current resistance Ohm law circuits",
+        "max_chunks": 12
+      },
+      "actual": {
+        "key_terms": [
+          "electricity",
+          "definition",
+          "types",
+          "uses",
+          "history",
+          "production",
+          "safety"
+        ],
+        "focused_query": "comprehensive overview of electricity including its definition, types, uses, history, production methods, and safety measures",
+        "max_chunks": 10
+      }
+    },
+    {
+      "example_id": "scope_narrower-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "formula of kinetic energy",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "kinetic energy",
+          "formula",
+          "1/2 mv^2"
+        ],
+        "focused_query": "kinetic energy formula derivation 1/2 mv squared",
+        "max_chunks": 4
+      },
+      "actual": {
+        "key_terms": [
+          "kinetic energy",
+          "formula",
+          "physics",
+          "motion",
+          "energy calculation"
+        ],
+        "focused_query": "What is the formula for calculating kinetic energy in physics?",
+        "max_chunks": 10
+      }
+    },
+    {
+      "example_id": "scope_narrower-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "NEET human heart chambers blood flow",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "heart",
+          "chambers",
+          "blood flow",
+          "cardiac cycle"
+        ],
+        "focused_query": "human heart four chambers blood circulation cardiac cycle",
+        "max_chunks": 7
+      },
+      "actual": {
+        "key_terms": [
+          "NEET",
+          "human heart",
+          "chambers",
+          "blood flow"
+        ],
+        "focused_query": "NEET exam topics related to human heart chambers and blood flow",
+        "max_chunks": 10
+      }
+    },
+    {
+      "example_id": "scope_narrower-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "integration by parts one example",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "integration by parts",
+          "ILATE",
+          "definite integral"
+        ],
+        "focused_query": "integration by parts single worked example",
+        "max_chunks": 5
+      },
+      "actual": {
+        "key_terms": [
+          "integration",
+          "by parts",
+          "example",
+          "calculus",
+          "mathematics"
+        ],
+        "focused_query": "Provide an example of integration by parts in calculus.",
+        "max_chunks": 5
+      }
+    },
+    {
+      "example_id": "scope_narrower-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "author of uploaded NCERT physics book",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "author",
+          "NCERT",
+          "Physics",
+          "title page"
+        ],
+        "focused_query": "author writer NCERT Physics textbook title page",
+        "max_chunks": 4
+      },
+      "actual": {
+        "key_terms": [
+          "author",
+          "uploaded",
+          "NCERT",
+          "physics",
+          "book"
+        ],
+        "focused_query": "Who is the author of the uploaded NCERT physics book?",
+        "max_chunks": 5
+      }
+    },
+    {
+      "example_id": "scope_narrower-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "tell me everything about electricity",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "electricity",
+          "current",
+          "resistance",
+          "Ohm's law",
+          "circuits"
+        ],
+        "focused_query": "electric current resistance Ohm law circuits",
+        "max_chunks": 12
+      },
+      "actual": {
+        "key_terms": [
+          "electricity",
+          "current",
+          "voltage",
+          "circuit",
+          "conductors",
+          "insulators"
+        ],
+        "focused_query": "comprehensive overview of electricity including its properties, types, and applications",
+        "max_chunks": 10
+      }
+    },
+    {
+      "example_id": "scope_narrower-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "formula of kinetic energy",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "kinetic energy",
+          "formula",
+          "1/2 mv^2"
+        ],
+        "focused_query": "kinetic energy formula derivation 1/2 mv squared",
+        "max_chunks": 4
+      },
+      "actual": {
+        "key_terms": [
+          "kinetic energy",
+          "formula",
+          "physics",
+          "motion",
+          "work"
+        ],
+        "focused_query": "What is the formula for kinetic energy in physics?",
+        "max_chunks": 5
+      }
+    },
+    {
+      "example_id": "scope_narrower-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "NEET human heart chambers blood flow",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "heart",
+          "chambers",
+          "blood flow",
+          "cardiac cycle"
+        ],
+        "focused_query": "human heart four chambers blood circulation cardiac cycle",
+        "max_chunks": 7
+      },
+      "actual": {
+        "key_terms": [
+          "NEET",
+          "human heart",
+          "chambers",
+          "blood flow",
+          "circulatory system"
+        ],
+        "focused_query": "Explain the structure of the human heart chambers and the pathway of blood flow for NEET preparation.",
+        "max_chunks": 10
+      }
+    },
+    {
+      "example_id": "scope_narrower-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "integration by parts one example",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "integration by parts",
+          "ILATE",
+          "definite integral"
+        ],
+        "focused_query": "integration by parts single worked example",
+        "max_chunks": 5
+      },
+      "actual": {
+        "key_terms": [
+          "integration",
+          "by parts",
+          "example",
+          "mathematics",
+          "calculus"
+        ],
+        "focused_query": "Provide an example of integration by parts in calculus.",
+        "max_chunks": 5
+      }
+    },
+    {
+      "example_id": "scope_narrower-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 5.0,
+      "passed": false,
+      "inputs": {
+        "query": "author of uploaded NCERT physics book",
+        "conversation_section": ""
+      },
+      "expected": {
+        "key_terms": [
+          "author",
+          "NCERT",
+          "Physics",
+          "title page"
+        ],
+        "focused_query": "author writer NCERT Physics textbook title page",
+        "max_chunks": 4
+      },
+      "actual": {
+        "key_terms": [
+          "NCERT",
+          "physics",
+          "book",
+          "author",
+          "uploaded"
+        ],
+        "focused_query": "Who is the author of the uploaded NCERT physics book?",
+        "max_chunks": 5
+      }
+    }
+  ]
+}

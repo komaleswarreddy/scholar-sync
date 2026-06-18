@@ -7,12 +7,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
+import { useClerkQueryEnabled } from '@/hooks/useClerkQueryEnabled';
 
 // Query keys
 export const noteKeys = {
   all: ['notes'] as const,
   lists: () => [...noteKeys.all, 'list'] as const,
-  list: () => [...noteKeys.lists()] as const,
+  list: (notebookId?: string) =>
+    notebookId ? [...noteKeys.lists(), notebookId] as const : [...noteKeys.lists()] as const,
   details: () => [...noteKeys.all, 'detail'] as const,
   detail: (id: string) => [...noteKeys.details(), id] as const,
 };
@@ -22,6 +24,7 @@ export interface Note {
   id: string;
   content: string;
   source_ref_id?: string;
+  notebook_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -53,12 +56,13 @@ function transformNote(note: Note): NoteWithExtras {
 /**
  * Hook to fetch all notes
  */
-export function useNotes() {
+export function useNotes(notebookId?: string) {
+  const queryEnabled = useClerkQueryEnabled();
   return useQuery({
-    queryKey: noteKeys.list(),
+    queryKey: noteKeys.list(notebookId),
     queryFn: async () => {
       try {
-        const result = await apiClient.listNotes();
+        const result = await apiClient.listNotes(notebookId);
         const notes = (result || []) as Note[];
         return notes.map(transformNote);
       } catch (error: any) {
@@ -66,6 +70,7 @@ export function useNotes() {
         throw new Error(getUserFriendlyMessage(apiError));
       }
     },
+    enabled: queryEnabled,
     staleTime: 60 * 1000, // 1 minute
   });
 }
@@ -94,7 +99,7 @@ export function useNote(noteId: string | null) {
 /**
  * Hook to create a note
  */
-export function useCreateNote() {
+export function useCreateNote(notebookId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -106,7 +111,7 @@ export function useCreateNote() {
       sourceRefId?: string;
     }) => {
       try {
-        const result = await apiClient.createNote(content, sourceRefId);
+        const result = await apiClient.createNote(content, sourceRefId, notebookId);
         return result as Note;
       } catch (error: any) {
         const apiError = error.apiError || handleApiError(error);
@@ -115,7 +120,7 @@ export function useCreateNote() {
     },
     onSuccess: (newNote) => {
       // Invalidate notes list to refetch
-      queryClient.invalidateQueries({ queryKey: noteKeys.list() });
+      queryClient.invalidateQueries({ queryKey: noteKeys.lists() });
       // Optionally set the new note in cache
       if (newNote?.id) {
         queryClient.setQueryData(noteKeys.detail(newNote.id), newNote);

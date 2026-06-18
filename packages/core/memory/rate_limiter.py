@@ -4,11 +4,14 @@ Rate Limiter
 Implements debounce and rate limiting to prevent accidental multi-calls.
 """
 
+import os
 import time
 from typing import Dict, Optional, Any
 from collections import defaultdict
 from threading import Lock
 from datetime import datetime, timedelta
+
+_shared_limiter: Optional["RateLimiter"] = None
 
 
 class RateLimiter:
@@ -195,3 +198,41 @@ class RateLimiter:
                 "max_per_hour": self.max_requests_per_hour,
                 "debounce_seconds": self.debounce_seconds,
             }
+
+
+def get_rate_limiter(
+    max_requests_per_minute: Optional[int] = None,
+    debounce_seconds: Optional[float] = None,
+    max_requests_per_hour: Optional[int] = None,
+) -> RateLimiter:
+    """
+    Return a process-wide shared RateLimiter (singleton).
+
+    Reads ``GRD_TEST_RPM`` when set for deterministic burst tests.
+    """
+    global _shared_limiter
+    if _shared_limiter is None:
+        from config.settings import settings
+
+        rpm_env = os.getenv("GRD_TEST_RPM", "").strip()
+        rpm = int(rpm_env) if rpm_env else settings.RATE_LIMIT_REQUESTS_PER_MINUTE
+        if max_requests_per_minute is not None:
+            rpm = max_requests_per_minute
+        debounce = (
+            debounce_seconds
+            if debounce_seconds is not None
+            else settings.RATE_LIMIT_DEBOUNCE_SECONDS
+        )
+        hourly = max_requests_per_hour if max_requests_per_hour is not None else 500
+        _shared_limiter = RateLimiter(
+            max_requests_per_minute=rpm,
+            debounce_seconds=debounce,
+            max_requests_per_hour=hourly,
+        )
+    return _shared_limiter
+
+
+def reset_rate_limiter_for_tests() -> None:
+    """Clear the shared limiter (unit/integration tests only)."""
+    global _shared_limiter
+    _shared_limiter = None

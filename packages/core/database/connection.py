@@ -12,9 +12,12 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.pool import NullPool
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import uuid4
+
+import os
 
 from config.settings import settings
 
@@ -25,19 +28,40 @@ from config.settings import settings
 # The connection string from Supabase may have encoded characters that need proper handling
 database_url = settings.DATABASE_URL
 
+# Supabase session pooler (5432) caps concurrent clients (~15) and breaks classroom SSE load.
+# Prefer transaction pooler (6543) unless explicitly forced to session mode.
+_force_session = os.getenv("DATABASE_FORCE_SESSION_POOLER", "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+}
+if (
+    not _force_session
+    and "pooler.supabase.com" in database_url
+    and ":5432" in database_url
+):
+    parsed = urlparse(database_url)
+    if parsed.port == 5432 or ":5432@" in parsed.netloc:
+        netloc = parsed.netloc.replace(":5432", ":6543")
+        database_url = urlunparse(parsed._replace(netloc=netloc))
+        print(
+            "[DATABASE] Auto-upgraded Supabase pooler URL from port 5432 (session) "
+            "to 6543 (transaction). Set DATABASE_FORCE_SESSION_POOLER=1 to keep 5432."
+        )
+
 # Auto-convert postgresql:// to postgresql+asyncpg:// for async SQLAlchemy
 if database_url.startswith("postgresql://") and not database_url.startswith("postgresql+asyncpg://"):
     database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
     print(f"[DATABASE] Auto-converted connection string to async format")
 
-# Remove sslmode from URL if present (asyncpg doesn't use URL parameters for SSL)
-# We'll handle SSL via connect_args instead
-if "sslmode" in database_url:
-    parsed = urlparse(database_url)
-    query_params = parse_qs(parsed.query)
-    query_params.pop('sslmode', None)  # Remove sslmode if present
-    new_query = urlencode(query_params, doseq=True)
-    database_url = urlunparse(parsed._replace(query=new_query))
+# Remove query params asyncpg does not accept (SSL via connect_args; pgbouncer is port-only).
+for _strip_param in ("sslmode", "pgbouncer"):
+    if _strip_param in database_url:
+        parsed = urlparse(database_url)
+        query_params = parse_qs(parsed.query)
+        query_params.pop(_strip_param, None)
+        new_query = urlencode(query_params, doseq=True)
+        database_url = urlunparse(parsed._replace(query=new_query))
 
 # Ensure the URL is properly formatted for asyncpg
 # SQLAlchemy's create_async_engine should handle this, but we ensure it's correct
@@ -95,6 +119,28 @@ else:
 
 engine = create_async_engine(database_url, **_create_engine_kwargs)
 
+USING_TRANSACTION_POOLER = ":6543" in database_url and (
+    "supabase.com" in database_url or "pooler.supabase.com" in database_url
+)
+USING_SESSION_POOLER_5432 = (
+    "pooler.supabase.com" in database_url and ":5432" in database_url
+)
+
+
+def warn_if_session_pooler_in_production() -> None:
+    """Log guidance when Supabase session pooler (5432) is used under load."""
+    env = getattr(settings, "ENVIRONMENT", "development")
+    if USING_TRANSACTION_POOLER:
+        print("[DATABASE] Using Supabase transaction pooler (port 6543) with NullPool.")
+        return
+    if USING_SESSION_POOLER_5432 and env != "development":
+        print(
+            "[WARNING] [DATABASE] DATABASE_URL uses Supabase session pooler (port 5432). "
+            "Concurrent SSE chat streams can exhaust MaxClientsInSessionMode. "
+            "Migrate to transaction pooler: …pooler.supabase.com:6543/…?pgbouncer=true"
+        )
+
+
 # ======================
 # Session Factory
 # ======================
@@ -113,6 +159,13 @@ Base = declarative_base()
 # Dependency
 # ======================
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
+        yield session
+
+
+@asynccontextmanager
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
+    """Short-lived session for DB work outside request-scoped dependencies (e.g. SSE)."""
     async with AsyncSessionLocal() as session:
         yield session
 

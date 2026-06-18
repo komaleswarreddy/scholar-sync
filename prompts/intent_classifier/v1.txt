@@ -1,0 +1,2 @@
+# Intent Classifier v1 — uses Jinja templates via prompts/registry.yaml
+# Override this file to experiment with prompt v2 without changing core templates.

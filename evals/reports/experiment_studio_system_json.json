@@ -1,0 +1,314 @@
+{
+  "agent_name": "studio_system_json",
+  "generated_at": "2026-06-18T03:17:45.403634+00:00",
+  "dataset_id": "studio_system_json",
+  "dataset_hash": "ee12974e70bf1301",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000102,
+      "input_cost_usd": 5.1e-05,
+      "output_cost_usd": 5.1e-05,
+      "prompt_tokens": 340,
+      "completion_tokens": 85,
+      "latency_ms": 7944.57,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000142,
+      "input_cost_usd": 0.000106,
+      "output_cost_usd": 3.6e-05,
+      "prompt_tokens": 705,
+      "completion_tokens": 60,
+      "latency_ms": 7883.73,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000142,
+      "input_cost_usd": 0.000106,
+      "output_cost_usd": 3.6e-05
+    },
+    "composite_score": 0.9211
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "studio_system_json-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood! Please provide the specific content or topic you would like me to generate."
+      }
+    },
+    {
+      "example_id": "studio_system_json-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood! Please provide the specific content or topic you would like me to generate."
+      }
+    },
+    {
+      "example_id": "studio_system_json-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood! Please provide the specific content or topic you would like me to generate."
+      }
+    },
+    {
+      "example_id": "studio_system_json-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood! Please provide the specific content or topic you would like me to generate."
+      }
+    },
+    {
+      "example_id": "studio_system_json-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood! Please provide the specific content or topic you would like me to generate."
+      }
+    },
+    {
+      "example_id": "studio_system_json-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood. Please provide the specific request for educational content."
+      }
+    },
+    {
+      "example_id": "studio_system_json-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood. Please provide the specific request for educational content."
+      }
+    },
+    {
+      "example_id": "studio_system_json-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood. Please provide the specific request for educational content."
+      }
+    },
+    {
+      "example_id": "studio_system_json-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood. Please provide the specific request for educational content."
+      }
+    },
+    {
+      "example_id": "studio_system_json-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "expected": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "actual": {
+        "output": "Understood. Please provide the specific request for educational content."
+      }
+    }
+  ]
+}

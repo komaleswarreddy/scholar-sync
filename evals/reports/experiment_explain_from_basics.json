@@ -1,0 +1,1708 @@
+{
+  "agent_name": "explain_from_basics",
+  "generated_at": "2026-06-18T03:42:16.446824+00:00",
+  "dataset_id": "explain_from_basics",
+  "dataset_hash": "d04d3142775c8f03",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 95.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.00186,
+      "input_cost_usd": 0.000316,
+      "output_cost_usd": 0.001544,
+      "prompt_tokens": 2109,
+      "completion_tokens": 2573,
+      "latency_ms": 13352.79,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 0.8,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 95.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.031853,
+      "input_cost_usd": 0.005273,
+      "output_cost_usd": 0.02658,
+      "prompt_tokens": 2109,
+      "completion_tokens": 2658,
+      "latency_ms": 11032.24,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 0.8,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 95.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.0441,
+      "input_cost_usd": 0.00436,
+      "output_cost_usd": 0.03974,
+      "prompt_tokens": 1744,
+      "completion_tokens": 3974,
+      "latency_ms": 14360.6,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 0.8,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 89.0,
+      "pass_rate": 0.6,
+      "cost_usd": 0.002702,
+      "input_cost_usd": 0.000262,
+      "output_cost_usd": 0.00244,
+      "prompt_tokens": 1744,
+      "completion_tokens": 4067,
+      "latency_ms": 17388.77,
+      "passed": false,
+      "metrics": {
+        "helpfulness": 0.8400000000000001,
+        "progressive_guidance": 0.8800000000000001,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.8400000000000001
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 95.0,
+      "cost_usd": 0.00186,
+      "input_cost_usd": 0.000316,
+      "output_cost_usd": 0.001544
+    },
+    "composite_score": 0.8698
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "hint_agent",
+  "example_results": [
+    {
+      "example_id": "explain_from_basics-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Microscope Magnifying Power Calculation",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to calculate the magnifying power of a microscope given the focal lengths of the objective and eyepiece lenses, as well as the distance between them."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "- Focal length of the objective lens (f<sub>o</sub>): 2 cm\n- Focal length of the eyepiece lens (f<sub>e</sub>): 6 cm\n- Distance between the lenses (d): 16 cm"
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to find the magnifying power (M) of the microscope."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "The magnifying power of a microscope is determined by the formula that relates the focal lengths of the objective and eyepiece lenses, as well as the distance between them."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "The magnifying power (M) of a compound microscope is given by the formula:\n\nM = (v / u<sub>o</sub>) * (D / f<sub>e</sub>)\n\nWhere:\n- v = image distance from the objective lens\n- u<sub>o</sub> = object distance from the objective lens\n- D = near point distance (usually taken as 25 cm for a normal human eye)\n- f<sub>e</sub> = focal length of the eyepiece lens"
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Calculate the image distance (v) for the objective lens using the lens formula:\n   \n   1/f<sub>o</sub> = 1/v + 1/u<sub>o</sub>\n   \n   Rearranging gives us:\n   v = 1 / (1/f<sub>o</sub> - 1/u<sub>o</sub>)\n   \n   Since we don't have u<sub>o</sub>, we can assume a typical value for a microscope.\n\n2. For a simple calculation, let's assume u<sub>o</sub> = 2 cm (the same as f<sub>o</sub>):\n   \n   v = 1 / (1/2 - 1/2) = \u221e (the image is formed at infinity)\n   \n   This means we can use the distance between the lenses to find the effective image distance.\n\n3. The effective image distance (v) can be approximated as:\n   \n   v = d - f<sub>o</sub> = 16 cm - 2 cm = 14 cm\n   \n4. Now, we can calculate the magnifying power:\n   \n   M = (v / u<sub>o</sub>) * (D / f<sub>e</sub>)\n   \n   Assuming D = 25 cm:\n   \n   M = (14 / 2) * (25 / 6) = 7 * 4.17 = 29.17"
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The magnifying power of the microscope is approximately 29.17."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Understanding the relationship between the focal lengths of the lenses and the distances involved is crucial for calculating the magnifying power of optical instruments like microscopes."
+          }
+        ],
+        "finalAnswer": "The magnifying power of the microscope is approximately 29.17.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "output": "{\n  \"title\": \"Finding the Definite Integral of a Polynomial Function\",\n  \"sections\": [\n    {\n      \"heading\": \"Question Understanding\",\n      \"bodyMarkdown\": \"We need to calculate the definite integral of the function \\(3x^2 + 2x\\) from the limits 0 to 2. This means we will find the area under the curve of the function between these two points on the x-axis.\"\n    },\n    {\n      \"heading\": \"Given Information\",\n      \"bodyMarkdown\": \"The function to integrate is \\(f(x) = 3x^2 + 2x\\). The limits of integration are from \\(x = 0\\) to \\(x = 2\\).\"\n    },\n    {\n      \"heading\": \"What to Find\",\n      \"bodyMarkdown\": \"We need to find the value of the definite integral \\( \\int_0^2 (3x^2 + 2x) \\, dx \\).\"\n    },\n    {\n      \"heading\": \"Concept Needed\",\n      \"bodyMarkdown\": \"To solve this problem, we need to understand the concept of definite integrals, which represent the area under a curve between two points. We will also use the power rule for integration.\"\n    },\n    {\n      \"heading\": \"Formula/Principle\",\n      \"bodyMarkdown\": \"The power rule for integration states that: \\n\\n\\\\[ \\\\int x^n \\, dx = \\\\frac{x^{n+1}}{n+1} + C \\\\] \\n\\nFor definite integrals, we evaluate the antiderivative at the upper limit and subtract the value at the lower limit.\"\n    },\n    {\n      \"heading\": \"Step-by-step Solution\",\n      \"bodyMarkdown\": \"1. **Find the antiderivative** of \\(3x^2 + 2x\\):  \\n   \\\\[ \\\\int (3x^2 + 2x) \\, dx = \\\\int 3x^2 \\, dx + \\\\int 2x \\, dx \\\\]  \\n   \\\\[ = 3 \\\\cdot \\\\frac{x^{3}}{3} + 2 \\\\cdot \\\\frac{x^{2}}{2} + C = x^3 + x^2 + C \\\\]  \\n\\n2. **Evaluate the definite integral** from 0 to 2:  \\n   \\\\[ \\\\int_0^2 (3x^2 + 2x) \\, dx = [x^3 + x^2]_0^2 \\\\]  \\n   \\\\[ = (2^3 + 2^2) - (0^3 + 0^2) \\\\]  \\n   \\\\[ = (8 + 4) - (0) = 12 \\\\]\"\n    },\n    {\n      \"heading\": \"Final Answer\",\n      \"bodyMarkdown\": \"The value of the definite integral \\( \\int_0^2 (3x^2 + 2x) \\, dx \\) is **12**.\"\n    },\n    {\n      \"heading\": \"Key Learning\",\n      \"bodyMarkdown\": \"This problem illustrates how to find the area under a polynomial function using definite integrals. Understanding the power rule for integration is crucial for solving such problems.\"\n    }\n  ],\n  \"finalAnswer\": \"12\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show shorter version\", \"action\": \"SHOW_SHORTER_VERSION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain concept again\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+      }
+    },
+    {
+      "example_id": "explain_from_basics-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzymes in the Stomach",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "The question asks which enzyme functions optimally in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "We have four options: (A) Trypsin, (B) Pepsin, (C) Lipase, (D) Amylase. We need to identify which of these enzymes works best in acidic pH."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to find out which enzyme is active in the stomach's acidic conditions."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Enzymes are biological catalysts that speed up chemical reactions. Different enzymes work best at different pH levels. The stomach has a low pH due to gastric acid."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Enzymes have optimal pH ranges where they function best. Pepsin is known to be active in acidic conditions (pH 1.5 to 3.5)."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Identify the function of each enzyme:\n   - Trypsin: Works in the small intestine (neutral pH).\n   - Pepsin: Active in the stomach (acidic pH).\n   - Lipase: Works in the small intestine (neutral pH).\n   - Amylase: Works in the mouth and small intestine (neutral pH).\n2. Since pepsin is the only enzyme listed that operates in the acidic environment of the stomach, it is the correct answer."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The enzyme that acts in acidic pH in the stomach is (B) Pepsin."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Understanding the pH levels at which different enzymes operate is crucial for recognizing their roles in digestion. Pepsin is specifically adapted to function in the acidic environment of the stomach."
+          }
+        ],
+        "finalAnswer": "B) Pepsin",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "output": "{\n  \"title\": \"Deriving the Lens Formula for a Thin Convex Lens\",\n  \"sections\": [\n    {\n      \"heading\": \"Question Understanding\",\n      \"bodyMarkdown\": \"We need to derive the lens formula for a thin convex lens by analyzing the refraction of light at its two spherical surfaces.\"\n    },\n    {\n      \"heading\": \"Given Information\",\n      \"bodyMarkdown\": \"1. A thin convex lens has two spherical surfaces.  \\n2. The lens is made of a transparent medium with a refractive index \\( n \\).  \\n3. The object distance \\( u \\), image distance \\( v \\), and focal length \\( f \\) are related.\"\n    },\n    {\n      \"heading\": \"What to Find\",\n      \"bodyMarkdown\": \"We want to find the relationship between the object distance \\( u \\), image distance \\( v \\), and focal length \\( f \\) of the lens, which is expressed as the lens formula:  \\n\\n\\\\[ \\\\frac{1}{f} = \\\\frac{1}{v} - \\\\frac{1}{u} \\\\]\"\n    },\n    {\n      \"heading\": \"Concept Needed\",\n      \"bodyMarkdown\": \"The concept of refraction of light at the interface of two different media is essential. We will use Snell's law, which states that \\\\( n_1 \\\\sin \\\\theta_1 = n_2 \\\\sin \\\\theta_2 \\\\), where \\\\( n_1 \\\\) and \\\\( n_2 \\\\) are the refractive indices of the two media.\"\n    },\n    {\n      \"heading\": \"Formula/Principle\",\n      \"bodyMarkdown\": \"1. Snell's Law: \\\\( n_1 \\\\sin \\\\theta_1 = n_2 \\\\sin \\\\theta_2 \\\\)  \\n2. For small angles, \\\\( \\\\sin \\\\theta \\\\approx \\\\tan \\\\theta \\\\approx \\\\theta \\\\) (in radians).  \\n3. The geometry of the lens and the concept of similar triangles will also be used.\"\n    },\n    {\n      \"heading\": \"Step-by-step Solution\",\n      \"bodyMarkdown\": \"1. Consider a thin convex lens with a focal point F.  \\n2. Let an object be placed at a distance \\( u \\) from the lens.  \\n3. Light rays from the object refract at the first surface of the lens and then at the second surface.  \\n4. Using Snell's law at the first surface, we can derive the angle of refraction.  \\n5. Similarly, apply Snell's law at the second surface.  \\n6. By applying the geometry of the lens and the properties of similar triangles, we can relate \\( u \\), \\( v \\), and \\( f \\).  \\n7. After some algebraic manipulation, we arrive at the lens formula:  \\n   \\\\[ \\\\frac{1}{f} = \\\\frac{1}{v} - \\\\frac{1}{u} \\\\]\"\n    },\n    {\n      \"heading\": \"Final Answer\",\n      \"bodyMarkdown\": \"The lens formula for a thin convex lens is given by:  \\n\\\\[ \\\\frac{1}{f} = \\\\frac{1}{v} - \\\\frac{1}{u} \\\\]\"\n    },\n    {\n      \"heading\": \"Key Learning\",\n      \"bodyMarkdown\": \"Understanding the derivation of the lens formula helps in grasping the behavior of light as it passes through different media and the principles of optics.\"\n    }\n  ],\n  \"finalAnswer\": \"The lens formula for a thin convex lens is \\\\( \\\\frac{1}{f} = \\\\frac{1}{v} - \\\\frac{1}{u} \\\\)\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show shorter version\", \"action\": \"SHOW_SHORTER_VERSION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain concept again\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+      }
+    },
+    {
+      "example_id": "explain_from_basics-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Understanding Series Circuits with Ohm's Law",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We have a circuit with a 12 V battery connected to two resistors (3 \u03a9 and 6 \u03a9) in series. We need to find the current flowing through the circuit and the voltage drop across each resistor."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "- Voltage of the battery (V) = 12 V\n- Resistance of the first resistor (R1) = 3 \u03a9\n- Resistance of the second resistor (R2) = 6 \u03a9"
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "1. The total current (I) flowing through the circuit.\n2. The voltage drop across the 3 \u03a9 resistor (V1).\n3. The voltage drop across the 6 \u03a9 resistor (V2)."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Ohm's Law states that the current (I) through a conductor between two points is directly proportional to the voltage (V) across the two points and inversely proportional to the resistance (R) of the conductor. This can be expressed as: \n\nV = I \u00d7 R"
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "1. Total resistance in series: R_total = R1 + R2\n2. Current using Ohm's Law: I = V / R_total\n3. Voltage across each resistor: V1 = I \u00d7 R1 and V2 = I \u00d7 R2"
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Calculate the total resistance:\n   R_total = R1 + R2 = 3 \u03a9 + 6 \u03a9 = 9 \u03a9\n\n2. Calculate the current using Ohm's Law:\n   I = V / R_total = 12 V / 9 \u03a9 = 4/3 A \u2248 1.33 A\n\n3. Calculate the voltage across the 3 \u03a9 resistor:\n   V1 = I \u00d7 R1 = (4/3 A) \u00d7 3 \u03a9 = 4 V\n\n4. Calculate the voltage across the 6 \u03a9 resistor:\n   V2 = I \u00d7 R2 = (4/3 A) \u00d7 6 \u03a9 = 8 V"
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The current flowing through the circuit is approximately 1.33 A. The voltage across the 3 \u03a9 resistor is 4 V, and the voltage across the 6 \u03a9 resistor is 8 V."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "In a series circuit, the total resistance is the sum of individual resistances, and the same current flows through all components. The voltage drop across each resistor can be calculated using Ohm's Law."
+          }
+        ],
+        "finalAnswer": "Current: 1.33 A, Voltage across 3 \u03a9: 4 V, Voltage across 6 \u03a9: 8 V",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Finding the Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to find the magnifying power of a microscope given the focal lengths of the objective and eyepiece lenses, and the distance between them."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "- Objective focal length \\( f_o = 2 \\text{ cm} \\)\n- Eyepiece focal length \\( f_e = 6 \\text{ cm} \\)\n- Distance between lenses \\( L = 16 \\text{ cm} \\)"
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "The magnifying power of the microscope."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "The magnifying power of a compound microscope is determined by the focal lengths of the objective and eyepiece lenses and the tube length."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "The magnifying power \\( M \\) of a compound microscope is given by:\n\\[ M = \\left( \\frac{L}{f_o} \\right) \\times \\left( 1 + \\frac{D}{f_e} \\right) \\]\nwhere \\( D \\) is the least distance of distinct vision, typically taken as 25 cm for a normal human eye."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. **Calculate the magnification by the objective lens:**\n   \\[ M_o = \\frac{L}{f_o} = \\frac{16}{2} = 8 \\]\n\n2. **Calculate the magnification by the eyepiece lens:**\n   \\[ M_e = 1 + \\frac{D}{f_e} = 1 + \\frac{25}{6} \\approx 5.17 \\]\n\n3. **Calculate the total magnifying power:**\n   \\[ M = M_o \\times M_e = 8 \\times 5.17 \\approx 41.36 \\]"
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The magnifying power of the microscope is approximately 41.36."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "The magnifying power of a microscope depends on both the focal lengths of its lenses and the distance between them. Understanding how to apply the formula helps in calculating the magnification effectively."
+          }
+        ],
+        "finalAnswer": "The magnifying power of the microscope is approximately 41.36.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Integration of a Polynomial Function",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to find the definite integral of the polynomial function \\(3x^2 + 2x\\) from \\(x = 0\\) to \\(x = 2\\). This involves calculating the area under the curve of the function between these two points on the x-axis."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "The function to integrate is \\(3x^2 + 2x\\). The limits of integration are from \\(x = 0\\) to \\(x = 2\\)."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to find the value of the definite integral \\(\\int_{0}^{2} (3x^2 + 2x) \\, dx\\)."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "The concept needed is definite integration, which is used to find the area under a curve between two points. This involves finding the antiderivative of the function and evaluating it at the given limits."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "The formula for the definite integral of a function \\(f(x)\\) from \\(a\\) to \\(b\\) is given by: \n\\[ \\int_{a}^{b} f(x) \\, dx = F(b) - F(a) \\] \nwhere \\(F(x)\\) is the antiderivative of \\(f(x)\\)."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. **Find the Antiderivative:**\n   - The antiderivative of \\(3x^2\\) is \\(x^3\\).\n   - The antiderivative of \\(2x\\) is \\(x^2\\).\n   - Therefore, the antiderivative of \\(3x^2 + 2x\\) is \\(x^3 + x^2 + C\\), where \\(C\\) is the constant of integration.\n\n2. **Evaluate the Definite Integral:**\n   - Substitute the upper limit (2) into the antiderivative: \n     \\[ F(2) = 2^3 + 2^2 = 8 + 4 = 12 \\]\n   - Substitute the lower limit (0) into the antiderivative: \n     \\[ F(0) = 0^3 + 0^2 = 0 \\]\n   - Calculate the definite integral: \n     \\[ \\int_{0}^{2} (3x^2 + 2x) \\, dx = F(2) - F(0) = 12 - 0 = 12 \\]"
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The value of the definite integral \\(\\int_{0}^{2} (3x^2 + 2x) \\, dx\\) is **12**."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Definite integration allows us to calculate the area under a curve between two points. The process involves finding the antiderivative of the function and evaluating it at the given limits."
+          }
+        ],
+        "finalAnswer": "12",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzyme Activity in the Stomach",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "The question asks us to identify which enzyme functions in the acidic environment of the stomach. We need to know about enzymes and their optimal pH levels."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "We have four options: (A) Trypsin, (B) Pepsin, (C) Lipase, and (D) Amylase. We need to determine which of these enzymes works best in an acidic environment."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to find out which enzyme among the given options acts in the acidic pH of the stomach."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Enzymes are biological catalysts that speed up chemical reactions in the body. Each enzyme has an optimal pH at which it functions best. The stomach has a highly acidic environment, with a pH around 1.5 to 3.5."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "The principle here is understanding the optimal pH for enzyme activity. Pepsin is known to work in acidic conditions, while others like trypsin work in more neutral or basic conditions."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Identify the environment of the stomach: It is acidic.\n2. Recall the optimal pH for each enzyme:\n   - Pepsin: Works best in acidic conditions.\n   - Trypsin: Works in the small intestine, which is more neutral.\n   - Lipase: Works in the small intestine, also more neutral.\n   - Amylase: Begins digestion in the mouth, neutral pH.\n3. Conclude that Pepsin is the enzyme that acts in the acidic pH of the stomach."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The enzyme that acts in acidic pH in the stomach is **Pepsin**."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Understanding the environment in which enzymes operate is crucial. Pepsin is specifically adapted to function in the acidic conditions of the stomach, unlike other enzymes that require neutral or basic conditions."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Derivation of Lens Formula for Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to derive the lens formula for a thin convex lens using the concept of refraction at two spherical surfaces. This involves understanding how light refracts through a lens and how the geometry of the lens affects the image formation."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "We are dealing with a thin convex lens, which means the lens has two spherical surfaces. We need to consider the refraction of light at each of these surfaces."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to derive the lens formula, which relates the object distance (u), the image distance (v), and the focal length (f) of the lens."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "The concept of refraction at spherical surfaces is needed. We will use the lens maker's formula and the geometry of the lens to derive the lens formula."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "The lens formula is given by \\( \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\). We will derive this using the refraction formula at spherical surfaces: \\( \\frac{n_2}{v} - \\frac{n_1}{u} = \\frac{n_2 - n_1}{R} \\), where n is the refractive index and R is the radius of curvature."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. **Refraction at the first surface:** Consider a point object O on the principal axis of a convex lens. Let the first surface have a radius of curvature R1. Using the refraction formula, \\( \\frac{n_2}{v_1} - \\frac{n_1}{u} = \\frac{n_2 - n_1}{R_1} \\). Here, v1 is the image distance from the first surface.\\n\\n2. **Refraction at the second surface:** The image formed by the first surface acts as a virtual object for the second surface. Let the second surface have a radius of curvature R2. Using the refraction formula again, \\( \\frac{n_1}{v} - \\frac{n_2}{v_1} = \\frac{n_1 - n_2}{R_2} \\).\\n\\n3. **Combine the equations:** Solve these two equations to eliminate v1 and express v in terms of u, R1, R2, and the refractive index.\\n\\n4. **Simplify for thin lens approximation:** For a thin lens, the thickness is negligible, so we assume the lens is thin enough that the distances are measured from the lens's optical center.\\n\\n5. **Derive the lens formula:** Combine and simplify the equations to get the lens formula: \\( \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\)."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The lens formula for a thin convex lens is \\( \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\)."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Understanding the refraction at spherical surfaces and how it applies to lenses is crucial. The lens formula is a fundamental relation in optics that helps in determining the position and nature of images formed by lenses."
+          }
+        ],
+        "finalAnswer": "The lens formula for a thin convex lens is \\( \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\).",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Finding Current and Voltage in a Series Circuit",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We have a circuit with a 12 V battery connected to two resistors in series: one with 3 \u03a9 resistance and the other with 6 \u03a9 resistance. We need to find the current flowing through the circuit and the voltage across each resistor."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "- Voltage of the battery (V) = 12 V\n- Resistance of the first resistor (R1) = 3 \u03a9\n- Resistance of the second resistor (R2) = 6 \u03a9"
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "- Current (I) flowing through the circuit\n- Voltage across the 3 \u03a9 resistor (V1)\n- Voltage across the 6 \u03a9 resistor (V2)"
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "We need to use Ohm's Law, which relates voltage (V), current (I), and resistance (R) in a circuit. For resistors in series, the total resistance is the sum of individual resistances."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "- Ohm's Law: V = IR\n- Total resistance in series: R_total = R1 + R2"
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. **Calculate Total Resistance:**\n   - R_total = R1 + R2 = 3 \u03a9 + 6 \u03a9 = 9 \u03a9\n\n2. **Find Current using Ohm's Law:**\n   - V = IR_total\n   - 12 V = I * 9 \u03a9\n   - I = 12 V / 9 \u03a9 = 1.33 A\n\n3. **Find Voltage across each Resistor:**\n   - For 3 \u03a9 resistor (V1):\n     - V1 = I * R1 = 1.33 A * 3 \u03a9 = 4 V\n   - For 6 \u03a9 resistor (V2):\n     - V2 = I * R2 = 1.33 A * 6 \u03a9 = 8 V"
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "- Current (I) = 1.33 A\n- Voltage across 3 \u03a9 resistor (V1) = 4 V\n- Voltage across 6 \u03a9 resistor (V2) = 8 V"
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "In a series circuit, the same current flows through all components, and the total voltage is divided among the resistors according to their resistances."
+          }
+        ],
+        "finalAnswer": "Current = 1.33 A, Voltage across 3 \u03a9 = 4 V, Voltage across 6 \u03a9 = 8 V",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to find the magnifying power of a microscope given the focal lengths of the objective and eyepiece, and the distance between them."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Objective focal length (f_o) = 2 cm, Eyepiece focal length (f_e) = 6 cm, Distance between lenses (d) = 16 cm."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to calculate the magnifying power (M) of the microscope."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Magnifying power of a microscope is determined by the formula M = (v / u) for the objective and M_e = 1 + (D / f_e) for the eyepiece."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Total magnifying power M = M_o * M_e, where M_o = -d / f_o and M_e = 1 + (D / f_e). Here, D is the near point distance, typically 25 cm."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Calculate M_o = -d / f_o = -16 / 2 = -8. 2. Calculate M_e = 1 + (25 / 6) = 1 + 4.17 = 5.17. 3. Total M = M_o * M_e = -8 * 5.17 = -41.36."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The magnifying power of the microscope is approximately 41.36."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Understanding the relationship between focal lengths and distances in lenses helps in calculating the magnifying power of optical instruments."
+          }
+        ],
+        "finalAnswer": "41.36",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Integration of a Polynomial Function",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to find the definite integral of the function 3x\u00b2 + 2x from 0 to 2."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Function: 3x\u00b2 + 2x; Limits: 0 to 2."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "The value of the integral \u222b(3x\u00b2 + 2x)dx from 0 to 2."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Understanding definite integrals and how to integrate polynomial functions."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "\u222bx^n dx = (x^(n+1))/(n+1) + C; for definite integrals, evaluate at upper and lower limits."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Integrate: \u222b(3x\u00b2 + 2x)dx = (3x\u00b3/3) + (2x\u00b2/2) + C = x\u00b3 + x\u00b2 + C.\n2. Evaluate from 0 to 2: [2\u00b3 + 2\u00b2] - [0\u00b3 + 0\u00b2] = [8 + 4] - [0] = 12."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The value of the integral is 12."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Definite integrals calculate the area under a curve between two points, using integration techniques."
+          }
+        ],
+        "finalAnswer": "12",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzymes in Stomach",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "The question asks which enzyme functions in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Options provided are: (A) Trypsin, (B) Pepsin, (C) Lipase, (D) Amylase."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to identify the enzyme that works best at acidic pH."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Enzymes are biological catalysts that function optimally at specific pH levels."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Pepsin is the enzyme that operates in the acidic conditions of the stomach."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Identify the pH of the stomach (acidic). 2. Recall which enzyme is active in this environment (Pepsin)."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The enzyme that acts in acidic pH in the stomach is Pepsin (B)."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Understanding enzyme activity is crucial for digestion and varies with pH levels."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Deriving Lens Formula for Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to derive the lens formula for a thin convex lens using the principles of refraction at its two spherical surfaces."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "A thin convex lens has two spherical surfaces. The object distance (u), image distance (v), and focal length (f) are related through the lens formula."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to find the relationship between object distance (u), image distance (v), and focal length (f) for a thin convex lens."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "The concept of refraction at spherical surfaces and the lens maker's formula are essential for deriving the lens formula."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Using the refraction formula: n1/sin(i) = n2/sin(r) and the geometry of the lens."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Consider a thin convex lens with object O and image I. \n2. Apply refraction at the first surface to find the relation between u, v, and f. \n3. Repeat for the second surface. \n4. Combine the equations to derive the lens formula: 1/f = 1/v - 1/u."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The lens formula for a thin convex lens is given by 1/f = 1/v - 1/u."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Understanding the derivation of the lens formula helps in grasping the behavior of light through lenses and its applications in optics."
+          }
+        ],
+        "finalAnswer": "1/f = 1/v - 1/u",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Current and Voltage in Series Circuit",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to find the current flowing through a series circuit with a 12 V battery and two resistors of 3 \u03a9 and 6 \u03a9."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Battery Voltage (V) = 12 V, Resistor 1 (R1) = 3 \u03a9, Resistor 2 (R2) = 6 \u03a9."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "We need to find the current in the circuit and the voltage across each resistor."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Ohm's Law states that V = IR, where V is voltage, I is current, and R is resistance."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Total Resistance (R_total) = R1 + R2; Current (I) = V / R_total; Voltage across each resistor (V1, V2) = I * R1, I * R2."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Calculate total resistance: R_total = 3 \u03a9 + 6 \u03a9 = 9 \u03a9. 2. Find current: I = 12 V / 9 \u03a9 = 4/3 A. 3. Voltage across R1: V1 = (4/3 A) * 3 \u03a9 = 4 V. 4. Voltage across R2: V2 = (4/3 A) * 6 \u03a9 = 8 V."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "Current (I) = 4/3 A; Voltage across 3 \u03a9 (V1) = 4 V; Voltage across 6 \u03a9 (V2) = 8 V."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "In a series circuit, the same current flows through all components, and the total voltage is divided among the resistors based on their resistance."
+          }
+        ],
+        "finalAnswer": "Current (I) = 4/3 A; Voltage across 3 \u03a9 = 4 V; Voltage across 6 \u03a9 = 8 V.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Microscope Magnifying Power Calculation",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "Calculate the magnifying power of a microscope with given focal lengths and lens separation."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Objective focal length = 2 cm, Eyepiece focal length = 6 cm, Lens separation = 16 cm."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "Find the magnifying power of the microscope."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Understanding of microscope magnification using focal lengths and lens separation."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Magnifying power (M) = (L/fo) * (1 + (D/fe)), where L is lens separation, fo is objective focal length, fe is eyepiece focal length, and D is the least distance of distinct vision (25 cm)."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Use L = 16 cm, fo = 2 cm, fe = 6 cm, D = 25 cm. 2. Calculate M = (16/2) * (1 + (25/6)). 3. Simplify to get M = 8 * (1 + 4.17). 4. M = 8 * 5.17 = 41.36."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The magnifying power of the microscope is approximately 41.36."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Magnifying power depends on focal lengths and lens separation, enhancing image size."
+          }
+        ],
+        "finalAnswer": "41.36",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Definite Integral of a Polynomial Function",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "We need to find the definite integral of the polynomial 3x\u00b2+2x from x=0 to x=2."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Function: 3x\u00b2+2x; Limits: 0 to 2."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "Calculate the area under the curve of 3x\u00b2+2x from x=0 to x=2."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Understanding of definite integrals and basic integration rules."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "\u222b(ax^n)dx = (a/n+1)x^(n+1) + C; Evaluate definite integral using limits."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Integrate: \u222b(3x\u00b2+2x)dx = (3/3)x\u00b3 + (2/2)x\u00b2 = x\u00b3 + x\u00b2. 2. Evaluate from 0 to 2: [(2)\u00b3 + (2)\u00b2] - [(0)\u00b3 + (0)\u00b2] = 8 + 4 = 12."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The definite integral of 3x\u00b2+2x from 0 to 2 is 12."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Definite integrals calculate the area under a curve between two points."
+          }
+        ],
+        "finalAnswer": "12",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzyme Activity in Stomach",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "Identify the enzyme that functions in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Options: (A) Trypsin, (B) Pepsin, (C) Lipase, (D) Amylase."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "Determine which enzyme is active in acidic pH."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Enzymes have specific pH ranges where they function optimally."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Pepsin is active in acidic conditions, unlike trypsin, lipase, and amylase."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Recognize stomach's acidic environment. 2. Recall pepsin's role in protein digestion in the stomach. 3. Eliminate other enzymes that function in neutral/alkaline pH."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "Pepsin acts in acidic pH in the stomach."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "Pepsin is the enzyme that digests proteins in the stomach's acidic environment."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Derivation of Lens Formula for Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "Derive the lens formula for a thin convex lens using refraction at two spherical surfaces."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "We have a thin convex lens and need to consider refraction at its two spherical surfaces."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "Derive the lens formula: \\( \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\)."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Refraction at spherical surfaces and the lens maker's formula."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Use refraction formula: \\( \\frac{n_2}{v} - \\frac{n_1}{u} = \\frac{n_2 - n_1}{R} \\)."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Apply refraction formula at first surface. 2. Apply at second surface. 3. Combine equations. 4. Simplify to get lens formula."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "The lens formula is \\( \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\)."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "The lens formula relates object distance, image distance, and focal length for thin lenses."
+          }
+        ],
+        "finalAnswer": "The lens formula is \\( \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\).",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "explain_from_basics-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Solving Series Circuit Problem",
+        "sections": [
+          {
+            "heading": "Question Understanding",
+            "bodyMarkdown": "Find current and voltage across resistors in a series circuit with a 12 V battery."
+          },
+          {
+            "heading": "Given Information",
+            "bodyMarkdown": "Battery voltage = 12 V, Resistors = 3 \u03a9 and 6 \u03a9 in series."
+          },
+          {
+            "heading": "What to Find",
+            "bodyMarkdown": "Current through the circuit and voltage across each resistor."
+          },
+          {
+            "heading": "Concept Needed",
+            "bodyMarkdown": "Ohm's Law and series circuit properties."
+          },
+          {
+            "heading": "Formula/Principle",
+            "bodyMarkdown": "Ohm's Law: V = IR; Series resistance: R_total = R1 + R2."
+          },
+          {
+            "heading": "Step-by-step Solution",
+            "bodyMarkdown": "1. Calculate total resistance: R_total = 3 \u03a9 + 6 \u03a9 = 9 \u03a9.\n2. Use Ohm's Law to find current: I = V/R_total = 12 V / 9 \u03a9 = 1.33 A.\n3. Voltage across 3 \u03a9: V1 = I * 3 \u03a9 = 1.33 A * 3 \u03a9 = 4 V.\n4. Voltage across 6 \u03a9: V2 = I * 6 \u03a9 = 1.33 A * 6 \u03a9 = 8 V."
+          },
+          {
+            "heading": "Final Answer",
+            "bodyMarkdown": "Current = 1.33 A, Voltage across 3 \u03a9 = 4 V, Voltage across 6 \u03a9 = 8 V."
+          },
+          {
+            "heading": "Key Learning",
+            "bodyMarkdown": "In series circuits, current is constant; voltage divides across resistors."
+          }
+        ],
+        "finalAnswer": "Current = 1.33 A, Voltage across 3 \u03a9 = 4 V, Voltage across 6 \u03a9 = 8 V.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Show shorter version",
+            "action": "SHOW_SHORTER_VERSION"
+          },
+          {
+            "label": "Show best approach",
+            "action": "SHOW_BEST_APPROACH"
+          },
+          {
+            "label": "Give similar problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Explain concept again",
+            "action": "EXPLAIN_CONCEPT_AGAIN"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "whole_file_map_summarizer",
+  "agent": {
+    "sno": 29,
+    "category": "Source Upload",
+    "name": "Whole File Map Summarizer",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "You are summarizing parts of a document for a later full-document summary.\nFor each Part below, write EXACTLY ONE concise sentence capturing its main idea.\nNumber your lines Part 1, Part 2, ... matching the order below.\nDo not add an introduction or conclusion."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "parts"
+    ],
+    "output_keys": [
+      "map_summaries"
+    ]
+  },
+  "items": [
+    {
+      "id": "whole_file_map_summarizer-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Physics topic 1.",
+          "Part 2: NCERT section on Chemistry topic 2.",
+          "Part 3: NCERT section on Biology topic 3."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Chemistry topic 1.",
+          "Part 2: NCERT section on Biology topic 2.",
+          "Part 3: NCERT section on Mathematics topic 3.",
+          "Part 4: NCERT section on Science topic 4."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Biology topic 1.",
+          "Part 2: NCERT section on Mathematics topic 2.",
+          "Part 3: NCERT section on Science topic 3.",
+          "Part 4: NCERT section on Physics topic 4.",
+          "Part 5: NCERT section on Chemistry topic 5."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4.\nPart 5: Main idea of section 5."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Mathematics topic 1.",
+          "Part 2: NCERT section on Science topic 2.",
+          "Part 3: NCERT section on Physics topic 3."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Science topic 1.",
+          "Part 2: NCERT section on Physics topic 2.",
+          "Part 3: NCERT section on Chemistry topic 3.",
+          "Part 4: NCERT section on Biology topic 4."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Physics topic 1.",
+          "Part 2: NCERT section on Chemistry topic 2.",
+          "Part 3: NCERT section on Biology topic 3.",
+          "Part 4: NCERT section on Mathematics topic 4.",
+          "Part 5: NCERT section on Science topic 5."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4.\nPart 5: Main idea of section 5."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Chemistry topic 1.",
+          "Part 2: NCERT section on Biology topic 2.",
+          "Part 3: NCERT section on Mathematics topic 3."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Biology topic 1.",
+          "Part 2: NCERT section on Mathematics topic 2.",
+          "Part 3: NCERT section on Science topic 3.",
+          "Part 4: NCERT section on Physics topic 4."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Mathematics topic 1.",
+          "Part 2: NCERT section on Science topic 2.",
+          "Part 3: NCERT section on Physics topic 3.",
+          "Part 4: NCERT section on Chemistry topic 4.",
+          "Part 5: NCERT section on Biology topic 5."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4.\nPart 5: Main idea of section 5."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Science topic 1.",
+          "Part 2: NCERT section on Physics topic 2.",
+          "Part 3: NCERT section on Chemistry topic 3."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Physics topic 1.",
+          "Part 2: NCERT section on Chemistry topic 2.",
+          "Part 3: NCERT section on Biology topic 3.",
+          "Part 4: NCERT section on Mathematics topic 4."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Chemistry topic 1.",
+          "Part 2: NCERT section on Biology topic 2.",
+          "Part 3: NCERT section on Mathematics topic 3.",
+          "Part 4: NCERT section on Science topic 4.",
+          "Part 5: NCERT section on Physics topic 5."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4.\nPart 5: Main idea of section 5."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Biology topic 1.",
+          "Part 2: NCERT section on Mathematics topic 2.",
+          "Part 3: NCERT section on Science topic 3."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Mathematics topic 1.",
+          "Part 2: NCERT section on Science topic 2.",
+          "Part 3: NCERT section on Physics topic 3.",
+          "Part 4: NCERT section on Chemistry topic 4."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_map_summarizer-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "parts": [
+          "Part 1: NCERT section on Science topic 1.",
+          "Part 2: NCERT section on Physics topic 2.",
+          "Part 3: NCERT section on Chemistry topic 3.",
+          "Part 4: NCERT section on Biology topic 4.",
+          "Part 5: NCERT section on Mathematics topic 5."
+        ]
+      },
+      "reference_outputs": {
+        "map_summaries": "Part 1: Main idea of section 1.\nPart 2: Main idea of section 2.\nPart 3: Main idea of section 3.\nPart 4: Main idea of section 4.\nPart 5: Main idea of section 5."
+      },
+      "evaluators": [
+        "one_sentence_per_part",
+        "llm_judge"
+      ]
+    }
+  ]
+}

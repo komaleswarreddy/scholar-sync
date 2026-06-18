@@ -1,0 +1,17 @@
+{
+  "status": "init",
+  "scope": "codebase",
+  "type": "backend",
+  "localEndpoint": "http://localhost:8000/",
+  "serverPort": 65064,
+  "executionArgs": {
+    "projectName": "NotebookLM",
+    "projectPath": "c:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM",
+    "testIds": [],
+    "additionalInstruction": "CRITICAL: Tests run in TestSprite cloud, NOT on the developer machine. Never open tests/fixtures/* paths. Import from ts_helpers (upload_fixture, upload_bytes, wait_indexed, stream_chat, auth_headers) and fixture_payloads.FIXTURES with base64 embedded bytes. Upload API returns source id in JSON field 'id' (not source_id). Indexed status is 'indexed'. Use dev JWT via ts_helpers.dev_jwt(). Keep existing patched tests in testsprite_tests/ when possible.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-JZCYMjtma-SAL2nfzLWisbdNfXDNSpXBe2p_ZOb5GpR380SKN5LrU8900lvEBF8V_ikKM8jybYxyI4YZ5sIe3EYTG6SyYY9wPQsi0PVsei8fFvz4IgkSq4vvFNlQflXuQg8"
+    }
+  }
+}

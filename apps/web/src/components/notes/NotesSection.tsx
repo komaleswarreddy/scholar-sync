@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { NoteItem } from './NoteItem';
 import { NoteModal } from './NoteModal';
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote } from '@/hooks/useNotes';
+import { useNotebookScopeId } from '@/contexts/NotebookContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { noteKeys } from '@/hooks/useNotes';
 
@@ -29,8 +30,9 @@ export function NotesSection() {
   const [isCreatingNote, setIsCreatingNote] = useState(false);
 
   // Task C.a & C.b: Use TanStack Query for notes with loading states and caching
-  const { data: notes = [], isLoading: loading, error: queryError } = useNotes();
-  const createMutation = useCreateNote();
+  const notebookId = useNotebookScopeId();
+  const { data: notes = [], isLoading: loading, error: queryError } = useNotes(notebookId);
+  const createMutation = useCreateNote(notebookId);
   const updateMutation = useUpdateNote();
   const deleteMutation = useDeleteNote();
   const queryClient = useQueryClient();

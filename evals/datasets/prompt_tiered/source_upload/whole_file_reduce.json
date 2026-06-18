@@ -1,0 +1,324 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "whole_file_reduce",
+  "agent": {
+    "sno": 30,
+    "category": "Source Upload",
+    "name": "Whole File Reduce Agent",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "You are writing the final answer for the user.\nBelow are ordered summaries of every section/part of their document(s).\nWrite a clear, well-structured response that answers their request and reflects the ENTIRE document, not just the beginning. Use sections or bullet points if helpful.\nDo not include citation markers like [1]. Do not paste raw excerpt lists.\n\nUser request:\n{{ user_message }}\n\nSection summaries (in document order):\n{{ section_summaries }}"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "user_message",
+      "section_summaries"
+    ],
+    "output_keys": [
+      "final_answer"
+    ]
+  },
+  "items": [
+    {
+      "id": "whole_file_reduce-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Physics.\nPart 2: Key point about Chemistry.\nPart 3: Key point about Biology.\nPart 4: Key point about Mathematics.\nPart 5: Key point about Science."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Physics ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Chemistry.\nPart 2: Key point about Biology.\nPart 3: Key point about Mathematics.\nPart 4: Key point about Science.\nPart 5: Key point about Physics."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Chemistry ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Exam revision notes",
+        "section_summaries": "Part 1: Key point about Biology.\nPart 2: Key point about Mathematics.\nPart 3: Key point about Science.\nPart 4: Key point about Physics.\nPart 5: Key point about Chemistry."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Biology ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Mathematics.\nPart 2: Key point about Science.\nPart 3: Key point about Physics.\nPart 4: Key point about Chemistry.\nPart 5: Key point about Biology."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Mathematics ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Science.\nPart 2: Key point about Physics.\nPart 3: Key point about Chemistry.\nPart 4: Key point about Biology.\nPart 5: Key point about Mathematics."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Science ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Exam revision notes",
+        "section_summaries": "Part 1: Key point about Physics.\nPart 2: Key point about Chemistry.\nPart 3: Key point about Biology.\nPart 4: Key point about Mathematics.\nPart 5: Key point about Science."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Physics ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Chemistry.\nPart 2: Key point about Biology.\nPart 3: Key point about Mathematics.\nPart 4: Key point about Science.\nPart 5: Key point about Physics."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Chemistry ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Biology.\nPart 2: Key point about Mathematics.\nPart 3: Key point about Science.\nPart 4: Key point about Physics.\nPart 5: Key point about Chemistry."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Biology ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Exam revision notes",
+        "section_summaries": "Part 1: Key point about Mathematics.\nPart 2: Key point about Science.\nPart 3: Key point about Physics.\nPart 4: Key point about Chemistry.\nPart 5: Key point about Biology."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Mathematics ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Science.\nPart 2: Key point about Physics.\nPart 3: Key point about Chemistry.\nPart 4: Key point about Biology.\nPart 5: Key point about Mathematics."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Science ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Physics.\nPart 2: Key point about Chemistry.\nPart 3: Key point about Biology.\nPart 4: Key point about Mathematics.\nPart 5: Key point about Science."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Physics ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Exam revision notes",
+        "section_summaries": "Part 1: Key point about Chemistry.\nPart 2: Key point about Biology.\nPart 3: Key point about Mathematics.\nPart 4: Key point about Science.\nPart 5: Key point about Physics."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Chemistry ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Biology.\nPart 2: Key point about Mathematics.\nPart 3: Key point about Science.\nPart 4: Key point about Physics.\nPart 5: Key point about Chemistry."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Biology ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Mathematics.\nPart 2: Key point about Science.\nPart 3: Key point about Physics.\nPart 4: Key point about Chemistry.\nPart 5: Key point about Biology."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Mathematics ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "whole_file_reduce-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "user_message": "Exam revision notes",
+        "section_summaries": "Part 1: Key point about Science.\nPart 2: Key point about Physics.\nPart 3: Key point about Chemistry.\nPart 4: Key point about Biology.\nPart 5: Key point about Mathematics."
+      },
+      "reference_outputs": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Science ideas."
+      },
+      "evaluators": [
+        "markdown_structure",
+        "llm_judge"
+      ]
+    }
+  ]
+}

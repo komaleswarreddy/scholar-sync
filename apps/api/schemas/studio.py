@@ -28,8 +28,6 @@ class StudioRequest(BaseModel):
         "quiz",
         "flashcards",
         "mind_map",
-        "report",
-        "infographic",
         "slide_deck",
     ] = Field(..., description="Type of generation task")
     source_ids: List[str] = Field(
@@ -58,23 +56,33 @@ class StudioRequest(BaseModel):
             "Ignored for task_type 'flashcards' — flashcards always use broad studio queries only."
         ),
     )
-    report_format: Optional[
-        Literal[
-            "integrated",
-            "briefing",
-            "study_guide",
-            "newsletter",
-            "thematic_summary",
-        ]
-    ] = Field(
-        None,
-        description="Tailored report format (Studio Reports modal). Ignored when task_type is not 'report'.",
+    include_ncert_global: bool = Field(
+        default=False,
+        description="When true, retrieve from NCERT global Pinecone namespace using scope filters.",
     )
+    ncert_class: Optional[int] = Field(None, ge=12, le=12)
+    ncert_subject: Optional[str] = Field(None, description="Subject slug, e.g. science")
+    ncert_chapter_no: Optional[int] = Field(None, ge=1)
+    ncert_chapter_name: Optional[str] = Field(
+        None, description="Lowercase chapter name filter for NCERT global retrieval"
+    )
+
+    def _has_ncert_scope(self) -> bool:
+        return bool(
+            self.include_ncert_global
+            and self.ncert_class is not None
+            and (self.ncert_subject or "").strip()
+            and (
+                self.ncert_chapter_no is not None
+                or (self.ncert_chapter_name or "").strip()
+            )
+        )
 
     @model_validator(mode="after")
     def validate_by_context_mode(self) -> "StudioRequest":
         mode = self.context_mode
         sids = [str(s).strip() for s in (self.source_ids or []) if s is not None and str(s).strip()]
+        has_ncert = self._has_ncert_scope()
 
         if mode == "selection_only":
             st = (self.selection_text or "").strip()
@@ -87,8 +95,8 @@ class StudioRequest(BaseModel):
             return self
 
         if mode == "chat_hybrid":
-            if len(sids) < 1:
-                raise ValueError("chat_hybrid requires at least one source_id")
+            if len(sids) < 1 and not has_ncert:
+                raise ValueError("chat_hybrid requires at least one source_id or NCERT scope")
             ct = (self.chat_transcript or "").strip()
             if not ct:
                 raise ValueError("chat_hybrid requires non-empty chat_transcript")
@@ -97,8 +105,8 @@ class StudioRequest(BaseModel):
             return self
 
         # sources_only
-        if len(sids) < 1:
-            raise ValueError("sources_only requires at least one source_id")
+        if len(sids) < 1 and not has_ncert:
+            raise ValueError("sources_only requires at least one source_id or NCERT scope")
         self.source_ids = sids
         return self
 
@@ -138,26 +146,6 @@ class MindMapResponse(BaseModel):
 
     task_type: Literal["mind_map"] = "mind_map"
     content: str = Field(..., description="Markdown/Mermaid syntax for mind map")
-
-
-class ReportResponse(BaseModel):
-    """Report generation response."""
-
-    task_type: Literal["report"] = "report"
-    content: str = Field(..., description="Comprehensive report text")
-
-
-class InfographicResponse(BaseModel):
-    """Infographic generation response — structured data rendered as HTML by the frontend."""
-
-    task_type: Literal["infographic"] = "infographic"
-    content: str = Field(..., description="Markdown bullet summary for the infographic")
-    infographic_data: Optional[Dict[str, Any]] = Field(
-        None, description="Structured JSON for frontend rendering (title, layout, sections, etc.)"
-    )
-    summary_bullets: Optional[List[str]] = Field(
-        None, description="3-4 short learner-facing takeaway bullets"
-    )
 
 
 class SlideDeckResponse(BaseModel):

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "description": "Gold chapters for STU-01/02/04/05 curriculum sign-off. Fill expected_facts before running export scripts.",
+  "chapters": [
+    {
+      "id": "stu_ch_01",
+      "fixture_file": "standard_chapter.pdf",
+      "title": "Standard chapter (photosynthesis overview)",
+      "subject": "science",
+      "expected_facts": [
+        "Photosynthesis converts light energy into chemical energy",
+        "Chlorophyll is involved in capturing light"
+      ],
+      "formula_cards": []
+    },
+    {
+      "id": "stu_ch_02",
+      "fixture_file": "physics_formulas.pdf",
+      "title": "Physics formulas sample",
+      "subject": "physics",
+      "expected_facts": [
+        "Newton's second law relates force mass and acceleration"
+      ],
+      "formula_cards": [
+        {"front": "F = ma", "back": "Newton's second law"}
+      ]
+    },
+    {
+      "id": "stu_ch_03",
+      "fixture_file": "sample_phrase_alpha.txt",
+      "title": "Alpha phrase fixture",
+      "subject": "general",
+      "expected_facts": [
+        "Mitochondria is the powerhouse of the cell"
+      ],
+      "formula_cards": []
+    }
+  ]
+}

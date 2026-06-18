@@ -58,7 +58,7 @@ async def upload_ncert_global_document(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
     file: UploadFile = File(...),
-    class_num: int = Form(..., ge=6, le=10),
+    class_num: int = Form(..., ge=12, le=12),
     subject: str = Form(...),
     title: str = Form(""),
     chapter_no: Optional[int] = Form(None),
@@ -118,7 +118,7 @@ async def upload_ncert_global_document(
 async def list_ncert_global_documents(
     request: Request,
     db: AsyncSession = Depends(get_db),
-    class_num: Optional[int] = Query(None, ge=6, le=10),
+    class_num: Optional[int] = Query(None, ge=12, le=12),
     subject: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
     limit: int = Query(100, ge=1, le=500),

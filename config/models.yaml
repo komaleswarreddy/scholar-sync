@@ -1,44 +1,381 @@
-# Model definitions for ScholarSync
-# This file defines available LLM models and their configurations
-
-models:
-  openai:
-    gpt-4o-mini:
-      provider: openai
-      max_tokens: 16384
-      # OpenAI list price (check platform.openai.com/docs/pricing): input $/1M, output $/1M
-      cost_per_1m_input_usd: 0.15
-      cost_per_1m_output_usd: 0.60
-    gpt-4o:
-      provider: openai
-      max_tokens: 16384
-      # Blended ballpark for mixed input/output (see OpenAI pricing; tune as needed)
-      cost_per_1k_tokens: 0.005
-    text-embedding-3-small:
-      provider: openai
-      max_tokens: 8192
-      # ~$0.02 / 1M tokens → $0.00002 / 1k tokens
-      cost_per_1k_tokens: 0.00002
-    # Large embedding model — update cost_per_1k from https://openai.com/api/pricing/ when billing matters
-    text-embedding-3-large:
-      provider: openai
-      max_tokens: 8192
-      cost_per_1k_tokens: 0.00013
-    # NCERT contextualization — verify model id in OpenAI dashboard; pricing approximate
-    gpt-5.4-mini:
-      provider: openai
-      max_tokens: 128000
-      cost_per_1k_tokens: 0.0003
-
-  gemini:
-    gemini-2.0-flash-exp:
-      provider: gemini
-      max_tokens: 8192
-      cost_per_1k_tokens: 0.075
-    gemini-2.5-flash:
-      provider: gemini
-      max_tokens: 8192
-      cost_per_1k_tokens: 0.075
-    # gemini-1.5-flash has been retired by Google - use gemini-2.0-flash-exp or gemini-2.5-flash instead
-
-
+version: 1.0.0
+default_model: gpt-4o-mini
+default_provider: openai
+candidate_models:
+- gpt-4o-mini
+- gpt-4o
+- gpt-4-turbo
+agents:
+  intent_classifier:
+    task_key: intent_classifier
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: router
+    passing_threshold: 95
+  query_rewriter:
+    task_key: query_rewriter
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: query_rewriter
+    passing_threshold: 90
+  query_decomposer:
+    task_key: query_decomposer
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: query_rewriter
+    passing_threshold: 90
+  scope_narrower:
+    task_key: scope_narrower
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: query_rewriter
+    passing_threshold: 90
+  direct_chat:
+    task_key: chat
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 98
+  chat_summarizer:
+    task_key: chat
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: formatter
+    passing_threshold: 98
+  studio_quiz:
+    task_key: quiz
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: formatter
+    passing_threshold: 98
+  studio_flashcards:
+    task_key: flashcards
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 98
+  studio_mind_map:
+    task_key: mind_map
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 98
+  studio_slide_deck:
+    task_key: slide_deck
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: formatter
+    passing_threshold: 98
+  problem_dna_analyzer:
+    task_key: problem_solver_dna
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: router
+    passing_threshold: 95
+  explain_from_basics:
+    task_key: problem_solver_mode
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: hint_agent
+    passing_threshold: 90
+  show_best_approach:
+    task_key: problem_solver_mode
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: hint_agent
+    passing_threshold: 90
+  show_missing_idea:
+    task_key: problem_solver_mode
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: hint_agent
+    passing_threshold: 90
+  help_me_solve_it:
+    task_key: problem_solver_mode
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: hint_agent
+    passing_threshold: 90
+  tutor_follow_up_questions:
+    task_key: tutor_follow_ups
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 98
+  source_question_extraction:
+    task_key: source_question_extract
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: formatter
+    passing_threshold: 98
+  retriever:
+    task_key: chat
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: retriever
+    passing_threshold: 90
+  verifier:
+    task_key: chat
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: verifier
+    passing_threshold: 95
+  answer_generator:
+    task_key: chat
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    - gpt-4o
+    evaluator: answer_generator
+    passing_threshold: 90
+  chat_policy_block:
+    task_key: chat_policy_block
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  hallucination_guard_retry:
+    task_key: hallucination_guard_retry
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: verifier
+    passing_threshold: 95
+  studio_system_json:
+    task_key: studio_system_json
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  studio_fallback_legacy:
+    task_key: studio_fallback_legacy
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  studio_context_embedding_query:
+    task_key: studio_context_embedding_query
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  problem_solver_followup:
+    task_key: problem_solver_followup
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: hint_agent
+    passing_threshold: 90
+  tutor_notebook_bootstrap:
+    task_key: tutor_notebook_bootstrap
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  document_sketch:
+    task_key: document_sketch
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  ncert_document_sketch:
+    task_key: ncert_document_sketch
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  chunk_contextualization:
+    task_key: chunk_contextualization
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  whole_file_map_summarizer:
+    task_key: whole_file_map_summarizer
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  whole_file_reduce:
+    task_key: whole_file_reduce
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  whole_file_map_template:
+    task_key: whole_file_map_template
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  image_ocr:
+    task_key: image_ocr
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  diagram_label_ocr:
+    task_key: diagram_label_ocr
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90
+  refusal_templates:
+    task_key: refusal_templates
+    prompt_versions:
+    - v1
+    - v2
+    default_prompt: v1
+    models:
+    - gpt-4o-mini
+    evaluator: formatter
+    passing_threshold: 90

@@ -1,0 +1,173 @@
+{
+  "test_id": "RET-04",
+  "pass_threshold": 0.95,
+  "questions_attempted": 18,
+  "questions_succeeded": 18,
+  "questions_with_citations": 18,
+  "samples": [
+    {
+      "question": "What is the balanced equation for photosynthesis?",
+      "answer_excerpt": "The balanced equation for photosynthesis is:\n\n**6CO\u2082 + 6H\u2082O \u2192 C\u2086H\u2081\u2082O\u2086 + 6O\u2082**\n\nThis means that six molecules of carbon dioxide and six molecules of water react to produce one molecule of glucose and six molecules of oxygen.\n\n## From your documents\n\n- Photosynthesis converts light energy into chemical energy in plants.\n- The key pigment chlorophyll absorbs red and blue light most effectively.\n- Car",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What does chlorophyll do in plants?",
+      "answer_excerpt": "Chlorophyll is crucial for plants because it helps them perform photosynthesis.\n\nWhen chlorophyll absorbs light energy, mainly from red and blue light, it converts that energy into chemical energy. This process allows plants to use carbon dioxide and water to produce glucose and oxygen.\n\n## From your documents\n\n- **Photosynthesis**: Chlorophyll absorbs light energy and plays a key role in converti",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What are the reactants in the Calvin cycle?",
+      "answer_excerpt": "The reactants in the Calvin cycle are **carbon dioxide** and **water**.\n\n## From your documents\n\n- The Calvin cycle uses **carbon dioxide (CO2)** and **water (H2O)** as its reactants.\n- This cycle is part of the process of photosynthesis, which converts light energy into chemical energy in plants.",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "Which wavelengths does chlorophyll absorb most?",
+      "answer_excerpt": "Chlorophyll absorbs light most effectively in the **red** and **blue** wavelengths.\n\n## From your documents\n\n- Chlorophyll is the key pigment in photosynthesis.\n- It plays an important role in converting light energy into chemical energy in plants by absorbing specific wavelengths of light.",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "How do plants convert light energy?",
+      "answer_excerpt": "Plants convert light energy into chemical energy through a process called **photosynthesis**.\n\n## From your documents\n\n- Photosynthesis changes light energy into chemical energy in plants.\n- The pigment **chlorophyll** plays a key role by absorbing red and blue light effectively.\n- The overall reaction for photosynthesis can be summarized by the equation:\n\\[ 6CO_2 + 6H_2O \\rightarrow C_6H_{12}O_6 ",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What is photosynthesis according to the chapter introduction?",
+      "answer_excerpt": "Photosynthesis is the process by which plants convert light energy into chemical energy.\n\n## From your documents\n\n- Photosynthesis uses **chlorophyll**, which absorbs red and blue light most effectively.\n- The reactants involved in this process are **carbon dioxide** and **water**.\n- The overall equation for photosynthesis can be summarized as: **6CO2 + 6H2O -> C6H12O6 + 6O2**. This means that car",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "After reading the chapter introduction, what inputs do plants need besides light for photosynthesis?",
+      "answer_excerpt": "Plants need several inputs for photosynthesis besides light. The main ones are **carbon dioxide** and **water**.\n\n## From your documents\n\n- **Carbon dioxide** is a reactant in the Calvin cycle, which is part of the photosynthesis process.\n- **Water** is also a necessary reactant for photosynthesis.\n\nThese inputs work together with light energy to help plants produce food and oxygen through photosy",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What is RET_GOLDEN_FACT about photosynthesis?",
+      "answer_excerpt": "The **RET_GOLDEN_FACT** about photosynthesis is the equation that summarizes the process:\n\n**6CO2 + 6H2O -> C6H12O6 + 6O2.**\n\nThis equation shows that carbon dioxide and water are converted into glucose (a type of sugar) and oxygen using light energy.\n\n## From your documents\n\n- **Photosynthesis** converts light energy into chemical energy in plants.\n- The key pigment **chlorophyll** absorbs red an",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What gas is produced during photosynthesis?",
+      "answer_excerpt": "The gas produced during photosynthesis is **oxygen**.\n\n## From your documents\n\n- Photosynthesis converts light energy into chemical energy in plants.\n- The equation for photosynthesis is summarized as: 6CO2 + 6H2O -> C6H12O6 + 6O2. This means that carbon dioxide and water are used to produce glucose and oxygen.\n\nSo, as a result of this process, oxygen is released as a byproduct.",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What pigment is mentioned for light absorption?",
+      "answer_excerpt": "The pigment mentioned for light absorption is **chlorophyll**.\n\nChlorophyll is very effective at absorbing red and blue light, which is important for the process of photosynthesis in plants.\n\n## From your documents\n\n- **Chlorophyll** is the key pigment that absorbs light energy during photosynthesis.\n- It mainly absorbs **red** and **blue** light.\n\nThis absorption helps plants convert light energy",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "Assertion: Plants store chemical energy from light. Reason: Chlorophyll captures photons.",
+      "answer_excerpt": "Plants store chemical energy from light through a process called photosynthesis.\n\nDuring photosynthesis, **chlorophyll**, a green pigment in plant cells, captures light energy, mainly from red and blue light. This energy is then used to convert carbon dioxide and water into glucose and oxygen. The overall reaction can be summarized by the equation:\n\n**6CO2 + 6H2O -> C6H12O6 + 6O2.**\n\nThe glucose p",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "Assertion: CO2 is a reactant. Reason: It enters the Calvin cycle.",
+      "answer_excerpt": "Yes, CO2 (carbon dioxide) is indeed a reactant in the Calvin cycle.\n\nIn the process of photosynthesis, CO2 combines with other molecules to help produce glucose, which plants use for energy. This cycle takes place in the chloroplasts of plant cells.\n\n## From your documents\n\n- **Reactants in the Calvin cycle**: Carbon dioxide and water are identified as reactants in the Calvin cycle.\n- **Photosynth",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What role does carbon dioxide play in photosynthesis?",
+      "answer_excerpt": "Carbon dioxide plays a crucial role in photosynthesis. It is one of the key reactants used by plants to produce food.\n\nIn the process of photosynthesis, carbon dioxide combines with water to help create glucose, which is a type of sugar that plants use for energy. The overall equation for photosynthesis is:\n\n6CO\u2082 + 6H\u2082O \u2192 C\u2086H\u2081\u2082O\u2086 + 6O\u2082.\n\nThis means that six molecules of carbon dioxide and six mole",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What role does water play in the photosynthesis equation?",
+      "answer_excerpt": "Water plays a crucial role in the photosynthesis equation.\n\nIn the process of photosynthesis, water (H2O) is one of the reactants. It combines with carbon dioxide (CO2) to produce glucose (C6H12O6) and oxygen (O2). The simplified equation for photosynthesis is:\n\n6CO2 + 6H2O -> C6H12O6 + 6O2.\n\nThis means that for every six molecules of carbon dioxide, six molecules of water are needed to create one",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "Summarize what the chapter says about chlorophyll and the colors of light it absorbs.",
+      "answer_excerpt": "The chapter discusses the role of chlorophyll in photosynthesis, highlighting its importance in transforming light energy into chemical energy for plants. Key points include:\n\n- **Chlorophyll Function**: Chlorophyll is the primary pigment involved in photosynthesis, enabling plants to absorb light energy.\n  \n- **Light Absorption**: It specifically absorbs red and blue wavelengths of light, which a",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What sugar is produced in photosynthesis?",
+      "answer_excerpt": "The sugar produced in photosynthesis is **glucose**.\n\nGlucose is a simple sugar that plants create using carbon dioxide and water, with the help of sunlight.\n\n## From your documents\n\n- Photosynthesis converts light energy into chemical energy in plants.\n- The equation summarizing photosynthesis is: 6CO2 + 6H2O -> C6H12O6 + 6O2. This shows that carbon dioxide and water are used to produce glucose (",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "What cycle is named in the chapter?",
+      "answer_excerpt": "The cycle named in the chapter is the **Calvin cycle**.\n\n- The Calvin cycle is important because it uses carbon dioxide and water as reactants to produce glucose during photosynthesis.",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    },
+    {
+      "question": "After reading the chapter passage, summarize the main process plants use to make food.",
+      "answer_excerpt": "The main process that plants use to make food is called photosynthesis. Here\u2019s a breakdown of the key elements involved in this process:\n\n- **Light Energy Conversion**: Plants utilize sunlight as the primary source of energy. This energy is captured by chlorophyll, the green pigment found in plant cells.\n\n- **Chemical Energy Production**: Through photosynthesis, light energy is transformed into ch",
+      "citation_index": 1,
+      "citation_text": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+      "claim_supported": true,
+      "contradicts_claim": false,
+      "reviewer_notes": ""
+    }
+  ],
+  "errors": [],
+  "instructions": "For each row verify the answer claim is contained in or directly supported by citation_text."
+}

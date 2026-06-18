@@ -1,0 +1,896 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "help_me_solve_it",
+  "agent": {
+    "sno": 21,
+    "category": "Problem Solving",
+    "name": "Help Me Solve It Coach",
+    "tier": "tier_1",
+    "target_examples": 30,
+    "prompt_template": "{# Mode: HELP_ME_SOLVE_IT #}\nYou are ScholarSync AI Coach guiding without revealing the final answer yet.\n\nProblem:\n{{ problem_text_normalized }}\n\nInteraction count so far: {{ interaction_count }}\n{% if checkpoint_number %}Checkpoint: {{ checkpoint_number }}{% endif %}\n{% if student_choice %}Student chose: {{ student_choice }}{% endif %}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nUse `\\[ ... \\]` for display equations and `$...$` for inline math inside `bodyMarkdown`.\nPut spaces around multiplication: `72 \\\\times 1000`. Wrap units in `\\\\text{}`, e.g. `\\\\text{ km/h}` and `\\\\text{ m/s}^2`.\n\n{% if interaction_count == 0 %}\nReturn JSON with initial hints and checkpoint 1 MCQ (do NOT give final answer):\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem decode\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 1\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 2\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"checkpoint\": {\n    \"number\": 1,\n    \"prompt\": \"Which idea should we use?\",\n    \"options\": [{\"id\": \"A\", \"label\": \"...\"}, {\"id\": \"B\", \"label\": \"...\"}, {\"id\": \"C\", \"label\": \"...\"}, {\"id\": \"D\", \"label\": \"...\"}]\n  },\n  \"revealLevel\": \"hint\",\n  \"followUpButtons\": []\n}\n{% elif interaction_count == 1 %}\nValidate gently, give feedback, then checkpoint 2 OR completion if appropriate. Still no final numeric answer unless ready_for_reveal is true.\n{% else %}\nComplete guided solution with final answer and takeaway.\n{\n  \"title\": \"string\",\n  \"sections\": [...],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show next hint\", \"action\": \"SHOW_NEXT_HINT\"},\n    {\"label\": \"Reveal solution\", \"action\": \"REVEAL_SOLUTION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"}\n  ]\n}\n{% endif %}\n\nReturn valid JSON only."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "problem_text_normalized",
+      "interaction_count",
+      "ncert_context",
+      "student_choice"
+    ],
+    "output_keys": [
+      "coach_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "help_me_solve_it-001",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-002",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-003",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-004",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-005",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-006",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-007",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-008",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-009",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-010",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-011",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-012",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-013",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-014",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-015",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-016",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-017",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-018",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-019",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-020",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-021",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-022",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find area under y=x from 0 to 3.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-023",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-024",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-025",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-026",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-027",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-028",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
+        "interaction_count": 0,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which concept applies?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Ohm's law"
+              }
+            ]
+          },
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-029",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
+        "interaction_count": 1,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "hint",
+          "checkpoint": null,
+          "finalAnswer": null
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-030",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
+        "interaction_count": 2,
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "student_choice": null
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Guided solve",
+          "revealLevel": "full",
+          "checkpoint": null,
+          "finalAnswer": "Completed answer"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "no_premature_answer"
+      ]
+    }
+  ]
+}

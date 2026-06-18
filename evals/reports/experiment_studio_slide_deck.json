@@ -1,0 +1,460 @@
+{
+  "agent_name": "studio_slide_deck",
+  "generated_at": "2026-06-18T03:29:12.824860+00:00",
+  "dataset_id": "studio_slide_deck",
+  "dataset_hash": "9bd0b01b7a6fc7b4",
+  "threshold": 98.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.002099,
+      "input_cost_usd": 0.00097,
+      "output_cost_usd": 0.00113,
+      "prompt_tokens": 6464,
+      "completion_tokens": 1883,
+      "latency_ms": 11312.14,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.00225,
+      "input_cost_usd": 0.001024,
+      "output_cost_usd": 0.001225,
+      "prompt_tokens": 6829,
+      "completion_tokens": 2042,
+      "latency_ms": 15735.01,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.03332,
+      "input_cost_usd": 0.01616,
+      "output_cost_usd": 0.01716,
+      "prompt_tokens": 6464,
+      "completion_tokens": 1716,
+      "latency_ms": 11377.8,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.033773,
+      "input_cost_usd": 0.017073,
+      "output_cost_usd": 0.0167,
+      "prompt_tokens": 6829,
+      "completion_tokens": 1670,
+      "latency_ms": 9678.05,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 100.0,
+      "cost_usd": 0.033773,
+      "input_cost_usd": 0.017073,
+      "output_cost_usd": 0.0167
+    },
+    "composite_score": 0.8998
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "studio_slide_deck-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Current Electricity matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Power of Current\n- **Current (I)** flows through a conductor when a **potential difference (V)** is applied.\n- Understanding this relationship is crucial for **electrical engineering**.\n- **Ohm's Law**: A foundational principle that defines this flow \u2192 **V = IR**.\n\n# Slide 2: The Role of Resistance\n- **Resistance (R)** opposes the flow of current.\n- Different materials have varying **resistivity (\u03c1)** \u2192 affects performance.\n- **Key takeaway**: Resistance determines how much current can flow for a given voltage.\n\n# Slide 3: Series vs. Parallel Circuits\n- **Series Circuits**: Total resistance is the **sum** of individual resistances \u2192 **R_eq = R1 + R2**.\n- **Parallel Circuits**: Total resistance is calculated differently \u2192 **1/R_eq = 1/R1 + 1/R2**.\n- **Why does this matter?** Different configurations affect current distribution.\n\n# Slide 4: Real-World Application\n- **Example**: In a series circuit, if one component fails, the entire circuit stops working.\n- **Contrast**: In a parallel circuit, other paths remain functional \u2192 **increased reliability**.\n- **What would happen if** we only used series circuits in homes?\n\n# Slide 5: Mechanisms of Current Flow\n- **Before**: High resistance \u2192 low current flow.\n- **After**: Lower resistance \u2192 higher current flow \u2192 **more efficient systems**.\n- Understanding these mechanisms helps in designing better electrical systems.\n\n# Slide 6: Conclusion: Key Takeaways\n- **Current flow** is driven by potential difference and resistance.\n- **Ohm's Law** is essential for predicting circuit behavior.\n- Series and parallel configurations have distinct impacts on performance.\n- **Real-world applications** highlight the importance of understanding these concepts."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Human Digestion matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Journey of Digestion Begins\n- **Why does digestion matter?** \u2192 Essential for nutrient absorption and energy.\n- Starts in the **mouth** with **salivary amylase** breaking down starches.\n- Sets the stage for a complex process involving multiple organs.\n\n# Slide 2: The Role of the Stomach\n- **Stomach** secrets **HCl** and **pepsin** \u2192 initiates protein digestion.\n- Creates an acidic environment crucial for enzyme activation.\n- **What happens if** the stomach fails to produce these? \u2192 Impaired digestion.\n\n# Slide 3: The Power of Pancreatic Juice\n- Contains **trypsin**, **lipase**, and **amylase** \u2192 key enzymes for digestion.\n- **Trypsin** \u2192 breaks down proteins into peptides.\n- **Lipase** \u2192 essential for fat digestion; without it, fats remain undigested.\n\n# Slide 4: Absorption in the Small Intestine\n- **Villi** in the small intestine \u2192 increase surface area for absorption.\n- Nutrients pass into the bloodstream \u2192 vital for overall health.\n- **Before vs After:** Undigested food \u2192 nutrient-rich blood.\n\n# Slide 5: The Digestive Process in Action\n- **Example:** Eating a meal \u2192 salivary amylase starts breaking down carbs.\n- **Scenario:** What if pancreatic enzymes are insufficient? \u2192 Malabsorption issues.\n- Visualize the journey from food to nutrient absorption.\n\n# Slide 6: Conclusion: Key Takeaways\n- Digestion is a **multi-step process** starting in the mouth.\n- Each organ plays a **critical role** in breaking down food.\n- **Absorption** occurs mainly in the small intestine, facilitated by villi.\n- Understanding digestion helps us appreciate **nutrient intake** and health."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Photosynthesis matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Power of Photosynthesis\n- **Why does** photosynthesis matter?  \n  \u2014 It\u2019s the foundation of life on Earth.\n- **Key process:** Converts light energy into **chemical energy**.\n- **Outcome:** Produces **glucose** and oxygen.\n\n# Slide 2: The Light Reaction Unveiled\n- Takes place in the **thylakoid** membranes.\n- **Produces:** ATP and NADPH from light energy.\n- **Factors influencing:** \n  - **Light intensity**\n  - **CO2 concentration**\n  - **Temperature**\n\n# Slide 3: The Calvin Cycle Explained\n- Occurs in the **stroma** of chloroplasts.\n- **Fixes CO2** into organic molecules.\n- **Uses:** ATP and NADPH generated from light reactions.\n\n# Slide 4: Real-World Example: Plant Growth\n- **Scenario:** Increased light intensity \u2192 more ATP/NADPH \u2192 faster growth.\n- **What if** CO2 levels drop?  \n  \u2014 Slower Calvin cycle, reduced glucose production.\n- **Visualize:** Healthy plants vs. stunted growth in low light.\n\n# Slide 5: Before vs. After Photosynthesis\n- **Before:** CO2 and light energy \u2192 no glucose.\n- **After:** Glucose production \u2192 energy for growth and oxygen release.\n- **Contrast:** Plants in sunlight vs. shade.\n\n# Slide 6: Conclusion: Key Takeaways\n- Photosynthesis is essential for life, converting light to energy.\n- **Light reactions** and **Calvin cycle** work together.\n- Factors like light and CO2 levels significantly impact efficiency.  \n  \u2014 Understanding these processes helps in agriculture and ecology."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Chemical Bonding matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Bonding Puzzle  \n- **Why do atoms connect?**  \n- Understanding **ionic** and **covalent bonds** is key.  \n- These bonds shape everything from **water** to **DNA**.  \n- What happens when these bonds fail?  \n\n# Slide 2: Types of Bonds  \n- **Ionic bonds**: Form between **metals** and **non-metals**.  \n- **Covalent bonds**: Involve **sharing** of electron pairs.  \n- Each bond type has distinct **properties** and **behaviors**.  \n\n# Slide 3: Predicting Shapes  \n- **VSEPR theory** helps us visualize molecular geometry.  \n- Molecules arrange to minimize **repulsion** between electron pairs.  \n- Example: **Water** (H\u2082O) has a **bent** shape due to lone pairs.  \n\n# Slide 4: Real-World Implications  \n- **What if** ionic bonds were weaker?  \n  - **Salt** would dissolve more easily in water.  \n- **Covalent bonds** in **organic compounds** lead to diverse structures.  \n  - Example: **Glucose** vs. **Fructose**\u2014same formula, different shapes.  \n\n# Slide 5: Comparing Bonding Types  \n- **Ionic vs. Covalent**:  \n  - **Ionic**: High melting points, conduct electricity when dissolved.  \n  - **Covalent**: Lower melting points, often insulators.  \n- Understanding these differences is crucial for **material selection**.  \n\n# Slide 6: Key Takeaways  \n- **Bonds** are essential for molecular structure and function.  \n- **Ionic** and **covalent** bonds have unique characteristics.  \n- **VSEPR theory** aids in predicting molecular shapes.  \n- Recognizing bond types impacts **real-world applications**.  \n- Understanding these concepts is vital for **scientific literacy**."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Magnetic Effects matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Power of Moving Charge\n- **Moving charge** creates a **magnetic field**.\n- This phenomenon is fundamental to **electromagnetism**.\n- Understanding this is crucial for applications in **technology** and **engineering**.\n\n# Slide 2: The Relationship Explained\n- **Force (F)** = **BIL sin \u03b8** \u2014 a key equation.\n- **B** = magnetic field strength, **I** = current, **L** = length of conductor.\n- **\u03b8** = angle between the field and current direction.\n\n# Slide 3: Fleming's Left-Hand Rule\n- **Fleming's left-hand rule** helps visualize the relationship.\n- Thumb = **force**, index = **field**, middle = **current**.\n- Use this rule to predict the direction of force on a conductor.\n\n# Slide 4: Real-World Application\n- **Example:** Electric motors convert electrical energy to mechanical energy.\n- **What it looks like:** Current flows through coils, creating motion.\n- **Impact:** Essential in appliances, vehicles, and industrial machines.\n\n# Slide 5: What If? Exploring Alternatives\n- **What would happen if** the current direction reversed?\n  - The force direction would also reverse.\n- **Comparison:** How does this differ from static electricity?\n  - Static creates no movement; moving charge generates **dynamic forces**.\n\n# Slide 6: Conclusion: Key Takeaways\n- **Moving charge** is foundational to **magnetism**.\n- The equation **F = BIL sin \u03b8** is critical for understanding forces.\n- **Fleming's rule** aids in predicting outcomes in electrical systems.\n- Applications in **technology** are vast and impactful."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Current Electricity matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Puzzle of Electrical Resistance\n- **Ohm's Law**: Foundation of electrical circuits\n- **Problem**: How does resistance affect current flow?\n- **Key Question**: What happens when resistance changes?\n\n# Slide 2: Understanding Ohm's Law\n- **Formula**: V = IR\n- **Variables**: V (voltage), I (current), R (resistance)\n- **Resistivity**: Depends on material properties\n\n# Slide 3: Series vs Parallel Circuits\n- **Series Circuits**: R_eq = R1 + R2\n  - **Effect**: Total resistance increases\n- **Parallel Circuits**: 1/R_eq = 1/R1 + 1/R2\n  - **Effect**: Total resistance decreases\n- **Why it Matters**: Different applications require different setups\n\n# Slide 4: Real-World Scenarios\n- **Example**: Household wiring uses parallel circuits\n- **Scenario**: What if all appliances were in series?\n  - **Outcome**: Increased resistance, reduced efficiency\n\n# Slide 5: Predicting Circuit Behavior\n- **Question**: What happens if resistivity changes?\n- **Comparison**: Copper vs Aluminum wiring\n  - **Copper**: Lower resistivity, better conductor\n  - **Aluminum**: Higher resistivity, less efficient\n\n# Slide 6: Conclusion: Key Takeaways\n- **Ohm's Law**: Central to understanding circuits\n- **Series vs Parallel**: Different impacts on resistance\n- **Material Choice**: Affects resistivity and efficiency\n- **Practical Implications**: Circuit design influences performance\n- **Remember**: Adjusting resistance changes current flow"
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Human Digestion matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Journey of Digestion Begins\n\n- **Digestion starts** in the mouth with **salivary amylase**.\n- **Why does this matter?** \u2192 It initiates the breakdown of carbohydrates.\n- **Question:** What would happen if salivary amylase was absent?\n\n# Slide 2: The Stomach's Role\n\n- **Stomach secretes** two key substances: **HCl** and **pepsin**.\n- **HCl** \u2192 creates an acidic environment for digestion.\n- **Pepsin** \u2192 breaks down proteins into peptides.\n\n# Slide 3: The Power of Pancreatic Juice\n\n- **Pancreatic juice** contains **trypsin, lipase, and amylase**.\n- **Trypsin** \u2192 continues protein digestion.\n- **Lipase** \u2192 breaks down fats into fatty acids.\n- **Amylase** \u2192 further digests carbohydrates.\n\n# Slide 4: Absorption in the Small Intestine\n\n- **Absorption mainly occurs** in the **small intestine**.\n- **Villi** \u2192 increase surface area for nutrient absorption.\n- **What it looks like:** Nutrients passing through villi into the bloodstream.\n\n# Slide 5: Before and After Digestion\n\n- **Before:** Food is complex and undigested.\n- **After:** Nutrients are broken down and absorbed.\n- **Contrast:** Efficient digestion vs. impaired absorption.\n\n# Slide 6: Conclusion: Key Takeaways\n\n- **Digestion begins** with **salivary amylase** in the mouth.\n- **Stomach's HCl and pepsin** are crucial for protein breakdown.\n- **Pancreatic enzymes** play a vital role in digestion.\n- **Small intestine villi** are essential for nutrient absorption.\n- **Remember:** Each step is crucial for effective digestion and nutrient uptake."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Photosynthesis matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Puzzle of Photosynthesis\n\n- **Photosynthesis** is crucial for life on Earth.\n- How do plants convert sunlight into energy?\n- **Challenge:** Understanding the **light reaction** and **Calvin cycle**.\n\n# Slide 2: Setting the Stage\n\n- **Light reaction** occurs in the **thylakoid**.\n- **Calvin cycle** takes place in the **stroma**.\n- Key factors: **light intensity**, **CO2 concentration**, **temperature**.\n\n# Slide 3: Light Reaction Unveiled\n\n- **ATP** and **NADPH** are produced in the thylakoid.\n- **Mechanism:** Light energy \u2192 chemical energy.\n- **Why it matters:** Fuels the Calvin cycle.\n\n# Slide 4: Calvin Cycle in Action\n\n- **CO2 fixation** occurs in the stroma.\n- **Process:** Converts CO2 into glucose.\n- **Example:** How plants store energy for growth.\n\n# Slide 5: Factors Influencing Efficiency\n\n- **Light intensity** affects ATP/NADPH production.\n- **CO2 concentration** impacts glucose synthesis.\n- **Temperature**: Optimal range for enzyme activity.\n\n# Slide 6: Conclusion: The Photosynthesis Journey\n\n- **Photosynthesis** is a two-step process: light reaction and Calvin cycle.\n- **Key takeaway:** Energy conversion and storage.\n- **Remember:** Factors like light, CO2, and temperature are crucial.\n- **Impact:** Essential for plant growth and oxygen production."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Chemical Bonding matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Puzzle of Chemical Bonds\n- **Why do atoms bond?** \u2192 To achieve stability.\n- **Types of bonds** \u2192 Ionic and covalent.\n- **Importance** \u2192 Determines molecular properties.\n\n# Slide 2: Understanding Ionic Bonds\n- **Ionic bonds** \u2192 Form between metals and non-metals.\n- **Electron transfer** \u2192 Metals lose, non-metals gain electrons.\n- **Example**: Sodium chloride (NaCl) \u2192 Salt formation.\n\n# Slide 3: Exploring Covalent Bonds\n- **Covalent bonds** \u2192 Sharing of electron pairs.\n- **Non-metals** \u2192 Typically form covalent bonds.\n- **Example**: Water (H\u2082O) \u2192 Oxygen shares electrons with hydrogen.\n\n# Slide 4: Predicting Shapes with VSEPR\n- **VSEPR theory** \u2192 Predicts molecular geometry.\n- **Electron pair repulsion** \u2192 Determines shape.\n- **Example**: Methane (CH\u2084) \u2192 Tetrahedral structure.\n\n# Slide 5: Ionic vs Covalent: A Comparison\n- **Ionic vs Covalent** \u2192 Transfer vs sharing of electrons.\n- **Conductivity** \u2192 Ionic compounds conduct electricity in solution.\n- **Melting points** \u2192 Ionic compounds generally have higher melting points.\n\n# Slide 6: Conclusion: Key Takeaways\n- **Bond types** \u2192 Ionic and covalent are fundamental.\n- **VSEPR** \u2192 Essential for predicting molecular shapes.\n- **Real-world examples** \u2192 Salt and water illustrate bond types.\n- **Understanding bonds** \u2192 Crucial for chemistry and material science."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Magnetic Effects matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Mystery of Magnetic Fields\n- **Moving charge** creates a magnetic field.\n- Why does this phenomenon occur?\n- **Fleming's left-hand rule** helps us understand the relationship.\n\n# Slide 2: Understanding the Basics\n- **Force (F)** is calculated as **BIL sin \u03b8**.\n- **B** = magnetic field strength, **I** = current, **L** = length of conductor.\n- **\u03b8** = angle between field and current direction.\n\n# Slide 3: Fleming's Left-Hand Rule Explained\n- **Thumb** \u2192 direction of force.\n- **First finger** \u2192 direction of magnetic field.\n- **Second finger** \u2192 direction of current.\n- Visualize the interaction between these elements.\n\n# Slide 4: Real-World Application\n- **Electric motors** use this principle to function.\n- **Scenario:** How does a motor spin using these forces?\n- **Example:** Observe a simple motor in action.\n\n# Slide 5: Before and After Understanding\n- **Before:** Confusion about how forces interact.\n- **After:** Clear understanding of **force, field, and current**.\n- **What if** the angle \u03b8 changes? Impact on force.\n\n# Slide 6: Conclusion: Key Takeaways\n- **Magnetic fields** are created by moving charges.\n- **Fleming's left-hand rule** is crucial for understanding.\n- **Force (F = BIL sin \u03b8)** depends on multiple factors.\n- Real-world applications include **electric motors**.\n- Understanding these concepts enhances **problem-solving** in physics."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Current Electricity matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Power of Ohm's Law\n- **What happens** when a potential difference **V** is applied?\n- **Current** flows through a conductor with resistance **R**.\n- **Ohm's Law**: The relationship is defined as **V = IR**.\n- Why is this important in electrical circuits?\n\n# Slide 2: Understanding Resistance\n- **Resistance (R)** varies with material properties.\n- **Resistivity (\u03c1)** is a key factor in determining resistance.\n- Different materials have different **\u03c1** values.\n- How does this affect circuit design?\n\n# Slide 3: Series vs. Parallel Circuits\n- **Series Circuits**: Total resistance is the **sum** of individual resistances.\n  - Formula: **R_eq = R1 + R2**\n- **Parallel Circuits**: Total resistance is calculated differently.\n  - Formula: **1/R_eq = 1/R1 + 1/R2**\n- What are the practical implications of each configuration?\n\n# Slide 4: Real-World Applications\n- **Example 1**: Series circuits in **string lights**.\n  - If one bulb fails, the entire circuit goes out.\n- **Example 2**: Parallel circuits in **home wiring**.\n  - Each appliance operates independently.\n- How do these examples illustrate the concepts?\n\n# Slide 5: Mechanisms of Current Flow\n- **Before**: High resistance \u2192 low current flow.\n- **After**: Lower resistance \u2192 increased current flow.\n- **Key Insight**: Understanding resistance helps in optimizing circuit performance.\n- What would happen if we used the wrong configuration?\n\n# Slide 6: Conclusion: Key Takeaways\n- **Ohm's Law** is fundamental for understanding electrical circuits.\n- Resistance depends on material properties and configuration.\n- Series and parallel circuits have distinct behaviors and applications.\n- Remember: **V = IR** is the cornerstone of circuit analysis."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Human Digestion matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Journey of Digestion Begins\n- **Digestion** starts in the **mouth** with **salivary amylase**.\n- Why is this first step crucial? \n- It breaks down **carbohydrates** into simpler sugars.\n- **What happens** if this process is disrupted? \n\n# Slide 2: The Role of the Stomach\n- The **stomach** secretes **HCl** and **pepsin**.\n- **HCl** \u2192 creates an acidic environment for digestion.\n- **Pepsin** \u2192 breaks down proteins into peptides.\n- How does this prepare food for the next stage?\n\n# Slide 3: Pancreatic Juice: The Powerhouse\n- **Pancreatic juice** contains **trypsin**, **lipase**, and **amylase**.\n- **Trypsin** \u2192 digests proteins further.\n- **Lipase** \u2192 breaks down fats into fatty acids.\n- **Amylase** \u2192 continues carbohydrate digestion.\n- Why is this enzyme mix essential for nutrient absorption?\n\n# Slide 4: Absorption in the Small Intestine\n- **Absorption** mainly occurs in the **small intestine**'s **villi**.\n- Villi increase the surface area for nutrient uptake.\n- **What if** the villi are damaged? \n- Nutrient absorption would be severely impaired.\n\n# Slide 5: Before and After Digestion\n- **Before:** Food is a complex mixture of nutrients.\n- **After:** Nutrients are broken down into absorbable forms.\n- **Contrast:** Whole food vs. absorbed nutrients.\n- This transformation is vital for energy and health.\n\n# Slide 6: Conclusion: Key Takeaways\n- Digestion is a **multi-step process** starting in the mouth.\n- Each organ plays a **specific role** in breaking down food.\n- **Absorption** in the small intestine is crucial for health.\n- Understanding digestion helps us appreciate **nutrition** and **health**."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Photosynthesis matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Power of Photosynthesis\n- **Why does** photosynthesis matter?  \n- **Essential process** for life on Earth.  \n- Converts **light energy** into chemical energy.  \n- Fuels **food chains** and ecosystems.  \n- **Key players**: plants, algae, and some bacteria.  \n\n# Slide 2: The Photosynthesis Process\n- **Two main stages**: Light reactions and Calvin cycle.  \n- **Light reactions** occur in thylakoids \u2192 produce **ATP** and **NADPH**.  \n- **Calvin cycle** takes place in stroma \u2192 **fixes CO2** into glucose.  \n- **Energy transformation**: light \u2192 chemical.  \n\n# Slide 3: Factors Influencing Photosynthesis\n- **Light intensity**: More light \u2192 higher rate of photosynthesis.  \n- **CO2 concentration**: Increased CO2 \u2192 enhances glucose production.  \n- **Temperature**: Optimal range for enzyme activity.  \n- **What would happen if** one factor is limited?  \n\n# Slide 4: Real-World Examples\n- **Example 1**: Greenhouses optimize light and CO2 for higher yields.  \n- **Example 2**: Algal blooms in nutrient-rich waters \u2192 rapid photosynthesis.  \n- **Example 3**: Deforestation impacts CO2 levels \u2192 affects global photosynthesis.  \n- **Visualize**: Photosynthesis in action across different environments.  \n\n# Slide 5: Before and After Photosynthesis\n- **Before**: CO2 and light energy \u2192 **After**: Glucose and oxygen.  \n- **Contrast**: Energy stored vs. energy released.  \n- **Mechanism**: Light energy \u2192 chemical bonds in glucose.  \n- **Why does** this transformation matter for life?  \n\n# Slide 6: Conclusion: Key Takeaways\n- Photosynthesis is vital for **energy flow** in ecosystems.  \n- Light reactions and Calvin cycle work together to produce **glucose**.  \n- Factors like light, CO2, and temperature significantly influence the process.  \n- Understanding photosynthesis helps address **environmental challenges**.  \n- Remember: It\u2019s the foundation of life on Earth!"
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Chemical Bonding matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Power of Bonds\n- **Why do atoms bond?**  \n  To achieve **stability** and lower energy states.\n- **Types of bonds:**  \n  **Ionic** and **covalent** are the primary types.\n- **Key question:**  \n  How do these bonds affect molecular properties?\n\n# Slide 2: Understanding Ionic Bonds\n- **Ionic bonds** form between **metals** and **non-metals**.  \n  - Metals lose electrons; non-metals gain electrons.\n- **Result:**  \n  Formation of charged ions that attract each other.\n- **Example:**  \n  **Sodium chloride (NaCl)** is a classic ionic compound.\n\n# Slide 3: Exploring Covalent Bonds\n- **Covalent bonds** involve **sharing** of electron pairs.  \n  - Typically occur between **non-metals**.\n- **Characteristics:**  \n  Molecules formed are often **neutral**.\n- **Example:**  \n  **Water (H\u2082O)** showcases covalent bonding.\n\n# Slide 4: Predicting Molecular Geometry\n- **VSEPR theory** helps predict molecular shapes.  \n  - Stands for **Valence Shell Electron Pair Repulsion**.\n- **Mechanism:**  \n  Electron pairs repel, determining the **geometry**.\n- **Example:**  \n  **Methane (CH\u2084)** has a **tetrahedral** shape.\n\n# Slide 5: Ionic vs. Covalent Bonds\n- **Contrast:**  \n  **Ionic bonds** \u2192 transfer of electrons  \n  **Covalent bonds** \u2192 sharing of electrons\n- **Impact on properties:**  \n  Ionic compounds are typically **soluble** in water, while covalent compounds may not be.\n- **What if?**  \n  What would happen if ionic bonds were formed between non-metals?\n\n# Slide 6: Key Takeaways\n- **Bonds are essential** for molecular stability.\n- **Ionic bonds** form through electron transfer; **covalent bonds** through sharing.\n- **VSEPR theory** predicts molecular shapes based on electron repulsion.\n- Understanding these concepts is crucial for **chemistry** and **material science**."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Magnetic Effects matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Power of Moving Charge\n- **Moving charge** creates a **magnetic field**.\n- This phenomenon is fundamental in **electromagnetism**.\n- Understanding it is crucial for applications in **technology** and **science**.\n\n# Slide 2: The Relationship Explained\n- **Force (F)** = **BIL sin \u03b8** \u2014 a key formula.\n- **B** = magnetic field strength, **I** = current, **L** = length of conductor.\n- **\u03b8** = angle between the field and current direction.\n\n# Slide 3: Fleming's Left-Hand Rule\n- **Fleming's left-hand rule** helps visualize the relationship.\n- Thumb = **Force**, Index = **Field**, Middle = **Current**.\n- Use this rule to predict motion in **electric motors**.\n\n# Slide 4: Real-World Application\n- **Example:** Electric motor in a fan.\n- Current flows \u2192 magnetic field generated \u2192 fan blades rotate.\n- **What if** the current direction changes? \u2192 Rotation reverses.\n\n# Slide 5: Contrast in Mechanisms\n- **Before:** No current \u2192 no magnetic field.\n- **After:** Current flows \u2192 magnetic field created.\n- This transition is essential for devices like **generators**.\n\n# Slide 6: Conclusion: Key Takeaways\n- **Moving charge** is essential for creating magnetic fields.\n- **Fleming's rule** aids in understanding force direction.\n- Applications span from **motors** to **generators**\u2014critical in technology."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Current Electricity matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Puzzle of Electrical Resistance\n- **Why does resistance matter?** \u2192 Affects current flow in circuits.\n- **Ohm's Law**: V = IR \u2014 foundational equation.\n- **Key question**: How do different materials impact resistance?\n\n# Slide 2: Understanding Ohm's Law\n- **Ohm's Law**: Relationship between voltage, current, and resistance.\n- **Formula**: V = IR \u2014 Voltage = Current x Resistance.\n- **Predict**: What happens if resistance increases?\n\n# Slide 3: Series vs. Parallel Circuits\n- **Series Circuits**: R_eq = R1 + R2 \u2014 Total resistance is sum of individual resistances.\n- **Parallel Circuits**: 1/R_eq = 1/R1 + 1/R2 \u2014 Total resistance decreases.\n- **Comparison**: Series vs. Parallel \u2014 How does current flow differ?\n\n# Slide 4: Material Impact on Resistivity\n- **Resistivity (\u03c1)**: Depends on material type.\n- **Example**: Copper vs. Rubber \u2014 Copper has lower resistivity.\n- **Why it matters**: Material choice affects circuit efficiency.\n\n# Slide 5: Real-World Applications\n- **Scenario**: Designing a home electrical system.\n- **Choice of materials**: Copper wires for efficiency.\n- **What-if**: Using high-resistivity materials \u2014 Impact on energy consumption.\n\n# Slide 6: Conclusion: Key Takeaways\n- **Ohm's Law**: Central to understanding circuits.\n- **Series vs. Parallel**: Different resistance calculations.\n- **Material choice**: Critical for efficient circuit design.\n- **Remember**: Resistivity impacts overall performance.\n- **Final thought**: Apply these principles to optimize electrical systems."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Human Digestion matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Journey of Digestion Begins\n- **Digestion starts** in the mouth with **salivary amylase**.\n- **Why does this matter?** \u2192 It initiates the breakdown of carbohydrates.\n- **Question:** What would happen if salivary amylase was absent?\n\n# Slide 2: The Stomach's Role\n- **Stomach secretes** two key substances: **HCl** and **pepsin**.\n- **HCl** \u2192 creates an acidic environment for digestion.\n- **Pepsin** \u2192 breaks down proteins into peptides.\n\n# Slide 3: Pancreatic Contributions\n- **Pancreatic juice** contains **trypsin, lipase, and amylase**.\n- **Trypsin** \u2192 continues protein digestion.\n- **Lipase** \u2192 breaks down fats into fatty acids.\n- **Amylase** \u2192 further digests carbohydrates.\n\n# Slide 4: Absorption in the Small Intestine\n- **Villi** in the small intestine are crucial for absorption.\n- **Nutrients absorbed** into the bloodstream through villi.\n- **Why is this efficient?** \u2192 Large surface area of villi enhances absorption.\n\n# Slide 5: Before and After Digestion\n- **Before:** Complex food molecules.\n- **After:** Simple nutrients ready for absorption.\n- **Contrast:** Mouth vs. Stomach vs. Small Intestine roles.\n\n# Slide 6: Conclusion: Key Takeaways\n- **Digestion begins** in the mouth with **salivary amylase**.\n- **Stomach's acidity** and enzymes break down proteins.\n- **Pancreatic enzymes** further digest nutrients.\n- **Villi** in the small intestine maximize nutrient absorption.\n- **Remember:** Each organ plays a **specific role** in digestion."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Photosynthesis matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Puzzle of Photosynthesis\n\n- **Photosynthesis** is crucial for life on Earth.\n- How do plants convert light into energy?\n- **Key question:** What are the stages and factors involved?\n\n# Slide 2: Setting the Stage\n\n- Photosynthesis occurs in **two main stages**.\n- **Light reaction** \u2192 produces ATP and NADPH in thylakoid.\n- **Calvin cycle** \u2192 fixes CO2 in stroma.\n- Factors: **light intensity**, **CO2 concentration**, **temperature**.\n\n# Slide 3: Light Reaction Unveiled\n\n- **Thylakoid membranes** capture light energy.\n- **ATP and NADPH** are generated.\n- **Why it matters:** These molecules fuel the Calvin cycle.\n\n# Slide 4: The Calvin Cycle in Action\n\n- **CO2 fixation** occurs in the stroma.\n- **ATP and NADPH** drive the cycle.\n- **Outcome:** Glucose production.\n- **What if** CO2 levels drop? \u2192 Cycle efficiency decreases.\n\n# Slide 5: Factors Influencing Photosynthesis\n\n- **Light intensity** affects ATP production.\n- **CO2 concentration** impacts glucose output.\n- **Temperature** influences enzyme activity.\n- **Before vs After:** High vs low light conditions.\n\n# Slide 6: Conclusion: Key Takeaways\n\n- **Photosynthesis** is a two-stage process: light reaction and Calvin cycle.\n- **ATP and NADPH** are essential for energy transfer.\n- **Environmental factors** significantly affect efficiency.\n- **Remember:** Balance of light, CO2, and temperature is crucial."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Chemical Bonding matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Bonding Puzzle\n\n- **Why do atoms bond?** \u2192 To achieve stability.\n- **Types of bonds** \u2192 Ionic and covalent.\n- **Key question:** How do these bonds differ?\n\n# Slide 2: Understanding Ionic Bonds\n\n- **Ionic bonds** form between **metals and non-metals**.\n- **Electron transfer** \u2192 Metals lose, non-metals gain electrons.\n- **Example:** Sodium chloride (NaCl).\n\n# Slide 3: Exploring Covalent Bonds\n\n- **Covalent bonds** share **electron pairs**.\n- **Non-metals** typically form covalent bonds.\n- **Example:** Water (H\u2082O) molecule.\n\n# Slide 4: Predicting Shapes with VSEPR\n\n- **VSEPR theory** \u2192 Predicts molecular geometry.\n- **Electron pair repulsion** determines shape.\n- **Example:** Methane (CH\u2084) is **tetrahedral**.\n\n# Slide 5: Ionic vs Covalent Bonds\n\n- **Ionic vs Covalent** \u2192 Transfer vs sharing of electrons.\n- **Conductivity:** Ionic compounds conduct electricity when dissolved.\n- **Strength:** Covalent bonds are generally stronger.\n\n# Slide 6: Conclusion: Key Takeaways\n\n- **Bond types** \u2192 Ionic and covalent are fundamental.\n- **Mechanisms** \u2192 Transfer vs sharing of electrons.\n- **VSEPR** \u2192 Essential for predicting molecular shapes.\n- **Real-world examples** \u2192 Enhance understanding of bond behavior."
+      }
+    },
+    {
+      "example_id": "studio_slide_deck-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "expected": {
+        "slide_deck_markdown": "# Slide 1: Why Magnetic Effects matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** \u2192 explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "actual": {
+        "output": "# Slide 1: The Mystery of Magnetic Fields\n- **Why do magnetic fields matter?**\n- Moving charge creates a **magnetic field**.\n- **Question:** What happens when electricity flows?\n\n# Slide 2: Understanding the Basics\n- **Fleming's Left-Hand Rule**: Field, Current, Force\n- **Force (F)** = BIL sin \u03b8\n- **Orientation**: How these elements interact\n\n# Slide 3: Step-by-Step Mechanics\n- **Step 1:** Identify the direction of the magnetic field\n- **Step 2:** Determine the current's direction\n- **Step 3:** Calculate the resulting force\n\n# Slide 4: Real-World Scenarios\n- **Example:** Electric motor operation\n- **Scenario:** How magnetic fields drive motion\n- **Visualize:** Current direction affecting force\n\n# Slide 5: Before vs After Understanding\n- **Before:** Confusion about magnetic interactions\n- **After:** Clarity on force direction using **Fleming's Rule**\n- **Mechanism:** Predicting outcomes with precision\n\n# Slide 6: Conclusion: Key Takeaways\n- **Magnetic fields** arise from moving charges.\n- **Fleming's Rule** simplifies understanding of interactions.\n- **Practical applications**: Motors, generators, and beyond.\n- **Remember:** Field, current, and force are interconnected."
+      }
+    }
+  ]
+}

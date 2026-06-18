@@ -16,6 +16,7 @@ from packages.core.security import (
     IntentGate,
     PIIDetector,
     check_moderation,
+    detect_cheating_request,
 )
 from packages.core.security.openai_moderation import (
     is_openai_moderation_configured,
@@ -23,6 +24,10 @@ from packages.core.security.openai_moderation import (
     moderation_indicates_block_output,
 )
 from packages.core.memory import AnswerCache, ChatSummarizer, MemoryManager
+from packages.core.memory.retrieval_session_cache import (
+    RetrievalSessionCache,
+    build_retrieval_session_key,
+)
 from packages.core.rag.embedder import Embedder
 from packages.core.rag.tutor_relevance import max_relevance_vs_chunks
 from packages.core.rag.context_grounding_gate import (
@@ -59,17 +64,37 @@ def _split_stream_text(text: str, chunk_size: int = 50) -> List[str]:
     return [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)] if text else []
 
 
+def _strip_suggested_questions(text: str) -> str:
+    """Remove trailing 'Suggested questions' section from chat replies."""
+    if not text or not text.strip():
+        return (text or "").strip()
+    trimmed = text.strip()
+    trimmed = re.sub(
+        r"\n---?\n+\s*##\s*Suggested questions\b.*",
+        "",
+        trimmed,
+        flags=re.DOTALL | re.IGNORECASE,
+    ).strip()
+    trimmed = re.sub(
+        r"\n+\s*##\s*Suggested questions\b.*",
+        "",
+        trimmed,
+        flags=re.DOTALL | re.IGNORECASE,
+    ).strip()
+    return trimmed
+
+
 def _normalize_chat_tagged_response(text: str) -> str:
     """
     Remove legacy <main_answer> / <follow_ups> XML-style wrappers from model output
-    so the UI shows clean Markdown. Follow-ups become a normal ## section.
+    so the UI shows clean Markdown without follow-up question sections.
     """
     if not text or not text.strip():
         return (text or "").strip()
     t = text.strip()
     tl = t.lower()
     if "<main_answer>" not in tl and "<follow_ups>" not in tl:
-        return t
+        return _strip_suggested_questions(t)
 
     main_body: Optional[str] = None
     follow_body: Optional[str] = None
@@ -91,15 +116,11 @@ def _normalize_chat_tagged_response(text: str) -> str:
         follow_body = m_follow.group(1).strip()
 
     if main_body is not None:
-        out = main_body
-        if follow_body:
-            fb = follow_body.strip()
-            out = f"{out}\n\n---\n\n## Suggested questions\n\n{fb}"
-        return out.strip()
+        return _strip_suggested_questions(main_body)
 
     t = re.sub(r"</?main_answer>\s*", "", t, flags=re.IGNORECASE)
     t = re.sub(r"</?follow_ups>\s*", "", t, flags=re.IGNORECASE)
-    return t.strip()
+    return _strip_suggested_questions(t.strip())
 
 
 def _history_drop_trailing_duplicate_user(
@@ -142,7 +163,7 @@ def _answer_looks_incomplete(text: str) -> bool:
 
 
 def _is_document_summary_query(q: str) -> bool:
-    """Broad document/chapter summary requests need many chunks, not the default small cap."""
+    """Broad document/chapter summary or scope-meta requests need many chunks, not the default small cap."""
     q = (q or "").lower()
     return any(
         p in q
@@ -163,8 +184,36 @@ def _is_document_summary_query(q: str) -> bool:
             "this file",
             "this chapter",
             "the chapter",
+            "main topics",
+            "topics covered",
+            "topics in my",
+            "topics in the",
+            "what are the topics",
+            "what topics",
+            "key topics",
+            "key points",
+            "selected sources",
+            "my selected sources",
+            "my sources",
+            "what is covered",
+            "what's covered",
+            "what does this chapter",
+            "what does the chapter",
+            "chapter cover",
+            "chapter about",
+            "outline of",
         )
     )
+
+
+def _output_format_for_intent(intent_label: str) -> OutputFormat:
+    il = (intent_label or "").lower()
+    if il in ("definition", "explanation", "question", "how_to", "qa", "factual"):
+        return OutputFormat.BULLET_POINTS
+    if il in ("summary", "analysis", "comparison", "compare"):
+        return OutputFormat.PARAGRAPH
+    return OutputFormat.BULLET_POINTS
+
 
 def _require_langgraph():
     try:
@@ -230,6 +279,7 @@ class LangGraphChatPipeline:
         )
 
         self.retriever = Retriever(tenant_id, user_id=user_id)
+        self.retrieval_session_cache = RetrievalSessionCache(tenant_id, user_id=user_id)
 
         self.confidence_scorer = (
             ConfidenceScorer(
@@ -361,7 +411,9 @@ class LangGraphChatPipeline:
         )
 
         g.add_edge("Retrieval", "ContextSelector")
-        g.add_edge("ContextSelector", "ContextGroundingGate")
+        g.add_node("TwoStageGrounding", tw("TwoStageGrounding", self._node_two_stage_grounding))
+        g.add_edge("ContextSelector", "TwoStageGrounding")
+        g.add_edge("TwoStageGrounding", "ContextGroundingGate")
 
         def _route_after_context_grounding(s: ChatGraphState) -> str:
             return "ModerationOutput" if s.get("context_grounding_blocked") else "TutorRelevanceGate"
@@ -486,10 +538,9 @@ class LangGraphChatPipeline:
         - guardrail_user_blocks: increment per user+tenant
         - alert_user_sessions: append alert rows for blocked events
         """
-        if not self.db:
-            return
         try:
             from sqlalchemy import select
+            from packages.core.database.connection import db_session
             from packages.core.database.models.guardrail_user_block import GuardrailUserBlock
             from packages.core.database.models.alert_user_session import AlertUserSession
 
@@ -501,58 +552,55 @@ class LangGraphChatPipeline:
                 except Exception:
                     session_uuid = None
 
-            # Upsert-ish block counter row per user in tenant
-            existing = await self.db.execute(
-                select(GuardrailUserBlock).where(
-                    GuardrailUserBlock.tenant_id == tenant_uuid,
-                    GuardrailUserBlock.user_id == self.user_id,
+            async with db_session() as db:
+                existing = await db.execute(
+                    select(GuardrailUserBlock).where(
+                        GuardrailUserBlock.tenant_id == tenant_uuid,
+                        GuardrailUserBlock.user_id == self.user_id,
+                    )
                 )
-            )
-            row = existing.scalar_one_or_none()
-            if row:
-                row.block_count = int(row.block_count or 0) + 1
-                row.block_reason = reason[:120]
-                if session_uuid:
-                    row.session_id = session_uuid
-            else:
-                row = GuardrailUserBlock(
-                    tenant_id=tenant_uuid,
-                    user_id=self.user_id,
-                    user_name=self.user_id,
-                    session_id=session_uuid,
-                    block_count=1,
-                    block_reason=reason[:120],
-                )
-                self.db.add(row)
+                row = existing.scalar_one_or_none()
+                if row:
+                    row.block_count = int(row.block_count or 0) + 1
+                    row.block_reason = reason[:120]
+                    if session_uuid:
+                        row.session_id = session_uuid
+                else:
+                    row = GuardrailUserBlock(
+                        tenant_id=tenant_uuid,
+                        user_id=self.user_id,
+                        user_name=self.user_id,
+                        session_id=session_uuid,
+                        block_count=1,
+                        block_reason=reason[:120],
+                    )
+                    db.add(row)
 
-            # Append alert session row for observability
-            self.db.add(
-                AlertUserSession(
-                    tenant_id=tenant_uuid,
-                    user_id=self.user_id,
-                    session_id=session_uuid,
-                    alert_type="guardrail_block",
-                    alert_message=reason[:400],
-                    severity="medium",
+                db.add(
+                    AlertUserSession(
+                        tenant_id=tenant_uuid,
+                        user_id=self.user_id,
+                        session_id=session_uuid,
+                        alert_type="guardrail_block",
+                        alert_message=reason[:400],
+                        severity="medium",
+                    )
                 )
-            )
-            await self.db.commit()
+                await db.commit()
         except Exception:
-            try:
-                await self.db.rollback()
-            except Exception:
-                pass
+            pass
 
     async def _load_source_titles(self, source_ids: List[str]) -> Dict[str, str]:
         """
         Best-effort lookup of source_id -> title from DB, matching existing chat behavior.
-        If db not provided, returns empty mapping.
+        Uses a short-lived session so SSE streams do not hold pool connections.
         """
-        if not self.db or not source_ids:
+        if not source_ids:
             return {}
         try:
             import uuid as uuid_lib
             from sqlalchemy import select
+            from packages.core.database.connection import db_session
             from packages.core.database.models.source import Source
             from packages.core.database.models.ncert_global import NcertGlobalDocument
 
@@ -565,36 +613,37 @@ class LangGraphChatPipeline:
                     continue
             if not source_uuids:
                 return {}
-            result = await self.db.execute(
-                select(Source.id, Source.title).where(
-                    Source.id.in_(source_uuids),
-                    Source.tenant_id == tenant_uuid,
-                    Source.user_id == self.user_id,
+            async with db_session() as db:
+                result = await db.execute(
+                    select(Source.id, Source.title).where(
+                        Source.id.in_(source_uuids),
+                        Source.tenant_id == tenant_uuid,
+                        Source.user_id == self.user_id,
+                    )
                 )
-            )
-            title_map = {str(r.id): r.title for r in result.all() if r and r.title}
+                title_map = {str(r.id): r.title for r in result.all() if r and r.title}
 
-            unresolved = [sid for sid in source_uuids if str(sid) not in title_map]
-            if unresolved:
-                global_result = await self.db.execute(
-                    select(
-                        NcertGlobalDocument.id,
-                        NcertGlobalDocument.title,
-                        NcertGlobalDocument.class_num,
-                        NcertGlobalDocument.subject,
-                    ).where(NcertGlobalDocument.id.in_(unresolved))
-                )
-                for row in global_result.all():
-                    if not row:
-                        continue
-                    title = row.title
-                    if not title:
-                        subject = str(row.subject or "").replace("_", " ").title().strip()
-                        title = f"NCERT Class {row.class_num} {subject}".strip()
-                    if title:
-                        title_map[str(row.id)] = title
+                unresolved = [sid for sid in source_uuids if str(sid) not in title_map]
+                if unresolved:
+                    global_result = await db.execute(
+                        select(
+                            NcertGlobalDocument.id,
+                            NcertGlobalDocument.title,
+                            NcertGlobalDocument.class_num,
+                            NcertGlobalDocument.subject,
+                        ).where(NcertGlobalDocument.id.in_(unresolved))
+                    )
+                    for row in global_result.all():
+                        if not row:
+                            continue
+                        title = row.title
+                        if not title:
+                            subject = str(row.subject or "").replace("_", " ").title().strip()
+                            title = f"NCERT Class {row.class_num} {subject}".strip()
+                        if title:
+                            title_map[str(row.id)] = title
 
-            return title_map
+                return title_map
         except Exception:
             return {}
 
@@ -632,6 +681,19 @@ class LangGraphChatPipeline:
                 self._merge_guardrails_trace(state)
                 return state
 
+        from packages.core.security.youth_distress import (
+            detect_youth_distress,
+            get_supportive_distress_message,
+        )
+
+        distress = detect_youth_distress(text)
+        if distress.get("is_distress"):
+            state["blocked"] = True
+            state["error"] = get_supportive_distress_message()
+            state["generation_blocked_reason"] = "YOUTH_DISTRESS_SUPPORT"
+            self._merge_guardrails_trace(state)
+            return state
+
         if settings.ENABLE_INTENT_GATE:
             intent = self.intent_gate.check_and_block(text)
             if intent.get("blocked"):
@@ -642,6 +704,14 @@ class LangGraphChatPipeline:
                 )
                 self._merge_guardrails_trace(state)
                 return state
+
+        cheating = detect_cheating_request(text)
+        if cheating.get("is_cheating"):
+            state["blocked"] = True
+            state["error"] = self.refusals.get_refusal(RefusalReason.ACADEMIC_INTEGRITY)
+            state["generation_blocked_reason"] = "ACADEMIC_INTEGRITY"
+            self._merge_guardrails_trace(state)
+            return state
 
         if settings.ENABLE_SAFETY_FILTERS:
             safe = self.safety_filter.check_input(text, context="academic")
@@ -913,8 +983,20 @@ class LangGraphChatPipeline:
         if pa:
             state["precomputed_answer"] = pa
             state["context"] = (res.get("section_summaries") or "")[:12000]
-            state["citations"] = []
-            state["selected_matches"] = []
+            chunks = list(res.get("source_chunks") or [])
+            cap = int(getattr(settings, "DOCUMENT_SUMMARY_MAX_CONTEXT_CHUNKS", 12))
+            selected = chunks[: max(1, cap)] if chunks else []
+            state["selected_matches"] = selected
+            if selected:
+                prepared = self._prepare_selected_matches(
+                    selected,
+                    msg,
+                    await self._load_source_titles(active),
+                )
+                _, citations = self._pack_context_from_matches(prepared)
+                state["citations"] = citations
+            else:
+                state["citations"] = []
             state["map_reduce_ok"] = True
             dp = dict(state.get("done_payload") or {})
             dp["map_reduce"] = True
@@ -947,7 +1029,23 @@ class LangGraphChatPipeline:
         
         print(f"[RETRIEVAL_NODE] filter_dict={filter_dict}")
         print(f"[RETRIEVAL_NODE] Passing to retriever: include_ncert_global={include_g}")
-        
+
+        session_key = build_retrieval_session_key(
+            chat_id=state.get("chat_id"),
+            active_source_ids=active,
+            include_ncert_global=include_g,
+            ncert_class=state.get("ncert_class"),
+            ncert_subject=state.get("ncert_subject"),
+            ncert_chapter_no=state.get("ncert_chapter_no"),
+        )
+        state["retrieval_session_key"] = session_key
+        try:
+            prev = await self.retrieval_session_cache.get_chunks(session_key)
+            if prev:
+                self.retriever.previous_chunks = list(prev)
+        except Exception as exc:
+            print(f"[RETRIEVAL_SESSION_CACHE] load failed: {exc}")
+
         results = await self.retriever.retrieve(
             query=q,
             top_k=settings.TOP_K_CHUNKS,
@@ -960,8 +1058,10 @@ class LangGraphChatPipeline:
             ncert_subject=state.get("ncert_subject"),
             ncert_chapter_no=state.get("ncert_chapter_no"),
             ncert_chapter_name=state.get("ncert_chapter_name"),
+            ncert_concept=state.get("ncert_concept"),
         )
-        state["matches"] = results.get("matches", []) or []
+
+        state["matches"] = list(results.get("matches") or [])
 
         # Attach compact retrieval artifacts for admin trace explain view (no full prompt).
         try:
@@ -1021,6 +1121,7 @@ class LangGraphChatPipeline:
             )
         except Exception:
             pass
+
         rw = results.get("rewritten_queries")
         if isinstance(rw, list) and rw:
             state["rewritten_queries"] = [str(x).strip() for x in rw if str(x).strip()]
@@ -1030,6 +1131,77 @@ class LangGraphChatPipeline:
         state["focused_query"] = (str(fq).strip() if fq else "") or q
         state["primary_retrieval_query"] = state["rewritten_queries"][0]
         state["rewritten_query"] = state["primary_retrieval_query"]
+        try:
+            to_store = list(self.retriever.previous_chunks or state.get("matches") or [])
+            if to_store:
+                await self.retrieval_session_cache.set_chunks(session_key, to_store)
+        except Exception as exc:
+            print(f"[RETRIEVAL_SESSION_CACHE] save failed: {exc}")
+        return state
+
+    def _max_chunk_chars_for_query(self, q: str) -> int:
+        max_chars = int(getattr(settings, "MAX_CHUNK_LENGTH", 520))
+        if _is_document_summary_query(q):
+            max_chars = int(getattr(settings, "DOCUMENT_SUMMARY_MAX_CHUNK_CHARS", max_chars * 2))
+        elif is_metadata_attribution_query(q):
+            max_chars = int(getattr(settings, "METADATA_QUERY_MAX_CHUNK_CHARS", max_chars))
+        return max_chars
+
+    def _prepare_selected_matches(
+        self,
+        selected: List[Dict[str, Any]],
+        q: str,
+        titles: Dict[str, str],
+    ) -> List[Dict[str, Any]]:
+        max_chars = self._max_chunk_chars_for_query(q)
+        prepared: List[Dict[str, Any]] = []
+        for m in selected:
+            md = dict(m.get("metadata") or {})
+            chunk_text = str(md.get("text", "") or "")
+            if chunk_text and len(chunk_text) > max_chars:
+                chunk_text = chunk_text[:max_chars]
+                md["text"] = chunk_text
+            source_id = md.get("source_id")
+            metadata_title = md.get("display_source") or md.get("topic")
+            source_title = (titles.get(source_id) if source_id else None) or metadata_title
+            if source_title:
+                md["display_source"] = source_title
+            prepared.append({**m, "metadata": md})
+        return prepared
+
+    def _pack_context_from_matches(
+        self, prepared: List[Dict[str, Any]]
+    ) -> Tuple[str, List[Dict[str, Any]]]:
+        from packages.core.rag.context_packer import pack_context_by_source
+
+        return pack_context_by_source(prepared)
+
+    async def _node_two_stage_grounding(self, state: ChatGraphState) -> ChatGraphState:
+        from packages.core.rag.agents.two_stage_answering import (
+            build_mini_context,
+            should_use_mini_context,
+        )
+
+        selected = list(state.get("selected_matches") or state.get("matches") or [])
+        q = state.get("rewritten_query") or state.get("message") or ""
+        intent = state.get("classified_intent") or ""
+        state["full_context_backup"] = state.get("context") or ""
+        state["full_citations_backup"] = list(state.get("citations") or [])
+        state["use_mini_context"] = False
+        state["stage1_answer"] = ""
+        state["needs_expansion"] = False
+
+        if should_use_mini_context(
+            intent=intent,
+            query=q,
+            match_count=len(selected),
+            whole_file_summary=_is_document_summary_query(q),
+            map_reduce_ok=bool(state.get("map_reduce_ok")),
+        ):
+            mini_ctx, mini_cites = build_mini_context(selected, n=2)
+            state["use_mini_context"] = True
+            state["context"] = mini_ctx
+            state["citations"] = mini_cites
         return state
 
     async def _node_context_select(self, state: ChatGraphState) -> ChatGraphState:
@@ -1052,6 +1224,11 @@ class LangGraphChatPipeline:
             )
             if cap and len(selected) > cap:
                 selected = selected[:cap]
+            if getattr(settings, "ENABLE_SOURCE_INJECTION_SCAN", True):
+                from packages.core.security.source_content_guard import filter_injection_matches
+
+                selected, scan_meta = filter_injection_matches(selected, self.injection_detector)
+                state["source_injection_scan"] = scan_meta
             state["selected_matches"] = selected
 
             source_ids = list(
@@ -1059,43 +1236,10 @@ class LangGraphChatPipeline:
             )
             titles = await self._load_source_titles([sid for sid in source_ids if sid])
 
-            citations: List[Dict[str, Any]] = []
-            context_parts: List[str] = []
-            for i, m in enumerate(selected, 1):
-                md = m.get("metadata", {}) or {}
-                chunk_text = md.get("text", "") or ""
-                # Keep chunk context tight; the retriever may already have truncated,
-                # but we re-check here to reduce noise.
-                max_chars = getattr(settings, "MAX_CHUNK_LENGTH", 520)
-                if _is_document_summary_query(q):
-                    max_chars = getattr(settings, "DOCUMENT_SUMMARY_MAX_CHUNK_CHARS", max_chars * 2)
-                elif is_metadata_attribution_query(q):
-                    max_chars = getattr(settings, "METADATA_QUERY_MAX_CHUNK_CHARS", max_chars)
-                if chunk_text and len(chunk_text) > max_chars:
-                    chunk_text = chunk_text[:max_chars]
-
-                source_id = md.get("source_id")
-                metadata_title = md.get("display_source") or md.get("topic")
-                source_title = (titles.get(source_id) if source_id else None) or metadata_title
-                display_title = source_title or f"doc_{(source_id or 'unknown')[:8]}"
-                page_num = md.get("page_start") or md.get("page_number")
-                page_str = f"p{page_num}" if page_num else f"chunk{i}"
-
-                context_parts.append(f"[{i}] {display_title} ({page_str}): {chunk_text}")
-
-                citations.append(
-                    {
-                        "source_id": source_id,
-                        "chunk_id": m.get("id"),
-                        "text": md.get("text", "") or "",
-                        "score": float(m.get("score", 0.0) or 0.0),
-                        "source_title": source_title,
-                        "page_number": page_num,
-                    }
-                )
-
+            prepared = self._prepare_selected_matches(selected, q, titles)
+            context, citations = self._pack_context_from_matches(prepared)
             state["citations"] = citations
-            state["context"] = "\n\n".join(context_parts)
+            state["context"] = context
 
             # Attach compact selected-chunks artifact for trace explain view.
             try:
@@ -1151,39 +1295,21 @@ class LangGraphChatPipeline:
             selected = matches[: max(1, min(len(matches), settings.MIN_CONTEXT_CHUNKS or 1))]
         state["selected_matches"] = selected
 
+        if getattr(settings, "ENABLE_SOURCE_INJECTION_SCAN", True):
+            from packages.core.security.source_content_guard import filter_injection_matches
+
+            selected, scan_meta = filter_injection_matches(selected, self.injection_detector)
+            state["selected_matches"] = selected
+            state["source_injection_scan"] = scan_meta
+
         # Source title lookup for citations/context grouping
         source_ids = list({(m.get("metadata", {}) or {}).get("source_id") for m in selected if (m.get("metadata", {}) or {}).get("source_id")})
         titles = await self._load_source_titles([sid for sid in source_ids if sid])
 
-        # Build numbered context items + citations.
-        # Numbering ([1]..[N]) must match the order of `citations` so the model can cite properly.
-        citations: List[Dict[str, Any]] = []
-        context_parts: List[str] = []
-        for i, m in enumerate(selected, 1):
-            md = m.get("metadata", {}) or {}
-            chunk_text = md.get("text", "") or ""
-            source_id = md.get("source_id")
-            metadata_title = md.get("display_source") or md.get("topic")
-            source_title = (titles.get(source_id) if source_id else None) or metadata_title
-            display_title = source_title or f"doc_{(source_id or 'unknown')[:8]}"
-            page_num = md.get("page_start") or md.get("page_number")
-            page_str = f"p{page_num}" if page_num else f"chunk{i}"
-
-            context_parts.append(f"[{i}] {display_title} ({page_str}): {chunk_text}")
-
-            citations.append(
-                {
-                    "source_id": source_id,
-                    "chunk_id": m.get("id"),
-                    "text": chunk_text,
-                    "score": float(m.get("score", 0.0) or 0.0),
-                    "source_title": source_title,
-                    "page_number": page_num,
-                }
-            )
-
+        prepared = self._prepare_selected_matches(selected, q, titles)
+        context, citations = self._pack_context_from_matches(prepared)
         state["citations"] = citations
-        state["context"] = "\n\n".join(context_parts)
+        state["context"] = context
 
         # Attach compact selected-chunks artifact for trace explain view.
         try:
@@ -1236,6 +1362,12 @@ class LangGraphChatPipeline:
         if not getattr(settings, "CHAT_STRICT_CONTEXT_GROUNDING", True):
             return state
 
+        if self._tutor_ncert_scoped_with_chunks(state):
+            state["context_grounding_passed"] = True
+            state["context_grounding_eval_skipped"] = True
+            state["context_grounding_reason"] = "tutor_ncert_scoped_chunks"
+            return state
+
         q = (
             state.get("primary_retrieval_query")
             or state.get("rewritten_query")
@@ -1285,6 +1417,21 @@ class LangGraphChatPipeline:
             settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
         )
 
+    def _tutor_ncert_scoped_with_chunks(self, state: ChatGraphState) -> bool:
+        """NCERT tutor notebooks lock class/subject/chapter; retrieved chunks are already scoped."""
+        if not self._tutor_ncert_effective(state):
+            return False
+        if state.get("ncert_class") is None:
+            return False
+        if not str(state.get("ncert_subject") or "").strip():
+            return False
+        if state.get("ncert_chapter_no") is None and not str(state.get("ncert_chapter_name") or "").strip():
+            return False
+        selected = state.get("selected_matches") or state.get("matches") or []
+        if selected:
+            return True
+        return bool(str(state.get("context") or "").strip())
+
     def _tutor_ncert_blocked_user_message(self, state: ChatGraphState) -> str:
         cls = state.get("ncert_class")
         subj_raw = (state.get("ncert_subject") or "").strip()
@@ -1307,6 +1454,10 @@ class LangGraphChatPipeline:
         if not self._tutor_ncert_effective(state):
             return state
 
+        if self._tutor_ncert_scoped_with_chunks(state):
+            state["retrieval_relevance_passed"] = True
+            return state
+
         if getattr(settings, "CHAT_STRICT_CONTEXT_GROUNDING", True) and state.get(
             "context_grounding_passed"
         ):
@@ -1318,7 +1469,20 @@ class LangGraphChatPipeline:
             state["retrieval_relevance_passed"] = True
             return state
 
-        selected = state.get("selected_matches") or []
+        q_gate = (
+            state.get("primary_retrieval_query")
+            or state.get("rewritten_query")
+            or state.get("redacted_message")
+            or state.get("message")
+            or ""
+        ).strip()
+        # Whole-chapter / document summaries are scoped by NCERT filters already; query–chunk
+        # cosine is misleading for generic "summarize this chapter" prompts.
+        if _is_document_summary_query(q_gate):
+            state["retrieval_relevance_passed"] = True
+            return state
+
+        selected = state.get("selected_matches") or state.get("matches") or []
         q = (
             state.get("primary_retrieval_query")
             or state.get("rewritten_query")
@@ -1348,8 +1512,12 @@ class LangGraphChatPipeline:
             state["selected_matches"] = []
 
         if not chunk_texts:
-            _block("NO_MATCHING_CHUNKS")
-            return state
+            packed = (state.get("context") or "").strip()
+            if packed:
+                chunk_texts = [packed]
+            else:
+                _block("NO_MATCHING_CHUNKS")
+                return state
 
         max_sim, err = await max_relevance_vs_chunks(self.embedder, q, chunk_texts)
         state["tutor_relevance_max_cosine"] = float(max_sim)
@@ -1382,6 +1550,20 @@ class LangGraphChatPipeline:
         state["chat_selected_sources_max_retrieval_score"] = 0.0
 
         if not self._source_relevance_gate_applies(state):
+            return state
+
+        q_gate = (
+            state.get("primary_retrieval_query")
+            or state.get("rewritten_query")
+            or state.get("redacted_message")
+            or state.get("message")
+            or ""
+        ).strip()
+        if _is_document_summary_query(q_gate) and (
+            state.get("selected_matches") or (state.get("context") or "").strip()
+        ):
+            state["retrieval_relevance_passed"] = True
+            state["generation_blocked_reason"] = ""
             return state
 
         if getattr(settings, "CHAT_STRICT_CONTEXT_GROUNDING", True) and state.get(
@@ -1574,6 +1756,10 @@ class LangGraphChatPipeline:
         provider, model = get_model_for_task("chat")
         gen_temp = 0.35 if is_metadata_query else (0.45 if document_summary else 0.65)
         llm_client = get_llm_client(provider=provider, model=model, temperature=gen_temp)
+        if self.tenant_id and getattr(settings, "ENABLE_BUDGET_ENFORCEMENT", False):
+            from packages.core.guardrails.budget_enforcer import BudgetEnforcer
+
+            await BudgetEnforcer().enforce_budget(str(self.tenant_id), estimated_cost=0.002)
         resp = await llm_client.generate(
             prompt=full_prompt,
             temperature=gen_temp,
@@ -1584,11 +1770,60 @@ class LangGraphChatPipeline:
         )
         answer = (resp.content or "").strip()
 
+        # Two-stage: expand to full context once when mini-context answer is insufficient.
+        if state.get("use_mini_context") and not state.get("needs_expansion"):
+            from packages.core.rag.agents.two_stage_answering import should_expand
+
+            if should_expand(
+                answer,
+                context_grounding_blocked=bool(state.get("context_grounding_blocked")),
+                citations=state.get("citations"),
+            ):
+                full_ctx = (state.get("full_context_backup") or "").strip()
+                if full_ctx:
+                    state["stage1_answer"] = answer
+                    state["needs_expansion"] = True
+                    context = full_ctx
+                    state["context"] = context
+                    state["citations"] = list(state.get("full_citations_backup") or [])
+                    chunk_n = len(state.get("selected_matches") or state.get("matches") or [])
+                    full_prompt = load_prompt(
+                        "chat/rag_prompt.j2",
+                        context=context,
+                        message=message,
+                        verbatim_user_message=message,
+                        llm_task_query=primary_rq,
+                        document_summary=document_summary,
+                        conversation_transcript=conversation_transcript,
+                        has_prior_conversation=has_prior_conversation,
+                        chat_rolling_summary=chat_rolling_summary,
+                        has_chat_summary=has_chat_summary,
+                        primary_retrieval_query=primary_rq,
+                        scope_focused_query=focused_rq,
+                        retrieval_query_variants=retrieval_variants,
+                        classified_intent=intent_label,
+                        context_chunk_count=chunk_n,
+                        is_metadata_query=is_metadata_query,
+                        tutor_strict_ncert_only=tutor_strict_ncert_only,
+                        chat_global_fallback=chat_global_fallback,
+                        chat_policy_block=chat_policy_block,
+                    )
+                    state["full_prompt"] = full_prompt
+                    expand_resp = await llm_client.generate(
+                        prompt=full_prompt,
+                        temperature=gen_temp,
+                        max_tokens=max_gen,
+                        tenant_id=self.tenant_id,
+                        user_id=self.user_id,
+                        feature_tag="chat_langgraph_two_stage_expand",
+                    )
+                    answer = (expand_resp.content or "").strip()
+
         # Retry: if the model says "not found" but we *do* have citations/context,
         # it likely missed evidence. Re-prompt once with an explicit retry instruction.
+        # Retry when the model says "not found" but retrieved context/citations exist.
         if (
-            not tutor_strict_ncert_only
-            and not chat_global_fallback
+            not chat_global_fallback
             and "not found in provided sources" in answer.lower()
             and state.get("citations")
             and context.strip()
@@ -1707,20 +1942,32 @@ class LangGraphChatPipeline:
             except Exception:
                 pass
 
-        # Post-generation processing (length limit, formatting, citation check)
-        if answer and self.length_limiter:
-            limited = self.length_limiter.limit_output(answer)
-            answer = limited.get("text", answer)
-        if answer and self.formatter:
-            try:
-                answer = self.formatter.format_response(answer, query=state.get("message") or "")
-            except Exception:
-                pass
-        if answer and self.citation_enforcer:
-            try:
-                _ = self.citation_enforcer.check_citations(answer, state.get("citations") or [])
-            except Exception:
-                pass
+        # Post-generation processing (early stop, length limit, formatting, citation check)
+        if getattr(settings, "USE_OUTPUT_OPTIMIZATION", True):
+            if answer and settings.USE_EARLY_STOP and self.early_stop:
+                stop_info = self.early_stop.should_stop(answer, message)
+                if stop_info.get("should_stop"):
+                    stop_at = self.early_stop.find_stop_point(answer)
+                    if stop_at:
+                        answer = answer[:stop_at].strip()
+            if answer and self.length_limiter:
+                limited = self.length_limiter.limit_output(answer)
+                answer = limited.get("text", answer)
+            if answer and self.formatter:
+                try:
+                    fmt = _output_format_for_intent(intent_label)
+                    answer = self.formatter.format_response(
+                        answer,
+                        query=state.get("message") or "",
+                        format_type=fmt,
+                    )
+                except Exception:
+                    pass
+            if answer and self.citation_enforcer:
+                try:
+                    _ = self.citation_enforcer.check_citations(answer, state.get("citations") or [])
+                except Exception:
+                    pass
 
         state["final_answer"] = answer
         return state
@@ -1903,7 +2150,9 @@ class LangGraphChatPipeline:
         ncert_subject: Optional[str] = None,
         ncert_chapter_no: Optional[int] = None,
         ncert_chapter_name: Optional[str] = None,
+        ncert_concept: Optional[str] = None,
         force_whole_file_map_reduce: bool = False,
+        chat_id: Optional[str] = None,
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Produce SSE events preserving the existing event/data shapes.
@@ -1915,10 +2164,11 @@ class LangGraphChatPipeline:
 
         subj = (ncert_subject or "").strip().lower() or None
         chapter_name = (ncert_chapter_name or "").strip() or None
+        concept = (ncert_concept or "").strip() or None
         state: ChatGraphState = {
-            "db": self.db,
             "tenant_id": self.tenant_id,
             "user_id": self.user_id,
+            "chat_id": chat_id,
             "message": message,
             "history": history,
             "active_source_ids": active_source_ids,
@@ -1927,15 +2177,32 @@ class LangGraphChatPipeline:
             "ncert_subject": subj,
             "ncert_chapter_no": ncert_chapter_no,
             "ncert_chapter_name": chapter_name,
+            "ncert_concept": concept,
             "trace_id": trace_id_opt or "",
             "force_whole_file_map_reduce": bool(force_whole_file_map_reduce),
         }
 
         try:
             state = await self._graph.ainvoke(state)
-        except Exception:
+        except Exception as exc:
             if trace_id_opt:
                 get_pipeline_trace_store().finalize_trace(trace_id_opt, success=False)
+            from packages.core.guardrails.exceptions import BudgetExceededError
+
+            if isinstance(exc, BudgetExceededError):
+                err_msg = str(exc)
+                for chunk in _split_stream_text(err_msg):
+                    yield {"event": "chunk", "data": {"text": chunk}}
+                yield {
+                    "event": "done",
+                    "data": {
+                        "blocked": True,
+                        "budget_exceeded": True,
+                        "final_output_text": err_msg,
+                        "error": err_msg,
+                    },
+                }
+                return
             raise
         if trace_id_opt:
             get_pipeline_trace_store().finalize_trace(trace_id_opt, success=True)
@@ -1996,12 +2263,31 @@ class LangGraphChatPipeline:
             }
             return
 
-        # Emit citations first
-        for c in state.get("citations") or []:
+        # Emit citations first (restore from backup / matches if a gate cleared them post-retrieval)
+        citations = list(state.get("citations") or [])
+        blocked = bool(
+            state.get("context_grounding_blocked")
+            or state.get("source_relevance_blocked")
+            or state.get("tutor_generation_blocked")
+            or state.get("blocked")
+        )
+        if not citations and not blocked:
+            citations = list(state.get("full_citations_backup") or [])
+        if not citations and not blocked:
+            selected = state.get("selected_matches") or state.get("matches") or []
+            if selected:
+                try:
+                    q = state.get("rewritten_query") or state.get("message") or ""
+                    titles = state.get("source_titles") or {}
+                    prepared = self._prepare_selected_matches(selected, q, titles)
+                    _, citations = self._pack_context_from_matches(prepared)
+                except Exception:
+                    citations = []
+        for c in citations:
             yield {"event": "citation", "data": c}
 
         # Emit text chunks
-        out_text = state.get("final_output_text") or ""
+        out_text = (state.get("final_output_text") or state.get("final_answer") or "").strip()
         if state.get("moderation_block_reason"):
             await self._record_guardrail_block_event(
                 reason=str(state.get("moderation_block_reason")),

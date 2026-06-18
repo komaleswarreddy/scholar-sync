@@ -1,17 +1,19 @@
 import { useMemo } from 'react';
-import { useSources } from '@/hooks/useSources';
+import { useCombinedSources } from '@/hooks/useCombinedSources';
 import { useSourceContext } from '@/contexts/SourceContext';
+import { useNotebookScopeId } from '@/contexts/NotebookContext';
 
 export function normalizeSourceId(id: unknown): string {
   return String(id ?? '').trim();
 }
 
 /**
- * IDs in `selectedSources` that still exist in the current sources list.
- * Keeps UI counts and API payloads aligned with visible checkboxes (prunes stale localStorage / deleted docs).
+ * IDs in `selectedSources` that still exist in the current sources list
+ * (including virtual NCERT sources for tutor notebooks).
  */
 export function useValidSelectedSourceIds() {
-  const { data: sources = [] } = useSources();
+  const notebookId = useNotebookScopeId();
+  const { sources } = useCombinedSources(notebookId);
   const { selectedSources } = useSourceContext();
 
   return useMemo(() => {

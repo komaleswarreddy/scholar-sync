@@ -4,6 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ChatProvider } from '@/contexts/ChatContext';
+import { UserProvider } from '@/contexts/UserContext';
+import { AppToastProvider } from '@/contexts/AppToastContext';
+import { TutorClassProvider } from '@/contexts/TutorClassContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,7 +25,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <ChatProvider>{children}</ChatProvider>
+        <UserProvider>
+          <AppToastProvider>
+            <TutorClassProvider>
+              <ChatProvider>{children}</ChatProvider>
+            </TutorClassProvider>
+          </AppToastProvider>
+        </UserProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

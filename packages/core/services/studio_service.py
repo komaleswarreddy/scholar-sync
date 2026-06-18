@@ -9,7 +9,6 @@ Uses LLM abstraction layer and prompt templates.
 
 from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
-import asyncio
 import json
 import os
 import re
@@ -21,7 +20,9 @@ from packages.core.llm import get_llm_client, get_model_for_task
 from packages.core.llm._base import LLMProvider
 from packages.core.prompts import load_prompt
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
+from packages.core.rag.retriever import Retriever
 from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store
+from packages.core.validation.studio_output_validators import validate_studio_output
 
 
 STUDIO_BROAD_RETRIEVAL_QUERIES: Tuple[str, ...] = (
@@ -33,25 +34,6 @@ STUDIO_BROAD_RETRIEVAL_QUERIES: Tuple[str, ...] = (
     "Step-by-step processes workflows methods and sequential explanations",
     "Comparisons contrasts differences similarities advantages and limitations",
 )
-
-# Single-document infographic: broader coverage for charts, timelines, data, geography (task_type infographic only)
-STUDIO_INFOGRAPHIC_BROAD_RETRIEVAL_QUERIES: Tuple[str, ...] = (
-    "Educational document overview executive summary and key takeaways",
-    "Main themes core ideas definitions terminology and key concepts",
-    "Important details examples use cases applications and procedures",
-    "Document structure section headings summaries and conclusions",
-    "Numerical data statistics metrics measurements quantities and units",
-    "Trends percentages ratios comparisons growth and changes over time",
-    "Timeline chronological sequence historical events milestones and dates",
-    "Comparisons contrasts similarities differences before and after",
-    "Causes effects relationships dependencies inputs and outputs",
-    "Charts tables figures diagrams captions and labeled data",
-    "Geographic locations maps regions countries cities and spatial context",
-    "Step-by-step workflows processes sequences how-to instructions",
-    "Glossary vocabulary acronyms named entities and proper nouns",
-    "Lists enumerations bullet points ranked items and categories",
-)
-
 
 def _match_vec_id(match: Any) -> Optional[str]:
     if match is None:
@@ -112,7 +94,7 @@ def merge_studio_match_lists(
     When balance_source_ids has 2+ ids, reserves a minimum share of max_chunks per
     source (by metadata.source_id) before filling the rest by global score, so
     multi-document context is not dominated by a single high-scoring file. Used for
-    mind_map, report, and flashcards when multiple sources are selected.
+    mind_map and flashcards when multiple sources are selected.
     """
     best: Dict[str, Tuple[float, str, Optional[str]]] = {}
     for matches in per_query_matches:
@@ -186,16 +168,6 @@ def merge_studio_match_lists(
     return "\n\n".join(texts), len(texts), n_unique
 
 
-# Studio Reports modal — must match apps/api/schemas/studio.py report_format Literal and frontend ReportSpec.
-_REPORT_FORMAT_ALLOWED = frozenset({
-    "integrated",
-    "briefing",
-    "study_guide",
-    "newsletter",
-    "thematic_summary",
-})
-
-
 def compose_studio_hybrid_context(chat_transcript: str, source_excerpts: str) -> str:
     """
     Merge chat + retrieved sources with explicit 60/40 weighting instructions for the model.
@@ -213,14 +185,6 @@ def compose_studio_hybrid_context(chat_transcript: str, source_excerpts: str) ->
         "support, extend, or fact-check — do not ignore the discussion in favor of generic document summary."
     )
     return header_conv + ct + header_src + src + tail
-
-
-def _normalize_report_format(value: Optional[str]) -> str:
-    """Map API/UI report_format to a template key; default integrated."""
-    if value is None or not str(value).strip():
-        return "integrated"
-    v = str(value).strip().lower().replace("-", "_")
-    return v if v in _REPORT_FORMAT_ALLOWED else "integrated"
 
 
 def _studio_span(
@@ -251,7 +215,6 @@ class StudioService:
 
     Smart Routing:
     - Structured tasks (quiz, flashcards, mind_map, slide_deck) -> GPT-4o-mini
-    - Content-heavy tasks (report, infographic) -> GPT-4o (OpenAI)
     """
 
     def __init__(self, db: AsyncSession, tenant_id: str, user_id: str = None):
@@ -266,11 +229,15 @@ class StudioService:
         source_ids: list,
         custom_instructions: Optional[str] = None,
         retrieval_focus: Optional[str] = None,
-        report_format: Optional[str] = None,
         *,
         context_mode: str = "sources_only",
         chat_transcript: Optional[str] = None,
         selection_text: Optional[str] = None,
+        include_ncert_global: bool = False,
+        ncert_class: Optional[int] = None,
+        ncert_subject: Optional[str] = None,
+        ncert_chapter_no: Optional[int] = None,
+        ncert_chapter_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Generate Studio content based on task type.
@@ -278,23 +245,21 @@ class StudioService:
         context_mode: sources_only | chat_hybrid | selection_only
         retrieval_focus: optional topic string for query-conditioned vector retrieval
         (separate from custom_instructions formatting).
-        report_format: optional tailored report style when task_type is "report"
-            (integrated | briefing | study_guide | newsletter | thematic_summary).
         """
         mode = (context_mode or "sources_only").strip().lower()
         if mode not in ("sources_only", "chat_hybrid", "selection_only"):
             mode = "sources_only"
 
         n_sources = len(source_ids or [])
-
-        if task_type == "infographic":
-            if mode == "sources_only" and n_sources != 1:
-                raise ValueError(
-                    "Infographic requires exactly one selected source in sources_only mode. "
-                    "Select a single document and try again."
-                )
-            if mode == "chat_hybrid" and n_sources < 1:
-                raise ValueError("Infographic in chat_hybrid requires at least one selected source.")
+        has_ncert_scope = bool(
+            include_ncert_global
+            and ncert_class is not None
+            and (ncert_subject or "").strip()
+            and (
+                ncert_chapter_no is not None
+                or (ncert_chapter_name or "").strip()
+            )
+        )
 
         retrieval_meta: Dict[str, Any] = {
             "mode": mode,
@@ -317,6 +282,11 @@ class StudioService:
                 retrieval_focus,
                 task_type,
                 max_chunks_override=hybrid_max,
+                include_ncert_global=include_ncert_global,
+                ncert_class=ncert_class,
+                ncert_subject=ncert_subject,
+                ncert_chapter_no=ncert_chapter_no,
+                ncert_chapter_name=ncert_chapter_name,
             )
             context = compose_studio_hybrid_context(chat_transcript or "", source_ctx)
             retrieval_queries_note = self._format_retrieval_queries_note(
@@ -324,7 +294,14 @@ class StudioService:
             )
         else:
             context, retrieval_meta = await self._retrieve_studio_context(
-                source_ids, retrieval_focus, task_type
+                source_ids,
+                retrieval_focus,
+                task_type,
+                include_ncert_global=include_ncert_global,
+                ncert_class=ncert_class,
+                ncert_subject=ncert_subject,
+                ncert_chapter_no=ncert_chapter_no,
+                ncert_chapter_name=ncert_chapter_name,
             )
             retrieval_queries_note = self._format_retrieval_queries_note(
                 retrieval_meta.get("queries_used") or []
@@ -337,6 +314,8 @@ class StudioService:
             )
 
         eff_source_count = max(1, n_sources) if mode != "selection_only" else 1
+        if has_ncert_scope and n_sources == 0:
+            eff_source_count = 1
 
         if task_type in ["quiz", "flashcards", "mind_map", "slide_deck"]:
             return await self._generate_structured_task(
@@ -346,27 +325,7 @@ class StudioService:
                 retrieval_queries_note,
                 selected_source_count=eff_source_count,
             )
-        if task_type == "report":
-            return await self._generate_report(
-                task_type,
-                context,
-                custom_instructions,
-                retrieval_queries_note,
-                selected_source_count=eff_source_count,
-                report_format=report_format,
-            )
-        if task_type == "infographic":
-            return await self._generate_infographic(
-                task_type, context, custom_instructions, retrieval_queries_note
-            )
-        return await self._generate_report(
-            task_type,
-            context,
-            custom_instructions,
-            retrieval_queries_note,
-            selected_source_count=eff_source_count,
-            report_format=report_format,
-        )
+        raise ValueError(f"Unsupported studio task_type: {task_type}")
 
     def _format_retrieval_queries_note(self, queries_used: List[str]) -> str:
         if not queries_used:
@@ -388,6 +347,11 @@ class StudioService:
         task_type: str,
         *,
         max_chunks_override: Optional[int] = None,
+        include_ncert_global: bool = False,
+        ncert_class: Optional[int] = None,
+        ncert_subject: Optional[str] = None,
+        ncert_chapter_no: Optional[int] = None,
+        ncert_chapter_name: Optional[str] = None,
     ) -> Tuple[str, Dict[str, Any]]:
         feature_tag = f"studio_{task_type}"
         meta: Dict[str, Any] = {
@@ -399,6 +363,17 @@ class StudioService:
         }
         if not source_ids:
             print("[STUDIO] No source IDs provided")
+        sids = [str(s).strip() for s in (source_ids or []) if s is not None and str(s).strip()]
+        has_ncert_scope = bool(
+            include_ncert_global
+            and ncert_class is not None
+            and (ncert_subject or "").strip()
+            and (
+                ncert_chapter_no is not None
+                or (ncert_chapter_name or "").strip()
+            )
+        )
+        if not sids and not has_ncert_scope:
             return "", meta
 
         focus = (retrieval_focus or "").strip()
@@ -410,16 +385,12 @@ class StudioService:
                 "using STUDIO_BROAD_RETRIEVAL_QUERIES only"
             )
             focus = ""
-        filter_dict = {"source_id": {"$in": source_ids}}
+        filter_dict = {"source_id": {"$in": sids}} if sids else None
         top_k = int(getattr(settings, "STUDIO_RETRIEVAL_TOP_K_PER_QUERY", 10))
         query_cap = int(getattr(settings, "STUDIO_RETRIEVAL_QUERIES_CAP", 3))
         max_chunks = int(getattr(settings, "STUDIO_CONTEXT_MAX_CHUNKS", 28))
         if max_chunks_override is not None:
             max_chunks = max(1, int(max_chunks_override))
-        elif task_type == "infographic":
-            max_chunks = int(
-                getattr(settings, "STUDIO_INFOGRAPHIC_CONTEXT_MAX_CHUNKS", max_chunks)
-            )
 
         t_retrieval = time.perf_counter()
         all_match_lists: List[List[Any]] = []
@@ -453,32 +424,36 @@ class StudioService:
                 )
             else:
                 meta["mode"] = "broad"
-                if task_type == "infographic":
-                    ig_cap = int(
-                        getattr(settings, "STUDIO_INFOGRAPHIC_RETRIEVAL_QUERIES_CAP", 14)
-                    )
-                    queries_used = list(STUDIO_INFOGRAPHIC_BROAD_RETRIEVAL_QUERIES)[
-                        : max(1, ig_cap)
-                    ]
-                else:
-                    queries_used = list(STUDIO_BROAD_RETRIEVAL_QUERIES)
+                queries_used = list(STUDIO_BROAD_RETRIEVAL_QUERIES)
 
             t_vq = time.perf_counter()
             total_raw = 0
+            ncert_retriever = Retriever(self.tenant_id, self.user_id) if has_ncert_scope else None
             for q in queries_used:
-                query_embedding = await self.vector_store.generate_embedding(
-                    q,
-                    metrics_user_id=self.user_id,
-                    metrics_feature_tag="embedding",
-                )
-                results = await self.vector_store.query_vectors(
-                    query_embedding=query_embedding,
-                    top_k=top_k,
-                    filter=filter_dict,
-                )
-                matches = results.get("matches", []) if isinstance(results, dict) else getattr(results, "matches", []) or []
-                all_match_lists.append(list(matches))
-                total_raw += len(matches)
+                if filter_dict is not None:
+                    query_embedding = await self.vector_store.generate_embedding(
+                        q,
+                        metrics_user_id=self.user_id,
+                        metrics_feature_tag="embedding",
+                    )
+                    results = await self.vector_store.query_vectors(
+                        query_embedding=query_embedding,
+                        top_k=top_k,
+                        filter=filter_dict,
+                    )
+                    matches = results.get("matches", []) if isinstance(results, dict) else getattr(results, "matches", []) or []
+                    all_match_lists.append(list(matches))
+                    total_raw += len(matches)
+                if ncert_retriever is not None:
+                    ncert_matches = await ncert_retriever._retrieve_ncert_global_matches(
+                        query=q,
+                        ncert_class=ncert_class,
+                        ncert_subject=ncert_subject,
+                        ncert_chapter_no=ncert_chapter_no,
+                        ncert_chapter_name=ncert_chapter_name,
+                    )
+                    all_match_lists.append(list(ncert_matches))
+                    total_raw += len(ncert_matches)
 
             _studio_span(
                 "StudioRetrieval/VectorQuery",
@@ -486,19 +461,31 @@ class StudioService:
                 input_summary={
                     "queries_run": len(queries_used),
                     "top_k": top_k,
-                    "source_count": len(source_ids),
+                    "source_count": len(sids),
+                    "ncert_scope": has_ncert_scope,
                 },
                 output_summary={"matches_total": total_raw},
                 feature_tag=feature_tag,
             )
 
             balance_ids: Optional[List[str]] = None
-            if len(source_ids) > 1 and task_type in ("mind_map", "report", "flashcards"):
-                balance_ids = [str(s) for s in source_ids if s is not None]
+            if len(sids) > 1 and task_type in ("mind_map", "flashcards"):
+                balance_ids = [str(s) for s in sids if s is not None]
 
             context, chunk_count, n_unique = merge_studio_match_lists(
                 all_match_lists, max_chunks, balance_source_ids=balance_ids
             )
+            if getattr(settings, "ENABLE_SOURCE_INJECTION_SCAN", True):
+                from packages.core.security.injection_detector import PromptInjectionDetector
+                from packages.core.security.source_content_guard import (
+                    redact_injection_from_context,
+                )
+
+                detector = PromptInjectionDetector(
+                    detection_threshold=getattr(settings, "INJECTION_DETECTION_THRESHOLD", 0.6),
+                )
+                context, _scan = redact_injection_from_context(context, detector)
+                meta["source_injection_scan"] = _scan
             meta["queries_used"] = queries_used
             meta["chunk_count"] = chunk_count
             meta["matches_before_merge"] = total_raw
@@ -509,7 +496,8 @@ class StudioService:
                 t_retrieval,
                 input_summary={
                     "task_type": task_type,
-                    "source_count": len(source_ids),
+                    "source_count": len(sids),
+                    "ncert_scope": has_ncert_scope,
                     "retrieval_focus_snippet": focus[:300] if focus else None,
                 },
                 output_summary={
@@ -522,11 +510,12 @@ class StudioService:
             )
 
             if not context or not context.strip():
-                print(f"[STUDIO] WARNING: No content retrieved from sources: {source_ids}")
+                print(f"[STUDIO] WARNING: No content retrieved from sources: {sids} (ncert={has_ncert_scope})")
                 print("[STUDIO] Ingestion, Pinecone, or vector IDs may be missing.")
 
             print(
-                f"[STUDIO] Retrieved {chunk_count} chunk(s) from {len(source_ids)} source(s) "
+                f"[STUDIO] Retrieved {chunk_count} chunk(s) from {len(sids)} tenant source(s)"
+                f"{' + NCERT scope' if has_ncert_scope else ''} "
                 f"({meta['mode']}, {len(queries_used)} queries)"
             )
             return context, meta
@@ -569,7 +558,6 @@ class StudioService:
         retrieval_queries_note: str = "",
         *,
         selected_source_count: int = 1,
-        report_format: Optional[str] = None,
     ) -> str:
         """Load prompt template with fallback."""
         template_path = template_map.get(task_type, default_template)
@@ -579,10 +567,8 @@ class StudioService:
                 "custom_instructions": custom_instructions or "",
                 "retrieval_queries_note": retrieval_queries_note or "",
             }
-            if task_type in ("mind_map", "report", "flashcards"):
+            if task_type in ("mind_map", "flashcards"):
                 kw["selected_source_count"] = max(1, int(selected_source_count))
-            if task_type == "report":
-                kw["report_format"] = _normalize_report_format(report_format)
             return load_prompt(template_path, **kw)
         except FileNotFoundError:
             print(f"[STUDIO] Prompt template not found: {template_path}, using fallback")
@@ -714,7 +700,16 @@ class StudioService:
             try:
                 data = json.loads(content)
                 print(f"[STUDIO] Successfully parsed {task_type} response")
-                return {"task_type": task_type, "data": data}
+                payload = {"task_type": task_type, "data": data}
+                validation = validate_studio_output(payload)
+                if not validation.valid:
+                    print(f"[STUDIO] [structure-error] {task_type} validation: {validation.errors}")
+                    if getattr(settings, "STUDIO_STRICT_OUTPUT_VALIDATION", False):
+                        raise ValueError(
+                            f"Studio {task_type} failed structure validation: "
+                            + "; ".join(validation.errors)
+                        )
+                return payload
             except json.JSONDecodeError as e:
                 print(f"[STUDIO] Failed to parse JSON response: {str(e)}")
                 print(f"[STUDIO] Response content: {content[:500]}...")
@@ -723,234 +718,25 @@ class StudioService:
                     try:
                         data = json.loads(json_match.group())
                         print("[STUDIO] Successfully extracted JSON from response")
-                        return {"task_type": task_type, "data": data}
+                        payload = {"task_type": task_type, "data": data}
+                        validation = validate_studio_output(payload)
+                        if not validation.valid:
+                            print(
+                                f"[STUDIO] [structure-error] {task_type} validation: {validation.errors}"
+                            )
+                        return payload
                     except Exception:
                         pass
                 raise ValueError(
                     f"Failed to parse {task_type} response as JSON. Response: {content[:200]}"
                 )
-        return {"task_type": task_type, "content": content}
-
-    async def _generate_report(
-        self,
-        task_type: str,
-        context: str,
-        custom_instructions: Optional[str],
-        retrieval_queries_note: str = "",
-        *,
-        selected_source_count: int = 1,
-        report_format: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """Generate long-form markdown content (reports and other narrative tasks)."""
-        provider, model = get_model_for_task("report" if task_type == "report" else task_type)
-        llm_client = get_llm_client(provider=provider, model=model, temperature=0.5)
-
-        prompt = self._load_prompt_template(
-            task_type,
-            context,
-            custom_instructions,
-            {"report": "studio/report_prompt.j2"},
-            "studio/report_prompt.j2",
-            retrieval_queries_note=retrieval_queries_note,
-            selected_source_count=selected_source_count,
-            report_format=report_format,
-        )
-
-        system_prompt = load_prompt("studio/system_educational_markdown_fallback.j2")
-        studio_tag = f"studio_{task_type}"
-        t_gen = time.perf_counter()
-        gen_kwargs: Dict[str, Any] = {
-            "tenant_id": str(self.tenant_id),
-            "user_id": self.user_id,
-            "feature_tag": studio_tag,
-            "max_tokens": 4096,
-        }
-        try:
-            response = await llm_client.generate(
-                prompt=prompt,
-                system_prompt=system_prompt,
-                temperature=0.5,
-                **gen_kwargs,
-            )
-        except Exception as e:
-            error_msg = str(e)
-            print(f"[STUDIO] [REPORT] Generation failed: {type(e).__name__}: {error_msg}")
-            _studio_span(
-                "StudioGenerate",
-                t_gen,
-                input_summary={"task_type": task_type, "context_chars": len(context or "")},
-                output_summary={},
-                status="error",
-                error_message=error_msg[:500],
-                feature_tag=studio_tag,
-            )
-            raise ValueError(f"Failed to generate {task_type}: {error_msg}")
-
-        content = (response.content or "").strip()
-        _studio_span(
-            "StudioGenerate",
-            t_gen,
-            input_summary={"task_type": task_type, "context_chars": len(context or "")},
-            output_summary={"content_chars": len(content)},
-            feature_tag=studio_tag,
-        )
-
-        self._validate_generated_content(content, task_type, response)
-        content = self._clean_markdown_code_blocks(content).strip()
-        if not content:
-            raise ValueError(
-                f"No valid content was generated for {task_type} after processing."
-            )
-        return {"task_type": task_type, "content": content}
-
-    @staticmethod
-    def _infographic_bullets_markdown(bullets: List[str]) -> str:
-        lines = [f"- {b.strip()}" for b in bullets if b and str(b).strip()]
-        if not lines:
-            return "- Review the key ideas in your selected document."
-        return "\n".join(lines)
-
-    async def _infographic_learner_bullets(self, context: str) -> List[str]:
-        defaults = [
-            "Main themes from your selected document.",
-            "Use the graphic as a quick visual anchor while you read the source.",
-            "Verify names, numbers, and definitions in the original text.",
-        ]
-        try:
-            ctx = (context or "").strip()
-            if not ctx:
-                return defaults
-            if len(ctx) > 12000:
-                ctx = ctx[:12000]
-            provider, model = get_model_for_task("flashcards")
-            llm_client = get_llm_client(provider=provider, model=model, temperature=0.2)
-            user_prompt = load_prompt(
-                "studio/infographic_summary_bullets.j2",
-                context=ctx,
-            )
-            gen_kwargs: Dict[str, Any] = {
-                "tenant_id": str(self.tenant_id),
-                "user_id": self.user_id,
-                "feature_tag": "studio_infographic_summary",
-                "max_tokens": 400,
-            }
-            if provider == LLMProvider.OPENAI:
-                gen_kwargs["response_format"] = {"type": "json_object"}
-            resp = await llm_client.generate(
-                prompt=user_prompt,
-                system_prompt='Reply with JSON only: {"bullets": ["...", "...", "...", "..."]}',
-                temperature=0.2,
-                **gen_kwargs,
-            )
-            text = (resp.content or "").strip()
-            parsed = json.loads(text)
-            bl = parsed.get("bullets") if isinstance(parsed, dict) else None
-            if not isinstance(bl, list):
-                return defaults
-            out = [str(x).strip() for x in bl if x and str(x).strip()][:4]
-            if len(out) < 3:
-                for d in defaults:
-                    if len(out) >= 4:
-                        break
-                    if d not in out:
-                        out.append(d)
-            return out[:4]
-        except Exception as e:
-            print(f"[STUDIO] [INFOGRAPHIC] Learner bullets failed: {e}")
-            return defaults
-
-    def _parse_infographic_json(self, raw: str) -> Optional[Dict[str, Any]]:
-        """Parse structured infographic JSON from LLM output, tolerating markdown fences."""
-        text = self._clean_markdown_code_blocks(raw).strip()
-        try:
-            data = json.loads(text)
-            if isinstance(data, dict) and data.get("title") and data.get("sections"):
-                valid_layouts = {"comparison", "process", "timeline", "sections"}
-                if data.get("layout") not in valid_layouts:
-                    data["layout"] = "sections"
-                valid_themes = {"blue", "green", "purple", "teal", "orange"}
-                if data.get("color_theme") not in valid_themes:
-                    data["color_theme"] = "blue"
-                return data
-        except (json.JSONDecodeError, TypeError, KeyError):
-            pass
-        return None
-
-    async def _generate_infographic(
-        self,
-        task_type: str,
-        context: str,
-        custom_instructions: Optional[str],
-        retrieval_queries_note: str = "",
-    ) -> Dict[str, Any]:
-        """Generate a structured infographic (JSON data rendered by the frontend)."""
-        provider, model = get_model_for_task("infographic")
-        llm_client = get_llm_client(provider=provider, model=model, temperature=0.3)
-
-        prompt = load_prompt(
-            "studio/infographic_structured_prompt.j2",
-            context=context or "",
-            custom_instructions=custom_instructions or "",
-        )
-
-        studio_tag = "studio_infographic"
-        t_gen = time.perf_counter()
-
-        gen_kwargs: Dict[str, Any] = {
-            "tenant_id": str(self.tenant_id),
-            "user_id": self.user_id,
-            "feature_tag": studio_tag,
-            "max_tokens": 1500,
-        }
-        if provider == LLMProvider.OPENAI:
-            gen_kwargs["response_format"] = {"type": "json_object"}
-
-        try:
-            response = await llm_client.generate(
-                prompt=prompt,
-                system_prompt='You are an educational infographic designer. Reply with valid JSON only.',
-                temperature=0.3,
-                **gen_kwargs,
-            )
-        except Exception as e:
-            error_msg = str(e)
-            print(
-                f"[STUDIO] [INFOGRAPHIC] Structured generation failed: "
-                f"{type(e).__name__}: {error_msg}"
-            )
-            _studio_span(
-                "StudioGenerate",
-                t_gen,
-                input_summary={"task_type": task_type, "context_chars": len(context or "")},
-                output_summary={},
-                status="error",
-                error_message=error_msg[:500],
-                feature_tag=studio_tag,
-            )
-            raise ValueError(f"Failed to generate infographic: {error_msg}")
-
-        raw = (response.content or "").strip()
-        _studio_span(
-            "StudioGenerate",
-            t_gen,
-            input_summary={"task_type": task_type, "context_chars": len(context or "")},
-            output_summary={"content_chars": len(raw)},
-            feature_tag=studio_tag,
-        )
-
-        infographic_data = self._parse_infographic_json(raw)
-        if infographic_data is None:
-            raise ValueError(
-                "Infographic generation produced invalid JSON. Please try again."
-            )
-
-        bullets_task = asyncio.create_task(self._infographic_learner_bullets(context))
-        bullets = await bullets_task
-        content_md = self._infographic_bullets_markdown(bullets)
-
-        return {
-            "task_type": task_type,
-            "content": content_md,
-            "summary_bullets": bullets,
-            "infographic_data": infographic_data,
-        }
+        payload = {"task_type": task_type, "content": content}
+        validation = validate_studio_output(payload)
+        if not validation.valid:
+            print(f"[STUDIO] [structure-error] {task_type} validation: {validation.errors}")
+            if getattr(settings, "STUDIO_STRICT_OUTPUT_VALIDATION", False):
+                raise ValueError(
+                    f"Studio {task_type} failed structure validation: "
+                    + "; ".join(validation.errors)
+                )
+        return payload

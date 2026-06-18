@@ -19,17 +19,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.settings import settings
 from packages.core.database.models.ncert_global import NcertGlobalDocument, NcertGlobalIngestionRun
+from packages.core.processing.context_cache import ContextCache
+from packages.core.processing.pdf_preprocessor import PDFPreprocessor
 from packages.core.rag.llama_adapters.ingestion import LlamaIndexIngestionAdapter
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
+from packages.core.services.ncert_constants import METRICS_TENANT_NCERT
 from packages.core.storage.s3 import S3Storage
-
-METRICS_TENANT_NCERT = "__ncert_global__"
 _DEFAULT_SUBJECTS: Dict[int, List[str]] = {
-    6: ["science", "mathematics", "social_science", "english", "hindi", "telugu"],
-    7: ["science", "mathematics", "social_science", "english", "hindi", "telugu"],
-    8: ["science", "mathematics", "social_science", "english", "hindi", "telugu"],
-    9: ["science", "mathematics", "social_science", "english", "hindi", "telugu"],
-    10: ["science", "mathematics", "social_science", "english", "hindi", "telugu"],
+    12: ["physics", "chemistry", "mathematics", "biology"],
 }
 
 
@@ -140,6 +137,8 @@ async def _persist_ncert_ingest_success(
         doc.error_message = None
         await db.commit()
 
+    await sync_catalog_from_document(doc_uuid)
+
 
 async def _persist_ncert_ingest_failure(
     doc_uuid: uuid.UUID,
@@ -186,11 +185,89 @@ async def _persist_ncert_ingest_failure(
             await db.rollback()
 
 
+async def sync_catalog_from_document(doc_uuid: uuid.UUID) -> None:
+    """Link catalog chapter row and persist document-sketch concepts after ingest."""
+    from packages.core.cache.sketch_store import load_document_sketch
+    from packages.core.database.connection import AsyncSessionLocal
+    from packages.core.database.models.ncert_catalog import NcertCatalogChapter
+    from packages.core.services.ncert_catalog_helpers import (
+        concepts_from_sketch,
+        topic_summary_from_sketch,
+    )
+
+    async with AsyncSessionLocal() as db:
+        doc_result = await db.execute(
+            select(NcertGlobalDocument).where(NcertGlobalDocument.id == doc_uuid)
+        )
+        doc = doc_result.scalar_one_or_none()
+        if not doc:
+            return
+
+        catalog = None
+        if doc.chapter_no is not None:
+            # Match by class + chapter + subject slug (social science sub-books share slug).
+            result = await db.execute(
+                select(NcertCatalogChapter).where(
+                    NcertCatalogChapter.class_num == int(doc.class_num),
+                    NcertCatalogChapter.chapter_no == int(doc.chapter_no),
+                    NcertCatalogChapter.subject_slug == doc.subject,
+                )
+            )
+            rows = list(result.scalars().all())
+            if len(rows) == 1:
+                catalog = rows[0]
+            elif doc.chapter_name:
+                ch_name = doc.chapter_name.strip().lower()
+                for row in rows:
+                    if (row.chapter_title or "").strip().lower() == ch_name:
+                        catalog = row
+                        break
+                if catalog is None and rows:
+                    catalog = rows[0]
+
+        if catalog is None and doc.content_hash:
+            result = await db.execute(
+                select(NcertCatalogChapter).where(
+                    NcertCatalogChapter.content_hash == doc.content_hash
+                )
+            )
+            catalog = result.scalar_one_or_none()
+
+        if catalog is None:
+            return
+
+        sketch = None
+        if doc.content_hash:
+            try:
+                sketch = await load_document_sketch(doc.content_hash)
+            except Exception as ex:
+                print(f"[NCERT] Catalog sketch read warning: {ex}")
+
+        concepts = concepts_from_sketch(sketch)
+        summary = topic_summary_from_sketch(sketch)
+
+        catalog.ncert_document_id = doc.id
+        catalog.content_hash = doc.content_hash
+        catalog.ingest_status = "indexed"
+        if concepts:
+            catalog.concepts = concepts
+            catalog.concept_count = len(concepts)
+        if summary and not catalog.topic_summary:
+            catalog.topic_summary = summary
+
+        await db.commit()
+        print(
+            f"[NCERT] Catalog synced: class={catalog.class_num} "
+            f"key={catalog.subject_key} ch={catalog.chapter_no} concepts={catalog.concept_count}"
+        )
+
+
 async def process_ncert_upload_background(
     document_id: str,
     run_id: str,
     file_content: bytes,
     pdf_password: Optional[str],
+    subsubject: Optional[str] = None,
 ) -> None:
     """Background: extract, contextualize, embed into NcertDataGlobal; update DB + run costs.
 
@@ -230,10 +307,72 @@ async def process_ncert_upload_background(
         chapter_name = doc.chapter_name
         doc_title = (doc.title or "").strip()
         content_hash = (doc.content_hash or "").strip()
+        doc_subsubject = subsubject
     # Session closed here — pool slot free during ingest_text.
 
+    context_cache = ContextCache(cache_dir="cache/processed_pdfs/ncert_global")
+    pdf_preprocessor = PDFPreprocessor()
+
     try:
+        cached_content = context_cache.get_cached_content(
+            file_content,
+            tenant_id=METRICS_TENANT_NCERT,
+            user_id=uploaded_by,
+        )
+        if cached_content:
+            chunks_with_metadata = [
+                (chunk_text, {**metadata, "source_id": document_id})
+                for chunk_text, metadata in cached_content["chunks"]
+            ]
+            ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
+            ctx_model = getattr(settings, "NCERT_GLOBAL_CONTEXT_MODEL", "gpt-4o-mini")
+            emb_model = getattr(settings, "NCERT_GLOBAL_EMBEDDING_MODEL", "text-embedding-3-large")
+            emb_dims = int(getattr(settings, "NCERT_GLOBAL_EMBEDDING_DIMENSIONS", 1024))
+            static_meta: Dict[str, Any] = {
+                "source": "ncert",
+                "subject": subject.lower(),
+                "class": class_num,
+                "display_source": _display_source(class_num, subject, chapter_no, chapter_name),
+                "topic": doc_title or _display_source(class_num, subject, chapter_no, chapter_name),
+            }
+            if content_hash:
+                static_meta["content_hash"] = content_hash
+            if chapter_no is not None:
+                static_meta["chapter_no"] = int(chapter_no)
+            if chapter_name:
+                static_meta["chapter_name"] = chapter_name.lower()
+            if doc_subsubject:
+                static_meta["subsubject"] = str(doc_subsubject).strip().lower()
+            adapter = LlamaIndexIngestionAdapter(
+                METRICS_TENANT_NCERT,
+                user_id=uploaded_by,
+                pinecone_namespace=ns,
+                embedding_model=emb_model,
+                embedding_dimensions=emb_dims,
+                contextual_llm_model=ctx_model,
+                ingestion_run_id=str(run_uuid),
+                static_chunk_metadata=static_meta,
+                metrics_tenant_id=METRICS_TENANT_NCERT,
+                usage_accumulator=usage,
+            )
+            result = await adapter.ingest_chunks(
+                source_id=document_id,
+                chunks_with_metadata=chunks_with_metadata,
+            )
+            await _persist_ncert_ingest_success(doc_uuid, run_uuid, usage, result.nodes_indexed)
+            return
+
         full_text, pages = _extract_pdf_text_and_pages(file_content, pdf_password)
+        if pages:
+            try:
+                cleaned = pdf_preprocessor.clean_text(full_text, pages)
+                print(
+                    f"[NCERT] PDFPreprocessor: {len(full_text)} -> {len(cleaned)} chars "
+                    f"({100 * (1 - len(cleaned) / max(len(full_text), 1)):.1f}% reduction)"
+                )
+                full_text = cleaned
+            except Exception as prep_err:
+                print(f"[WARNING] NCERT PDF preprocessing failed, using raw text: {prep_err}")
 
         ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
         ctx_model = getattr(settings, "NCERT_GLOBAL_CONTEXT_MODEL", "gpt-4o-mini")
@@ -253,6 +392,8 @@ async def process_ncert_upload_background(
             static_meta["chapter_no"] = int(chapter_no)
         if chapter_name:
             static_meta["chapter_name"] = chapter_name.lower()  # Normalize to lowercase for consistent filtering
+        if doc_subsubject:
+            static_meta["subsubject"] = str(doc_subsubject).strip().lower()
 
 
         adapter = LlamaIndexIngestionAdapter(
@@ -273,6 +414,21 @@ async def process_ncert_upload_background(
             source_id=document_id,
             pages=pages,
         )
+
+        if result.chunks_for_cache:
+            try:
+                context_cache.cache_content(
+                    file_content,
+                    full_text,
+                    result.chunks_for_cache,
+                    metadata={
+                        "content_type": "application/pdf",
+                        "page_count": len(pages) if pages else 0,
+                        "source": "ncert",
+                    },
+                )
+            except Exception as cache_err:
+                print(f"[WARNING] NCERT context cache write failed: {cache_err}")
 
         await _persist_ncert_ingest_success(doc_uuid, run_uuid, usage, result.nodes_indexed)
     except Exception as e:
@@ -321,15 +477,55 @@ async def create_ncert_upload(
     chapter_name: Optional[str],
     uploaded_by_clerk_user_id: str,
     pdf_password: Optional[str] = None,
+    subsubject: Optional[str] = None,
+    catalog_chapter_id: Optional[uuid.UUID] = None,
 ) -> Tuple[NcertGlobalDocument, NcertGlobalIngestionRun]:
-    if class_num < 6 or class_num > 10:
-        raise ValueError("class must be between 6 and 10")
+    if class_num != 12:
+        raise ValueError("class must be 12")
     subject_slug = validate_ncert_subject(class_num, subject)
+
+    content_hash = hashlib.sha256(file_content).hexdigest()
+
+    existing = await db.execute(
+        select(NcertGlobalDocument).where(NcertGlobalDocument.content_hash == content_hash)
+    )
+    existing_doc = existing.scalar_one_or_none()
+    if existing_doc:
+        if catalog_chapter_id:
+            from packages.core.database.models.ncert_catalog import NcertCatalogChapter
+
+            cat_result = await db.execute(
+                select(NcertCatalogChapter).where(NcertCatalogChapter.id == catalog_chapter_id)
+            )
+            catalog = cat_result.scalar_one_or_none()
+            if catalog:
+                catalog.ncert_document_id = existing_doc.id
+                catalog.content_hash = content_hash
+                catalog.ingest_status = (
+                    "indexed" if existing_doc.status == "indexed" else existing_doc.status
+                )
+                await db.commit()
+        run_result = await db.execute(
+            select(NcertGlobalIngestionRun)
+            .where(NcertGlobalIngestionRun.document_id == existing_doc.id)
+            .order_by(NcertGlobalIngestionRun.started_at.desc())
+            .limit(1)
+        )
+        run = run_result.scalars().first()
+        if run is None:
+            run = NcertGlobalIngestionRun(
+                id=uuid.uuid4(),
+                document_id=existing_doc.id,
+                status=existing_doc.status,
+            )
+            db.add(run)
+            await db.commit()
+            await db.refresh(run)
+        return existing_doc, run
 
     doc_id = uuid.uuid4()
     run_id = uuid.uuid4()
     skey = storage_key_for_ncert_document(doc_id)
-    content_hash = hashlib.sha256(file_content).hexdigest()
 
     doc = NcertGlobalDocument(
         id=doc_id,
@@ -363,4 +559,18 @@ async def create_ncert_upload(
     await db.commit()
     await db.refresh(doc)
     await db.refresh(run)
+
+    if catalog_chapter_id:
+        from packages.core.database.models.ncert_catalog import NcertCatalogChapter
+
+        cat_result = await db.execute(
+            select(NcertCatalogChapter).where(NcertCatalogChapter.id == catalog_chapter_id)
+        )
+        catalog = cat_result.scalar_one_or_none()
+        if catalog:
+            catalog.ncert_document_id = doc.id
+            catalog.content_hash = content_hash
+            catalog.ingest_status = "processing"
+            await db.commit()
+
     return doc, run

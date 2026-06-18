@@ -1,0 +1,427 @@
+{
+  "agent_name": "studio_fallback_legacy",
+  "generated_at": "2026-06-18T03:31:25.536398+00:00",
+  "dataset_id": "studio_fallback_legacy",
+  "dataset_hash": "96a7e65518019514",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.001029,
+      "input_cost_usd": 9e-05,
+      "output_cost_usd": 0.000939,
+      "prompt_tokens": 603,
+      "completion_tokens": 1565,
+      "latency_ms": 11774.71,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.001251,
+      "input_cost_usd": 3.6e-05,
+      "output_cost_usd": 0.001216,
+      "prompt_tokens": 237,
+      "completion_tokens": 2026,
+      "latency_ms": 11807.81,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.001029,
+      "input_cost_usd": 9e-05,
+      "output_cost_usd": 0.000939
+    },
+    "composite_score": 0.8999
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "studio_fallback_legacy-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "summary",
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2."
+      },
+      "expected": {
+        "output": "Graceful summary from provided context on Current Electricity."
+      },
+      "actual": {
+        "output": "Ohm's law describes the relationship between voltage (V), current (I), and resistance (R) in a conductor, expressed as V = IR. The resistivity (\u03c1) of a material influences its resistance. When resistors are connected in series, the equivalent resistance (R_eq) is the sum of the individual resistances (R_eq = R1 + R2). In contrast, for resistors in parallel, the reciprocal of the equivalent resistance is the sum of the reciprocals of the individual resistances (1/R_eq = 1/R1 + 1/R2)."
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "quiz",
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi."
+      },
+      "expected": {
+        "output": "Graceful quiz from provided context on Human Digestion."
+      },
+      "actual": {
+        "output": "Sure! Here\u2019s a quiz based on the information you provided about digestion:\n\n### Digestion Quiz\n\n**Question 1:**  \nWhere does digestion begin in the human body?  \nA) Stomach  \nB) Mouth  \nC) Small intestine  \nD) Large intestine  \n\n**Question 2:**  \nWhat enzyme found in saliva starts the breakdown of carbohydrates?  \nA) Pepsin  \nB) Trypsin  \nC) Salivary amylase  \nD) Lipase  \n\n**Question 3:**  \nWhich acid is secreted by the stomach to aid in digestion?  \nA) Acetic acid  \nB) Hydrochloric acid (HCl)  \nC) Citric acid  \nD) Lactic acid  \n\n**Question 4:**  \nWhat is the primary function of pepsin in the stomach?  \nA) To emulsify fats  \nB) To break down carbohydrates  \nC) To digest proteins  \nD) To neutralize stomach acid  \n\n**Question 5:**  \nWhich of the following enzymes is NOT found in pancreatic juice?  \nA) Trypsin  \nB) Lipase  \nC) Amylase  \nD) Cellulase  \n\n**Question 6:**  \nWhat is the main site of nutrient absorption in the digestive system?  \nA) Stomach  \nB) Large intestine  \nC) Small intestine  \nD) Esophagus  \n\n**Question 7:**  \nThe small intestine has finger-like projections called ________ that increase the surface area for absorption.  \nA) Microvilli  \nB) Villi  \nC) Cilia  \nD) Folds  \n\n**Question 8:**  \nWhich of the following statements is true regarding the digestive enzymes?  \nA) Salivary amylase digests proteins.  \nB) Pepsin is active in the small intestine.  \nC) Trypsin is involved in protein digestion.  \nD) Lipase is secreted by the stomach.  \n\n**Question 9:**  \nWhat is the role of lipase in the digestive process?  \nA) To break down carbohydrates  \nB) To break down proteins  \nC) To emulsify and digest fats  \nD) To neutralize stomach acid  \n\n**Question 10:**  \nWhich part of the digestive system is primarily responsible for the chemical digestion of food?  \nA) Mouth  \nB) Stomach  \nC) Small intestine  \nD) All of the above  \n\n### Answers:\n1. B) Mouth\n2. C) Salivary amylase\n3. B) Hydrochloric acid (HCl)\n4. C) To digest proteins\n5. D) Cellulase\n6. C) Small intestine\n7. B) Villi\n8. C) Trypsin is involved in protein digestion.\n9. C) To emulsify and digest fats\n10. D) All of the above\n\nFeel free to use or modify this quiz as needed!"
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "flashcards",
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature."
+      },
+      "expected": {
+        "output": "Graceful flashcards from provided context on Photosynthesis."
+      },
+      "actual": {
+        "output": "Sure! Here are some flashcards based on the information you provided:\n\n---\n\n**Flashcard 1**  \n**Q:** What are the main products of the light reactions in photosynthesis?  \n**A:** ATP and NADPH\n\n---\n\n**Flashcard 2**  \n**Q:** Where do the light reactions of photosynthesis occur?  \n**A:** In the thylakoid membranes\n\n---\n\n**Flashcard 3**  \n**Q:** What is the primary function of the Calvin cycle?  \n**A:** To fix CO2 into organic molecules\n\n---\n\n**Flashcard 4**  \n**Q:** Where does the Calvin cycle take place?  \n**A:** In the stroma of the chloroplast\n\n---\n\n**Flashcard 5**  \n**Q:** Name one factor that affects the rate of photosynthesis.  \n**A:** Light intensity\n\n---\n\n**Flashcard 6**  \n**Q:** What is another factor that influences photosynthesis?  \n**A:** CO2 concentration\n\n---\n\n**Flashcard 7**  \n**Q:** What environmental factor can affect the efficiency of the Calvin cycle?  \n**A:** Temperature\n\n---\n\nFeel free to use or modify these flashcards as needed!"
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "metadata",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "outline",
+        "context": ""
+      },
+      "expected": {
+        "output": "Graceful outline from thin context on Chemical Bonding."
+      },
+      "actual": {
+        "output": "Certainly! Below is a general outline that can be adapted for various types of content, whether it be an article, essay, presentation, or report. You can modify the sections based on your specific topic or audience.\n\n### Outline for General Content\n\n#### I. Introduction\n   A. Hook: Engaging opening statement or question\n   B. Background Information: Brief context or overview of the topic\n   C. Purpose/Thesis Statement: Clear statement of the main idea or argument\n   D. Overview of Structure: Brief outline of what will be covered\n\n#### II. Main Body\n   A. Section 1: Key Point or Theme\n      1. Explanation: Detailed description or analysis\n      2. Evidence: Supporting data, examples, or quotes\n      3. Implications: Discussion of the significance or impact\n\n   B. Section 2: Key Point or Theme\n      1. Explanation: Detailed description or analysis\n      2. Evidence: Supporting data, examples, or quotes\n      3. Implications: Discussion of the significance or impact\n\n   C. Section 3: Key Point or Theme\n      1. Explanation: Detailed description or analysis\n      2. Evidence: Supporting data, examples, or quotes\n      3. Implications: Discussion of the significance or impact\n\n   D. (Optional) Additional Sections: Further key points or themes as needed\n\n#### III. Counterarguments (if applicable)\n   A. Presentation of Counterarguments: Acknowledge opposing views\n   B. Rebuttal: Refutation of counterarguments with evidence\n\n#### IV. Conclusion\n   A. Summary of Key Points: Recap the main ideas discussed\n   B. Restatement of Thesis: Reinforce the main argument or purpose\n   C. Final Thoughts: Closing remarks, implications for the future, or a call to action\n\n#### V. References (if applicable)\n   A. List of sources cited in the content\n   B. Additional reading or resources for further exploration\n\n### Notes:\n- Adjust the number of sections based on the depth and complexity of the topic.\n- Each section can be expanded with subpoints as necessary.\n- Ensure that the content flows logically from one section to the next.\n\nFeel free to customize this outline to better fit your specific needs!"
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "glossary",
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force."
+      },
+      "expected": {
+        "output": "Graceful glossary from provided context on Magnetic Effects."
+      },
+      "actual": {
+        "output": "### Glossary\n\n**1. Moving Charge**  \nA charged particle in motion, which generates a magnetic field around it according to electromagnetic theory. The movement of charges is fundamental to the operation of electric currents and magnetic fields.\n\n**2. Magnetic Field (B)**  \nA vector field that describes the magnetic influence on moving electric charges, electric currents, and magnetic materials. It is represented by the symbol **B** and is measured in teslas (T).\n\n**3. Force (F)**  \nIn the context of electromagnetism, it refers to the magnetic force experienced by a current-carrying conductor in a magnetic field. It is calculated using the formula **F = BIL sin \u03b8**, where **I** is the current, **L** is the length of the conductor in the magnetic field, and **\u03b8** is the angle between the direction of the magnetic field and the current.\n\n**4. Current (I)**  \nThe flow of electric charge, typically measured in amperes (A). In the context of the formula **F = BIL sin \u03b8**, it represents the amount of charge passing through a conductor per unit time.\n\n**5. Length of Conductor (L)**  \nThe length of the segment of the conductor that is within the magnetic field. It is a crucial factor in determining the magnitude of the force experienced by the conductor.\n\n**6. Angle (\u03b8)**  \nThe angle between the direction of the magnetic field and the direction of the current in the conductor. The sine of this angle (sin \u03b8) is used in the force equation to account for the orientation of the conductor relative to the magnetic field.\n\n**7. Fleming's Left-Hand Rule**  \nA mnemonic used to determine the direction of force experienced by a current-carrying conductor in a magnetic field. According to this rule, if the thumb, forefinger, and middle finger of the left hand are held perpendicular to each other:  \n- The **thumb** points in the direction of the force (motion) on the conductor.  \n- The **forefinger** points in the direction of the magnetic field (B).  \n- The **middle finger** points in the direction of the current (I).\n\n**8. Electromagnetism**  \nThe branch of physics that deals with the relationship between electricity and magnetism. It encompasses the study of electric charges, electric fields, magnetic fields, and their interactions.\n\n**9. Tesla (T)**  \nThe unit of measurement for magnetic flux density (magnetic field strength) in the International System of Units (SI). One tesla is defined as one weber per square meter.\n\n**10. Weber (Wb)**  \nThe SI unit of magnetic flux. It quantifies the total magnetic field passing through a given area and is used in the context of electromagnetic theory.\n\nThis glossary provides definitions and explanations of key terms related to the concepts of moving charges, magnetic fields, and the forces acting on current-carrying conductors."
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "summary",
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2."
+      },
+      "expected": {
+        "output": "Graceful summary from provided context on Current Electricity."
+      },
+      "actual": {
+        "summary": {
+          "Ohms_Law": {
+            "definition": "Ohm's law states that the current (I) flowing through a conductor is directly proportional to the potential difference (V) across it, with resistance (R) as the constant of proportionality.",
+            "formula": "V = IR"
+          },
+          "Resistivity": {
+            "definition": "Resistivity (\u03c1) is a material property that affects how easily electric current can flow through a conductor."
+          },
+          "Series_Circuits": {
+            "definition": "In a series circuit, the equivalent resistance (R_eq) is the sum of individual resistances.",
+            "formula": "R_eq = R1 + R2"
+          },
+          "Parallel_Circuits": {
+            "definition": "In a parallel circuit, the reciprocal of the equivalent resistance (R_eq) is the sum of the reciprocals of individual resistances.",
+            "formula": "1/R_eq = 1/R1 + 1/R2"
+          }
+        }
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "quiz",
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi."
+      },
+      "expected": {
+        "output": "Graceful quiz from provided context on Human Digestion."
+      },
+      "actual": {
+        "quiz": [
+          {
+            "question": "Where does digestion begin?",
+            "options": [
+              "Stomach",
+              "Mouth",
+              "Small intestine",
+              "Pancreas"
+            ],
+            "answer": "Mouth",
+            "reasoning": "Digestion starts in the mouth with the action of salivary amylase."
+          },
+          {
+            "question": "What acid is secreted by the stomach?",
+            "options": [
+              "Acetic acid",
+              "Hydrochloric acid",
+              "Citric acid",
+              "Lactic acid"
+            ],
+            "answer": "Hydrochloric acid",
+            "reasoning": "The stomach secretes hydrochloric acid (HCl) to aid digestion."
+          },
+          {
+            "question": "Which enzyme is responsible for protein digestion in the stomach?",
+            "options": [
+              "Amylase",
+              "Lipase",
+              "Pepsin",
+              "Trypsin"
+            ],
+            "answer": "Pepsin",
+            "reasoning": "Pepsin is the enzyme secreted in the stomach for protein digestion."
+          },
+          {
+            "question": "What does pancreatic juice contain?",
+            "options": [
+              "Amylase, pepsin, lipase",
+              "Trypsin, lipase, amylase",
+              "HCl, amylase, trypsin",
+              "Pepsin, trypsin, HCl"
+            ],
+            "answer": "Trypsin, lipase, amylase",
+            "reasoning": "Pancreatic juice contains trypsin, lipase, and amylase for digestion."
+          },
+          {
+            "question": "Where does most absorption occur in the digestive system?",
+            "options": [
+              "Mouth",
+              "Stomach",
+              "Large intestine",
+              "Small intestine"
+            ],
+            "answer": "Small intestine",
+            "reasoning": "Absorption mainly occurs in the villi of the small intestine."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "flashcards",
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature."
+      },
+      "expected": {
+        "output": "Graceful flashcards from provided context on Photosynthesis."
+      },
+      "actual": [
+        {
+          "question": "What is produced during the light reaction of photosynthesis?",
+          "answer": "ATP and NADPH",
+          "reasoning": "The light reaction occurs in the thylakoid membranes and converts light energy into chemical energy."
+        },
+        {
+          "question": "Where does the Calvin cycle take place?",
+          "answer": "In the stroma",
+          "reasoning": "The stroma is the fluid-filled space surrounding thylakoids where CO2 is fixed into glucose."
+        },
+        {
+          "question": "What is the role of light intensity in photosynthesis?",
+          "answer": "Affects the rate of light reactions",
+          "reasoning": "Higher light intensity increases the production of ATP and NADPH until a saturation point is reached."
+        },
+        {
+          "question": "How does CO2 concentration influence the Calvin cycle?",
+          "answer": "Increases the rate of carbon fixation",
+          "reasoning": "Higher CO2 levels enhance the efficiency of the Calvin cycle, leading to more glucose production."
+        },
+        {
+          "question": "What effect does temperature have on photosynthesis?",
+          "answer": "Affects enzyme activity",
+          "reasoning": "Optimal temperatures increase enzyme efficiency in both light reactions and the Calvin cycle, while extreme temperatures can inhibit them."
+        }
+      ]
+    },
+    {
+      "example_id": "studio_fallback_legacy-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "metadata",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "outline",
+        "context": ""
+      },
+      "expected": {
+        "output": "Graceful outline from thin context on Chemical Bonding."
+      },
+      "actual": {
+        "outline": {
+          "introduction": {
+            "definition": "Explain the concept of general content.",
+            "importance": "Discuss why understanding general content is essential in education."
+          },
+          "body": {
+            "section_1": {
+              "topic": "Types of General Content",
+              "subtopics": [
+                {
+                  "title": "Factual Content",
+                  "description": "Information that is objective and verifiable."
+                },
+                {
+                  "title": "Conceptual Content",
+                  "description": "Ideas and theories that help in understanding subjects."
+                },
+                {
+                  "title": "Procedural Content",
+                  "description": "Steps and methods used in various processes."
+                }
+              ]
+            },
+            "section_2": {
+              "topic": "Role in Education",
+              "subtopics": [
+                {
+                  "title": "Curriculum Development",
+                  "description": "How general content shapes educational programs."
+                },
+                {
+                  "title": "Assessment and Evaluation",
+                  "description": "Importance of general content in testing knowledge."
+                }
+              ]
+            },
+            "section_3": {
+              "topic": "Application in Real Life",
+              "subtopics": [
+                {
+                  "title": "Critical Thinking",
+                  "description": "Using general content to analyze and evaluate information."
+                },
+                {
+                  "title": "Problem Solving",
+                  "description": "Applying knowledge to find solutions in various contexts."
+                }
+              ]
+            }
+          },
+          "conclusion": {
+            "summary": "Recap the significance of general content in education.",
+            "future_implications": "Discuss potential developments in the understanding of general content."
+          }
+        }
+      }
+    },
+    {
+      "example_id": "studio_fallback_legacy-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "task_type": "glossary",
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force."
+      },
+      "expected": {
+        "output": "Graceful glossary from provided context on Magnetic Effects."
+      },
+      "actual": {
+        "glossary": [
+          {
+            "term": "Moving Charge",
+            "definition": "A charge in motion that generates a magnetic field around it."
+          },
+          {
+            "term": "Magnetic Field",
+            "definition": "A region around a magnetic material or a moving electric charge within which the force of magnetism acts."
+          },
+          {
+            "term": "Force (F)",
+            "definition": "The interaction that causes an object to change its velocity, calculated using the formula F = BIL sin \u03b8."
+          },
+          {
+            "term": "BIL",
+            "definition": "The product of magnetic field strength (B), current (I), and length of the conductor (L) in the context of magnetic force."
+          },
+          {
+            "term": "\u03b8 (Theta)",
+            "definition": "The angle between the direction of the magnetic field and the direction of the current."
+          },
+          {
+            "term": "Fleming's Left-Hand Rule",
+            "definition": "A rule used to determine the direction of force experienced by a current-carrying conductor in a magnetic field."
+          },
+          {
+            "term": "Current (I)",
+            "definition": "The flow of electric charge, measured in amperes (A)."
+          },
+          {
+            "term": "Length of Conductor (L)",
+            "definition": "The length of the wire or conductor through which current flows, affecting the force experienced in a magnetic field."
+          }
+        ]
+      }
+    }
+  ]
+}

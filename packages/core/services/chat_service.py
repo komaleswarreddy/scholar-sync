@@ -31,12 +31,13 @@ class ChatService:
         self.tenant_id = uuid.UUID(tenant_id) if isinstance(tenant_id, str) else tenant_id
         self.user_id = user_id
 
-    async def create_chat(self, title: Optional[str] = None) -> Chat:
+    async def create_chat(self, title: Optional[str] = None, notebook_id: Optional[str] = None) -> Chat:
         """Create a new chat session."""
         chat = Chat(
             tenant_id=self.tenant_id,
             user_id=self.user_id,
             title=title,
+            notebook_id=uuid.UUID(notebook_id) if notebook_id else None,
         )
         self.db.add(chat)
         await self.db.commit()
@@ -79,12 +80,19 @@ class ChatService:
                 raise ValueError(f"Database schema issue: The 'feedback' column is missing from the messages table. Please run: python backend/add_feedback_column.py")
             raise
 
-    async def list_chats(self, limit: int = 50, offset: int = 0) -> List[Chat]:
+    async def list_chats(
+        self, limit: int = 50, offset: int = 0, notebook_id: Optional[str] = None
+    ) -> List[Chat]:
         """List all chats for the current user."""
+        filters = [
+            Chat.tenant_id == self.tenant_id,
+            Chat.user_id == self.user_id,
+        ]
+        if notebook_id:
+            filters.append(Chat.notebook_id == uuid.UUID(notebook_id))
         result = await self.db.execute(
             select(Chat)
-            .where(Chat.tenant_id == self.tenant_id)
-            .where(Chat.user_id == self.user_id)
+            .where(*filters)
             .order_by(Chat.created_at.desc())
             .limit(limit)
             .offset(offset)
@@ -93,7 +101,7 @@ class ChatService:
         return chats
 
     async def list_chats_with_message_counts(
-        self, limit: int = 50, offset: int = 0
+        self, limit: int = 50, offset: int = 0, notebook_id: Optional[str] = None
     ) -> List[Tuple[Chat, int]]:
         """
         List chats with message counts in a single query (avoids N+1 count queries on the API).
@@ -104,11 +112,16 @@ class ChatService:
 
         db_timeout_s = 5.0
 
+        filters = [
+            Chat.tenant_id == self.tenant_id,
+            Chat.user_id == self.user_id,
+        ]
+        if notebook_id:
+            filters.append(Chat.notebook_id == uuid.UUID(notebook_id))
         stmt = (
             select(Chat, func.count(Message.id).label("message_count"))
             .outerjoin(Message, Message.chat_id == Chat.id)
-            .where(Chat.tenant_id == self.tenant_id)
-            .where(Chat.user_id == self.user_id)
+            .where(*filters)
             .group_by(Chat.id)
             .order_by(Chat.created_at.desc())
             .limit(limit)
@@ -281,7 +294,8 @@ class ChatService:
     async def update_message_feedback(
         self,
         message_id: str,
-        feedback: Optional[str]
+        feedback: Optional[str],
+        feedback_reason: Optional[str] = None,
     ) -> Optional[Message]:
         """Update feedback for a message."""
         message_uuid = uuid.UUID(message_id) if isinstance(message_id, str) else message_id
@@ -300,8 +314,15 @@ class ChatService:
             # Validate feedback value
             if feedback not in [None, 'thumbs_up', 'thumbs_down']:
                 raise ValueError("Feedback must be 'thumbs_up', 'thumbs_down', or None")
+
+            reason = (feedback_reason or "").strip() or None
+            if feedback == 'thumbs_down' and not reason:
+                raise ValueError("A reason is required when feedback is thumbs_down")
+            if feedback in (None, 'thumbs_up'):
+                reason = None
             
             message.feedback = feedback
+            message.feedback_reason = reason
             await self.db.commit()
             await self.db.refresh(message)
         

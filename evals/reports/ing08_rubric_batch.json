@@ -1,0 +1,141 @@
+{
+  "test_id": "ING-08",
+  "pass_threshold": 0.9,
+  "tenant_id": "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5",
+  "rubric_criteria": [
+    "complete_sentences",
+    "semantic_coherence",
+    "reasonable_overlap",
+    "formula_equation_integrity"
+  ],
+  "sources": [
+    {
+      "fixture_file": "standard_chapter.pdf",
+      "source_id": "492f7be8-e20d-4f7d-bd94-f2fc5827cd12",
+      "samples": [
+        {
+          "chunk_index": 1,
+          "text_preview": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+          "scores": {
+            "complete_sentences": true,
+            "semantic_coherence": true,
+            "reasonable_overlap": true,
+            "formula_equation_integrity": true
+          },
+          "pass": true,
+          "reviewer_notes": ""
+        }
+      ]
+    },
+    {
+      "fixture_file": "physics_formulas.pdf",
+      "source_id": "32f882a2-95fd-4b18-aa99-b0a5de425823",
+      "samples": [
+        {
+          "chunk_index": 1,
+          "text_preview": "Snell's law: n1 sin(theta1) = n2 sin(theta2).\n\nHenderson-Hasselbalch equation: pH = pKa + log10([A-]/[HA]).\n\nNewton's second law: F = ma.",
+          "scores": {
+            "complete_sentences": true,
+            "semantic_coherence": true,
+            "reasonable_overlap": true,
+            "formula_equation_integrity": true
+          },
+          "pass": true,
+          "reviewer_notes": ""
+        }
+      ]
+    },
+    {
+      "fixture_file": "sample_phrase_alpha.txt",
+      "source_id": "71a18824-8a77-40d2-9bd2-95b73435ba9f",
+      "samples": [
+        {
+          "chunk_index": 1,
+          "text_preview": "ING02_ALPHA_PHRASE: The mitochondria is the powerhouse of the cell.",
+          "scores": {
+            "complete_sentences": true,
+            "semantic_coherence": true,
+            "reasonable_overlap": true,
+            "formula_equation_integrity": true
+          },
+          "pass": true,
+          "reviewer_notes": ""
+        }
+      ]
+    },
+    {
+      "fixture_file": "sample_phrase_beta.txt",
+      "source_id": "3316c7ba-ee2f-4652-977d-75cf2136b339",
+      "samples": [
+        {
+          "chunk_index": 1,
+          "text_preview": "ING02_BETA_PHRASE: Snell's law relates angles of incidence and refraction.",
+          "scores": {
+            "complete_sentences": true,
+            "semantic_coherence": true,
+            "reasonable_overlap": true,
+            "formula_equation_integrity": true
+          },
+          "pass": true,
+          "reviewer_notes": ""
+        }
+      ]
+    },
+    {
+      "fixture_file": "large_50page.pdf",
+      "source_id": "ba40ad83-093d-4038-9098-a3be418a1625",
+      "samples": [
+        {
+          "chunk_index": 1,
+          "text_preview": "Large document page 1: Lorem ipsum dolor sit amet.\n\nLarge document page 2: Lorem ipsum dolor sit amet.\n\nLarge document page 3: Lorem ipsum dolor sit amet.\n\nLarge document page 4: Lorem ipsum dolor sit amet.\n\nLarge document page 5: Lorem ipsum dolor sit amet.\n\nLarge document page 6: Lorem ipsum dolor sit amet.\n\nLarge document page 7: Lorem ipsum dolor sit amet.\n\nLarge document page 8: Lorem ipsum dolor sit amet.\n\nLarge document page 9: Lorem ipsum dolor sit amet.\n\nLarge document page 10: Lorem ip",
+          "scores": {
+            "complete_sentences": true,
+            "semantic_coherence": true,
+            "reasonable_overlap": true,
+            "formula_equation_integrity": true
+          },
+          "pass": true,
+          "reviewer_notes": ""
+        }
+      ]
+    },
+    {
+      "fixture_file": "encrypted_sample.pdf",
+      "source_id": "26ca5ad7-cf65-42e4-92db-3f6353ff2eb5",
+      "samples": [
+        {
+          "chunk_index": 1,
+          "text_preview": "Encrypted content phrase: RET_ENCRYPTED_SECRET_42.",
+          "scores": {
+            "complete_sentences": false,
+            "semantic_coherence": false,
+            "reasonable_overlap": false,
+            "formula_equation_integrity": true
+          },
+          "pass": false,
+          "reviewer_notes": ""
+        }
+      ]
+    },
+    {
+      "fixture_file": "standard_chapter.pdf",
+      "source_id": "80b4c67a-816f-4715-bc96-58a36770f8f1",
+      "samples": [
+        {
+          "chunk_index": 1,
+          "text_preview": "Photosynthesis converts light energy into chemical energy in plants.\n\nThe key pigment chlorophyll absorbs red and blue light most effectively.\n\nCarbon dioxide and water are reactants in the Calvin cycle.\n\nRET_GOLDEN_FACT: The equation 6CO2 + 6H2O -> C6H12O6 + 6O2 summarizes\nphotosynthesis.",
+          "scores": {
+            "complete_sentences": true,
+            "semantic_coherence": true,
+            "reasonable_overlap": true,
+            "formula_equation_integrity": true
+          },
+          "pass": true,
+          "reviewer_notes": ""
+        }
+      ]
+    }
+  ],
+  "instructions": "Score each sample 1=pass 0=fail per criterion. pass=all four pass.",
+  "status": "PENDING"
+}

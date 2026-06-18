@@ -15,7 +15,7 @@ import asyncio
 import json
 import uuid
 
-from packages.core.database.connection import get_db
+from packages.core.database.connection import get_db, db_session
 from config.settings import settings
 from apps.api.schemas.chat import (
     ChatRequest,
@@ -26,6 +26,7 @@ from apps.api.schemas.chat import (
     ChatListResponse,
     MessageResponse,
     MessageCreateRequest,
+    MessageFeedbackRequest,
 )
 from typing import List, Optional
 from pydantic import BaseModel, Field
@@ -49,7 +50,7 @@ from packages.core.memory.chat_summary_button import (
 async def get_ncert_filters(
     request: Request,
     db: AsyncSession = Depends(get_db),
-    class_num: Optional[int] = Query(None, ge=6, le=10),
+    class_num: Optional[int] = Query(None, ge=12, le=12),
     subject: Optional[str] = Query(None),
 ):
     """Return available NCERT tutor filters for class / subject / chapter selectors."""
@@ -59,7 +60,7 @@ async def get_ncert_filters(
 
     fallback_subjects = await asyncio.to_thread(load_ncert_subjects_by_class)
     result = {
-        "classes": [6, 7, 8, 9, 10],
+        "classes": [12],
         "subjects_by_class": {
             str(int(k)): [str(v).strip().lower() for v in vals]
             for k, vals in (fallback_subjects or {}).items()
@@ -206,15 +207,16 @@ async def stream_chat(
     validated_source_ids: List[str] = []
     if requested_uuid_ids:
         tenant_uuid = uuid.UUID(tenant_id)
-        allowed_uuid_ids = await db.execute(
-            select(Source.id)
-            .where(
-                Source.tenant_id == tenant_uuid,
-                Source.user_id == user_id,
-                Source.id.in_(requested_uuid_ids),
+        async with db_session() as db:
+            allowed_uuid_ids = await db.execute(
+                select(Source.id)
+                .where(
+                    Source.tenant_id == tenant_uuid,
+                    Source.user_id == user_id,
+                    Source.id.in_(requested_uuid_ids),
+                )
             )
-        )
-        allowed_source_uuid_set = set(allowed_uuid_ids.scalars().all())
+            allowed_source_uuid_set = set(allowed_uuid_ids.scalars().all())
         validated_source_ids = [str(sid) for sid in requested_uuid_ids if sid in allowed_source_uuid_set]
         if not validated_source_ids:
             raise HTTPException(
@@ -233,15 +235,9 @@ async def stream_chat(
 
     # Phase 4: Rate Limiting & Debounce
     if settings.USE_SESSION_MEMORY and settings.ENABLE_RATE_LIMITING:
-        from packages.core.memory import RateLimiter
-        
-        # Create rate limiter (singleton pattern - could be improved with global instance)
-        rate_limiter = RateLimiter(
-            max_requests_per_minute=settings.RATE_LIMIT_REQUESTS_PER_MINUTE,
-            debounce_seconds=settings.RATE_LIMIT_DEBOUNCE_SECONDS,
-            max_requests_per_hour=500
-        )
-        
+        from packages.core.memory import get_rate_limiter
+
+        rate_limiter = get_rate_limiter()
         rate_check = rate_limiter.check_rate_limit(user_id, request_body.message, tenant_id)
         if not rate_check["allowed"]:
             raise HTTPException(
@@ -292,7 +288,7 @@ async def stream_chat(
             print(f"[WARNING] Failed to record regenerate attempt metric: {e}")
 
     try:
-        service = LangGraphChatPipeline(tenant_id=tenant_id, user_id=user_id, db=db)
+        service = LangGraphChatPipeline(tenant_id=tenant_id, user_id=user_id, db=None)
     except Exception as e:
         import traceback
         error_msg = f"Failed to initialize RAG service: {str(e)}"
@@ -315,12 +311,14 @@ async def stream_chat(
             async for event in service.stream(
                 message=request_body.message,
                 history=history_dicts,
+                chat_id=getattr(request_body, "chat_id", None),
                 active_source_ids=validated_source_ids,
                 include_ncert_global=include_ncert,
                 ncert_class=request_body.ncert_class,
                 ncert_subject=request_body.ncert_subject,
                 ncert_chapter_no=request_body.ncert_chapter_no,
                 ncert_chapter_name=request_body.ncert_chapter_name,
+                ncert_concept=getattr(request_body, "ncert_concept", None),
                 force_whole_file_map_reduce=bool(
                     getattr(request_body, "force_whole_file_map_reduce", False)
                 ),
@@ -339,9 +337,19 @@ async def stream_chat(
                     break
         except Exception as e:
             import traceback
+            from packages.core.guardrails.exceptions import BudgetExceededError
+
             print(f"[ERROR] SSE stream error: {type(e).__name__}: {str(e)}")
             print(traceback.format_exc())
             try:
+                if isinstance(e, BudgetExceededError):
+                    error_data = json.dumps(
+                        {"error": str(e), "budget_exceeded": True},
+                        ensure_ascii=False,
+                    )
+                    yield f"event: error\n"
+                    yield f"data: {error_data}\n\n"
+                    return
                 error_data = json.dumps({"error": str(e)}, ensure_ascii=False)
                 yield f"event: error\n"
                 yield f"data: {error_data}\n\n"
@@ -429,7 +437,10 @@ async def create_chat(
         raise HTTPException(status_code=401, detail="User ID required")
     
     service = ChatService(db, tenant_id, user_id)
-    chat = await service.create_chat(title=request_body.title)
+    chat = await service.create_chat(
+        title=request_body.title,
+        notebook_id=request_body.notebook_id,
+    )
     
     return ChatResponse(
         id=str(chat.id),
@@ -445,6 +456,7 @@ async def list_chats(
     db: AsyncSession = Depends(get_db),
     limit: int = 50,
     offset: int = 0,
+    notebook_id: Optional[str] = Query(None),
 ):
     """List all chats for the current user."""
     tenant_id = request.state.tenant_id
@@ -454,7 +466,9 @@ async def list_chats(
         raise HTTPException(status_code=401, detail="User ID required")
     
     service = ChatService(db, tenant_id, user_id)
-    chats_with_counts = await service.list_chats_with_message_counts(limit=limit, offset=offset)
+    chats_with_counts = await service.list_chats_with_message_counts(
+        limit=limit, offset=offset, notebook_id=notebook_id
+    )
 
     chat_items = [
         ChatListItemResponse(
@@ -503,6 +517,12 @@ async def get_chat(
                         # Column doesn't exist in database yet
                         feedback_value = None
                     
+                    feedback_reason_value = None
+                    try:
+                        feedback_reason_value = getattr(msg, 'feedback_reason', None)
+                    except (AttributeError, KeyError):
+                        feedback_reason_value = None
+                    
                     messages.append(
                         MessageResponse(
                             id=str(msg.id),
@@ -510,6 +530,7 @@ async def get_chat(
                             content=msg.content,
                             citations=msg.citations or [],
                             feedback=feedback_value,
+                            feedback_reason=feedback_reason_value,
                             created_at=msg.created_at,
                         )
                     )
@@ -585,6 +606,7 @@ async def update_chat(
                 content=msg.content,
                 citations=msg.citations or [],
                 feedback=feedback_value,
+                feedback_reason=getattr(msg, 'feedback_reason', None),
                 created_at=msg.created_at,
             )
         )
@@ -676,6 +698,7 @@ async def add_message(
             content=message.content,
             citations=message.citations or [],
             feedback=message.feedback,
+            feedback_reason=getattr(message, 'feedback_reason', None),
             created_at=message.created_at,
         )
     except ValueError as e:
@@ -685,11 +708,6 @@ async def add_message(
             status_code=503,
             detail="Message persistence unavailable (database timeout). Please retry.",
         )
-
-
-class MessageFeedbackRequest(BaseModel):
-    """Request to update message feedback."""
-    feedback: Optional[str] = Field(None, description="Feedback: 'thumbs_up', 'thumbs_down', or None")
 
 
 @router.delete("/{chat_id}/messages")
@@ -790,6 +808,7 @@ async def summarize_chat_so_far(
             content=saved.content,
             citations=saved.citations or [],
             feedback=saved.feedback,
+            feedback_reason=getattr(saved, 'feedback_reason', None),
             created_at=saved.created_at,
         )
     except Exception as e:
@@ -815,6 +834,7 @@ async def update_message_feedback(
         message = await service.update_message_feedback(
             message_id=message_id,
             feedback=request_body.feedback,
+            feedback_reason=request_body.feedback_reason,
         )
         
         if not message:
@@ -826,6 +846,7 @@ async def update_message_feedback(
             content=message.content,
             citations=message.citations or [],
             feedback=message.feedback,
+            feedback_reason=getattr(message, 'feedback_reason', None),
             created_at=message.created_at,
         )
     except ValueError as e:

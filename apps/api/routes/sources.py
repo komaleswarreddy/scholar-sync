@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, Request, BackgroundTasks, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, Depends, Request, BackgroundTasks, HTTPException, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import DBAPIError, OperationalError
@@ -6,7 +6,15 @@ import uuid
 
 from packages.core.database.connection import get_db, AsyncSessionLocal
 from packages.core.services.source_service import IngestionService
+from packages.core.security.file_validator import FileValidator
+from packages.core.processing.pdf_upload_validator import validate_pdf_at_upload
 from apps.api.schemas.source import SourceResponse, SourceListResponse
+from apps.api.schemas.source_question import (
+    SourceQuestionDetail,
+    SourceQuestionExtractResponse,
+    SourceQuestionListResponse,
+)
+from packages.core.services.source_question_extraction_service import SourceQuestionExtractionService
 
 router = APIRouter()
 
@@ -37,6 +45,7 @@ async def upload_source(
     request: Request,
     file: UploadFile = File(...),
     title: str = Form(None),
+    notebook_id: str = Form(None),
     pdf_password: str = Form(None),  # Optional password for encrypted PDFs
     background_tasks: BackgroundTasks = BackgroundTasks(),
     db: AsyncSession = Depends(get_db),
@@ -57,19 +66,20 @@ async def upload_source(
     file_content = await file.read()
     file_size = len(file_content)
     
-    if file_size > MAX_FILE_SIZE:
-        raise HTTPException(status_code=400, detail=f"File too large. Max is 10MB.")
-    
-    if file_size == 0:
-        raise HTTPException(status_code=400, detail="File is empty")
-
     content_type = file.content_type or ""
-    
-    # Simple type validation
-    if content_type not in ["application/pdf", "text/plain"]:
-        filename = file.filename or ""
-        if not (filename.endswith(".pdf") or filename.endswith(".txt")):
-            raise HTTPException(status_code=400, detail="Only PDF and text files supported")
+    filename = file.filename or ""
+
+    validator = FileValidator(max_size_bytes=MAX_FILE_SIZE)
+    is_valid, validation_error = validator.validate(filename, content_type, file_content)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=validation_error)
+
+    is_pdf = content_type == "application/pdf" or filename.lower().endswith(".pdf")
+    if is_pdf:
+        try:
+            validate_pdf_at_upload(file_content, pdf_password)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
     
     if not title:
         title = file.filename or "Untitled Source"
@@ -82,7 +92,8 @@ async def upload_source(
             filename=file.filename or "",
             content_type=content_type,
             title=title,
-            pdf_password=pdf_password  # Pass password for encrypted PDFs
+            pdf_password=pdf_password,
+            notebook_id=notebook_id,
         )
 
         background_tasks.add_task(process_upload_background, tenant_id, user_id, result["id"], content_type, pdf_password)
@@ -177,7 +188,11 @@ async def process_upload_background(tenant_id: str, user_id: str, source_id: str
             print(traceback.format_exc())
 
 @router.get("/sources", response_model=SourceListResponse)
-async def list_sources(request: Request, db: AsyncSession = Depends(get_db)):
+async def list_sources(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    notebook_id: str | None = Query(None),
+):
     tenant_id = getattr(request.state, "tenant_id", None)
     user_id = getattr(request.state, "user_id", None)
     if not tenant_id:
@@ -187,7 +202,7 @@ async def list_sources(request: Request, db: AsyncSession = Depends(get_db)):
 
     try:
         service = IngestionService(db, tenant_id, user_id)
-        sources = await service.list_sources()
+        sources = await service.list_sources(notebook_id=notebook_id)
         return SourceListResponse(sources=sources)
     except Exception as e:
         if _is_db_unavailable_error(e):
@@ -219,3 +234,81 @@ async def delete_source(source_id: str, request: Request, db: AsyncSession = Dep
         return JSONResponse(status_code=200, content={"message": "Source deleted"})
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/sources/{source_id}/questions", response_model=SourceQuestionListResponse)
+async def list_source_questions(
+    source_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    tenant_id = getattr(request.state, "tenant_id", None)
+    user_id = getattr(request.state, "user_id", None)
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant identification failed")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User authentication required")
+
+    service = SourceQuestionExtractionService(db, str(tenant_id), user_id)
+    data = await service.get_extraction_status(source_id)
+    return SourceQuestionListResponse(**data)
+
+
+async def run_question_extraction_background(tenant_id: str, user_id: str, source_id: str) -> None:
+    """Background worker — fetches text and extracts questions without blocking the HTTP response."""
+    import traceback
+
+    try:
+        async with AsyncSessionLocal() as db:
+            service = SourceQuestionExtractionService(db, tenant_id, user_id)
+            await service.run_extraction_job(source_id)
+    except Exception as exc:
+        print(f"[QUESTION_EXTRACT] Background task error for {source_id}: {exc}")
+        print(traceback.format_exc())
+
+
+@router.post("/sources/{source_id}/extract-questions", response_model=SourceQuestionExtractResponse)
+async def extract_source_questions(
+    source_id: str,
+    request: Request,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    force: bool = Query(False),
+):
+    tenant_id = getattr(request.state, "tenant_id", None)
+    user_id = getattr(request.state, "user_id", None)
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant identification failed")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User authentication required")
+
+    service = SourceQuestionExtractionService(db, str(tenant_id), user_id)
+    data = await service.kickoff_extraction(source_id, force=force)
+    if data.pop("run_background", False):
+        background_tasks.add_task(
+            run_question_extraction_background,
+            str(tenant_id),
+            user_id,
+            source_id,
+        )
+    data.pop("questions", None)
+    return SourceQuestionExtractResponse(**data)
+
+
+@router.get("/sources/{source_id}/questions/{question_id}", response_model=SourceQuestionDetail)
+async def get_source_question(
+    source_id: str,
+    question_id: str,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    tenant_id = getattr(request.state, "tenant_id", None)
+    user_id = getattr(request.state, "user_id", None)
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant identification failed")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User authentication required")
+
+    service = SourceQuestionExtractionService(db, str(tenant_id), user_id)
+    data = await service.get_question(source_id, question_id)
+    return SourceQuestionDetail(**data)

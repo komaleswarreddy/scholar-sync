@@ -1,0 +1,894 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "explain_from_basics",
+  "agent": {
+    "sno": 18,
+    "category": "Problem Solving",
+    "name": "Explain From Basics Coach",
+    "tier": "tier_1",
+    "target_examples": 30,
+    "prompt_template": "{# Mode-specific response: EXPLAIN_FROM_BASICS #}\nYou are ScholarSync AI Coach. Explain from the basics for an Indian student.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Question Understanding\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Given Information\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"What to Find\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Concept Needed\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Formula/Principle\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Step-by-step Solution\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Final Answer\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Key Learning\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show shorter version\", \"action\": \"SHOW_SHORTER_VERSION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain concept again\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "problem_text_normalized",
+      "ncert_context"
+    ],
+    "output_keys": [
+      "coach_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "explain_from_basics-001",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-002",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-003",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-004",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-005",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-006",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-007",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Chemistry problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-008",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-009",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-010",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-011",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-012",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-013",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Chemistry problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-014",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Chemistry problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-015",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-016",
+      "variation": "proof",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-017",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-018",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-019",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-020",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-021",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Chemistry problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-022",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Find area under y=x from 0 to 3.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-023",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-024",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-025",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-026",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Chemistry problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-027",
+      "variation": "case_study",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Biology problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-028",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Physics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-029",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Mathematics problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    },
+    {
+      "id": "explain_from_basics-030",
+      "variation": "conceptual",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Explain: Chemistry problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "Restate problem."
+            }
+          ],
+          "finalAnswer": "Worked answer with units.",
+          "revealLevel": "full"
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "coach_sections"
+      ]
+    }
+  ]
+}

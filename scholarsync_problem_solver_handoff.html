@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ScholarSync Guided Problem Solver — Developer Handoff</title>
+<style>
+  :root{
+    --bg:#f6f8fc;
+    --ink:#0d1b3d;
+    --muted:#506180;
+    --line:#dfe6f3;
+    --card:#ffffff;
+    --nav:#071b45;
+    --blue:#1d6ff2;
+    --blue-dark:#0d4fc4;
+    --green:#0f9f6e;
+    --orange:#f59e0b;
+    --purple:#7c3aed;
+    --red:#dc2626;
+    --soft-blue:#eef5ff;
+    --soft-green:#ecfdf5;
+    --soft-orange:#fff7ed;
+    --soft-purple:#f5f3ff;
+    --shadow:0 18px 45px rgba(13,27,61,.08);
+    --radius:18px;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}
+  a{color:inherit;text-decoration:none}
+  .layout{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:100vh}
+  aside{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#06173c,#0b265a);color:#fff;padding:28px 22px;overflow:auto}
+  .logo{display:flex;gap:12px;align-items:center;margin-bottom:28px}
+  .logo-mark{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,#5eead4,#2563eb);display:grid;place-items:center;font-weight:900;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+  .brand h1{font-size:18px;margin:0;line-height:1.1}.brand p{margin:4px 0 0;color:#bdd1ff;font-size:12px}
+  .nav-title{font-size:11px;color:#89a7e6;text-transform:uppercase;letter-spacing:.14em;margin:22px 0 9px}
+  aside a{display:block;padding:9px 10px;border-radius:10px;color:#e8f0ff;font-size:14px;margin:2px 0}
+  aside a:hover{background:rgba(255,255,255,.09)}
+  main{padding:34px 44px 80px;max-width:1240px;width:100%}
+  .hero{background:linear-gradient(135deg,#06173c,#0d3b8e 58%,#1d6ff2);border-radius:28px;color:#fff;padding:42px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;right:-120px;top:-120px;width:330px;height:330px;border-radius:50%;background:rgba(255,255,255,.12)}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#a8c7ff;font-weight:800;margin-bottom:12px}
+  .hero h2{font-size:42px;line-height:1.08;margin:0 0 16px;letter-spacing:-.03em;max-width:850px}
+  .hero p{max-width:850px;margin:0;color:#e2ecff;font-size:18px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.chip{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);padding:8px 12px;border-radius:999px;font-size:12px;color:#fff;font-weight:700}
+  section{margin-top:34px}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:16px}.kicker{font-size:12px;color:var(--blue);font-weight:900;letter-spacing:.16em;text-transform:uppercase}.section-head h3{font-size:28px;line-height:1.1;margin:6px 0 0;letter-spacing:-.02em}.section-head p{color:var(--muted);margin:0;max-width:620px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}.grid{display:grid;gap:18px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .callout{border-left:5px solid var(--blue);background:var(--soft-blue);padding:18px 20px;border-radius:14px;color:#17315f}.callout strong{color:#071b45}.callout.warn{border-left-color:var(--orange);background:var(--soft-orange)}
+  .mode-card{position:relative;min-height:260px}.mode-card .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.mode-card h4{font-size:20px;margin:14px 0 8px}.mode-card p{margin:0;color:var(--muted);font-size:14px}.mode-card ul{padding-left:18px;margin:14px 0 0;color:var(--muted);font-size:14px}.mode-card li{margin:7px 0}.blue{background:var(--soft-blue);color:var(--blue)}.green{background:var(--soft-green);color:var(--green)}.orange{background:var(--soft-orange);color:var(--orange)}.purple{background:var(--soft-purple);color:var(--purple)}
+  table{border-collapse:collapse;width:100%;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow)}th{background:#f0f5ff;color:#14356f;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.09em}td,th{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}td{color:#31405d;font-size:14px}tr:last-child td{border-bottom:none}td:first-child{font-weight:800;color:var(--ink)}
+  .flow{display:grid;gap:12px}.flow-step{display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.num{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:900}.flow-step h4{margin:0 0 4px;font-size:16px}.flow-step p{margin:0;color:var(--muted);font-size:14px}
+  .diagram{background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:24px;overflow:auto}.diagram-row{display:flex;align-items:center;gap:14px;min-width:900px}.box{border:2px solid #cfe0ff;border-radius:16px;background:#f8fbff;padding:16px;min-width:150px;text-align:center;font-weight:800;color:#12356c}.box.small{min-width:125px;font-size:13px}.box.green{border-color:#bbf7d0;background:#f0fdf4;color:#166534}.box.orange{border-color:#fed7aa;background:#fff7ed;color:#9a3412}.box.purple{border-color:#ddd6fe;background:#f5f3ff;color:#5b21b6}.arrow{font-size:28px;color:#8aa8dc;font-weight:900}.branch{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px;min-width:900px}.branch .box{min-width:0}
+  .subflow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:12px}.subflow .mini{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;font-size:13px;color:#31405d}.mini b{display:block;color:var(--ink);margin-bottom:4px}
+  pre{margin:0;background:#09152f;color:#e4ecff;border-radius:18px;padding:20px;overflow:auto;font-size:13px;line-height:1.55;border:1px solid #1f3b77}code{font-family:var(--mono)}
+  .pill-list{display:flex;flex-wrap:wrap;gap:8px}.pill{background:#f2f6ff;border:1px solid #dce8ff;border-radius:999px;padding:8px 12px;color:#17315f;font-size:13px;font-weight:700}
+  .acceptance li{margin:10px 0;color:#31405d}.acceptance strong{color:var(--ink)}
+  .footer{margin-top:48px;padding:24px;color:var(--muted);font-size:13px;text-align:center}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}aside{position:relative;height:auto}.grid.two,.grid.three,.grid.four{grid-template-columns:1fr}main{padding:24px}.hero{padding:28px}.hero h2{font-size:32px}.section-head{display:block}.subflow{grid-template-columns:1fr}.branch,.diagram-row{min-width:760px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="logo"><div class="logo-mark">SS</div><div class="brand"><h1>ScholarSync</h1><p>Guided Problem Solver</p></div></div>
+    <div class="nav-title">Handoff</div>
+    <a href="#goal">Goal</a>
+    <a href="#locked">Locked Step 3</a>
+    <a href="#screen">Screen Behavior</a>
+    <a href="#overall-flow">Overall Flow</a>
+    <a href="#mode-workflows">Mode Workflows</a>
+    <a href="#rag">RAG Instructions</a>
+    <a href="#data">Data Contract</a>
+    <a href="#states">UI States</a>
+    <a href="#acceptance">Acceptance Criteria</a>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <div class="eyebrow">Developer Handoff · V1</div>
+      <h2>Guided Problem Solver: Step 3 Solving Mode Selector</h2>
+      <p>Implement a direction-first problem-solving workflow where students upload a question, receive Problem DNA analysis, then choose the kind of help they want. The system should reduce blank-chat friction and produce mode-specific RAG responses.</p>
+      <div class="chips">
+        <span class="chip">Text · Image · PDF · Doc input</span>
+        <span class="chip">Problem DNA before solving</span>
+        <span class="chip">4 solving modes</span>
+        <span class="chip">Only one mode is lightly interactive</span>
+      </div>
+    </div>
+
+    <section id="goal">
+      <div class="section-head">
+        <div><div class="kicker">01 · Product Goal</div><h3>What this feature should achieve</h3></div>
+        <p>Students preparing for 11th/12th and competitive exams often know they need help, but do not know what exact prompt to ask. This selector converts vague intent into structured RAG behavior.</p>
+      </div>
+      <div class="grid two">
+        <div class="card">
+          <h4>Core Product Intent</h4>
+          <p>Do not drop the student into a blank chat after upload. First analyze the problem, then let the student choose a solving style. Based on that choice, the RAG/Tutor agent should give a complete, useful response.</p>
+        </div>
+        <div class="card">
+          <h4>Important Constraint</h4>
+          <p>Do not expect students to submit full algebraic working or long equation-heavy solutions. Most flows should be one-directional. Only <strong>Help Me Solve It</strong> may ask for student input, capped at maximum 2 small inputs.</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:18px">
+        <strong>Implementation principle:</strong> Step 3 is not a diagnosis form. It is a <strong>Solving Mode Selector</strong> that controls prompt template, answer structure, reveal behavior, follow-up buttons, and interaction limit.
+      </div>
+    </section>
+
+    <section id="locked">
+      <div class="section-head">
+        <div><div class="kicker">02 · Locked Decision</div><h3>Final 4 solving modes</h3></div>
+        <p>Use these exact labels unless design decides minor wording changes later. Intent should remain unchanged.</p>
+      </div>
+      <div class="grid four">
+        <div class="card mode-card">
+          <span class="badge blue">Mode 1</span>
+          <h4>Explain from the Basics</h4>
+          <p>Break down the problem from the beginning and explain every step clearly.</p>
+          <ul><li>Best when student cannot start</li><li>Gives full structured solution</li><li>No student input required</li></ul>
+        </div>
+        <div class="card mode-card">
+          <span class="badge green">Mode 2 · Recommended</span>
+          <h4>Help Me Solve It</h4>
+          <p>Guide with hints and small checkpoints without giving the answer immediately.</p>
+          <ul><li>Best learning-first mode</li><li>Maximum 2 small inputs</li><li>Then complete or offer reveal</li></ul>
+        </div>
+        <div class="card mode-card">
+          <span class="badge orange">Mode 3</span>
+          <h4>Show the Missing Idea</h4>
+          <p>Reveal the key observation, concept, or trick needed to unlock the problem.</p>
+          <ul><li>Best when student knows topic</li><li>No full solution by default</li><li>Focus on insight</li></ul>
+        </div>
+        <div class="card mode-card">
+          <span class="badge purple">Mode 4</span>
+          <h4>Show the Best Approach</h4>
+          <p>Show the most reliable and efficient way to solve this problem for exams.</p>
+          <ul><li>Not shortcut-only</li><li>Reliable method first</li><li>Exam usefulness included</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen">
+      <div class="section-head">
+        <div><div class="kicker">03 · Step 3 Screen</div><h3>Screen copy and behavior</h3></div>
+        <p>The screen should feel like a guided choice, not a test of student weakness.</p>
+      </div>
+      <div class="card">
+        <h4>Recommended screen copy</h4>
+        <table>
+          <tbody>
+            <tr><td>Heading</td><td><strong>How do you want to approach this problem?</strong></td></tr>
+            <tr><td>Subtitle</td><td>Choose a solving style. The AI Coach will guide you accordingly.</td></tr>
+            <tr><td>Default visual emphasis</td><td>Highlight <strong>Help Me Solve It</strong> with a small tag: <em>Recommended for learning</em>. Do not auto-select it.</td></tr>
+            <tr><td>Input box</td><td>Do not show “write your solution”. Use a simple optional box after response: <em>Ask a follow-up, or choose an option below.</em></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="overall-flow">
+      <div class="section-head">
+        <div><div class="kicker">04 · Overall Flow</div><h3>Diagrammatic representation</h3></div>
+        <p>This is the flow to implement before the individual mode workflows.</p>
+      </div>
+      <div class="diagram">
+        <div class="diagram-row">
+          <div class="box">1<br/>Upload Problem</div><div class="arrow">→</div>
+          <div class="box">2<br/>Problem DNA</div><div class="arrow">→</div>
+          <div class="box">3<br/>Choose Solving Mode</div><div class="arrow">→</div>
+          <div class="box">4<br/>Mode-specific RAG Response</div><div class="arrow">→</div>
+          <div class="box">5<br/>Follow-up Buttons</div><div class="arrow">→</div>
+          <div class="box">6<br/>Practice / Tutor / Save</div>
+        </div>
+        <div class="branch">
+          <div class="box small">Explain from the Basics</div>
+          <div class="box small green">Help Me Solve It</div>
+          <div class="box small orange">Show Missing Idea</div>
+          <div class="box small purple">Show Best Approach</div>
+        </div>
+      </div>
+      <div class="flow" style="margin-top:18px">
+        <div class="flow-step"><div class="num">1</div><div><h4>Student uploads problem</h4><p>Input can be text, image, PDF, or document. OCR/extraction should normalize it into problem text + attached source references.</p></div></div>
+        <div class="flow-step"><div class="num">2</div><div><h4>Problem DNA Analysis</h4><p>Detect subject, chapter, concept, difficulty, expected time, question type, exam skill, and confidence. Show this before solving.</p></div></div>
+        <div class="flow-step"><div class="num">3</div><div><h4>Solving Mode Selector</h4><p>Show 4 cards. The selected mode becomes a parameter passed to the RAG/Tutor agent.</p></div></div>
+        <div class="flow-step"><div class="num">4</div><div><h4>Mode-specific response</h4><p>The RAG response structure, reveal behavior, and follow-up buttons are driven by the selected mode.</p></div></div>
+        <div class="flow-step"><div class="num">5</div><div><h4>Guided continuation</h4><p>At the end, show suggested next actions. User may click one or type their own follow-up.</p></div></div>
+      </div>
+    </section>
+
+    <section id="mode-workflows">
+      <div class="section-head">
+        <div><div class="kicker">05 · Mode Workflows</div><h3>Detailed implementation workflows</h3></div>
+        <p>Each mode should have a fixed output contract so responses are consistent and measurable.</p>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <span class="badge blue">Mode 1</span>
+        <h3>Explain from the Basics</h3>
+        <p><strong>Purpose:</strong> For students who cannot start or want a complete teaching-style explanation. This mode can reveal the final answer.</p>
+        <div class="subflow">
+          <div class="mini"><b>1. Understand</b>Rephrase the question simply.</div>
+          <div class="mini"><b>2. Extract</b>List given data and target.</div>
+          <div class="mini"><b>3. Concept</b>Explain concept/formula needed.</div>
+          <div class="mini"><b>4. Solve</b>Step-by-step solution.</div>
+          <div class="mini"><b>5. Close</b>Final answer + key takeaway.</div>
+        </div>
+        <h4>Required sections in RAG response</h4>
+        <div class="pill-list"><span class="pill">Question Understanding</span><span class="pill">Given Information</span><span class="pill">What to Find</span><span class="pill">Concept Needed</span><span class="pill">Formula/Principle</span><span class="pill">Step-by-step Solution</span><span class="pill">Final Answer</span><span class="pill">Key Learning</span></div>
+        <h4>Follow-up buttons</h4>
+        <div class="pill-list"><span class="pill">Show shorter version</span><span class="pill">Show best approach</span><span class="pill">Give similar problem</span><span class="pill">Explain concept again</span><span class="pill">Start Tutor Session</span></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <span class="badge green">Mode 2 · Recommended for Learning</span>
+        <h3>Help Me Solve It</h3>
+        <p><strong>Purpose:</strong> Lightly interactive guided solving. Do not require long algebraic input. Cap student input at maximum 2 small checkpoints.</p>
+        <div class="callout warn"><strong>Hard rule:</strong> Never ask the student to “write your full solution.” Ask for a small choice, formula selection, first-step idea, or short thought. After two input points, complete the explanation or offer reveal buttons.</div>
+        <div class="subflow">
+          <div class="mini"><b>Initial</b>Brief decode + Hint 1 + Hint 2.</div>
+          <div class="mini"><b>Checkpoint 1</b>MCQ/short thought: concept or formula.</div>
+          <div class="mini"><b>Response</b>Validate/correct gently.</div>
+          <div class="mini"><b>Checkpoint 2</b>Next step / setup choice.</div>
+          <div class="mini"><b>Completion</b>Guided solution + answer + takeaway.</div>
+        </div>
+        <h4>Checkpoint UI examples</h4>
+        <table>
+          <thead><tr><th>Checkpoint</th><th>Preferred input format</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>MCQ or short thought</td><td>Which idea should we use? A. Relative velocity B. Momentum C. Work-energy D. Projectile motion</td></tr>
+            <tr><td>2</td><td>MCQ or one-line setup</td><td>What should be the setup? A. Add velocities B. Subtract A from B C. Multiply speeds D. Use acceleration</td></tr>
+          </tbody>
+        </table>
+        <h4>Follow-up buttons</h4>
+        <div class="pill-list"><span class="pill">Show next hint</span><span class="pill">Show setup</span><span class="pill">Reveal solution</span><span class="pill">Show best approach</span><span class="pill">Give similar problem</span></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <span class="badge orange">Mode 3</span>
+        <h3>Show the Missing Idea</h3>
+        <p><strong>Purpose:</strong> For students who understand the topic but cannot see the key observation. This should reveal the unlock, not dump a full solution by default.</p>
+        <div class="subflow">
+          <div class="mini"><b>1. Unlock</b>State the missing idea.</div>
+          <div class="mini"><b>2. Difficulty</b>Explain why students get stuck.</div>
+          <div class="mini"><b>3. Mental Model</b>Show correct framing.</div>
+          <div class="mini"><b>4. Start</b>Show first setup step.</div>
+          <div class="mini"><b>5. Avoid</b>Common mistake + next buttons.</div>
+        </div>
+        <h4>Required sections in RAG response</h4>
+        <div class="pill-list"><span class="pill">The Missing Idea</span><span class="pill">Why It Feels Tricky</span><span class="pill">Correct Mental Model</span><span class="pill">How to Start</span><span class="pill">Common Mistake</span></div>
+        <h4>Follow-up buttons</h4>
+        <div class="pill-list"><span class="pill">Now show full solution</span><span class="pill">Show best approach</span><span class="pill">Give one similar problem</span><span class="pill">Explain this concept</span><span class="pill">Start Tutor Session</span></div>
+      </div>
+
+      <div class="card">
+        <span class="badge purple">Mode 4</span>
+        <h3>Show the Best Approach</h3>
+        <p><strong>Purpose:</strong> For students who want the most reliable and efficient approach, not unsafe shortcut-only solving. This mode can give the final answer.</p>
+        <div class="subflow">
+          <div class="mini"><b>1. Pattern</b>Identify problem type.</div>
+          <div class="mini"><b>2. Method</b>Choose best method and why.</div>
+          <div class="mini"><b>3. Setup</b>Minimal correct setup.</div>
+          <div class="mini"><b>4. Solve</b>Clean solution.</div>
+          <div class="mini"><b>5. Exam</b>Exam note + limitations.</div>
+        </div>
+        <h4>Required sections in RAG response</h4>
+        <div class="pill-list"><span class="pill">Problem Pattern</span><span class="pill">Best Method</span><span class="pill">Why This Fits</span><span class="pill">Efficient Setup</span><span class="pill">Clean Solution</span><span class="pill">Exam Note</span><span class="pill">When Not to Use</span></div>
+        <h4>Follow-up buttons</h4>
+        <div class="pill-list"><span class="pill">Compare with basic method</span><span class="pill">Explain why this works</span><span class="pill">Give similar exam problem</span><span class="pill">Show common mistakes</span><span class="pill">Start Tutor Session</span></div>
+      </div>
+    </section>
+
+    <section id="rag">
+      <div class="section-head">
+        <div><div class="kicker">06 · RAG Behavior</div><h3>Prompt and response control</h3></div>
+        <p>Mode selection should be passed to the backend and used to choose the system/developer prompt template.</p>
+      </div>
+      <pre><code>type SolvingMode =
+  | "EXPLAIN_FROM_BASICS"
+  | "HELP_ME_SOLVE_IT"
+  | "SHOW_MISSING_IDEA"
+  | "SHOW_BEST_APPROACH";
+
+interface ProblemDNA {
+  subject?: string;
+  chapter?: string;
+  conceptTags: string[];
+  difficulty: "Easy" | "Medium" | "Hard" | "Unknown";
+  expectedTimeMinutes?: number;
+  questionType?: "Numerical" | "Conceptual" | "Diagram" | "Proof" | "MCQ" | "Mixed";
+  examSkill?: string;
+  confidence: number;
+}
+
+interface GuidedProblemSolverRequest {
+  problemId: string;
+  normalizedProblemText: string;
+  sourceRefs?: Array&lt;{ type: "image" | "pdf" | "doc" | "text"; id: string }&gt;;
+  problemDNA: ProblemDNA;
+  solvingMode: SolvingMode;
+  interactionCount?: number; // only relevant for HELP_ME_SOLVE_IT
+  userFollowUp?: string;
+}
+
+interface GuidedProblemSolverResponse {
+  mode: SolvingMode;
+  title: string;
+  sections: Array&lt;{ heading: string; bodyMarkdown: string }&gt;;
+  finalAnswer?: string;
+  revealLevel: "hint" | "partial" | "full";
+  interactionCount: number;
+  followUpButtons: Array&lt;{ label: string; action: string }&gt;;
+  citations?: Array&lt;{ sourceId: string; label: string }&gt;;
+}</code></pre>
+      <div class="grid two" style="margin-top:18px">
+        <div class="card">
+          <h4>Mode routing logic</h4>
+          <table>
+            <thead><tr><th>Mode</th><th>Final answer initially?</th><th>Max inputs</th></tr></thead>
+            <tbody>
+              <tr><td>Explain from the Basics</td><td>Yes</td><td>0</td></tr>
+              <tr><td>Help Me Solve It</td><td>No</td><td>2</td></tr>
+              <tr><td>Show the Missing Idea</td><td>No by default</td><td>0</td></tr>
+              <tr><td>Show the Best Approach</td><td>Yes</td><td>0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h4>Safety and quality rules</h4>
+          <ul class="acceptance">
+            <li><strong>Do not hallucinate source-specific facts.</strong> Use retrieved/cohort KB context where available.</li>
+            <li><strong>Do not use unsafe shortcuts.</strong> Best Approach must prioritize reliability over speed.</li>
+            <li><strong>Do not over-interact.</strong> Only Help Me Solve It can ask inputs, capped at 2.</li>
+            <li><strong>Always show next actions.</strong> Every response ends with follow-up buttons.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="data">
+      <div class="section-head">
+        <div><div class="kicker">07 · Data & Events</div><h3>What to persist and track</h3></div>
+        <p>Persist enough to support notebook history, analytics, and future personalization.</p>
+      </div>
+      <table>
+        <thead><tr><th>Entity / Event</th><th>Fields</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>ProblemAttempt</td><td>student_id, notebook_id, problem_text, input_type, created_at</td><td>Owns the uploaded problem and session history.</td></tr>
+          <tr><td>ProblemDNA</td><td>attempt_id, subject, chapter, concepts, difficulty, expected_time, confidence</td><td>Shows analysis and drives mode-specific prompts.</td></tr>
+          <tr><td>SolvingModeSelected</td><td>attempt_id, mode, timestamp</td><td>Measures which support style students choose.</td></tr>
+          <tr><td>RagResponse</td><td>attempt_id, mode, response_sections, reveal_level, citations</td><td>Persists output into notebook/chat history.</td></tr>
+          <tr><td>FollowUpActionClicked</td><td>attempt_id, action, timestamp</td><td>Analytics for next-step behavior.</td></tr>
+          <tr><td>HelpMeSolveCheckpoint</td><td>attempt_id, checkpoint_number, selected_option/text, correctness_if_known</td><td>Tracks only the limited interaction mode.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="states">
+      <div class="section-head">
+        <div><div class="kicker">08 · UI States</div><h3>Frontend states to implement</h3></div>
+        <p>These states make the flow feel stable and understandable.</p>
+      </div>
+      <div class="grid three">
+        <div class="card"><h4>Upload Processing</h4><p>Show extraction status for image/PDF/doc. Disable solving mode selector until normalized problem text is ready.</p></div>
+        <div class="card"><h4>DNA Loading</h4><p>Show skeleton cards for chapter, difficulty, expected time, concept tags, and confidence.</p></div>
+        <div class="card"><h4>Low Confidence DNA</h4><p>If confidence is low, show “AI is not fully sure. You can still continue or edit detected subject/chapter.”</p></div>
+        <div class="card"><h4>Mode Selected</h4><p>Lock selected card visually while response streams. Allow changing mode after response via follow-up button.</p></div>
+        <div class="card"><h4>Response Streaming</h4><p>Stream sections progressively. Keep follow-up buttons disabled until stream completes.</p></div>
+        <div class="card"><h4>Follow-up</h4><p>Show buttons plus optional input box with placeholder: “Ask a follow-up, or choose an option below.”</p></div>
+      </div>
+    </section>
+
+    <section id="acceptance">
+      <div class="section-head">
+        <div><div class="kicker">09 · Acceptance Criteria</div><h3>Definition of done</h3></div>
+        <p>Use this checklist before developer sign-off.</p>
+      </div>
+      <div class="card">
+        <ul class="acceptance">
+          <li><strong>Upload path works:</strong> text, image, PDF/doc inputs can produce normalized problem text.</li>
+          <li><strong>Problem DNA appears before solution:</strong> subject/chapter/concepts/difficulty/confidence are shown first.</li>
+          <li><strong>Step 3 displays exactly 4 solving modes:</strong> Explain from the Basics, Help Me Solve It, Show the Missing Idea, Show the Best Approach.</li>
+          <li><strong>Mode affects response structure:</strong> each mode produces a visibly different output layout and follow-up buttons.</li>
+          <li><strong>Help Me Solve It is capped:</strong> maximum 2 student input points; after that, the system completes or offers reveal options.</li>
+          <li><strong>No full solution input required:</strong> the UI never depends on students typing equation-heavy working.</li>
+          <li><strong>Best Approach is reliable:</strong> it does not prioritize risky shortcuts; it explains why the method is valid.</li>
+          <li><strong>Every response ends with next actions:</strong> follow-up buttons are always present.</li>
+          <li><strong>Events are persisted:</strong> mode selected, response, follow-up actions, and checkpoint inputs are stored.</li>
+          <li><strong>Notebook continuity:</strong> session history should be available in the student’s notebook/problem-solving journey.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="footer">ScholarSync · Guided Problem Solver · Developer Handoff HTML · V1</div>
+  </main>
+</div>
+</body>
+</html>

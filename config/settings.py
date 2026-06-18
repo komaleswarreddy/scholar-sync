@@ -48,6 +48,11 @@ class Settings(BaseSettings):
 
     # Plan B: LangGraph chat orchestration
     USE_LANGGRAPH_CHAT: bool = True
+    # LangSmith observability (traces, prompt evals — https://smith.langchain.com)
+    LANGSMITH_TRACING_ENABLED: bool = False
+    LANGSMITH_API_KEY: str = ""
+    LANGSMITH_PROJECT: str = "notebooklm-dev"
+    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
     # Route greetings / thanks / small talk away from Pinecone (fast path, no vector search)
     ENABLE_DIALOG_ROUTER: bool = True
 
@@ -92,6 +97,13 @@ class Settings(BaseSettings):
     CLERK_JWT_PUBLIC_KEY: str = ""  # JWT verification key
     CLERK_JWT_AUDIENCE: str = ""    # <-- added to avoid extra_forbidden error
 
+    # Admin portal (standalone email/password login for ops dashboard; v1 demo credentials)
+    ADMIN_PORTAL_EMAIL: str = "sync@gmail.com"
+    ADMIN_PORTAL_PASSWORD: str = "admin123"
+    ADMIN_PORTAL_JWT_SECRET: str = "dev-admin-portal-secret-change-in-production"
+    ADMIN_PORTAL_USER_ID: str = "admin-portal-sync"
+    ADMIN_PORTAL_TOKEN_TTL_HOURS: int = 24
+
     # Chunking Configuration
     CHUNK_SIZE: int = 1000
     CHUNK_OVERLAP: int = 200  # Deprecated: use CHUNK_OVERLAP_PERCENT instead
@@ -104,9 +116,6 @@ class Settings(BaseSettings):
     STUDIO_RETRIEVAL_QUERIES_CAP: int = 3  # Max rewritten queries to embed per topic-focused request
     STUDIO_RETRIEVAL_TOP_K_PER_QUERY: int = 10  # Pinecone top_k each vector query
     STUDIO_CONTEXT_MAX_CHUNKS: int = 28  # After merge-by-id, max chunks in context
-    # Infographic: richer multi-query retrieval (single-source task); each line = one embed + Pinecone query
-    STUDIO_INFOGRAPHIC_RETRIEVAL_QUERIES_CAP: int = 14  # Max broad queries to run (full list has 14 lines)
-    STUDIO_INFOGRAPHIC_CONTEXT_MAX_CHUNKS: int = 36  # Wider context merge cap for visual grounding
     STUDIO_RETRIEVAL_NOTE_MAX_CHARS: int = 900  # Prompt line summarizing queries used for search
     # Studio chat_hybrid: ~40% of chunk budget for sources vs conversation (see studio_service)
     STUDIO_HYBRID_SOURCE_CHUNK_FRACTION: float = 0.4
@@ -123,7 +132,7 @@ class Settings(BaseSettings):
     HYBRID_VECTOR_WEIGHT: float = 0.65  # Hybrid retrieval vector weight
     HYBRID_KEYWORD_WEIGHT: float = 0.35  # Slightly higher keyword weight for names, terms, headings
     MAX_CONTEXT_CHUNKS: int = 12  # Pack more evidence per answer
-    MIN_CONTEXT_CHUNKS: int = 7  # Minimum chunks before token budget stops selection
+    MIN_CONTEXT_CHUNKS: int = 3  # Minimum chunks before token budget stops selection
     RAG_DEBUG: bool = False  # Enable detailed debug logging for RAG pipeline
     QUERY_REWRITE_CONFIDENCE_THRESHOLD: float = 0.7  # Logged / reserved; rewrites apply on successful parse
     # Shared transcript limits for query rewriter, scope narrow, intent LLM path
@@ -131,7 +140,7 @@ class Settings(BaseSettings):
     AGENT_CONVERSATION_MAX_CHARS_PER_MESSAGE: int = 1200
     CONTEXT_TOKEN_BUDGET: int = 4500  # Target token budget for context (~18k chars of chunk text)
     # Whole-document summary: retrieve and pack many chunks (user asked for full-PDF style summaries)
-    DOCUMENT_SUMMARY_RETRIEVAL_TOP_K: int = 72  # Pinecone hybrid pool size for summary/overview queries
+    DOCUMENT_SUMMARY_RETRIEVAL_TOP_K: int = 3  # Pinecone hybrid pool size for summary/overview queries (map-reduce uses separate path)
     DOCUMENT_SUMMARY_MAX_CONTEXT_CHUNKS: int = 64  # Chunks allowed into the LLM context for summaries
     DOCUMENT_SUMMARY_CONTEXT_TOKEN_BUDGET: int = 12000  # Wider token budget for summary context packing
     DOCUMENT_SUMMARY_MIN_CHUNKS: int = 24  # Floor so summaries are not limited to a handful of chunks
@@ -143,7 +152,7 @@ class Settings(BaseSettings):
     WHOLE_FILE_MAX_CHUNKS: int = 500  # Safety cap on chunks per request
     MAX_CHUNK_LENGTH: int = 600  # Per-chunk cap when packing context into the prompt
     # Dedup: only drop chunks if very similar (higher = keep more distinct passages)
-    CONTEXT_DEDUP_SIMILARITY_THRESHOLD: float = 0.82
+    CONTEXT_DEDUP_SIMILARITY_THRESHOLD: float = 0.70
     METADATA_QUERY_MAX_CHUNK_CHARS: int = 900  # Author / copyright / title-page questions need longer excerpts
     USE_CHUNK_COMPRESSION: bool = True  # Compress lower-scoring chunks to reduce tokens
 
@@ -233,6 +242,14 @@ class Settings(BaseSettings):
     # When Tutor NCERT relevance gate is on, skip answer cache read/write so responses are always re-validated.
     TUTOR_NCERT_BYPASS_ANSWER_CACHE: bool = True
 
+    # Tutor prepare: NCERT context warm cache (Redis + in-memory fallback)
+    TUTOR_NCERT_CONTEXT_CACHE_TTL_SECONDS: int = 3600
+    TUTOR_NCERT_CONTEXT_REDIS_KEY_PREFIX: str = "tutor:ncert_context:"
+    # Follow-up aware retrieval: persist last selected chunks per chat/session
+    RETRIEVAL_SESSION_CACHE_TTL_SECONDS: int = 3600
+    RETRIEVAL_SESSION_REDIS_KEY_PREFIX: str = "retrieval:prev_chunks:"
+    RETRIEVAL_SESSION_MAX_CHUNKS: int = 10
+
     # Normal chat: when the user explicitly selects one or more library sources, block answers that
     # are not grounded in retrieved chunk text (same embedding relevance idea as Tutor NCERT gate).
     CHAT_SELECTED_SOURCES_RELEVANCE_GATE_ENABLED: bool = True
@@ -313,6 +330,8 @@ class Settings(BaseSettings):
     ENABLE_SAFETY_FILTERS: bool = True  # Enable input/output moderation
     ENABLE_REFUSAL_TEMPLATES: bool = True  # Enable safe refusal responses
     ENABLE_INJECTION_DETECTION: bool = True  # Enable prompt injection detection
+    # Quarantine retrieved source chunks that match prompt-injection patterns (indirect injection).
+    ENABLE_SOURCE_INJECTION_SCAN: bool = True
     # LLM intent classifier labels security_block → block before retrieval (few-shot in intent_classifier_system.j2).
     ENABLE_INTENT_SECURITY_BLOCK: bool = True
     ENABLE_SYLLABUS_LOCK: bool = False  # Enable syllabus-locked RAG (requires approved sources)
@@ -351,6 +370,14 @@ class Settings(BaseSettings):
     CONFIDENCE_LOW_THRESHOLD: float = 0.5  # Low confidence threshold
     CONFIDENCE_HIGH_THRESHOLD: float = 0.7  # High confidence threshold
     ANSWER_CONFIDENCE_THRESHOLD: float = 0.6  # Threshold for showing answers based on LLM-evaluated confidence (lowered from 0.75 to be more lenient)
+    # Monthly tenant LLM budget (hard block when ENABLE_BUDGET_ENFORCEMENT is True)
+    ENABLE_BUDGET_ENFORCEMENT: bool = True
+
+    # Guided Problem Solver (V1)
+    ENABLE_PROBLEM_SOLVER: bool = False
+    TENANT_MONTHLY_BUDGET_USD: float = 100.0
+    BUDGET_ENFORCEMENT_GRACE_USD: float = 0.05
+
     TARGET_COST_REDUCTION_PERCENT: float = 50.0  # Target cost reduction (≥50%)
     TARGET_TOKEN_REDUCTION_PERCENT: float = 50.0  # Target token reduction (≥50%)
     

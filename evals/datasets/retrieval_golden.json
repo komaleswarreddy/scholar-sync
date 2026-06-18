@@ -1,0 +1,1509 @@
+{
+  "version": 2,
+  "description": "Expanded golden set for RET-01..RET-11 production gate.",
+  "thresholds": {
+    "recall_at_1": 0.65,
+    "recall_at_3": 0.85,
+    "recall_at_5": 0.92,
+    "recall_at_10": 0.97,
+    "mrr": 0.75,
+    "context_precision": 0.7,
+    "multi_doc_top5_min_sources": 0.8,
+    "negative_refusal_rate": 1.0,
+    "paraphrase_jaccard_top5": 0.6,
+    "formula_recall_at_3": 0.85,
+    "question_type_recall_at_3_min": 0.75,
+    "long_question_recall_at_3": 0.75
+  },
+  "items": [
+    {
+      "id": "fact-photosynthesis-equation",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What is the balanced equation for photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "6CO2",
+        "photosynthesis"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-chlorophyll-role",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What does chlorophyll do in plants?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-mitochondria",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "Why is the mitochondria called the powerhouse of the cell?",
+      "fixture_files": [
+        "sample_phrase_alpha.txt"
+      ],
+      "expected_phrases": [
+        "mitochondria",
+        "powerhouse"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-calvin-reactants",
+      "bucket": "factual",
+      "question_type": "EXPLANATION",
+      "question": "What are the reactants in the Calvin cycle?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "carbon dioxide",
+        "water"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-light-absorption",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "Which wavelengths does chlorophyll absorb most?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "red",
+        "blue"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-energy-conversion",
+      "bucket": "factual",
+      "question_type": "EXPLANATION",
+      "question": "How do plants convert light energy?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chemical energy"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-chapter-intro",
+      "bucket": "factual",
+      "question_type": "COMPREHENSION",
+      "question": "What is photosynthesis according to the chapter introduction?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis",
+        "light energy"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-plant-biology",
+      "bucket": "factual",
+      "question_type": "COMPREHENSION",
+      "question": "After reading the chapter introduction, what inputs do plants need besides light for photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "carbon dioxide",
+        "water"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-ret-golden",
+      "bucket": "factual",
+      "question_type": "QUESTION",
+      "question": "What is RET_GOLDEN_FACT about photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "6CO2",
+        "C6H12O6"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-energy-transfer",
+      "bucket": "factual",
+      "question_type": "EXPLANATION",
+      "question": "How is energy transferred in plants per the filler pages?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "energy transfer"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-page-filler",
+      "bucket": "factual",
+      "question_type": "COMPREHENSION",
+      "question": "Summarize what the chapter says about chlorophyll and the colors of light it absorbs.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll",
+        "red"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-co2-role",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What role does carbon dioxide play in photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "carbon dioxide",
+        "CO2"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-water-role",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What role does water play in the photosynthesis equation?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "water",
+        "H2O"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-oxygen-output",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What gas is produced during photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "oxygen",
+        "O2"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-glucose-output",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What sugar is produced in photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "glucose",
+        "C6H12O6"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-pigment",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What pigment is mentioned for light absorption?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-calvin-name",
+      "bucket": "factual",
+      "question_type": "DEFINITION",
+      "question": "What cycle is named in the chapter?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "Calvin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-assertion-energy",
+      "bucket": "factual",
+      "question_type": "ASSERTION_REASON",
+      "question": "Assertion: Plants store chemical energy from light. Reason: Chlorophyll captures photons.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll",
+        "chemical energy"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-assertion-co2",
+      "bucket": "factual",
+      "question_type": "ASSERTION_REASON",
+      "question": "Assertion: CO2 is a reactant. Reason: It enters the Calvin cycle.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "carbon dioxide",
+        "Calvin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "fact-comprehension-passage",
+      "bucket": "factual",
+      "question_type": "COMPREHENSION",
+      "question": "After reading the chapter passage, summarize the main process plants use to make food.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-01",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Snell's law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "sin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-02",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Henderson-Hasselbalch equation",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Henderson-Hasselbalch",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-03",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Newton's second law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Newton",
+        "F = ma"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-04",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: refraction angles",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "incidence"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-05",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: pKa and pH relationship",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "pKa",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-06",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: force mass acceleration",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "F = ma",
+        "mass"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-07",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Snell's law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "sin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-08",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Henderson-Hasselbalch equation",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Henderson-Hasselbalch",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-09",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Newton's second law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Newton",
+        "F = ma"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-10",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: refraction angles",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "incidence"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-11",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: pKa and pH relationship",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "pKa",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-12",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: force mass acceleration",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "F = ma",
+        "mass"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-13",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Snell's law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "sin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-14",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Henderson-Hasselbalch equation",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Henderson-Hasselbalch",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-15",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Newton's second law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Newton",
+        "F = ma"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-16",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: refraction angles",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "incidence"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-17",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: pKa and pH relationship",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "pKa",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-18",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: force mass acceleration",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "F = ma",
+        "mass"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-19",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Snell's law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "sin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-20",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Henderson-Hasselbalch equation",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Henderson-Hasselbalch",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-21",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Newton's second law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Newton",
+        "F = ma"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-22",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: refraction angles",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "incidence"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-23",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: pKa and pH relationship",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "pKa",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-24",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: force mass acceleration",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "F = ma",
+        "mass"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-25",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Snell's law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "sin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-26",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Henderson-Hasselbalch equation",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Henderson-Hasselbalch",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-27",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: Newton's second law",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Newton",
+        "F = ma"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-28",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: refraction angles",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell",
+        "incidence"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-29",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: pKa and pH relationship",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "pKa",
+        "pH"
+      ],
+      "negative": false
+    },
+    {
+      "id": "formula-30",
+      "bucket": "formula",
+      "question_type": "QUESTION",
+      "question": "Explain or state the formula for: force mass acceleration",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "F = ma",
+        "mass"
+      ],
+      "negative": false
+    },
+    {
+      "id": "negative-01",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "How do I build a quantum entanglement communicator at home?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-02",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "What year will humans establish a permanent Mars colony?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-03",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "What is the capital of Antarctica's largest city?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-04",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "How do I synthesize dark matter in a kitchen?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-05",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "Who won the 2099 World Cup?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-06",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "What is the chemical formula for unobtanium?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-07",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "What is the orbital period of the fictional planet Krypton in our uploaded biology chapter?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-08",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "What is the population of Atlantis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-09",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "How do I travel faster than light using Calvin cycle?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "negative-10",
+      "bucket": "negative",
+      "question_type": "QUESTION",
+      "question": "What is the phone number of the International Space Station?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [],
+      "negative": true,
+      "expect_refusal": true
+    },
+    {
+      "id": "paraphrase-chlorophyll-1",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "What is chlorophyll's function?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false,
+      "paraphrase_group": "chlorophyll"
+    },
+    {
+      "id": "paraphrase-chlorophyll-2",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Describe the role of chlorophyll in photosynthesis.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false,
+      "paraphrase_group": "chlorophyll"
+    },
+    {
+      "id": "paraphrase-chlorophyll-3",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "How does chlorophyll help plants capture light?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false,
+      "paraphrase_group": "chlorophyll"
+    },
+    {
+      "id": "paraphrase-chlorophyll-4",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Tell me about chlorophyll absorption of light.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false,
+      "paraphrase_group": "chlorophyll"
+    },
+    {
+      "id": "paraphrase-chlorophyll-5",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Which pigment absorbs red and blue light in plants?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false,
+      "paraphrase_group": "chlorophyll"
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-1",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "What is the photosynthesis equation?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "6CO2",
+        "photosynthesis"
+      ],
+      "negative": false,
+      "paraphrase_group": "photosynthesis_eq"
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-2",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Give the balanced chemical equation for photosynthesis.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "6CO2",
+        "photosynthesis"
+      ],
+      "negative": false,
+      "paraphrase_group": "photosynthesis_eq"
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-3",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "How do CO2 and water combine in photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "6CO2",
+        "photosynthesis"
+      ],
+      "negative": false,
+      "paraphrase_group": "photosynthesis_eq"
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-4",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "What reactants and products define photosynthesis?",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "6CO2",
+        "photosynthesis"
+      ],
+      "negative": false,
+      "paraphrase_group": "photosynthesis_eq"
+    },
+    {
+      "id": "paraphrase-photosynthesis_eq-5",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "State the formula summarizing photosynthesis in plants.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "6CO2",
+        "photosynthesis"
+      ],
+      "negative": false,
+      "paraphrase_group": "photosynthesis_eq"
+    },
+    {
+      "id": "paraphrase-mitochondria-1",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Why is mitochondria the powerhouse?",
+      "fixture_files": [
+        "sample_phrase_alpha.txt"
+      ],
+      "expected_phrases": [
+        "mitochondria"
+      ],
+      "negative": false,
+      "paraphrase_group": "mitochondria"
+    },
+    {
+      "id": "paraphrase-mitochondria-2",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "What makes mitochondria the cell's powerhouse?",
+      "fixture_files": [
+        "sample_phrase_alpha.txt"
+      ],
+      "expected_phrases": [
+        "mitochondria"
+      ],
+      "negative": false,
+      "paraphrase_group": "mitochondria"
+    },
+    {
+      "id": "paraphrase-mitochondria-3",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Explain mitochondria as energy producer.",
+      "fixture_files": [
+        "sample_phrase_alpha.txt"
+      ],
+      "expected_phrases": [
+        "mitochondria"
+      ],
+      "negative": false,
+      "paraphrase_group": "mitochondria"
+    },
+    {
+      "id": "paraphrase-mitochondria-4",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "How does mitochondria relate to cellular energy?",
+      "fixture_files": [
+        "sample_phrase_alpha.txt"
+      ],
+      "expected_phrases": [
+        "mitochondria"
+      ],
+      "negative": false,
+      "paraphrase_group": "mitochondria"
+    },
+    {
+      "id": "paraphrase-mitochondria-5",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Describe the powerhouse role of mitochondria.",
+      "fixture_files": [
+        "sample_phrase_alpha.txt"
+      ],
+      "expected_phrases": [
+        "mitochondria"
+      ],
+      "negative": false,
+      "paraphrase_group": "mitochondria"
+    },
+    {
+      "id": "paraphrase-snell-1",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "State Snell's law.",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell"
+      ],
+      "negative": false,
+      "paraphrase_group": "snell"
+    },
+    {
+      "id": "paraphrase-snell-2",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "What is Snell's law formula?",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell"
+      ],
+      "negative": false,
+      "paraphrase_group": "snell"
+    },
+    {
+      "id": "paraphrase-snell-3",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "How are incidence and refraction angles related?",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell"
+      ],
+      "negative": false,
+      "paraphrase_group": "snell"
+    },
+    {
+      "id": "paraphrase-snell-4",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "Give the equation for refraction at an interface.",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell"
+      ],
+      "negative": false,
+      "paraphrase_group": "snell"
+    },
+    {
+      "id": "paraphrase-snell-5",
+      "bucket": "paraphrase_group",
+      "question_type": "DEFINITION",
+      "question": "What formula relates n1 sin theta1 and n2 sin theta2?",
+      "fixture_files": [
+        "physics_formulas.pdf",
+        "sample_phrase_beta.txt"
+      ],
+      "expected_phrases": [
+        "Snell"
+      ],
+      "negative": false,
+      "paraphrase_group": "snell"
+    },
+    {
+      "id": "multi-doc-01",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "From the biology chapter and physics formulas PDF, what does each document cover?",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis",
+        "Snell"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-02",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "Compare chlorophyll in the chapter with Snell's law in the physics PDF.",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll",
+        "Snell"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-03",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "What photosynthesis facts are in the chapter and what formulas are in the physics sheet?",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis",
+        "Newton"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-04",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "Use standard chapter and physics_formulas.pdf: name one biology topic and one physics equation.",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "Calvin",
+        "Henderson"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-05",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "Across chapter PDF and physics PDF, list one concept from each file.",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll",
+        "pH"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-06",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "Retrieve from chapter and physics sources about light and refraction.",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "light",
+        "refraction"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-07",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "What is in standard_chapter versus physics_formulas?",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "energy",
+        "F = ma"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-08",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "Find photosynthesis in the chapter and Snell's law in the formula PDF.",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis",
+        "sin"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-09",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "Use both PDFs: plant energy conversion and Henderson-Hasselbalch.",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "chemical energy",
+        "pKa"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "multi-doc-10",
+      "bucket": "multi_doc",
+      "question_type": "EXPLANATION",
+      "question": "Multi-source query: Calvin cycle from chapter and Newton's law from physics PDF.",
+      "fixture_files": [
+        "standard_chapter.pdf",
+        "physics_formulas.pdf"
+      ],
+      "expected_phrases": [
+        "Calvin",
+        "Newton"
+      ],
+      "negative": false,
+      "allowed_sources_min": 2
+    },
+    {
+      "id": "long-question-01",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "I was reading about energy transfer in plants and got confused about how light energy becomes chemical energy. Can you explain using the sources? I have read pages 1 through 3 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-02",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "In my biology class we discussed photosynthesis but I still do not understand the role of chlorophyll. Could you clarify from the uploaded chapter? I have read pages 2 through 4 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-03",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "I am preparing for an exam and need help understanding the Calvin cycle reactants mentioned in the chapter. What should I know? I have read pages 3 through 5 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "energy"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-04",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "After studying the photosynthesis equation I am unsure how carbon dioxide fits in. Please explain step by step from the document. I have read pages 4 through 6 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "Calvin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-05",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "My textbook chapter on plant biology mentions filler content about energy transfer. What are the key ideas I should remember? I have read pages 5 through 7 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "carbon dioxide"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-06",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "I was reading about energy transfer in plants and got confused about how light energy becomes chemical energy. Can you explain using the sources? I have read pages 6 through 8 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-07",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "In my biology class we discussed photosynthesis but I still do not understand the role of chlorophyll. Could you clarify from the uploaded chapter? I have read pages 7 through 9 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-08",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "I am preparing for an exam and need help understanding the Calvin cycle reactants mentioned in the chapter. What should I know? I have read pages 8 through 10 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "energy"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-09",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "After studying the photosynthesis equation I am unsure how carbon dioxide fits in. Please explain step by step from the document. I have read pages 9 through 11 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "Calvin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-10",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "My textbook chapter on plant biology mentions filler content about energy transfer. What are the key ideas I should remember? I have read pages 10 through 12 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "carbon dioxide"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-11",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "I was reading about energy transfer in plants and got confused about how light energy becomes chemical energy. Can you explain using the sources? I have read pages 11 through 13 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "photosynthesis"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-12",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "In my biology class we discussed photosynthesis but I still do not understand the role of chlorophyll. Could you clarify from the uploaded chapter? I have read pages 12 through 14 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "chlorophyll"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-13",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "I am preparing for an exam and need help understanding the Calvin cycle reactants mentioned in the chapter. What should I know? I have read pages 13 through 15 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "energy"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-14",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "After studying the photosynthesis equation I am unsure how carbon dioxide fits in. Please explain step by step from the document. I have read pages 14 through 16 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "Calvin"
+      ],
+      "negative": false
+    },
+    {
+      "id": "long-question-15",
+      "bucket": "long_question",
+      "question_type": "QUESTION",
+      "question": "My textbook chapter on plant biology mentions filler content about energy transfer. What are the key ideas I should remember? I have read pages 15 through 17 and still need clarity.",
+      "fixture_files": [
+        "standard_chapter.pdf"
+      ],
+      "expected_phrases": [
+        "carbon dioxide"
+      ],
+      "negative": false
+    }
+  ]
+}

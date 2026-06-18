@@ -154,6 +154,30 @@ class CostManager:
             latency_ms=latency_ms,
         )
     
+    def get_monthly_spend_usd(self, tenant_id: str) -> float:
+        """Sum LLM call costs for the tenant in the current UTC calendar month."""
+        if not tenant_id:
+            return 0.0
+        now = datetime.utcnow()
+        month_start = datetime(now.year, now.month, 1)
+        total = 0.0
+        with self.metrics._lock:
+            for m in self.metrics._llm_calls:
+                if str(m.get("tenant_id")) != str(tenant_id):
+                    continue
+                ts = m.get("timestamp")
+                if ts:
+                    try:
+                        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+                        if dt.tzinfo is not None:
+                            dt = dt.replace(tzinfo=None)
+                        if dt < month_start:
+                            continue
+                    except Exception:
+                        pass
+                total += float(m.get("cost", 0) or 0)
+        return round(total, 6)
+
     async def check_budget(self, tenant_id: str, estimated_cost: float) -> bool:
         """
         Check if tenant has budget remaining.
@@ -165,9 +189,14 @@ class CostManager:
         Returns:
             True if budget allows, False otherwise
         """
-        # TODO: Implement budget checking against tenant budget limits
-        # For now, always allow
-        return True
+        from config.settings import settings
+
+        if not getattr(settings, "ENABLE_BUDGET_ENFORCEMENT", False):
+            return True
+        cap = float(getattr(settings, "TENANT_MONTHLY_BUDGET_USD", 100.0))
+        grace = float(getattr(settings, "BUDGET_ENFORCEMENT_GRACE_USD", 0.05))
+        spent = self.get_monthly_spend_usd(tenant_id)
+        return (spent + float(estimated_cost or 0)) <= (cap + grace)
     
     async def get_usage_summary(self, tenant_id: str, user_id: Optional[str] = None) -> Dict[str, Any]:
         """

@@ -1,0 +1,1018 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "tutor_notebook_bootstrap",
+  "agent": {
+    "sno": 23,
+    "category": "Tutor Mode",
+    "name": "Tutor Notebook Bootstrap Agent",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "SYSTEM:\nReturn valid JSON only.\n\nUSER/TASK TEMPLATE:\nYou are ScholarSync Tutor, an NCERT-aligned study coach for Indian school students.\n\n\n\n## Student scope\n\n- Class: {{ class_num }}\n\n- Subject: {{ subject_label }}\n\n- Chapter: {{ chapter_no }} — {{ chapter_title }}\n\n{% if concept %}\n\n- Focus concept: {{ concept }}\n\n{% else %}\n\n- Focus: All concepts in this chapter\n\n{% endif %}\n\n\n\n## NCERT context (only source of facts)\n\n{{ ncert_context }}\n\n\n\n## Task\n\nReturn JSON only (no markdown fences) matching this schema:\n\n{\n\n  \"opening_summary\": string,\n\n  \"suggestions\": [{\"label\": string, \"prompt\": string}],\n\n  \"studio_recommendations\": [{\"type\": \"flashcards\"|\"quiz\"|\"mind_map\"|\"slide_deck\", \"reason\": string, \"auto_generate\": boolean}]\n\n}\n\n\n\n### opening_summary rules\n\nWrite Markdown for the first message the student sees. Use this exact structure:\n\n\n\n## Summary\n\n\n\n### Key topics\n\n- bullet with **bold key term** for each main idea (3–5 bullets)\n\n- ...\n\n\n\n### Exam highlights\n\n- bullet for exam-relevant facts, dates, formulas, or distinctions (2–4 bullets)\n\n- ...\n\n\n\n### Ask me for full clarity\n\n1. numbered clarifying question you would ask the student\n\n2. ...\n\n3. ...\n\n\n\nTap a suggestion below or ask your own question.\n\n\n\nKeep total length roughly 180–280 words. Ground every factual claim in NCERT context. If context is thin, say what is known and what to explore next — do not invent facts.\n\n\n\n### suggestions rules\n\nReturn exactly 4 chips. Each must be specific to this chapter/concept (never generic \"Main topics\").\n\n- Labels: ≤28 chars, student-friendly\n\n- Prompts: full question ready to send; mention chapter/concept by name\n\n\n\n### studio_recommendations rules\n\nRank **all 4** tools by value for THIS chapter (include every type once): flashcards, quiz, mind_map, slide_deck.\n\n- Set `auto_generate: true` on **exactly the top 2** in your ranked order; all others `auto_generate: false`\n\n- **Do not** default to flashcards + quiz unless the NCERT content is definition/formula heavy\n\n- Pick the pair that best matches chapter content and subject:\n\n  - Civics / history / geography / narrative social science → **slide_deck + quiz** (common)\n\n  - Economics / interconnected policy topics → **mind_map + quiz**\n\n  - Science definitions, formulas, terminology → **flashcards + quiz**\n\n  - Math problem-solving → **quiz + flashcards** or **quiz + mind_map** when many subtopics\n\n  - Single concept focus → **flashcards + quiz** only if recall practice is the main need\n\nInclude a one-line `reason` per tool (stored for debugging)."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "class_num",
+      "subject_label",
+      "chapter_no",
+      "chapter_title",
+      "ncert_context",
+      "concept"
+    ],
+    "output_keys": [
+      "bootstrap_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "tutor_notebook_bootstrap-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "science",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 12,
+        "chapter_title": "Electricity",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A.",
+        "concept": "Ohm's law and resistance"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Science Ch.12: Electricity.",
+          "suggestions": [
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "biology",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 16,
+        "chapter_title": "Digestion and Absorption",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "concept": null
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 11 Biology Ch.16: Digestion and Absorption.",
+          "suggestions": [
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "physics",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 9,
+        "chapter_title": "Ray Optics and Optical Instruments",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "concept": "Lens formula"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Physics Ch.9: Ray Optics and Optical Instruments.",
+          "suggestions": [
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Quadratic Equations",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "concept": null
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Mathematics Ch.4: Quadratic Equations.",
+          "suggestions": [
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 4,
+        "chapter_title": "Chemical Bonding",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r²; electric field E = F/q.",
+        "concept": "VSEPR"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Chemistry Ch.4: Chemical Bonding.",
+          "suggestions": [
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "science",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 12,
+        "chapter_title": "Electricity",
+        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "concept": "Ohm's law and resistance"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Science Ch.12: Electricity.",
+          "suggestions": [
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "biology",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 16,
+        "chapter_title": "Digestion and Absorption",
+        "ncert_context": "NCERT Class 12 Biology Ch.5: Mendel's law of segregation; monohybrid cross 3:1 ratio.",
+        "concept": null
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 11 Biology Ch.16: Digestion and Absorption.",
+          "suggestions": [
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "physics",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 9,
+        "chapter_title": "Ray Optics and Optical Instruments",
+        "ncert_context": "NCERT Class 10 Science Ch.13: Fleming's left-hand rule for force on current-carrying conductor.",
+        "concept": "Lens formula"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Physics Ch.9: Ray Optics and Optical Instruments.",
+          "suggestions": [
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Quadratic Equations",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.4: Ionic vs covalent bonds; electronegativity difference guides bond type.",
+        "concept": null
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Mathematics Ch.4: Quadratic Equations.",
+          "suggestions": [
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 4,
+        "chapter_title": "Chemical Bonding",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1.",
+        "concept": "VSEPR"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Chemistry Ch.4: Chemical Bonding.",
+          "suggestions": [
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "science",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 12,
+        "chapter_title": "Electricity",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A.",
+        "concept": "Ohm's law and resistance"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Science Ch.12: Electricity.",
+          "suggestions": [
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            },
+            {
+              "label": "Explain Electricity",
+              "prompt": "Explain Electricity from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "biology",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 16,
+        "chapter_title": "Digestion and Absorption",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "concept": null
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 11 Biology Ch.16: Digestion and Absorption.",
+          "suggestions": [
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            },
+            {
+              "label": "Explain Digestion and Absorp",
+              "prompt": "Explain Digestion and Absorption from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "physics",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 9,
+        "chapter_title": "Ray Optics and Optical Instruments",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "concept": "Lens formula"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Physics Ch.9: Ray Optics and Optical Instruments.",
+          "suggestions": [
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            },
+            {
+              "label": "Explain Ray Optics and Optic",
+              "prompt": "Explain Ray Optics and Optical Instruments from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "mathematics",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Quadratic Equations",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "concept": null
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 10 Mathematics Ch.4: Quadratic Equations.",
+          "suggestions": [
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            },
+            {
+              "label": "Explain Quadratic Equations",
+              "prompt": "Explain Quadratic Equations from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    },
+    {
+      "id": "tutor_notebook_bootstrap-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "chemistry",
+        "tutor_mode"
+      ],
+      "inputs": {
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 4,
+        "chapter_title": "Chemical Bonding",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r²; electric field E = F/q.",
+        "concept": "VSEPR"
+      },
+      "reference_outputs": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\nNCERT Class 12 Chemistry Ch.4: Chemical Bonding.",
+          "suggestions": [
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            },
+            {
+              "label": "Explain Chemical Bonding",
+              "prompt": "Explain Chemical Bonding from NCERT."
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Exam practice",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Definitions",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Connections",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Lesson arc",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "json_schema",
+        "bootstrap_structure"
+      ]
+    }
+  ]
+}

@@ -73,3 +73,5 @@ backend_backup_*
 # Runtime-generated artifacts (do not commit)
 cache/
 logs/metrics/
+
+testsprite_tests\tmp\config.json

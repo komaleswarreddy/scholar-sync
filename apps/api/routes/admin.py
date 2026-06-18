@@ -5,6 +5,7 @@ Provides admin-only endpoints for managing users and viewing system-wide metrics
 """
 
 from fastapi import APIRouter, Request, HTTPException, Depends, Query
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.exc import DBAPIError, OperationalError
@@ -20,9 +21,14 @@ from packages.core.database.models.user import User
 from packages.core.database.models.chat import Chat, Message
 from packages.core.monitoring.metrics import get_metrics_collector
 from packages.core.guardrails.cost_manager import get_cost_manager
-from apps.api.middleware.auth import extract_user_id_from_token
+from apps.api.middleware.auth import extract_user_id_from_token, create_admin_portal_token
 from config.settings import settings
 from sqlalchemy import func
+
+
+class AdminPortalLoginRequest(BaseModel):
+    email: str
+    password: str
 
 router = APIRouter()
 _admin_role_cache: Dict[str, tuple[bool, float]] = {}
@@ -120,6 +126,11 @@ async def check_admin_role(
     user_id = getattr(request.state, "user_id", None)
     if not user_id:
         return False
+
+    if user_id == settings.ADMIN_PORTAL_USER_ID:
+        _admin_role_cache[user_id] = (True, time.monotonic() + _ADMIN_ROLE_CACHE_TTL_S)
+        return True
+
     now = time.monotonic()
     cached = _admin_role_cache.get(user_id)
     if cached and cached[1] > now:
@@ -225,6 +236,25 @@ async def check_admin_role(
         pass
     
     return False
+
+
+@router.post("/auth/login")
+async def admin_portal_login(body: AdminPortalLoginRequest):
+    """
+    Standalone admin portal login (email/password).
+    Returns a Bearer JWT for ops dashboard API calls — not a Clerk session.
+    """
+    email = (body.email or "").strip().lower()
+    password = body.password or ""
+    expected_email = (settings.ADMIN_PORTAL_EMAIL or "").strip().lower()
+    if email != expected_email or password != settings.ADMIN_PORTAL_PASSWORD:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    access_token, expires_in = create_admin_portal_token()
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "expires_in": expires_in,
+    }
 
 
 @router.get("/users")
@@ -852,10 +882,15 @@ async def get_aggregate_metrics(
     
     mock_request = AggregateRequest(tenant_id)
     rag_quality_data = await get_rag_quality_dashboard(mock_request, db, days)
+
+    from packages.core.guardrails.budget_enforcer import BudgetEnforcer
+
+    budget_status = BudgetEnforcer().budget_status(str(tenant_id))
     
     return {
         "tenant_id": tenant_id,
         "period_days": days,
+        "budget": budget_status,
         "metrics": {
             **summary,
             "cache": {

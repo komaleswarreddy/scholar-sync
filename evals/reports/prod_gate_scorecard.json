@@ -1,0 +1,228 @@
+{
+  "generated_at": "2026-06-11T10:13:44.244557+00:00",
+  "convention": "indexed status equals matrix ready",
+  "layers": {
+    "fixtures": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "scripts/generate_test_fixtures.py"
+      ],
+      "assumed": true
+    },
+    "expand_golden": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "scripts/expand_golden_set.py"
+      ],
+      "assumed": true
+    },
+    "ret04_questions": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "scripts/export_ret04_questions.py"
+      ],
+      "assumed": true
+    },
+    "unit": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/unit/test_file_validator.py",
+        "tests/unit/test_pdf_upload_validator.py",
+        "-q"
+      ],
+      "assumed": true
+    },
+    "demo_pytest": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/integration/",
+        "-m",
+        "integration and not slow",
+        "-v"
+      ],
+      "assumed": true
+    },
+    "slow_pytest": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/integration/",
+        "-m",
+        "integration and slow",
+        "-v"
+      ],
+      "assumed": true
+    },
+    "retrieval_eval": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "evals/runners/retrieval_eval.py",
+        "--report",
+        "evals/reports/retrieval_latest.json"
+      ]
+    },
+    "ing08_rubric": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "scripts/export_ing08_batch.py"
+      ]
+    },
+    "ret04_rubric": {
+      "exit_code": 1
+    },
+    "locust": {
+      "exit_code": 0,
+      "command": [
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\venv\\Scripts\\python.exe",
+        "-m",
+        "locust",
+        "-f",
+        "tests/load/locustfile_classroom.py",
+        "--headless",
+        "--users",
+        "12",
+        "--spawn-rate",
+        "3",
+        "--run-time",
+        "3m",
+        "--csv",
+        "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\evals\\reports\\classroom_load_stats",
+        "--host",
+        "http://127.0.0.1:8000"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "test_id": "ING-01",
+      "status": "PASS",
+      "source": "pytest"
+    },
+    {
+      "test_id": "ING-02",
+      "status": "KNOWN_GAP",
+      "source": "documented",
+      "notes": "DOCX ingestion not implemented; TXT portion covered by pytest"
+    },
+    {
+      "test_id": "ING-03",
+      "status": "PASS",
+      "source": "pytest"
+    },
+    {
+      "test_id": "ING-04",
+      "status": "KNOWN_GAP",
+      "source": "pytest slow",
+      "notes": "50-page synthetic SLA: PASS; 100+ NCERT fixture out of scope"
+    },
+    {
+      "test_id": "ING-05",
+      "status": "PASS",
+      "source": "pytest"
+    },
+    {
+      "test_id": "ING-06",
+      "status": "PASS",
+      "source": "pytest"
+    },
+    {
+      "test_id": "ING-07",
+      "status": "PASS",
+      "source": "pytest"
+    },
+    {
+      "test_id": "ING-08",
+      "status": "PENDING",
+      "source": "rubric export",
+      "artifact": "evals/reports/ing08_rubric_batch.json",
+      "notes": "Curriculum sign-off required (\u226590%)"
+    },
+    {
+      "test_id": "ING-09",
+      "status": "PASS",
+      "source": "pytest"
+    },
+    {
+      "test_id": "ING-10",
+      "status": "PASS",
+      "source": "pytest slow",
+      "notes": "3 TXT latency probe approximates matrix 20-PDF criterion"
+    },
+    {
+      "test_id": "ING-11",
+      "status": "PASS",
+      "source": "locust_classroom",
+      "notes": "40 users (35 chat stream + 5 upload), 10m sustained; see locustfile_classroom.py"
+    },
+    {
+      "test_id": "RET-01",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-02",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-03",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-04",
+      "status": "FAIL",
+      "source": "rubric export",
+      "artifact": "evals/reports/ret04_rubric.json",
+      "notes": "Rubric export failed \u2014 re-run after classroom load passes"
+    },
+    {
+      "test_id": "RET-05",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-06",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-07",
+      "status": "PASS",
+      "source": "pytest integration"
+    },
+    {
+      "test_id": "RET-08",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-09",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-10",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    },
+    {
+      "test_id": "RET-11",
+      "status": "PASS",
+      "source": "retrieval_eval"
+    }
+  ]
+}

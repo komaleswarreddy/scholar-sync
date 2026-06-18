@@ -69,13 +69,13 @@ class ScopeNarrower:
                 max_messages=getattr(settings, "AGENT_CONVERSATION_MAX_MESSAGES", 12),
                 max_chars_per_message=getattr(settings, "AGENT_CONVERSATION_MAX_CHARS_PER_MESSAGE", 1200),
             )
-            ctx = f"\nConversation:\n{history_block}\n" if history_block else ""
-
-            prompt = f"""Analyze this query for information retrieval.{ctx}
-Query: {query}
-
-Extract key_terms (3-7), a focused_query string for retrieval (resolve references using conversation),
-and max_chunks (3-15) suggested pool size."""
+            conversation_section = f"\nConversation:\n{history_block}\n" if history_block else ""
+            system_prompt = load_prompt("agents/scope_narrower_system.j2")
+            prompt = load_prompt(
+                "agents/scope_narrower_user.j2",
+                query=query,
+                conversation_section=conversation_section,
+            )
 
             llm_kwargs: Dict[str, Any] = {
                 "tenant_id": self.tenant_id,

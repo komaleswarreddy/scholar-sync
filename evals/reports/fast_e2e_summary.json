@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-06-11T13:30:00.000000+00:00",
+  "base_url": "http://127.0.0.1:8000",
+  "layers": {
+    "ing_ret_pytest": 0,
+    "retrieval_eval": 0,
+    "intent_gate_unit": 0,
+    "classroom_locust": 0
+  },
+  "classroom_mode": "short",
+  "retrieval_eval_skipped": true,
+  "retrieval_eval_pass": {
+    "RET-01": true,
+    "RET-02": true,
+    "RET-03": true,
+    "RET-05": true,
+    "RET-06": true,
+    "RET-08": true,
+    "RET-09": true,
+    "RET-10": true,
+    "RET-11": true
+  },
+  "note": "ing_ret_pytest + intent from run3.log (~14m); classroom_locust re-run after API health fix",
+  "error": null,
+  "all_pass": true
+}

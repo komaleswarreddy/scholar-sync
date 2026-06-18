@@ -4,17 +4,10 @@ import axios, {
   InternalAxiosRequestConfig, 
 } from 'axios';
 import { handleApiError, redirectToLogin, getUserFriendlyMessage, ApiError, ErrorType } from './error-handler';
+import { clearAdminSession, getAdminToken, redirectToAdminLogin, setAdminToken } from './admin-auth';
 
 type TokenGetter = () => Promise<string | null>;
 type LogoutFunc = () => Promise<void>;
-
-/** Tailored report format — must match `apps/api/schemas/studio.py` `report_format` and Studio UI. */
-export type StudioReportFormat =
-  | 'integrated'
-  | 'briefing'
-  | 'study_guide'
-  | 'newsletter'
-  | 'thematic_summary';
 
 export interface NcertTutorChapterOption {
   chapter_no?: number | null;
@@ -69,13 +62,14 @@ class ApiClient {
   private authFailureCount: number = 0; // Track consecutive auth failures
   private maxAuthFailures: number = 3; // Stop trying after 3 failures
   private circuitBreakerOpen: boolean = false; // Circuit breaker state
+  private adminPortalMode: boolean = false;
 
   constructor(
     baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
   ) {
     this.client = axios.create({
       baseURL,
-      timeout: 15000, // Default; list/chat/source reads use longer per-request timeouts
+      timeout: 12000, // Default; uploads/streams/studio use longer per-request timeouts
       // Don't set default Content-Type - let axios set it based on data type
     });
 
@@ -100,8 +94,8 @@ class ApiClient {
           delete headers['Content-Type'];
         }
 
-        // Task B.d: Handle token refresh - refresh if token is missing or expired
-        if (!this.circuitBreakerOpen && !this.latestToken && this.getTokenFunc) {
+        // Refresh JWT when missing or near expiry (single path for all API methods)
+        if (!this.circuitBreakerOpen && this.getTokenFunc && (!this.latestToken || this.isTokenExpired())) {
           try {
             await this.refreshToken(true);
           } catch (e) {
@@ -109,50 +103,18 @@ class ApiClient {
           }
         }
 
-        // Task B.c: Ensure all requests include Authorization header when token is available
         if (this.circuitBreakerOpen) {
           delete headers['Authorization'];
         } else if (this.latestToken) {
           headers['Authorization'] = `Bearer ${this.latestToken}`;
-        } else {
-          // Try to get token if available
-          if (this.getTokenFunc) {
-            try {
-              const token = await this.getTokenFunc();
-              if (token) {
-                this.latestToken = token;
-                this.tokenExpiry = this.getTokenExpiry(token);
-                headers['Authorization'] = `Bearer ${token}`;
-              }
-            } catch (e) {
-              // Ignore token fetch errors
-            }
-          }
         }
 
-        // Task B.a: Ensure all requests include X-Tenant-ID
         const tenantId = getTenantIdFromCookie();
         headers['x-tenant-id'] = tenantId;
 
-        // Task B.b: Ensure all requests include X-User-ID (from Clerk token)
         const userId = extractUserIdFromToken(this.latestToken);
         if (userId) {
           headers['x-user-id'] = userId;
-        } else {
-          // If we don't have a token yet, try to get it to extract user ID
-          if (this.getTokenFunc && !this.latestToken) {
-            try {
-              const token = await this.getTokenFunc();
-              if (token) {
-                const extractedUserId = extractUserIdFromToken(token);
-                if (extractedUserId) {
-                  headers['x-user-id'] = extractedUserId;
-                }
-              }
-            } catch (e) {
-              // Ignore token fetch errors
-            }
-          }
         }
 
         return config;
@@ -187,7 +149,13 @@ class ApiClient {
             }
             
             // Redirect to login page
-            redirectToLogin();
+            if (this.adminPortalMode) {
+              clearAdminSession();
+              this.clearAuthSession();
+              redirectToAdminLogin();
+            } else {
+              redirectToLogin();
+            }
             
             // Create standardized error
             const apiError = handleApiError(error);
@@ -224,7 +192,13 @@ class ApiClient {
                 console.error('Logout failed', err);
               }
             }
-            redirectToLogin();
+            if (this.adminPortalMode) {
+              clearAdminSession();
+              this.clearAuthSession();
+              redirectToAdminLogin();
+            } else {
+              redirectToLogin();
+            }
             const apiError = handleApiError(error);
             return Promise.reject(apiError);
           }
@@ -265,12 +239,62 @@ class ApiClient {
   }
 
   setTokenGetter(getTokenFunc: TokenGetter) {
+    if (this.adminPortalMode) return;
     this.getTokenFunc = getTokenFunc;
     this.refreshToken();
   }
 
+  /** Use admin portal JWT from sessionStorage for API calls (ops dashboard). */
+  setAdminPortalMode(enabled: boolean) {
+    this.adminPortalMode = enabled;
+    if (enabled) {
+      this.getTokenFunc = async () => getAdminToken();
+      const token = getAdminToken();
+      if (token) {
+        this.latestToken = token;
+        this.tokenExpiry = this.getTokenExpiry(token);
+      }
+    }
+  }
+
   setLogoutHandler(logoutFunc: LogoutFunc) {
     this.logoutFunc = logoutFunc;
+  }
+
+  /** Drop cached JWT and auth failure state (e.g. after sign-out). */
+  clearAuthSession() {
+    this.latestToken = null;
+    this.tokenExpiry = null;
+    this.authFailureCount = 0;
+    this.circuitBreakerOpen = false;
+    this.refreshPromise = null;
+    if (this.adminPortalMode) {
+      this.adminPortalMode = false;
+    }
+  }
+
+  async adminLogin(email: string, password: string): Promise<void> {
+    const tenantId = getTenantIdFromCookie();
+    const res = await this.client.post(
+      '/api/v1/admin/auth/login',
+      { email, password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
+        },
+      }
+    );
+    const accessToken = res.data?.access_token as string | undefined;
+    if (!accessToken) {
+      throw new Error('Login succeeded but no access token was returned');
+    }
+    setAdminToken(accessToken);
+    this.setAdminPortalMode(true);
+    this.latestToken = accessToken;
+    this.tokenExpiry = this.getTokenExpiry(accessToken);
+    this.authFailureCount = 0;
+    this.circuitBreakerOpen = false;
   }
 
   /**
@@ -357,12 +381,18 @@ class ApiClient {
    * TASK C UPDATED: Added onProgress callback
    * Updated: Added pdfPassword parameter for password-protected PDFs
    */
-  async uploadSource(file: File, title?: string, onProgress?: (percent: number) => void, pdfPassword?: string) {
-    await this.refreshToken();
+  async uploadSource(
+    file: File,
+    title?: string,
+    onProgress?: (percent: number) => void,
+    pdfPassword?: string,
+    notebookId?: string,
+  ) {
     const formData = new FormData();
     formData.append('file', file);
     if (title) formData.append('title', title);
     if (pdfPassword) formData.append('pdf_password', pdfPassword);
+    if (notebookId) formData.append('notebook_id', notebookId);
 
     // Use longer timeout for file uploads (5 minutes)
     const uploadTimeout = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -382,17 +412,40 @@ class ApiClient {
     return res.data;
   }
 
-  async listSources() {
-    await this.refreshToken();
+  async listSources(notebookId?: string) {
     const res = await this.client.get('/api/v1/ingest/sources', {
+      params: notebookId ? { notebook_id: notebookId } : undefined,
       timeout: 60000, // Presign + DB; backend parallelizes presigns — allow headroom on slow networks
     });
     return res.data.sources ?? [];
   }
 
   async deleteSource(sourceId: string) {
-    await this.refreshToken();
     await this.client.delete(`/api/v1/ingest/sources/${sourceId}`);
+  }
+
+  async listSourceQuestions(sourceId: string) {
+    const res = await this.client.get(`/api/v1/ingest/sources/${sourceId}/questions`, {
+      timeout: 60000,
+    });
+    return res.data;
+  }
+
+  async extractSourceQuestions(sourceId: string, force = false) {
+    const res = await this.client.post(
+      `/api/v1/ingest/sources/${sourceId}/extract-questions`,
+      {},
+      { params: force ? { force: true } : undefined, timeout: 30000 },
+    );
+    return res.data;
+  }
+
+  async getSourceQuestion(sourceId: string, questionId: string) {
+    const res = await this.client.get(
+      `/api/v1/ingest/sources/${sourceId}/questions/${questionId}`,
+      { timeout: 60000 },
+    );
+    return res.data;
   }
 
   /** Admin: NCERT global corpus (requires admin role). */
@@ -402,7 +455,6 @@ class ApiClient {
     status?: string;
     limit?: number;
   }) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/ncert-global/documents', {
       params,
       timeout: 120000,
@@ -411,7 +463,6 @@ class ApiClient {
   }
 
   async uploadNcertGlobalDocument(formData: FormData) {
-    await this.refreshToken();
     const res = await this.client.post('/api/v1/admin/ncert-global/documents', formData, {
       timeout: 10 * 60 * 1000,
       // Omit Content-Type so the browser sets multipart boundary automatically.
@@ -420,14 +471,12 @@ class ApiClient {
   }
 
   async deleteNcertGlobalDocument(documentId: string) {
-    await this.refreshToken();
     await this.client.delete(`/api/v1/admin/ncert-global/documents/${documentId}`, {
       timeout: 120000,
     });
   }
 
   async listNcertGlobalIngestionRuns(params?: { document_id?: string; limit?: number }) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/ncert-global/ingestion-runs', {
       params,
       timeout: 120000,
@@ -436,7 +485,6 @@ class ApiClient {
   }
 
   async getNcertGlobalIngestionRun(runId: string) {
-    await this.refreshToken();
     const res = await this.client.get(`/api/v1/admin/ncert-global/ingestion-runs/${runId}`, {
       timeout: 120000,
     });
@@ -444,7 +492,6 @@ class ApiClient {
   }
 
   async getNcertSubjectsByClass() {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/ncert-global/subjects-by-class', {
       timeout: 120000,
     });
@@ -452,10 +499,9 @@ class ApiClient {
   }
 
   async getNcertTutorFilters(params?: { class_num?: number; subject?: string }) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/chat/ncert-filters', {
       params,
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data as NcertTutorFiltersResponse;
   }
@@ -474,10 +520,9 @@ class ApiClient {
     ncertSubject?: string,
     ncertChapterNo?: number,
     ncertChapterName?: string,
-    forceWholeFileMapReduce?: boolean
+    forceWholeFileMapReduce?: boolean,
+    ncertConcept?: string
   ) {
-    await this.refreshToken();
-
     const tenantId = getTenantIdFromCookie();
     let retryCount = 0;
     const maxRetries = 3; // Increased retries for network resilience
@@ -530,6 +575,7 @@ class ApiClient {
               ncert_subject: ncertSubject?.trim() || null,
               ncert_chapter_no: ncertChapterNo ?? null,
               ncert_chapter_name: ncertChapterName?.trim() || null,
+              ncert_concept: ncertConcept?.trim() || null,
               force_whole_file_map_reduce: Boolean(forceWholeFileMapReduce),
             }),
             signal: controller.signal,
@@ -757,8 +803,7 @@ class ApiClient {
                 // Handle chunk events
                 if (currentEventType === 'chunk') {
                   const text = eventData.text || eventData.data?.text;
-                  // Only process non-empty text strings
-                  if (text && typeof text === 'string' && text.trim()) {
+                  if (typeof text === 'string' && text.length > 0) {
                     hasReceivedText = true;
                     accumulatedText += text;
                     onChunk(text);
@@ -789,7 +834,7 @@ class ApiClient {
                     console.info(
                       '%c[Pipeline trace]%c ' +
                         tid +
-                        '\nOpen: /analytics/pipeline?trace_id=' +
+                        '\nOpen: /admin/pipeline?trace_id=' +
                         encodeURIComponent(tid),
                       'color:#38bdf8;font-weight:bold',
                       'color:inherit;font-weight:normal'
@@ -908,14 +953,18 @@ class ApiClient {
     sourceIds: string[],
     instructions?: string,
     retrievalFocus?: string,
-    reportFormat?: StudioReportFormat,
     studioExtras?: {
       contextMode?: 'sources_only' | 'chat_hybrid' | 'selection_only';
       chatTranscript?: string;
       selectionText?: string;
-    }
+      include_ncert_global?: boolean;
+      ncert_class?: number;
+      ncert_subject?: string;
+      ncert_chapter_no?: number;
+      ncert_chapter_name?: string;
+    },
+    options?: { timeoutMs?: number }
   ) {
-    await this.refreshToken();
     const body: Record<string, unknown> = {
       task_type: taskType,
       source_ids: sourceIds,
@@ -930,43 +979,54 @@ class ApiClient {
     if (studioExtras?.selectionText != null && studioExtras.selectionText.trim()) {
       body.selection_text = studioExtras.selectionText.trim();
     }
+    if (studioExtras?.include_ncert_global) {
+      body.include_ncert_global = true;
+      if (studioExtras.ncert_class != null) {
+        body.ncert_class = studioExtras.ncert_class;
+      }
+      if (studioExtras.ncert_subject) {
+        body.ncert_subject = studioExtras.ncert_subject;
+      }
+      if (studioExtras.ncert_chapter_no != null) {
+        body.ncert_chapter_no = studioExtras.ncert_chapter_no;
+      }
+      if (studioExtras.ncert_chapter_name) {
+        body.ncert_chapter_name = studioExtras.ncert_chapter_name;
+      }
+    }
     if (retrievalFocus && retrievalFocus.trim()) {
       body.retrieval_focus = retrievalFocus.trim();
     }
-    if (taskType === 'report' && reportFormat) {
-      body.report_format = reportFormat;
-    }
-    // Use longer timeout for AI generation (60 seconds) as it can take time
+    // Use longer timeout for AI generation; tutor bootstrap prep may pass extended limits.
+    const timeoutMs = options?.timeoutMs ?? 60000;
     const res = await this.client.post('/api/v1/studio/generate', body, {
-      timeout: 60000, // 60 seconds for AI generation
+      timeout: timeoutMs,
     });
     return res.data;
   }
 
-  async createNote(content: string, sourceRefId?: string) {
-    await this.refreshToken();
+  async createNote(content: string, sourceRefId?: string, notebookId?: string) {
     const res = await this.client.post('/api/v1/notes', {
       content,
       source_ref_id: sourceRefId,
+      notebook_id: notebookId,
     });
     return res.data;
   }
 
-  async listNotes() {
-    await this.refreshToken();
+  async listNotes(notebookId?: string) {
     const res = await this.client.get('/api/v1/notes', {
-      timeout: 30000,
+      params: notebookId ? { notebook_id: notebookId } : undefined,
+      timeout: 15000,
     });
     return res.data.notes ?? [];
   }
 
   async deleteNote(noteId: string) {
-    await this.refreshToken();
     await this.client.delete(`/api/v1/notes/${noteId}`);
   }
 
   async updateNote(noteId: string, content: string) {
-    await this.refreshToken();
     const res = await this.client.put(`/api/v1/notes/${noteId}`, {
       content,
     });
@@ -974,33 +1034,254 @@ class ApiClient {
   }
 
   async getNote(noteId: string) {
-    await this.refreshToken();
     const res = await this.client.get(`/api/v1/notes/${noteId}`);
     return res.data;
   }
 
   // Task C: Chat History Methods
 
-  async createChat(title?: string) {
-    await this.refreshToken();
+  async createChat(title?: string, notebookId?: string) {
     const res = await this.client.post('/api/v1/chat', {
       title: title || null,
+      notebook_id: notebookId,
     });
     return res.data;
   }
 
-  async listChats(limit: number = 50, offset: number = 0) {
-    await this.refreshToken();
+  async listChats(limit: number = 50, offset: number = 0, notebookId?: string) {
     // Cold DB / first request after server start can exceed a short timeout; align with getChat.
     const res = await this.client.get('/api/v1/chat', {
-      params: { limit, offset },
-      timeout: 30000,
+      params: {
+        limit,
+        offset,
+        ...(notebookId ? { notebook_id: notebookId } : {}),
+      },
+      timeout: 15000,
     });
+    return res.data;
+  }
+
+  async createNotebook(
+    payload: {
+      title?: string;
+      mode?: string;
+      class_level?: string;
+      subject?: string;
+      focus?: string;
+      settings?: Record<string, unknown>;
+    },
+    options?: { timeoutMs?: number },
+  ) {
+    const res = await this.client.post(
+      '/api/v1/notebooks',
+      {
+        title: payload.title || 'Untitled notebook',
+        mode: payload.mode || 'exploratory',
+        class_level: payload.class_level ?? null,
+        subject: payload.subject ?? null,
+        focus: payload.focus ?? null,
+        settings: payload.settings ?? null,
+      },
+      { timeout: options?.timeoutMs ?? 120000 },
+    );
+    return res.data;
+  }
+
+  async getTutorCatalog(params: {
+    class_num: number;
+    subject?: string;
+    chapter_no?: number;
+  }) {
+    const res = await this.client.get('/api/v1/tutor/catalog', { params, timeout: 15000 });
+    return res.data as {
+      subjects?: Array<{
+        id: string;
+        label: string;
+        icon: string;
+        chapter_count: number;
+        subject_slug: string;
+        subsubject?: string | null;
+      }>;
+      chapters?: Array<{
+        chapter_no: number;
+        title: string;
+        chapter_title?: string;
+        filter_chapter_name?: string | null;
+        subject_slug?: string;
+        ncert_document_id?: string | null;
+        chunks_count?: number;
+        summary?: string | null;
+        featured_count: number;
+        concept_count: number;
+        is_featured_chapter: boolean;
+        indexed: boolean;
+        ingest_status: string;
+      }>;
+      concepts?: Array<{ id: string; label: string }>;
+    };
+  }
+
+  async getTutorFeaturedNotebooks(params: {
+    class_num: number;
+    subject: string;
+    chapter_no: number;
+  }) {
+    const res = await this.client.get('/api/v1/tutor/featured-notebooks', {
+      params,
+      timeout: 15000,
+    });
+    return res.data as {
+      notebooks: Array<{
+        id: string;
+        title: string;
+        slug: string;
+        focus?: string | null;
+        mastery_percent?: number | null;
+      }>;
+    };
+  }
+
+  async bootstrapTutorNotebook(notebookId: string, options?: { timeoutMs?: number }) {
+    const res = await this.client.post(
+      `/api/v1/tutor/notebooks/${encodeURIComponent(notebookId)}/bootstrap`,
+      {},
+      { timeout: options?.timeoutMs ?? 180000 },
+    );
+    return res.data;
+  }
+
+  async prepareTutorNotebook(
+    payload: {
+      title: string;
+      class_level?: string;
+      subject?: string;
+      focus?: string;
+      tutor_scope: Record<string, unknown>;
+    },
+    options?: { timeoutMs?: number; signal?: AbortSignal },
+  ) {
+    const res = await this.client.post('/api/v1/tutor/notebooks/prepare', payload, {
+      timeout: options?.timeoutMs ?? 180000,
+      signal: options?.signal,
+    });
+    return res.data as {
+      notebook_id: string;
+      slug: string;
+      opening_summary: string;
+      suggestions: Array<{ label: string; prompt: string }>;
+      studio_recommendations: Array<{
+        type: string;
+        reason?: string;
+        auto_generate?: boolean;
+      }>;
+      chat_id?: string | null;
+      assets_created: number;
+      assets: Array<{ id: string; type: string; title: string }>;
+      auto_types: string[];
+      timing: {
+        create_notebook_ms: number;
+        ncert_retrieval_ms: number;
+        ncert_cache_hit: number;
+        bootstrap_llm_ms: number;
+        studio_parallel_ms: number;
+        persist_ms: number;
+        total_ms: number;
+      };
+      partial_failure: boolean;
+    };
+  }
+
+  async warmTutorNcertContext(tutorScope: Record<string, unknown>) {
+    const res = await this.client.post(
+      '/api/v1/tutor/ncert-context/warm',
+      { tutor_scope: tutorScope },
+      { timeout: 60000 },
+    );
+    return res.data as {
+      ok: boolean;
+      cached: boolean;
+      context_chars: number;
+      duration_ms: number;
+    };
+  }
+
+  async getTutorFollowUps(payload: {
+    notebook_id: string;
+    user_message: string;
+    assistant_message: string;
+  }) {
+    const res = await this.client.post('/api/v1/tutor/follow-ups', payload, { timeout: 15000 });
+    return res.data as { follow_ups: string[] };
+  }
+
+  async markTutorStudioGenerationStarted(notebookId: string) {
+    const res = await this.client.post(
+      `/api/v1/tutor/notebooks/${encodeURIComponent(notebookId)}/studio-generation-started`,
+      {},
+    );
+    return res.data;
+  }
+
+  async listNotebooks() {
+    const res = await this.client.get('/api/v1/notebooks', { timeout: 15000 });
+    return res.data;
+  }
+
+  async getNotebookBySlug(slug: string) {
+    const res = await this.client.get(`/api/v1/notebooks/by-slug/${encodeURIComponent(slug)}`, {
+      timeout: 15000,
+    });
+    return res.data;
+  }
+
+  async updateNotebook(
+    notebookId: string,
+    payload: {
+      title?: string;
+      subtitle?: string;
+      focus?: string;
+      settings?: Record<string, unknown>;
+      touch_last_studied?: boolean;
+    },
+  ) {
+    const res = await this.client.patch(`/api/v1/notebooks/${notebookId}`, payload);
+    return res.data;
+  }
+
+  async listStudioFeatures(params?: {
+    notebook_id?: string;
+    type?: string;
+    limit?: number;
+  }) {
+    const res = await this.client.get('/api/v1/studio/features', {
+      params,
+      timeout: 15000,
+    });
+    return res.data;
+  }
+
+  async createStudioFeature(payload: {
+    notebook_id: string;
+    type: string;
+    title: string;
+    content: unknown;
+    source_ids?: string[];
+  }) {
+    const res = await this.client.post('/api/v1/studio/features', payload);
+    return res.data;
+  }
+
+  async deleteStudioFeature(featureId: string) {
+    const res = await this.client.delete(`/api/v1/studio/features/${featureId}`);
+    return res.data;
+  }
+
+  async getHomeSummary() {
+    const res = await this.client.get('/api/v1/home/summary', { timeout: 15000 });
     return res.data;
   }
 
   async getChat(chatId: string) {
-    await this.refreshToken();
     const res = await this.client.get(`/api/v1/chat/${chatId}`, {
       timeout: 60000,
     });
@@ -1008,7 +1289,6 @@ class ApiClient {
   }
 
   async updateChatTitle(chatId: string, title: string) {
-    await this.refreshToken();
     const res = await this.client.patch(`/api/v1/chat/${chatId}`, {
       title,
     });
@@ -1016,10 +1296,9 @@ class ApiClient {
   }
 
   async deleteChat(chatId: string) {
-    await this.refreshToken();
     // Use longer timeout for delete operations (30 seconds) in case there are many messages to cascade delete
     const res = await this.client.delete(`/api/v1/chat/${chatId}`, {
-      timeout: 30000, // 30 seconds
+      timeout: 15000, // 30 seconds
     });
     return res.data;
   }
@@ -1030,7 +1309,6 @@ class ApiClient {
     content: string,
     citations?: any[]
   ) {
-    await this.refreshToken();
     const res = await this.client.post(
       `/api/v1/chat/${chatId}/messages`,
       {
@@ -1048,15 +1326,13 @@ class ApiClient {
   }
 
   async deleteAllMessages(chatId: string) {
-    await this.refreshToken();
     const res = await this.client.delete(`/api/v1/chat/${chatId}/messages`, {
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data;
   }
 
   async summarizeChat(chatId: string) {
-    await this.refreshToken();
     const res = await this.client.post(
       `/api/v1/chat/${chatId}/summarize`,
       {},
@@ -1069,40 +1345,37 @@ class ApiClient {
 
   async updateMessageFeedback(
     messageId: string,
-    feedback: 'thumbs_up' | 'thumbs_down' | null
+    feedback: 'thumbs_up' | 'thumbs_down' | null,
+    feedbackReason?: string | null
   ) {
-    await this.refreshToken();
     const res = await this.client.patch(`/api/v1/chat/messages/${messageId}/feedback`, {
       feedback,
+      feedback_reason: feedbackReason ?? null,
     });
     return res.data;
   }
 
   // Admin methods
   async listAllUsers() {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/users', {
-      timeout: 30000, // Admin/Clerk + DB merge can be slow
+      timeout: 15000, // Admin/Clerk + DB merge can be slow
     });
     return res.data;
   }
 
   async getPipelineTrace(traceId: string) {
-    await this.refreshToken();
     const res = await this.client.get(`/api/v1/pipeline-traces/${encodeURIComponent(traceId)}`);
     return res.data;
   }
 
   async getPipelineTraceExplain(traceId: string) {
-    await this.refreshToken();
     const res = await this.client.get(`/api/v1/pipeline-traces/${encodeURIComponent(traceId)}/explain`, {
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data;
   }
 
   async listPipelineTracesRecent(limit: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/pipeline-traces/recent', {
       params: { limit },
       timeout: 15000,
@@ -1112,16 +1385,14 @@ class ApiClient {
 
   /** Always 200 when logged in; no 403 — safe for admin UI detection. */
   async getMyAdminFlags() {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/me/flags');
     return res.data as { is_admin: boolean };
   }
 
   async getAggregateMetrics(days: number = 30, silent: boolean = false) {
-    await this.refreshToken();
     const config: any = {
       params: { days },
-      timeout: 30000, // 30 second timeout for metrics queries
+      timeout: 15000, // 30 second timeout for metrics queries
     };
     if (silent) {
       config._expected403 = true; // Mark as expected 403 to suppress error logging
@@ -1131,61 +1402,54 @@ class ApiClient {
   }
 
   async getMyMetrics(days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/admin/me/metrics', {
       params: { days },
-      timeout: 30000, // 30 second timeout for metrics queries
+      timeout: 15000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
 
   async getUserMetrics(userId: string, days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get(`/api/v1/admin/users/${userId}/metrics`, {
       params: { days },
-      timeout: 30000, // 30 second timeout for metrics queries
+      timeout: 15000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
 
   async getUserSessions(userId: string, days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get(`/api/v1/admin/users/${userId}/sessions`, {
       params: { days },
-      timeout: 30000, // 30 second timeout for session queries
+      timeout: 15000, // 30 second timeout for session queries
     });
     return res.data;
   }
 
   async getTokenConsumption(days: number = 30, groupBy: string = 'feature') {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/token-consumption', {
       params: { days, group_by: groupBy },
-      timeout: 30000, // 30 second timeout for metrics queries
+      timeout: 15000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
 
   async getCostTracking(days: number = 30, groupByUser: boolean = false) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/cost-tracking', {
       params: { days, group_by_user: groupByUser },
-      timeout: 30000, // 30 second timeout for metrics queries
+      timeout: 15000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
 
   async getLatencyDashboard(days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/latency', {
       params: { days },
-      timeout: 30000, // 30 second timeout for metrics queries
+      timeout: 15000, // 30 second timeout for metrics queries
     });
     return res.data;
   }
 
   async getCacheEfficiency(days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/cache-efficiency', {
       params: { days },
     });
@@ -1193,7 +1457,6 @@ class ApiClient {
   }
 
   async getRagQuality(days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/rag-quality', {
       params: { days },
     });
@@ -1201,68 +1464,222 @@ class ApiClient {
   }
 
   async getAgentSummary(days: number = 30, compareDays: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/agents/summary', {
       params: { days, compare_days: compareDays },
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data;
   }
 
   async getAgentDetails(days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/agents/details', {
       params: { days },
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data;
   }
 
   async getAgentTimeseries(days: number = 30) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/agents/timeseries', {
       params: { days },
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data;
   }
 
   async getAgentRecent(limit: number = 50) {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/agents/recent', {
       params: { limit },
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data;
   }
 
   async downloadAgentCsv(days: number = 30): Promise<Blob> {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/metrics/agents/export.csv', {
       params: { days },
       responseType: 'blob',
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data as Blob;
   }
 
   async getAlertsStatus() {
-    await this.refreshToken();
     const res = await this.client.get('/api/v1/alerts/status');
     return res.data;
   }
 
   async getLogs(days: number = 7, limit: number = 1000, eventType?: string) {
-    await this.refreshToken();
     const params: any = { days, limit };
     if (eventType) {
       params.event_type = eventType;
     }
     const res = await this.client.get('/api/v1/metrics/logs', {
       params,
-      timeout: 30000,
+      timeout: 15000,
     });
     return res.data;
+  }
+
+  // ── Problem Solver ────────────────────────────────────────────────────────
+
+  async createProblemSolverSession(payload: {
+    notebook_id: string;
+    problem_text: string;
+    input_type?: string;
+    source_refs?: Array<Record<string, unknown>>;
+  }) {
+    const res = await this.client.post('/api/v1/problem-solver/sessions', payload, {
+      timeout: 120000,
+    });
+    return res.data;
+  }
+
+  async getActiveProblemSolverSession(notebookId: string) {
+    try {
+      const res = await this.client.get(`/api/v1/problem-solver/sessions/active/${notebookId}`, {
+        timeout: 15000,
+        validateStatus: (status) => status === 200 || status === 404,
+      });
+      if (res.status === 404) return null;
+      return res.data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  async getProblemSolverSession(sessionId: string) {
+    const res = await this.client.get(`/api/v1/problem-solver/sessions/${sessionId}`, {
+      timeout: 15000,
+    });
+    return res.data;
+  }
+
+  async extractProblemSolverFromSource(sourceId: string) {
+    const res = await this.client.post(
+      '/api/v1/problem-solver/extract-from-source',
+      { source_id: sourceId },
+      { timeout: 120000 },
+    );
+    return res.data as { normalized_text: string };
+  }
+
+  async selectProblemSolverMode(sessionId: string, solvingMode: string) {
+    const res = await this.client.post(
+      `/api/v1/problem-solver/sessions/${sessionId}/mode`,
+      { solving_mode: solvingMode },
+      { timeout: 30000 },
+    );
+    return res.data;
+  }
+
+  async submitProblemSolverCheckpoint(
+    sessionId: string,
+    checkpointNumber: number,
+    selectedOption: string,
+  ) {
+    const res = await this.client.post(
+      `/api/v1/problem-solver/sessions/${sessionId}/checkpoint`,
+      { checkpoint_number: checkpointNumber, selected_option: selectedOption },
+      { timeout: 120000 },
+    );
+    return res.data;
+  }
+
+  async triggerProblemSolverFollowUp(
+    sessionId: string,
+    action: string,
+    userFollowUp?: string,
+  ) {
+    const res = await this.client.post(
+      `/api/v1/problem-solver/sessions/${sessionId}/follow-up`,
+      { action, user_follow_up: userFollowUp ?? null },
+      { timeout: 120000 },
+    );
+    return res.data;
+  }
+
+  async resetProblemSolverSession(notebookId: string) {
+    const res = await this.client.post(
+      `/api/v1/problem-solver/sessions/reset/${notebookId}`,
+      {},
+      { timeout: 30000 },
+    );
+    return res.data;
+  }
+
+  async streamProblemSolverResponse(
+    sessionId: string,
+    handlers: {
+      onStart?: (data: { title?: string; mode?: string }) => void;
+      onSection?: (data: { index: number; heading?: string; bodyMarkdown?: string }) => void;
+      onDone?: (data: Record<string, unknown>) => void;
+      onError?: (message: string) => void;
+    },
+  ) {
+    const tenantId = getTenantIdFromCookie();
+    const userId = extractUserIdFromToken(this.latestToken);
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-tenant-id': tenantId,
+    };
+    if (this.latestToken) {
+      headers.Authorization = `Bearer ${this.latestToken}`;
+    }
+    if (userId) {
+      headers['x-user-id'] = userId;
+    }
+
+    const response = await fetch(
+      `${this.client.defaults.baseURL}/api/v1/problem-solver/sessions/${sessionId}/respond/stream`,
+      { method: 'POST', headers },
+    );
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => 'Stream failed');
+      handlers.onError?.(errText || `HTTP ${response.status}`);
+      return;
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      handlers.onError?.('No response stream');
+      return;
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop() ?? '';
+
+      for (const part of parts) {
+        const lines = part.split('\n');
+        let eventType = 'message';
+        let dataStr = '';
+        for (const line of lines) {
+          if (line.startsWith('event:')) {
+            eventType = line.slice(6).trim();
+          } else if (line.startsWith('data:')) {
+            dataStr += line.slice(5).trim();
+          }
+        }
+        if (!dataStr) continue;
+        try {
+          const data = JSON.parse(dataStr);
+          if (eventType === 'start') handlers.onStart?.(data);
+          else if (eventType === 'section') handlers.onSection?.(data);
+          else if (eventType === 'done') handlers.onDone?.(data);
+          else if (eventType === 'error') handlers.onError?.(data.error || 'Stream error');
+        } catch {
+          handlers.onError?.('Failed to parse stream event');
+        }
+      }
+    }
   }
 }
 

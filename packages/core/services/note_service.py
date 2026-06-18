@@ -12,20 +12,26 @@ class NotesService:
         self.tenant_id = tenant_id
         self.user_id = user_id
 
-    async def create_note(self, content: str, source_ref_id: Optional[str] = None) -> Note:
+    async def create_note(
+        self,
+        content: str,
+        source_ref_id: Optional[str] = None,
+        notebook_id: Optional[str] = None,
+    ) -> Note:
         note = Note(
             id=uuid.uuid4(),
             tenant_id=uuid.UUID(self.tenant_id),
             user_id=self.user_id,
             content=content,
             source_ref_id=uuid.UUID(source_ref_id) if source_ref_id else None,
+            notebook_id=uuid.UUID(notebook_id) if notebook_id else None,
         )
         self.db.add(note)
         await self.db.commit()
         await self.db.refresh(note)
         return note
 
-    async def list_notes(self) -> List[Note]:
+    async def list_notes(self, notebook_id: Optional[str] = None) -> List[Note]:
         def _is_pool_exhaustion(err: Exception) -> bool:
             msg = str(err).lower()
             return "maxclientsinsessionmode" in msg or "max clients" in msg
@@ -33,12 +39,15 @@ class NotesService:
         db_timeout_s = 5.0
 
         try:
+            filters = [
+                Note.tenant_id == uuid.UUID(self.tenant_id),
+                Note.user_id == self.user_id,
+            ]
+            if notebook_id:
+                filters.append(Note.notebook_id == uuid.UUID(notebook_id))
             result = await asyncio.wait_for(
                 self.db.execute(
-                    select(Note).where(
-                        Note.tenant_id == uuid.UUID(self.tenant_id),
-                        Note.user_id == self.user_id,
-                    )
+                    select(Note).where(*filters)
                 ),
                 timeout=db_timeout_s,
             )

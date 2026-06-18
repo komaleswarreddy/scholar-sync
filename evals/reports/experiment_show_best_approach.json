@@ -1,0 +1,1690 @@
+{
+  "agent_name": "show_best_approach",
+  "generated_at": "2026-06-18T03:47:18.587082+00:00",
+  "dataset_id": "show_best_approach",
+  "dataset_hash": "e0d6f7f384fc51de",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 95.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.002464,
+      "input_cost_usd": 0.000307,
+      "output_cost_usd": 0.002157,
+      "prompt_tokens": 2049,
+      "completion_tokens": 3595,
+      "latency_ms": 14765.68,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 0.8,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 95.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.034145,
+      "input_cost_usd": 0.006035,
+      "output_cost_usd": 0.02811,
+      "prompt_tokens": 2414,
+      "completion_tokens": 2811,
+      "latency_ms": 15852.22,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 0.8,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 95.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.043333,
+      "input_cost_usd": 0.005123,
+      "output_cost_usd": 0.03821,
+      "prompt_tokens": 2049,
+      "completion_tokens": 3821,
+      "latency_ms": 13088.72,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 1.0,
+        "progressive_guidance": 0.8,
+        "answer_leakage_control": 1.0,
+        "clarity": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 92.0,
+      "pass_rate": 0.8,
+      "cost_usd": 0.001789,
+      "input_cost_usd": 0.000362,
+      "output_cost_usd": 0.001427,
+      "prompt_tokens": 2414,
+      "completion_tokens": 2378,
+      "latency_ms": 12895.9,
+      "passed": true,
+      "metrics": {
+        "helpfulness": 0.9199999999999999,
+        "progressive_guidance": 0.8400000000000001,
+        "answer_leakage_control": 1.0,
+        "clarity": 0.9199999999999999
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 95.0,
+      "cost_usd": 0.002464,
+      "input_cost_usd": 0.000307,
+      "output_cost_usd": 0.002157
+    },
+    "composite_score": 0.8698
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "hint_agent",
+  "example_results": [
+    {
+      "example_id": "show_best_approach-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "To find the magnifying power of a microscope, we need to consider the focal lengths of the objective and eyepiece lenses, as well as the distance between them."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "The magnifying power \\( M \\) of a microscope can be calculated using the formula: \\[ M = \\frac{v}{u} \\times \\left(1 + \\frac{D}{f_e}\\right) \\] where \\( v \\) is the image distance from the objective, \\( u \\) is the object distance, \\( D \\) is the near point distance (usually taken as \\( 25 \\text{ cm} \\)), and \\( f_e \\) is the focal length of the eyepiece."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method fits because it incorporates both the objective and eyepiece contributions to the overall magnification, allowing for a comprehensive calculation of the microscope's performance."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Calculate the image distance \\( v \\) using the lens formula for the objective lens: \\( \\frac{1}{f_o} = \\frac{1}{u} + \\frac{1}{v} \\).  \n2. Use the calculated \\( v \\) to find the object distance for the eyepiece.  \n3. Substitute values into the magnifying power formula."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Given:  \n- Objective focal length \\( f_o = 2 \\text{ cm} \\)  \n- Eyepiece focal length \\( f_e = 6 \\text{ cm} \\)  \n- Distance between lenses = 16 cm.  \nUsing the lens formula for the objective:  \n\\[ \\frac{1}{f_o} = \\frac{1}{u} + \\frac{1}{v} \\]  \nAssuming \\( u = 2 \\text{ cm} \\) (object at the focal point), we find \\( v \\).  \nThen, calculate the effective object distance for the eyepiece and substitute into the magnifying power formula."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always remember to check the sign conventions for the lens formula and ensure that distances are measured from the lens to the object/image."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method should not be used if the object is placed at a distance greater than the focal length of the objective lens, as it will not produce a real image."
+          }
+        ],
+        "finalAnswer": "The magnifying power of the microscope is approximately 12.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Definite Integral Calculation",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "We need to evaluate the definite integral of a polynomial function, specifically \\( \\int (3x^2 + 2x) \\, dx \\) from 0 to 2."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "The best method to solve this problem is to apply the power rule of integration, which states that \\( \\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C \\) for \\( n \\neq -1 \\). We will then evaluate the antiderivative at the bounds 0 and 2."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method fits well because the integrand is a polynomial, which is straightforward to integrate using the power rule. The definite integral will give us the area under the curve between the specified limits."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "First, we find the antiderivative of the function: \\[ \\int (3x^2 + 2x) \\, dx = \\int 3x^2 \\, dx + \\int 2x \\, dx \\] Using the power rule, we get: \\[ = 3 \\cdot \\frac{x^{2+1}}{2+1} + 2 \\cdot \\frac{x^{1+1}}{1+1} = x^3 + x^2 + C \\]"
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Now we evaluate the definite integral from 0 to 2: \\[ \\int_0^2 (3x^2 + 2x) \\, dx = \\left[ x^3 + x^2 \\right]_0^2 = (2^3 + 2^2) - (0^3 + 0^2) = (8 + 4) - 0 = 12 \\]"
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always remember to apply the limits of integration after finding the antiderivative. Double-check your calculations to avoid simple arithmetic errors."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method is not suitable for integrands that are not polynomials or for cases where the integral cannot be expressed in elementary functions. In such cases, numerical methods or special functions may be required."
+          }
+        ],
+        "finalAnswer": "12",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Understanding Enzymatic Activity in the Stomach",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "This question tests knowledge of digestive enzymes and their optimal pH levels. Recognizing the environment in which each enzyme functions is crucial for answering correctly."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Recall the specific functions and pH ranges of digestive enzymes. Pepsin is known to function optimally in acidic conditions, specifically in the stomach."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "Pepsin is secreted as pepsinogen and activated in the acidic environment of the stomach (pH 1.5 to 3.5). Other enzymes listed (trypsin, lipase, amylase) operate in neutral to alkaline conditions."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "To solve this type of question efficiently, create a mental map of where each enzyme acts: Pepsin in the stomach, trypsin in the small intestine, lipase in the stomach and small intestine, and amylase in the mouth and small intestine."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Given the options, the correct answer is (B) Pepsin, as it is the only enzyme that operates effectively in the acidic pH of the stomach."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always remember the pH levels associated with different enzymes. This knowledge not only helps in NEET but also in understanding human physiology."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method may not be effective if you are unsure about the pH levels of enzymes or if the question involves complex biochemical pathways."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "To derive the lens formula for a thin convex lens, we will analyze the refraction of light at two spherical surfaces of the lens. The lens formula relates the object distance \\( u \\), the image distance \\( v \\), and the focal length \\( f \\) of the lens."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "The best method involves applying Snell's law at both surfaces of the lens. We will consider the lens as being made of a material with a refractive index \\( n \\) and use the geometry of the lens to derive the relationships between the object distance, image distance, and focal length."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method fits well because it systematically uses the principles of refraction and geometry, which are fundamental in optics. By applying Snell's law at both surfaces, we can derive a relationship that holds true for thin lenses."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Consider a thin convex lens with radii of curvature \\( R_1 \\) and \\( R_2 \\).  \n2. Let the object be placed at a distance \\( u \\) from the lens and the image formed at a distance \\( v \\).  \n3. Use the sign convention: for a convex lens, \\( R_1 \\) is positive and \\( R_2 \\) is negative."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "1. For the first surface (from air to lens):  \n   \\[ n_1 \\sin \\theta_1 = n_2 \\sin \\theta_2 \\]  \n   where \\( n_1 = 1 \\) (air) and \\( n_2 = n \\) (lens).  \n2. For the second surface (from lens to air):  \n   \\[ n_2 \\sin \\theta_2' = n_1 \\sin \\theta_1' \\]  \n3. Using the geometry of the lens and small angle approximation, we can derive the lens formula:  \n   \\[ \\frac{1}{f} = \\frac{1}{v} + \\frac{1}{u} \\]  \n   where \\( f \\) is the focal length of the lens."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Remember to clearly define your sign conventions and the positions of the object and image. This will help avoid confusion and errors in calculations."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method is not suitable for thick lenses or when the lens has significant aberrations. In such cases, more complex models or numerical methods may be required."
+          }
+        ],
+        "finalAnswer": "The lens formula for a thin convex lens is given by \\( \\frac{1}{f} = \\frac{1}{v} + \\frac{1}{u} \\).",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Current and Voltage in Series Circuits",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "In this problem, we have a series circuit with a battery and resistors. The total voltage is provided, and we need to find the current flowing through the circuit and the voltage drop across each resistor."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use Ohm's Law, which states that \\( V = I \\times R \\). First, calculate the total resistance in the circuit, then find the total current using the formula \\( I = \\frac{V}{R_{total}} \\). Finally, calculate the voltage across each resistor."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method is effective because it systematically applies fundamental electrical principles. Ohm's Law is a cornerstone of circuit analysis, making it reliable for finding current and voltage in series circuits."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Calculate total resistance: \\( R_{total} = R_1 + R_2 = 3 \\Omega + 6 \\Omega = 9 \\Omega \\)\\n2. Find total current: \\( I = \\frac{V}{R_{total}} = \\frac{12 \\text{ V}}{9 \\Omega} = \\frac{4}{3} \\text{ A} \\)\\n3. Calculate voltage across each resistor: \\( V_1 = I \\times R_1 = \\frac{4}{3} \\text{ A} \\times 3 \\Omega = 4 \\text{ V} \\) and \\( V_2 = I \\times R_2 = \\frac{4}{3} \\text{ A} \\times 6 \\Omega = 8 \\text{ V} \\)"
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "The current through the circuit is \\( I = \\frac{4}{3} \\text{ A} \\). The voltage across the 3 \\Omega resistor is \\( 4 \\text{ V} \\) and across the 6 \\Omega resistor is \\( 8 \\text{ V} \\)."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always double-check your calculations for total resistance and ensure you apply Ohm's Law correctly. Remember that in series circuits, the current remains constant throughout."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method is not suitable for parallel circuits or when components have non-linear characteristics, such as diodes or transistors, where more complex analysis is required."
+          }
+        ],
+        "finalAnswer": "The current in the circuit is \\( \\frac{4}{3} \\text{ A} \\). The voltage across the 3 \\Omega resistor is \\( 4 \\text{ V} \\) and across the 6 \\Omega resistor is \\( 8 \\text{ V} \\).",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Finding Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "This problem involves calculating the magnifying power of a compound microscope given the focal lengths of the objective and eyepiece lenses, as well as the separation between them."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use the formula for the magnifying power of a compound microscope: \n\\[ M = \\left( 1 + \\frac{D}{f_e} \\right) \\times \\frac{L}{f_o} \\] \nwhere $D$ is the least distance of distinct vision (usually 25 \\text{ cm}), $f_e$ is the focal length of the eyepiece, $L$ is the separation between the lenses, and $f_o$ is the focal length of the objective."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method directly applies the standard formula for magnifying power, which is derived from the principles of optics and is suitable for the given parameters of the microscope."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Identify the given values: $f_o = 2 \\text{ cm}$, $f_e = 6 \\text{ cm}$, $L = 16 \\text{ cm}$, and $D = 25 \\text{ cm}$. \n2. Substitute these values into the magnifying power formula."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Substitute the given values into the formula: \n\\[ M = \\left( 1 + \\frac{25}{6} \\right) \\times \\frac{16}{2} \\] \nCalculate step-by-step: \n1. \\( 1 + \\frac{25}{6} = 1 + 4.1667 = 5.1667 \\) \n2. \\( \\frac{16}{2} = 8 \\) \n3. \\( M = 5.1667 \\times 8 = 41.3336 \\) \nThus, the magnifying power is approximately 41.33."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always remember to use the correct units and verify that the least distance of distinct vision is consistent with the problem's context (usually 25 \\text{ cm})."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method should not be used if the problem involves a different optical instrument or if additional factors like lens aberrations are considered."
+          }
+        ],
+        "finalAnswer": "The magnifying power of the microscope is approximately 41.33.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Reliable Exam Approach for Definite Integrals",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "The problem involves finding the definite integral of a polynomial function over a specified interval. Specifically, we need to evaluate the integral of $3x^2 + 2x$ from 0 to 2."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use the power rule for integration, which is applicable to polynomial functions. According to the NCERT context, the integral of $x^n$ is $\\frac{x^{n+1}}{n+1} + C$ for $n \\neq -1$. Apply this rule to each term of the polynomial separately, then evaluate the definite integral using the limits."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "The power rule is straightforward and efficient for polynomial functions, making it ideal for this problem. It allows us to integrate each term independently and then apply the limits to find the definite integral."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Identify each term in the polynomial: $3x^2$ and $2x$.\n2. Apply the power rule to each term:\n   - $\\int 3x^2 \\, dx = 3 \\cdot \\frac{x^{2+1}}{2+1} = x^3$\n   - $\\int 2x \\, dx = 2 \\cdot \\frac{x^{1+1}}{1+1} = x^2$\n3. Combine the results: $x^3 + x^2$."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Evaluate the definite integral:\n\n\\[\n\\int_{0}^{2} (3x^2 + 2x) \\, dx = \\left[ x^3 + x^2 \\right]_{0}^{2}\n\\]\n\nCalculate the values at the limits:\n\n\\[\n= (2^3 + 2^2) - (0^3 + 0^2) = (8 + 4) - 0 = 12\n\\]"
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always simplify the polynomial first if possible, and ensure you apply the power rule correctly to each term. Double-check your calculations, especially when substituting the limits."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method is not suitable for non-polynomial functions or when the integrand involves complex expressions like trigonometric, exponential, or logarithmic functions. In such cases, other integration techniques or substitution methods may be required."
+          }
+        ],
+        "finalAnswer": "The value of the definite integral \\( \\int_{0}^{2} (3x^2 + 2x) \\, dx \\) is 12.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "NEET MCQ: Enzyme Activity in Stomach",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "This problem is a typical NEET multiple-choice question that tests your knowledge of human physiology, specifically the digestive system and enzyme activity. The question asks which enzyme functions in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "To solve this problem, recall the specific conditions under which different digestive enzymes operate. The stomach has a highly acidic environment, with a pH around 1.5 to 3.5. Identify which enzyme is known to function optimally in such conditions."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "Pepsin is the enzyme that acts in the acidic pH of the stomach. It is secreted by the stomach lining as pepsinogen and is activated to pepsin in the presence of hydrochloric acid. This makes pepsin the correct answer, as it is specifically adapted to function in the stomach's acidic environment."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Recall the pH environment of the stomach.\n2. List the enzymes provided in the options.\n3. Match the enzyme with the acidic condition of the stomach."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Given the options:\n- (A) Trypsin: Functions in the small intestine, requires a basic pH.\n- (B) Pepsin: Functions in the stomach, requires an acidic pH.\n- (C) Lipase: Primarily acts in the small intestine.\n- (D) Amylase: Begins digestion in the mouth, requires a neutral to slightly basic pH.\n\nThe correct answer is (B) Pepsin."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Remember that enzymes are highly specific to their environment. Pepsin is unique in its ability to function in the stomach's acidic conditions, making it a key enzyme to remember for questions related to digestion."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This approach is not applicable if the question involves enzymes functioning in non-acidic environments, such as those in the small intestine or mouth."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Deriving Lens Formula for Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "The problem involves deriving the lens formula for a thin convex lens using the concept of refraction at two spherical surfaces. This requires understanding the geometry and physics of light refraction through lenses."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "The most reliable method is to apply the refraction formula at each spherical surface of the lens and then combine the results to derive the lens formula. This involves using the lens maker's formula and the small angle approximation."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method fits because it systematically applies the principles of refraction and geometry, ensuring that all necessary factors are considered. It aligns with the standard derivation process taught in physics courses."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Consider a thin convex lens with radii of curvature \\( R_1 \\) and \\( R_2 \\). \n2. Use the refraction formula at the first surface: \n   \\[ \\frac{n_2}{v_1} - \\frac{n_1}{u} = \\frac{n_2 - n_1}{R_1} \\] \n3. Use the refraction formula at the second surface: \n   \\[ \\frac{n_1}{v} - \\frac{n_2}{v_1} = \\frac{n_1 - n_2}{R_2} \\] \n4. Combine these equations to eliminate \\( v_1 \\) and derive the lens formula."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "By combining the equations from the two surfaces and simplifying, we get: \n\\[ \\frac{1}{v} - \\frac{1}{u} = \\frac{n_2 - n_1}{n_1} \\left( \\frac{1}{R_1} - \\frac{1}{R_2} \\right) \\] \nFor a lens in air, \\( n_1 = 1 \\) and \\( n_2 = n \\), leading to the lens formula: \n\\[ \\frac{1}{v} - \\frac{1}{u} = \\frac{1}{f} \\]"
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Ensure to clearly define all variables and assumptions, such as the lens being thin and the small angle approximation. This clarity is crucial for full marks."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid using this method if the lens is not thin or if the medium surrounding the lens is not air, as additional complexities arise."
+          }
+        ],
+        "finalAnswer": "The lens formula for a thin convex lens is \\( \\frac{1}{v} - \\frac{1}{u} = \\frac{1}{f} \\).",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Solving Series Circuit Problems",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "In a series circuit, resistors are connected end-to-end, and the same current flows through each resistor. The total resistance is the sum of individual resistances. Given a 12 V battery connected to resistors of 3 \u03a9 and 6 \u03a9 in series, we need to find the current through the circuit and the voltage across each resistor."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use Ohm's Law and the formula for total resistance in a series circuit. First, calculate the total resistance: \n\\[ R_{\\text{total}} = R_1 + R_2 = 3 \\, \\Omega + 6 \\, \\Omega = 9 \\, \\Omega \\]\nThen, find the current using Ohm's Law: \n\\[ I = \\frac{V}{R_{\\text{total}}} = \\frac{12 \\, \\text{V}}{9 \\, \\Omega} = 1.33 \\, \\text{A} \\]\nFinally, calculate the voltage across each resistor using Ohm's Law: \n\\[ V_1 = I \\times R_1 = 1.33 \\, \\text{A} \\times 3 \\, \\Omega = 4 \\, \\text{V} \\]\n\\[ V_2 = I \\times R_2 = 1.33 \\, \\text{A} \\times 6 \\, \\Omega = 8 \\, \\text{V} \\]"
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method is efficient because it directly applies Ohm's Law and the properties of series circuits. It ensures that all calculations are straightforward and based on fundamental principles, minimizing the risk of errors."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Identify the resistors in series and calculate the total resistance.\n2. Use the total resistance to find the current using Ohm's Law.\n3. Calculate the voltage across each resistor using the current and individual resistances."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "1. Total resistance: \n\\[ R_{\\text{total}} = 9 \\, \\Omega \\]\n2. Current through the circuit: \n\\[ I = 1.33 \\, \\text{A} \\]\n3. Voltage across 3 \u03a9 resistor: \n\\[ V_1 = 4 \\, \\text{V} \\]\n4. Voltage across 6 \u03a9 resistor: \n\\[ V_2 = 8 \\, \\text{V} \\]"
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always double-check your calculations, especially when summing resistances and applying Ohm's Law. Ensure units are consistent and clearly labeled."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method is not suitable for parallel circuits or circuits with complex components like capacitors or inductors. It is specifically tailored for simple series resistor circuits."
+          }
+        ],
+        "finalAnswer": "The current through the circuit is 1.33 A. The voltage across the 3 \u03a9 resistor is 4 V, and the voltage across the 6 \u03a9 resistor is 8 V.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "This problem involves calculating the magnifying power of a compound microscope using the focal lengths of the objective and eyepiece, along with their separation."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use the formula for magnifying power: \\[ M = \\frac{v_o}{f_o} \\times \\left(1 + \\frac{D}{f_e}\\right) \\] where \\( v_o \\) is the image distance from the objective, \\( f_o \\) is the focal length of the objective, \\( D \\) is the near point distance (usually taken as 25 cm), and \\( f_e \\) is the focal length of the eyepiece."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method directly applies the principles of optics and magnification, which are fundamental in understanding how microscopes work."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "Identify the given values: \\( f_o = 2 \\text{ cm} \\), \\( f_e = 6 \\text{ cm} \\), and separation = 16 \\text{ cm} \\). Calculate \\( v_o \\) using the lens formula."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "1. Calculate \\( v_o \\) using the lens formula: \\( v_o = \\frac{f_o \\times (d - f_o)}{d} \\) where \\( d = 16 \\text{ cm} \\). 2. Substitute values into the magnifying power formula."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always remember to convert all measurements to the same unit before calculations. Check the sign conventions for lenses."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid this method if the problem involves complex lens systems or requires additional factors like aberrations or specific distances not provided."
+          }
+        ],
+        "finalAnswer": "The magnifying power of the microscope is approximately 10.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 80.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "output": "{\n  \"title\": \"Definite Integral Calculation\",\n  \"sections\": [\n    {\"heading\": \"Problem Pattern\", \"bodyMarkdown\": \"We need to evaluate the definite integral of a polynomial function from a specified interval.\"},\n    {\"heading\": \"Best Method\", \"bodyMarkdown\": \"Use the power rule for integration and evaluate the definite integral using the Fundamental Theorem of Calculus.\"},\n    {\"heading\": \"Why This Fits\", \"bodyMarkdown\": \"The power rule applies as the integrand is a polynomial, making it straightforward to integrate.\"},\n    {\"heading\": \"Efficient Setup\", \"bodyMarkdown\": \"Set up the integral as follows: \\\\[ \\int_0^2 (3x^2 + 2x) \\, dx \\\\]\"},\n    {\"heading\": \"Clean Solution\", \"bodyMarkdown\": \"Integrate: \\\\[ \\\\int (3x^2 + 2x) \\, dx = x^3 + x^2 + C \\\\]. Evaluate from 0 to 2: \\\\[ [8 + 4] - [0] = 12 \\\\].\"},\n    {\"heading\": \"Exam Note\", \"bodyMarkdown\": \"Always check the limits of integration and ensure proper evaluation.\"},\n    {\"heading\": \"When Not to Use\", \"bodyMarkdown\": \"Avoid this method for non-polynomial functions or when limits are not defined.\"}\n  ],\n  \"finalAnswer\": \"12\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Compare with basic method\", \"action\": \"COMPARE_BASIC_METHOD\"},\n    {\"label\": \"Explain why this works\", \"action\": \"EXPLAIN_WHY_WORKS\"},\n    {\"label\": \"Give similar exam problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Show common mistakes\", \"action\": \"SHOW_COMMON_MISTAKES\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+      }
+    },
+    {
+      "example_id": "show_best_approach-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Enzyme Activity in Stomach",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "Identify the enzyme that functions optimally in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Recall the specific enzymes and their pH preferences, focusing on digestive enzymes."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "Pepsin is known to be active in acidic conditions, unlike the others."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "List the enzymes and their pH ranges to quickly identify the correct one."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Pepsin (B) is the enzyme that acts in acidic pH in the stomach."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Remember that pepsin is crucial for protein digestion in acidic conditions."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Do not apply this method if the question involves enzymes in neutral or alkaline conditions."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Deriving the Lens Formula for a Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "To derive the lens formula, we analyze the refraction of light at two spherical surfaces of a thin convex lens using the principles of refraction."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use the lens maker's formula and the geometry of the lens to relate object distance, image distance, and focal length through the refraction equations at both surfaces."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method directly applies the laws of refraction and geometric relationships, ensuring accuracy in deriving the lens formula."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "Define the object distance as $u$, image distance as $v$, and focal length as $f$. Use the sign convention for lenses to set up equations."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "From the refraction at the first surface, derive $\\frac{1}{f} = \\frac{1}{v} + \\frac{1}{u}$, leading to the lens formula: $\\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u}$."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Remember to apply the correct sign conventions for distances in lens problems to avoid errors in calculations."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid this method for thick lenses or when the lens shape deviates significantly from a thin lens approximation."
+          }
+        ],
+        "finalAnswer": "The lens formula for a thin convex lens is given by $\\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u}$.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Current and Voltage in Series Circuits",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "This problem involves calculating current and voltage across resistors in a series circuit connected to a battery."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use Ohm's Law: $I = \\frac{V}{R_{total}}$ and $V = I \\times R$ for each resistor."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "Ohm's Law is fundamental for analyzing circuits, especially in series where current is constant."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "Calculate total resistance: $R_{total} = R_1 + R_2 = 3 \\Omega + 6 \\Omega = 9 \\Omega$. Then find current."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Total current: $I = \\frac{12 \\text{ V}}{9 \\Omega} = 1.33 \\text{ A}$. Voltage across $3 \\Omega$: $V_1 = I \\times 3 = 4 \\text{ V}$. Voltage across $6 \\Omega$: $V_2 = I \\times 6 = 8 \\text{ V}$."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always check units and ensure calculations follow Ohm's Law."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "This method is not suitable for parallel circuits or when components have non-linear characteristics."
+          }
+        ],
+        "finalAnswer": "Current: 1.33 A; Voltage across 3 \u03a9: 4 V; Voltage across 6 \u03a9: 8 V.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Calculating Magnifying Power of a Microscope",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "This problem involves calculating the magnifying power of a compound microscope using given focal lengths and lens separation."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use the formula for magnifying power of a microscope: $M = \\left(1 + \\frac{D}{f_e}\\right) \\times \\frac{L}{f_o}$, where $D$ is the least distance of distinct vision (usually 25 \\text{ cm}), $f_e$ is the eyepiece focal length, $L$ is the lens separation, and $f_o$ is the objective focal length."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method directly applies the standard formula for magnifying power, aligning with typical exam expectations and NCERT guidelines."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "Identify $f_o = 2 \\text{ cm}$, $f_e = 6 \\text{ cm}$, $L = 16 \\text{ cm}$, and $D = 25 \\text{ cm}$. Substitute these into the formula for $M$."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Substitute values: $M = \\left(1 + \\frac{25}{6}\\right) \\times \\frac{16}{2} = \\left(1 + 4.1667\\right) \\times 8 = 5.1667 \\times 8 = 41.3336$. Thus, the magnifying power is approximately 41.33."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Remember to use the correct units and standard values like $D = 25 \\text{ cm}$ for least distance of distinct vision."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid this method if the problem specifies different conditions for $D$ or involves additional optical elements."
+          }
+        ],
+        "finalAnswer": "The magnifying power of the microscope is approximately 41.33.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Definite Integral of a Polynomial Function",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "This problem involves finding the definite integral of a polynomial function over a specified interval."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use the power rule for integration: \\( \\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C \\) for \\( n \\neq -1 \\), and apply limits of integration."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "The function \\( 3x^2 + 2x \\) is a polynomial, making the power rule directly applicable."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "Integrate each term separately: \\( \\int 3x^2 \\, dx \\) and \\( \\int 2x \\, dx \\), then apply limits from 0 to 2."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Calculate \\( \\int_0^2 (3x^2 + 2x) \\, dx = \\left[ x^3 + x^2 \\right]_0^2 = (8 + 4) - (0 + 0) = 12 \\)."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Clearly show each step: integrate, substitute limits, and simplify. This ensures full marks."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid this method for non-polynomial functions or when \\( n = -1 \\)."
+          }
+        ],
+        "finalAnswer": "12",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Identifying Enzymes by pH Activity",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "Identify enzymes based on their optimal pH environment, focusing on digestive enzymes in the stomach."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Recall that the stomach environment is acidic. Match enzymes with their known pH activity, using knowledge of digestive processes."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "Pepsin is the only enzyme listed that functions optimally in the acidic environment of the stomach."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "List enzymes and their pH environments: Pepsin (acidic), Trypsin (basic), Lipase (neutral), Amylase (neutral)."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Pepsin acts in acidic pH in the stomach. Thus, the correct answer is (B) Pepsin."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Remember enzyme activity is highly pH-dependent. Stomach enzymes like pepsin work in acidic conditions."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid this method if the question specifies enzymes outside the digestive system or in non-acidic environments."
+          }
+        ],
+        "finalAnswer": "B",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Deriving Lens Formula for Thin Convex Lens",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "Derive the lens formula using refraction at two spherical surfaces of a thin convex lens, applying the principles of refraction and geometry."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use the refraction formula at spherical surfaces: \\[ \\frac{n_2}{v} - \\frac{n_1}{u} = \\frac{n_2 - n_1}{R} \\]. Apply it twice for the two surfaces of the lens."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "This method directly applies the refraction laws and geometry, aligning with NCERT's approach to optics and lens derivations."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "Consider a lens with radii \\( R_1 \\) and \\( R_2 \\), refractive index \\( n \\), and use the lens maker's formula to relate object distance \\( u \\), image distance \\( v \\), and focal length \\( f \\)."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Combine the refraction equations for both surfaces: \\[ \\frac{1}{v} - \\frac{1}{u} = \\frac{1}{f} \\]. Simplify using \\( f = \\frac{R_1 R_2}{(n-1)(R_2 - R_1)} \\)."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Ensure clarity in each step, especially when applying the refraction formula. Use diagrams to illustrate the lens and refraction paths."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid this method for non-thin lenses or when lens thickness cannot be neglected, as assumptions may not hold."
+          }
+        ],
+        "finalAnswer": "The lens formula for a thin convex lens is \\( \\frac{1}{v} - \\frac{1}{u} = \\frac{1}{f} \\).",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "show_best_approach-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 95.0,
+      "passed": true,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Maths Ch.7: \u222bx^n dx = x^(n+1)/(n+1) + C for n\u2260-1."
+      },
+      "expected": {
+        "coach_json": {
+          "title": "Best exam approach",
+          "sections": [
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+            }
+          ],
+          "finalAnswer": "Final value",
+          "revealLevel": "full"
+        }
+      },
+      "actual": {
+        "title": "Solving Series Circuit Problems",
+        "sections": [
+          {
+            "heading": "Problem Pattern",
+            "bodyMarkdown": "Identify series circuit problems where resistors are connected in a single path, and calculate current and voltage using Ohm's Law."
+          },
+          {
+            "heading": "Best Method",
+            "bodyMarkdown": "Use Ohm's Law: $V = IR$. Calculate total resistance, then find current. Use current to find voltage across each resistor."
+          },
+          {
+            "heading": "Why This Fits",
+            "bodyMarkdown": "Ohm's Law directly applies to series circuits, allowing straightforward calculation of current and voltage."
+          },
+          {
+            "heading": "Efficient Setup",
+            "bodyMarkdown": "1. Calculate total resistance: $R_{\\text{total}} = R_1 + R_2$. 2. Find current: $I = \\frac{V}{R_{\\text{total}}}$. 3. Calculate voltage across each resistor: $V_1 = I \\times R_1$, $V_2 = I \\times R_2$."
+          },
+          {
+            "heading": "Clean Solution",
+            "bodyMarkdown": "Total resistance: $R_{\\text{total}} = 3 \\, \\Omega + 6 \\, \\Omega = 9 \\, \\Omega$. Current: $I = \\frac{12 \\, \\text{V}}{9 \\, \\Omega} = 1.33 \\, \\text{A}$. Voltage: $V_1 = 1.33 \\, \\text{A} \\times 3 \\, \\Omega = 4 \\, \\text{V}$, $V_2 = 1.33 \\, \\text{A} \\times 6 \\, \\Omega = 8 \\, \\text{V}$."
+          },
+          {
+            "heading": "Exam Note",
+            "bodyMarkdown": "Always check units and ensure calculations align with Ohm's Law. Verify total voltage equals battery voltage."
+          },
+          {
+            "heading": "When Not to Use",
+            "bodyMarkdown": "Avoid this method for parallel circuits or when resistors have non-linear characteristics."
+          }
+        ],
+        "finalAnswer": "Current: 1.33 A; Voltage across 3 \u03a9: 4 V; Voltage across 6 \u03a9: 8 V.",
+        "revealLevel": "full",
+        "followUpButtons": [
+          {
+            "label": "Compare with basic method",
+            "action": "COMPARE_BASIC_METHOD"
+          },
+          {
+            "label": "Explain why this works",
+            "action": "EXPLAIN_WHY_WORKS"
+          },
+          {
+            "label": "Give similar exam problem",
+            "action": "GIVE_SIMILAR_PROBLEM"
+          },
+          {
+            "label": "Show common mistakes",
+            "action": "SHOW_COMMON_MISTAKES"
+          },
+          {
+            "label": "Start Tutor Session",
+            "action": "START_TUTOR_SESSION"
+          }
+        ]
+      }
+    }
+  ]
+}

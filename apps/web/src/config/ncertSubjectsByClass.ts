@@ -3,9 +3,5 @@
  * Keep in sync when editing the YAML on the backend.
  */
 export const DEFAULT_NCERT_SUBJECTS_BY_CLASS: Record<string, string[]> = {
-  '6': ['science', 'mathematics', 'social_science', 'english', 'hindi', 'telugu'],
-  '7': ['science', 'mathematics', 'social_science', 'english', 'hindi', 'telugu'],
-  '8': ['science', 'mathematics', 'social_science', 'english', 'hindi', 'telugu'],
-  '9': ['science', 'mathematics', 'social_science', 'english', 'hindi', 'telugu'],
-  '10': ['science', 'mathematics', 'social_science', 'english', 'hindi', 'telugu'],
+  '12': ['physics', 'chemistry', 'mathematics', 'biology'],
 };

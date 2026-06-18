@@ -93,9 +93,25 @@ function isNetworkError(error: any): boolean {
     return false;
   }
 
-  // Axios: no HTTP response can mean offline *or* other failures — exclude timeouts above
+  // Plain application errors (e.g. throw new Error('...')) are not network failures
+  if (error instanceof Error && !('response' in error) && !error?.isAxiosError) {
+    return false;
+  }
+
+  // Axios: no HTTP response can mean offline — only treat known network codes/messages
   if (!error.response) {
-    return true;
+    const networkErrorCodes = ['ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ENETUNREACH', 'ERR_NETWORK'];
+    if (error.code && networkErrorCodes.includes(error.code)) {
+      return true;
+    }
+    if (
+      error.message?.includes('Network Error') ||
+      error.message?.includes('Network request failed') ||
+      error.message?.includes('Failed to fetch')
+    ) {
+      return true;
+    }
+    return false;
   }
 
   // Check for specific network error codes (not ECONNABORTED alone — often used for timeouts)
@@ -110,9 +126,7 @@ function isNetworkError(error: any): boolean {
     return true;
   }
   
-  if (error.message?.includes('Network request failed') || 
-      error.message?.includes('Failed to fetch') ||
-      error.message?.includes('network')) {
+  if (error.message?.includes('network')) {
     return true;
   }
   
@@ -145,6 +159,15 @@ export function handleApiError(error: any): ApiError {
       type: ErrorType.TIMEOUT,
       message: ERROR_MESSAGES[ErrorType.TIMEOUT],
       retryable: true,
+    };
+  }
+
+  // Non-HTTP errors thrown in app code (polling failures, validation, etc.)
+  if (error instanceof Error && !error.response && !error?.isAxiosError) {
+    return {
+      type: ErrorType.CLIENT_ERROR,
+      message: error.message || ERROR_MESSAGES[ErrorType.UNKNOWN],
+      retryable: false,
     };
   }
 

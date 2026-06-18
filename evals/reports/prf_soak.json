@@ -1,0 +1,46 @@
+{
+  "schema": "prf_report_v1",
+  "generated_at_utc": "2026-06-13T06:49:12.640230+00:00",
+  "test_ids": [
+    "PRF-07"
+  ],
+  "status": "FAIL",
+  "metrics": {
+    "duration_s": 180.0,
+    "locust_exit_code": 1,
+    "rss_summary": {
+      "start_rss_mb": 300.34375,
+      "end_rss_mb": 320.203125,
+      "growth_pct": 6.612215170117573,
+      "sample_count": 4,
+      "duration_s": 120.0
+    },
+    "chat_start_exit": 1,
+    "chat_end_exit": 0,
+    "run_time": "30m",
+    "users": "20"
+  },
+  "environment": {
+    "timestamp_utc": "2026-06-13T06:49:12.479140+00:00",
+    "hostname": "KOmal",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "cpu_count": 4,
+    "python_version": "3.12.10",
+    "base_url": "http://127.0.0.1:8000",
+    "database_host": "aws-1-ap-southeast-1.pooler.supabase.com",
+    "gate_classroom_short": "0",
+    "prf_attest_no_restart": "1",
+    "notes": ""
+  },
+  "failure_tags": [
+    "error_spike"
+  ],
+  "notes": "Manual soak: verify start vs end chat latency in prf_chat_latency.json snapshots.",
+  "duration_s": 2193.949027299881,
+  "sample_size": 0,
+  "guardrails": {
+    "no_pre_test_restart_attested": true,
+    "reports_tail_latency": false,
+    "cold_start_reported_separately": false
+  }
+}

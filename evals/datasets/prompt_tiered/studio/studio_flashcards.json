@@ -1,0 +1,444 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "studio_flashcards",
+  "agent": {
+    "sno": 12,
+    "category": "Studio",
+    "name": "Studio Flashcards Generator",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\n{# Study flashcards: JSON array of {front, back}. selected_source_count from service.\n   Retrieval for flashcards is always STUDIO_BROAD_RETRIEVAL_QUERIES (broad mode only). #}\n\nYou are an **expert instructional designer**. Build a **digital flashcard deck** for review and self-testing.\n\n**Selected source count:** **{{ selected_source_count }}** document(s). The excerpt below was retrieved **only** from these selections—**ignore** any material not in the excerpt.\n\n---\n\n## What a flashcard is\n\n- **`front`:** A **short question**, **key term**, or **prompt** (what the learner sees first).  \n- **`back`:** The **answer**, **definition**, or **concise explanation** (grounded in the excerpt).  \n- Cards must be **useful for spaced review**: clear, self-contained pairs.\n\n---\n\n## Non-negotiable scope\n\n1. **Use ONLY the “Source content” excerpt** (and retrieval query hints if present).  \n2. **Do not invent** facts, names, or numbers not supported by the excerpt.  \n3. **No** sources outside the selection exist for this task—do not pull in outside knowledge.\n\n{% if selected_source_count | int > 1 %}\n## Multi-source deck (required)\n\nThe excerpt may combine content from **{{ selected_source_count }}** documents. Build **one integrated deck**, not separate piles per file.\n\n- Extract **important facts, definitions, and overarching concepts** from **across** the excerpt.  \n- When the excerpt clearly includes material from more than one document, **spread cards** so **each represented source** contributes meaningful cards (terms, facts, or concepts)—**do not** build the whole deck from only one source’s chunks unless the excerpt is overwhelmingly from one.  \n- You may **mix** cards in any order; avoid long runs that only mirror a single subsection unless the excerpt justifies it.  \n{% else %}\n## Single-source deck\n\nPrioritize **core definitions**, **key facts**, and **central concepts** from that one document.  \n{% endif %}\n\n---\n\nOutput requirements (strict):\n- Return **ONLY** a valid **JSON array**.  \n- Do **NOT** include markdown, code fences, or extra commentary.  \n- Each item must be exactly: `{\"front\": \"…\", \"back\": \"…\"}`  \n\nQuality requirements:\n- **Concise, high-value** cards; **no duplicates** (same idea reworded).  \n- **`front`:** short and scannable (typically one line).  \n- **`back`:** accurate, specific, still compact—expand only when needed for clarity.  \n- If the excerpt is dense, **prioritize** the most **study-worthy** items first.\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\nRetrieval used these broad queries (vector search over selected sources only):\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\n### Source content (selected sources only)\n{{ context }}\n{% else %}\nNo source content provided. Return an **empty JSON array** `[]` or a **minimal** array noting insufficient indexed text—do **not** fabricate a full deck from imagination.\n{% endif %}\n\n{% if custom_instructions %}\n### Additional user instructions\n{{ custom_instructions }}\n{% endif %}\n\n**Final reminder:** output **ONLY** the JSON array."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "context",
+      "selected_source_count"
+    ],
+    "output_keys": [
+      "flashcards_json"
+    ]
+  },
+  "items": [
+    {
+      "id": "studio_flashcards-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "current_electricity"
+      ],
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Current Electricity)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Current Electricity)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "human_digestion"
+      ],
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Human Digestion)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Human Digestion)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "photosynthesis"
+      ],
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Photosynthesis)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Photosynthesis)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "chemical_bonding"
+      ],
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Chemical Bonding)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Chemical Bonding)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "magnetic_effects"
+      ],
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Magnetic Effects)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Magnetic Effects)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "cell_structure"
+      ],
+      "inputs": {
+        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Cell Structure)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Cell Structure)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "quadratic_equations"
+      ],
+      "inputs": {
+        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Quadratic Equations)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Quadratic Equations)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "human_reproduction"
+      ],
+      "inputs": {
+        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Human Reproduction)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Human Reproduction)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "thermodynamics"
+      ],
+      "inputs": {
+        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Thermodynamics)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Thermodynamics)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "coordination_compounds"
+      ],
+      "inputs": {
+        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Coordination Compounds)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Coordination Compounds)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "ray_optics"
+      ],
+      "inputs": {
+        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Ray Optics)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Ray Optics)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "ecology"
+      ],
+      "inputs": {
+        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Ecology)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Ecology)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "probability"
+      ],
+      "inputs": {
+        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Probability)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Probability)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "organic_chemistry"
+      ],
+      "inputs": {
+        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Organic Chemistry)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Organic Chemistry)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    },
+    {
+      "id": "studio_flashcards-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "motion_in_plane"
+      ],
+      "inputs": {
+        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "flashcards_json": [
+          {
+            "front": "Key term 1 (Motion in Plane)",
+            "back": "Definition from excerpt."
+          },
+          {
+            "front": "Key term 2 (Motion in Plane)",
+            "back": "Second fact from excerpt."
+          }
+        ]
+      },
+      "evaluators": [
+        "valid_json",
+        "flashcard_schema"
+      ]
+    }
+  ]
+}

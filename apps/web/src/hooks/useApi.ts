@@ -15,27 +15,47 @@ export function useApi() {
 
   const handleRequest = useCallback(
     async <T,>(request: () => Promise<T>): Promise<T | null> => {
-      setLoading(true);
-      setError(null);
-      setErrorDetails(null);
-      try {
-        const result = await request();
-        return result;
-      } catch (err: any) {
-        // Use standardized error handling
-        const apiError = err.apiError || handleApiError(err);
-        const errorMessage = getUserFriendlyMessage(apiError);
-        
-        setError(errorMessage);
-        setErrorDetails(apiError);
-        console.error('API Error:', apiError);
-        return null;
-      } finally {
-        setLoading(false);
-      }
+      const outcome = await (async () => {
+        setLoading(true);
+        setError(null);
+        setErrorDetails(null);
+        try {
+          const result = await request();
+          return { data: result as T, error: null as ApiError | null, errorMessage: null as string | null };
+        } catch (err: any) {
+          const apiError = err.apiError || handleApiError(err);
+          const errorMessage = getUserFriendlyMessage(apiError);
+          setError(errorMessage);
+          setErrorDetails(apiError);
+          console.error('API Error:', apiError);
+          return { data: null as T | null, error: apiError, errorMessage };
+        } finally {
+          setLoading(false);
+        }
+      })();
+      return outcome.data;
     },
     []
   );
+
+  const executeRequest = useCallback(async <T,>(request: () => Promise<T>) => {
+    setLoading(true);
+    setError(null);
+    setErrorDetails(null);
+    try {
+      const data = await request();
+      return { data, error: null as ApiError | null, errorMessage: null as string | null };
+    } catch (err: any) {
+      const apiError = err.apiError || handleApiError(err);
+      const errorMessage = getUserFriendlyMessage(apiError);
+      setError(errorMessage);
+      setErrorDetails(apiError);
+      console.error('API Error:', apiError);
+      return { data: null as T | null, error: apiError, errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -47,6 +67,7 @@ export function useApi() {
     error,
     errorDetails,
     handleRequest,
+    executeRequest,
     clearError,
     apiClient,
   };

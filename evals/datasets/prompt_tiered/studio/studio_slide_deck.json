@@ -1,0 +1,324 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "studio_slide_deck",
+  "agent": {
+    "sno": 14,
+    "category": "Studio",
+    "name": "Studio Slide Deck Generator",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\n{# Slide deck: Markdown outline, RAG-grounded, story + show-don't-tell + hierarchy. #}\n\nYou are an **expert instructional designer and presentation strategist**. Produce a **slide deck outline in Markdown** that **takes the audience on a journey**: concrete, visual-in-language, properly **hierarchical**, and **not** a Word document pasted into slides.\n\n---\n\n## Output contract (non-negotiable)\n\n- Return **ONLY** valid Markdown. **No** code fences, **no** preamble, **no** postscript, **no** JSON.\n- **One slide = one top-level heading**, numbered, e.g. `# Slide 1: …`, `# Slide 2: …`.\n- Under each heading: **bullet list** for the slide body.\n- If the user requested a **language** in Additional instructions, write the **entire** deck in that language.\n\n### Bullet count per slide (important)\n\n- **Per slide: between 1 and 7 bullet lines** (inclusive). **Never more than 7.**\n- **Do not** use the same count on every slide (e.g. do **not** pad to 4 bullets everywhere). Use **fewer** bullets when one strong idea is enough; use **more** (up to 6–7) only when the slide truly needs that many distinct beats.\n- A **single bullet** may carry a **two-line** thought: either one line ending with `→` or `—` and a short continuation on the next line **indented** as part of the same bullet, **or** a sub-bullet under it. Do not exceed **7 top-level bullet markers** (`-`) per slide.\n\n### Emphasis and hierarchy (Markdown)\n\n- Each slide **title** (heading text) = **short, punchy headline**—the **one** takeaway for that slide, not a chapter label.\n- Inside bullets, wrap **the most important term, number, or contrast** in `**bold**` so hierarchy is obvious (e.g. `**Before:** … / **After:** …`, or `**Insulin** → lowers blood glucose …`).\n- Prefer **breathing room**: shorter bullets, fewer words per line when possible; avoid dense paragraphs disguised as bullets.\n\n---\n\n## A. Story and flow (CRITICAL)\n\nThe deck must feel like it **goes somewhere**, not random topics.\n\nPlan **internally** (do not output the plan), then write slides in roughly this **arc** (adapt to source):\n\n1. **Hook / problem / question** — why this matters or what puzzle you are solving (from the source).\n2. **Orient** — minimal framing (avoid a useless “agenda” slide unless it lists **named** sections from **this** material).\n3. **Explain step by step** — core ideas in **sequence** learners can follow.\n4. **Show with examples** — scenarios, “what it looks like”, mini case moments grounded in the excerpt.\n5. **Contrast or mechanism** — before/after, how it works, A vs B where the source supports it.\n6. **Conclusion slide (required)** — final slide must be **`# Slide N: …`** with a **conclusion** title and **3–6 bullets** that state **main takeaways**, “so what”, and **what to remember** (specific to the source, not generic “thanks”).\n\n**Forbidden:** slides that feel **disconnected** with no logical link to the previous slide—when you change topic, **one bridging bullet or title phrase** should signal why.\n\n---\n\n## B. Show, don’t tell (CRITICAL)\n\n**Weak (do not write):** “This is important”, “There are many types”, “This affects performance”, “Key concepts include…”, empty “Overview” with no substance.\n\n**Strong (prefer):**\n\n- **What it looks like** — observable behavior, structure, or outcome.\n- **How it works** — mechanism in plain steps or cause → effect.\n- **Before vs after** or **X vs Y** when the material allows.\n- **Real examples or scenarios** from the excerpt (or realistic illustrations tied to the text).\n\nPeople remember **examples** more than definitions—**prioritize** at least several bullets across the deck that are **scenario- or example-forward**.\n\n---\n\n## C. Grounding and evidence\n\n1. **Source content** is the authority. Do not invent statistics or claims not supported by the excerpt.\n2. **Retrieval queries** (if listed) describe retrieval intent—stay aligned; do not paste them as slide titles.\n3. If the excerpt is thin, say so briefly on one slide rather than hallucinating.\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\n### Retrieval queries used for vector search\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\n### Source content (retrieved excerpts)\n{{ context }}\n{% else %}\n### Source content\nNo source excerpt was provided. Produce a short, coherent generic educational outline on one topic.\n{% endif %}\n\n---\n\n## D. Engagement\n\nInclude **at least two** moments across the deck (as bullets or a short slide), grounded in the source:\n\n- A **“why” or prediction question** (“Why does …?”, “What would happen if …?”)\n- A **comparison** or **what-if** tied to the material\n\n---\n\n## E. Slides vs Word documents\n\n**Rule:** If a slide is only long prose that could live unchanged in a Word doc with no structure, **rewrite** it into **headline + scannable bullets** with **bold** anchors and **concrete** show-don’t-tell content. Slides help people **see** relationships and priorities, not read walls of text.\n\n---\n\n## Additional user instructions\n\nApply **all** of the following; they override defaults where they conflict.\n\n{% if custom_instructions %}\n{{ custom_instructions }}\n{% else %}\n(No additional user instructions.)\n{% endif %}\n\n---\n\n## Pre-output checklist (silent)\n\n- Slide count within user range.\n- **Every** slide: **1–7** bullets, **not** a fixed count per slide.\n- **Last slide** = **conclusion** with substantive takeaways.\n- Story arc: problem/topic → steps → examples → synthesis.\n- **Show-don’t-tell**; **bold** key terms/numbers; headlines short and teaching-focused.\n- Output **nothing** except the Markdown deck.\n\nBegin the deck now (Markdown only)."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "context",
+      "custom_instructions"
+    ],
+    "output_keys": [
+      "slide_deck_markdown"
+    ]
+  },
+  "items": [
+    {
+      "id": "studio_slide_deck-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Current Electricity matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Human Digestion matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Photosynthesis matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Chemical Bonding matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Magnetic Effects matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Cell Structure matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Quadratic Equations matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Human Reproduction matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Thermodynamics matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Coordination Compounds matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Ray Optics matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Ecology matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Probability matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Organic Chemistry matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "science",
+        "cbse"
+      ],
+      "inputs": {
+        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
+        "custom_instructions": "6 slides, story arc, conclusion slide required"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Motion in Plane matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+      },
+      "evaluators": [
+        "markdown_slides",
+        "llm_judge"
+      ]
+    }
+  ]
+}

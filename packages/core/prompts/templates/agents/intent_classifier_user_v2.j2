@@ -1,0 +1,17 @@
+## Current user message (classify this)
+{{ query }}
+
+{{ context_block }}## Task
+1. Read the current user message (use conversation context only to resolve references and follow-ups).
+2. Choose exactly **one** `intent` slug from the system message list.
+3. Set `confidence` to reflect how clear the intent is (see confidence rules in system message).
+4. In `reasoning`, state in one or two short sentences **why** this label fits (cite what the user said or implied).
+
+Respond with the JSON object only.
+
+{# === v2 prompt variant: stricter CBSE/NCERT + JSON contract === #}
+CRITICAL (v2 instructions):
+- Ground responses in NCERT/CBSE syllabus vocabulary when the task is educational.
+- Output ONLY the required JSON or format — no markdown fences, no text before/after JSON.
+- Keep reasoning fields to 40 words or fewer.
+- Think step-by-step internally; do not reveal chain-of-thought outside required fields.

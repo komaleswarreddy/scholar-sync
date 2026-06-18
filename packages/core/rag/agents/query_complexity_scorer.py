@@ -23,8 +23,7 @@ class QueryComplexityScorer:
     Scores query complexity to determine which operations to skip.
 
     Simple queries (< 8 words, no operators):
-    - Skip reranker (Cohere) and confidence LLM evaluation
-    Query rewrite is not skipped (handled in Retriever / QueryRewriter).
+    - Skip reranker (Cohere), confidence LLM evaluation, and query rewrite
     """
 
     def __init__(self):
@@ -44,6 +43,7 @@ class QueryComplexityScorer:
                 "has_operators": False,
                 "should_skip_rerank": True,
                 "should_skip_confidence": True,
+                "should_skip_rewrite": True,
             }
 
         words = query.split()
@@ -57,14 +57,17 @@ class QueryComplexityScorer:
             complexity = QueryComplexity.SIMPLE
             should_skip_rerank = True
             should_skip_confidence = True
+            should_skip_rewrite = True
         elif word_count < 15 and not has_operators:
             complexity = QueryComplexity.MEDIUM
             should_skip_rerank = False
             should_skip_confidence = False
+            should_skip_rewrite = False
         else:
             complexity = QueryComplexity.COMPLEX
             should_skip_rerank = False
             should_skip_confidence = False
+            should_skip_rewrite = False
 
         return {
             "complexity": complexity,
@@ -72,4 +75,5 @@ class QueryComplexityScorer:
             "has_operators": has_operators,
             "should_skip_rerank": should_skip_rerank,
             "should_skip_confidence": should_skip_confidence,
+            "should_skip_rewrite": should_skip_rewrite,
         }

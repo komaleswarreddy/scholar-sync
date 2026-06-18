@@ -1,0 +1,293 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "image_ocr",
+  "agent": {
+    "sno": 32,
+    "category": "Source Upload",
+    "name": "Image OCR Agent",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "Extract all readable text from this document image exactly as written. Preserve math notation, question numbers, and line breaks. Return only the extracted text with no commentary."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "image_fixture_note"
+    ],
+    "output_keys": [
+      "extracted_text"
+    ]
+  },
+  "items": [
+    {
+      "id": "image_ocr-001",
+      "variation": "printed",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Printed CBSE question paper page: 'Section A Q1 Define photosynthesis (2 marks)'"
+      },
+      "reference_outputs": {
+        "extracted_text": "Section A\nQ1 Define photosynthesis (2 marks)"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-002",
+      "variation": "handwritten",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Handwritten Class 10 maths: 'x² - 5x + 6 = 0, solve by factorization'"
+      },
+      "reference_outputs": {
+        "extracted_text": "x^2 - 5x + 6 = 0\nsolve by factorization"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-003",
+      "variation": "low_quality_scan",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Low-quality scan NEET MCQ: options A B C D for pepsin pH"
+      },
+      "reference_outputs": {
+        "extracted_text": "Q. Pepsin optimum pH?\n(A) 1.8  (B) 7.0\n(C) 8.5  (D) 9.2"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-004",
+      "variation": "diagram",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Mixed Hindi-English science notes with diagram caption 'Fig 12.3 circuit'"
+      },
+      "reference_outputs": {
+        "extracted_text": "Fig 12.3 circuit\nV = IR\nResistance R = 4 ohm"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-005",
+      "variation": "table",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Table of trigonometric ratios sin cos tan 0 30 45 60 90"
+      },
+      "reference_outputs": {
+        "extracted_text": "| angle | sin | cos | tan |\n| 0° | 0 | 1 | 0 |"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-006",
+      "variation": "printed",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Printed CBSE question paper page: 'Section A Q1 Define photosynthesis (2 marks)' (scan batch 2)"
+      },
+      "reference_outputs": {
+        "extracted_text": "Section A\nQ1 Define photosynthesis (2 marks)"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-007",
+      "variation": "handwritten",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Handwritten Class 10 maths: 'x² - 5x + 6 = 0, solve by factorization' (scan batch 2)"
+      },
+      "reference_outputs": {
+        "extracted_text": "x^2 - 5x + 6 = 0\nsolve by factorization"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-008",
+      "variation": "low_quality_scan",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Low-quality scan NEET MCQ: options A B C D for pepsin pH (scan batch 2)"
+      },
+      "reference_outputs": {
+        "extracted_text": "Q. Pepsin optimum pH?\n(A) 1.8  (B) 7.0\n(C) 8.5  (D) 9.2"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-009",
+      "variation": "diagram",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Mixed Hindi-English science notes with diagram caption 'Fig 12.3 circuit' (scan batch 2)"
+      },
+      "reference_outputs": {
+        "extracted_text": "Fig 12.3 circuit\nV = IR\nResistance R = 4 ohm"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-010",
+      "variation": "table",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Table of trigonometric ratios sin cos tan 0 30 45 60 90 (scan batch 2)"
+      },
+      "reference_outputs": {
+        "extracted_text": "| angle | sin | cos | tan |\n| 0° | 0 | 1 | 0 |"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-011",
+      "variation": "printed",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Printed CBSE question paper page: 'Section A Q1 Define photosynthesis (2 marks)' (scan batch 3)"
+      },
+      "reference_outputs": {
+        "extracted_text": "Section A\nQ1 Define photosynthesis (2 marks)"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-012",
+      "variation": "handwritten",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Handwritten Class 10 maths: 'x² - 5x + 6 = 0, solve by factorization' (scan batch 3)"
+      },
+      "reference_outputs": {
+        "extracted_text": "x^2 - 5x + 6 = 0\nsolve by factorization"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-013",
+      "variation": "low_quality_scan",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Low-quality scan NEET MCQ: options A B C D for pepsin pH (scan batch 3)"
+      },
+      "reference_outputs": {
+        "extracted_text": "Q. Pepsin optimum pH?\n(A) 1.8  (B) 7.0\n(C) 8.5  (D) 9.2"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-014",
+      "variation": "diagram",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Mixed Hindi-English science notes with diagram caption 'Fig 12.3 circuit' (scan batch 3)"
+      },
+      "reference_outputs": {
+        "extracted_text": "Fig 12.3 circuit\nV = IR\nResistance R = 4 ohm"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "image_ocr-015",
+      "variation": "table",
+      "tags": [
+        "ocr",
+        "upload"
+      ],
+      "inputs": {
+        "image_fixture_note": "Table of trigonometric ratios sin cos tan 0 30 45 60 90 (scan batch 3)"
+      },
+      "reference_outputs": {
+        "extracted_text": "| angle | sin | cos | tan |\n| 0° | 0 | 1 | 0 |"
+      },
+      "evaluators": [
+        "text_fidelity",
+        "llm_judge"
+      ]
+    }
+  ]
+}

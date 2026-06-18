@@ -27,8 +27,16 @@ _STOPWORDS: frozenset[str] = frozenset(
     my your our their me him her us them any all both each every either neither much many
     explain describe define tell give list compare difference between summarize summary
     chapter section page book read material source document notes help please question answer
+    named passage reading according summarizes summarise summarize main process food colors colour
+    absorbs produced plays role named assertion reason
     """.split()
 )
+
+# Query terms that may not appear literally in chunks but have corpus synonyms.
+_TERM_ALIASES: dict[str, tuple[str, ...]] = {
+    "sugar": ("sugar", "glucose", "c6h12o6"),
+    "cycle": ("cycle", "calvin"),
+}
 
 
 def significant_terms(query: str, *, min_len: int = 3) -> List[str]:
@@ -62,7 +70,13 @@ def lexical_support_ratio(query_terms: Sequence[str], chunk_texts: Sequence[str]
     cap = int(getattr(settings, "CONTEXT_GROUNDING_LEXICAL_MAX_TERMS", 8))
     terms = list(query_terms)[: max(1, cap)]
     blob = " ".join((t or "").lower() for t in chunk_texts)
-    matched = sum(1 for term in terms if term and term in blob)
+    matched = 0
+    for term in terms:
+        if not term:
+            continue
+        aliases = _TERM_ALIASES.get(term, (term,))
+        if any(alias in blob for alias in aliases):
+            matched += 1
     return (matched, len(terms))
 
 

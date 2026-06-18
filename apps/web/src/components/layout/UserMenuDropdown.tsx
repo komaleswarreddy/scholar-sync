@@ -1,26 +1,42 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { User, LogOut, ChevronDown } from 'lucide-react';
-import { useAuth, useUser } from '@clerk/nextjs';
-import { checkForNoteDrafts, removeDraft } from '@/lib/note-draft-utils';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { LogOut, Shield, User, ChevronDown } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
+import { useAppSignOut } from '@/hooks/useAppSignOut';
 import { DraftSaveModal } from '../notes/DraftSaveModal';
 
+function getInitials(name: string | null) {
+  if (!name) return 'U';
+  const parts = name.trim().split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name[0].toUpperCase();
+}
+
 export function UserMenuDropdown() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { user } = useUser();
-  const { signOut } = useAuth();
   const fullName = user?.fullName ?? null;
   const email = user?.primaryEmailAddress?.emailAddress ?? null;
   const avatarUrl = user?.imageUrl ?? null;
   const [isOpen, setIsOpen] = useState(false);
-  const [showDraftModal, setShowDraftModal] = useState(false);
-  const [draftInfo, setDraftInfo] = useState<{
-    draftKey: string;
-    draftContent: string;
-  } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const isProfileActive = pathname.startsWith('/profile');
 
-  // Close dropdown when clicking outside
+  const {
+    signOutWithDraftCheck,
+    showDraftModal,
+    draftInfo,
+    handleDraftSave,
+    handleDraftDiscard,
+    handleDraftCancel,
+  } = useAppSignOut();
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -37,7 +53,6 @@ export function UserMenuDropdown() {
     };
   }, [isOpen]);
 
-  // Close dropdown on Escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -51,140 +66,100 @@ export function UserMenuDropdown() {
     };
   }, [isOpen]);
 
-  const handleLogout = async () => {
-    setIsOpen(false);
-    
-    // Check for unsaved note drafts before logging out
-    const { hasDraft, draftKey, draftContent } = checkForNoteDrafts();
-    
-    if (hasDraft && draftContent && draftKey) {
-      // Show modal with save/discard options
-      setDraftInfo({ draftKey, draftContent });
-      setShowDraftModal(true);
-    } else {
-      // No draft, proceed with logout
-      await signOut();
-    }
-  };
-
-  const handleDraftSave = () => {
-    // Draft was saved as note, remove it from localStorage
-    if (draftInfo) {
-      removeDraft(draftInfo.draftKey);
-    }
-    setShowDraftModal(false);
-    setDraftInfo(null);
-    // Proceed with logout after saving
-    signOut();
-  };
-
-  const handleDraftDiscard = () => {
-    // User chose to discard - remove draft and logout
-    if (draftInfo) {
-      removeDraft(draftInfo.draftKey);
-    }
-    setShowDraftModal(false);
-    setDraftInfo(null);
-    signOut();
-  };
-
-  const handleDraftCancel = () => {
-    // User cancelled - don't logout, just close modal
-    setShowDraftModal(false);
-    setDraftInfo(null);
-  };
-
   const handleProfile = () => {
     setIsOpen(false);
-    // TODO: Navigate to profile page or open profile modal
-    alert('Profile page will be available soon');
+    router.push('/profile/student-info');
   };
 
-
-  const getInitials = (name: string | null) => {
-    if (!name) return 'U';
-    const parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name[0].toUpperCase();
+  const handleLogout = async () => {
+    setIsOpen(false);
+    await signOutWithDraftCheck();
   };
 
   return (
     <>
       <div className="relative" ref={dropdownRef}>
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-2 focus:ring-offset-background"
-          aria-label="User menu"
+          type="button"
+          onClick={() => setIsOpen((open) => !open)}
+          className={`app-user-menu-trigger ${isOpen || isProfileActive ? 'app-user-menu-trigger--active' : ''}`}
+          aria-label="Account menu"
           aria-expanded={isOpen}
-          aria-haspopup="true"
+          aria-haspopup="menu"
         >
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt={fullName ?? 'User'}
-              className="w-8 h-8 rounded-full object-cover border-2 border-transparent hover:border-border-active transition-colors"
-              title={fullName ?? 'User'}
+              className="app-user-menu-trigger__avatar"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-accent-blue flex items-center justify-center text-background font-semibold text-sm border-2 border-transparent hover:border-border-active transition-colors">
+            <div className="app-user-menu-trigger__avatar app-user-menu-trigger__avatar--fallback">
               {getInitials(fullName)}
             </div>
           )}
           <ChevronDown
-            className={`w-4 h-4 text-text-secondary transition-transform ${
-              isOpen ? 'transform rotate-180' : ''
-            }`}
+            className={`app-user-menu-trigger__chevron ${isOpen ? 'app-user-menu-trigger__chevron--open' : ''}`}
+            strokeWidth={2}
           />
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-64 bg-modal border border-border-default rounded-xl shadow-lg z-50 overflow-hidden">
-            {/* User Info Section */}
-            <div className="p-4 border-b border-border-default">
-              <div className="flex items-center gap-3">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={fullName ?? 'User'}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-accent-blue flex items-center justify-center text-background font-semibold">
-                    {getInitials(fullName)}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-text-primary truncate">
-                    {fullName || 'User'}
-                  </p>
-                  {email && (
-                    <p className="text-xs text-text-secondary truncate">{email}</p>
-                  )}
+          <div className="app-user-menu-dropdown" role="menu" aria-label="Account">
+            <div className="app-user-menu-dropdown__profile">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  className="app-user-menu-dropdown__avatar"
+                />
+              ) : (
+                <div className="app-user-menu-dropdown__avatar app-user-menu-dropdown__avatar--fallback">
+                  {getInitials(fullName)}
                 </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="app-user-menu-dropdown__name">{fullName || 'Student'}</p>
+                {email ? <p className="app-user-menu-dropdown__email">{email}</p> : null}
               </div>
             </div>
 
-            {/* Menu Items */}
-            <div className="p-2">
+            <div className="app-user-menu-dropdown__actions">
               <button
+                type="button"
+                role="menuitem"
                 onClick={handleProfile}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-text-secondary hover:bg-surface-hover hover:text-text-primary transition-colors text-left"
-                aria-label="View profile"
+                className="app-user-menu-dropdown__item"
               >
-                <User className="w-4 h-4" />
+                <span className="app-user-menu-dropdown__item-icon">
+                  <User className="w-4 h-4" strokeWidth={1.75} />
+                </span>
                 <span>Profile</span>
               </button>
 
-              <div className="h-px bg-border-default my-1" />
+              <Link
+                href="/profile/account-security"
+                role="menuitem"
+                className="app-user-menu-dropdown__item"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="app-user-menu-dropdown__item-icon">
+                  <Shield className="w-4 h-4" strokeWidth={1.75} />
+                </span>
+                <span>Account & security</span>
+              </Link>
+
+              <div className="app-user-menu-dropdown__divider" role="separator" />
 
               <button
+                type="button"
+                role="menuitem"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-500/10 hover:text-red-600 transition-colors text-left"
-                aria-label="Sign out"
+                className="app-user-menu-dropdown__item app-user-menu-dropdown__item--danger"
               >
-                <LogOut className="w-4 h-4" />
+                <span className="app-user-menu-dropdown__item-icon app-user-menu-dropdown__item-icon--danger">
+                  <LogOut className="w-4 h-4" strokeWidth={1.75} />
+                </span>
                 <span>Sign out</span>
               </button>
             </div>
@@ -192,8 +167,7 @@ export function UserMenuDropdown() {
         )}
       </div>
 
-      {/* Draft Save Modal */}
-      {draftInfo && (
+      {draftInfo ? (
         <DraftSaveModal
           isOpen={showDraftModal}
           draftContent={draftInfo.draftContent}
@@ -201,7 +175,7 @@ export function UserMenuDropdown() {
           onDiscard={handleDraftDiscard}
           onCancel={handleDraftCancel}
         />
-      )}
+      ) : null}
     </>
   );
 }

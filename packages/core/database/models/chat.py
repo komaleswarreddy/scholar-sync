@@ -29,11 +29,13 @@ class Chat(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
     user_id = Column(String, nullable=False, index=True)  # Clerk user ID
+    notebook_id = Column(UUID(as_uuid=True), ForeignKey("notebooks.id"), nullable=True, index=True)
     title = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
     tenant = relationship("Tenant", back_populates="chats")
+    notebook = relationship("Notebook", back_populates="chats")
     messages = relationship("Message", back_populates="chat", cascade="all, delete-orphan")
 
 
@@ -48,6 +50,7 @@ class Message(Base):
         content: Message text content
         citations: JSON array of citation references [{"source_id": "...", "chunk_id": "...", "text": "..."}]
         feedback: User feedback ('thumbs_up', 'thumbs_down', or None)
+        feedback_reason: Optional free-text reason when feedback is thumbs_down
         created_at: Timestamp of creation
     """
     __tablename__ = "messages"
@@ -58,6 +61,7 @@ class Message(Base):
     content = Column(Text, nullable=False)
     citations = Column(JSON, default=[])  # Array of citation objects
     feedback = Column(String, nullable=True)  # 'thumbs_up', 'thumbs_down', or None
+    feedback_reason = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships

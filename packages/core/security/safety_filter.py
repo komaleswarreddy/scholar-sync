@@ -71,7 +71,15 @@ class SafetyFilter:
             # STEM / course answers (reflex arcs, neuro, etc.) — avoids false blocks on "harm"/"pain" in context
             r'\b(reflex|neuron|spinal|physiology|anatomy|neuroscience|cortex|stimulus|pathway)\b',
             r'\b(cellular|enzyme|mitosis|photosynthesis|molecule|tissue|organ|muscle)\b',
+            # Figurative school-pressure hyperbole (not literal violence/self-harm)
+            r'\b(teacher will kill me|parents will kill me|mom will kill me|dad will kill me|'
+            r'will be furious|huge trouble|disappointed in me|exam grade|homework deadline)\b',
         ]
+        self._hyperbole_kill = re.compile(
+            r"\b(will kill me|going to kill me)\b.*\b(teacher|parent|mom|dad|test|exam|grade|wrong)\b|"
+            r"\b(teacher|parent|mom|dad)\b.*\b(will kill me|going to kill me)\b",
+            re.IGNORECASE,
+        )
     
     def check_input(
         self,
@@ -121,6 +129,12 @@ class SafetyFilter:
                             if re.search(exception, text_lower):
                                 is_academic = True
                                 break
+                        if (
+                            not is_academic
+                            and category == SafetyCategory.HARASSMENT
+                            and self._hyperbole_kill.search(text_lower)
+                        ):
+                            is_academic = True
                     
                     if not is_academic:
                         detected_categories.append(category.value)

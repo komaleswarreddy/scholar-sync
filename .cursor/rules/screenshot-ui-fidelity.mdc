@@ -1,0 +1,50 @@
+---
+description: Strict pixel-faithful implementation when UI screenshots or mockups are provided
+alwaysApply: true
+---
+
+# Screenshot & Reference UI Fidelity
+
+When the user provides screenshots, mockups, Figma exports, or says "match this UI," "build like this," or "follow the screenshot," treat the image as the source of truth. Approximate layouts are not acceptable.
+
+## Before writing code
+
+1. Inspect every attached image in full detail
+2. Document a **UI inventory** in your response or plan:
+   - Overall layout structure (columns, rows, panels, sidebars)
+   - Spacing (padding, margin, gaps — estimate in px/rem if exact values unknown)
+   - Sizing (widths, heights, min/max, border-radius)
+   - Colors (backgrounds, text, borders, accents — hex or CSS variables)
+   - Typography (font family, size, weight, line-height, letter-spacing)
+   - Icons (which icon, size, color, position — do not substitute a different icon)
+   - States visible in the reference (hover, active, disabled, empty, loading)
+   - Shadows, borders, dividers, and z-index layering
+3. Ask clarifying questions **before implementing** when anything is ambiguous:
+   - Cropped or low-resolution areas
+   - Unseen hover/focus/mobile states
+   - Font or icon not identifiable
+   - Behavior not visible in a static image
+   - Light vs dark mode not shown
+
+Use AskQuestion with recommended options. Minimum **3** UI-specific questions when the reference is incomplete; combine with the plan-mode rule when the task is also large.
+
+## Implementation rules
+
+- Match layout, spacing, colors, typography, and icons to the reference — not a "similar" or generic design
+- Reuse existing project tokens/components only when they match the screenshot; otherwise add exact values
+- Prefer measuring from the image over inventing values; state assumptions explicitly
+- Do not change structure, density, or visual hierarchy unless the user approves
+- After implementation, list **intentional deviations** (if any) and what is still unverified
+
+## Verification
+
+- Compare implementation mentally (or with a browser screenshot) against the reference
+- Call out mismatches in spacing, color, icon choice, or alignment before marking done
+- If exact match is blocked (missing asset, unknown font), stop and ask — do not silently substitute
+
+## Anti-patterns (forbidden)
+
+- Generic AI-style UI that ignores the reference
+- Swapping icons for "close enough" alternatives
+- Guessing mobile/responsive behavior not shown in the reference
+- Proceeding without questions when the screenshot leaves gaps

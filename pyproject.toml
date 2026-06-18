@@ -57,6 +57,8 @@ dev = [
     "black>=23.0.0",
     "ruff>=0.1.0",
     "mypy>=1.0.0",
+    "fpdf2>=2.7.0",
+    "locust>=2.20.0",
 ]
 worker = [
     "celery[redis]>=5.3.0",
@@ -79,6 +81,16 @@ addopts = [
     "-v",
     "--strict-markers",
     "--tb=short",
+]
+markers = [
+    "integration: live API integration tests (requires INTEGRATION_TESTS=1)",
+    "ingestion: ingestion pipeline tests ING-*",
+    "retrieval: retrieval eval tests RET-*",
+    "notebook_mode: notebook-mode guardrail tests (NBM-*)",
+    "studio: studio generation tests (STU-*)",
+    "guardrails: guardrails tests (GRD-*)",
+    "slow: slow or performance-sensitive tests",
+    "load: load tests (run separately with locust)",
 ]
 
 [tool.black]

@@ -12,8 +12,8 @@ import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 export const chatKeys = {
   all: ['chats'] as const,
   lists: () => [...chatKeys.all, 'list'] as const,
-  list: (limit?: number, offset?: number) =>
-    [...chatKeys.lists(), { limit, offset }] as const,
+  list: (limit?: number, offset?: number, notebookId?: string) =>
+    [...chatKeys.lists(), { limit, offset, notebookId }] as const,
   details: () => [...chatKeys.all, 'detail'] as const,
   detail: (id: string) => [...chatKeys.details(), id] as const,
 };
@@ -44,12 +44,12 @@ export interface ChatListResponse {
 /**
  * Hook to fetch chat list
  */
-export function useChats(limit: number = 50, offset: number = 0) {
+export function useChats(limit: number = 50, offset: number = 0, notebookId?: string) {
   return useQuery({
-    queryKey: chatKeys.list(limit, offset),
+    queryKey: chatKeys.list(limit, offset, notebookId),
     queryFn: async () => {
       try {
-        const result = await apiClient.listChats(limit, offset);
+        const result = await apiClient.listChats(limit, offset, notebookId);
         return result as ChatListResponse;
       } catch (error: any) {
         const apiError = error.apiError || handleApiError(error);
@@ -84,13 +84,13 @@ export function useChat(chatId: string | null) {
 /**
  * Hook to create a chat
  */
-export function useCreateChat() {
+export function useCreateChat(notebookId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (title?: string) => {
       try {
-        const result = await apiClient.createChat(title);
+        const result = await apiClient.createChat(title, notebookId);
         return result as Chat;
       } catch (error: any) {
         const apiError = error.apiError || handleApiError(error);

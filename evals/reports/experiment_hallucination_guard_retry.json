@@ -1,0 +1,281 @@
+{
+  "agent_name": "hallucination_guard_retry",
+  "generated_at": "2026-06-18T03:16:18.156198+00:00",
+  "dataset_id": "hallucination_guard_retry",
+  "dataset_hash": "ad3fbc7dd8759e29",
+  "threshold": 95.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000129,
+      "input_cost_usd": 5.9e-05,
+      "output_cost_usd": 7e-05,
+      "prompt_tokens": 395,
+      "completion_tokens": 117,
+      "latency_ms": 7986.06,
+      "passed": true,
+      "metrics": {
+        "hallucination_detection": 1.0,
+        "false_positive_control": 1.0,
+        "source_alignment": 1.0,
+        "correction_quality": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.0003,
+      "input_cost_usd": 0.000115,
+      "output_cost_usd": 0.000185,
+      "prompt_tokens": 765,
+      "completion_tokens": 309,
+      "latency_ms": 9030.82,
+      "passed": true,
+      "metrics": {
+        "hallucination_detection": 1.0,
+        "false_positive_control": 1.0,
+        "source_alignment": 1.0,
+        "correction_quality": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000129,
+      "input_cost_usd": 5.9e-05,
+      "output_cost_usd": 7e-05
+    },
+    "composite_score": 0.9201
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "verifier",
+  "example_results": [
+    {
+      "example_id": "hallucination_guard_retry-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "The heart has five chambers and pumps blue blood.",
+        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "unsupported_sentences": [
+          "The heart has five chambers"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "output": "Sure! Please provide the context or excerpts you would like me to analyze, and I will follow your grounding instruction."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Newton published Principia in 1685 and invented calculus alone.",
+        "context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "unsupported_sentences": [
+          "Newton published Principia in 1685"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "output": "Understood! Please provide the context or excerpts you would like me to analyze, and I will follow your instructions accordingly."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Photosynthesis occurs only at night in all plants.",
+        "context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "unsupported_sentences": [
+          "Photosynthesis occurs only at night"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "output": "Sure! Please provide the context or excerpts you would like me to analyze, and I will follow your grounding instruction."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Resistance always decreases when temperature rises for all metals.",
+        "context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "unsupported_sentences": [
+          "Resistance always decreases when temperature rises"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "output": "Understood! Please provide the context or excerpts you would like me to analyze, and I will follow your instructions accordingly."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Trypsin is secreted by the stomach lining.",
+        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "unsupported_sentences": [
+          "Trypsin is secreted by the stomach"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "output": "Sure! Please provide the context or excerpts you would like me to analyze, and I will follow your grounding instruction."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "The heart has five chambers and pumps blue blood.",
+        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "unsupported_sentences": [
+          "The heart has five chambers"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "response": "The NCERT/CBSE syllabus emphasizes the importance of understanding concepts through clear definitions and examples. It encourages students to engage with the material actively, fostering critical thinking and application of knowledge in various contexts.",
+        "reasoning": "The response is grounded in the educational focus of the NCERT/CBSE syllabus, emphasizing concept understanding and critical thinking."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Newton published Principia in 1685 and invented calculus alone.",
+        "context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "unsupported_sentences": [
+          "Newton published Principia in 1685"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "response": "The NCERT/CBSE syllabus emphasizes the importance of understanding concepts through clear definitions and examples. It encourages critical thinking and application of knowledge in various contexts, fostering a comprehensive learning experience for students.",
+        "reasoning": "The response is grounded in the educational focus of the NCERT/CBSE syllabus, emphasizing understanding and application."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Photosynthesis occurs only at night in all plants.",
+        "context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "unsupported_sentences": [
+          "Photosynthesis occurs only at night"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "response": "The NCERT/CBSE syllabus emphasizes the importance of understanding concepts through critical thinking and application. It encourages students to engage with the material actively, fostering a deeper comprehension of subjects.",
+        "reasoning": "The response is grounded in the educational principles of the NCERT/CBSE syllabus."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Resistance always decreases when temperature rises for all metals.",
+        "context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "unsupported_sentences": [
+          "Resistance always decreases when temperature rises"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "response": "The NCERT/CBSE syllabus emphasizes the importance of understanding concepts through clear definitions and examples. It encourages critical thinking and application of knowledge in various contexts, fostering a comprehensive learning experience for students.",
+        "reasoning": "The response is grounded in the educational focus of the NCERT/CBSE syllabus."
+      }
+    },
+    {
+      "example_id": "hallucination_guard_retry-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "ncert_strict",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "answer": "Trypsin is secreted by the stomach lining.",
+        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "unsupported_sentences": [
+          "Trypsin is secreted by the stomach"
+        ]
+      },
+      "expected": {
+        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+      },
+      "actual": {
+        "response": "The NCERT/CBSE syllabus emphasizes the importance of understanding concepts through practical applications and critical thinking. It encourages students to engage with the material actively and develop a deeper comprehension of the subjects studied.",
+        "unsupported_sentences": []
+      }
+    }
+  ]
+}

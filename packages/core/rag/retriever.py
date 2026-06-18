@@ -20,6 +20,7 @@ from packages.core.rag.llama_adapters import LlamaIndexRetrievalAdapter
 from packages.core.rag.agents import (
     IntentClassifier,
     QueryRewriter,
+    ScopeNarrower,
     MMRDiversity,
     ContextSelector,
     UserIntent,
@@ -34,7 +35,7 @@ from packages.core.rag.metadata_query import (
 )
 from packages.core.rag.context_aware_weighting import apply_context_aware_scores
 from packages.core.rag.retrieval_strategy import resolve_retrieval_strategy
-from packages.core.services.ncert_global_service import METRICS_TENANT_NCERT
+from packages.core.services.ncert_constants import METRICS_TENANT_NCERT
 
 
 class Retriever:
@@ -84,6 +85,7 @@ class Retriever:
         # Initialize Phase 2 agents if enabled
         if settings.USE_RETRIEVAL_AGENTS:
             self.intent_classifier = IntentClassifier(tenant_id, user_id=user_id)
+            self.scope_narrower = ScopeNarrower(tenant_id)
             self.query_rewriter = QueryRewriter(tenant_id, user_id=user_id)
             self.query_decomposer = QueryDecomposer(tenant_id, user_id=user_id)
             self.complexity_scorer = QueryComplexityScorer()
@@ -94,6 +96,7 @@ class Retriever:
             )
         else:
             self.intent_classifier = None
+            self.scope_narrower = None
             self.query_rewriter = None
             self.query_decomposer = None
             self.complexity_scorer = None
@@ -152,22 +155,19 @@ class Retriever:
         if intent is None:
             return settings.TOP_K_CHUNKS
         
-        # Intent-based context sizing (SUMMARY needs broad retrieval — was incorrectly 3 chunks)
         intent_sizing = {
-            UserIntent.SUMMARY: getattr(
-                settings, "DOCUMENT_SUMMARY_RETRIEVAL_TOP_K", max(settings.TOP_K_CHUNKS * 6, 48)
-            ),
+            UserIntent.SUMMARY: getattr(settings, "DOCUMENT_SUMMARY_RETRIEVAL_TOP_K", 3),
             UserIntent.WHOLE_DOCUMENT_SUMMARY: getattr(
-                settings, "DOCUMENT_SUMMARY_RETRIEVAL_TOP_K", max(settings.TOP_K_CHUNKS * 6, 48)
+                settings, "DOCUMENT_SUMMARY_RETRIEVAL_TOP_K", 3
             ),
-            UserIntent.DEFINITION: 8,  # Definitions often need surrounding context, not a single line
-            UserIntent.QUESTION: 14,
-            UserIntent.EXPLANATION: 12,
-            UserIntent.HOW_TO: 12,
-            UserIntent.COMPARISON: 14,
-            UserIntent.ANALYSIS: 16,
-            UserIntent.CREATION: 12,
-            UserIntent.GENERAL: 12,
+            UserIntent.DEFINITION: 5,
+            UserIntent.QUESTION: 7,
+            UserIntent.EXPLANATION: 10,
+            UserIntent.HOW_TO: 10,
+            UserIntent.COMPARISON: 12,
+            UserIntent.ANALYSIS: 12,
+            UserIntent.CREATION: 10,
+            UserIntent.GENERAL: 7,
         }
         
         return intent_sizing.get(intent, settings.TOP_K_CHUNKS)
@@ -208,14 +208,16 @@ class Retriever:
         ncert_subject: Optional[str],
         ncert_chapter_no: Optional[int],
         ncert_chapter_name: Optional[str],
+        ncert_concept: Optional[str] = None,
     ) -> str:
         subject = (str(ncert_subject or "").strip().lower() or "all")
         class_part = str(int(ncert_class)) if ncert_class is not None else "all"
         chapter_no = str(int(ncert_chapter_no)) if ncert_chapter_no is not None else "all"
         chapter_name = (str(ncert_chapter_name or "").strip().lower() or "all")
+        concept = (str(ncert_concept or "").strip().lower() or "all")
         return (
             f"ncert_v3:{int(bool(include_ncert_global))}|class:{class_part}|subject:{subject}|"
-            f"chapter_no:{chapter_no}|chapter_name:{chapter_name}"
+            f"chapter_no:{chapter_no}|chapter_name:{chapter_name}|concept:{concept}"
         )
 
     def _build_ncert_global_filter(
@@ -257,7 +259,7 @@ class Retriever:
         print(
             f"[TUTOR_FILTER_BUILD] class={selected_class} subject={selected_subject} "
             f"chapter_no={selected_chapter_no} chapter_name={selected_chapter_name} "
-            f"→ filter={meta_filter}"
+            f"-> filter={meta_filter}"
         )
         return meta_filter
 
@@ -286,8 +288,8 @@ class Retriever:
         ncert_subject: Optional[str],
         ncert_chapter_no: Optional[int],
         ncert_chapter_name: Optional[str],
+        ncert_concept: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Retrieve and hybrid-score NCERT global matches from Pinecone namespace NcertDataGlobal."""
         ns = getattr(settings, "NCERT_GLOBAL_PINECONE_NAMESPACE", "NcertDataGlobal")
         top_k = int(getattr(settings, "NCERT_GLOBAL_RETRIEVAL_TOP_K", 24))
         emb_model = getattr(settings, "NCERT_GLOBAL_EMBEDDING_MODEL", None)
@@ -334,12 +336,14 @@ class Retriever:
         requested_class = int(ncert_class) if ncert_class is not None else None
         requested_chapter_no = int(ncert_chapter_no) if ncert_chapter_no is not None else None
         requested_chapter_name = (str(ncert_chapter_name or "").strip().lower() or None)
+        requested_concept = (str(ncert_concept or "").strip().lower() or None)
         
         print(f"\n[DEBUG] FILTER CRITERIA:")
         print(f"  requested_class={requested_class} (type={type(requested_class)})")
         print(f"  target_subject={target_subject} (type={type(target_subject)})")
         print(f"  requested_chapter_no={requested_chapter_no} (type={type(requested_chapter_no)})")
         print(f"  requested_chapter_name={requested_chapter_name} (type={type(requested_chapter_name)})")
+        print(f"  requested_concept={requested_concept}")
 
         def _coerce_int(value: Any) -> Optional[int]:
             if value is None:
@@ -354,10 +358,7 @@ class Retriever:
                     return int(v)
             return None
 
-        filtered = []
-        failed_filters_count = 0
-        print(f"\n[DEBUG] POST-PROCESSING FILTER VALIDATION:")
-        for idx, m in enumerate(gmatches, 1):
+        def _match_passes(m: Any, *, enforce_chapter_name: bool) -> tuple[bool, str, dict]:
             md = (m.get("metadata") if isinstance(m, dict) else getattr(m, "metadata", None)) or {}
             md_class = _coerce_int(md.get("class") or md.get("class_num"))
             md_subject = str(md.get("subject") or "").strip().lower()
@@ -365,30 +366,70 @@ class Retriever:
             md_chapter_name = str(md.get("chapter_name") or "").strip().lower()
             md_source = str(md.get("source") or "").strip().lower()
 
-            # Apply post-processing filters for backward compatibility and safety
             if md_source and md_source != "ncert":
-                print(f"  [{idx}] ❌ REJECTED: source mismatch (requested='ncert', got='{md_source}')")
-                failed_filters_count += 1
-                continue
+                return False, f"source mismatch (requested='ncert', got='{md_source}')", md
             if requested_class is not None and md_class != requested_class:
-                print(f"  [{idx}] ❌ REJECTED: class mismatch (requested={requested_class}, got={md_class})")
-                failed_filters_count += 1
-                continue
+                return False, f"class mismatch (requested={requested_class}, got={md_class})", md
             if target_subject and md_subject != target_subject:
-                print(f"  [{idx}] ❌ REJECTED: subject mismatch (requested='{target_subject}', got='{md_subject}')")
-                failed_filters_count += 1
-                continue
+                return False, f"subject mismatch (requested='{target_subject}', got='{md_subject}')", md
             if requested_chapter_no is not None and md_chapter_no != requested_chapter_no:
-                print(f"  [{idx}] ❌ REJECTED: chapter_no mismatch (requested={requested_chapter_no}, got={md_chapter_no})")
+                return False, f"chapter_no mismatch (requested={requested_chapter_no}, got={md_chapter_no})", md
+            if enforce_chapter_name and requested_chapter_name and md_chapter_name != requested_chapter_name:
+                return False, (
+                    f"chapter_name mismatch (requested='{requested_chapter_name}', got='{md_chapter_name}')"
+                ), md
+            if requested_concept:
+                hint = str(md.get("concept_hint") or "").strip().lower()
+                if requested_concept not in hint and hint.find(requested_concept) < 0:
+                    if not any(
+                        token in hint
+                        for token in requested_concept.split("-")
+                        if len(token) >= 3
+                    ):
+                        return False, f"concept mismatch (requested='{requested_concept}', hint='{hint[:80]}')", md
+            return True, "", md
+
+        filtered: List[Any] = []
+        failed_filters_count = 0
+        print(f"\n[DEBUG] POST-PROCESSING FILTER VALIDATION:")
+        for idx, m in enumerate(gmatches, 1):
+            ok, reason, md = _match_passes(m, enforce_chapter_name=True)
+            if not ok:
+                print(f"  [{idx}] REJECTED: {reason}")
                 failed_filters_count += 1
                 continue
-            if requested_chapter_name and md_chapter_name != requested_chapter_name:
-                print(f"  [{idx}] ❌ REJECTED: chapter_name mismatch (requested='{requested_chapter_name}', got='{md_chapter_name}')")
-                failed_filters_count += 1
-                continue
-            # All filters passed
-            print(f"  [{idx}] ✅ ACCEPTED: class={md_class}, subject={md_subject}, chapter_no={md_chapter_no}, chapter_name={md_chapter_name}")
+            md_class = _coerce_int(md.get("class") or md.get("class_num"))
+            md_subject = str(md.get("subject") or "").strip().lower()
+            md_chapter_no = _coerce_int(md.get("chapter_no"))
+            md_chapter_name = str(md.get("chapter_name") or "").strip().lower()
+            print(
+                f"  [{idx}] ACCEPTED: class={md_class}, subject={md_subject}, "
+                f"chapter_no={md_chapter_no}, chapter_name={md_chapter_name}"
+            )
             filtered.append(m)
+
+        if (
+            not filtered
+            and requested_chapter_no is not None
+            and requested_chapter_name
+        ):
+            print(
+                "\n[TUTOR_POSTPROCESS_FILTER] Soft fallback: relaxing chapter_name filter "
+                f"(chapter_no={requested_chapter_no} kept)"
+            )
+            for idx, m in enumerate(gmatches, 1):
+                ok, reason, md = _match_passes(m, enforce_chapter_name=False)
+                if not ok:
+                    continue
+                md_class = _coerce_int(md.get("class") or md.get("class_num"))
+                md_subject = str(md.get("subject") or "").strip().lower()
+                md_chapter_no = _coerce_int(md.get("chapter_no"))
+                md_chapter_name = str(md.get("chapter_name") or "").strip().lower()
+                print(
+                    f"  [{idx}] ACCEPTED (soft): class={md_class}, subject={md_subject}, "
+                    f"chapter_no={md_chapter_no}, chapter_name={md_chapter_name}"
+                )
+                filtered.append(m)
 
         if len(filtered) != len(gmatches) or failed_filters_count > 0:
             print(
@@ -428,6 +469,26 @@ class Retriever:
         print(f"[TUTOR_HYBRID_SCORE] Hybrid scoring complete: {len(result)} matches after reranking")
         return result
 
+    async def retrieve_ncert_chapter_matches(
+        self,
+        *,
+        query: str,
+        ncert_class: Optional[int],
+        ncert_subject: Optional[str],
+        ncert_chapter_no: Optional[int],
+        ncert_chapter_name: Optional[str],
+        ncert_concept: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """NCERT-only retrieval for tutor bootstrap/prepare (skips tenant RAG pipeline)."""
+        return await self._retrieve_ncert_global_matches(
+            query=query,
+            ncert_class=ncert_class,
+            ncert_subject=ncert_subject,
+            ncert_chapter_no=ncert_chapter_no,
+            ncert_chapter_name=ncert_chapter_name,
+            ncert_concept=ncert_concept,
+        )
+
     async def _merge_ncert_global_hybrid(
         self,
         *,
@@ -438,6 +499,7 @@ class Retriever:
         ncert_subject: Optional[str],
         ncert_chapter_no: Optional[int],
         ncert_chapter_name: Optional[str],
+        ncert_concept: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Append hybrid-scored hits from Pinecone namespace NcertDataGlobal."""
         print(f"[TUTOR_MERGE_START] Merging {len(hybrid_matches)} primary matches with NCERT global")
@@ -447,6 +509,7 @@ class Retriever:
             ncert_subject=ncert_subject,
             ncert_chapter_no=ncert_chapter_no,
             ncert_chapter_name=ncert_chapter_name,
+            ncert_concept=ncert_concept,
         )
         if not global_hybrid:
             print(f"[TUTOR_MERGE_COMPLETE] No NCERT matches to merge, returning {len(hybrid_matches)} original matches")
@@ -469,6 +532,7 @@ class Retriever:
         ncert_subject: Optional[str] = None,
         ncert_chapter_no: Optional[int] = None,
         ncert_chapter_name: Optional[str] = None,
+        ncert_concept: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Retrieve relevant chunks from vector store.
@@ -525,6 +589,7 @@ class Retriever:
                 ncert_subject=ncert_subject,
                 ncert_chapter_no=ncert_chapter_no,
                 ncert_chapter_name=ncert_chapter_name,
+                ncert_concept=ncert_concept,
             )
             # Allow query-only callers; generate embedding here.
             if query_embedding is None:
@@ -578,13 +643,14 @@ class Retriever:
                 and getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False)
             ):
                 try:
-                    print(f"[RETRIEVAL_SIMPLE_NCERT] ✓ Merging NCERT global matches")
+                    print("[RETRIEVAL_SIMPLE_NCERT] OK Merging NCERT global matches")
                     ncert_matches = await self._retrieve_ncert_global_matches(
                         query=query,
                         ncert_class=ncert_class,
                         ncert_subject=ncert_subject,
                         ncert_chapter_no=ncert_chapter_no,
                         ncert_chapter_name=ncert_chapter_name,
+                        ncert_concept=ncert_concept,
                     )
                     if ncert_matches:
                         matches = self._merge_scored_matches(matches, ncert_matches)
@@ -592,7 +658,7 @@ class Retriever:
                 except Exception as e:
                     print(f"[RAG_PIPELINE] NCERT global merge skipped: {e}")
             else:
-                print(f"[RETRIEVAL_SIMPLE_NCERT] ✗ NOT merging NCERT global (checkbox not checked or setting disabled)")
+                print("[RETRIEVAL_SIMPLE_NCERT] SKIP NOT merging NCERT global (checkbox not checked or setting disabled)")
             if query and matches:
                 matches = await trace_async(
                     "Retrieval/simple_cohere_rerank",
@@ -620,10 +686,11 @@ class Retriever:
         
         self._log("START", f"Retrieval pipeline started", {"query": query, "top_k": top_k})
         
-        # 0. Query Complexity Scoring (rerank / confidence only; rewrite always runs)
+        # 0. Query Complexity Scoring (skip expensive ops for simple queries)
         complexity_result = self.complexity_scorer.score_complexity(query)
         should_skip_rerank = complexity_result.get("should_skip_rerank", False)
         should_skip_confidence = complexity_result.get("should_skip_confidence", False)
+        should_skip_rewrite = complexity_result.get("should_skip_rewrite", False)
         
         debug_trace["query_complexity"] = str(complexity_result.get("complexity"))
         debug_trace["word_count"] = complexity_result.get("word_count")
@@ -668,6 +735,27 @@ class Retriever:
         debug_trace["intent_based_top_k"] = top_k
         self._log("INTENT", f"Using intent-based top_k: {top_k} (intent: {intent})")
 
+        scope_focused_query = query
+        scope_key_terms: list = []
+        if self.scope_narrower and not should_skip_rerank:
+            try:
+                scope_result = await self.scope_narrower.narrow_scope(
+                    query=query,
+                    conversation_history=conversation_history,
+                )
+                scope_focused_query = str(scope_result.get("focused_query") or query).strip() or query
+                scope_key_terms = list(scope_result.get("key_terms") or [])
+                scope_max = int(scope_result.get("max_chunks") or top_k)
+                top_k = min(top_k, max(3, scope_max))
+                debug_trace["scope_narrower"] = {
+                    "focused_query": scope_focused_query,
+                    "max_chunks": top_k,
+                    "key_terms": scope_key_terms[:7],
+                }
+                self._log("SCOPE", "Scope narrowed", debug_trace["scope_narrower"])
+            except Exception as exc:
+                print(f"[RAG_PIPELINE] Scope narrower failed: {exc}")
+
         retrieval_strategy = resolve_retrieval_strategy(
             intent=intent or UserIntent.QUESTION,
             intent_confidence=intent_confidence,
@@ -697,9 +785,10 @@ class Retriever:
             top_k = new_chunks_to_retrieve  # Only retrieve a few new chunks
         
         # 2. Query Rewriting — resolves coreferences, produces optimized retrieval queries
-        focused_query = query
-        key_terms: list = []
-        rewritten_queries = [query]
+        rewrite_input = scope_focused_query
+        focused_query = rewrite_input
+        key_terms: list = list(scope_key_terms)
+        rewritten_queries = [rewrite_input]
         rewrite_confidence = 1.0
         used_rewrites = False
         cache_scope = self._build_retrieval_cache_scope(
@@ -708,16 +797,25 @@ class Retriever:
             ncert_subject=ncert_subject,
             ncert_chapter_no=ncert_chapter_no,
             ncert_chapter_name=ncert_chapter_name,
+            ncert_concept=ncert_concept,
         )
 
         source_ids_list = list(filter.get("source_id", {}).get("$in", [])) if filter else None
-        cached_rewrite = self.retrieval_cache.get_rewrite(
-            query,
-            source_ids_list,
-            cache_extra=cache_scope,
-        )
+        cached_rewrite = None
+        if not should_skip_rewrite:
+            cached_rewrite = self.retrieval_cache.get_rewrite(
+                rewrite_input,
+                source_ids_list,
+                cache_extra=cache_scope,
+            )
 
-        if cached_rewrite:
+        if should_skip_rewrite:
+            rewritten_queries = [rewrite_input]
+            rewrite_confidence = 1.0
+            used_rewrites = False
+            debug_trace["rewrite_skipped"] = True
+            debug_trace["guardrails_applied"].append("simple_query_skip_rewrite")
+        elif cached_rewrite:
             rewritten_queries = cached_rewrite
             rewrite_confidence = 1.0
             used_rewrites = True
@@ -727,25 +825,25 @@ class Retriever:
             rewrite_result = await trace_async(
                 "Retrieval/query_rewrite",
                 self.query_rewriter.rewrite_query(
-                    query=query,
+                    query=rewrite_input,
                     conversation_history=conversation_history,
                     max_rewrites=2,
                     confidence_threshold=settings.QUERY_REWRITE_CONFIDENCE_THRESHOLD,
                 ),
-                input_summary={"raw_query": trace_snippet(query, 240)},
+                input_summary={"raw_query": trace_snippet(rewrite_input, 240)},
                 output_fn=lambda r: {
                     "rewritten_queries": [trace_snippet(x, 160) for x in (r or {}).get("queries", [])[:4]],
                     "confidence": (r or {}).get("confidence"),
                 },
                 feature_tag="query_rewriter",
             )
-            rewritten_queries = rewrite_result.get("queries", [query])
+            rewritten_queries = rewrite_result.get("queries", [rewrite_input])
             rewrite_confidence = rewrite_result.get("confidence", 0.0)
             used_rewrites = rewrite_result.get("used_rewrites", False)
 
             if used_rewrites and rewritten_queries:
                 self.retrieval_cache.set_rewrite(
-                    query,
+                    rewrite_input,
                     rewritten_queries,
                     source_ids_list,
                     cache_extra=cache_scope,
@@ -997,7 +1095,7 @@ class Retriever:
             and self.hybrid_retriever is not None
         ):
             try:
-                print(f"[RETRIEVAL_PHASE2_NCERT] ✓ Merging NCERT global matches")
+                print("[RETRIEVAL_PHASE2_NCERT] OK Merging NCERT global matches")
                 hybrid_matches = await self._merge_ncert_global_hybrid(
                     primary_query=primary_query,
                     query_embedding=query_embedding,
@@ -1006,13 +1104,14 @@ class Retriever:
                     ncert_subject=ncert_subject,
                     ncert_chapter_no=ncert_chapter_no,
                     ncert_chapter_name=ncert_chapter_name,
+                    ncert_concept=ncert_concept,
                 )
                 debug_trace["guardrails_applied"].append("ncert_global_merged")
                 debug_trace["after_hybrid_merge"] = {"count": len(hybrid_matches)}
             except Exception as e:
                 print(f"[RAG_PIPELINE] NCERT global merge skipped: {e}")
         else:
-            print(f"[RETRIEVAL_PHASE2_NCERT] ✗ NOT merging NCERT global (checkbox not checked or setting disabled)")
+            print("[RETRIEVAL_PHASE2_NCERT] SKIP NOT merging NCERT global (checkbox not checked or setting disabled)")
         
         self._log("HYBRID", f"Hybrid retrieval completed", {
             "vector_count": len(vector_matches),
@@ -1064,6 +1163,7 @@ class Retriever:
                             ncert_subject=ncert_subject,
                             ncert_chapter_no=ncert_chapter_no,
                             ncert_chapter_name=ncert_chapter_name,
+                            ncert_concept=ncert_concept,
                         )
                         variant_hybrid = self._merge_scored_matches(
                             variant_hybrid,

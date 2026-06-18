@@ -1,0 +1,1988 @@
+{
+  "agent_name": "studio_quiz",
+  "generated_at": "2026-06-18T03:21:48.299402+00:00",
+  "dataset_id": "studio_quiz",
+  "dataset_hash": "3b4aef62043bfe18",
+  "threshold": 98.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 25.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.001697,
+      "input_cost_usd": 0.000335,
+      "output_cost_usd": 0.001361,
+      "prompt_tokens": 2234,
+      "completion_tokens": 2269,
+      "latency_ms": 12251.7,
+      "passed": false,
+      "metrics": {
+        "schema_compliance": 0.0,
+        "format_quality": 0.5,
+        "consistency": 0.5
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 25.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.001723,
+      "input_cost_usd": 0.00028,
+      "output_cost_usd": 0.001442,
+      "prompt_tokens": 1869,
+      "completion_tokens": 2404,
+      "latency_ms": 12632.42,
+      "passed": false,
+      "metrics": {
+        "schema_compliance": 0.0,
+        "format_quality": 0.5,
+        "consistency": 0.5
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 25.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.026153,
+      "input_cost_usd": 0.004673,
+      "output_cost_usd": 0.02148,
+      "prompt_tokens": 1869,
+      "completion_tokens": 2148,
+      "latency_ms": 10998.2,
+      "passed": false,
+      "metrics": {
+        "schema_compliance": 0.0,
+        "format_quality": 0.5,
+        "consistency": 0.5
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 25.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.027205,
+      "input_cost_usd": 0.005585,
+      "output_cost_usd": 0.02162,
+      "prompt_tokens": 2234,
+      "completion_tokens": 2162,
+      "latency_ms": 11098.49,
+      "passed": false,
+      "metrics": {
+        "schema_compliance": 0.0,
+        "format_quality": 0.5,
+        "consistency": 0.5
+      }
+    }
+  ],
+  "winner": {
+    "selected": false,
+    "reason": "no_config_above_threshold",
+    "best_effort": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 25.0,
+      "cost_usd": 0.001697,
+      "input_cost_usd": 0.000335,
+      "output_cost_usd": 0.001361
+    }
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "studio_quiz-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "5 MCQs, medium difficulty, Current Electricity"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Current Electricity Quiz",
+          "questions": [
+            {
+              "question": "According to Ohm's law, if resistance is doubled while voltage stays constant, what happens to current?",
+              "options": [
+                "Current doubles",
+                "Current halves",
+                "Current stays the same",
+                "Current becomes zero"
+              ],
+              "correct_answer": "Current halves",
+              "explanation": "V = IR implies I = V/R, so current is inversely proportional to R."
+            },
+            {
+              "question": "Two resistors 3 \u03a9 and 6 \u03a9 are connected in series. What is the equivalent resistance?",
+              "options": [
+                "2 \u03a9",
+                "9 \u03a9",
+                "18 \u03a9",
+                "3 \u03a9"
+              ],
+              "correct_answer": "9 \u03a9",
+              "explanation": "Series resistances add: R_eq = R1 + R2 = 9 \u03a9."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Current Electricity Quiz",
+        "questions": [
+          {
+            "question": "What does Ohm's law state about the relationship between voltage, current, and resistance?",
+            "options": [
+              "V = I/R",
+              "V = IR",
+              "I = VR",
+              "R = IV"
+            ],
+            "correct_answer": "V = IR",
+            "explanation": "Ohm's law defines the relationship where voltage (V) is equal to the product of current (I) and resistance (R)."
+          },
+          {
+            "question": "In a series circuit, how is the equivalent resistance calculated?",
+            "options": [
+              "R_eq = R1 + R2",
+              "R_eq = 1/R1 + 1/R2",
+              "R_eq = R1 * R2",
+              "R_eq = R1 - R2"
+            ],
+            "correct_answer": "R_eq = R1 + R2",
+            "explanation": "The total resistance in a series circuit is the sum of the individual resistances."
+          },
+          {
+            "question": "What is the formula for calculating equivalent resistance in a parallel circuit?",
+            "options": [
+              "R_eq = R1 + R2",
+              "1/R_eq = 1/R1 + 1/R2",
+              "R_eq = R1 * R2",
+              "R_eq = R1 - R2"
+            ],
+            "correct_answer": "1/R_eq = 1/R1 + 1/R2",
+            "explanation": "In a parallel circuit, the reciprocal of the equivalent resistance is the sum of the reciprocals of the individual resistances."
+          },
+          {
+            "question": "How does resistivity (\u03c1) vary with different materials?",
+            "options": [
+              "It is constant for all materials",
+              "It depends on temperature only",
+              "It varies based on the material's properties",
+              "It is only affected by voltage"
+            ],
+            "correct_answer": "It varies based on the material's properties",
+            "explanation": "Resistivity is a material-specific property that determines how strongly a material opposes the flow of electric current."
+          },
+          {
+            "question": "If the resistance in a circuit is doubled while the voltage remains constant, what happens to the current?",
+            "options": [
+              "It doubles",
+              "It halves",
+              "It remains the same",
+              "It quadruples"
+            ],
+            "correct_answer": "It halves",
+            "explanation": "According to Ohm's law, if resistance increases while voltage stays constant, the current will decrease proportionally."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "biology_diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "5 MCQs, NEET-style, digestive enzymes"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Human Digestion Quiz",
+          "questions": [
+            {
+              "question": "Which enzyme begins carbohydrate digestion in the mouth?",
+              "options": [
+                "Pepsin",
+                "Salivary amylase",
+                "Trypsin",
+                "Lipase"
+              ],
+              "correct_answer": "Salivary amylase",
+              "explanation": "Salivary amylase acts on starch in the mouth."
+            },
+            {
+              "question": "Where does most nutrient absorption occur?",
+              "options": [
+                "Stomach",
+                "Large intestine",
+                "Small intestine",
+                "Oesophagus"
+              ],
+              "correct_answer": "Small intestine",
+              "explanation": "Villi in the small intestine absorb digested food."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Digestive Enzymes Quiz",
+        "questions": [
+          {
+            "question": "What enzyme initiates the digestion of carbohydrates in the mouth?",
+            "options": [
+              "Pepsin",
+              "Salivary Amylase",
+              "Trypsin",
+              "Lipase"
+            ],
+            "correct_answer": "Salivary Amylase",
+            "explanation": "Salivary amylase is the enzyme that begins the breakdown of carbohydrates in the mouth."
+          },
+          {
+            "question": "Which enzyme is primarily responsible for protein digestion in the stomach?",
+            "options": [
+              "Amylase",
+              "Pepsin",
+              "Trypsin",
+              "Lipase"
+            ],
+            "correct_answer": "Pepsin",
+            "explanation": "Pepsin is secreted in the stomach and is crucial for breaking down proteins into peptides."
+          },
+          {
+            "question": "What is the role of trypsin in the digestive process?",
+            "options": [
+              "Digests carbohydrates",
+              "Emulsifies fats",
+              "Breaks down proteins",
+              "Neutralizes stomach acid"
+            ],
+            "correct_answer": "Breaks down proteins",
+            "explanation": "Trypsin is a proteolytic enzyme that continues the digestion of proteins in the small intestine."
+          },
+          {
+            "question": "Which of the following enzymes is NOT found in pancreatic juice?",
+            "options": [
+              "Amylase",
+              "Pepsin",
+              "Lipase",
+              "Trypsin"
+            ],
+            "correct_answer": "Pepsin",
+            "explanation": "Pepsin is produced in the stomach, while amylase, lipase, and trypsin are found in pancreatic juice."
+          },
+          {
+            "question": "Where does the majority of nutrient absorption occur in the digestive system?",
+            "options": [
+              "Mouth",
+              "Stomach",
+              "Small intestine",
+              "Large intestine"
+            ],
+            "correct_answer": "Small intestine",
+            "explanation": "The small intestine, particularly its villi, is the primary site for nutrient absorption in the digestive system."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Photosynthesis"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Photosynthesis Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Photosynthesis (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Photosynthesis Quiz",
+        "questions": [
+          {
+            "question": "What is the primary function of the light reactions in photosynthesis?",
+            "options": [
+              "To fix carbon dioxide",
+              "To produce ATP and NADPH",
+              "To release oxygen",
+              "To absorb sunlight"
+            ],
+            "correct_answer": "To produce ATP and NADPH",
+            "explanation": "The light reactions convert solar energy into chemical energy in the form of ATP and NADPH."
+          },
+          {
+            "question": "Where does the Calvin cycle take place within the chloroplast?",
+            "options": [
+              "In the thylakoid",
+              "In the stroma",
+              "In the cytoplasm",
+              "On the inner membrane"
+            ],
+            "correct_answer": "In the stroma",
+            "explanation": "The Calvin cycle occurs in the stroma, where it utilizes ATP and NADPH produced in the light reactions."
+          },
+          {
+            "question": "Which factor does NOT directly affect the rate of photosynthesis?",
+            "options": [
+              "Light intensity",
+              "CO2 concentration",
+              "Temperature",
+              "Soil pH"
+            ],
+            "correct_answer": "Soil pH",
+            "explanation": "While soil pH can affect plant health, it does not directly influence the photosynthetic process like light, CO2, and temperature do."
+          },
+          {
+            "question": "How does an increase in light intensity affect the light reactions?",
+            "options": [
+              "Decreases ATP production",
+              "Increases NADPH consumption",
+              "Increases the rate of ATP and NADPH production",
+              "Has no effect"
+            ],
+            "correct_answer": "Increases the rate of ATP and NADPH production",
+            "explanation": "Higher light intensity enhances the energy available for the light reactions, leading to increased production of ATP and NADPH."
+          },
+          {
+            "question": "What role does carbon dioxide play in the Calvin cycle?",
+            "options": [
+              "It is a byproduct",
+              "It is fixed into organic molecules",
+              "It is converted into ATP",
+              "It is used to release oxygen"
+            ],
+            "correct_answer": "It is fixed into organic molecules",
+            "explanation": "In the Calvin cycle, carbon dioxide is incorporated into organic molecules, which are then used to synthesize glucose."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Chemical Bonding"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Chemical Bonding Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Chemical Bonding (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Chemical Bonding Quiz",
+        "questions": [
+          {
+            "question": "What type of bond is formed between a metal and a non-metal?",
+            "options": [
+              "Ionic bond",
+              "Covalent bond",
+              "Metallic bond",
+              "Hydrogen bond"
+            ],
+            "correct_answer": "Ionic bond",
+            "explanation": "Ionic bonds occur when electrons are transferred from metals to non-metals, resulting in charged ions."
+          },
+          {
+            "question": "Which type of bond involves the sharing of electron pairs?",
+            "options": [
+              "Ionic bond",
+              "Covalent bond",
+              "Polar bond",
+              "Coordinate bond"
+            ],
+            "correct_answer": "Covalent bond",
+            "explanation": "Covalent bonds are characterized by the sharing of electron pairs between atoms, typically between non-metals."
+          },
+          {
+            "question": "What does VSEPR stand for in molecular geometry prediction?",
+            "options": [
+              "Valence Shell Electron Pair Repulsion",
+              "Variable Shell Electron Pair Repulsion",
+              "Valence Shell Energy Pair Repulsion",
+              "Variable Shell Energy Pair Repulsion"
+            ],
+            "correct_answer": "Valence Shell Electron Pair Repulsion",
+            "explanation": "VSEPR theory is used to predict the shape of molecules based on the repulsion between electron pairs in the valence shell."
+          },
+          {
+            "question": "Which of the following statements is true about ionic bonds?",
+            "options": [
+              "They involve shared electrons.",
+              "They form between two non-metals.",
+              "They result in the formation of charged ions.",
+              "They are weaker than covalent bonds."
+            ],
+            "correct_answer": "They result in the formation of charged ions.",
+            "explanation": "Ionic bonds lead to the formation of ions due to the transfer of electrons, creating charged particles."
+          },
+          {
+            "question": "In which scenario would you expect to find a covalent bond?",
+            "options": [
+              "Between sodium and chlorine",
+              "Between carbon and oxygen",
+              "Between magnesium and oxygen",
+              "Between potassium and bromine"
+            ],
+            "correct_answer": "Between carbon and oxygen",
+            "explanation": "Covalent bonds typically form between non-metals, such as carbon and oxygen, through shared electron pairs."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Magnetic Effects"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Magnetic Effects Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Magnetic Effects (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Magnetic Effects of Moving Charges",
+        "questions": [
+          {
+            "question": "What does Fleming's left-hand rule help to determine?",
+            "options": [
+              "Direction of magnetic field",
+              "Direction of current",
+              "Direction of force",
+              "Magnitude of force"
+            ],
+            "correct_answer": "Direction of force",
+            "explanation": "Fleming's left-hand rule is used to find the direction of force experienced by a current-carrying conductor in a magnetic field."
+          },
+          {
+            "question": "In the formula F = BIL sin \u03b8, what does 'B' represent?",
+            "options": [
+              "Current",
+              "Magnetic field strength",
+              "Length of conductor",
+              "Angle between field and current"
+            ],
+            "correct_answer": "Magnetic field strength",
+            "explanation": "'B' stands for the magnetic field strength, which influences the force experienced by the conductor."
+          },
+          {
+            "question": "Which of the following factors does NOT affect the force on a current-carrying conductor in a magnetic field?",
+            "options": [
+              "Strength of the magnetic field",
+              "Length of the conductor",
+              "Type of conductor material",
+              "Angle between the field and current"
+            ],
+            "correct_answer": "Type of conductor material",
+            "explanation": "The force is determined by the magnetic field strength, length of the conductor, and the angle, but not the material type."
+          },
+          {
+            "question": "If the angle \u03b8 in the formula F = BIL sin \u03b8 is 90 degrees, what is the value of sin \u03b8?",
+            "options": [
+              "0",
+              "0.5",
+              "1",
+              "Undefined"
+            ],
+            "correct_answer": "1",
+            "explanation": "At 90 degrees, sin \u03b8 equals 1, maximizing the force on the conductor."
+          },
+          {
+            "question": "What happens to the force on a conductor if the current is doubled while keeping other factors constant?",
+            "options": [
+              "It halves",
+              "It doubles",
+              "It triples",
+              "It remains the same"
+            ],
+            "correct_answer": "It doubles",
+            "explanation": "According to the formula F = BIL sin \u03b8, doubling the current (I) directly doubles the force (F) exerted on the conductor."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "5 MCQs, medium difficulty, Current Electricity"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Current Electricity Quiz",
+          "questions": [
+            {
+              "question": "According to Ohm's law, if resistance is doubled while voltage stays constant, what happens to current?",
+              "options": [
+                "Current doubles",
+                "Current halves",
+                "Current stays the same",
+                "Current becomes zero"
+              ],
+              "correct_answer": "Current halves",
+              "explanation": "V = IR implies I = V/R, so current is inversely proportional to R."
+            },
+            {
+              "question": "Two resistors 3 \u03a9 and 6 \u03a9 are connected in series. What is the equivalent resistance?",
+              "options": [
+                "2 \u03a9",
+                "9 \u03a9",
+                "18 \u03a9",
+                "3 \u03a9"
+              ],
+              "correct_answer": "9 \u03a9",
+              "explanation": "Series resistances add: R_eq = R1 + R2 = 9 \u03a9."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Current Electricity Quiz",
+        "questions": [
+          {
+            "question": "What is the relationship between voltage, current, and resistance in a conductor?",
+            "options": [
+              "V = IR",
+              "V = I/R",
+              "V = R/I",
+              "V = I^2R"
+            ],
+            "correct_answer": "V = IR",
+            "explanation": "Ohm's law states that voltage is the product of current and resistance."
+          },
+          {
+            "question": "How does resistivity affect the resistance of a material?",
+            "options": [
+              "It increases with temperature",
+              "It depends on the material",
+              "It decreases with length",
+              "It is independent of material"
+            ],
+            "correct_answer": "It depends on the material",
+            "explanation": "Resistivity is a property that varies with different materials."
+          },
+          {
+            "question": "What is the equivalent resistance of two resistors, R1 and R2, connected in series?",
+            "options": [
+              "R1 + R2",
+              "1/R1 + 1/R2",
+              "R1 * R2",
+              "R1/R2"
+            ],
+            "correct_answer": "R1 + R2",
+            "explanation": "In series, the total resistance is the sum of individual resistances."
+          },
+          {
+            "question": "What happens to the total resistance when two resistors are connected in parallel?",
+            "options": [
+              "It increases",
+              "It decreases",
+              "It remains the same",
+              "It doubles"
+            ],
+            "correct_answer": "It decreases",
+            "explanation": "In parallel, the total resistance is less than the smallest individual resistance."
+          },
+          {
+            "question": "Which of the following correctly describes the formula for equivalent resistance in a parallel circuit?",
+            "options": [
+              "1/R_eq = 1/R1 + 1/R2",
+              "R_eq = R1 + R2",
+              "R_eq = R1 * R2",
+              "R_eq = R1/R2"
+            ],
+            "correct_answer": "1/R_eq = 1/R1 + 1/R2",
+            "explanation": "The reciprocal of the total resistance is the sum of the reciprocals of individual resistances in parallel."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "biology_diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "5 MCQs, NEET-style, digestive enzymes"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Human Digestion Quiz",
+          "questions": [
+            {
+              "question": "Which enzyme begins carbohydrate digestion in the mouth?",
+              "options": [
+                "Pepsin",
+                "Salivary amylase",
+                "Trypsin",
+                "Lipase"
+              ],
+              "correct_answer": "Salivary amylase",
+              "explanation": "Salivary amylase acts on starch in the mouth."
+            },
+            {
+              "question": "Where does most nutrient absorption occur?",
+              "options": [
+                "Stomach",
+                "Large intestine",
+                "Small intestine",
+                "Oesophagus"
+              ],
+              "correct_answer": "Small intestine",
+              "explanation": "Villi in the small intestine absorb digested food."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Digestive Enzymes Quiz",
+        "questions": [
+          {
+            "question": "Which enzyme initiates the digestion of carbohydrates in the mouth?",
+            "options": [
+              "Salivary amylase",
+              "Pepsin",
+              "Trypsin",
+              "Lipase"
+            ],
+            "correct_answer": "Salivary amylase",
+            "explanation": "Salivary amylase is responsible for breaking down carbohydrates in the mouth."
+          },
+          {
+            "question": "What is the primary function of pepsin in the stomach?",
+            "options": [
+              "Digest carbohydrates",
+              "Digest proteins",
+              "Digest fats",
+              "Neutralize acids"
+            ],
+            "correct_answer": "Digest proteins",
+            "explanation": "Pepsin is an enzyme that breaks down proteins into peptides in the stomach."
+          },
+          {
+            "question": "Which enzyme in pancreatic juice helps in the digestion of fats?",
+            "options": [
+              "Trypsin",
+              "Lipase",
+              "Amylase",
+              "Pepsin"
+            ],
+            "correct_answer": "Lipase",
+            "explanation": "Lipase is responsible for breaking down fats into fatty acids and glycerol."
+          },
+          {
+            "question": "Where does the majority of nutrient absorption occur in the digestive system?",
+            "options": [
+              "Stomach",
+              "Large intestine",
+              "Small intestine",
+              "Mouth"
+            ],
+            "correct_answer": "Small intestine",
+            "explanation": "The small intestine, with its villi, is the primary site for nutrient absorption."
+          },
+          {
+            "question": "Which enzyme in pancreatic juice continues the digestion of carbohydrates?",
+            "options": [
+              "Salivary amylase",
+              "Pepsin",
+              "Trypsin",
+              "Amylase"
+            ],
+            "correct_answer": "Amylase",
+            "explanation": "Pancreatic amylase continues the breakdown of carbohydrates in the small intestine."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Photosynthesis"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Photosynthesis Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Photosynthesis (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Photosynthesis Process Quiz",
+        "questions": [
+          {
+            "question": "Where does the light reaction of photosynthesis occur?",
+            "options": [
+              "Stroma",
+              "Thylakoid",
+              "Cytoplasm",
+              "Nucleus"
+            ],
+            "correct_answer": "Thylakoid",
+            "explanation": "The light reaction takes place in the thylakoid membranes of the chloroplasts."
+          },
+          {
+            "question": "What are the main products of the light reaction?",
+            "options": [
+              "Oxygen and Glucose",
+              "ATP and NADPH",
+              "Carbon Dioxide and Water",
+              "Glucose and Water"
+            ],
+            "correct_answer": "ATP and NADPH",
+            "explanation": "The light reaction produces ATP and NADPH, which are used in the Calvin cycle."
+          },
+          {
+            "question": "What is the primary function of the Calvin cycle?",
+            "options": [
+              "To produce oxygen",
+              "To fix carbon dioxide",
+              "To generate light energy",
+              "To break down glucose"
+            ],
+            "correct_answer": "To fix carbon dioxide",
+            "explanation": "The Calvin cycle fixes carbon dioxide into organic molecules in the stroma."
+          },
+          {
+            "question": "Which factor does NOT directly affect the rate of photosynthesis?",
+            "options": [
+              "Light intensity",
+              "CO2 concentration",
+              "Temperature",
+              "Soil type"
+            ],
+            "correct_answer": "Soil type",
+            "explanation": "Photosynthesis is directly affected by light intensity, CO2 concentration, and temperature, not soil type."
+          },
+          {
+            "question": "How does temperature affect photosynthesis?",
+            "options": [
+              "It has no effect",
+              "It only affects the light reaction",
+              "It influences enzyme activity",
+              "It stops the Calvin cycle"
+            ],
+            "correct_answer": "It influences enzyme activity",
+            "explanation": "Temperature affects the enzymes involved in photosynthesis, impacting the overall rate."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Chemical Bonding"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Chemical Bonding Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Chemical Bonding (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Chemical Bonding Quiz",
+        "questions": [
+          {
+            "question": "What type of bond is formed between a metal and a non-metal?",
+            "options": [
+              "Ionic bond",
+              "Covalent bond",
+              "Metallic bond",
+              "Hydrogen bond"
+            ],
+            "correct_answer": "Ionic bond",
+            "explanation": "Ionic bonds form when electrons are transferred from a metal to a non-metal."
+          },
+          {
+            "question": "Which of the following best describes a covalent bond?",
+            "options": [
+              "Transfer of electrons",
+              "Sharing of electron pairs",
+              "Attraction between ions",
+              "Delocalized electrons"
+            ],
+            "correct_answer": "Sharing of electron pairs",
+            "explanation": "Covalent bonds involve the sharing of electron pairs between atoms."
+          },
+          {
+            "question": "What does VSEPR theory help predict?",
+            "options": [
+              "Bond strength",
+              "Molecular geometry",
+              "Electron affinity",
+              "Ionization energy"
+            ],
+            "correct_answer": "Molecular geometry",
+            "explanation": "VSEPR theory predicts the three-dimensional arrangement of atoms in a molecule."
+          },
+          {
+            "question": "Which bond type is typically the strongest?",
+            "options": [
+              "Ionic bond",
+              "Covalent bond",
+              "Metallic bond",
+              "Hydrogen bond"
+            ],
+            "correct_answer": "Covalent bond",
+            "explanation": "Covalent bonds are generally stronger due to the sharing of electron pairs."
+          },
+          {
+            "question": "What is a key characteristic of ionic compounds?",
+            "options": [
+              "Low melting point",
+              "High electrical conductivity in solid state",
+              "High melting point",
+              "Poor solubility in water"
+            ],
+            "correct_answer": "High melting point",
+            "explanation": "Ionic compounds have high melting points due to strong electrostatic forces between ions."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Magnetic Effects"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Magnetic Effects Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Magnetic Effects (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Magnetic Effects of Electric Current Quiz",
+        "questions": [
+          {
+            "question": "What happens when a charge moves through a magnetic field?",
+            "options": [
+              "It creates a magnetic field",
+              "It stops moving",
+              "It loses energy",
+              "It becomes neutral"
+            ],
+            "correct_answer": "It creates a magnetic field",
+            "explanation": "A moving charge generates a magnetic field around it."
+          },
+          {
+            "question": "Which formula represents the force on a current-carrying conductor in a magnetic field?",
+            "options": [
+              "F = BIL sin \u03b8",
+              "F = BIL cos \u03b8",
+              "F = BIL tan \u03b8",
+              "F = BIL"
+            ],
+            "correct_answer": "F = BIL sin \u03b8",
+            "explanation": "The force is given by F = BIL sin \u03b8, where \u03b8 is the angle between the field and current."
+          },
+          {
+            "question": "What does Fleming's left-hand rule help determine?",
+            "options": [
+              "Direction of magnetic field",
+              "Direction of current",
+              "Direction of force",
+              "Magnitude of force"
+            ],
+            "correct_answer": "Direction of force",
+            "explanation": "Fleming's left-hand rule is used to find the direction of force on a conductor."
+          },
+          {
+            "question": "In Fleming's left-hand rule, what does the thumb represent?",
+            "options": [
+              "Direction of current",
+              "Direction of force",
+              "Direction of magnetic field",
+              "Magnitude of force"
+            ],
+            "correct_answer": "Direction of force",
+            "explanation": "The thumb indicates the direction of the force acting on the conductor."
+          },
+          {
+            "question": "What is the role of the angle \u03b8 in the formula F = BIL sin \u03b8?",
+            "options": [
+              "It determines the magnitude of the magnetic field",
+              "It affects the direction of the current",
+              "It influences the magnitude of the force",
+              "It changes the length of the conductor"
+            ],
+            "correct_answer": "It influences the magnitude of the force",
+            "explanation": "The angle \u03b8 affects the force's magnitude, with maximum force when \u03b8 is 90 degrees."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "5 MCQs, medium difficulty, Current Electricity"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Current Electricity Quiz",
+          "questions": [
+            {
+              "question": "According to Ohm's law, if resistance is doubled while voltage stays constant, what happens to current?",
+              "options": [
+                "Current doubles",
+                "Current halves",
+                "Current stays the same",
+                "Current becomes zero"
+              ],
+              "correct_answer": "Current halves",
+              "explanation": "V = IR implies I = V/R, so current is inversely proportional to R."
+            },
+            {
+              "question": "Two resistors 3 \u03a9 and 6 \u03a9 are connected in series. What is the equivalent resistance?",
+              "options": [
+                "2 \u03a9",
+                "9 \u03a9",
+                "18 \u03a9",
+                "3 \u03a9"
+              ],
+              "correct_answer": "9 \u03a9",
+              "explanation": "Series resistances add: R_eq = R1 + R2 = 9 \u03a9."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Current Electricity Quiz",
+        "questions": [
+          {
+            "question": "What does Ohm's law state about the relationship between voltage, current, and resistance?",
+            "options": [
+              "V = I/R",
+              "V = IR",
+              "I = VR",
+              "R = IV"
+            ],
+            "correct_answer": "V = IR",
+            "explanation": "Ohm's law defines the relationship where voltage (V) is equal to the product of current (I) and resistance (R)."
+          },
+          {
+            "question": "How do you calculate the equivalent resistance in a series circuit?",
+            "options": [
+              "R_eq = R1 + R2",
+              "R_eq = 1/(1/R1 + 1/R2)",
+              "R_eq = R1 - R2",
+              "R_eq = R1 * R2"
+            ],
+            "correct_answer": "R_eq = R1 + R2",
+            "explanation": "In a series circuit, the total or equivalent resistance is simply the sum of the individual resistances."
+          },
+          {
+            "question": "What is the formula for calculating equivalent resistance in a parallel circuit?",
+            "options": [
+              "R_eq = R1 + R2",
+              "1/R_eq = 1/R1 + 1/R2",
+              "R_eq = R1 * R2",
+              "R_eq = R1 - R2"
+            ],
+            "correct_answer": "1/R_eq = 1/R1 + 1/R2",
+            "explanation": "In a parallel circuit, the reciprocal of the equivalent resistance is the sum of the reciprocals of the individual resistances."
+          },
+          {
+            "question": "What does resistivity depend on?",
+            "options": [
+              "Temperature",
+              "Material",
+              "Length of conductor",
+              "Cross-sectional area"
+            ],
+            "correct_answer": "Material",
+            "explanation": "Resistivity is a property that depends on the type of material used in the conductor."
+          },
+          {
+            "question": "If the resistance of a conductor is doubled while the voltage remains constant, what happens to the current?",
+            "options": [
+              "It doubles",
+              "It halves",
+              "It remains the same",
+              "It quadruples"
+            ],
+            "correct_answer": "It halves",
+            "explanation": "According to Ohm's law, if resistance increases while voltage is constant, current decreases proportionally."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "biology_diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "5 MCQs, NEET-style, digestive enzymes"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Human Digestion Quiz",
+          "questions": [
+            {
+              "question": "Which enzyme begins carbohydrate digestion in the mouth?",
+              "options": [
+                "Pepsin",
+                "Salivary amylase",
+                "Trypsin",
+                "Lipase"
+              ],
+              "correct_answer": "Salivary amylase",
+              "explanation": "Salivary amylase acts on starch in the mouth."
+            },
+            {
+              "question": "Where does most nutrient absorption occur?",
+              "options": [
+                "Stomach",
+                "Large intestine",
+                "Small intestine",
+                "Oesophagus"
+              ],
+              "correct_answer": "Small intestine",
+              "explanation": "Villi in the small intestine absorb digested food."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Digestive Enzymes Quiz",
+        "questions": [
+          {
+            "question": "What enzyme initiates the digestion of carbohydrates in the mouth?",
+            "options": [
+              "Pepsin",
+              "Salivary Amylase",
+              "Trypsin",
+              "Lipase"
+            ],
+            "correct_answer": "Salivary Amylase",
+            "explanation": "Salivary amylase is secreted in the mouth and begins the breakdown of carbohydrates into simpler sugars."
+          },
+          {
+            "question": "Which enzyme is primarily responsible for protein digestion in the stomach?",
+            "options": [
+              "Amylase",
+              "Pepsin",
+              "Trypsin",
+              "Lipase"
+            ],
+            "correct_answer": "Pepsin",
+            "explanation": "Pepsin is activated in the acidic environment of the stomach and breaks down proteins into peptides."
+          },
+          {
+            "question": "What is the role of trypsin in the digestive process?",
+            "options": [
+              "Digests carbohydrates",
+              "Emulsifies fats",
+              "Breaks down proteins",
+              "Neutralizes stomach acid"
+            ],
+            "correct_answer": "Breaks down proteins",
+            "explanation": "Trypsin is a proteolytic enzyme that further digests proteins into smaller peptides in the small intestine."
+          },
+          {
+            "question": "Which component of pancreatic juice aids in fat digestion?",
+            "options": [
+              "Amylase",
+              "Lipase",
+              "Pepsin",
+              "Trypsin"
+            ],
+            "correct_answer": "Lipase",
+            "explanation": "Lipase is the enzyme that specifically breaks down fats into fatty acids and glycerol."
+          },
+          {
+            "question": "Where does the majority of nutrient absorption occur in the digestive system?",
+            "options": [
+              "Mouth",
+              "Stomach",
+              "Small intestine",
+              "Large intestine"
+            ],
+            "correct_answer": "Small intestine",
+            "explanation": "The small intestine, with its villi, is the primary site for nutrient absorption into the bloodstream."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Photosynthesis"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Photosynthesis Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Photosynthesis (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Photosynthesis Quiz",
+        "questions": [
+          {
+            "question": "What is the primary function of the light reaction in photosynthesis?",
+            "options": [
+              "Fixing CO2",
+              "Producing ATP and NADPH",
+              "Generating glucose",
+              "Releasing oxygen"
+            ],
+            "correct_answer": "Producing ATP and NADPH",
+            "explanation": "The light reaction captures light energy to produce ATP and NADPH, which are essential for the Calvin cycle."
+          },
+          {
+            "question": "Where does the Calvin cycle take place in the plant cell?",
+            "options": [
+              "Thylakoid",
+              "Chloroplast",
+              "Stroma",
+              "Cytoplasm"
+            ],
+            "correct_answer": "Stroma",
+            "explanation": "The Calvin cycle occurs in the stroma of chloroplasts, where it utilizes ATP and NADPH to fix CO2."
+          },
+          {
+            "question": "Which factor does NOT directly affect the rate of photosynthesis?",
+            "options": [
+              "Light intensity",
+              "CO2 concentration",
+              "Temperature",
+              "Soil pH"
+            ],
+            "correct_answer": "Soil pH",
+            "explanation": "While soil pH can affect plant health, it does not directly influence the photosynthesis process."
+          },
+          {
+            "question": "How does an increase in light intensity affect the light reaction?",
+            "options": [
+              "Decreases ATP production",
+              "Increases NADPH consumption",
+              "Increases ATP and NADPH production",
+              "Has no effect"
+            ],
+            "correct_answer": "Increases ATP and NADPH production",
+            "explanation": "Higher light intensity enhances the energy available for the light reaction, boosting ATP and NADPH production."
+          },
+          {
+            "question": "What role does temperature play in the Calvin cycle?",
+            "options": [
+              "Increases CO2 absorption",
+              "Affects enzyme activity",
+              "Decreases glucose production",
+              "Has no impact"
+            ],
+            "correct_answer": "Affects enzyme activity",
+            "explanation": "Temperature influences the activity of enzymes involved in the Calvin cycle, thereby affecting the rate of CO2 fixation."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Chemical Bonding"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Chemical Bonding Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Chemical Bonding (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Chemical Bonding Quiz",
+        "questions": [
+          {
+            "question": "What type of bond is formed between a metal and a non-metal?",
+            "options": [
+              "Ionic bond",
+              "Covalent bond",
+              "Metallic bond",
+              "Hydrogen bond"
+            ],
+            "correct_answer": "Ionic bond",
+            "explanation": "Ionic bonds occur when electrons are transferred from metals to non-metals, resulting in charged ions."
+          },
+          {
+            "question": "Which type of bond involves the sharing of electron pairs?",
+            "options": [
+              "Ionic bond",
+              "Covalent bond",
+              "Polar bond",
+              "Coordinate bond"
+            ],
+            "correct_answer": "Covalent bond",
+            "explanation": "Covalent bonds are formed when two atoms share one or more pairs of electrons, typically between non-metals."
+          },
+          {
+            "question": "What does VSEPR theory help predict?",
+            "options": [
+              "Bond length",
+              "Molecular geometry",
+              "Ionization energy",
+              "Electronegativity"
+            ],
+            "correct_answer": "Molecular geometry",
+            "explanation": "VSEPR theory predicts the three-dimensional arrangement of atoms in a molecule based on electron pair repulsion."
+          },
+          {
+            "question": "Which of the following is a characteristic of ionic compounds?",
+            "options": [
+              "Low melting points",
+              "Conduct electricity in solid state",
+              "High solubility in water",
+              "Brittle structure"
+            ],
+            "correct_answer": "Brittle structure",
+            "explanation": "Ionic compounds are typically brittle due to the rigid arrangement of ions in a lattice structure."
+          },
+          {
+            "question": "In a covalent bond, what determines the bond polarity?",
+            "options": [
+              "Atomic mass",
+              "Electron affinity",
+              "Electronegativity difference",
+              "Bond length"
+            ],
+            "correct_answer": "Electronegativity difference",
+            "explanation": "The polarity of a covalent bond is determined by the difference in electronegativity between the bonded atoms."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Magnetic Effects"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Magnetic Effects Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Magnetic Effects (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Magnetic Effects of Current Quiz",
+        "questions": [
+          {
+            "question": "What does Fleming's left-hand rule help to determine?",
+            "options": [
+              "Direction of magnetic field",
+              "Direction of current",
+              "Direction of force",
+              "Magnitude of current"
+            ],
+            "correct_answer": "Direction of force",
+            "explanation": "Fleming's left-hand rule indicates the direction of force experienced by a current-carrying conductor in a magnetic field."
+          },
+          {
+            "question": "In the formula F = BIL sin \u03b8, what does 'B' represent?",
+            "options": [
+              "Current",
+              "Magnetic field strength",
+              "Length of conductor",
+              "Angle between field and current"
+            ],
+            "correct_answer": "Magnetic field strength",
+            "explanation": "'B' denotes the magnetic field strength, which influences the force on the conductor."
+          },
+          {
+            "question": "Which factor does NOT affect the force on a current-carrying conductor in a magnetic field?",
+            "options": [
+              "Length of the conductor",
+              "Strength of the magnetic field",
+              "Direction of the current",
+              "Temperature of the conductor"
+            ],
+            "correct_answer": "Temperature of the conductor",
+            "explanation": "The force is determined by the length, magnetic field strength, and current direction, not the temperature."
+          },
+          {
+            "question": "What happens to the force on a conductor if the angle \u03b8 is 90 degrees?",
+            "options": [
+              "Force is zero",
+              "Force is maximum",
+              "Force is half",
+              "Force is negative"
+            ],
+            "correct_answer": "Force is maximum",
+            "explanation": "At \u03b8 = 90 degrees, sin \u03b8 equals 1, maximizing the force according to the formula."
+          },
+          {
+            "question": "If the current in a conductor is reversed, what happens to the direction of the force?",
+            "options": [
+              "It remains the same",
+              "It reverses",
+              "It doubles",
+              "It becomes zero"
+            ],
+            "correct_answer": "It reverses",
+            "explanation": "Reversing the current changes the direction of the force acting on the conductor in the magnetic field."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity \u03c1 depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "custom_instructions": "5 MCQs, medium difficulty, Current Electricity"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Current Electricity Quiz",
+          "questions": [
+            {
+              "question": "According to Ohm's law, if resistance is doubled while voltage stays constant, what happens to current?",
+              "options": [
+                "Current doubles",
+                "Current halves",
+                "Current stays the same",
+                "Current becomes zero"
+              ],
+              "correct_answer": "Current halves",
+              "explanation": "V = IR implies I = V/R, so current is inversely proportional to R."
+            },
+            {
+              "question": "Two resistors 3 \u03a9 and 6 \u03a9 are connected in series. What is the equivalent resistance?",
+              "options": [
+                "2 \u03a9",
+                "9 \u03a9",
+                "18 \u03a9",
+                "3 \u03a9"
+              ],
+              "correct_answer": "9 \u03a9",
+              "explanation": "Series resistances add: R_eq = R1 + R2 = 9 \u03a9."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Current Electricity Quiz",
+        "questions": [
+          {
+            "question": "What is the relationship between current, voltage, and resistance in a conductor?",
+            "options": [
+              "V = IR",
+              "I = VR",
+              "R = VI",
+              "V = I/R"
+            ],
+            "correct_answer": "V = IR",
+            "explanation": "Ohm's law states that voltage equals current times resistance."
+          },
+          {
+            "question": "How does resistivity affect the resistance of a conductor?",
+            "options": [
+              "It has no effect",
+              "It decreases resistance",
+              "It increases resistance",
+              "It depends on the material"
+            ],
+            "correct_answer": "It depends on the material",
+            "explanation": "Resistivity is a material property that influences resistance."
+          },
+          {
+            "question": "What is the equivalent resistance of two resistors in series?",
+            "options": [
+              "R1 + R2",
+              "1/R1 + 1/R2",
+              "R1 * R2",
+              "R1/R2"
+            ],
+            "correct_answer": "R1 + R2",
+            "explanation": "In series, resistances add up to give the equivalent resistance."
+          },
+          {
+            "question": "How is the equivalent resistance calculated for resistors in parallel?",
+            "options": [
+              "R1 + R2",
+              "1/R1 + 1/R2",
+              "1/(1/R1 + 1/R2)",
+              "R1 * R2"
+            ],
+            "correct_answer": "1/(1/R1 + 1/R2)",
+            "explanation": "The reciprocal of the sum of reciprocals gives the equivalent resistance."
+          },
+          {
+            "question": "What happens to the current if the resistance is doubled while keeping the voltage constant?",
+            "options": [
+              "It doubles",
+              "It halves",
+              "It remains the same",
+              "It becomes zero"
+            ],
+            "correct_answer": "It halves",
+            "explanation": "According to Ohm's law, current is inversely proportional to resistance."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "biology_diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "custom_instructions": "5 MCQs, NEET-style, digestive enzymes"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Human Digestion Quiz",
+          "questions": [
+            {
+              "question": "Which enzyme begins carbohydrate digestion in the mouth?",
+              "options": [
+                "Pepsin",
+                "Salivary amylase",
+                "Trypsin",
+                "Lipase"
+              ],
+              "correct_answer": "Salivary amylase",
+              "explanation": "Salivary amylase acts on starch in the mouth."
+            },
+            {
+              "question": "Where does most nutrient absorption occur?",
+              "options": [
+                "Stomach",
+                "Large intestine",
+                "Small intestine",
+                "Oesophagus"
+              ],
+              "correct_answer": "Small intestine",
+              "explanation": "Villi in the small intestine absorb digested food."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Digestive Enzymes Quiz",
+        "questions": [
+          {
+            "question": "Which enzyme initiates the digestion of carbohydrates in the mouth?",
+            "options": [
+              "Pepsin",
+              "Salivary amylase",
+              "Trypsin",
+              "Lipase"
+            ],
+            "correct_answer": "Salivary amylase",
+            "explanation": "Salivary amylase begins carbohydrate digestion by breaking down starch into maltose."
+          },
+          {
+            "question": "What is the primary function of pepsin in the stomach?",
+            "options": [
+              "Digest fats",
+              "Digest proteins",
+              "Digest carbohydrates",
+              "Neutralize acids"
+            ],
+            "correct_answer": "Digest proteins",
+            "explanation": "Pepsin is a protease enzyme that breaks down proteins into peptides in the stomach."
+          },
+          {
+            "question": "Which enzyme in pancreatic juice helps in the digestion of fats?",
+            "options": [
+              "Trypsin",
+              "Lipase",
+              "Amylase",
+              "Pepsin"
+            ],
+            "correct_answer": "Lipase",
+            "explanation": "Lipase breaks down dietary fats into fatty acids and glycerol in the small intestine."
+          },
+          {
+            "question": "Where does the majority of nutrient absorption occur in the digestive system?",
+            "options": [
+              "Stomach",
+              "Large intestine",
+              "Small intestine",
+              "Mouth"
+            ],
+            "correct_answer": "Small intestine",
+            "explanation": "The small intestine, with its villi, is the primary site for nutrient absorption."
+          },
+          {
+            "question": "Which enzyme in pancreatic juice continues the digestion of carbohydrates?",
+            "options": [
+              "Pepsin",
+              "Trypsin",
+              "Lipase",
+              "Amylase"
+            ],
+            "correct_answer": "Amylase",
+            "explanation": "Pancreatic amylase further breaks down carbohydrates into simple sugars in the small intestine."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Photosynthesis"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Photosynthesis Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Photosynthesis (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Photosynthesis Process Quiz",
+        "questions": [
+          {
+            "question": "Where does the light reaction of photosynthesis occur?",
+            "options": [
+              "Stroma",
+              "Thylakoid",
+              "Cytoplasm",
+              "Nucleus"
+            ],
+            "correct_answer": "Thylakoid",
+            "explanation": "The light reaction takes place in the thylakoid membranes of the chloroplasts."
+          },
+          {
+            "question": "What is the primary function of the Calvin cycle?",
+            "options": [
+              "Produce ATP",
+              "Fix CO2",
+              "Release oxygen",
+              "Absorb sunlight"
+            ],
+            "correct_answer": "Fix CO2",
+            "explanation": "The Calvin cycle fixes carbon dioxide into organic molecules in the stroma."
+          },
+          {
+            "question": "Which factor does NOT directly affect the rate of photosynthesis?",
+            "options": [
+              "Light intensity",
+              "CO2 concentration",
+              "Temperature",
+              "Soil type"
+            ],
+            "correct_answer": "Soil type",
+            "explanation": "Photosynthesis is directly affected by light intensity, CO2 concentration, and temperature, not soil type."
+          },
+          {
+            "question": "What are the products of the light reaction used in the Calvin cycle?",
+            "options": [
+              "Oxygen and glucose",
+              "ATP and NADPH",
+              "Water and CO2",
+              "Glucose and ATP"
+            ],
+            "correct_answer": "ATP and NADPH",
+            "explanation": "ATP and NADPH produced in the light reaction are used in the Calvin cycle for carbon fixation."
+          },
+          {
+            "question": "How does temperature affect photosynthesis?",
+            "options": [
+              "Increases indefinitely",
+              "Decreases indefinitely",
+              "Has an optimal range",
+              "No effect"
+            ],
+            "correct_answer": "Has an optimal range",
+            "explanation": "Photosynthesis has an optimal temperature range; too high or low temperatures can reduce its efficiency."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "diagram",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Chemical Bonding"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Chemical Bonding Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Chemical Bonding (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Chemical Bonding Quiz",
+        "questions": [
+          {
+            "question": "What type of bond is formed between sodium and chlorine in sodium chloride?",
+            "options": [
+              "Ionic bond",
+              "Covalent bond",
+              "Metallic bond",
+              "Hydrogen bond"
+            ],
+            "correct_answer": "Ionic bond",
+            "explanation": "Sodium (metal) and chlorine (non-metal) form an ionic bond by transferring electrons."
+          },
+          {
+            "question": "Which of the following molecules is likely to have a covalent bond?",
+            "options": [
+              "NaCl",
+              "H2O",
+              "MgO",
+              "CaCl2"
+            ],
+            "correct_answer": "H2O",
+            "explanation": "Water (H2O) consists of non-metals sharing electron pairs, forming covalent bonds."
+          },
+          {
+            "question": "What does VSEPR theory help predict?",
+            "options": [
+              "Bond strength",
+              "Molecular geometry",
+              "Electron affinity",
+              "Ionization energy"
+            ],
+            "correct_answer": "Molecular geometry",
+            "explanation": "VSEPR theory predicts the 3D arrangement of atoms in a molecule based on electron pair repulsion."
+          },
+          {
+            "question": "Which element is most likely to form a covalent bond with hydrogen?",
+            "options": [
+              "Oxygen",
+              "Sodium",
+              "Calcium",
+              "Iron"
+            ],
+            "correct_answer": "Oxygen",
+            "explanation": "Oxygen, a non-metal, shares electrons with hydrogen to form covalent bonds in water."
+          },
+          {
+            "question": "What is a key characteristic of ionic compounds?",
+            "options": [
+              "High melting points",
+              "Low boiling points",
+              "Poor electrical conductivity",
+              "Soft texture"
+            ],
+            "correct_answer": "High melting points",
+            "explanation": "Ionic compounds have strong electrostatic forces, resulting in high melting points."
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "studio_quiz-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 25.0,
+      "passed": false,
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin \u03b8. Fleming's left-hand rule relates field, current, force.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Magnetic Effects"
+      },
+      "expected": {
+        "quiz_json": {
+          "title": "Magnetic Effects Quiz",
+          "questions": [
+            {
+              "question": "Grounded MCQ on Magnetic Effects (LLM-judge: must cite excerpt)",
+              "options": [
+                "Option grounded in text A",
+                "Plausible distractor B",
+                "Plausible distractor C",
+                "Plausible distractor D"
+              ],
+              "correct_answer": "Option grounded in text A",
+              "explanation": "Must be supported by the provided context excerpt."
+            }
+          ]
+        }
+      },
+      "actual": {
+        "title": "Magnetic Effects of Electric Current Quiz",
+        "questions": [
+          {
+            "question": "What happens when a current-carrying conductor is placed in a magnetic field?",
+            "options": [
+              "It experiences a force",
+              "It generates heat",
+              "It emits light",
+              "It remains unaffected"
+            ],
+            "correct_answer": "It experiences a force",
+            "explanation": "A current-carrying conductor in a magnetic field experiences a force due to the interaction between the magnetic field and the current."
+          },
+          {
+            "question": "Which rule helps determine the direction of force on a current-carrying conductor in a magnetic field?",
+            "options": [
+              "Fleming's left-hand rule",
+              "Right-hand thumb rule",
+              "Ampere's rule",
+              "Ohm's law"
+            ],
+            "correct_answer": "Fleming's left-hand rule",
+            "explanation": "Fleming's left-hand rule relates the direction of the magnetic field, current, and force."
+          },
+          {
+            "question": "What is the formula for the force on a conductor in a magnetic field?",
+            "options": [
+              "F = BIL sin \u03b8",
+              "F = BIL cos \u03b8",
+              "F = BIL tan \u03b8",
+              "F = BIL"
+            ],
+            "correct_answer": "F = BIL sin \u03b8",
+            "explanation": "The force is given by F = BIL sin \u03b8, where B is magnetic field, I is current, L is length, and \u03b8 is the angle."
+          },
+          {
+            "question": "What is the effect of increasing the angle \u03b8 between the magnetic field and current direction?",
+            "options": [
+              "Increases force",
+              "Decreases force",
+              "No effect on force",
+              "Reverses force direction"
+            ],
+            "correct_answer": "Increases force",
+            "explanation": "The force is maximum when \u03b8 is 90\u00b0, as sin \u03b8 increases with the angle up to 90\u00b0."
+          },
+          {
+            "question": "Which of the following is NOT a factor affecting the force on a current-carrying conductor in a magnetic field?",
+            "options": [
+              "Length of conductor",
+              "Strength of magnetic field",
+              "Current in conductor",
+              "Color of conductor"
+            ],
+            "correct_answer": "Color of conductor",
+            "explanation": "The force depends on the magnetic field strength, current, and conductor length, not its color."
+          }
+        ]
+      }
+    }
+  ]
+}

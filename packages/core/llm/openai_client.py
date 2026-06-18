@@ -82,6 +82,17 @@ class OpenAIClient(LLMClient):
         feature = kwargs.pop("feature", None)
         if feature and not feature_tag:
             feature_tag = str(feature)
+
+        if tenant_id and getattr(settings, "ENABLE_BUDGET_ENFORCEMENT", False):
+            from packages.core.guardrails.budget_enforcer import BudgetEnforcer
+
+            cost_manager = get_cost_manager()
+            est = cost_manager.calculate_cost(
+                self.model,
+                prompt_tokens=max(1, len(prompt) // 4),
+                completion_tokens=max_tokens or self.max_tokens or 512,
+            )
+            await BudgetEnforcer().enforce_budget(str(tenant_id), estimated_cost=est)
         
         start_time = time.time()
         messages = []

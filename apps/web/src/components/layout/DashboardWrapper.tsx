@@ -9,6 +9,7 @@ import { NotesSection } from '@/components/notes/NotesSection';
 import { SourceProvider } from '@/contexts/SourceContext';
 import { UserProvider, useUserContext } from '@/contexts/UserContext';
 import { StudioChatBridgeProvider } from '@/contexts/StudioChatBridgeContext';
+import { StudioPreviewProvider } from '@/contexts/StudioPreviewContext';
 import { StudioGenerationProvider } from '@/contexts/StudioGenerationContext';
 import { checkForNoteDrafts, removeDraft } from '@/lib/note-draft-utils';
 import { DraftSaveModal } from '@/components/notes/DraftSaveModal';
@@ -207,9 +208,11 @@ export function DashboardWrapper({ children }: { children: React.ReactNode }) {
     <UserProvider>
       <SourceProvider>
         <StudioChatBridgeProvider>
-          <StudioGenerationProvider>
-            <Wrapper />
-          </StudioGenerationProvider>
+          <StudioPreviewProvider>
+            <StudioGenerationProvider>
+              <Wrapper />
+            </StudioGenerationProvider>
+          </StudioPreviewProvider>
         </StudioChatBridgeProvider>
       </SourceProvider>
     </UserProvider>

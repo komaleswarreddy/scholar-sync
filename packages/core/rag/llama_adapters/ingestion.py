@@ -19,6 +19,7 @@ from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store
 @dataclass(frozen=True)
 class LlamaIndexIngestionResult:
     nodes_indexed: int
+    chunks_for_cache: Optional[List[Tuple[str, Dict[str, Any]]]] = None
 
 
 def _sync_build_vector_index(nodes: List[Any], storage_context: Any) -> None:
@@ -257,12 +258,18 @@ class LlamaIndexIngestionAdapter:
                 ).strip().lower()
 
                 # Redis is async; disk store is sync. Use Redis when configured, otherwise disk.
+                sketch_from_cache = False
                 if backend == "redis":
                     rstore = RedisSketchStore()
                     sketch = await rstore.get(key)
                 else:
                     dstore = DiskSketchStore()
                     sketch = dstore.get(key)
+                if isinstance(sketch, dict):
+                    sketch_from_cache = True
+                else:
+                    sketch = None
+
                 if sketch is None:
                     model = (
                         str(getattr(settings, "CONTEXTUAL_RETRIEVAL_NCERT_DOC_SKETCH_MODEL", "") or "").strip()
@@ -280,6 +287,7 @@ class LlamaIndexIngestionAdapter:
                         request_id=self._ingestion_run_id,
                         usage_accumulator=self._usage_accumulator,
                     )
+                    sketch_from_cache = False
                     if isinstance(sketch, dict):
                         ttl = int(
                             getattr(
@@ -292,19 +300,25 @@ class LlamaIndexIngestionAdapter:
                             try:
                                 await rstore.set(key, sketch, ttl_seconds=ttl)
                             except Exception:
-                                # Fallback to disk if Redis is down
+                                DiskSketchStore().set(key, sketch, ttl_seconds=ttl)
+                            else:
                                 DiskSketchStore().set(key, sketch, ttl_seconds=ttl)
                         else:
                             dstore.set(key, sketch, ttl_seconds=ttl)
-                        print(
-                            f"[NCERT] Document sketch cache miss → generated (key={key[:12]}..., bytes={len(json.dumps(sketch))})"
-                        )
-                else:
-                    print(f"[NCERT] Document sketch cache hit (key={key[:12]}...)")
 
                 if isinstance(sketch, dict):
                     doc_context = header + json.dumps(sketch, ensure_ascii=False)
                     doc_sketch_used = True
+                    try:
+                        if sketch_from_cache:
+                            print(f"[NCERT] Document sketch cache hit (key={key[:12]}...)")
+                        else:
+                            print(
+                                f"[NCERT] Document sketch cache miss -> generated "
+                                f"(key={key[:12]}..., bytes={len(json.dumps(sketch))})"
+                            )
+                    except Exception:
+                        pass
             except Exception as ex:
                 print(f"[NCERT] Document sketch disabled due to error: {ex}")
 
@@ -380,7 +394,7 @@ class LlamaIndexIngestionAdapter:
                         else:
                             dstore.set(disk_key, sketch, ttl_seconds=ttl)
                         print(
-                            f"[UPLOAD] Document sketch cache miss → generated "
+                            f"[UPLOAD] Document sketch cache miss -> generated "
                             f"(key={content_key[:12]}..., bytes={len(json.dumps(sketch))})"
                         )
                 else:
@@ -587,6 +601,40 @@ class LlamaIndexIngestionAdapter:
         nodes.sort(key=lambda n: int(getattr(n, "metadata", {}).get("chunk_index", 0)))
         return nodes
 
+    @staticmethod
+    def _nodes_to_cache_tuples(nodes: List[Any]) -> List[Tuple[str, Dict[str, Any]]]:
+        """Serialize enriched nodes for ContextCache (strip tenant/source-specific ids)."""
+        cache_keys = (
+            "chunk_index",
+            "page_start",
+            "page_end",
+            "page_number",
+            "chunk_context",
+            "chunk_summary",
+            "chunk_type",
+            "section_title",
+            "concept_hint",
+            "contextual_version",
+            "topic",
+        )
+        out: List[Tuple[str, Dict[str, Any]]] = []
+        for n in nodes:
+            md = dict(getattr(n, "metadata", {}) or {})
+            chunk_text = str(md.get("text") or getattr(n, "text", "") or "").strip()
+            if not chunk_text:
+                continue
+            chunk_meta: Dict[str, Any] = {
+                "chunk_index": int(md.get("chunk_index", len(out))),
+            }
+            for k in cache_keys:
+                if k == "chunk_index":
+                    continue
+                if k in md and md[k] is not None:
+                    chunk_meta[k] = md[k]
+            out.append((chunk_text, chunk_meta))
+        out.sort(key=lambda pair: int(pair[1].get("chunk_index", 0)))
+        return out
+
     async def ingest_text(
         self,
         *,
@@ -673,6 +721,8 @@ class LlamaIndexIngestionAdapter:
             "model": _em,
             "dimensions": _ed,
         }
+        if settings.OPENAI_API_KEY:
+            embed_kwargs["api_key"] = settings.OPENAI_API_KEY
         if sync_http_client is not None:
             embed_kwargs["http_client"] = sync_http_client
         if async_http_client is not None:
@@ -702,7 +752,11 @@ class LlamaIndexIngestionAdapter:
                 request_id=self._ingestion_run_id,
             )
 
-        return LlamaIndexIngestionResult(nodes_indexed=len(nodes))
+        chunks_for_cache = self._nodes_to_cache_tuples(nodes)
+        return LlamaIndexIngestionResult(
+            nodes_indexed=len(nodes),
+            chunks_for_cache=chunks_for_cache,
+        )
 
     async def ingest_chunks(
         self,
@@ -786,6 +840,8 @@ class LlamaIndexIngestionAdapter:
             "model": _em,
             "dimensions": _ed,
         }
+        if settings.OPENAI_API_KEY:
+            embed_kwargs["api_key"] = settings.OPENAI_API_KEY
         if sync_http_client is not None:
             embed_kwargs["http_client"] = sync_http_client
         if async_http_client is not None:

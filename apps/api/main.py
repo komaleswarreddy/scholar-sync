@@ -83,14 +83,28 @@ print("[STARTUP] Patched OpenAI client to strip 'proxies' parameter")
 # ========== END MONKEY PATCH ==========
  
 from config.settings import settings
+from packages.core.monitoring.langsmith_bootstrap import configure_langsmith_tracing
+
+_LANGSMITH_STATUS = configure_langsmith_tracing()
+if _LANGSMITH_STATUS.get("enabled"):
+    log_msg(
+        f"[STARTUP] LangSmith tracing ON — project={_LANGSMITH_STATUS.get('project')} "
+        f"endpoint={_LANGSMITH_STATUS.get('endpoint')}"
+    )
+else:
+    log_msg("[STARTUP] LangSmith tracing OFF (set LANGSMITH_TRACING_ENABLED=true and LANGSMITH_API_KEY)")
+
 from apps.api.middleware.tenant import TenantMiddleware
 from apps.api.middleware.request_logging import RequestLoggingMiddleware
-from apps.api.routes import chat, sources, studio, notes, health, metrics, dashboards, alerts, admin, admin_ncert_global, pipeline_traces
+from apps.api.routes import chat, sources, studio, studio_features, notes, notebooks, home, health, metrics, dashboards, alerts, admin, admin_ncert_global, pipeline_traces, tutor, problem_solver
 
 # ---------------- Lifespan ----------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup logic here if needed
+    from packages.core.database.connection import warn_if_session_pooler_in_production
+
+    app.state.langsmith = _LANGSMITH_STATUS
+    warn_if_session_pooler_in_production()
     yield
     # Shutdown logic here if needed
 
@@ -159,7 +173,13 @@ app.add_middleware(
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(sources.router, prefix="/api/v1/ingest", tags=["sources"])
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["studio"])
+app.include_router(studio_features.router, prefix="/api/v1/studio/features", tags=["studio-features"])
 app.include_router(notes.router, prefix="/api/v1/notes", tags=["notes"])
+app.include_router(notebooks.router, prefix="/api/v1/notebooks", tags=["notebooks"])
+app.include_router(tutor.router, prefix="/api/v1/tutor", tags=["tutor"])
+# Always register routes; handlers gate on ENABLE_PROBLEM_SOLVER via _require_enabled().
+app.include_router(problem_solver.router, prefix="/api/v1/problem-solver", tags=["problem-solver"])
+app.include_router(home.router, prefix="/api/v1/home", tags=["home"])
 app.include_router(health.router, tags=["health"])
 app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["metrics"])
 app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashboards"])

@@ -1,0 +1,316 @@
+{
+  "agent_name": "whole_file_reduce",
+  "generated_at": "2026-06-18T04:29:19.462850+00:00",
+  "dataset_id": "whole_file_reduce",
+  "dataset_hash": "47291180778eb827",
+  "threshold": 90.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.000761,
+      "input_cost_usd": 0.000159,
+      "output_cost_usd": 0.000602,
+      "prompt_tokens": 1059,
+      "completion_tokens": 1003,
+      "latency_ms": 13185.58,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "pass_rate": 1.0,
+      "cost_usd": 0.001111,
+      "input_cost_usd": 0.000104,
+      "output_cost_usd": 0.001007,
+      "prompt_tokens": 694,
+      "completion_tokens": 1678,
+      "latency_ms": 19290.05,
+      "passed": true,
+      "metrics": {
+        "schema_compliance": 1.0,
+        "format_quality": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": true,
+    "winner": {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 100.0,
+      "cost_usd": 0.000761,
+      "input_cost_usd": 0.000159,
+      "output_cost_usd": 0.000602
+    },
+    "composite_score": 0.8999
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 10,
+  "evaluator": "formatter",
+  "example_results": [
+    {
+      "example_id": "whole_file_reduce-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Physics.\nPart 2: Key point about Chemistry.\nPart 3: Key point about Biology.\nPart 4: Key point about Mathematics.\nPart 5: Key point about Science."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Physics ideas."
+      },
+      "actual": {
+        "output": "The document provides a comprehensive overview of fundamental concepts across various scientific disciplines. Here\u2019s a summary of each section:\n\n### Part 1: Physics\nThis section highlights the essential principles of physics, focusing on the laws of motion, energy, and the fundamental forces that govern the physical universe. It emphasizes the importance of understanding these concepts for both theoretical and practical applications in technology and engineering.\n\n### Part 2: Chemistry\nIn this part, the document discusses the core ideas of chemistry, including the structure of atoms, chemical reactions, and the periodic table. It underscores the significance of chemical interactions in everyday life and their role in various industries, such as pharmaceuticals and materials science.\n\n### Part 3: Biology\nThe biology section outlines key biological concepts, such as cell structure, genetics, and evolution. It stresses the interconnectedness of living organisms and their environments, as well as the importance of biodiversity and conservation efforts in maintaining ecological balance.\n\n### Part 4: Mathematics\nThis part covers fundamental mathematical principles, including algebra, geometry, and calculus. It highlights the role of mathematics as a foundational tool for problem-solving and critical thinking across all scientific fields, illustrating its application in real-world scenarios.\n\n### Part 5: Science\nThe final section synthesizes the insights from the previous parts, emphasizing the interdisciplinary nature of science. It advocates for a holistic understanding of scientific principles and their applications, encouraging collaboration among different scientific fields to address complex global challenges.\n\nOverall, the document serves as a foundational guide to the key concepts in physics, chemistry, biology, mathematics, and the broader field of science, illustrating their relevance and interconnections in understanding the world around us."
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Chemistry.\nPart 2: Key point about Biology.\nPart 3: Key point about Mathematics.\nPart 4: Key point about Science.\nPart 5: Key point about Physics."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Chemistry ideas."
+      },
+      "actual": {
+        "output": "Here is a comprehensive list of formulas derived from the key points in your document:\n\n### Chemistry\n- **Molarity (M)**: M = moles of solute / liters of solution\n- **Ideal Gas Law**: PV = nRT\n- **Concentration**: C = m/V (where C is concentration, m is mass, and V is volume)\n\n### Biology\n- **Population Growth**: P(t) = P0 * e^(rt) (where P0 is the initial population, r is the growth rate, and t is time)\n- **Photosynthesis Equation**: 6CO2 + 6H2O + light energy \u2192 C6H12O6 + 6O2\n- **Cellular Respiration**: C6H12O6 + 6O2 \u2192 6CO2 + 6H2O + ATP\n\n### Mathematics\n- **Quadratic Formula**: x = (-b \u00b1 \u221a(b\u00b2 - 4ac)) / 2a\n- **Area of a Circle**: A = \u03c0r\u00b2 (where r is the radius)\n- **Pythagorean Theorem**: a\u00b2 + b\u00b2 = c\u00b2 (where c is the hypotenuse)\n\n### Science\n- **Newton's Second Law**: F = ma (where F is force, m is mass, and a is acceleration)\n- **Work Done**: W = Fd cos(\u03b8) (where W is work, F is force, d is distance, and \u03b8 is the angle)\n- **Energy Conservation**: E_initial = E_final\n\n### Physics\n- **Kinetic Energy**: KE = 1/2 mv\u00b2 (where m is mass and v is velocity)\n- **Potential Energy**: PE = mgh (where m is mass, g is acceleration due to gravity, and h is height)\n- **Ohm's Law**: V = IR (where V is voltage, I is current, and R is resistance)\n\nThis list encapsulates the essential formulas from each section of your document, providing a clear reference for your studies in these subjects."
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Exam revision notes",
+        "section_summaries": "Part 1: Key point about Biology.\nPart 2: Key point about Mathematics.\nPart 3: Key point about Science.\nPart 4: Key point about Physics.\nPart 5: Key point about Chemistry."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Biology ideas."
+      },
+      "actual": {
+        "output": "# Exam Revision Notes\n\n## Biology\n- Focus on the fundamental concepts of cell structure and function, including the differences between prokaryotic and eukaryotic cells. \n- Understand the processes of photosynthesis and cellular respiration, emphasizing the importance of energy transfer in living organisms.\n\n## Mathematics\n- Review key mathematical concepts such as algebra, geometry, and basic calculus. \n- Pay special attention to problem-solving techniques and the application of formulas in real-world scenarios.\n\n## Science\n- Emphasize the scientific method and its application in experiments. \n- Familiarize yourself with the principles of scientific inquiry, including hypothesis formation, data collection, and analysis.\n\n## Physics\n- Concentrate on the laws of motion and the principles of energy and momentum. \n- Understand the concepts of force, mass, and acceleration, and how they relate to everyday phenomena.\n\n## Chemistry\n- Review the periodic table and the properties of elements, including atomic structure and chemical bonding. \n- Focus on the basics of chemical reactions, stoichiometry, and the importance of acids and bases in various contexts.\n\nThese notes provide a comprehensive overview of the key points across Biology, Mathematics, Science, Physics, and Chemistry, serving as a solid foundation for your exam preparation."
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Mathematics.\nPart 2: Key point about Science.\nPart 3: Key point about Physics.\nPart 4: Key point about Chemistry.\nPart 5: Key point about Biology."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Mathematics ideas."
+      },
+      "actual": {
+        "output": "The document provides a comprehensive overview of fundamental concepts across various scientific disciplines, highlighting the significance of each field in understanding the world around us. Below is a summary of the key points from each section:\n\n### Mathematics\n- Mathematics serves as the foundational language of science, providing essential tools for modeling, analysis, and problem-solving across various scientific domains.\n\n### Science\n- Science is portrayed as a systematic approach to acquiring knowledge through observation and experimentation, emphasizing the importance of the scientific method in validating theories and hypotheses.\n\n### Physics\n- Physics focuses on the fundamental principles governing the behavior of matter and energy, exploring concepts such as motion, forces, and the laws of thermodynamics, which are crucial for understanding the physical universe.\n\n### Chemistry\n- Chemistry examines the composition, structure, and properties of substances, as well as the changes they undergo during chemical reactions. It plays a vital role in various applications, from medicine to environmental science.\n\n### Biology\n- Biology studies living organisms and their interactions with the environment, covering topics such as genetics, evolution, and ecosystems. It underscores the complexity of life and the interconnectedness of all living systems.\n\nIn summary, the document emphasizes the interrelatedness of mathematics, science, physics, chemistry, and biology, illustrating how each discipline contributes to a holistic understanding of natural phenomena."
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Science.\nPart 2: Key point about Physics.\nPart 3: Key point about Chemistry.\nPart 4: Key point about Biology.\nPart 5: Key point about Mathematics."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Science ideas."
+      },
+      "actual": {
+        "output": "Here is a comprehensive list of formulas derived from the key points in your document:\n\n### Science Formulas\n- **General Scientific Method**: Hypothesis \u2192 Experiment \u2192 Observation \u2192 Conclusion\n\n### Physics Formulas\n- **Newton's Second Law**: F = ma (Force = mass \u00d7 acceleration)\n- **Kinetic Energy**: KE = 0.5mv\u00b2 (Kinetic Energy = 0.5 \u00d7 mass \u00d7 velocity squared)\n- **Potential Energy**: PE = mgh (Potential Energy = mass \u00d7 gravity \u00d7 height)\n\n### Chemistry Formulas\n- **Ideal Gas Law**: PV = nRT (Pressure \u00d7 Volume = number of moles \u00d7 gas constant \u00d7 Temperature)\n- **Molarity**: M = n/V (Molarity = number of moles of solute / volume of solution in liters)\n- **Concentration**: C = m/V (Concentration = mass of solute / volume of solution)\n\n### Biology Formulas\n- **Population Growth**: P(t) = P0e^(rt) (Population at time t = initial population \u00d7 e^(growth rate \u00d7 time))\n- **Photosynthesis Equation**: 6CO\u2082 + 6H\u2082O + light energy \u2192 C\u2086H\u2081\u2082O\u2086 + 6O\u2082 (Carbon dioxide + water + light energy \u2192 glucose + oxygen)\n\n### Mathematics Formulas\n- **Quadratic Formula**: x = (-b \u00b1 \u221a(b\u00b2 - 4ac)) / (2a)\n- **Area of a Circle**: A = \u03c0r\u00b2 (Area = pi \u00d7 radius squared)\n- **Pythagorean Theorem**: a\u00b2 + b\u00b2 = c\u00b2 (In a right triangle, the square of the hypotenuse equals the sum of the squares of the other two sides)\n\nThis list encapsulates the essential formulas from each section of your document, providing a clear reference for your studies."
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "typo",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Physics.\nPart 2: Key point about Chemistry.\nPart 3: Key point about Biology.\nPart 4: Key point about Mathematics.\nPart 5: Key point about Science."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Physics ideas."
+      },
+      "actual": {
+        "summary": {
+          "Physics": "Focuses on fundamental concepts such as motion, forces, and energy, emphasizing their applications in real-world scenarios.",
+          "Chemistry": "Explores the composition, structure, and properties of matter, highlighting chemical reactions and their significance in everyday life.",
+          "Biology": "Examines living organisms, their structures, functions, and interactions, stressing the importance of ecosystems and biodiversity.",
+          "Mathematics": "Covers essential mathematical principles, including algebra, geometry, and statistics, and their relevance in problem-solving and analytical thinking.",
+          "Science": "Integrates knowledge from various scientific disciplines, promoting a comprehensive understanding of the natural world and the scientific method."
+        },
+        "reasoning": "The document provides a concise overview of key scientific disciplines, emphasizing their foundational concepts and real-world applications."
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "conversational",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Chemistry.\nPart 2: Key point about Biology.\nPart 3: Key point about Mathematics.\nPart 4: Key point about Science.\nPart 5: Key point about Physics."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Chemistry ideas."
+      },
+      "actual": {
+        "formulas": {
+          "Chemistry": {
+            "Molarity": "M = moles of solute / liters of solution",
+            "Ideal Gas Law": "PV = nRT"
+          },
+          "Biology": {
+            "Photosynthesis": "6CO2 + 6H2O \u2192 C6H12O6 + 6O2",
+            "Cellular Respiration": "C6H12O6 + 6O2 \u2192 6CO2 + 6H2O + ATP"
+          },
+          "Mathematics": {
+            "Quadratic Formula": "x = (-b \u00b1 \u221a(b\u00b2 - 4ac)) / 2a",
+            "Area of a Circle": "A = \u03c0r\u00b2"
+          },
+          "Science": {
+            "Density": "Density = mass / volume",
+            "Speed": "Speed = distance / time"
+          },
+          "Physics": {
+            "Newton's Second Law": "F = ma",
+            "Kinetic Energy": "KE = 1/2 mv\u00b2"
+          }
+        }
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Exam revision notes",
+        "section_summaries": "Part 1: Key point about Biology.\nPart 2: Key point about Mathematics.\nPart 3: Key point about Science.\nPart 4: Key point about Physics.\nPart 5: Key point about Chemistry."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Biology ideas."
+      },
+      "actual": {
+        "Biology": {
+          "Key Point": "Understand the structure and function of cells, including cell division and genetic material.",
+          "Reasoning": "Cellular processes are fundamental to all biological systems."
+        },
+        "Mathematics": {
+          "Key Point": "Focus on algebraic expressions, equations, and their applications in problem-solving.",
+          "Reasoning": "Algebra is essential for developing logical reasoning and analytical skills."
+        },
+        "Science": {
+          "Key Point": "Integrate concepts from various scientific disciplines to understand the scientific method.",
+          "Reasoning": "A holistic view of science enhances critical thinking and application."
+        },
+        "Physics": {
+          "Key Point": "Study the laws of motion, energy, and their practical applications.",
+          "Reasoning": "Understanding physics principles is crucial for real-world problem-solving."
+        },
+        "Chemistry": {
+          "Key Point": "Learn about chemical reactions, the periodic table, and stoichiometry.",
+          "Reasoning": "Chemistry is foundational for understanding material properties and interactions."
+        }
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "diagram",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "Summarize entire document",
+        "section_summaries": "Part 1: Key point about Mathematics.\nPart 2: Key point about Science.\nPart 3: Key point about Physics.\nPart 4: Key point about Chemistry.\nPart 5: Key point about Biology."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Mathematics ideas."
+      },
+      "actual": {
+        "summary": {
+          "Mathematics": "Mathematics is foundational for understanding patterns, structures, and relationships, emphasizing problem-solving and logical reasoning skills essential for various fields.",
+          "Science": "Science encompasses systematic study and experimentation, fostering critical thinking and inquiry-based learning to understand natural phenomena.",
+          "Physics": "Physics explores the fundamental principles governing matter and energy, focusing on concepts such as motion, forces, and energy transformations.",
+          "Chemistry": "Chemistry examines the composition, structure, and properties of substances, highlighting the interactions and reactions that occur between different materials.",
+          "Biology": "Biology studies living organisms and their interactions with the environment, emphasizing concepts such as evolution, genetics, and ecosystems."
+        },
+        "reasoning": "The document provides a concise overview of key scientific disciplines, highlighting their importance and foundational concepts in education."
+      }
+    },
+    {
+      "example_id": "whole_file_reduce-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 100.0,
+      "passed": true,
+      "inputs": {
+        "user_message": "List all formulas",
+        "section_summaries": "Part 1: Key point about Science.\nPart 2: Key point about Physics.\nPart 3: Key point about Chemistry.\nPart 4: Key point about Biology.\nPart 5: Key point about Mathematics."
+      },
+      "expected": {
+        "final_answer": "## Overview\nSynthesis of 5 parts covering key Science ideas."
+      },
+      "actual": {
+        "formulas": {
+          "Science": "No specific formulas provided.",
+          "Physics": {
+            "Newton's Second Law": "F = ma",
+            "Kinetic Energy": "KE = 1/2 mv^2",
+            "Potential Energy": "PE = mgh"
+          },
+          "Chemistry": {
+            "Ideal Gas Law": "PV = nRT",
+            "Molarity": "M = m/V",
+            "Concentration": "C = n/V"
+          },
+          "Biology": "No specific formulas provided.",
+          "Mathematics": {
+            "Area of Circle": "A = \u03c0r^2",
+            "Pythagorean Theorem": "a^2 + b^2 = c^2",
+            "Quadratic Formula": "x = (-b \u00b1 \u221a(b^2 - 4ac)) / 2a"
+          }
+        }
+      }
+    }
+  ]
+}

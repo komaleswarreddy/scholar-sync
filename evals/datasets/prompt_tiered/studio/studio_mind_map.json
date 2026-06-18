@@ -1,0 +1,309 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "studio_mind_map",
+  "agent": {
+    "sno": 13,
+    "category": "Studio",
+    "name": "Studio Mind Map Generator",
+    "tier": "tier_2",
+    "target_examples": 15,
+    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\n{# Mind map: hub-and-spoke; multi-source = one integrated synthesis. selected_source_count from service. #}\n\nYou are an **expert in visual knowledge mapping** and **instructional design**. Produce a **mind map as Markdown**: **one central hub** with **branches** that show how ideas **connect to the whole**.\n\n**Selected source count for this request:** **{{ selected_source_count }}** document(s). Retrieval pulled chunks **only** from these selected IDs (no other uploads).\n\n---\n\n## Non-negotiable scope (evidence only)\n\n1. **Use ONLY the “Source content” excerpt below.**  \n2. **Do not** import facts from outside that excerpt (no other notebooks, no generic textbook filler).  \n3. If something is **not** in the excerpt, **omit** it—do not invent.  \n{% if selected_source_count | int > 1 %}\n4. **Multi-source synthesis (required):** The excerpt may combine passages from **{{ selected_source_count }}** different documents. You must **analyze them together**, not as if only one document existed.  \n   - Choose **one** central `#` theme that **bridges** the materials when possible—an **overarching idea**, **shared pattern**, or **meaningful contrast** that still **grounds every branch in the excerpt** (e.g. two domains might meet under a hub like “Human response and regulation” if both biological control and interpersonal behavior appear in the text).  \n   - Use **`##` major branches** to organize **by theme or by source-domain**, but **always** tie them back to the hub so the map feels **integrated**, not two disconnected mini-maps.  \n   - **Explicitly surface** where useful: **overlapping concepts**, **parallel structures**, or **contrasts** between the texts—**only** if the excerpt supports them.  \n   - **Forbidden:** Building the entire map from **one** source’s content while **ignoring** the other(s) when the excerpt clearly contains both. Spread attention across **all** represented sources unless one source dominates the excerpt length—in that case still name the secondary source’s ideas in at least one substantial `##` or `###` branch when they appear.  \n{% else %}\n4. **Single source:** The hub and branches should reflect **that one** document’s central theme, arguments, and structure.  \n{% endif %}\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\n### Retrieval intent (alignment only — not labels to copy)\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\n### Source content (selected sources only)\n{{ context }}\n{% else %}\n### Source content\nNo excerpt retrieved. Output a minimal map: `# Insufficient source text` plus `##` branches noting missing indexing/selection—**no** fabricated topic.\n{% endif %}\n\n---\n\n## Structure (Markdown)\n\n- **Exactly one** `# …` = **central hub** (short, specific—**synthetic** when multiple sources, not “Source A and B”).  \n- **`## …`** = major branches (themes, domains, or comparison arms) **linked to the hub**.  \n- **`### …`** and **`-`** = sub-concepts, mechanisms, examples **from the excerpt**.  \n- Headings **2–8 words** where possible; bullets scannable.\n\nPlan **internally**; output **only** the Markdown tree.\n\n---\n\n## Anti-patterns\n\n- More than one `#` hub.  \n- **Multi-source:** two unrelated silos with no hub relationship.  \n- **Multi-source:** map dominated by one document when the excerpt clearly includes **both**.  \n- Vague nodes (“Key ideas”) without **concrete** wording from the text.  \n- External knowledge not in the excerpt.\n\n{% if custom_instructions %}\n### Additional user instructions\n{{ custom_instructions }}\n{% endif %}\n\n**Output:** Markdown only — no code fences, no preamble."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "context",
+      "selected_source_count"
+    ],
+    "output_keys": [
+      "mind_map_markdown"
+    ]
+  },
+  "items": [
+    {
+      "id": "studio_mind_map-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "current_electricity"
+      ],
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Current Electricity\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "human_digestion"
+      ],
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Human Digestion\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "photosynthesis"
+      ],
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Photosynthesis\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "chemical_bonding"
+      ],
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Chemical Bonding\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "magnetic_effects"
+      ],
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Magnetic Effects\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-006",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "cell_structure"
+      ],
+      "inputs": {
+        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Cell Structure\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-007",
+      "variation": "neet",
+      "tags": [
+        "cbse",
+        "quadratic_equations"
+      ],
+      "inputs": {
+        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Quadratic Equations\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-008",
+      "variation": "jee",
+      "tags": [
+        "cbse",
+        "human_reproduction"
+      ],
+      "inputs": {
+        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Human Reproduction\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-009",
+      "variation": "security",
+      "tags": [
+        "cbse",
+        "thermodynamics"
+      ],
+      "inputs": {
+        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Thermodynamics\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-010",
+      "variation": "follow_up",
+      "tags": [
+        "cbse",
+        "coordination_compounds"
+      ],
+      "inputs": {
+        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Coordination Compounds\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-011",
+      "variation": "comparison",
+      "tags": [
+        "cbse",
+        "ray_optics"
+      ],
+      "inputs": {
+        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Ray Optics\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-012",
+      "variation": "metadata",
+      "tags": [
+        "cbse",
+        "ecology"
+      ],
+      "inputs": {
+        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Ecology\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-013",
+      "variation": "ncert_strict",
+      "tags": [
+        "cbse",
+        "probability"
+      ],
+      "inputs": {
+        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Probability\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-014",
+      "variation": "handwritten",
+      "tags": [
+        "cbse",
+        "organic_chemistry"
+      ],
+      "inputs": {
+        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Organic Chemistry\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    },
+    {
+      "id": "studio_mind_map-015",
+      "variation": "low_quality_scan",
+      "tags": [
+        "cbse",
+        "motion_in_plane"
+      ],
+      "inputs": {
+        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Motion in Plane\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+      },
+      "evaluators": [
+        "markdown_hub_spoke",
+        "llm_judge"
+      ]
+    }
+  ]
+}

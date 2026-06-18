@@ -45,10 +45,11 @@ class IntentGate:
         self.academic_patterns = [
             r'\b(study|studying|learn|learning|teach|teaching|education|educational)\b',
             r'\b(homework|assignment|project|essay|paper|research)\b',
-            r'\b(explain|define|what\s+is|how\s+does|why\s+does)\b',
+            r'\b(explain|define|what\s+is|what\s+are|what\s+role|how\s+does|why\s+does)\b',
             r'\b(subject|course|class|lesson|chapter|textbook)\b',
             r'\b(math|science|history|literature|english|biology|chemistry|physics)\b',
             r'\b(question|problem|solution|answer|help\s+with|understand)\b',
+            r'\b(photosynthesis|calvin|chlorophyll|mitochondria|reactant|equation)\b',
         ]
         
         # Non-academic patterns (to detect and block)
@@ -58,7 +59,7 @@ class IntentGate:
                 r'\b(relationship|dating|friend|family)\b',
             ],
             IntentCategory.ENTERTAINMENT: [
-                r'\b(game|gaming|play|fun|entertainment|movie|music|song)\b',
+                r'\b(game|gaming|video\s+game|fun|entertainment|movie|music|song)\b',
                 r'\b(joke|funny|meme|comedy)\b',
             ],
             IntentCategory.INAPPROPRIATE: [

@@ -1,0 +1,1402 @@
+{
+  "agent_name": "problem_dna_analyzer",
+  "generated_at": "2026-06-18T03:37:21.675498+00:00",
+  "dataset_id": "problem_dna_analyzer",
+  "dataset_hash": "72474358032d7074",
+  "threshold": 95.0,
+  "live": true,
+  "eval_batch_id": "20260618T025756Z",
+  "rows": [
+    {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 20.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.000913,
+      "input_cost_usd": 0.000298,
+      "output_cost_usd": 0.000615,
+      "prompt_tokens": 1988,
+      "completion_tokens": 1025,
+      "latency_ms": 11378.18,
+      "passed": false,
+      "metrics": {
+        "intent_accuracy": 0.0,
+        "schema_validity": 0.0,
+        "board_accuracy": 0.0,
+        "subject_accuracy": 0.0,
+        "topic_accuracy": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "score": 20.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.000943,
+      "input_cost_usd": 0.000353,
+      "output_cost_usd": 0.00059,
+      "prompt_tokens": 2353,
+      "completion_tokens": 983,
+      "latency_ms": 11283.03,
+      "passed": false,
+      "metrics": {
+        "intent_accuracy": 0.0,
+        "schema_validity": 0.0,
+        "board_accuracy": 0.0,
+        "subject_accuracy": 0.0,
+        "topic_accuracy": 1.0
+      }
+    },
+    {
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "score": 20.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.016563,
+      "input_cost_usd": 0.005883,
+      "output_cost_usd": 0.01068,
+      "prompt_tokens": 2353,
+      "completion_tokens": 1068,
+      "latency_ms": 11154.9,
+      "passed": false,
+      "metrics": {
+        "intent_accuracy": 0.0,
+        "schema_validity": 0.0,
+        "board_accuracy": 0.0,
+        "subject_accuracy": 0.0,
+        "topic_accuracy": 1.0
+      }
+    },
+    {
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "score": 20.0,
+      "pass_rate": 0.0,
+      "cost_usd": 0.01679,
+      "input_cost_usd": 0.00497,
+      "output_cost_usd": 0.01182,
+      "prompt_tokens": 1988,
+      "completion_tokens": 1182,
+      "latency_ms": 10893.4,
+      "passed": false,
+      "metrics": {
+        "intent_accuracy": 0.0,
+        "schema_validity": 0.0,
+        "board_accuracy": 0.0,
+        "subject_accuracy": 0.0,
+        "topic_accuracy": 1.0
+      }
+    }
+  ],
+  "winner": {
+    "selected": false,
+    "reason": "no_config_above_threshold",
+    "best_effort": {
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "score": 20.0,
+      "cost_usd": 0.000913,
+      "input_cost_usd": 0.000298,
+      "output_cost_usd": 0.000615
+    }
+  },
+  "langsmith_project": "notebooklm-dev",
+  "langsmith_example_runs": 20,
+  "evaluator": "router",
+  "example_results": [
+    {
+      "example_id": "problem_dna_analyzer-001",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Light - Reflection and Refraction",
+          "conceptTags": [
+            "microscope",
+            "magnifying power",
+            "lenses",
+            "optics"
+          ],
+          "difficulty": "Medium",
+          "expectedTimeMinutes": 8,
+          "questionType": "Numerical",
+          "examSkill": "Apply lens formula and microscope magnifying power relation",
+          "confidence": 0.91,
+          "problem_dna_summary": "Compound microscope optics problem asking magnifying power from focal lengths and tube length.",
+          "expert_solution_internal": {
+            "final_answer": "Magnifying power \u2248 8 (depends on near point assumption; verify with standard formula)",
+            "key_steps": [
+              "Identify objective and eyepiece focal lengths",
+              "Use standard microscope magnifying power relation with tube length",
+              "Substitute f_o = 2 cm, f_e = 6 cm, L = 16 cm"
+            ],
+            "method_name": "Microscope magnifying power formula"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Optics",
+        "conceptTags": [
+          "magnifying power",
+          "lenses",
+          "microscope"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 15,
+        "questionType": "Numerical",
+        "examSkill": "Application of formulas",
+        "confidence": 0.8,
+        "problem_dna_summary": "The problem involves calculating the magnifying power of a microscope using the focal lengths of the objective and eyepiece lenses and their separation distance.",
+        "expert_solution_internal": {
+          "final_answer": "6",
+          "key_steps": [
+            "Calculate the magnification of the objective lens using its focal length and the distance to the eyepiece.",
+            "Calculate the magnification of the eyepiece lens.",
+            "Multiply the magnifications of both lenses to find the total magnifying power."
+          ],
+          "method_name": "Magnifying Power Calculation"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-002",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "class_num": 11,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 2",
+          "conceptTags": [
+            "jee",
+            "mathematics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Mathematics",
+        "chapter": "Integration",
+        "conceptTags": [
+          "Definite Integral",
+          "Polynomial Functions",
+          "Area under Curve"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 10,
+        "questionType": "Numerical",
+        "examSkill": "Integration Techniques",
+        "confidence": 0.9,
+        "problem_dna_summary": "The problem involves calculating the definite integral of a polynomial function from 0 to 2.",
+        "expert_solution_internal": {
+          "final_answer": "8",
+          "key_steps": [
+            "Find the antiderivative of the function 3x\u00b2 + 2x.",
+            "Evaluate the antiderivative at the upper limit (2) and lower limit (0).",
+            "Subtract the lower limit evaluation from the upper limit evaluation."
+          ],
+          "method_name": "Definite Integration"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-003",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "class_num": 12,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Life Processes",
+          "conceptTags": [
+            "digestive enzymes",
+            "stomach pH",
+            "pepsin"
+          ],
+          "difficulty": "Easy",
+          "expectedTimeMinutes": 1,
+          "questionType": "MCQ",
+          "examSkill": "Recall enzyme location and pH",
+          "confidence": 0.95,
+          "problem_dna_summary": "NEET-style MCQ on gastric enzyme active in acidic stomach pH.",
+          "expert_solution_internal": {
+            "final_answer": "Pepsin (B)",
+            "key_steps": [
+              "Stomach secretes HCl \u2192 acidic pH",
+              "Pepsin is active in acidic medium"
+            ],
+            "method_name": "NCERT digestion enzyme recall"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Biology",
+        "chapter": "Digestive System",
+        "conceptTags": [
+          "Enzymes",
+          "pH Levels",
+          "Digestion"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 2,
+        "questionType": "MCQ",
+        "examSkill": "Knowledge Recall",
+        "confidence": 0.9,
+        "problem_dna_summary": "The question asks which enzyme functions optimally in the acidic environment of the stomach.",
+        "expert_solution_internal": {
+          "final_answer": "Pepsin",
+          "key_steps": [
+            "Identify the enzymes listed in the options.",
+            "Recall the pH levels at which each enzyme operates best.",
+            "Determine which enzyme is active in the stomach's acidic pH."
+          ],
+          "method_name": "Enzyme Activity Analysis"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-004",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 4",
+          "conceptTags": [
+            "multi_part",
+            "physics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on multi_part; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Optics",
+        "conceptTags": [
+          "Refraction",
+          "Lens Formula",
+          "Convex Lens"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 30,
+        "questionType": "Proof",
+        "examSkill": "Derivation",
+        "confidence": 0.8,
+        "problem_dna_summary": "The problem involves deriving the lens formula for a thin convex lens using the principles of refraction at two spherical surfaces.",
+        "expert_solution_internal": {
+          "final_answer": "1/f = (n-1)(1/R1 - 1/R2)",
+          "key_steps": [
+            "Define the geometry of the lens and the incident rays.",
+            "Apply Snell's law at the first surface to find the relationship between angles and refractive indices.",
+            "Repeat the process for the second surface.",
+            "Combine the equations to derive the lens formula."
+          ],
+          "method_name": "Refraction at Spherical Surfaces"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-005",
+      "prompt": "v1",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r\u00b2; electric field E = F/q.",
+        "class_num": 11,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 5",
+          "conceptTags": [
+            "cbse",
+            "physics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Current Electricity",
+        "conceptTags": [
+          "Ohm's Law",
+          "Series Circuits",
+          "Voltage",
+          "Current"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 10,
+        "questionType": "Numerical",
+        "examSkill": "Application of Ohm's Law",
+        "confidence": 0.9,
+        "problem_dna_summary": "The problem involves calculating the current and voltage across resistors in a series circuit connected to a battery.",
+        "expert_solution_internal": {
+          "final_answer": "Current: 2 A; Voltage across 3 \u03a9: 6 V; Voltage across 6 \u03a9: 12 V",
+          "key_steps": [
+            "Calculate total resistance in series: R_total = R1 + R2",
+            "Use Ohm's Law to find current: I = V / R_total",
+            "Calculate voltage across each resistor using V = I * R"
+          ],
+          "method_name": "Ohm's Law and Series Circuit Analysis"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-001",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Light - Reflection and Refraction",
+          "conceptTags": [
+            "microscope",
+            "magnifying power",
+            "lenses",
+            "optics"
+          ],
+          "difficulty": "Medium",
+          "expectedTimeMinutes": 8,
+          "questionType": "Numerical",
+          "examSkill": "Apply lens formula and microscope magnifying power relation",
+          "confidence": 0.91,
+          "problem_dna_summary": "Compound microscope optics problem asking magnifying power from focal lengths and tube length.",
+          "expert_solution_internal": {
+            "final_answer": "Magnifying power \u2248 8 (depends on near point assumption; verify with standard formula)",
+            "key_steps": [
+              "Identify objective and eyepiece focal lengths",
+              "Use standard microscope magnifying power relation with tube length",
+              "Substitute f_o = 2 cm, f_e = 6 cm, L = 16 cm"
+            ],
+            "method_name": "Microscope magnifying power formula"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Chapter 10: Light - Reflection and Refraction",
+        "conceptTags": [
+          "Optics",
+          "Magnifying Power",
+          "Microscope"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 10,
+        "questionType": "Numerical",
+        "examSkill": "Application",
+        "confidence": 0.95,
+        "problem_dna_summary": "Calculate the magnifying power of a microscope given the focal lengths of the objective and eyepiece and the separation between them.",
+        "expert_solution_internal": {
+          "final_answer": "5",
+          "key_steps": [
+            "Use the formula for magnifying power of a compound microscope: M = (L/f_o) * (1 + D/f_e).",
+            "Substitute the given values: L = 16 cm, f_o = 2 cm, f_e = 6 cm, and D = 25 cm (least distance of distinct vision).",
+            "Calculate the magnifying power using the formula."
+          ],
+          "method_name": "Compound Microscope Magnification Calculation"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-002",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "class_num": 11,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 2",
+          "conceptTags": [
+            "jee",
+            "mathematics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Mathematics",
+        "chapter": "Integrals",
+        "conceptTags": [
+          "Definite Integral",
+          "Polynomial Integration"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 5,
+        "questionType": "Numerical",
+        "examSkill": "Integration Techniques",
+        "confidence": 0.95,
+        "problem_dna_summary": "Calculate the definite integral of a polynomial function from 0 to 2.",
+        "expert_solution_internal": {
+          "final_answer": "20/3",
+          "key_steps": [
+            "Identify the function to integrate: 3x\u00b2 + 2x.",
+            "Find the indefinite integral: \u222b(3x\u00b2 + 2x)dx = x\u00b3 + x\u00b2 + C.",
+            "Evaluate the definite integral from 0 to 2: [(2\u00b3 + 2\u00b2) - (0\u00b3 + 0\u00b2)].",
+            "Calculate the result: 8 + 4 = 12."
+          ],
+          "method_name": "Definite Integration"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-003",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "class_num": 12,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Life Processes",
+          "conceptTags": [
+            "digestive enzymes",
+            "stomach pH",
+            "pepsin"
+          ],
+          "difficulty": "Easy",
+          "expectedTimeMinutes": 1,
+          "questionType": "MCQ",
+          "examSkill": "Recall enzyme location and pH",
+          "confidence": 0.95,
+          "problem_dna_summary": "NEET-style MCQ on gastric enzyme active in acidic stomach pH.",
+          "expert_solution_internal": {
+            "final_answer": "Pepsin (B)",
+            "key_steps": [
+              "Stomach secretes HCl \u2192 acidic pH",
+              "Pepsin is active in acidic medium"
+            ],
+            "method_name": "NCERT digestion enzyme recall"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Biology",
+        "chapter": "Human Physiology",
+        "conceptTags": [
+          "Enzymes",
+          "Digestive System",
+          "Stomach",
+          "Acidic pH"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 2,
+        "questionType": "MCQ",
+        "examSkill": "Knowledge Recall",
+        "confidence": 0.95,
+        "problem_dna_summary": "Identify the enzyme that functions in the acidic environment of the stomach.",
+        "expert_solution_internal": {
+          "final_answer": "Pepsin",
+          "key_steps": [
+            "Understand that the stomach has an acidic environment.",
+            "Recall that pepsin is an enzyme that operates in acidic conditions.",
+            "Identify pepsin as the enzyme that acts in the stomach's acidic pH."
+          ],
+          "method_name": "Enzyme Identification in Digestive System"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-004",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 4",
+          "conceptTags": [
+            "multi_part",
+            "physics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on multi_part; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Light - Reflection and Refraction",
+        "conceptTags": [
+          "lens formula",
+          "convex lens",
+          "refraction",
+          "spherical surfaces"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 30,
+        "questionType": "Proof",
+        "examSkill": "Derivation",
+        "confidence": 0.9,
+        "problem_dna_summary": "Derive the lens formula for a thin convex lens using refraction at two spherical surfaces.",
+        "expert_solution_internal": {
+          "final_answer": "1/f = 1/v - 1/u",
+          "key_steps": [
+            "Consider refraction at the first spherical surface using the lens maker's formula.",
+            "Apply the refraction formula at the second spherical surface.",
+            "Combine the equations from both surfaces to derive the lens formula.",
+            "Simplify the expression to obtain the standard lens formula."
+          ],
+          "method_name": "Derivation using refraction at spherical surfaces"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-005",
+      "prompt": "v1",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r\u00b2; electric field E = F/q.",
+        "class_num": 11,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 5",
+          "conceptTags": [
+            "cbse",
+            "physics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Electricity",
+        "conceptTags": [
+          "Ohm's Law",
+          "Series Circuits",
+          "Current",
+          "Voltage"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 5,
+        "questionType": "Numerical",
+        "examSkill": "Application",
+        "confidence": 0.95,
+        "problem_dna_summary": "Calculate the current and voltage across each resistor in a series circuit with a 12 V battery and resistors of 3 \u03a9 and 6 \u03a9.",
+        "expert_solution_internal": {
+          "final_answer": "Current: 1 A, Voltage across 3 \u03a9: 3 V, Voltage across 6 \u03a9: 6 V",
+          "key_steps": [
+            "Calculate total resistance in series: R_total = 3 \u03a9 + 6 \u03a9 = 9 \u03a9",
+            "Use Ohm's Law to find current: I = V / R_total = 12 V / 9 \u03a9 = 1 A",
+            "Calculate voltage across 3 \u03a9 resistor: V_3\u03a9 = I * 3 \u03a9 = 1 A * 3 \u03a9 = 3 V",
+            "Calculate voltage across 6 \u03a9 resistor: V_6\u03a9 = I * 6 \u03a9 = 1 A * 6 \u03a9 = 6 V"
+          ],
+          "method_name": "Ohm's Law and Series Circuit Analysis"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-001",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "numerical",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Light - Reflection and Refraction",
+          "conceptTags": [
+            "microscope",
+            "magnifying power",
+            "lenses",
+            "optics"
+          ],
+          "difficulty": "Medium",
+          "expectedTimeMinutes": 8,
+          "questionType": "Numerical",
+          "examSkill": "Apply lens formula and microscope magnifying power relation",
+          "confidence": 0.91,
+          "problem_dna_summary": "Compound microscope optics problem asking magnifying power from focal lengths and tube length.",
+          "expert_solution_internal": {
+            "final_answer": "Magnifying power \u2248 8 (depends on near point assumption; verify with standard formula)",
+            "key_steps": [
+              "Identify objective and eyepiece focal lengths",
+              "Use standard microscope magnifying power relation with tube length",
+              "Substitute f_o = 2 cm, f_e = 6 cm, L = 16 cm"
+            ],
+            "method_name": "Microscope magnifying power formula"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Optics",
+        "conceptTags": [
+          "Magnification",
+          "Lenses",
+          "Microscope"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 15,
+        "questionType": "Numerical",
+        "examSkill": "Application of formulas",
+        "confidence": 0.9,
+        "problem_dna_summary": "The problem involves calculating the magnifying power of a microscope using the focal lengths of the objective and eyepiece lenses.",
+        "expert_solution_internal": {
+          "final_answer": "6",
+          "key_steps": [
+            "Calculate the magnification of the objective lens using its focal length.",
+            "Calculate the magnification of the eyepiece lens using its focal length.",
+            "Combine the magnifications to find the total magnifying power."
+          ],
+          "method_name": "Magnifying Power Calculation"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-002",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "jee",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "class_num": 11,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 2",
+          "conceptTags": [
+            "jee",
+            "mathematics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Mathematics",
+        "chapter": "Integration",
+        "conceptTags": [
+          "Definite Integral",
+          "Polynomial Functions",
+          "Area under Curve"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 10,
+        "questionType": "Numerical",
+        "examSkill": "Application of Integration",
+        "confidence": 0.9,
+        "problem_dna_summary": "The problem requires evaluating the definite integral of a polynomial function from 0 to 2.",
+        "expert_solution_internal": {
+          "final_answer": "8",
+          "key_steps": [
+            "Find the antiderivative of 3x\u00b2 + 2x.",
+            "Evaluate the antiderivative at the upper limit (2) and lower limit (0).",
+            "Subtract the lower limit evaluation from the upper limit evaluation."
+          ],
+          "method_name": "Definite Integration"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-003",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "neet",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "class_num": 12,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Life Processes",
+          "conceptTags": [
+            "digestive enzymes",
+            "stomach pH",
+            "pepsin"
+          ],
+          "difficulty": "Easy",
+          "expectedTimeMinutes": 1,
+          "questionType": "MCQ",
+          "examSkill": "Recall enzyme location and pH",
+          "confidence": 0.95,
+          "problem_dna_summary": "NEET-style MCQ on gastric enzyme active in acidic stomach pH.",
+          "expert_solution_internal": {
+            "final_answer": "Pepsin (B)",
+            "key_steps": [
+              "Stomach secretes HCl \u2192 acidic pH",
+              "Pepsin is active in acidic medium"
+            ],
+            "method_name": "NCERT digestion enzyme recall"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Biology",
+        "chapter": "Digestive System",
+        "conceptTags": [
+          "Enzymes",
+          "pH Levels",
+          "Digestion"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 2,
+        "questionType": "MCQ",
+        "examSkill": "Knowledge Recall",
+        "confidence": 0.9,
+        "problem_dna_summary": "The question asks which enzyme functions optimally in the acidic environment of the stomach.",
+        "expert_solution_internal": {
+          "final_answer": "Pepsin",
+          "key_steps": [
+            "Identify enzymes listed in the options.",
+            "Recall the pH levels of the stomach.",
+            "Determine which enzyme is active in acidic conditions."
+          ],
+          "method_name": "Enzyme Activity Analysis"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-004",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "multi_part",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 4",
+          "conceptTags": [
+            "multi_part",
+            "physics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on multi_part; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Optics",
+        "conceptTags": [
+          "Refraction",
+          "Lens Formula",
+          "Convex Lens"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 30,
+        "questionType": "Proof",
+        "examSkill": "Derivation",
+        "confidence": 0.8,
+        "problem_dna_summary": "Derive the lens formula for a thin convex lens using the principles of refraction at its two spherical surfaces.",
+        "expert_solution_internal": {
+          "final_answer": "1/f = (n2/n1) * (1/R1 - 1/R2)",
+          "key_steps": [
+            "Apply Snell's law at the first surface.",
+            "Apply Snell's law at the second surface.",
+            "Combine the equations to derive the lens formula."
+          ],
+          "method_name": "Refraction at Spherical Surfaces"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-005",
+      "prompt": "v2",
+      "model": "gpt-4o-mini",
+      "variation": "cbse",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r\u00b2; electric field E = F/q.",
+        "class_num": 11,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 5",
+          "conceptTags": [
+            "cbse",
+            "physics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Current Electricity",
+        "conceptTags": [
+          "Ohm's Law",
+          "Series Circuits",
+          "Voltage",
+          "Current"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 10,
+        "questionType": "Numerical",
+        "examSkill": "Application of Ohm's Law",
+        "confidence": 0.9,
+        "problem_dna_summary": "The problem involves calculating the current and voltage across resistors in a series circuit connected to a battery.",
+        "expert_solution_internal": {
+          "final_answer": "Current: 2 A; Voltage across 3 \u03a9: 6 V; Voltage across 6 \u03a9: 12 V",
+          "key_steps": [
+            "Calculate total resistance: R_total = R1 + R2",
+            "Use Ohm's Law to find current: I = V / R_total",
+            "Calculate voltage across each resistor: V = I * R"
+          ],
+          "method_name": "Ohm's Law and Series Circuit Analysis"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-001",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "numerical",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = \u03c1L/A.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Light - Reflection and Refraction",
+          "conceptTags": [
+            "microscope",
+            "magnifying power",
+            "lenses",
+            "optics"
+          ],
+          "difficulty": "Medium",
+          "expectedTimeMinutes": 8,
+          "questionType": "Numerical",
+          "examSkill": "Apply lens formula and microscope magnifying power relation",
+          "confidence": 0.91,
+          "problem_dna_summary": "Compound microscope optics problem asking magnifying power from focal lengths and tube length.",
+          "expert_solution_internal": {
+            "final_answer": "Magnifying power \u2248 8 (depends on near point assumption; verify with standard formula)",
+            "key_steps": [
+              "Identify objective and eyepiece focal lengths",
+              "Use standard microscope magnifying power relation with tube length",
+              "Substitute f_o = 2 cm, f_e = 6 cm, L = 16 cm"
+            ],
+            "method_name": "Microscope magnifying power formula"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Light - Reflection and Refraction",
+        "conceptTags": [
+          "Magnifying Power",
+          "Microscope",
+          "Optics"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 10,
+        "questionType": "Numerical",
+        "examSkill": "Application",
+        "confidence": 0.95,
+        "problem_dna_summary": "Calculate the magnifying power of a microscope with given focal lengths and lens separation.",
+        "expert_solution_internal": {
+          "final_answer": "5",
+          "key_steps": [
+            "Use the formula for magnifying power of a compound microscope: M = (L/f_o) * (1 + D/f_e).",
+            "Substitute given values: L = 16 cm, f_o = 2 cm, f_e = 6 cm, D = 25 cm (standard near point).",
+            "Calculate M = (16/2) * (1 + 25/6)."
+          ],
+          "method_name": "Compound Microscope Magnification Formula"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-002",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "jee",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Find \u222b(3x\u00b2+2x)dx from 0 to 2.",
+        "ncert_context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
+        "class_num": 11,
+        "subject_labels": [
+          "Mathematics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Mathematics",
+          "chapter": "Chapter 2",
+          "conceptTags": [
+            "jee",
+            "mathematics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Mathematics problem on jee; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Mathematics",
+        "chapter": "Integrals",
+        "conceptTags": [
+          "Definite Integral",
+          "Polynomial Integration"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 5,
+        "questionType": "Numerical",
+        "examSkill": "Integration Techniques",
+        "confidence": 0.95,
+        "problem_dna_summary": "Calculate the definite integral of a polynomial function from 0 to 2.",
+        "expert_solution_internal": {
+          "final_answer": "20/3",
+          "key_steps": [
+            "Identify the function to integrate: 3x\u00b2 + 2x.",
+            "Find the indefinite integral: x\u00b3 + x\u00b2 + C.",
+            "Evaluate the definite integral from 0 to 2.",
+            "Subtract the lower limit evaluation from the upper limit evaluation."
+          ],
+          "method_name": "Definite Integration"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-003",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "neet",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
+        "class_num": 12,
+        "subject_labels": [
+          "Biology"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Biology",
+          "chapter": "Life Processes",
+          "conceptTags": [
+            "digestive enzymes",
+            "stomach pH",
+            "pepsin"
+          ],
+          "difficulty": "Easy",
+          "expectedTimeMinutes": 1,
+          "questionType": "MCQ",
+          "examSkill": "Recall enzyme location and pH",
+          "confidence": 0.95,
+          "problem_dna_summary": "NEET-style MCQ on gastric enzyme active in acidic stomach pH.",
+          "expert_solution_internal": {
+            "final_answer": "Pepsin (B)",
+            "key_steps": [
+              "Stomach secretes HCl \u2192 acidic pH",
+              "Pepsin is active in acidic medium"
+            ],
+            "method_name": "NCERT digestion enzyme recall"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Biology",
+        "chapter": "Human Physiology",
+        "conceptTags": [
+          "Enzymes",
+          "Digestive System",
+          "Stomach"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 1,
+        "questionType": "MCQ",
+        "examSkill": "Knowledge Recall",
+        "confidence": 0.95,
+        "problem_dna_summary": "Identify the enzyme that functions in the acidic environment of the stomach.",
+        "expert_solution_internal": {
+          "final_answer": "Pepsin",
+          "key_steps": [
+            "Identify enzymes listed in options.",
+            "Recall that pepsin is active in acidic conditions of the stomach."
+          ],
+          "method_name": "Enzyme Function Identification"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-004",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "multi_part",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
+        "ncert_context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
+        "class_num": 10,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 4",
+          "conceptTags": [
+            "multi_part",
+            "physics"
+          ],
+          "difficulty": "Easy",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on multi_part; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Light - Reflection and Refraction",
+        "conceptTags": [
+          "lens formula",
+          "convex lens",
+          "refraction",
+          "spherical surfaces"
+        ],
+        "difficulty": "Medium",
+        "expectedTimeMinutes": 20,
+        "questionType": "Proof",
+        "examSkill": "Derivation",
+        "confidence": 0.95,
+        "problem_dna_summary": "Derive the lens formula for a thin convex lens using refraction at two spherical surfaces.",
+        "expert_solution_internal": {
+          "final_answer": "1/f = 1/v - 1/u",
+          "key_steps": [
+            "Consider refraction at the first spherical surface using the lens maker's formula.",
+            "Apply refraction at the second spherical surface.",
+            "Combine the equations to derive the lens formula."
+          ],
+          "method_name": "Derivation using refraction at spherical surfaces"
+        }
+      }
+    },
+    {
+      "example_id": "problem_dna_analyzer-005",
+      "prompt": "v2",
+      "model": "gpt-4o",
+      "variation": "cbse",
+      "score": 20.0,
+      "passed": false,
+      "inputs": {
+        "problem_text_normalized": "A 12 V battery connected to 3 \u03a9 and 6 \u03a9 in series. Find current and voltage across each.",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Coulomb's law F = kq1q2/r\u00b2; electric field E = F/q.",
+        "class_num": 11,
+        "subject_labels": [
+          "Physics"
+        ]
+      },
+      "expected": {
+        "dna_json": {
+          "subject": "Physics",
+          "chapter": "Chapter 5",
+          "conceptTags": [
+            "cbse",
+            "physics"
+          ],
+          "difficulty": "Medium",
+          "questionType": "Conceptual",
+          "confidence": 0.85,
+          "problem_dna_summary": "Physics problem on cbse; classify chapter and method without leaking final answer in summary.",
+          "expert_solution_internal": {
+            "final_answer": "LLM-judge: numerically or conceptually correct per problem statement",
+            "key_steps": [
+              "Identify givens",
+              "Select NCERT-appropriate method",
+              "Solve with units"
+            ],
+            "method_name": "standard"
+          }
+        }
+      },
+      "actual": {
+        "subject": "Physics",
+        "chapter": "Electricity",
+        "conceptTags": [
+          "Ohm's Law",
+          "Series Circuits",
+          "Current",
+          "Voltage"
+        ],
+        "difficulty": "Easy",
+        "expectedTimeMinutes": 5,
+        "questionType": "Numerical",
+        "examSkill": "Application",
+        "confidence": 0.95,
+        "problem_dna_summary": "Calculate current and voltage across resistors in a series circuit with a 12 V battery.",
+        "expert_solution_internal": {
+          "final_answer": "Current: 1 A, Voltage across 3 \u03a9: 3 V, Voltage across 6 \u03a9: 6 V",
+          "key_steps": [
+            "Calculate total resistance: R_total = 3 \u03a9 + 6 \u03a9 = 9 \u03a9",
+            "Use Ohm's Law to find current: I = V/R_total = 12 V / 9 \u03a9 = 1 A",
+            "Calculate voltage across 3 \u03a9: V = I * 3 \u03a9 = 1 A * 3 \u03a9 = 3 V",
+            "Calculate voltage across 6 \u03a9: V = I * 6 \u03a9 = 1 A * 6 \u03a9 = 6 V"
+          ],
+          "method_name": "Ohm's Law and Series Circuit Analysis"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "prf_report_v1",
+  "generated_at_utc": "2026-06-13T05:51:42.005528+00:00",
+  "test_ids": [
+    "PRF-01",
+    "PRF-02"
+  ],
+  "status": "XFAIL",
+  "metrics": {
+    "percentiles": true,
+    "ttft_ms": {
+      "p50": 51961.32529999886,
+      "p95": 82742.7153000026,
+      "p99": 82742.7153000026,
+      "n": 5,
+      "mean": 59112.620840000454
+    },
+    "e2e_ms": {
+      "p50": 51964.59400000458,
+      "p95": 82745.94030001026,
+      "p99": 82745.94030001026,
+      "n": 5,
+      "mean": 59115.50436000398
+    },
+    "cold_start": {
+      "ttft_ms": {
+        "p50": 78118.77760000061,
+        "p95": 87799.6020999999,
+        "p99": 87799.6020999999,
+        "n": 3,
+        "mean": 80383.41326666705
+      },
+      "e2e_ms": {
+        "p50": 78122.8390999895,
+        "p95": 87802.46140000236,
+        "p99": 87802.46140000236,
+        "n": 3,
+        "mean": 80386.78199999656
+      }
+    },
+    "error_rate": 0.0,
+    "errors": 0,
+    "total_cost_usd": 0,
+    "concurrency": 5,
+    "thresholds": {
+      "ttft_p95_ms": 5000.0,
+      "e2e_p95_ms": 15000.0
+    },
+    "mode": "smoke"
+  },
+  "environment": {
+    "timestamp_utc": "2026-06-13T05:51:41.537120+00:00",
+    "hostname": "KOmal",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "cpu_count": 4,
+    "python_version": "3.12.10",
+    "base_url": "http://127.0.0.1:8000",
+    "database_host": "",
+    "gate_classroom_short": "",
+    "prf_attest_no_restart": "1",
+    "notes": ""
+  },
+  "failure_tags": [
+    "latency"
+  ],
+  "notes": "",
+  "duration_s": 129.97782683372498,
+  "sample_size": 5,
+  "guardrails": {
+    "no_pre_test_restart_attested": true,
+    "reports_tail_latency": true,
+    "cold_start_reported_separately": true
+  }
+}

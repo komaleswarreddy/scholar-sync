@@ -15,10 +15,13 @@ import time
 from typing import Any, Dict, List, Optional
 
 from config.settings import settings
+from packages.core.config.model_registry import get_model, get_prompt_version
 from packages.core.llm import get_llm_client, get_model_for_task
 from packages.core.llm._base import LLMProvider
 from packages.core.monitoring.metrics import get_metrics_collector
+from packages.core.observability.langsmith import trace_agent_run
 from packages.core.prompts import load_prompt
+from packages.core.prompts.versioned_loader import load_agent_system_user
 from packages.core.rag.agents.conversation_context import format_conversation_transcript
 
 # LLM-only: slightly higher token budget for calibrated confidence + short rationale.
@@ -144,8 +147,13 @@ class IntentClassifier:
             }
 
         t0 = time.perf_counter()
-        provider, model = get_model_for_task("intent_classifier")
+        agent_id = "intent_classifier"
+        model_name = get_model(agent_id) or get_model_for_task(agent_id)[1]
+        provider, model = get_model_for_task(agent_id)
+        if model_name:
+            model = model_name
         llm_client = get_llm_client(provider=provider, model=model, temperature=0.1)
+        prompt_version = get_prompt_version(agent_id)
 
         history_context = ""
         if conversation_history:
@@ -159,12 +167,19 @@ class IntentClassifier:
         if history_context:
             context_block = f"## Conversation context (oldest → newest)\n{history_context}\n\n"
 
-        prompt = load_prompt(
-            "agents/intent_classifier_user.j2",
-            query=query.strip(),
-            context_block=context_block,
-        )
-        system_prompt = load_prompt("agents/intent_classifier_system.j2")
+        try:
+            system_prompt, prompt = load_agent_system_user(
+                agent_id,
+                version=prompt_version,
+                user_kwargs={"query": query.strip(), "context_block": context_block},
+            )
+        except FileNotFoundError:
+            prompt = load_prompt(
+                "agents/intent_classifier_user.j2",
+                query=query.strip(),
+                context_block=context_block,
+            )
+            system_prompt = load_prompt("agents/intent_classifier_system.j2")
 
         llm_kwargs: Dict[str, Any] = {
             "tenant_id": self.tenant_id,
@@ -176,13 +191,30 @@ class IntentClassifier:
             llm_kwargs["response_format"] = {"type": "json_object"}
 
         try:
-            response = await llm_client.generate(
-                prompt=prompt,
-                system_prompt=system_prompt,
-                temperature=0.1,
-                max_tokens=_INTENT_MAX_TOKENS,
-                **llm_kwargs,
-            )
+            with trace_agent_run(
+                agent_id,
+                inputs={"query": query.strip()},
+                prompt_version=prompt_version,
+                model=model,
+            ) as trace_rec:
+                response = await llm_client.generate(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    temperature=0.1,
+                    max_tokens=_INTENT_MAX_TOKENS,
+                    **llm_kwargs,
+                )
+                trace_rec["output"] = response.content
+                usage = getattr(response, "usage", None)
+                if usage:
+                    if isinstance(usage, dict):
+                        trace_rec["prompt_tokens"] = usage.get("prompt_tokens", 0) or 0
+                        trace_rec["completion_tokens"] = usage.get("completion_tokens", 0) or 0
+                        trace_rec["tokens"] = usage.get("total_tokens", 0) or 0
+                    else:
+                        trace_rec["prompt_tokens"] = getattr(usage, "prompt_tokens", 0) or 0
+                        trace_rec["completion_tokens"] = getattr(usage, "completion_tokens", 0) or 0
+                        trace_rec["tokens"] = getattr(usage, "total_tokens", 0) or 0
         except Exception as e:
             elapsed_ms = (time.perf_counter() - t0) * 1000
             print(f"[INTENT_CLASSIFIER] Error classifying intent: {e}")

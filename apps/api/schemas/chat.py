@@ -25,6 +25,10 @@ class ChatRequest(BaseModel):
         active_source_ids: List of source IDs to include in RAG context
     """
     message: str = Field(..., min_length=1, description="User's question")
+    chat_id: Optional[str] = Field(
+        default=None,
+        description="Optional chat session id for follow-up aware retrieval chunk reuse.",
+    )
     history: List[ChatMessage] = Field(default=[], description="Conversation history")
     active_source_ids: List[str] = Field(default=[], description="Source IDs for context")
     include_ncert_global: bool = Field(
@@ -33,8 +37,8 @@ class ChatRequest(BaseModel):
     )
     ncert_class: Optional[int] = Field(
         default=None,
-        ge=6,
-        le=10,
+        ge=12,
+        le=12,
         description="Optional filter for NCERT class when include_ncert_global is true.",
     )
     ncert_subject: Optional[str] = Field(
@@ -49,6 +53,10 @@ class ChatRequest(BaseModel):
     ncert_chapter_name: Optional[str] = Field(
         default=None,
         description="Optional NCERT chapter name filter when include_ncert_global is true.",
+    )
+    ncert_concept: Optional[str] = Field(
+        default=None,
+        description="Optional concept label filter (matches chunk concept_hint metadata).",
     )
     force_whole_file_map_reduce: bool = Field(
         default=False,
@@ -83,11 +91,21 @@ class ChatStreamEvent(BaseModel):
 class ChatCreateRequest(BaseModel):
     """Request to create a new chat."""
     title: Optional[str] = Field(None, description="Chat title (auto-generated if not provided)")
+    notebook_id: Optional[str] = Field(None, description="Notebook workspace id")
 
 
 class ChatUpdateRequest(BaseModel):
     """Request to update a chat."""
     title: Optional[str] = Field(None, description="Chat title")
+
+
+class MessageFeedbackRequest(BaseModel):
+    """Request to update message feedback."""
+    feedback: Optional[str] = Field(None, description="Feedback: 'thumbs_up', 'thumbs_down', or None")
+    feedback_reason: Optional[str] = Field(
+        None,
+        description="Required when feedback is thumbs_down; cleared otherwise.",
+    )
 
 
 class MessageResponse(BaseModel):
@@ -97,6 +115,7 @@ class MessageResponse(BaseModel):
     content: str
     citations: List[Citation] = Field(default=[])
     feedback: Optional[str] = Field(None, description="User feedback: 'thumbs_up', 'thumbs_down', or None")
+    feedback_reason: Optional[str] = Field(None, description="Reason when feedback is thumbs_down")
     created_at: datetime
 
     class Config:

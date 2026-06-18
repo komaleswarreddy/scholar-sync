@@ -1,15 +1,13 @@
 /**
- * Note Modal Component
- * 
- * Modal for viewing and editing notes, similar to GenerationModal.
- * Supports editing, saving, and discarding changes.
+ * Note Modal — create/edit notebook notes (assets-modal chrome).
  */
 
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { X, FileText, Save, Check } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
+import { TOAST_MIN_VISIBLE_MS, useAppToast } from '@/contexts/AppToastContext';
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -36,14 +34,19 @@ export function NoteModal({
 }: NoteModalProps) {
   const [content, setContent] = useState(initialContent);
   const [hasChanges, setHasChanges] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { showToast } = useAppToast();
+  const isNewNote = !noteId;
 
-  // Update content when initialContent changes (e.g., when switching notes)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       setContent(initialContent);
       setHasChanges(false);
-      // Focus textarea when modal opens
       if (textareaRef.current) {
         setTimeout(() => {
           textareaRef.current?.focus();
@@ -54,7 +57,6 @@ export function NoteModal({
     }
   }, [initialContent, isOpen]);
 
-  // Close modal on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -70,7 +72,6 @@ export function NoteModal({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
     }
 
@@ -100,9 +101,12 @@ export function NoteModal({
       await onSave(content.trim());
       setHasChanges(false);
       onClose();
+      await showToast(isNewNote ? 'Note created' : 'Note saved', {
+        minVisibleMs: TOAST_MIN_VISIBLE_MS,
+      });
     } catch (err) {
-      // Error is handled by parent component
       console.error('Failed to save note:', err);
+      showToast('Could not save note');
     }
   };
 
@@ -120,134 +124,83 @@ export function NoteModal({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
-    <>
-      {/* Backdrop */}
+  const canSave = content.trim().length > 0 && (isNewNote || hasChanges);
+
+  return createPortal(
+    <div className="assets-modal-backdrop" role="presentation" onClick={handleClose}>
       <div
-        className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
-        onClick={handleClose}
-        aria-hidden="true"
-      />
-
-      {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="note-modal-title"
-          className="bg-surface border border-border-default rounded-2xl shadow-2xl flex flex-col w-full max-w-4xl max-h-[90vh]"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border-default">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-accent-blue/10 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-accent-blue" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 id="note-modal-title" className="text-lg font-bold text-text-primary">
-                  {title}
-                </h2>
-                {hasChanges && (
-                  <p className="text-xs text-text-tertiary mt-0.5">
-                    Unsaved changes
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Close Button */}
-              <button
-                onClick={handleClose}
-                className="p-2 rounded-lg hover:bg-surface-hover transition-colors text-text-secondary hover:text-text-primary"
-                aria-label="Close modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="note-modal-title"
+        className="assets-modal assets-modal--note"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="min-w-0">
+            <h2 id="note-modal-title" className="assets-modal__title">
+              {isNewNote ? 'New note' : title}
+            </h2>
+            <p className="text-[13px] text-[var(--color-home-text-muted)] mt-1">
+              {isNewNote
+                ? 'Capture ideas, summaries, or questions for this notebook.'
+                : hasChanges
+                  ? 'Unsaved changes'
+                  : 'Edit your note'}
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="p-1 rounded-md text-[var(--color-home-label)] hover:bg-[var(--color-brand-surface)] flex-shrink-0"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto">
-            {error ? (
-              <div className="p-6">
-                <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-red-700 dark:text-red-300 mb-1">
-                      Error
-                    </p>
-                    <p className="text-sm text-red-600 dark:text-red-400">
-                      {error}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="p-6">
-                <textarea
-                  ref={textareaRef}
-                  value={content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  onKeyDown={(e) => {
-                    // Ctrl/Cmd + S to save
-                    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                      e.preventDefault();
-                      handleSave();
-                    }
-                  }}
-                  placeholder="Start typing your note..."
-                  className="w-full h-full min-h-[400px] resize-none bg-transparent text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-0 border-0 p-0 font-mono text-sm leading-relaxed"
-                  style={{
-                    maxHeight: 'calc(90vh - 300px)',
-                    overflowY: 'auto',
-                  }}
-                />
-              </div>
-            )}
-          </div>
+        {error ? (
+          <p className="text-[13px] text-red-600 mb-3">{error}</p>
+        ) : null}
 
-          {/* Footer */}
-          <div className="p-6 border-t border-border-default flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-text-tertiary">
-                {content.length.toLocaleString()} {content.length === 1 ? 'character' : 'characters'}
-              </span>
-              <span className="text-xs text-text-tertiary">
-                Press Ctrl+S to save, Esc to close
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="secondary"
-                onClick={handleDiscard}
-                disabled={isSaving}
-              >
-                Discard
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleSave}
-                disabled={isSaving || !content.trim() || !hasChanges}
-                className="bg-accent-blue text-background hover:opacity-90"
-              >
-                {isSaving ? (
-                  <>
-                    <Save className="w-4 h-4 mr-1" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4 mr-1" />
-                    Save
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
+        <label className="profile-field-label" htmlFor="note-modal-content">
+          Note
+        </label>
+        <textarea
+          id="note-modal-content"
+          ref={textareaRef}
+          value={content}
+          onChange={(e) => handleContentChange(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+              e.preventDefault();
+              if (canSave && !isSaving) handleSave();
+            }
+          }}
+          placeholder="Start typing your note..."
+          className="library-search-input w-full px-4 py-3 text-[14px] mt-1 min-h-[280px] resize-y leading-relaxed"
+        />
+
+        <p className="text-[11px] text-[var(--color-home-label)] mt-2">
+          {content.length.toLocaleString()} characters · Ctrl+S to save
+        </p>
+
+        <div className="flex flex-wrap justify-end gap-2 mt-4 pt-4 border-t border-[var(--color-home-border)]">
+          <button type="button" className="profile-btn-secondary" onClick={handleDiscard} disabled={isSaving}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="profile-btn-primary"
+            onClick={handleSave}
+            disabled={isSaving || !canSave}
+          >
+            {isSaving ? 'Saving...' : isNewNote ? 'Create note' : 'Save note'}
+          </button>
         </div>
       </div>
-    </>
+    </div>,
+    document.body,
   );
 }

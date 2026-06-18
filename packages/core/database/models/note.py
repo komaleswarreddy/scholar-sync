@@ -32,6 +32,7 @@ class Note(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True)
     user_id = Column(String, nullable=False, index=True)  # Clerk user ID
+    notebook_id = Column(UUID(as_uuid=True), ForeignKey("notebooks.id"), nullable=True, index=True)
     content = Column(Text, nullable=False)
     source_ref_id = Column(UUID(as_uuid=True), nullable=True)  # Optional link to message
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -39,5 +40,6 @@ class Note(Base):
     
     # Relationships
     tenant = relationship("Tenant", back_populates="notes")
+    notebook = relationship("Notebook", back_populates="notes")
 
 

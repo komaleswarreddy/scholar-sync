@@ -104,11 +104,21 @@ def get_model_for_task(task_type: str) -> tuple:
     Get recommended provider and model for a specific task type.
     
     Args:
-        task_type: Task type (quiz, chat, report, etc.)
+        task_type: Task type (quiz, chat, slide_deck, etc.)
         
     Returns:
         Tuple of (provider, model)
     """
+    # Config registry override (production.yaml / models.yaml)
+    try:
+        from packages.core.config.model_registry import get_model_for_task_key
+
+        model = get_model_for_task_key(task_type)
+        if model:
+            return (LLMProvider.OPENAI, model)
+    except Exception:
+        pass
+
     # Task-based routing (can be configured via settings)
     task_routing = {
         # Studio structured tasks -> OpenAI (better JSON adherence)
@@ -126,13 +136,13 @@ def get_model_for_task(task_type: str) -> tuple:
         # Optional: query decomposition for retrieval (production-gated)
         "query_decomposer": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
 
-        # Content-heavy Studio tasks -> OpenAI as well
-        # Use gpt-4o for better long-form quality; keep chat on gpt-4o-mini for cost/latency.
-        "report": (LLMProvider.OPENAI, LLMModel.GPT_4O.value),
-        "infographic": (LLMProvider.OPENAI, LLMModel.GPT_4O.value),
-
         # Chat -> OpenAI
         "chat": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "tutor_follow_ups": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "problem_solver_dna": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "problem_solver_mode": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "source_question_extract": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "source_image_ocr": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
         
     }
     

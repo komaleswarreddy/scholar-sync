@@ -1,0 +1,21 @@
+{
+  "ret04": {
+    "ok": true,
+    "message": "RET-04 curriculum sign-off OK",
+    "total_citations": 18,
+    "supported": 18,
+    "rate": 1.0,
+    "threshold": 0.95,
+    "pass": true
+  },
+  "ing08": {
+    "ok": true,
+    "message": "ING-08 curriculum sign-off OK",
+    "total_samples": 6,
+    "passing": 6,
+    "rate": 1.0,
+    "threshold": 0.9,
+    "pass": true
+  },
+  "overall_pass": true
+}

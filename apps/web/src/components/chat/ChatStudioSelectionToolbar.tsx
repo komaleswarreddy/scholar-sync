@@ -5,9 +5,7 @@ import {
   FileQuestion,
   Layers,
   Network,
-  FileText,
   Presentation,
-  Image as ImageIcon,
 } from 'lucide-react';
 import { useStudioGenerationSafe } from '@/contexts/StudioGenerationContext';
 
@@ -20,10 +18,8 @@ const ACTIONS: {
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
   { type: 'mind_map', label: 'Mind Map', icon: Network },
-  { type: 'report', label: 'Reports', icon: FileText },
   { type: 'flashcards', label: 'Flashcards', icon: Layers },
   { type: 'quiz', label: 'Quiz', icon: FileQuestion },
-  { type: 'infographic', label: 'Infographic', icon: ImageIcon },
   { type: 'slide_deck', label: 'Slide Deck', icon: Presentation },
 ];
 

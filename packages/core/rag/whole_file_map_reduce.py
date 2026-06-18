@@ -282,4 +282,5 @@ async def run_whole_file_map_reduce(
         "precomputed_answer": (final or "").strip() or None,
         "section_summaries": section_summaries,
         "used_map_reduce": bool((final or "").strip()),
+        "source_chunks": chunks,
     }

@@ -1,0 +1,347 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-06-17T08:29:24.146411+00:00",
+  "generator": "scripts/generate_prompt_tiered_datasets.py",
+  "skipped_agents": [
+    "rag_chat_response_generator (S.no 7)"
+  ],
+  "tier_counts": {
+    "tier_1": 9,
+    "tier_2": 12,
+    "tier_3": 12
+  },
+  "total_datasets": 33,
+  "total_items": 510,
+  "datasets": [
+    {
+      "dataset_id": "intent_classifier",
+      "path": "evals/datasets/prompt_tiered/routing/intent_classifier.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "routing",
+      "agent_name": "Intent Classifier Agent",
+      "sno": 1
+    },
+    {
+      "dataset_id": "query_rewriter",
+      "path": "evals/datasets/prompt_tiered/retrieval/query_rewriter.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "retrieval",
+      "agent_name": "Query Rewriter Agent",
+      "sno": 2
+    },
+    {
+      "dataset_id": "query_decomposer",
+      "path": "evals/datasets/prompt_tiered/retrieval/query_decomposer.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "retrieval",
+      "agent_name": "Query Decomposer Agent",
+      "sno": 3
+    },
+    {
+      "dataset_id": "scope_narrower",
+      "path": "evals/datasets/prompt_tiered/retrieval/scope_narrower.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "retrieval",
+      "agent_name": "Scope Narrower Agent",
+      "sno": 4
+    },
+    {
+      "dataset_id": "chat_policy_block",
+      "path": "evals/datasets/prompt_tiered/generation/chat_policy_block.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "generation",
+      "agent_name": "Chat Policy Block (YAML)",
+      "sno": 5
+    },
+    {
+      "dataset_id": "direct_chat",
+      "path": "evals/datasets/prompt_tiered/generation/direct_chat.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "generation",
+      "agent_name": "Direct Chat Agent (ScholarSync)",
+      "sno": 6
+    },
+    {
+      "dataset_id": "chat_summarizer",
+      "path": "evals/datasets/prompt_tiered/generation/chat_summarizer.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "generation",
+      "agent_name": "Chat Summarizer Agent",
+      "sno": 8
+    },
+    {
+      "dataset_id": "hallucination_guard_retry",
+      "path": "evals/datasets/prompt_tiered/generation/hallucination_guard_retry.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "generation",
+      "agent_name": "Hallucination Guard Retry Suffix",
+      "sno": 9
+    },
+    {
+      "dataset_id": "studio_system_json",
+      "path": "evals/datasets/prompt_tiered/studio/studio_system_json.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "studio",
+      "agent_name": "Studio System Prompt (JSON tasks)",
+      "sno": 10
+    },
+    {
+      "dataset_id": "studio_quiz",
+      "path": "evals/datasets/prompt_tiered/studio/studio_quiz.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "studio",
+      "agent_name": "Studio Quiz Generator",
+      "sno": 11
+    },
+    {
+      "dataset_id": "studio_flashcards",
+      "path": "evals/datasets/prompt_tiered/studio/studio_flashcards.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "studio",
+      "agent_name": "Studio Flashcards Generator",
+      "sno": 12
+    },
+    {
+      "dataset_id": "studio_mind_map",
+      "path": "evals/datasets/prompt_tiered/studio/studio_mind_map.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "studio",
+      "agent_name": "Studio Mind Map Generator",
+      "sno": 13
+    },
+    {
+      "dataset_id": "studio_slide_deck",
+      "path": "evals/datasets/prompt_tiered/studio/studio_slide_deck.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "studio",
+      "agent_name": "Studio Slide Deck Generator",
+      "sno": 14
+    },
+    {
+      "dataset_id": "studio_fallback_legacy",
+      "path": "evals/datasets/prompt_tiered/studio/studio_fallback_legacy.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "studio",
+      "agent_name": "Studio Fallback Task Prompt (Legacy)",
+      "sno": 15
+    },
+    {
+      "dataset_id": "studio_context_embedding_query",
+      "path": "evals/datasets/prompt_tiered/studio/studio_context_embedding_query.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "studio",
+      "agent_name": "Studio Context Embedding Query (Legacy)",
+      "sno": 16
+    },
+    {
+      "dataset_id": "problem_dna_analyzer",
+      "path": "evals/datasets/prompt_tiered/problem_solving/problem_dna_analyzer.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "problem_solving",
+      "agent_name": "Problem DNA Analyzer",
+      "sno": 17
+    },
+    {
+      "dataset_id": "explain_from_basics",
+      "path": "evals/datasets/prompt_tiered/problem_solving/explain_from_basics.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "problem_solving",
+      "agent_name": "Explain From Basics Coach",
+      "sno": 18
+    },
+    {
+      "dataset_id": "show_best_approach",
+      "path": "evals/datasets/prompt_tiered/problem_solving/show_best_approach.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "problem_solving",
+      "agent_name": "Show Best Approach Coach",
+      "sno": 19
+    },
+    {
+      "dataset_id": "show_missing_idea",
+      "path": "evals/datasets/prompt_tiered/problem_solving/show_missing_idea.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "problem_solving",
+      "agent_name": "Show Missing Idea Coach",
+      "sno": 20
+    },
+    {
+      "dataset_id": "help_me_solve_it",
+      "path": "evals/datasets/prompt_tiered/problem_solving/help_me_solve_it.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "problem_solving",
+      "agent_name": "Help Me Solve It Coach",
+      "sno": 21
+    },
+    {
+      "dataset_id": "problem_solver_followup",
+      "path": "evals/datasets/prompt_tiered/problem_solving/problem_solver_followup.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "problem_solving",
+      "agent_name": "Problem Solver Follow-up Handler",
+      "sno": 22
+    },
+    {
+      "dataset_id": "tutor_notebook_bootstrap",
+      "path": "evals/datasets/prompt_tiered/tutor_mode/tutor_notebook_bootstrap.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "tutor_mode",
+      "agent_name": "Tutor Notebook Bootstrap Agent",
+      "sno": 23
+    },
+    {
+      "dataset_id": "tutor_follow_up_questions",
+      "path": "evals/datasets/prompt_tiered/tutor_mode/tutor_follow_up_questions.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "tutor_mode",
+      "agent_name": "Tutor Follow-up Questions Agent",
+      "sno": 24
+    },
+    {
+      "dataset_id": "source_question_extraction",
+      "path": "evals/datasets/prompt_tiered/source_upload/source_question_extraction.json",
+      "tier": "tier_1",
+      "target_examples": 30,
+      "actual_examples": 30,
+      "category_folder": "source_upload",
+      "agent_name": "Source Question Extraction Agent",
+      "sno": 25
+    },
+    {
+      "dataset_id": "document_sketch",
+      "path": "evals/datasets/prompt_tiered/source_upload/document_sketch.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "source_upload",
+      "agent_name": "Document Sketch Agent",
+      "sno": 26
+    },
+    {
+      "dataset_id": "ncert_document_sketch",
+      "path": "evals/datasets/prompt_tiered/source_upload/ncert_document_sketch.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "source_upload",
+      "agent_name": "NCERT Document Sketch Agent",
+      "sno": 27
+    },
+    {
+      "dataset_id": "chunk_contextualization",
+      "path": "evals/datasets/prompt_tiered/source_upload/chunk_contextualization.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "source_upload",
+      "agent_name": "Chunk Contextualization Agent",
+      "sno": 28
+    },
+    {
+      "dataset_id": "whole_file_map_summarizer",
+      "path": "evals/datasets/prompt_tiered/source_upload/whole_file_map_summarizer.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "source_upload",
+      "agent_name": "Whole File Map Summarizer",
+      "sno": 29
+    },
+    {
+      "dataset_id": "whole_file_reduce",
+      "path": "evals/datasets/prompt_tiered/source_upload/whole_file_reduce.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "source_upload",
+      "agent_name": "Whole File Reduce Agent",
+      "sno": 30
+    },
+    {
+      "dataset_id": "whole_file_map_template",
+      "path": "evals/datasets/prompt_tiered/source_upload/whole_file_map_template.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "source_upload",
+      "agent_name": "Whole File Map Template (Unused file)",
+      "sno": 31
+    },
+    {
+      "dataset_id": "image_ocr",
+      "path": "evals/datasets/prompt_tiered/source_upload/image_ocr.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "source_upload",
+      "agent_name": "Image OCR Agent",
+      "sno": 32
+    },
+    {
+      "dataset_id": "diagram_label_ocr",
+      "path": "evals/datasets/prompt_tiered/source_upload/diagram_label_ocr.json",
+      "tier": "tier_2",
+      "target_examples": 15,
+      "actual_examples": 15,
+      "category_folder": "source_upload",
+      "agent_name": "Diagram Label OCR Agent",
+      "sno": 33
+    },
+    {
+      "dataset_id": "refusal_templates",
+      "path": "evals/datasets/prompt_tiered/safety/refusal_templates.json",
+      "tier": "tier_3",
+      "target_examples": 5,
+      "actual_examples": 5,
+      "category_folder": "safety",
+      "agent_name": "Refusal Templates (Guardrails)",
+      "sno": 34
+    }
+  ]
+}

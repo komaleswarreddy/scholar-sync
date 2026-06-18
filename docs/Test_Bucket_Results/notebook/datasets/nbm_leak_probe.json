@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "description": "Questions models answer from pretraining; must not appear in narrow test sources.",
+  "items": [
+    {
+      "id": "lp-01",
+      "question": "What is the capital of France?",
+      "forbidden_answer_substrings": ["paris"]
+    },
+    {
+      "id": "lp-02",
+      "question": "What is the value of g on Earth in m/s²?",
+      "forbidden_answer_substrings": ["9.8", "9.81"]
+    },
+    {
+      "id": "lp-03",
+      "question": "What gas do plants absorb for photosynthesis?",
+      "forbidden_answer_substrings": ["carbon dioxide", "co2"]
+    },
+    {
+      "id": "lp-04",
+      "question": "What is the boiling point of water in Celsius at sea level?",
+      "forbidden_answer_substrings": ["100"]
+    },
+    {
+      "id": "lp-05",
+      "question": "What is the chemical formula for water?",
+      "forbidden_answer_substrings": ["h2o", "h₂o"]
+    },
+    {
+      "id": "lp-06",
+      "question": "Who wrote Romeo and Juliet?",
+      "forbidden_answer_substrings": ["shakespeare"]
+    },
+    {
+      "id": "lp-07",
+      "question": "What is the largest planet in our solar system?",
+      "forbidden_answer_substrings": ["jupiter"]
+    },
+    {
+      "id": "lp-08",
+      "question": "In what year did Columbus reach the Americas?",
+      "forbidden_answer_substrings": ["1492"]
+    },
+    {
+      "id": "lp-09",
+      "question": "What is the atomic number of gold?",
+      "forbidden_answer_substrings": ["79"]
+    },
+    {
+      "id": "lp-10",
+      "question": "What is the speed of light in vacuum approximately in m/s?",
+      "forbidden_answer_substrings": ["299792", "3e8", "300000000"]
+    },
+    {
+      "id": "lp-11",
+      "question": "What is the capital of Japan?",
+      "forbidden_answer_substrings": ["tokyo"]
+    },
+    {
+      "id": "lp-12",
+      "question": "What organelle is called the powerhouse of the cell?",
+      "forbidden_answer_substrings": ["mitochondr"]
+    },
+    {
+      "id": "lp-13",
+      "question": "What is Newton's first law also known as?",
+      "forbidden_answer_substrings": ["inertia", "law of inertia"]
+    },
+    {
+      "id": "lp-14",
+      "question": "How many sides does a hexagon have?",
+      "forbidden_answer_substrings": ["6", "six"]
+    },
+    {
+      "id": "lp-15",
+      "question": "What is the square root of 144?",
+      "forbidden_answer_substrings": ["12", "twelve"]
+    }
+  ]
+}

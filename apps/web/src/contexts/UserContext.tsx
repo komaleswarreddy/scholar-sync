@@ -31,28 +31,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
   
   const [loading, setLoading] = useState(true);
 
-  // Safe wrapper for getToken
+  // Safe wrapper for getToken — always ask Clerk; do not close over isSignedIn (stale after navigation).
   const getToken = useCallback(async () => {
     try {
-      if (!clerkGetToken) {
+      if (!clerkGetToken || !isClerkConfigured) {
         return null;
       }
-      // Avoid triggering Clerk session calls when signed out or not ready yet.
-      // This prevents repeated /v1/client/sessions/* requests during initial load.
-      if (!isClerkConfigured || !userLoaded || !authLoaded || !isSignedIn) {
+      if (!userLoaded || !authLoaded) {
         return null;
       }
-      // Use the session JWT (no JWT template required in Clerk).
       const token = await clerkGetToken();
       return token ?? null;
     } catch (err) {
       console.error('[AUTH] Error fetching token:', err);
       return null;
     }
-  }, [authLoaded, clerkGetToken, isClerkConfigured, isSignedIn, userLoaded]);
+  }, [authLoaded, clerkGetToken, isClerkConfigured, userLoaded]);
 
   // Logout handler for ApiClient
   const handleLogout = useCallback(async () => {
+    apiClient.clearAuthSession();
     if (clerkSignOut) {
       await clerkSignOut();
     }
@@ -68,15 +66,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
     
     if (isClerkLoaded) {
-      // Only attach token getter when signed in; otherwise API calls should be anonymous
-      // and must not trigger Clerk session network calls.
-      apiClient.setTokenGetter(isSignedIn ? getToken : async () => null);
+      if (isSignedIn) {
+        apiClient.setTokenGetter(getToken);
+        void apiClient.refreshToken(true);
+      } else {
+        apiClient.clearAuthSession();
+        apiClient.setTokenGetter(async () => null);
+      }
       apiClient.setLogoutHandler(handleLogout);
       setLoading(false);
     } else {
       // Set a timeout to prevent infinite loading if Clerk never loads
       const timeout = setTimeout(() => {
-        apiClient.setTokenGetter(isSignedIn ? getToken : async () => null);
+        if (isSignedIn) {
+          apiClient.setTokenGetter(getToken);
+        } else {
+          apiClient.clearAuthSession();
+          apiClient.setTokenGetter(async () => null);
+        }
         apiClient.setLogoutHandler(handleLogout);
         setLoading(false);
       }, 10000);

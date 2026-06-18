@@ -1,0 +1,154 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "studio_system_json",
+  "agent": {
+    "sno": 10,
+    "category": "Studio",
+    "name": "Studio System Prompt (JSON tasks)",
+    "tier": "tier_3",
+    "target_examples": 5,
+    "prompt_template": "You are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "context",
+      "task_instruction"
+    ],
+    "output_keys": [
+      "json_output"
+    ]
+  },
+  "items": [
+    {
+      "id": "studio_system_json-001",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "current"
+      ],
+      "inputs": {
+        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "reference_outputs": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "no_markdown_fences"
+      ]
+    },
+    {
+      "id": "studio_system_json-002",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "human"
+      ],
+      "inputs": {
+        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "reference_outputs": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "no_markdown_fences"
+      ]
+    },
+    {
+      "id": "studio_system_json-003",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "photosynthesis"
+      ],
+      "inputs": {
+        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "reference_outputs": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "no_markdown_fences"
+      ]
+    },
+    {
+      "id": "studio_system_json-004",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "chemical"
+      ],
+      "inputs": {
+        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "reference_outputs": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "no_markdown_fences"
+      ]
+    },
+    {
+      "id": "studio_system_json-005",
+      "variation": "cbse",
+      "tags": [
+        "cbse",
+        "magnetic"
+      ],
+      "inputs": {
+        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
+        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+      },
+      "reference_outputs": {
+        "json_output": {
+          "terms": [
+            {
+              "term": "example",
+              "definition": "from source"
+            }
+          ]
+        }
+      },
+      "evaluators": [
+        "valid_json",
+        "no_markdown_fences"
+      ]
+    }
+  ]
+}

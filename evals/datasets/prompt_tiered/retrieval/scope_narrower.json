@@ -1,0 +1,155 @@
+{
+  "version": "1.0.0",
+  "dataset_id": "scope_narrower",
+  "agent": {
+    "sno": 4,
+    "category": "Retrieval",
+    "name": "Scope Narrower Agent",
+    "tier": "tier_3",
+    "target_examples": 5,
+    "prompt_template": "SYSTEM:\nYou analyze search queries for document retrieval. Output one JSON object only.\nKeys: \"key_terms\" (array of strings), \"focused_query\" (string), \"max_chunks\" (integer 3-15).\nNo markdown outside JSON.\n\nUSER/TASK TEMPLATE:\nAnalyze this query for information retrieval.{{ conversation_section }}\nQuery: {{ query }}\n\nExtract key_terms (3-7), a focused_query string for retrieval (resolve references using conversation),\nand max_chunks (3-15) suggested pool size."
+  },
+  "langsmith": {
+    "dataset_name_prefix": "nbm-prompt",
+    "input_keys": [
+      "query",
+      "conversation_section"
+    ],
+    "output_keys": [
+      "key_terms",
+      "focused_query",
+      "max_chunks"
+    ]
+  },
+  "items": [
+    {
+      "id": "scope_narrower-001",
+      "variation": "typo",
+      "tags": [
+        "cbse",
+        "physics"
+      ],
+      "inputs": {
+        "query": "tell me everything about electricity",
+        "conversation_section": ""
+      },
+      "reference_outputs": {
+        "key_terms": [
+          "electricity",
+          "current",
+          "resistance",
+          "Ohm's law",
+          "circuits"
+        ],
+        "focused_query": "electric current resistance Ohm law circuits",
+        "max_chunks": 12
+      },
+      "evaluators": [
+        "json_schema",
+        "max_chunks_range"
+      ]
+    },
+    {
+      "id": "scope_narrower-002",
+      "variation": "conversational",
+      "tags": [
+        "cbse",
+        "chemistry"
+      ],
+      "inputs": {
+        "query": "formula of kinetic energy",
+        "conversation_section": ""
+      },
+      "reference_outputs": {
+        "key_terms": [
+          "kinetic energy",
+          "formula",
+          "1/2 mv^2"
+        ],
+        "focused_query": "kinetic energy formula derivation 1/2 mv squared",
+        "max_chunks": 4
+      },
+      "evaluators": [
+        "json_schema",
+        "max_chunks_range"
+      ]
+    },
+    {
+      "id": "scope_narrower-003",
+      "variation": "multi_part",
+      "tags": [
+        "cbse",
+        "biology"
+      ],
+      "inputs": {
+        "query": "NEET human heart chambers blood flow",
+        "conversation_section": ""
+      },
+      "reference_outputs": {
+        "key_terms": [
+          "heart",
+          "chambers",
+          "blood flow",
+          "cardiac cycle"
+        ],
+        "focused_query": "human heart four chambers blood circulation cardiac cycle",
+        "max_chunks": 7
+      },
+      "evaluators": [
+        "json_schema",
+        "max_chunks_range"
+      ]
+    },
+    {
+      "id": "scope_narrower-004",
+      "variation": "diagram",
+      "tags": [
+        "cbse",
+        "mathematics"
+      ],
+      "inputs": {
+        "query": "integration by parts one example",
+        "conversation_section": ""
+      },
+      "reference_outputs": {
+        "key_terms": [
+          "integration by parts",
+          "ILATE",
+          "definite integral"
+        ],
+        "focused_query": "integration by parts single worked example",
+        "max_chunks": 5
+      },
+      "evaluators": [
+        "json_schema",
+        "max_chunks_range"
+      ]
+    },
+    {
+      "id": "scope_narrower-005",
+      "variation": "numerical",
+      "tags": [
+        "cbse",
+        "science"
+      ],
+      "inputs": {
+        "query": "author of uploaded NCERT physics book",
+        "conversation_section": ""
+      },
+      "reference_outputs": {
+        "key_terms": [
+          "author",
+          "NCERT",
+          "Physics",
+          "title page"
+        ],
+        "focused_query": "author writer NCERT Physics textbook title page",
+        "max_chunks": 4
+      },
+      "evaluators": [
+        "json_schema",
+        "max_chunks_range"
+      ]
+    }
+  ]
+}
