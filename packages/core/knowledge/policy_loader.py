@@ -36,9 +36,9 @@ def _age_tier_bullets(policy: Dict[str, Any], tier: str) -> List[str]:
     raw = policy.get("age_appropriate_tiers")
     if not isinstance(raw, dict):
         return []
-    key = (tier or "9-17").strip().lower()
-    if key == "9-12":
-        key = "9-17"
+    key = (tier or "14-17").strip().lower()
+    if key in {"9-12", "9-17"}:
+        key = "14-17"
     items = raw.get(key)
     if not isinstance(items, list):
         return []
@@ -72,9 +72,9 @@ def build_chat_policy_block() -> str:
                 if isinstance(it, str) and it.strip():
                     lines.append(f"- {it.strip()}")
 
-    tier = str(getattr(settings, "STUDENT_AGE_TIER", "9-17") or "9-17").strip().lower()
-    if tier == "9-12":
-        tier = "9-17"
+    tier = str(getattr(settings, "STUDENT_AGE_TIER", "14-17") or "14-17").strip().lower()
+    if tier in {"9-12", "9-17"}:
+        tier = "14-17"
     age_lines = _age_tier_bullets(d, tier)
     if age_lines:
         lines.append("\n**Age-appropriate guidance (mandatory for this deployment):**")

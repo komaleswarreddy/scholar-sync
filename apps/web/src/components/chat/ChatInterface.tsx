@@ -26,6 +26,7 @@ import { DEFAULT_NCERT_SUBJECTS_BY_CLASS } from '@/config/ncertSubjectsByClass';
 import type { NcertTutorChapterOption } from '@/lib/api-client';
 import { useSources } from '@/hooks/useSources';
 import { useNotebookScopeId } from '@/contexts/NotebookContext';
+import { ChatMessagesSkeleton } from '@/components/skeleton';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
 import { useStudioChatBridgeSafe } from '@/contexts/StudioChatBridgeContext';
 import { TutorNotebookHeader } from './TutorNotebookHeader';
@@ -144,7 +145,8 @@ export function ChatInterface({
   /** Shown instead of "Thinking" while map-reduce runs after upload (omitUserFacingPrompt). */
   const [isAutoSummaryStreamLoading, setIsAutoSummaryStreamLoading] = useState(false);
   const [followUpsLoadingForId, setFollowUpsLoadingForId] = useState<string | null>(null);
-  const [includeNcertGlobal, setIncludeNcertGlobal] = useState(true);
+  /** Exploratory notebooks: selected uploads are the default source of truth (NotebookLM parity). */
+  const [includeNcertGlobal, setIncludeNcertGlobal] = useState(false);
   /** Optional Pinecone metadata filter (Class 12 only); null = all classes */
   const [ncertFilterClass, setNcertFilterClass] = useState<number | null>(null);
   /** Optional subject slug filter, e.g. science */
@@ -245,7 +247,7 @@ export function ChatInterface({
       ? 'Ask anything from the NCERT library. Narrow the scope with class, subject, or chapter filters if needed.'
       : selectedSourceCount === 0
         ? 'Select at least one notebook source to enable dashboard chat. For NCERT-only questions, open Tutor Mode.'
-        : 'Ask questions about your selected sources. NCERT global support is enabled by default and can be turned off anytime.';
+        : 'Ask questions about your selected sources. Optionally enable NCERT Global Library to supplement answers.';
 
   // Task A.e: Monitor network status
   useEffect(() => {
@@ -1135,6 +1137,11 @@ export function ChatInterface({
       setStreamError(errorMessage);
       // Always reset streaming state on error
       resetStreamingState();
+    } finally {
+      // Safety net: streamChat can return without firing onDone (e.g. SSE ends without done event).
+      setIsLoading(false);
+      setIsStreaming(false);
+      setIsAutoSummaryStreamLoading(false);
     }
   };
 
@@ -1363,16 +1370,7 @@ export function ChatInterface({
 
       <div ref={chatMessagesScrollRef} className={`flex-1 overflow-y-auto ${isNotebookAppearance ? 'notebook-chat-scroll px-3 py-3' : 'px-4 py-4'}`}>
         {isLoadingChat || (isLockedNotebookTutor && tutorBootstrapping) ? (
-          <div className="flex flex-col items-center justify-center h-full p-8">
-            <div className="flex gap-1 mb-2">
-              <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce [animation-delay:-0.3s]" />
-              <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce [animation-delay:-0.15s]" />
-              <div className="w-1.5 h-1.5 bg-text-tertiary rounded-full animate-bounce" />
-            </div>
-            <p className="text-text-tertiary text-sm">
-              {tutorBootstrapping ? 'Preparing your chapter overview…' : 'Loading chat...'}
-            </p>
-          </div>
+          <ChatMessagesSkeleton />
         ) : messages.length === 0 && !currentChatId ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
               <p className="text-text-secondary text-center mb-2">{emptyStateMessage}</p>

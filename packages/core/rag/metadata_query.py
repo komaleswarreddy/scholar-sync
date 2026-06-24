@@ -48,6 +48,25 @@ def is_factual_recall_query(text: str) -> bool:
     return bool(_FACTUAL_RECALL_RE.search(text))
 
 
+_SOURCE_SCOPE_RE = re.compile(
+    r"\b("
+    r"what are those|what are these|what is this|what are they|"
+    r"those two sources|these two sources|two sources|my sources|"
+    r"selected sources|these documents|those documents|"
+    r"sources about|source about|documents about|document about|"
+    r"what is covered|what's covered|topics in"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def is_source_scope_meta_query(text: str) -> bool:
+    """User asks what their uploaded/selected sources or documents are about."""
+    if not text or not text.strip():
+        return False
+    return bool(_SOURCE_SCOPE_RE.search(text))
+
+
 def extra_factual_retrieval_variants(focused_query: str) -> List[str]:
     """Extra search strings to surface rare entities and timeline facts in long PDFs."""
     q = (focused_query or "").strip()

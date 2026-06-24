@@ -1,6 +1,7 @@
 'use client';
 
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText } from 'lucide-react';
+import { NotesListSkeleton } from '@/components/skeleton';
 import { useNotebookScopeId } from '@/contexts/NotebookContext';
 import { useNotes, useUpdateNote } from '@/hooks/useNotes';
 import { notePreviewTitle } from '@/lib/note-content';
@@ -48,9 +49,8 @@ export function TutorNotebookNotesPanel({ onOpenNote }: TutorNotebookNotesPanelP
       </div>
 
       {isLoading && notes.length === 0 ? (
-        <div className="flex items-center justify-center py-4 px-4 text-[var(--color-home-text-muted)]">
-          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-          <span className="text-[12px]">Loading notes…</span>
+        <div className="px-4 pb-2">
+          <NotesListSkeleton count={2} />
         </div>
       ) : previewNotes.length === 0 ? (
         <p className="text-[12px] text-[var(--color-home-text-muted)] px-4 py-2">

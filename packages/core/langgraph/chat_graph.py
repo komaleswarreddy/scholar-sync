@@ -48,7 +48,7 @@ from packages.core.prompts import load_prompt
 from packages.core.rag.agents.conversation_context import split_summary_and_transcript_for_prompt
 from packages.core.llm import get_llm_client, get_model_for_task
 from packages.core.evaluation.confidence_scorer import ConfidenceScorer
-from packages.core.rag.metadata_query import is_metadata_attribution_query
+from packages.core.rag.metadata_query import is_metadata_attribution_query, is_source_scope_meta_query
 from packages.core.rag.dialog_router import should_skip_rag
 from packages.core.monitoring.pipeline_trace import (
     get_pipeline_trace_store,
@@ -202,8 +202,90 @@ def _is_document_summary_query(q: str) -> bool:
             "chapter cover",
             "chapter about",
             "outline of",
+            "these documents",
+            "those documents",
+            "two documents",
+            "those two",
+            "what are those",
+            "what are these",
+            "sources about",
+            "source about",
+            "what is this about",
+            "what are they about",
         )
     )
+
+
+def _query_strings_for_grounding(state: ChatGraphState) -> List[str]:
+    """All user/retrieval query variants used for summary and grounding exemptions."""
+    parts: List[Any] = [
+        state.get("message"),
+        state.get("redacted_message"),
+        state.get("rewritten_query"),
+        state.get("primary_retrieval_query"),
+    ]
+    rqs = state.get("rewritten_queries") or []
+    if isinstance(rqs, list):
+        parts.extend(rqs)
+    out: List[str] = []
+    seen: set[str] = set()
+    for p in parts:
+        s = str(p or "").strip()
+        if s and s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
+
+
+def _is_document_summary_query_from_state(state: ChatGraphState) -> bool:
+    return any(_is_document_summary_query(q) for q in _query_strings_for_grounding(state))
+
+
+def _ncert_global_merge_allowed(state: ChatGraphState) -> bool:
+    """
+    NCERT global merge is allowed when the checkbox is on and either:
+    - no user uploads are selected (NCERT-only chat), or
+    - tutor scope filters (class/subject/chapter) lock the retrieval namespace.
+    Exploratory notebooks with selected uploads stay source-only unless scoped.
+    """
+    if not bool(state.get("include_ncert_global")):
+        return False
+    if not getattr(settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False):
+        return False
+    active = list(state.get("active_source_ids") or [])
+    if not active:
+        return True
+    if state.get("ncert_class") is None:
+        return False
+    if not str(state.get("ncert_subject") or "").strip():
+        return False
+    if state.get("ncert_chapter_no") is None and not str(state.get("ncert_chapter_name") or "").strip():
+        return False
+    return True
+
+
+def _filter_matches_to_active_sources(
+    matches: List[Dict[str, Any]],
+    active_source_ids: List[Any],
+) -> List[Dict[str, Any]]:
+    if not active_source_ids:
+        return matches
+    allowed = {str(sid) for sid in active_source_ids if sid}
+    if not allowed:
+        return matches
+    filtered: List[Dict[str, Any]] = []
+    for m in matches or []:
+        if not isinstance(m, dict):
+            continue
+        md = m.get("metadata") or {}
+        sid = str((md.get("source_id") if isinstance(md, dict) else None) or "")
+        if sid in allowed:
+            filtered.append(m)
+    return filtered
+
+
+def _is_source_scope_meta_from_state(state: ChatGraphState) -> bool:
+    return any(is_source_scope_meta_query(q) for q in _query_strings_for_grounding(state))
 
 
 def _output_format_for_intent(intent_label: str) -> OutputFormat:
@@ -1009,14 +1091,11 @@ class LangGraphChatPipeline:
     async def _node_retrieval(self, state: ChatGraphState) -> ChatGraphState:
         q = state.get("redacted_message") or state.get("message") or ""
         active = list(state.get("active_source_ids") or [])
-        include_g = bool(state.get("include_ncert_global")) and getattr(
-            settings, "ENABLE_NCERT_GLOBAL_IN_CHAT", False
-        )
-        
-        # DEBUG: Log the checkbox state and active sources
+        include_g = _ncert_global_merge_allowed(state)
+
         print(f"[RETRIEVAL_NODE] include_ncert_global={state.get('include_ncert_global')} (raw from state)")
         print(f"[RETRIEVAL_NODE] ENABLE_NCERT_GLOBAL_IN_CHAT={getattr(settings, 'ENABLE_NCERT_GLOBAL_IN_CHAT', False)}")
-        print(f"[RETRIEVAL_NODE] include_g={include_g} (computed, after AND with setting)")
+        print(f"[RETRIEVAL_NODE] include_g={include_g} (effective merge flag)")
         print(f"[RETRIEVAL_NODE] active_source_ids={active}")
         
         if active:
@@ -1185,6 +1264,7 @@ class LangGraphChatPipeline:
         selected = list(state.get("selected_matches") or state.get("matches") or [])
         q = state.get("rewritten_query") or state.get("message") or ""
         intent = state.get("classified_intent") or ""
+        doc_summary = _is_document_summary_query_from_state(state)
         state["full_context_backup"] = state.get("context") or ""
         state["full_citations_backup"] = list(state.get("citations") or [])
         state["use_mini_context"] = False
@@ -1195,7 +1275,7 @@ class LangGraphChatPipeline:
             intent=intent,
             query=q,
             match_count=len(selected),
-            whole_file_summary=_is_document_summary_query(q),
+            whole_file_summary=doc_summary,
             map_reduce_ok=bool(state.get("map_reduce_ok")),
         ):
             mini_ctx, mini_cites = build_mini_context(selected, n=2)
@@ -1206,7 +1286,11 @@ class LangGraphChatPipeline:
 
     async def _node_context_select(self, state: ChatGraphState) -> ChatGraphState:
         matches = state.get("matches") or []
+        active = list(state.get("active_source_ids") or [])
+        if active:
+            matches = _filter_matches_to_active_sources(matches, active)
         q = state.get("rewritten_query") or state.get("message") or ""
+        doc_summary = _is_document_summary_query_from_state(state)
 
         # If Phase-2 retrieval agents are enabled, they already selected a high-quality
         # set of chunks and enforced token budgets. Here we only need to format
@@ -1219,7 +1303,7 @@ class LangGraphChatPipeline:
             # Default cap for Q&A; whole-document summaries need many chunks (see Retriever + settings).
             cap = (
                 getattr(settings, "DOCUMENT_SUMMARY_MAX_CONTEXT_CHUNKS", settings.MAX_CONTEXT_CHUNKS)
-                if _is_document_summary_query(q)
+                if doc_summary
                 else settings.MAX_CONTEXT_CHUNKS
             )
             if cap and len(selected) > cap:
@@ -1377,8 +1461,10 @@ class LangGraphChatPipeline:
         ).strip()
 
         # Whole-doc synthesis uses many excerpts; lexical overlap with a short query is misleading.
-        if _is_document_summary_query(q):
+        if _is_document_summary_query_from_state(state):
             state["context_grounding_eval_skipped"] = True
+            state["context_grounding_passed"] = True
+            state["context_grounding_reason"] = "document_summary_exempt"
             return state
 
         selected = state.get("selected_matches") or []
@@ -1469,16 +1555,9 @@ class LangGraphChatPipeline:
             state["retrieval_relevance_passed"] = True
             return state
 
-        q_gate = (
-            state.get("primary_retrieval_query")
-            or state.get("rewritten_query")
-            or state.get("redacted_message")
-            or state.get("message")
-            or ""
-        ).strip()
         # Whole-chapter / document summaries are scoped by NCERT filters already; query–chunk
         # cosine is misleading for generic "summarize this chapter" prompts.
-        if _is_document_summary_query(q_gate):
+        if _is_document_summary_query_from_state(state):
             state["retrieval_relevance_passed"] = True
             return state
 
@@ -1559,7 +1638,7 @@ class LangGraphChatPipeline:
             or state.get("message")
             or ""
         ).strip()
-        if _is_document_summary_query(q_gate) and (
+        if _is_document_summary_query_from_state(state) and (
             state.get("selected_matches") or (state.get("context") or "").strip()
         ):
             state["retrieval_relevance_passed"] = True
@@ -1674,7 +1753,7 @@ class LangGraphChatPipeline:
 
         message = state.get("redacted_message") or state.get("message") or ""
         context = state.get("context") or ""
-        document_summary = _is_document_summary_query(message)
+        document_summary = _is_document_summary_query_from_state(state)
         max_gen = (
             getattr(settings, "DOCUMENT_SUMMARY_CHAT_MAX_TOKENS", settings.CHAT_MAX_TOKENS)
             if document_summary
@@ -1704,6 +1783,7 @@ class LangGraphChatPipeline:
         )
 
         is_metadata_query = is_metadata_attribution_query(message)
+        source_scope_meta = _is_source_scope_meta_from_state(state)
         tutor_strict_ncert_only = self._tutor_ncert_effective(state)
         chat_global_fallback = bool(state.get("chat_global_fallback"))
         try:
@@ -1729,6 +1809,7 @@ class LangGraphChatPipeline:
             classified_intent=intent_label,
             context_chunk_count=chunk_n,
             is_metadata_query=is_metadata_query,
+            source_scope_meta=source_scope_meta,
             tutor_strict_ncert_only=tutor_strict_ncert_only,
             chat_global_fallback=chat_global_fallback,
             chat_policy_block=chat_policy_block,
@@ -1804,6 +1885,7 @@ class LangGraphChatPipeline:
                         classified_intent=intent_label,
                         context_chunk_count=chunk_n,
                         is_metadata_query=is_metadata_query,
+                        source_scope_meta=source_scope_meta,
                         tutor_strict_ncert_only=tutor_strict_ncert_only,
                         chat_global_fallback=chat_global_fallback,
                         chat_policy_block=chat_policy_block,
@@ -1825,8 +1907,13 @@ class LangGraphChatPipeline:
         if (
             not chat_global_fallback
             and "not found in provided sources" in answer.lower()
-            and state.get("citations")
             and context.strip()
+            and (
+                state.get("citations")
+                or document_summary
+                or source_scope_meta
+                or _is_document_summary_query_from_state(state)
+            )
         ):
             retry_prompt = (
                 full_prompt
@@ -1835,6 +1922,12 @@ class LangGraphChatPipeline:
                   "Re-read **Context evidence** line by line. If **any** excerpt is relevant, you **must** answer from it "
                   "(paraphrase is fine). Only use `Not found in provided sources.` if **every** excerpt is clearly irrelevant."
             )
+            if source_scope_meta:
+                retry_prompt += (
+                    "\n\nThis is a **source-scope** question: the user wants to know what their selected documents "
+                    "are about. Summarize the subject/topic of each source from the excerpts. Do not refuse when "
+                    "the excerpts contain chapter or topic content."
+                )
             retry_resp = await llm_client.generate(
                 prompt=retry_prompt,
                 temperature=0.2,

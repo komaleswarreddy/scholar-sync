@@ -11,6 +11,7 @@ import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { apiClient } from '@/lib/api-client';
 import { hasAdminSession } from '@/lib/admin-auth';
+import { AdminTableSkeleton } from '@/components/skeleton';
 import { Menu, X } from 'lucide-react';
 
 export default function AdminLayout({
@@ -79,16 +80,7 @@ export default function AdminLayout({
           </div>
 
           <main className="flex-1 overflow-y-auto p-4 lg:p-6 min-w-0">
-            {!mounted || !sessionReady ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-blue mx-auto mb-4" />
-                  <p className="text-text-secondary">Loading...</p>
-                </div>
-              </div>
-            ) : (
-              children
-            )}
+            {!mounted || !sessionReady ? <AdminTableSkeleton /> : children}
           </main>
         </div>
       </div>

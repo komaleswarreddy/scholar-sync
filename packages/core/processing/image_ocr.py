@@ -42,6 +42,34 @@ _DIAGRAM_NOISE_MARKERS = (
     "no text found",
 )
 
+PROBLEM_PAGE_OCR_PROMPT = (
+    "You are transcribing an Indian exam problem page (JEE/NEET/CBSE) from a PDF screenshot. "
+    "Extract ALL question text exactly as written. Preserve:\n"
+    "- Question numbers (Q29, Q.29, etc.)\n"
+    "- Block/object labels (P, Q, S, A, B, etc.) in parentheses\n"
+    "- All numeric values with units (2 kg, 1.5 kg, g/2, μ, 10 m/s²)\n"
+    "- MCQ option labels AND values: (1) 0.33 (2) 0.67 etc.\n"
+    "- Math symbols (μ, Σ, √, fractions, subscripts)\n"
+    "Return plain text only — no commentary, no markdown fences."
+)
+
+PROBLEM_DIAGRAM_DESCRIBE_PROMPT = (
+    "Describe this exam figure/diagram in full detail for a physics/chemistry/biology student.\n"
+    "Include EVERY visible element:\n"
+    "- All named labels (points A, B, C, beads P/Q, blocks, components)\n"
+    "- All numeric annotations (masses, distances, angles, dimensions, units)\n"
+    "- All connections (strings, threads, wires, rays, forces, pulleys)\n"
+    "- Spatial layout (top/bottom/left/right, horizontal vs vertical, arcs, curves)\n"
+    "- All arrows and motion directions\n"
+    "- Graph axes, scales, and curve shapes when present\n"
+    "CRITICAL rules:\n"
+    "- Describe ONLY what is visibly drawn — do not invent values.\n"
+    "- Do NOT confuse MCQ option numbers (1.65, 2.0) with diagram masses or distances.\n"
+    "- Do NOT describe question text — describe the figure only.\n"
+    "If the image contains ONLY text with no figure/graph/circuit/geometry, respond exactly: NO_DIAGRAM\n"
+    "Otherwise return one detailed paragraph for a [Diagram: ...] block. No preamble."
+)
+
 
 def is_image_upload(filename: str, content_type: str) -> bool:
     ext = os.path.splitext(filename or "")[1].lower()
@@ -68,6 +96,87 @@ def image_extension(filename: str, content_type: str) -> str:
         if value == mime:
             return key
     return ".jpg"
+
+
+async def _vision_image_call(
+    image_bytes: bytes,
+    *,
+    mime_type: str,
+    prompt: str,
+    max_tokens: int = 4096,
+    tenant_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+) -> str:
+    if not image_bytes:
+        return ""
+    provider, model = get_model_for_task("source_image_ocr")
+    llm = get_llm_client(provider=provider, model=model, temperature=0)
+    client = llm.client
+    b64 = base64.standard_b64encode(image_bytes).decode("ascii")
+    data_url = f"data:{mime_type};base64,{b64}"
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {"type": "image_url", "image_url": {"url": data_url}},
+            ],
+        }
+    ]
+    call_api = functools.partial(
+        client.chat.completions.create,
+        model=model,
+        messages=messages,
+        temperature=0,
+        max_tokens=max_tokens,
+    )
+    response = await asyncio.to_thread(call_api)
+    return (response.choices[0].message.content or "").strip()
+
+
+async def ocr_problem_page_bytes(
+    image_bytes: bytes,
+    *,
+    mime_type: str = "image/png",
+    tenant_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+) -> str:
+    """Full-page vision OCR for exam problems (symbols, labels, MCQ values)."""
+    text = await _vision_image_call(
+        image_bytes,
+        mime_type=mime_type,
+        prompt=PROBLEM_PAGE_OCR_PROMPT,
+        max_tokens=4096,
+        tenant_id=tenant_id,
+        user_id=user_id,
+    )
+    if len(text) < 5:
+        raise ValueError("Could not read problem text from page image.")
+    return text
+
+
+async def describe_diagram_image_bytes(
+    image_bytes: bytes,
+    *,
+    mime_type: str = "image/png",
+    tenant_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+) -> str:
+    """Structured diagram layout description for problem-solver context."""
+    if not image_bytes:
+        return ""
+    text = await _vision_image_call(
+        image_bytes,
+        mime_type=mime_type,
+        prompt=PROBLEM_DIAGRAM_DESCRIBE_PROMPT,
+        max_tokens=1024,
+        tenant_id=tenant_id,
+        user_id=user_id,
+    )
+    cleaned = (text or "").strip()
+    if cleaned.upper() == "NO_DIAGRAM" or cleaned.lower() in {"no diagram", "no figure", "text only"}:
+        return ""
+    return cleaned
 
 
 async def ocr_image_bytes(

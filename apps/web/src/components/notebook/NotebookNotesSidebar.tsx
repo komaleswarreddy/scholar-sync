@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronRight, FileText, Loader2 } from 'lucide-react';
+import { ChevronRight, FileText } from 'lucide-react';
+import { NotesListSkeleton } from '@/components/skeleton';
 import { useNotebookContext, useNotebookScopeId } from '@/contexts/NotebookContext';
 import { useNotes, useCreateNote, useUpdateNote, noteKeys } from '@/hooks/useNotes';
 import { useQueryClient } from '@tanstack/react-query';
@@ -68,10 +69,7 @@ export function NotebookNotesSidebar() {
         </div>
 
         {isLoading && notes.length === 0 ? (
-          <div className="flex items-center justify-center py-6 text-[var(--color-home-text-muted)]">
-            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            <span className="text-[12px]">Loading notes…</span>
-          </div>
+          <NotesListSkeleton count={2} />
         ) : previewNotes.length === 0 ? (
           <p className="text-[12px] text-[var(--color-home-text-muted)] px-1 py-2">
             No notes yet. Create one to capture ideas from this notebook.

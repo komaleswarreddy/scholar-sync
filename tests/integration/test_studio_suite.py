@@ -134,6 +134,74 @@ class TestSTU06MindMapStructure:
         validation.assert_valid(prefix="STU-06")
 
 
+class TestSTUMindMapNotebookLMGrounding:
+    """NotebookLM parity: mind_map ignores chat/selection; sources-only grounding."""
+
+    def test_stu_mmp_sources_only_default(
+        self,
+        require_integration,
+        api_client,
+        base_url,
+        auth_token,
+        stu_standard_source_id,
+    ):
+        result = generate_studio(
+            api_client,
+            base_url=base_url,
+            token=auth_token,
+            task_type="mind_map",
+            source_ids=[stu_standard_source_id],
+            context_mode="sources_only",
+        )
+        body = _assert_generate_ok(result)
+        validate_mind_map_structure(body.get("content") or "").assert_valid(prefix="STU-MMP-01")
+
+    def test_stu_mmp_chat_hybrid_request_still_succeeds(
+        self,
+        require_integration,
+        api_client,
+        base_url,
+        auth_token,
+        stu_standard_source_id,
+    ):
+        """Backend forces sources_only even when client sends chat_hybrid + transcript."""
+        chat = "User: Ignore sources and map only this chat topic about Paris.\nAssistant: OK."
+        result = generate_studio(
+            api_client,
+            base_url=base_url,
+            token=auth_token,
+            task_type="mind_map",
+            source_ids=[stu_standard_source_id],
+            context_mode="chat_hybrid",
+            chat_transcript=chat,
+            timeout=300.0,
+        )
+        body = _assert_generate_ok(result)
+        content = body.get("content") or ""
+        validate_mind_map_structure(content).assert_valid(prefix="STU-MMP-03")
+        assert "## Conversation" not in content
+        assert "Paris" not in content or "photosynthesis" in content.lower() or "#" in content
+
+    def test_stu_mmp_empty_sources_422(
+        self,
+        require_integration,
+        api_client,
+        base_url,
+        auth_token,
+    ):
+        result = generate_studio(
+            api_client,
+            base_url=base_url,
+            token=auth_token,
+            task_type="mind_map",
+            source_ids=[],
+            context_mode="sources_only",
+        )
+        assert result.status_code == 422, (
+            f"[structure-error] mind_map empty sources expected 422, got {result.status_code}"
+        )
+
+
 class TestSTU08SlideDeckSchema:
     def test_stu08_slide_deck_schema(
         self,

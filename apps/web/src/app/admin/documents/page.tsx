@@ -23,6 +23,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { FileText, CheckCircle2, XCircle, Clock, Loader2 } from 'lucide-react';
+import { AdminTableSkeleton } from '@/components/skeleton';
 
 // Register Chart.js components
 ChartJS.register(
@@ -201,16 +202,7 @@ export default function DocumentsPage() {
     return num.toLocaleString('en-US');
   };
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-          <p className="text-text-secondary">Loading documents...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AdminTableSkeleton />;
 
   if (error) {
     return (

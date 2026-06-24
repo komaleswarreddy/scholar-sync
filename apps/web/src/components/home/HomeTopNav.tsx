@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Home,
   BookOpen,
@@ -17,6 +18,11 @@ import { useNotebookLeaveGuardOptional } from '@/contexts/NotebookLeaveGuardCont
 import { useTutorClass } from '@/contexts/TutorClassContext';
 import { TUTOR_CLASS_OPTIONS } from '@/hooks/useTutorCatalog';
 import { isProblemSolverEnabled } from '@/lib/feature-flags';
+import {
+  prefetchHomeSummary,
+  prefetchNotebooks,
+  prefetchNotesList,
+} from '@/hooks/usePrefetchStudentData';
 
 const baseNavItems = [
   { href: '/home', label: 'Home', icon: Home },
@@ -38,8 +44,15 @@ type HomeTopNavProps = {
 
 export function HomeTopNav({ activeStyle = 'pill', hideClassPill = false }: HomeTopNavProps) {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const leaveGuard = useNotebookLeaveGuardOptional();
   const { classNum, setClassNum } = useTutorClass();
+
+  const handlePrefetch = (href: string) => {
+    if (href === '/home') void prefetchHomeSummary(queryClient);
+    if (href === '/library') void prefetchNotebooks(queryClient);
+    if (href === '/assets' || href === '/notes') void prefetchNotesList(queryClient);
+  };
 
   const handleNav = (href: string, event: React.MouseEvent) => {
     if (leaveGuard && href !== pathname) {
@@ -95,6 +108,8 @@ export function HomeTopNav({ activeStyle = 'pill', hideClassPill = false }: Home
                 href={href}
                 className={linkClass}
                 onClick={(event) => handleNav(href, event)}
+                onMouseEnter={() => handlePrefetch(href)}
+                onFocus={() => handlePrefetch(href)}
               >
                 <Icon className="w-4 h-4" strokeWidth={1.75} />
                 {label}

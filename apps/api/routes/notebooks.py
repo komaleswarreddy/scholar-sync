@@ -71,9 +71,16 @@ async def list_notebooks(
     tenant_id, user_id = _get_context(request)
     service = NotebookService(db, tenant_id, user_id)
     notebooks = await service.list_notebooks()
+    notebook_ids = [str(nb.id) for nb in notebooks]
+    counts_map = await service.get_notebook_list_counts_batch(notebook_ids)
     items = []
     for nb in notebooks:
-        counts = await service.get_notebook_list_counts(str(nb.id))
+        counts = counts_map.get(str(nb.id), {
+            "sources_count": 0,
+            "notes_count": 0,
+            "study_assets_count": 0,
+            "quizzes_count": 0,
+        })
         base = _to_response(nb)
         items.append(NotebookListItemResponse(**base.model_dump(), **counts))
     active = await service.count_active_this_week()

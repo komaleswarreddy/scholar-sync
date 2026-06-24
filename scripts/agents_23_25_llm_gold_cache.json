@@ -1,0 +1,2036 @@
+{
+  "version": "1.0.0",
+  "examples": {
+    "tutor_notebook_bootstrap-001": {
+      "example_id": "tutor_notebook_bootstrap-001",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Ohm's Law**: The relationship between voltage (V), current (I), and resistance (R) is defined by the equation V = IR at constant temperature.\n- **Resistance**: Resistance (R) is calculated using the formula R = ρL/A, where ρ is resistivity, L is length, and A is cross-sectional area.\n- **Series and Parallel Resistors**: Resistors in series add directly, while resistors in parallel add using the reciprocal formula.\n- **Electric Power**: Power (P) can be calculated using P = VI or P = I²R, which shows how power relates to voltage and current.\n\n### Exam highlights\n- Remember the formula for Ohm's Law: V = IR.\n- Understand how to calculate total resistance in series and parallel circuits.\n- Electric power is crucial for understanding household circuits, which typically operate at 220 V AC.\n\n### Ask me for full clarity\n1. What is the significance of resistivity in the resistance formula?\n2. Can you explain how to calculate total resistance in a series circuit?\n3. What are the practical applications of Ohm's Law in everyday life?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain Ohm's Law",
+              "prompt": "Can you explain Ohm's Law and its significance in Chapter 12?"
+            },
+            {
+              "label": "Resistance Calculation",
+              "prompt": "How do you calculate resistance using the formula R = ρL/A?"
+            },
+            {
+              "label": "Series vs Parallel",
+              "prompt": "What is the difference between resistors in series and parallel?"
+            },
+            {
+              "label": "Electric Power Formulas",
+              "prompt": "What are the different formulas for calculating electric power?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Flashcards will help memorize key definitions and formulas.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "A quiz can test understanding of Ohm's Law and resistance concepts.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "A mind map can visually organize the relationships between concepts.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "A slide deck can summarize key points for revision.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:11:32Z"
+    },
+    "tutor_notebook_bootstrap-002": {
+      "example_id": "tutor_notebook_bootstrap-002",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Salivary amylase** initiates starch digestion in the mouth.\n- **HCl and pepsin** in the stomach aid protein digestion.\n- **Pancreatic juice** contains enzymes like trypsin, lipase, and amylase for further digestion in the small intestine.\n- **Villi and microvilli** in the small intestine enhance nutrient absorption.\n\n### Exam highlights\n- Remember that salivary amylase breaks down carbohydrates into simpler sugars.\n- HCl creates an acidic environment for pepsin to function optimally.\n- Pancreatic enzymes are crucial for digesting proteins, fats, and carbohydrates.\n- Absorption mainly occurs through the extensive surface area provided by villi and microvilli.\n\n### Ask me for full clarity\n1. What role does each enzyme play in digestion?\n2. How does the structure of the small intestine facilitate absorption?\n3. Can you explain the significance of HCl in the stomach?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Role of enzymes",
+              "prompt": "What role does each enzyme play in digestion in Chapter 16?"
+            },
+            {
+              "label": "Small intestine structure",
+              "prompt": "How does the structure of the small intestine facilitate absorption in Chapter 16?"
+            },
+            {
+              "label": "Significance of HCl",
+              "prompt": "Can you explain the significance of HCl in the stomach as discussed in Chapter 16?"
+            },
+            {
+              "label": "Functions of villi",
+              "prompt": "What are the functions of villi and microvilli in nutrient absorption in Chapter 16?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Flashcards will help memorize key terms and definitions related to digestion.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "A quiz can test understanding of the digestion process and enzyme functions.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "A mind map can visually organize the digestion process and enzyme interactions.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "A slide deck can summarize key concepts and facilitate review for exams.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:11:45Z"
+    },
+    "tutor_notebook_bootstrap-003": {
+      "example_id": "tutor_notebook_bootstrap-003",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Lens formula**: The relationship between object distance (u), image distance (v), and focal length (f) is expressed as 1/f = 1/v - 1/u.\n- **Magnification (m)**: Defined as the ratio of image distance to object distance, m = v/u.\n- **Power of a lens (P)**: The power is given by P = 1/f, where f is in meters.\n- **Sign convention**: For real objects, the object distance (u) is considered negative.\n\n### Exam highlights\n- Remember the lens formula and its components for solving problems related to lenses.\n- Understand the significance of magnification and how it affects image size.\n- Be familiar with the power of a lens and its unit (diopters).\n\n### Ask me for full clarity\n1. Can you explain how to apply the lens formula in different scenarios?\n2. What are the implications of the sign convention in lens calculations?\n3. How does magnification relate to the type of lens used?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain lens formula",
+              "prompt": "Can you explain how to apply the lens formula in different scenarios from Chapter 9?"
+            },
+            {
+              "label": "Sign convention details",
+              "prompt": "What are the implications of the sign convention in lens calculations from Chapter 9?"
+            },
+            {
+              "label": "Understanding magnification",
+              "prompt": "How does magnification relate to the type of lens used in Chapter 9?"
+            },
+            {
+              "label": "Power of a lens",
+              "prompt": "What is the significance of the power of a lens in Chapter 9?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Flashcards will help reinforce definitions and formulas related to lenses.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "A quiz will test understanding of the lens formula and related concepts.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "A mind map can visually organize the relationships between concepts in lens optics.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "A slide deck can summarize key points and formulas for quick revision.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:11:59Z"
+    },
+    "tutor_notebook_bootstrap-004": {
+      "example_id": "tutor_notebook_bootstrap-004",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Quadratic Equation**: Standard form is ax² + bx + c = 0.\n- **Roots**: Found using the quadratic formula, x = (-b ± √D) / 2a.\n- **Discriminant**: D = b² - 4ac determines the nature of roots.\n- **Sum and Product of Roots**: Sum = -b/a; Product = c/a.\n\n### Exam highlights\n- Remember the formula for roots and the significance of the discriminant.\n- Know how to derive the sum and product of roots from the coefficients.\n\n### Ask me for full clarity\n1. What is the significance of the discriminant in determining the nature of roots?\n2. Can you explain how to derive the quadratic formula?\n3. How do you find the sum and product of the roots from a given quadratic equation?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Discriminant details",
+              "prompt": "What does the discriminant tell us about the roots in Quadratic Equations?"
+            },
+            {
+              "label": "Finding roots",
+              "prompt": "How do you use the quadratic formula to find the roots of a quadratic equation?"
+            },
+            {
+              "label": "Sum and product",
+              "prompt": "Can you explain how to calculate the sum and product of the roots from the coefficients?"
+            },
+            {
+              "label": "Real-life applications",
+              "prompt": "What are some real-life applications of quadratic equations?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "Helps in practicing problem-solving skills for quadratic equations.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Visualizes the relationships between concepts in quadratic equations.",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "Reinforces key definitions and formulas related to quadratic equations.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Summarizes important concepts and formulas for revision.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:12:10Z"
+    },
+    "tutor_notebook_bootstrap-005": {
+      "example_id": "tutor_notebook_bootstrap-005",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **VSEPR theory** helps predict molecular geometry based on electron pairs.\n- **Electron pairs** include bonding and lone pairs that influence shape.\n- **Hybridisation** explains the mixing of atomic orbitals to form new hybrid orbitals.\n\n### Exam highlights\n- VSEPR theory is crucial for understanding molecular shapes and angles.\n- Common geometries include linear, trigonal planar, tetrahedral, and octahedral.\n- Remember the hybridisation types: sp (linear), sp² (trigonal planar), sp³ (tetrahedral).\n\n### Ask me for full clarity\n1. What specific molecular shapes are you struggling to remember?\n2. Do you need help with hybridisation concepts?\n3. Are there particular examples of VSEPR theory you want to discuss?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "VSEPR shapes quiz",
+              "prompt": "Can you explain the different molecular shapes predicted by VSEPR theory?"
+            },
+            {
+              "label": "Hybridisation types",
+              "prompt": "What are the different types of hybridisation and their geometries?"
+            },
+            {
+              "label": "Electron pairs role",
+              "prompt": "How do bonding and lone pairs affect molecular geometry in VSEPR theory?"
+            },
+            {
+              "label": "Common examples",
+              "prompt": "What are some common examples of molecules that illustrate VSEPR theory?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Flashcards help memorize key terms and definitions related to VSEPR theory.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "Quizzes test understanding of molecular shapes and hybridisation concepts.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Mind maps can visually organize the relationships between different molecular geometries and hybridisation.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Slide decks can present VSEPR theory concepts in a structured format for revision.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:12:22Z"
+    },
+    "tutor_notebook_bootstrap-006": {
+      "example_id": "tutor_notebook_bootstrap-006",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Ohm's Law**: The relationship between voltage, current, and resistance, expressed as V=IR.\n- **Kirchhoff's Junction Rule**: States that the total current entering a junction equals the total current leaving it (ΣI_in=ΣI_out).\n- **Kirchhoff's Loop Rule**: The sum of the potential differences (voltage) around any closed loop in a circuit is zero (ΣΔV=0).\n- **Wheatstone Bridge**: A method to determine an unknown resistance in a circuit.\n\n### Exam highlights\n- Remember Ohm's Law for calculations involving current, voltage, and resistance.\n- Kirchhoff's laws are essential for analyzing complex circuits; practice applying them in problems.\n- The Wheatstone bridge is particularly useful for measuring unknown resistances accurately.\n\n### Ask me for full clarity\n1. Can you explain Kirchhoff's Junction Rule in your own words?\n2. How would you apply Kirchhoff's Loop Rule to a simple circuit?\n3. What is the significance of the Wheatstone bridge in practical applications?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain Junction Rule",
+              "prompt": "Can you explain Kirchhoff's Junction Rule in your own words?"
+            },
+            {
+              "label": "Loop Rule Application",
+              "prompt": "How would you apply Kirchhoff's Loop Rule to a simple circuit?"
+            },
+            {
+              "label": "Wheatstone Bridge Use",
+              "prompt": "What is the significance of the Wheatstone bridge in practical applications?"
+            },
+            {
+              "label": "Ohm's Law Examples",
+              "prompt": "Can you provide examples of problems using Ohm's Law?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Great for memorizing key terms and definitions related to Kirchhoff's laws.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "Helps test understanding of Kirchhoff's laws and their applications.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Useful for visualizing the relationships between concepts in current electricity.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Effective for summarizing and presenting key concepts and formulas.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:12:34Z"
+    },
+    "tutor_notebook_bootstrap-007": {
+      "example_id": "tutor_notebook_bootstrap-007",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Le Chatelier's Principle**: A system at equilibrium will shift to counteract any imposed change or stress.\n- **Equilibrium Constant (Kc)**: Defined as the ratio of the concentration of products to reactants at equilibrium.\n- **Catalysts**: They speed up the rate of reaching equilibrium but do not affect the equilibrium constant (K).\n- **Ionic Equilibrium**: Involves concepts like Ka, Kb, and Kw, which are crucial for understanding acid-base equilibria.\n\n### Exam highlights\n- Remember that Kc = [products]/[reactants] at equilibrium.\n- Le Chatelier's principle is essential for predicting the direction of shift in response to changes in concentration, temperature, and pressure.\n- Catalysts do not change the value of Kc.\n\n### Ask me for full clarity\n1. How does temperature affect the position of equilibrium according to Le Chatelier's principle?\n2. Can you explain the difference between Ka and Kb?\n3. What happens to the equilibrium position if the concentration of reactants is increased?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain Kc further",
+              "prompt": "Can you explain how to calculate Kc for a given reaction in Chapter 7?"
+            },
+            {
+              "label": "Le Chatelier's shifts",
+              "prompt": "What are some examples of how Le Chatelier's principle applies to real-life situations?"
+            },
+            {
+              "label": "Catalysts impact",
+              "prompt": "How do catalysts influence the equilibrium position in chemical reactions?"
+            },
+            {
+              "label": "Ionic equilibria",
+              "prompt": "What is the significance of Ka, Kb, and Kw in ionic equilibrium?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Flashcards help reinforce key definitions and principles in equilibrium.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "Quizzes can test understanding of concepts like Kc and Le Chatelier's principle.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Mind maps can visually organize the relationships between different types of equilibria.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Slide decks can summarize key concepts and provide visual aids for studying.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:12:51Z"
+    },
+    "tutor_notebook_bootstrap-008": {
+      "example_id": "tutor_notebook_bootstrap-008",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **DNA double helix**: The structure of DNA consists of two strands forming a double helix, with complementary base pairing (A-T, G-C).\n- **Semiconservative replication**: During DNA replication, each new DNA molecule consists of one original and one new strand, ensuring genetic continuity.\n- **Central dogma**: The flow of genetic information follows the sequence DNA → RNA → protein, which is fundamental to molecular biology.\n- **Genetic code**: The genetic code is triplet and degenerate, meaning that multiple codons can code for the same amino acid.\n\n### Exam highlights\n- DNA replication is crucial for cell division and occurs during the S phase of the cell cycle.\n- Understanding the roles of enzymes like DNA polymerase in replication is essential for exam questions.\n- The concept of the central dogma is often tested; be clear on how it connects DNA, RNA, and protein synthesis.\n\n### Ask me for full clarity\n1. What specific aspects of DNA replication would you like to understand better?\n2. Are you clear on the roles of different enzymes involved in DNA replication?\n3. Do you need help with the implications of the central dogma in genetics?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain DNA structure",
+              "prompt": "Can you explain the structure of DNA, focusing on the double helix and base pairing from Chapter 6?"
+            },
+            {
+              "label": "Details on replication",
+              "prompt": "What are the steps involved in semiconservative replication as described in Chapter 6?"
+            },
+            {
+              "label": "Central dogma overview",
+              "prompt": "Can you summarize the central dogma of molecular biology from Chapter 6?"
+            },
+            {
+              "label": "Genetic code insights",
+              "prompt": "What does it mean that the genetic code is triplet and degenerate according to Chapter 6?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Flashcards are great for memorizing key terms and definitions related to DNA replication.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "A quiz will help reinforce understanding of the processes involved in DNA replication.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "A mind map can help visualize the connections between DNA structure, replication, and the central dogma.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "A slide deck can effectively present the key concepts and processes in a structured format.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:13:16Z"
+    },
+    "tutor_notebook_bootstrap-009": {
+      "example_id": "tutor_notebook_bootstrap-009",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Gender division** is a social construct, emphasizing that it is shaped by societal norms rather than biology.\n- **Secularism** in India means that the state does not favor any religion, ensuring equality among all citizens.\n- **Caste inequalities** continue to exist in society, leading to the implementation of reservation policies to uplift marginalized communities.\n\n### Exam highlights\n- Gender division is not determined by biological differences but by social roles.\n- Secularism is crucial for maintaining harmony in a diverse nation like India.\n- Reservation policies aim to reduce caste-based inequalities in education and employment.\n\n### Ask me for full clarity\n1. What are the implications of gender division in society?\n2. How does secularism affect religious practices in India?\n3. Can you explain the impact of reservation policies on caste inequalities?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain gender division",
+              "prompt": "Can you explain the concept of gender division in Chapter 3?"
+            },
+            {
+              "label": "Discuss secularism",
+              "prompt": "What does secularism mean in the context of Indian society as discussed in Chapter 3?"
+            },
+            {
+              "label": "Caste inequalities",
+              "prompt": "What are the main caste inequalities mentioned in Chapter 3 and their effects?"
+            },
+            {
+              "label": "Reservation policies",
+              "prompt": "How do reservation policies address caste inequalities as per Chapter 3?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "slide_deck",
+              "reason": "A slide deck will help visualize key concepts and their interconnections.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "A quiz will reinforce understanding of the chapter's main ideas and facts.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "A mind map can help organize and relate various concepts like gender, religion, and caste.",
+              "auto_generate": false
+            },
+            {
+              "type": "flashcards",
+              "reason": "Flashcards can aid in memorizing key terms and definitions from the chapter.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:13:32Z"
+    },
+    "tutor_notebook_bootstrap-010": {
+      "example_id": "tutor_notebook_bootstrap-010",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **GDP**: Represents the total value of goods and services produced within a country's borders at market prices.\n- **GNP**: Measures the total income earned by a nation's residents, regardless of where the production occurs.\n- **NFIA**: Net Factor Income from Abroad, which adjusts GDP to calculate GNP.\n- **NDP**: Net Domestic Product, calculated by deducting depreciation from GDP.\n\n### Exam highlights\n- GNP = GDP + NFIA; this formula is crucial for understanding the difference between these two measures.\n- Remember that GDP focuses on location, while GNP focuses on ownership.\n\n### Ask me for full clarity\n1. What is the significance of NFIA in the calculation of GNP?\n2. Can you explain how depreciation affects the calculation of NDP?\n3. How do GDP and GNP reflect a country's economic health differently?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain GDP vs GNP",
+              "prompt": "Can you explain the differences between GDP and GNP in detail?"
+            },
+            {
+              "label": "Importance of NFIA",
+              "prompt": "What role does Net Factor Income from Abroad (NFIA) play in calculating GNP?"
+            },
+            {
+              "label": "Understanding NDP",
+              "prompt": "How is Net Domestic Product (NDP) calculated from GDP?"
+            },
+            {
+              "label": "Economic health indicators",
+              "prompt": "How do GDP and GNP serve as indicators of economic health?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "mind_map",
+              "reason": "Helps visualize the relationships between GDP, GNP, and NFIA.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "Reinforces understanding of key concepts and formulas.",
+              "auto_generate": true
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Useful for summarizing and presenting key points effectively.",
+              "auto_generate": false
+            },
+            {
+              "type": "flashcards",
+              "reason": "Good for memorizing definitions and formulas, but less critical here.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:13:51Z"
+    },
+    "tutor_notebook_bootstrap-011": {
+      "example_id": "tutor_notebook_bootstrap-011",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Kepler's Laws**: These describe the motion of planets around the sun, including their elliptical orbits.\n- **Universal Gravitation**: The force of attraction between two masses, defined by the formula F=Gm₁m₂/r².\n- **Escape Velocity**: The minimum speed needed to break free from a celestial body's gravitational pull, given by v_e=√(2gR).\n- **Gravitational Field Strength**: The force per unit mass experienced by a small test mass in a gravitational field, represented as g=GM/R².\n\n### Exam highlights\n- Remember Kepler's three laws: 1) Orbits are ellipses, 2) Equal areas in equal times, 3) The square of the period is proportional to the cube of the semi-major axis.\n- Key formulas: F=Gm₁m₂/r², g=GM/R², and v_e=√(2gR).\n\n### Ask me for full clarity\n1. Can you explain the significance of each of Kepler's laws?\n2. How does the concept of escape velocity relate to gravitational force?\n3. What are the practical applications of understanding gravitation in real life?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain Kepler's Laws",
+              "prompt": "Can you explain the significance of each of Kepler's laws in Chapter 7?"
+            },
+            {
+              "label": "Discuss Escape Velocity",
+              "prompt": "How does the concept of escape velocity relate to gravitational force in Chapter 7?"
+            },
+            {
+              "label": "Gravitational Field Strength",
+              "prompt": "What is the formula for gravitational field strength and its significance in Chapter 7?"
+            },
+            {
+              "label": "Applications of Gravitation",
+              "prompt": "What are the practical applications of understanding gravitation in real life from Chapter 7?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Useful for memorizing key terms and formulas related to gravitation.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "Helps assess understanding of Kepler's laws and gravitational concepts.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Visual representation of the relationships between concepts in gravitation.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Effective for summarizing and presenting key ideas in a structured format.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:14:07Z"
+    },
+    "tutor_notebook_bootstrap-012": {
+      "example_id": "tutor_notebook_bootstrap-012",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Definite integrals**: Understanding the concept of definite integrals and their applications in calculating area under curves.\n- **Fundamental theorem of calculus**: Links the concept of antiderivatives to definite integrals, providing a method to evaluate them.\n- **Area under the curve**: Using definite integrals to find the area between the curve and the x-axis over a specific interval.\n\n### Exam highlights\n- The formula for definite integrals is derived from the antiderivative: ∫[a to b] f(x) dx = F(b) - F(a), where F is an antiderivative of f.\n- Remember that the integral of x^n is given by ∫x^n dx = x^(n+1)/(n+1) + C, for n ≠ -1.\n\n### Ask me for full clarity\n1. What specific areas of definite integrals do you find challenging?\n2. Do you need help with the fundamental theorem of calculus?\n3. Would you like to practice problems related to area under curves?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Definite integrals basics",
+              "prompt": "Can you explain the basics of definite integrals in Chapter 7?"
+            },
+            {
+              "label": "Fundamental theorem",
+              "prompt": "What is the fundamental theorem of calculus and how does it relate to definite integrals?"
+            },
+            {
+              "label": "Area under curve",
+              "prompt": "How do you calculate the area under a curve using definite integrals?"
+            },
+            {
+              "label": "Example problems",
+              "prompt": "Can you provide example problems on definite integrals from Chapter 7?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "quiz",
+              "reason": "To practice problem-solving skills related to definite integrals.",
+              "auto_generate": true
+            },
+            {
+              "type": "flashcards",
+              "reason": "To reinforce key definitions and formulas related to definite integrals.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "To visualize the connections between concepts in Chapter 7.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "To summarize and present the key concepts of definite integrals.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:14:20Z"
+    },
+    "tutor_notebook_bootstrap-013": {
+      "example_id": "tutor_notebook_bootstrap-013",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Resource types**: Understand the difference between renewable and non-renewable resources.\n- **Sustainable development**: Learn how to balance present and future needs for resources.\n- **Soil erosion**: Explore the causes and effects of soil erosion on agriculture and environment.\n- **Soil conservation**: Discover various methods to conserve soil and maintain its fertility.\n\n### Exam highlights\n- Renewable resources can be replenished naturally, while non-renewable resources are finite.\n- Sustainable development aims to meet the needs of the present without compromising future generations.\n- Soil erosion can be caused by water, wind, and human activities, leading to loss of fertile land.\n\n### Ask me for full clarity\n1. What are the main differences between renewable and non-renewable resources?\n2. Can you explain how sustainable development impacts resource management?\n3. What are some effective soil conservation techniques?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Types of resources",
+              "prompt": "What are the key differences between renewable and non-renewable resources in Chapter 1?"
+            },
+            {
+              "label": "Sustainable development",
+              "prompt": "How does sustainable development balance present and future resource needs?"
+            },
+            {
+              "label": "Soil erosion causes",
+              "prompt": "What are the main causes of soil erosion discussed in Chapter 1?"
+            },
+            {
+              "label": "Conservation methods",
+              "prompt": "What methods of soil conservation are mentioned in the chapter?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "slide_deck",
+              "reason": "Visual representation of key concepts will aid understanding.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "Testing knowledge on definitions and concepts reinforces learning.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Organizing information visually helps in connecting ideas effectively.",
+              "auto_generate": false
+            },
+            {
+              "type": "flashcards",
+              "reason": "Useful for memorizing key terms and definitions, but less critical than other tools.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:14:35Z"
+    },
+    "tutor_notebook_bootstrap-014": {
+      "example_id": "tutor_notebook_bootstrap-014",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Calvin cycle**: The process occurring in the stroma of chloroplasts that fixes CO₂ into organic molecules.\n- **C3 pathway**: The most common pathway of carbon fixation that occurs in plants like wheat and rice.\n- **C4 pathway**: A modified pathway that allows plants like maize and sugarcane to efficiently fix CO₂ in hot climates.\n- **ATP and NADPH**: Energy carriers produced during the light reactions that are essential for the Calvin cycle.\n\n### Exam highlights\n- The Calvin cycle is crucial for converting inorganic carbon into organic forms, a key concept in photosynthesis.\n- Distinction between C3 and C4 pathways is important; C4 plants have adaptations to minimize photorespiration.\n\n### Ask me for full clarity\n1. What specific aspect of the Calvin cycle do you find confusing?\n2. Do you want to know how the Calvin cycle relates to light reactions?\n3. Would you like examples of plants using C3 and C4 pathways?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Explain Calvin cycle",
+              "prompt": "Can you explain the steps of the Calvin cycle in detail?"
+            },
+            {
+              "label": "C3 vs C4 pathways",
+              "prompt": "What are the differences between C3 and C4 pathways in photosynthesis?"
+            },
+            {
+              "label": "Role of ATP and NADPH",
+              "prompt": "How do ATP and NADPH contribute to the Calvin cycle?"
+            },
+            {
+              "label": "Importance of photosynthesis",
+              "prompt": "Why is photosynthesis, particularly the Calvin cycle, important for plants?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Flashcards will help in memorizing key terms and processes of the Calvin cycle.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "A quiz will test understanding of the Calvin cycle and its components.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "A mind map can visually organize the relationships between C3 and C4 pathways.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "A slide deck can present the Calvin cycle and its significance in a structured format.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:15:03Z"
+    },
+    "tutor_notebook_bootstrap-015": {
+      "example_id": "tutor_notebook_bootstrap-015",
+      "agent_id": "tutor_notebook_bootstrap",
+      "llm_gold": {
+        "bootstrap_json": {
+          "opening_summary": "## Summary\n\n### Key topics\n- **Galvanic cell**: A device that converts chemical energy into electrical energy through redox reactions.\n- **Anode and cathode**: The anode is where oxidation occurs, while the cathode is where reduction takes place.\n- **Standard cell potential (E°cell)**: Calculated as E°cell = E°cathode - E°anode, indicating the driving force of the reaction.\n- **Nernst equation**: Relates the electromotive force (EMF) of a cell to the concentration of reactants and products.\n\n### Exam highlights\n- The Nernst equation is essential for calculating cell potential under non-standard conditions.\n- Remember the formula: E = E° - (RT/nF) * ln(Q), where Q is the reaction quotient.\n- Key to understand how concentration affects cell potential.\n\n### Ask me for full clarity\n1. What specific aspect of the Nernst equation do you find challenging?\n2. Can you explain the significance of standard conditions in electrochemistry?\n3. How does the concentration of ions affect the EMF of a galvanic cell?\n\nTap a suggestion below or ask your own question.",
+          "suggestions": [
+            {
+              "label": "Nernst equation details",
+              "prompt": "Can you explain the components of the Nernst equation in Chapter 3?"
+            },
+            {
+              "label": "Understanding E°cell",
+              "prompt": "What does E°cell represent in electrochemistry, and how is it calculated?"
+            },
+            {
+              "label": "Oxidation vs Reduction",
+              "prompt": "Can you clarify the difference between oxidation and reduction in a galvanic cell?"
+            },
+            {
+              "label": "Application of Nernst",
+              "prompt": "How can the Nernst equation be applied to real-life electrochemical cells?"
+            }
+          ],
+          "studio_recommendations": [
+            {
+              "type": "flashcards",
+              "reason": "Useful for memorizing key terms and equations related to the Nernst equation.",
+              "auto_generate": true
+            },
+            {
+              "type": "quiz",
+              "reason": "Helps assess understanding of the Nernst equation and related concepts.",
+              "auto_generate": true
+            },
+            {
+              "type": "mind_map",
+              "reason": "Visual representation of concepts and their interconnections in electrochemistry.",
+              "auto_generate": false
+            },
+            {
+              "type": "slide_deck",
+              "reason": "Effective for summarizing and presenting key ideas from the chapter.",
+              "auto_generate": false
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:15:16Z"
+    },
+    "tutor_follow_up_questions-001": {
+      "example_id": "tutor_follow_up_questions-001",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "What happens to current if one resistor is removed from the circuit?",
+          "Can you calculate voltage drop across each resistor with 1.5 A current?",
+          "How would this change if the resistors were in parallel instead?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:18Z"
+    },
+    "tutor_follow_up_questions-002": {
+      "example_id": "tutor_follow_up_questions-002",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "What are the consequences of low gastric pH on digestion?",
+          "Can you explain how pepsin works on proteins?",
+          "How might this topic appear in exam questions on digestion?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:21Z"
+    },
+    "tutor_follow_up_questions-003": {
+      "example_id": "tutor_follow_up_questions-003",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does the sign convention change for concave lenses?",
+          "Can you calculate v for u = -30 cm using the lens formula?",
+          "Why is it important to identify real vs virtual images in exams?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:24Z"
+    },
+    "tutor_follow_up_questions-004": {
+      "example_id": "tutor_follow_up_questions-004",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain why D = 0 guarantees equal roots?",
+          "Can you find the roots of a quadratic with D = 0?",
+          "How might this concept show up in your exams?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:26Z"
+    },
+    "tutor_follow_up_questions-005": {
+      "example_id": "tutor_follow_up_questions-005",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does lone pair repulsion affect molecular shape?",
+          "Can you predict the shape of H₂O using VSEPR?",
+          "What geometry would a molecule with 4 bonded atoms and no lone pairs have?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:31Z"
+    },
+    "tutor_follow_up_questions-006": {
+      "example_id": "tutor_follow_up_questions-006",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain how to apply the loop rule in a full Wheatstone bridge?",
+          "How would you calculate the unknown resistor using Kirchhoff's laws?",
+          "What exam problems involve Kirchhoff's laws that you find tricky?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:34Z"
+    },
+    "tutor_follow_up_questions-007": {
+      "example_id": "tutor_follow_up_questions-007",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does adding a gas at constant pressure affect equilibrium?",
+          "Can you explain how temperature changes influence Q?",
+          "What might be a typical exam question on Le Chatelier's principle?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:41Z"
+    },
+    "tutor_follow_up_questions-008": {
+      "example_id": "tutor_follow_up_questions-008",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain why DNA polymerase can only add nucleotides in one direction?",
+          "How would you describe the process of joining Okazaki fragments after replication?",
+          "What might happen if Okazaki fragments weren't properly joined during DNA replication?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:44Z"
+    },
+    "tutor_follow_up_questions-009": {
+      "example_id": "tutor_follow_up_questions-009",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you give examples of how caste affects voting patterns in elections?",
+          "How might caste-based mobilization impact policy decisions in local governance?",
+          "What are the potential exam questions on caste and democracy you can think of?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:48Z"
+    },
+    "tutor_follow_up_questions-010": {
+      "example_id": "tutor_follow_up_questions-010",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does depreciation affect GDP calculations over time?",
+          "Can you give an example of net indirect taxes in GDP?",
+          "Why is understanding NNP important for exam questions on income?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:51Z"
+    },
+    "tutor_follow_up_questions-011": {
+      "example_id": "tutor_follow_up_questions-011",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain how g changes with altitude and its effect on escape velocity?",
+          "How would you calculate escape velocity for a planet with double the radius?",
+          "What might be a common mistake when applying Kepler's laws in exam questions?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:54Z"
+    },
+    "tutor_follow_up_questions-012": {
+      "example_id": "tutor_follow_up_questions-012",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does the substitution simplify the integral's evaluation?",
+          "Can you try a similar integral using u = 1-x²?",
+          "Why is substitution often preferred in definite integrals on exams?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:57:58Z"
+    },
+    "tutor_follow_up_questions-013": {
+      "example_id": "tutor_follow_up_questions-013",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How do terraces help with water retention on steep hills?",
+          "Can you explain how contour ploughing works in detail?",
+          "What are the advantages of terrace farming in exam questions?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:01Z"
+    },
+    "tutor_follow_up_questions-014": {
+      "example_id": "tutor_follow_up_questions-014",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does the CO₂ concentration affect the efficiency of photosynthesis?",
+          "Can you explain how C₄ plants adapt to hot environments using the Calvin cycle?",
+          "What exam questions might ask about the role of bundle-sheath cells in C₄ plants?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:05Z"
+    },
+    "tutor_follow_up_questions-015": {
+      "example_id": "tutor_follow_up_questions-015",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "What happens to E when [Zn²⁺] decreases instead of doubling?",
+          "Can you calculate E for [Zn²⁺] = 0.1 M using the Nernst equation?",
+          "How might this concept appear in your upcoming exam questions?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:09Z"
+    },
+    "tutor_follow_up_questions-016": {
+      "example_id": "tutor_follow_up_questions-016",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain how total current is calculated in parallel circuits?",
+          "What happens to power if one resistor is removed from the parallel setup?",
+          "How would you solve a problem with different resistor values in parallel?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:13Z"
+    },
+    "tutor_follow_up_questions-017": {
+      "example_id": "tutor_follow_up_questions-017",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "What role does enterokinase play in activating trypsinogen?",
+          "Can you explain why pH affects enzyme activity using other examples?",
+          "How might this knowledge help with exam questions on enzyme functions?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:16Z"
+    },
+    "tutor_follow_up_questions-018": {
+      "example_id": "tutor_follow_up_questions-018",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain what happens at angles greater than the critical angle?",
+          "How would you calculate the critical angle for water to air?",
+          "Why is TIR important in optical fibers for communication?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:19Z"
+    },
+    "tutor_follow_up_questions-019": {
+      "example_id": "tutor_follow_up_questions-019",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain why the sum and product formulas work for any quadratic?",
+          "How would you apply these concepts to a different quadratic equation?",
+          "What types of questions about roots might come up on your exam?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:23Z"
+    },
+    "tutor_follow_up_questions-020": {
+      "example_id": "tutor_follow_up_questions-020",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does hybridization affect bond angles in other molecules?",
+          "Can you draw the Lewis structure for methane and show hybridization?",
+          "Why is tetrahedral shape important in predicting molecular properties?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:29Z"
+    },
+    "tutor_follow_up_questions-021": {
+      "example_id": "tutor_follow_up_questions-021",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does changing resistance in one arm affect the balance?",
+          "Can you calculate the current in each arm with specific values?",
+          "What exam questions might involve Wheatstone bridge concepts?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:32Z"
+    },
+    "tutor_follow_up_questions-022": {
+      "example_id": "tutor_follow_up_questions-022",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain why fidelity is crucial in DNA translation?",
+          "How would a mutation in a codon affect protein synthesis?",
+          "What role does degenerate coding play in genetic diversity?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:35Z"
+    },
+    "tutor_follow_up_questions-023": {
+      "example_id": "tutor_follow_up_questions-023",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "What are examples of personal laws in India that reflect this approach?",
+          "How might funding religious schools impact social equality in India?",
+          "Can you compare this to secularism in another country for your exam?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:38Z"
+    },
+    "tutor_follow_up_questions-024": {
+      "example_id": "tutor_follow_up_questions-024",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain why NFIA affects GNP and GDP differently?",
+          "How would you calculate GNP if NFIA changes to negative?",
+          "What impact does GNP have on a country's economic health in exams?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:42Z"
+    },
+    "tutor_follow_up_questions-025": {
+      "example_id": "tutor_follow_up_questions-025",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does the mass of the Sun affect planetary speeds and periods?",
+          "Can you calculate the orbital speed of a planet at a specific distance from the Sun?",
+          "What implications does Kepler's law have for satellite orbits around Earth?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:45Z"
+    },
+    "tutor_follow_up_questions-026": {
+      "example_id": "tutor_follow_up_questions-026",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does continuity of F affect the integral's value?",
+          "Can you find an example where F is not continuous?",
+          "What role does this play in exam questions on the FTC?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:48Z"
+    },
+    "tutor_follow_up_questions-027": {
+      "example_id": "tutor_follow_up_questions-027",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does tree cover specifically reduce wind erosion?",
+          "Can you think of a real-life example of afforestation helping soil?",
+          "What are key points on salinisation for exam prep?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:51Z"
+    },
+    "tutor_follow_up_questions-028": {
+      "example_id": "tutor_follow_up_questions-028",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain how photorespiration affects plant growth in different climates?",
+          "How would you compare the water use efficiency of C₄ and C₃ plants in agriculture?",
+          "What exam questions might ask about the advantages of C₄ plants in hot climates?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:54Z"
+    },
+    "tutor_follow_up_questions-029": {
+      "example_id": "tutor_follow_up_questions-029",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "Can you explain how concentration affects the Nernst equation?",
+          "How would you calculate the equilibrium potential at different ion concentrations?",
+          "What role does the Nernst equation play in understanding photosynthesis?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:58:59Z"
+    },
+    "tutor_follow_up_questions-030": {
+      "example_id": "tutor_follow_up_questions-030",
+      "agent_id": "tutor_follow_up_questions",
+      "llm_gold": {
+        "follow_ups": [
+          "How does air resistance affect the trajectory of a projectile?",
+          "Can you calculate the range for different angles with drag?",
+          "Why is the 45° angle ideal in a vacuum for maximum range?"
+        ]
+      },
+      "generated_at": "2026-06-24T06:59:02Z"
+    },
+    "source_question_extraction-001": {
+      "example_id": "source_question_extraction-001",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 18,
+                  "preview": "Find the vector equation of a line through the origin.",
+                  "fullText": "Find the vector equation of a line passing through the origin and perpendicular to both the lines r = 2i - j + 2k + λ(3i + 4j + 2k) and r = μ(i - j + k).",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 19,
+                  "preview": "Find vectors representing diagonals of a parallelogram.",
+                  "fullText": "Vectors a = 3i - 2j + 2k and b = i + 2k represent the two adjacent sides of a parallelogram. Find the vectors representing its diagonals and hence find their lengths.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 20,
+                  "preview": "How fast is the circumference of the circle increasing?",
+                  "fullText": "The area of the circle is increasing at a uniform rate of 2 cm²/sec. How fast is the circumference of the circle increasing?",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:17:47Z"
+    },
+    "source_question_extraction-002": {
+      "example_id": "source_question_extraction-002",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 8,
+                  "preview": "Identify the common region in linear programming.",
+                  "fullText": "The common region determined by all the constraints of a linear programming problem is called:\n(A) an unbounded region\n(B) an optimal region\n(C) a bounded region\n(D) a feasible region",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 9,
+                  "preview": "Find the inverse of matrix A.",
+                  "fullText": "If A = [ -1 0 0 ; 0 1 0 ; 0 0 1 ], then A⁻¹ is:\n(A) [ -1 0 0 ; 0 -1 0 ; 0 0 -1 ]\n(B) [ 1 0 0 ; 0 -1 0 ; 0 0 -1 ]\n(C) [ -1 0 0 ; 0 -1 0 ; 0 0 1 ]\n(D) [ -1 0 0 ; 0 1 0 ; 0 0 1 ]",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 10,
+                  "preview": "Determine the function f(x) given its derivative.",
+                  "fullText": "If d/dx (f(x)) = log x, then f(x) equals:\n(A) -1/x + C\n(B) x(log x - 1) + C\n(C) x(log",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:17:58Z"
+    },
+    "source_question_extraction-003": {
+      "example_id": "source_question_extraction-003",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 37,
+                  "preview": "Find dy/dx and prove d²y/dx² = -(cosec³ 2t · cosec t)/3.",
+                  "fullText": "If x = 3 sin t - sin 3t, y = 3 cos t - cos 3t, find dy/dx and prove that d²y/dx² = -(cosec³ 2t · cosec t)/3.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 38,
+                  "preview": "Prove intersection of lines through points A and B with C and D.",
+                  "fullText": "Prove that the line through points A(0, -1, -1) and B(4, 5, 1) intersects the line through points C(3, 9, 4) and D(-4, 4, 4). Hence, write the equation of line passing through the point of intersection of lines AB and CD.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:18:07Z"
+    },
+    "source_question_extraction-004": {
+      "example_id": "source_question_extraction-004",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section B",
+              "questions": [
+                {
+                  "number": 17,
+                  "preview": "Define humoral immune response and name two types of antibodies.",
+                  "fullText": "(a) Define humoral immune response.\n(b) Name any two types of antibodies found to give humoral immune response in humans.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 18,
+                  "preview": "Discuss seed dormancy and differentiate between two seed types.",
+                  "fullText": "(a) (i) How does a farmer use dormancy of seed to his advantage?\n(ii) Differentiate between pea seed and castor seed.\nOR\n(b) Identify the stage of follicle where primary oocyte undergoes first meiotic division.",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:18:14Z"
+    },
+    "source_question_extraction-005": {
+      "example_id": "source_question_extraction-005",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section C",
+              "questions": [
+                {
+                  "number": 27,
+                  "preview": "Explain the mode of action of contraceptive pills.",
+                  "fullText": "Explain the mode of action of contraceptive pills taken by human females. Mention the schedule to be followed for effective outcome.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 28,
+                  "preview": "What are transgenic animals? Name the first transgenic cow.",
+                  "fullText": "(a) What are transgenic animals? (b) Name the first transgenic cow and state its importance. OR (a) Explain the convention for naming EcoRI. (b) With the help of an illustration only, show the action of EcoRI on a DNA polynucleotide.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:18:21Z"
+    },
+    "source_question_extraction-006": {
+      "example_id": "source_question_extraction-006",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 14,
+                  "preview": "Discuss the validity of ideal mirrors producing real focus images.",
+                  "fullText": "Assertion (A): Ideal plane and convex mirror systems cannot produce real focus images under any practical circumscribed experimental setup conditions. Reason (R): A virtual image structure generated by a primary optics component can never serve as a valid virtual object to produce a real image output from a secondary boundary element.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 15,
+                  "preview": "Explain the effect of magnetic fields on copper structural bars.",
+                  "fullText": "Assertion (A): When a structural bar made of pure copper is placed inside an external magnetic field region, the field flux lines get strongly concentrated.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:18:30Z"
+    },
+    "source_question_extraction-007": {
+      "example_id": "source_question_extraction-007",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 22,
+                  "preview": "Calculate potential and kinetic energy of a hydrogen atom's electron.",
+                  "fullText": "The ground state energy of a hydrogen atom is given as -13.6 eV. Calculate the precise potential energy value and kinetic energy value of the bound electron when the atom is excited to its third excited state configuration.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 23,
+                  "preview": "Analyze a conducting wire bent into square and circular coils.",
+                  "fullText": "A conducting wire of fixed total length L is bent sequentially into: (i) a square coil containing N total turns, and (ii) a circular coil containing N total turns. The coil structure in both experimental cases is free to pivot about a vertical axis coinciding with i.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:18:38Z"
+    },
+    "source_question_extraction-008": {
+      "example_id": "source_question_extraction-008",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section E",
+              "questions": [
+                {
+                  "number": 47,
+                  "preview": "Describe the electric field in a parallel plate capacitor.",
+                  "fullText": "Q47. Passage: A parallel plate capacitor has two parallel plates which are separated by an insulating medium like air, mica, etc. When the plates are connected to the terminals of a battery, they get equal and opposite charges and an electric field is set up in between them. This electric field between the two plates depends upon the potential.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:18:44Z"
+    },
+    "source_question_extraction-009": {
+      "example_id": "source_question_extraction-009",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 49,
+                  "preview": "Explain the photoelectric effect based on Planck's theory.",
+                  "fullText": "Passage: Einstein explained the photoelectric effect on the basis of Planck's quantum theory, where light travels in the form of small bundles of energy called photons. The energy of each photon is given by hν, where ν is the frequency of incident light and h is Planck's constant. The number of photons in a beam of light determines the intensity of the incident light. A photon incident on a metal surface transfers its total energy to a free electron in the metal. A part of this energy is u",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:18:55Z"
+    },
+    "source_question_extraction-010": {
+      "example_id": "source_question_extraction-010",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 51,
+                  "preview": "Explain how a galvanometer works and its components.",
+                  "fullText": "Passage: A galvanometer is an instrument used to show the direction and strength of the current passing through it. It essentially works on the fact that a current-carrying coil experiences a deflecting torque when placed in a magnetic field. A spring attached to the coil provides a counter torque. In equilibrium, the deflecting torque is balanced by the restoring torque of the spring: NBAI = kφ. A small resistance, called a shunt, of a suitable value is connected in parallel with the galvanometer.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:19:02Z"
+    },
+    "source_question_extraction-011": {
+      "example_id": "source_question_extraction-011",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "If |a| = 8, |b| = 3 and |a × b| = 12, then find |a · b|.",
+                  "fullText": "If |a| = 8, |b| = 3 and |a × b| = 12, then the value of |a · b| is: (A) 6√3 (B) 8√3 (C) 12√3 (D) 3√12",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 2,
+                  "preview": "Find the value of x if A² = A and (I - A)³ = xA + I.",
+                  "fullText": "If a square matrix A is such that A² = A and (I - A)³ = xA + I, then value of x must be: (A) 7 (B) 5 (C) -7 (D) -1",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 3,
+                  "preview": "The Cartesian equation of a line is given.",
+                  "fullText": "The Cartesian equation of a line is given.",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:19:13Z"
+    },
+    "source_question_extraction-012": {
+      "example_id": "source_question_extraction-012",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 30,
+                  "preview": "Derive expression for current in an inductor with AC voltage.",
+                  "fullText": "An alternating voltage source represented by V = V0 sin ωt is applied across an ideal inductor possessing self-inductance L. Derive the mathematical expression for the instantaneous current flowing through the circuit. Prove analytically that the current wave lags behind the voltage wave by a phase angle of π / 2 radians, and construct the corresponding vector phasor diagram layout.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 31,
+                  "preview": "Define 'work function' and 'stopping potential' in photoelectric emission.",
+                  "fullText": "Define the terms 'work function' and 'stopping potential' within the context of photoelectric emission.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:19:20Z"
+    },
+    "source_question_extraction-013": {
+      "example_id": "source_question_extraction-013",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 5,
+                  "preview": "Find the sum of all real solutions of a logarithmic equation.",
+                  "fullText": "The sum of all the real solutions of the equation log(x+3)(6x² + 28x + 30) = 5 - 2 log(6x + 10)(x² + 6x + 9) is equal to",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 6,
+                  "preview": "Determine the least value of a trigonometric expression.",
+                  "fullText": "The least value of (cos² θ - 6 sin θ cos θ + 3 sin² θ + 2) is",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 7,
+                  "preview": "Analyze a relation defined on set A with two statements.",
+                  "fullText": "Let A = {0, 1, 2, ..., 9}. Let R be a relation on A defined by (x, y) ∈ R if and only if |x - y| is a multiple of 3. Given below are two statements: Statement I: n(R) = 36. Statement II: R is an equivalence relation.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:19:30Z"
+    },
+    "source_question_extraction-014": {
+      "example_id": "source_question_extraction-014",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 11,
+                  "preview": "Assertion about melanized moths and industrial areas.",
+                  "fullText": "Assertion (A): The population of melanized moths increased in industrial areas after Industrial Revolution. Reason (R): In industrial environments...",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:19:37Z"
+    },
+    "source_question_extraction-015": {
+      "example_id": "source_question_extraction-015",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section D",
+              "questions": [
+                {
+                  "number": 37,
+                  "preview": "Generalize the mathematical relation for refraction across a curved interface.",
+                  "fullText": "(a) Generalize the mathematical relation for refraction across a single curved spherical interface separating two media of distinct refractive indices. Utilizing this, derive the step-by-step expression for the Lens Maker's Formula for a thin biconvex lens element.\n(b) Define the optical power parameters of",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:19:44Z"
+    },
+    "source_question_extraction-016": {
+      "example_id": "source_question_extraction-016",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 63,
+                  "preview": "Determine the oxidation state of chromium in a reaction.",
+                  "fullText": "The oxidation state of chromium in the final product formed in the reaction between KI and acidified K2Cr2O7 solution is: 1. +3 2. +6 3. +2 4. +4",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 64,
+                  "preview": "Identify the correct statement for generating a positive cell potential.",
+                  "fullText": "Consider the above electrochemical cell where a metal electrode (M) is undergoing redox reaction by forming M^+ (M → M^+ + e^−). The cation M^+ is present in two different concentrations c1 and c2 as shown above. Which of the following statement is correct for generating a positive cell potential?",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:19:53Z"
+    },
+    "source_question_extraction-017": {
+      "example_id": "source_question_extraction-017",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 51,
+                  "preview": "Evaluate the truth of two chemical synthesis statements.",
+                  "fullText": "Given below are two statements: Statement I: NH₂ CH₃ Cl C₂H₅ can be synthesized from using simpler reagents in the order i) Acidic KMnO₄, ii) Ammonia, iii) Bromine and alkali. Statement II: C₆H₅ Br can be converted into using reagents in the order i) Bromine-H₂O ii) NaNO₂/HCl (0 - 5 °C) iii) Aq. H₃PO₂. In the light of the above statements, choose the correct answer from the options given below 1. Statement I is false but Statement II is true 2. Both Statement I",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:20:03Z"
+    },
+    "source_question_extraction-018": {
+      "example_id": "source_question_extraction-018",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 69,
+                  "preview": "Identify the CORRECT set of details from the following.",
+                  "fullText": "Identify the CORRECT set of details from the following: A. [Co(NH₃)₆]³⁺ : Inner orbital complex; d²sp³ hybridized B. [MnCl₆]³⁻ : Outer orbital complex; sp³d² hybridized C. [CoF₆]³⁻ : Outer orbital complex; d²sp³ hybridized D. [FeF₆]³⁻ : Outer orbital complex; sp³d² hybridized E. [Ni(CN)₄]²⁻ : Inner orbital complex; sp³ hybridized Choose the correct answer from the options given below: 1. A, B, C, D & E 2. C & D Only 3. A, B & D Only 4. A, C & E Only",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 70,
+                  "preview": "Given below",
+                  "fullText": "Given below",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:20:12Z"
+    },
+    "source_question_extraction-019": {
+      "example_id": "source_question_extraction-019",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 80,
+                  "preview": "Evaluate the correctness of two statements about cleistogamous flowers.",
+                  "fullText": "Given below are two statements: Statement I: Cleistogamous flowers are invariably autogamous. Statement II: Cleistogamy is disadvantageous as there is no chance for cross pollination. In the light of the above statements, choose the correct answer from the options given below. A. Statement I is incorrect but Statement II is correct B. Both Statement I and Statement II are correct C. Both Statement I and Statement II are incorrect D. Statement I is correct but Statement II is incorrect",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:20:17Z"
+    },
+    "source_question_extraction-020": {
+      "example_id": "source_question_extraction-020",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Name conventional diagnosis methods and their disadvantages.",
+                  "fullText": "(b) “Early and accurate diagnosis of diseases is vital in medical technology.” (i) Name the conventional methods of diagnosis and their disadvantages.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 2,
+                  "preview": "Identify three diagnostic techniques from Biotechnology.",
+                  "fullText": "(ii) Which three diagnostic techniques have been developed through Biotechnology? Explain how each one helps in detecting diseases.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 3,
+                  "preview": "Explain the process of double fertilisation in flowering plants.",
+                  "fullText": "Q42. (a) (i) Explain how double fertilisation takes place in a flowering plant.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 4,
+                  "preview": "Discuss the fate of products of double fertilisation.",
+                  "fullText": "(ii) Write the fate of the products of double fertilization in these plants.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:20:28Z"
+    },
+    "source_question_extraction-021": {
+      "example_id": "source_question_extraction-021",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 9,
+                  "preview": "Find the total combined resistance of an ammeter circuit configuration.",
+                  "fullText": "A galvanometer of resistance G is converted into an ammeter of range 0 to I A. If the current through the galvanometer is 0.1% of I A, the total combined resistance of the ammeter circuit configuration is:",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 10,
+                  "preview": "Determine the behavior of a charged particle in a magnetic field.",
+                  "fullText": "A charged particle gains a speed of 10^6 m/s when accelerated from rest through a potential difference of 10 kV. It enters a region of a uniform magnetic field of 0.4 T such that its velocity vector is perpendicular to the mag",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:20:35Z"
+    },
+    "source_question_extraction-022": {
+      "example_id": "source_question_extraction-022",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 21,
+                  "preview": "Let satisfy for some. Then is equal to _______",
+                  "fullText": "Let satisfy for some. Then is equal to _______",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 22,
+                  "preview": "Let the centre of the circle be in the first quadrant and lie on the line.",
+                  "fullText": "Let the centre of the circle be in the first quadrant and lie on the line. Let the area of an equilateral triangle inscribed in the circle be. Then the square of the length of the chord of the circle on the line is _______.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 23,
+                  "preview": "If , and be three vectors such that and, then is equal to _______.",
+                  "fullText": "If , and be three vectors such that and, then is equal to _______.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 24,
+                  "preview": "For the functions , and , let. If the first term of a G.P. is ,",
+                  "fullText": "For the functions , and , let. If the first term of a G.P. is , its common ratio is and the sum of its first",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:20:45Z"
+    },
+    "source_question_extraction-023": {
+      "example_id": "source_question_extraction-023",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 48,
+                  "preview": "Calculate the value of mass from energy released by proton bombardment.",
+                  "fullText": "The energy released when kg of is converted into by proton bombardment is eV. The value of is _______. (Nearest integer) (Mass of u, mass of u, mass of proton u and u MeV/c and Avogadro number)",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 49,
+                  "preview": "Determine the work done in moving a charge in an electric field.",
+                  "fullText": "A three coulomb charge moves from the point to the point in an electric field expressed as N/C. The work done in moving the charge is _______ J.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 50,
+                  "preview": "Find the pressure needed to compress a gas isothermally.",
+                  "fullText": "A certain gas is isothermally compressed to of its initial volume ( litre) by applying required pressure. If the bulk",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:20:56Z"
+    },
+    "source_question_extraction-024": {
+      "example_id": "source_question_extraction-024",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Choose the correct statements about Phaeophyceae.",
+                  "fullText": "Read the following statements and choose the set of correct statements. In the members of Phaeophyceae. A. Asexual reproduction occurs usually by biflagellate zoospores. B. Sexual reproduction is by oogamous method only. C. Stored food is in the form of carbohydrates which is either mannitol or laminarin D. The major pigments found are chlorophyll a, c and carotenoids and xanthophyll. E. Vegetative cells have a cellulosic wall, usually covered on the outside by gelatinous coating of algin.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:21:02Z"
+    },
+    "source_question_extraction-025": {
+      "example_id": "source_question_extraction-025",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 8,
+                  "preview": "Which micronutrient is needed for water splitting in photosynthesis?",
+                  "fullText": "Which micronutrient is required for splitting of water molecule during photosynthesis? a. copper b. manganese c. molybdenum d. magnesium",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 9,
+                  "preview": "What phenotypes are expected from crossing pink and red Snapdragon plants?",
+                  "fullText": "A pink flowered Snapdragon plant was crossed with a red flowered Snapdragon plant. What type of phenotype/s is/are expected in the progeny? (1) Only pink flowered plants (2) Red, Pink as well as white flowered plants (3) Only red flowered plants (4) Red flowered as well as pink flowered plants",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 10,
+                  "preview": "Describe the process of appearance of recombination nodules.",
+                  "fullText": "The process of appearance of recombination nodules occurs...",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:21:10Z"
+    },
+    "source_question_extraction-026": {
+      "example_id": "source_question_extraction-026",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 13,
+                  "preview": "The DNA present in chloroplast is: (1) Linear, single stranded...",
+                  "fullText": "The DNA present in chloroplast is: (1) Linear, single stranded (2) Circular, single stranded (3) Linear, double stranded (4) Circular, double stranded",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 14,
+                  "preview": "Which of the following are required for the dark reaction of photosynthesis?",
+                  "fullText": "Which of the following are required for the dark reaction of photosynthesis? A. Light B. Chlorophyll C. CO2 D. ATP E. NADPH Choose the correct answer from the options given below: (1) C, D and E only (2) D and E only (3) A, B and C only (4) B, C and D only",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 15,
+                  "preview": "Identify the incorrect statement related to Pollination:",
+                  "fullText": "Identify the incorrect statement related to Pollination: A. Moths and butterf",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:21:19Z"
+    },
+    "source_question_extraction-027": {
+      "example_id": "source_question_extraction-027",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Choose the correct answer from the options given below.",
+                  "fullText": "Choose the correct answer from the options given below: a. B and C only b. B, C and E only c. A and D only d. A, B and D only",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 2,
+                  "preview": "Given below are two Statements regarding chromosomes.",
+                  "fullText": "Given below are two Statements: Statement I: Chromosomes become gradually visible under light microscope during leptotene stage. Statement II: The beginning of diplotene stage is recognized by dissolution of synaptonemal complex. In the light of the above statements, choose.",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:21:26Z"
+    },
+    "source_question_extraction-028": {
+      "example_id": "source_question_extraction-028",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 63,
+                  "preview": "Inhibition of Succinic dehydrogenase enzyme by malonate.",
+                  "fullText": "Inhibition of Succinic dehydrogenase enzyme by malonate is a classical example of: (1) Competitive inhibition (2) Enzyme activation (3) Cofactor inhibition (4) Feedback inhibition",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 64,
+                  "preview": "Auxin is used by gardeners to prepare weed free lawns.",
+                  "fullText": "Auxin is used by gardeners to prepare weed free lawns. But no damage is caused to grass as auxin; (1) does not affect mature monocotyledonous plants. (2) can help in cell division in grasses, to produce growth. (3) promotes apical dominance. (4) promotes abscission of mature leaves only.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 65,
+                  "preview": "Identify the set.",
+                  "fullText": "Identify the set",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:21:35Z"
+    },
+    "source_question_extraction-029": {
+      "example_id": "source_question_extraction-029",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 86,
+                  "preview": "Evaluate two statements about species competition.",
+                  "fullText": "Given below are two statements: Statement I: Gause’s ‘Competitive Exclusive Principle’ states that two closely related species competing for the same related species competing for the same resources cannot co-exist indefinitely and competitively inferior one will be eliminated eventually. Statement II: In general, carnivores are more adversely affected by competition than herbivores. In the light of the above statements, choose the correct answer from the options given.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:21:43Z"
+    },
+    "source_question_extraction-030": {
+      "example_id": "source_question_extraction-030",
+      "agent_id": "source_question_extraction",
+      "llm_gold": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section E",
+              "questions": [
+                {
+                  "number": 37,
+                  "preview": "Trace events from fertilization to implantation in humans.",
+                  "fullText": "Trace the events from fertilization till implantation of blastocyst in human female. Also mention the site where fertilization takes place.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 38,
+                  "preview": "Discuss Watson and Crick’s findings on DNA structure.",
+                  "fullText": "(a) (i) Watson and Crick’s discovery of double helical structure was based on which two findings. Also mention the names of the scientists associated with these findings.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "generated_at": "2026-06-23T09:21:50Z"
+    }
+  }
+}

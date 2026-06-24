@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
 import { apiClient } from '@/lib/api-client';
+import { AdminTableSkeleton, AdminDetailSkeleton } from '@/components/skeleton';
 
 // User data type
 interface UserData {
@@ -207,12 +208,7 @@ function UserDetailPanel({ userId, userName, userEmail, onClose }: UserDetailPan
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-end">
         <div className="h-full w-full max-w-4xl bg-surface border-l border-border-default shadow-2xl overflow-y-auto">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-              <p className="text-text-secondary">Loading user details...</p>
-            </div>
-          </div>
+          <AdminDetailSkeleton />
         </div>
       </div>
     );
@@ -1065,16 +1061,7 @@ export default function UsersPage() {
   const selectedUser = selectedUserId ? userAnalytics.find(u => u.userId === selectedUserId) : null;
   const selectedUserData = selectedUserId ? users.find(u => (u.clerk_user_id || u.id) === selectedUserId) : null;
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-          <p className="text-text-secondary">Loading users...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AdminTableSkeleton />;
 
   if (error) {
     return (

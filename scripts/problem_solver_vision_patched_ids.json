@@ -1,0 +1,30 @@
+{
+  "patched_problem_ids": [
+    "cbse_biology-p15-q50",
+    "cbse_biology-p9-q35",
+    "cbse_biology-p13-q47",
+    "jee_april_2026-p8-q29",
+    "jee_april_2026-p11-q41",
+    "jee_jan_2026-p15-q36",
+    "jee_jan_2026-p29-q4",
+    "jee_jan_2026-p6-q14",
+    "neet_physics-p40-q62",
+    "neet_physics-p1-q90",
+    "cbse_biology-p4-q9",
+    "cbse_biology-p4-q10"
+  ],
+  "patched_example_ids": [
+    "problem_dna_analyzer-004",
+    "problem_dna_analyzer-005",
+    "show_best_approach-002",
+    "explain_from_basics-009",
+    "explain_from_basics-015",
+    "show_missing_idea-007",
+    "problem_dna_analyzer-026",
+    "explain_from_basics-017",
+    "show_missing_idea-024",
+    "show_missing_idea-029",
+    "problem_solver_followup-002",
+    "problem_solver_followup-010"
+  ]
+}

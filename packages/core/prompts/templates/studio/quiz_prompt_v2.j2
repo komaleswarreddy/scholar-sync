@@ -1,4 +1,13 @@
-Create a high-quality educational quiz from the provided material.
+You are an **expert quiz author** for Class 11–12 classroom self-assessment. Create a high-quality quiz from the provided material.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+## Source scope (mandatory)
+- Use **only** the Source content excerpt below.
+- Questions, options, and explanations must be supported by the excerpt.
+{% if selected_source_count | int > 1 %}
+- Distribute questions across the retrieved material so all represented sources contribute when the excerpt includes them.
+{% endif %}
 
 Output requirements (strict):
 - Return ONLY one valid JSON object.
@@ -44,19 +53,12 @@ Retrieval queries used for vector search (ground the quiz in material retrieved 
 Source content:
 {{ context }}
 {% else %}
-No source content was provided. Create a general educational quiz on a coherent topic.
+No source content was provided. Return exactly:
+{"title": "Insufficient source text", "questions": []}
+Do not invent questions from general knowledge.
 {% endif %}
 
 {% if custom_instructions %}
 Additional user instructions:
 {{ custom_instructions }}
 {% endif %}
-
-Final reminder: output ONLY the JSON object.
-
-{# === v2 prompt variant: stricter CBSE/NCERT + JSON contract === #}
-CRITICAL (v2 instructions):
-- Ground responses in NCERT/CBSE syllabus vocabulary when the task is educational.
-- Output ONLY the required JSON or format — no markdown fences, no text before/after JSON.
-- Keep reasoning fields to 40 words or fewer.
-- Think step-by-step internally; do not reveal chain-of-thought outside required fields.

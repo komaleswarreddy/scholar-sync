@@ -11,6 +11,7 @@ import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
 import { apiClient } from '@/lib/api-client';
 import { Loader2, AlertTriangle, AlertCircle, XCircle, CheckCircle2, Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { AdminTableSkeleton } from '@/components/skeleton';
 
 interface Alert {
   id?: string;
@@ -147,16 +148,7 @@ export default function AlertsPage() {
   const activeAlerts = filteredAlerts.filter(a => !a.resolved);
   const resolvedAlerts = filteredAlerts.filter(a => a.resolved);
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-          <p className="text-text-secondary">Loading alerts...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AdminTableSkeleton />;
 
   if (error) {
     return (

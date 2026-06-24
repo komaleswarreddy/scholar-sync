@@ -9,6 +9,7 @@ Uses LLM abstraction layer and prompt templates.
 
 from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
+import asyncio
 import json
 import os
 import re
@@ -34,6 +35,30 @@ STUDIO_BROAD_RETRIEVAL_QUERIES: Tuple[str, ...] = (
     "Step-by-step processes workflows methods and sequential explanations",
     "Comparisons contrasts differences similarities advantages and limitations",
 )
+
+
+def _studio_pinecone_query_sync(
+    namespace: str,
+    query_embedding: List[float],
+    top_k: int,
+    filter_dict: Optional[Dict[str, Any]],
+) -> List[Any]:
+    """Sync Pinecone query for use with asyncio.to_thread (parallel broad retrieval)."""
+    from packages.core.rag.vectorstores.pinecone_store import get_pinecone_index
+
+    index = get_pinecone_index()
+    results = index.query(
+        vector=query_embedding,
+        top_k=top_k,
+        include_metadata=True,
+        namespace=namespace,
+        filter=filter_dict,
+    )
+    if isinstance(results, dict):
+        matches = results.get("matches", []) or []
+    else:
+        matches = getattr(results, "matches", None) or []
+    return list(matches)
 
 def _match_vec_id(match: Any) -> Optional[str]:
     if match is None:
@@ -250,6 +275,17 @@ class StudioService:
         if mode not in ("sources_only", "chat_hybrid", "selection_only"):
             mode = "sources_only"
 
+        # Mind map is always source-grounded (NotebookLM parity): chat/selection never feed the map.
+        if task_type == "mind_map":
+            requested = mode
+            mode = "sources_only"
+            chat_transcript = None
+            selection_text = None
+            if requested != "sources_only":
+                print(
+                    f"[STUDIO] mind_map: overriding context_mode={requested!r} → sources_only"
+                )
+
         n_sources = len(source_ids or [])
         has_ncert_scope = bool(
             include_ncert_global
@@ -268,6 +304,12 @@ class StudioService:
             "matches_before_merge": 0,
             "unique_vectors": 0,
         }
+
+        if mode != "selection_only" and n_sources < 1 and not has_ncert_scope:
+            raise ValueError(
+                "Studio generation requires at least one selected source or NCERT scope. "
+                "Upload and select sources in exploratory mode before generating."
+            )
 
         if mode == "selection_only":
             context = (selection_text or "").strip()
@@ -429,22 +471,27 @@ class StudioService:
             t_vq = time.perf_counter()
             total_raw = 0
             ncert_retriever = Retriever(self.tenant_id, self.user_id) if has_ncert_scope else None
-            for q in queries_used:
-                if filter_dict is not None:
-                    query_embedding = await self.vector_store.generate_embedding(
-                        q,
-                        metrics_user_id=self.user_id,
-                        metrics_feature_tag="embedding",
+
+            if filter_dict is not None and queries_used:
+                embeddings = await self.vector_store.batch_generate_embeddings(queries_used)
+                ns = self.vector_store.namespace
+                per_query_tasks = [
+                    asyncio.to_thread(
+                        _studio_pinecone_query_sync,
+                        ns,
+                        emb,
+                        top_k,
+                        filter_dict,
                     )
-                    results = await self.vector_store.query_vectors(
-                        query_embedding=query_embedding,
-                        top_k=top_k,
-                        filter=filter_dict,
-                    )
-                    matches = results.get("matches", []) if isinstance(results, dict) else getattr(results, "matches", []) or []
-                    all_match_lists.append(list(matches))
+                    for emb in embeddings
+                ]
+                per_query_results = await asyncio.gather(*per_query_tasks)
+                for matches in per_query_results:
+                    all_match_lists.append(matches)
                     total_raw += len(matches)
-                if ncert_retriever is not None:
+
+            if ncert_retriever is not None:
+                for q in queries_used:
                     ncert_matches = await ncert_retriever._retrieve_ncert_global_matches(
                         query=q,
                         ncert_class=ncert_class,
@@ -572,7 +619,12 @@ class StudioService:
             return load_prompt(template_path, **kw)
         except FileNotFoundError:
             print(f"[STUDIO] Prompt template not found: {template_path}, using fallback")
-            return f"Generate a {task_type} based on: {context or 'general content'}"
+            return load_prompt(
+                "studio/fallback_task_prompt.j2",
+                task_type=task_type,
+                context=context or "",
+                custom_instructions=custom_instructions or "",
+            )
 
     def _validate_generated_content(
         self,

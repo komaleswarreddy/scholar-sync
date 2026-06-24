@@ -21,6 +21,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { AdminTableSkeleton } from '@/components/skeleton';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -226,16 +227,7 @@ export default function AgentsPage() {
     [rows, includeUtility]
   );
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-          <p className="text-text-secondary">Loading agents dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AdminTableSkeleton />;
 
   return (
     <div className="h-full">

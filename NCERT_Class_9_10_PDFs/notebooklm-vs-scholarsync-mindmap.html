@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind Map Grounding — NotebookLM vs ScholarSync</title>
+<style>
+  :root{
+    --paper:#f7f5f0;
+    --ink:#1b1d1f;
+    --ink-soft:#52555a;
+    --rule:#dcd8cc;
+    --nlm-accent:#1a6e5e;     /* deep teal — NotebookLM column */
+    --nlm-accent-soft:#e7f1ee;
+    --ss-accent:#a8501f;      /* burnt terracotta — ScholarSync column */
+    --ss-accent-soft:#f6ebe2;
+    --code-bg:#101314;
+    --code-ink:#d8e2dd;
+    --warn-bg:#fbeee3;
+    --warn-ink:#7a3a13;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .utility{
+    font-family:'IBM Plex Mono','SF Mono',Consolas,monospace;
+  }
+
+  /* ===== Masthead ===== */
+  .masthead{
+    border-bottom:3px solid var(--ink);
+    padding:48px 8vw 28px;
+    background:
+      repeating-linear-gradient(
+        135deg,
+        transparent 0 22px,
+        rgba(27,29,31,0.025) 22px 23px
+      );
+  }
+  .masthead .kicker{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .masthead .kicker .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--ss-accent);
+    display:inline-block;
+  }
+  .masthead h1{
+    font-size:clamp(34px,5vw,58px);
+    line-height:1.04;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+    max-width:16ch;
+  }
+  .masthead h1 em{
+    font-style:italic;
+    color:var(--ink-soft);
+  }
+  .masthead .sub{
+    max-width:62ch;
+    font-size:18px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  .legend{
+    display:flex;
+    gap:28px;
+    margin-top:26px;
+    flex-wrap:wrap;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .swatch{
+    width:14px;height:14px;
+    border-radius:3px;
+    display:inline-block;
+  }
+  .swatch.nlm{background:var(--nlm-accent);}
+  .swatch.ss{background:var(--ss-accent);}
+
+  /* ===== Section shell ===== */
+  main{max-width:1180px;margin:0 auto;padding:0 8vw 90px;}
+
+  .section-head{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    align-items:baseline;
+    gap:18px;
+    margin:64px 0 22px;
+  }
+  .section-head .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ss-accent);
+    border:1px solid var(--ss-accent);
+    padding:4px 10px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+  .section-head h2{
+    font-size:clamp(22px,2.6vw,30px);
+    margin:0;
+    line-height:1.2;
+  }
+  .section-head hr{
+    grid-column:1 / -1;
+    border:none;
+    border-top:1px solid var(--rule);
+    margin:14px 0 0;
+  }
+
+  .intro-rule{
+    font-size:17px;
+    color:var(--ink-soft);
+    max-width:74ch;
+    margin:0 0 36px;
+  }
+
+  /* ===== Single fact band ===== */
+  .fact-band{
+    border:1px solid var(--ink);
+    background:#fff;
+    padding:30px 34px;
+    position:relative;
+    margin-bottom:10px;
+  }
+  .fact-band::before{
+    content:"GROUNDING RULE";
+    position:absolute;
+    top:-11px;
+    left:30px;
+    background:var(--paper);
+    padding:0 10px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.16em;
+    color:var(--ink-soft);
+  }
+  .fact-band p{margin:0;font-size:17.5px;}
+  .fact-band p + p{margin-top:14px;}
+  .fact-band .verdict{
+    margin-top:18px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    letter-spacing:0.03em;
+    color:#fff;
+    background:var(--ink);
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:3px;
+  }
+
+  /* ===== Two-column comparator ===== */
+  .pair{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    border:1px solid var(--rule);
+    margin:0 0 64px;
+    background:#fff;
+  }
+  @media (max-width:860px){
+    .pair{grid-template-columns:1fr;}
+  }
+
+  .col{
+    padding:28px 30px 32px;
+    position:relative;
+  }
+  .col.nlm{border-right:1px solid var(--rule);}
+  .col.nlm{border-top:5px solid var(--nlm-accent);}
+  .col.ss{border-top:5px solid var(--ss-accent);}
+  @media (max-width:860px){
+    .col.nlm{border-right:none;border-bottom:1px solid var(--rule);}
+  }
+
+  .col-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .col.nlm .col-label{color:var(--nlm-accent);}
+  .col.ss .col-label{color:var(--ss-accent);}
+
+  .col h3{
+    font-size:19px;
+    margin:0 0 12px;
+    line-height:1.3;
+  }
+  .col p{
+    font-size:15.5px;
+    color:var(--ink);
+    margin:0 0 12px;
+  }
+  .col p:last-child{margin-bottom:0;}
+  .col p.note{
+    color:var(--ink-soft);
+    font-size:14px;
+    font-style:italic;
+  }
+
+  .stat-row{
+    display:flex;
+    gap:10px;
+    margin:14px 0 4px;
+    flex-wrap:wrap;
+  }
+  .stat-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:3px;
+    border:1px solid var(--rule);
+    background:var(--paper);
+    color:var(--ink-soft);
+  }
+  .col.nlm .stat-chip{background:var(--nlm-accent-soft);border-color:var(--nlm-accent);color:#0e4338;}
+  .col.ss .stat-chip{background:var(--ss-accent-soft);border-color:var(--ss-accent);color:#6e3414;}
+
+  /* ===== Full-width single case (used for case 5 sometimes / fragility / oneliner) ===== */
+  .wide-card{
+    border:1px solid var(--rule);
+    background:#fff;
+    padding:30px 34px;
+    margin-bottom:64px;
+  }
+  .wide-card h3{margin:0 0 14px;font-size:19px;}
+  .wide-card p{margin:0 0 12px;font-size:16px;color:var(--ink);}
+  .wide-card p:last-child{margin-bottom:0;}
+
+  /* ===== verdict table ===== */
+  .vtable-wrap{
+    overflow-x:auto;
+    border:1px solid var(--rule);
+    margin-bottom:70px;
+    background:#fff;
+  }
+  table.vtable{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14.5px;
+    min-width:640px;
+  }
+  table.vtable th{
+    text-align:left;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#fff;
+    background:var(--ink);
+    padding:13px 18px;
+  }
+  table.vtable td{
+    padding:14px 18px;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  table.vtable tr:last-child td{border-bottom:none;}
+  table.vtable td.case-name{
+    font-weight:600;
+    white-space:nowrap;
+    color:var(--ink);
+  }
+  table.vtable td.nlm-cell{border-left:3px solid var(--nlm-accent);}
+  table.vtable td.ss-cell{border-left:3px solid var(--ss-accent);}
+  table.vtable tbody tr:hover{background:#fbfaf6;}
+
+  /* ===== Closing one-liners ===== */
+  .closers{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    border:1px solid var(--ink);
+  }
+  @media (max-width:860px){.closers{grid-template-columns:1fr;}}
+  .closer{
+    padding:26px 30px;
+    font-size:15.5px;
+  }
+  .closer.nlm{border-right:1px solid var(--ink);background:var(--nlm-accent-soft);}
+  .closer.ss{background:var(--ss-accent-soft);}
+  @media (max-width:860px){.closer.nlm{border-right:none;border-bottom:1px solid var(--ink);}}
+  .closer .col-label{margin-bottom:10px;}
+  .closer.nlm .col-label{color:var(--nlm-accent);}
+  .closer.ss .col-label{color:var(--ss-accent);}
+  .closer p{margin:0;}
+
+  footer{
+    border-top:3px solid var(--ink);
+    padding:26px 8vw 40px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  code.inline{
+    font-family:'IBM Plex Mono',monospace;
+    background:#eee9da;
+    padding:1px 6px;
+    border-radius:3px;
+    font-size:0.92em;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="kicker"><span class="dot"></span>mind map generation — grounding behavior audit</div>
+  <h1>Two systems, two rules for <em>what the map is allowed to see.</em></h1>
+  <p class="sub">A side-by-side reading of how Google's NotebookLM grounds its mind map strictly in uploaded sources, against how ScholarSync's Studio pipeline currently decides between sources, chat, and highlighted text.</p>
+  <div class="legend">
+    <div class="legend-item"><span class="swatch nlm"></span>NotebookLM (verified, source-only)</div>
+    <div class="legend-item"><span class="swatch ss"></span>ScholarSync (current implementation)</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- THE CORE RULE -->
+  <div class="fact-band">
+    <p><strong>NotebookLM's rule is absolute:</strong> the mind map is generated strictly from uploaded sources. It never pulls from the internet, and it never pulls from chat history. Chat is a separate, source-grounded Q&amp;A layer — the only bridge between the two is one-directional: clicking a map node can open a chat about that node, but nothing typed in chat ever feeds back into the map.</p>
+    <p><strong>ScholarSync's rule is conditional:</strong> Studio automatically picks between three context modes — <code class="inline">sources_only</code>, <code class="inline">chat_hybrid</code>, <code class="inline">selection_only</code> — with no check for whether chat is actually substantial. A single short message is enough to make chat a primary input, fixed at ~60% of the model's focus, alongside a reduced ~40% slice of source material.</p>
+    <div class="verdict">Net effect → NotebookLM: same sources always produce the same map. ScholarSync: the same sources can produce a different map depending on what was casually typed beforehand.</div>
+  </div>
+
+  <!-- CASE 1 -->
+  <div class="section-head">
+    <span class="tag">Case 01</span>
+    <h2>One source, no chat — multiple concepts inside a single document</h2>
+    <hr>
+  </div>
+  <p class="intro-rule">What happens when there's exactly one document and nothing has been said in chat yet — how does the system decide what's a "main" idea versus a "sub" idea?</p>
+
+  <div class="pair">
+    <div class="col nlm">
+      <div class="col-label">● NotebookLM</div>
+      <h3>Outline extraction from the document itself</h3>
+      <p>Gemini reads the full text and performs concept extraction, identifying important concepts, topics, and how they relate to one another. It is effectively prompted to summarize the key topics and subtopics present in the material.</p>
+      <p>The document's own structure — headings, sections — acts as scaffolding. A central concept anchors the map (often the source title or overarching theme), and key ideas branch out from it as topic → subtopic.</p>
+      <p class="note">Example: a single source on coral reef decline yields top-level nodes like "Ocean Acidification," "Rising Sea Temperatures," and "Pollution," each with further branches.</p>
+    </div>
+    <div class="col ss">
+      <div class="col-label">● ScholarSync</div>
+      <h3><code class="inline">sources_only</code> mode — broad retrieval, then synthesis</h3>
+      <p>With no chat transcript present, Studio runs six fixed broad retrieval queries — overview, key concepts, examples, structure, relationships, processes — against the one selected source in Pinecone, merging results into a single context window.</p>
+      <p>The mind map prompt then performs the same kind of hierarchy decision NotebookLM makes — promoting some chunks to top-level branches, others to subtopics — but the candidate material is whatever those six queries happened to retrieve, capped at 28 chunks.</p>
+      <div class="stat-row">
+        <span class="stat-chip">6 broad queries</span>
+        <span class="stat-chip">max 28 chunks</span>
+        <span class="stat-chip">0% chat</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 2 -->
+  <div class="section-head">
+    <span class="tag">Case 02</span>
+    <h2>Multiple sources, no chat — concepts that repeat across documents</h2>
+    <hr>
+  </div>
+  <p class="intro-rule">The harder case: several documents are uploaded, and the same concept may appear in more than one of them. Does it get merged, or duplicated?</p>
+
+  <div class="pair">
+    <div class="col nlm">
+      <div class="col-label">● NotebookLM</div>
+      <h3>Cross-referencing to find shared themes</h3>
+      <p>The model reads across every document at once rather than producing one map per file. It cross-references multiple documents in the notebook to find common themes, revealing where sources intersect — and whether they agree or conflict.</p>
+      <p>A concept appearing in three different documents is merged into <em>one</em> node carrying the combined explanation, not duplicated three times. Each node stays linked back to the content that inspired it.</p>
+      <p class="note">Verified example: 8 weekly lecture-slide sources produced 9 nodes total — one "Core Concepts" node aggregating themes from across all sources, the rest one per week.</p>
+    </div>
+    <div class="col ss">
+      <div class="col-label">● ScholarSync</div>
+      <h3>Per-source balancing, then one integrated map</h3>
+      <p>Retrieval is filtered strictly to the selected source IDs. For mind maps specifically (also flashcards), a balancing step reserves a minimum share of chunks <em>per source</em> before filling remaining slots by relevance score — so one well-scoring document can't crowd out the rest.</p>
+      <p>The mind map prompt explicitly instructs: <em>multi-source synthesis — one integrated map, not two silos</em> — directing the model to merge overlapping concepts into shared branches, conceptually mirroring NotebookLM's cross-referencing.</p>
+      <div class="stat-row">
+        <span class="stat-chip">balanced chunks/source</span>
+        <span class="stat-chip">mind map + flashcards only</span>
+        <span class="stat-chip">quiz/slides: score-only, no balancing</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 3 -->
+  <div class="section-head">
+    <span class="tag">Case 03</span>
+    <h2>Sources plus a minimal chat — one short question</h2>
+    <hr>
+  </div>
+  <p class="intro-rule">This is where the two systems genuinely part ways. A single short message exists in chat. Does it count, and how much weight does it get?</p>
+
+  <div class="pair">
+    <div class="col nlm">
+      <div class="col-label">● NotebookLM</div>
+      <h3>Irrelevant — chat is never part of generation</h3>
+      <p>There is no equivalent decision to make. NotebookLM's mind map is never built from chat, regardless of how much or how little exists in it. A short question, a long thread, or total silence in chat all produce the identical map for the same set of sources.</p>
+      <p class="note">The map only ever reflects the uploaded documents — it cannot be skewed by an offhand question.</p>
+    </div>
+    <div class="col ss">
+      <div class="col-label">● ScholarSync</div>
+      <h3><code class="inline">chat_hybrid</code> triggers instantly — no minimum bar</h3>
+      <p>The instant any non-empty chat transcript exists alongside ≥1 selected source, the system switches modes. There is no length or quality threshold — one short message is sufficient. The transcript is then labeled <strong>primary</strong>, targeted at ~60% of the model's focus.</p>
+      <p>Source chunks drop to a supporting role at ~40%, which in practice caps near 11 chunks instead of the usual 28. The model is instructed to prioritize themes from the conversation and use sources only to fact-check — never to override the chat with a generic summary.</p>
+      <div class="stat-row">
+        <span class="stat-chip">chat ~60% weight</span>
+        <span class="stat-chip">sources ~11 chunks (40%)</span>
+        <span class="stat-chip">no sufficiency check</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 4 -->
+  <div class="section-head">
+    <span class="tag">Case 04</span>
+    <h2>Sources plus rich, long chat</h2>
+    <hr>
+  </div>
+  <p class="intro-rule">Now the conversation is substantial. Does either system shift its balance to lean further into chat — or does the ratio stay fixed?</p>
+
+  <div class="pair">
+    <div class="col nlm">
+      <div class="col-label">● NotebookLM</div>
+      <h3>Still irrelevant — same source-only rule applies</h3>
+      <p>Chat volume has no bearing on map generation at all, by design. A rich, long chat thread produces exactly the same mind map as no chat, because the map was never reading the chat in the first place.</p>
+    </div>
+    <div class="col ss">
+      <div class="col-label">● ScholarSync</div>
+      <h3>Same mode, same ratio — only the chat budget grows</h3>
+      <p>The mode stays <code class="inline">chat_hybrid</code>; there is no separate "chat is now substantial" path. The only change is more conversation text entering the prompt, up to a 48,000-character cap before truncation — while the source allocation stays fixed at roughly the same ~11 chunks regardless of how much chat exists.</p>
+      <p>The instruction to the model is identical in the minimal-chat and rich-chat cases: prioritize the conversation's themes and goals; treat sources as supporting fact-checks only.</p>
+      <div class="stat-row">
+        <span class="stat-chip">48,000 char chat cap</span>
+        <span class="stat-chip">ratio unchanged: 60/40</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE 5 -->
+  <div class="section-head">
+    <span class="tag">Case 05</span>
+    <h2>Chat only — zero sources selected</h2>
+    <hr>
+  </div>
+  <p class="intro-rule">No documents at all, just a conversation. Can a mind map be generated purely from what was said?</p>
+
+  <div class="pair">
+    <div class="col nlm">
+      <div class="col-label">● NotebookLM</div>
+      <h3>Not applicable to chat — sources required by design</h3>
+      <p>NotebookLM's mind map button operates entirely on the notebook's uploaded sources. There is no concept of generating a map from chat alone — the feature's premise is summarizing source material, so it has nothing to fall back to without a document.</p>
+    </div>
+    <div class="col ss">
+      <div class="col-label">● ScholarSync</div>
+      <h3>Blocked, except one narrow escape hatch</h3>
+      <p>The Studio panel requires at least one selected source (or a valid NCERT/tutor scope) before generating anything — both <code class="inline">sources_only</code> and <code class="inline">chat_hybrid</code> need a source ID to even form a valid request, otherwise the API returns a 422/400.</p>
+      <p>The only path that works without a source is <code class="inline">selection_only</code>: the user highlights ≥15 characters directly in chat and picks a Studio action from the floating toolbar. Retrieval is skipped entirely — no Pinecone call happens — and the model is told to use only that highlighted excerpt, nothing else.</p>
+      <div class="stat-row">
+        <span class="stat-chip">blocked by default</span>
+        <span class="stat-chip">escape: highlight ≥15 chars</span>
+        <span class="stat-chip">0 Pinecone calls in selection mode</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRAGILITY / RISK CARD -->
+  <div class="wide-card">
+    <h3>Where each system is fragile</h3>
+    <p><strong>NotebookLM's failure mode is input quality, not input source.</strong> Because grounding depends on finding shared themes across documents, unrelated files dumped into one notebook produce a messy, low-signal outline — the fix is keeping a notebook scoped to one clear goal. It also has a practical size ceiling: beyond roughly 40 nodes, a single map loses interpretability and should be split into several linked maps instead.</p>
+    <p><strong>ScholarSync's failure mode is predictability.</strong> Because chat becomes primary the moment it's non-empty, a single throwaway message can pull the mind map's focus away from carefully retrieved, balanced source chunks — even though those chunks are still technically present in the prompt. The same set of sources can therefore produce a noticeably different map depending purely on what was casually typed beforehand, which is a guarantee NotebookLM's architecture never has to make or break.</p>
+  </div>
+
+  <!-- VERDICT TABLE -->
+  <div class="section-head">
+    <span class="tag">Reference</span>
+    <h2>Full decision matrix, side by side</h2>
+    <hr>
+  </div>
+  <div class="vtable-wrap">
+    <table class="vtable">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>NotebookLM</th>
+          <th>ScholarSync (current)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="case-name">No sources, no chat</td>
+          <td class="nlm-cell">Nothing to generate — feature has no source to read</td>
+          <td class="ss-cell">Blocked — Studio requires ≥1 source or valid scope</td>
+        </tr>
+        <tr>
+          <td class="case-name">1 source, no chat</td>
+          <td class="nlm-cell">Outline extraction → topic/subtopic tree from that document</td>
+          <td class="ss-cell"><code class="inline">sources_only</code> — 6 broad queries, max 28 chunks, 0% chat</td>
+        </tr>
+        <tr>
+          <td class="case-name">Multiple sources, no chat</td>
+          <td class="nlm-cell">Cross-references all docs, merges repeated concepts into shared nodes</td>
+          <td class="ss-cell">Balanced chunks per source, prompt enforces "one integrated map"</td>
+        </tr>
+        <tr>
+          <td class="case-name">Sources + minimal chat</td>
+          <td class="nlm-cell">No effect — chat is never read for the map</td>
+          <td class="ss-cell"><code class="inline">chat_hybrid</code> instantly — chat ~60%, sources ~11 chunks (40%)</td>
+        </tr>
+        <tr>
+          <td class="case-name">Sources + rich, long chat</td>
+          <td class="nlm-cell">No effect — identical map regardless of chat volume</td>
+          <td class="ss-cell">Same mode, same 60/40 ratio — only chat text volume grows (cap 48k chars)</td>
+        </tr>
+        <tr>
+          <td class="case-name">Chat only, no sources</td>
+          <td class="nlm-cell">Not supported — feature is source-bound by design</td>
+          <td class="ss-cell">Blocked, except highlighting ≥15 chars → <code class="inline">selection_only</code></td>
+        </tr>
+        <tr>
+          <td class="case-name">Size / scale limit</td>
+          <td class="nlm-cell">~40 nodes before a single map loses interpretability</td>
+          <td class="ss-cell">No documented node cap; bounded instead by chunk budgets (28 / 11)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CLOSING ONE-LINERS -->
+  <div class="closers">
+    <div class="closer nlm">
+      <div class="col-label">● In one line — NotebookLM</div>
+      <p>For one source it extracts the concepts inside that document and ranks them into a topic→subtopic tree; for multiple sources it does the same thing but first cross-references every document to merge overlapping concepts into shared branches — and in both cases it stays grounded only in the sources, never the chat or the web.</p>
+    </div>
+    <div class="closer ss">
+      <div class="col-label">● In one line — ScholarSync (current)</div>
+      <p>Chat becomes primary the instant it's non-empty (fixed 60/40 split regardless of length or quality), the system falls back to pure source retrieval only when chat is completely empty, multi-source balancing applies specifically to mind maps and flashcards, and generation is otherwise blocked unless a source is selected or text is explicitly highlighted from chat.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>Studio context modes: sources_only · chat_hybrid · selection_only</span>
+  <span>Compiled from verified NotebookLM documentation and current StudioGenerationContext / studio_service.py behavior</span>
+</footer>
+
+</body>
+</html>

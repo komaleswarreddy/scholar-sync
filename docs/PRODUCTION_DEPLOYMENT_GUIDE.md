@@ -898,6 +898,8 @@ getAlertsStatus()        → up to 30s
 
 ### 9.7 Diagnostic Steps
 
+**Before testing routing performance:** confirm the FastAPI backend is running and `NEXT_PUBLIC_API_URL` points to it. A stopped or misconfigured API is the most common cause of 12–30s navigation hangs. Run `curl http://localhost:8000/health` (or your deployed API URL) — it should return in under 500ms.
+
 1. **Home → profile:** DevTools Network — expect **no** `/api/v1` calls. If pending API calls exist, trace which layout/provider fires them.
 2. **Home → library:** Watch `/api/v1/notebooks` and `/api/v1/home/summary` duration. Pending ~30s = backend unreachable or slow.
 3. **Admin sidebar:** Count serial `/api/v1/admin/*` and `/metrics/*` waterfall. Total > 10s = parallelize fetches.

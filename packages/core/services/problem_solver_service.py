@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from packages.core.database.models.notebook import Notebook
 from packages.core.database.models.problem_solver import ProblemSolverSession, ProblemSolverStep
 from packages.core.llm import get_llm_client, get_model_for_task
+from packages.core.processing.help_me_solve_cumulative import enrich_help_me_solve_response
 from packages.core.prompts import load_prompt
 from packages.core.rag.whole_file_map_reduce import fetch_all_chunks_for_sources, _chunk_text
 from packages.core.security.answer_leak_guard import answer_leak_guard
@@ -172,11 +173,25 @@ def normalize_mode_response(
             )
         else:
             out.pop("checkpoint", None)
+        if interaction_count == 0 and "checkpointHistory" not in out:
+            out["checkpointHistory"] = []
+        if "interactionCount" not in out:
+            out["interactionCount"] = interaction_count
     elif out.get("checkpoint") is not None:
         normalized = normalize_checkpoint(out.get("checkpoint"), checkpoint_number=interaction_count + 1)
         out["checkpoint"] = normalized if normalized and normalized.get("options") else None
 
     return out
+
+
+def _format_prior_response(prior: Optional[Dict[str, Any]]) -> Optional[str]:
+    """Serialize prior coach turn for multi-step Help Me Solve It prompts."""
+    if not prior or not isinstance(prior, dict):
+        return None
+    try:
+        return json.dumps(prior, ensure_ascii=False, indent=2)
+    except (TypeError, ValueError):
+        return None
 
 
 def _response_end_state(session: ProblemSolverSession, response: Dict[str, Any]) -> str:
@@ -419,6 +434,10 @@ class ProblemSolverService:
         if not template:
             raise HTTPException(status_code=400, detail="Solving mode not set")
 
+        prior_response = None
+        if session.solving_mode == "HELP_ME_SOLVE_IT" and session.interaction_count > 0:
+            prior_response = _format_prior_response(session.last_response)
+
         prompt = load_prompt(
             template,
             problem_text_normalized=session.problem_text_normalized,
@@ -426,6 +445,7 @@ class ProblemSolverService:
             interaction_count=session.interaction_count,
             checkpoint_number=session.interaction_count + 1 if session.solving_mode == "HELP_ME_SOLVE_IT" else None,
             student_choice=None,
+            prior_response=prior_response,
         )
         response = await self._llm_json(prompt, task="problem_solver_mode")
         allow_reveal = session.solving_mode in ("EXPLAIN_FROM_BASICS", "SHOW_BEST_APPROACH")
@@ -441,8 +461,14 @@ class ProblemSolverService:
             solving_mode=session.solving_mode,
             interaction_count=session.interaction_count,
         )
+        if session.solving_mode == "HELP_ME_SOLVE_IT":
+            response = enrich_help_me_solve_response(
+                response,
+                interaction_count=session.interaction_count,
+                student_choice=None,
+                prior_response=None,
+            )
         response["mode"] = session.solving_mode
-        response["interactionCount"] = session.interaction_count
         return response
 
     async def respond(self, session_id: str) -> Dict[str, Any]:
@@ -494,6 +520,8 @@ class ProblemSolverService:
             raise HTTPException(status_code=400, detail="Checkpoints only for Help Me Solve It mode")
         if session.interaction_count >= 2:
             raise HTTPException(status_code=409, detail="Maximum checkpoints reached")
+        prior_dict = session.last_response if isinstance(session.last_response, dict) else None
+        prior_response = _format_prior_response(prior_dict)
         session.interaction_count += 1
         await self._append_step(
             session,
@@ -516,6 +544,7 @@ class ProblemSolverService:
             interaction_count=session.interaction_count,
             checkpoint_number=checkpoint_number,
             student_choice=selected_option,
+            prior_response=prior_response,
         )
         response = await self._llm_json(prompt, task="problem_solver_mode")
         allow_reveal = session.interaction_count >= 2
@@ -529,8 +558,13 @@ class ProblemSolverService:
             solving_mode=session.solving_mode,
             interaction_count=session.interaction_count,
         )
+        response = enrich_help_me_solve_response(
+            response,
+            interaction_count=session.interaction_count,
+            student_choice=selected_option,
+            prior_response=prior_dict,
+        )
         response["mode"] = session.solving_mode
-        response["interactionCount"] = session.interaction_count
         session.last_response = response
         session.state = _response_end_state(session, response)
         await self._append_step(session, "mode_response", metadata=response)
@@ -617,17 +651,55 @@ class ProblemSolverService:
     )
 
     async def extract_text_from_source(self, source_id: str) -> str:
+        from packages.core.database.models.source import Source
+        from packages.core.processing.problem_solver_extraction import detect_corruption
+        from packages.core.processing.problem_solver_source_text import extract_problem_text_from_bytes
+        from packages.core.storage.s3 import S3Storage
+
+        result = await self.db.execute(
+            select(Source).where(
+                Source.id == uuid.UUID(source_id),
+                Source.tenant_id == uuid.UUID(self.tenant_id),
+            )
+        )
+        source = result.scalar_one_or_none()
+        if not source:
+            raise HTTPException(status_code=404, detail="Source not found")
+
         chunks = await fetch_all_chunks_for_sources(
             self.tenant_id, [source_id], user_id=self.user_id
         )
         texts = [_chunk_text(c) for c in chunks]
         combined = "\n".join(t for t in texts if t).strip()
-        if len(combined) < 10:
+
+        if len(combined) >= 20 and not detect_corruption(combined):
+            return combined[:12000]
+
+        storage = S3Storage(self.tenant_id)
+        try:
+            file_content = await storage.download_file(source.s3_key)
+        except Exception as exc:
+            if len(combined) >= 10:
+                return combined[:12000]
+            raise HTTPException(
+                status_code=400,
+                detail=f"Could not download source file: {exc}",
+            ) from exc
+
+        enriched = await extract_problem_text_from_bytes(
+            file_content,
+            s3_key=source.s3_key or "",
+            title=source.title or "",
+            tenant_id=self.tenant_id,
+            user_id=self.user_id,
+            indexed_chunks=combined,
+        )
+        if len(enriched) < 10:
             raise HTTPException(
                 status_code=400,
                 detail="Could not extract enough text from the uploaded file",
             )
-        return combined[:12000]
+        return enriched[:12000]
 
     async def get_active_for_notebook(self, notebook_id: str) -> Optional[Dict[str, Any]]:
         await self._get_notebook(notebook_id)

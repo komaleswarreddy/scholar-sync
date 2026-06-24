@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ClassAnalyticsPage } from '@/components/teacher/analytics/ClassAnalyticsPage';
 import { buildClassExamAnalytics } from '@/lib/teacher-exam-analytics-mock-data';
 import { getExamById } from '@/lib/teacher-exam-storage';
+import { TeacherAnalyticsSkeleton } from '@/components/skeleton';
 import type { ClassExamAnalytics, TeacherExam } from '@/lib/teacher-exam-types';
 
 type PageState =
@@ -46,11 +47,7 @@ export default function TeacherExamAnalyticsPage() {
   }, [examId, router]);
 
   if (state.kind === 'loading') {
-    return (
-      <div className="teacher-exam-page teacher-analytics-page">
-        <p className="teacher-analytics-loading">Loading analytics…</p>
-      </div>
-    );
+    return <TeacherAnalyticsSkeleton />;
   }
 
   if (state.kind === 'not_found') {

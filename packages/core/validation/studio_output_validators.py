@@ -121,7 +121,13 @@ def _split_slides(content: str) -> List[Dict[str, Any]]:
     text = (content or "").strip()
     if not text:
         return []
-    if "---" in text:
+    if re.search(r"^#\s+Slide\s+\d+:", text, re.MULTILINE | re.IGNORECASE):
+        raw_slides = re.split(
+            r"(?=^#\s+Slide\s+\d+:)",
+            text,
+            flags=re.MULTILINE | re.IGNORECASE,
+        )
+    elif "---" in text:
         raw_slides = re.split(r"\n---+\n", text)
     else:
         raw_slides = re.split(r"(?=^##\s+)", text, flags=re.MULTILINE)

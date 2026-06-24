@@ -13,6 +13,7 @@ import { mapStudioFeatureToStudyAsset } from '@/lib/assets-mapper';
 import { useAppToast } from '@/contexts/AppToastContext';
 import { useListNotebooks } from '@/hooks/useNotebooks';
 import { useDeleteStudioFeature, useStudioFeatures } from '@/hooks/useStudioFeatures';
+import { StudyAssetsSkeleton } from '@/components/skeleton';
 import { useStudioFeaturePreview } from '@/hooks/useStudioFeaturePreview';
 import { AssetDeleteDialog } from './AssetDeleteDialog';
 import { AssetEditModal } from './AssetEditModal';
@@ -200,9 +201,7 @@ export function StudyAssetsPanel({
       </div>
 
       {isLoading ? (
-        <p className="text-center text-[var(--color-home-text-muted)] py-10 text-[15px]">
-          Loading study assets...
-        </p>
+        <StudyAssetsSkeleton />
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((asset) => (

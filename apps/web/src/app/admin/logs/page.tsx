@@ -11,6 +11,7 @@ import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
 import { apiClient } from '@/lib/api-client';
 import { Search, Loader2, AlertCircle, Info, CheckCircle2, XCircle, Database } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
+import { AdminTableSkeleton } from '@/components/skeleton';
 
 interface LogEntry {
   timestamp: string;
@@ -114,16 +115,7 @@ export default function LogsPage() {
     return matchesSearch && matchesFilter;
   });
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-          <p className="text-text-secondary">Loading logs...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AdminTableSkeleton />;
 
   if (error) {
     return (

@@ -32,7 +32,10 @@ import {
   TUTOR_STUDIO_PRIMARY_TYPES,
   TUTOR_STUDIO_SECONDARY_TYPES,
 } from '@/lib/notebook-studio-tools';
-import { NotebookSectionHeader } from '@/components/notebook/NotebookSectionHeader';
+import {
+  EXPLORATORY_STUDIO_NO_SOURCES_MESSAGE,
+  notebookModeRequiresUploadedSources,
+} from '@/lib/exploratory-studio';
 import {
   NOTEBOOK_STUDIO_TONE_STYLES,
 } from '@/lib/notebook-ui-tokens';
@@ -147,8 +150,12 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
     validationError,
     clearValidationError,
   } = useStudioGeneration();
-  const hasSelectedSources =
-    validSelectedCount > 0 || (isCollapsibleNotebookStudio && isNotebookLayout);
+  const isExploratoryNotebook =
+    isNotebookLayout && !isTutorNotebook && !isProblemSolverNotebook;
+  const requiresUploadedSources =
+    !isNotebookLayout || notebookModeRequiresUploadedSources(notebookCtx?.notebook.mode);
+  const studioToolsEnabled =
+    !requiresUploadedSources || validSelectedCount > 0;
   
   // Custom instructions state
   const [customInstructions, setCustomInstructions] = useState<string>('');
@@ -180,7 +187,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
     if (!type) return;
 
     // If no sources are selected, we keep behavior unchanged: Studio will show its normal hint.
-    if (!hasSelectedSources) return;
+    if (!studioToolsEnabled) return;
 
     if (type === 'slide_deck') {
       setIsSlideDeckConfigOpen(true);
@@ -199,7 +206,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
       return;
     }
     void generate({ taskType: type });
-  }, [generate, hasSelectedSources]); // intentionally not depending on local config state
+  }, [generate, studioToolsEnabled]); // intentionally not depending on local config state
 
   const buildSlideDeckInstructions = (spec: SlideDeckSpec): string => {
     const formatLabel = spec.format === 'detailed'
@@ -273,34 +280,8 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
     return lines.join('\n');
   };
 
-  /** Scoped instructions so the model maps only selected sources (matches API source_id filter). */
-  const buildMindMapInstructions = (selectedSourceCount: number): string => {
-    const lines = [
-      'Mind map — scope (mandatory):',
-      '- Retrieval uses only the currently selected source IDs; other uploads are excluded.',
-      '- Ground every node in the retrieved excerpt; do not invent facts from outside the sources.',
-      '- Structure: exactly one # heading = central hub; ## = major branches; ### and bullets = detail.',
-    ];
-    if (selectedSourceCount === 1) {
-      lines.push(
-        '- One source: center the map on that document\'s dominant theme and its key arguments, concepts, or steps.',
-      );
-    } else {
-      lines.push(
-        `- ${selectedSourceCount} sources: analyze all chosen documents together in one map.`,
-        '- Find overarching themes, overlapping concepts, or sharp contrasts between texts; synthesize into a single integrated hub (not two disconnected mini-maps).',
-        '- Use major branches to reflect each document\'s domain or theme when helpful, but every branch must tie back to the central hub.',
-        '- Give fair coverage: if the excerpt clearly contains material from multiple sources, do not build the map from only one of them.',
-      );
-    }
-    return lines.join('\n');
-  };
-
   const handleMindMapGenerate = async () => {
-    const n = validSelectedCount;
-    const block = buildMindMapInstructions(n);
-    const combined = [block, customInstructions.trim()].filter(Boolean).join('\n\n');
-    await generate({ taskType: 'mind_map', instructions: combined });
+    await generate({ taskType: 'mind_map', contextMode: 'sources_only' });
   };
 
   /**
@@ -311,6 +292,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
     const lines = [
       'Flashcards — scope (mandatory):',
       '- Retrieval uses only the currently selected source IDs; unselected uploads are excluded.',
+      '- At least one source must be selected in exploratory mode before generating flashcards.',
       '- Front = question, key term, or short prompt; back = answer or concise explanation—both grounded in the retrieved excerpt.',
       '- Do not invent facts; cards must be reviewable from the source material.',
     ];
@@ -361,6 +343,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
   };
 
   const handleToolClick = (toolType: string) => {
+    if (!studioToolsEnabled) return;
     if (generating === toolType) return;
     if (toolType === 'slide_deck') {
       setIsSlideDeckConfigOpen(true);
@@ -382,7 +365,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
   };
 
   const renderToolDisabled = (toolType: string) => {
-    const disabledNoSources = !hasSelectedSources;
+    const disabledNoSources = requiresUploadedSources && validSelectedCount === 0;
     return {
       disabled: generating === toolType || loading || disabledNoSources,
       disabledNoSources,
@@ -421,15 +404,15 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
           </div>
         )}
 
-        {!hasSelectedSources && !isCollapsibleNotebookStudio && (
+        {!studioToolsEnabled && isExploratoryNotebook && (
           <p className="px-4 pb-2 text-[11px] text-[var(--color-home-text-muted)]">
-            Select sources to enable Studio tools.
+            {EXPLORATORY_STUDIO_NO_SOURCES_MESSAGE}
           </p>
         )}
 
         <div className={`${studioGridClass} px-4 pb-4`}>
           {(isCollapsibleNotebookStudio ? visibleTutorTools : notebookStudioTools).map((tool) => {
-            const { disabled } = renderToolDisabled(tool.type);
+            const { disabled, disabledNoSources } = renderToolDisabled(tool.type);
             const tone = NOTEBOOK_STUDIO_TOOL_TONES[tool.type] || 'green';
             const toneStyle = NOTEBOOK_STUDIO_TONE_STYLES[tone];
             const isGenerating = generating === tool.type;
@@ -450,7 +433,11 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
                 </div>
                 <p className="text-[13px] font-semibold text-[var(--color-home-text)]">{tool.title}</p>
                 <p className="text-[11px] text-[var(--color-brand-text)] mt-0.5">
-                  {isGenerating ? 'Generating…' : 'Tap to generate'}
+                  {isGenerating
+                    ? 'Generating…'
+                    : disabledNoSources
+                      ? 'Select sources'
+                      : 'Tap to generate'}
                 </p>
               </button>
             );
@@ -589,7 +576,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={() => setShowCustomInstructions(!showCustomInstructions)}
-            disabled={!hasSelectedSources}
+            disabled={!studioToolsEnabled}
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             <Settings className="w-4 h-4" />
@@ -606,7 +593,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
                 setCustomInstructions('');
                 setShowCustomInstructions(false);
               }}
-              disabled={!hasSelectedSources}
+              disabled={!studioToolsEnabled}
               className="text-xs text-text-tertiary hover:text-text-secondary"
             >
               Clear
@@ -619,38 +606,42 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
             onChange={(e) => setCustomInstructions(e.target.value)}
             placeholder="Add custom instructions for generation (e.g., 'Focus on pages 10-12 only', 'Make it suitable for beginners')"
             className="w-full min-h-[80px] px-3 py-2 text-sm bg-surface-subtle border border-border-default rounded-lg text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue resize-none"
-            disabled={generating !== null || loading || !hasSelectedSources}
+            disabled={generating !== null || loading || !studioToolsEnabled}
           />
         )}
       </div>
 
       {/* Studio Grid */}
       <div className="flex-1 overflow-y-auto p-4">
-        {!hasSelectedSources && (
+        {!studioToolsEnabled && (
           <div className="mb-3 p-3 rounded-xl bg-surface-subtle border border-border-default">
             <p className="text-xs text-text-secondary leading-relaxed">
-              Select at least one source to unlock Studio tools.
+              {EXPLORATORY_STUDIO_NO_SOURCES_MESSAGE}
             </p>
           </div>
         )}
         <p className="text-xs text-text-tertiary mb-2">
+          <strong className="font-medium text-text-secondary">Mind Map</strong> uses selected sources
+          only — chat does not affect the map.{' '}
           {hasChatContext ? (
             <>
-              With an active chat, Studio uses{' '}
-              <strong className="font-medium text-text-secondary">chat + selected sources</strong> (~60/40).
+              Other tools use{' '}
+              <strong className="font-medium text-text-secondary">chat + selected sources</strong>{' '}
+              (~60/40).
             </>
           ) : (
             <>
-              Tools use your <strong className="font-medium text-text-secondary">selected</strong> sources.
+              Other tools use your <strong className="font-medium text-text-secondary">selected</strong>{' '}
+              sources.
             </>
           )}{' '}
-          Highlight text in chat for selection-only generation. Flashcards use broad retrieval across
-          selected sources.
+          Highlight text in chat for selection-only generation (quiz, flashcards, slide deck).
+          Flashcards use broad retrieval across selected sources.
         </p>
         <div className="grid grid-cols-2 gap-3">
           {NOTEBOOK_STUDIO_TOOLS.map((tool) => {
             const isGenerating = generating === tool.type;
-            const disabledNoSources = !hasSelectedSources;
+            const disabledNoSources = requiresUploadedSources && validSelectedCount === 0;
             const Icon = tool.icon;
             return (
               <StudioCard
@@ -680,7 +671,7 @@ export function StudioSuite({ layout = 'default' }: { layout?: 'default' | 'note
                 disabled={isGenerating || loading || disabledNoSources}
                 disabledHint={
                   disabledNoSources
-                    ? 'Select at least one source to enable Studio generation.'
+                    ? EXPLORATORY_STUDIO_NO_SOURCES_MESSAGE
                     : undefined
                 }
               />

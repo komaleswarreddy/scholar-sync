@@ -11,6 +11,11 @@ import { useApi } from '@/hooks/useApi';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { filterRealSourceIds, buildNcertGlobalApiParams, parseTutorScope } from '@/lib/tutor-ncert-source';
+import {
+  EXPLORATORY_STUDIO_NO_SOURCES_MESSAGE,
+  EXPLORATORY_STUDIO_SELECTION_BLOCKED_MESSAGE,
+  notebookModeRequiresUploadedSources,
+} from '@/lib/exploratory-studio';
 import { useStudioChatBridge } from '@/contexts/StudioChatBridgeContext';
 import { useStudioPreview } from '@/contexts/StudioPreviewContext';
 import { useNotebookContextOptional } from '@/contexts/NotebookContext';
@@ -129,9 +134,13 @@ export function StudioGenerationProvider({ children }: { children: React.ReactNo
           : null;
       const ncertApiParams = buildNcertGlobalApiParams(tutorScope);
       const hasNcertScope = ncertApiParams != null;
-      let mode: StudioContextMode = explicitMode ?? 'sources_only';
+      const requiresUploadedSources = notebookModeRequiresUploadedSources(
+        notebookCtx?.notebook.mode,
+      );
+      let mode: StudioContextMode =
+        taskType === 'mind_map' ? 'sources_only' : (explicitMode ?? 'sources_only');
 
-      if (!explicitMode) {
+      if (taskType !== 'mind_map' && !explicitMode) {
         if (selectionText != null && selectionText.trim().length >= 15) {
           mode = 'selection_only';
         } else if (hasChatContext && (sourceIds.length > 0 || hasNcertScope)) {
@@ -149,8 +158,12 @@ export function StudioGenerationProvider({ children }: { children: React.ReactNo
           setValidationError('Selected text is too short. Highlight at least 15 characters.');
           return;
         }
+        if (requiresUploadedSources && sourceIds.length === 0) {
+          setValidationError(EXPLORATORY_STUDIO_SELECTION_BLOCKED_MESSAGE);
+          return;
+        }
       } else if (sourceIds.length === 0 && !hasNcertScope) {
-        setValidationError('Please select at least one source to generate content');
+        setValidationError(EXPLORATORY_STUDIO_NO_SOURCES_MESSAGE);
         return;
       }
 
@@ -185,16 +198,19 @@ export function StudioGenerationProvider({ children }: { children: React.ReactNo
         taskType === 'mind_map' ||
         taskType === 'flashcards';
 
+      const instructionsForApi =
+        taskType === 'mind_map' ? undefined : instructions.trim() || undefined;
+
       setGenerating(taskType);
 
       const retryParams: StudioGenerateParams = {
         taskType,
         sourceIds: apiSourceIds,
-        instructions,
+        instructions: taskType === 'mind_map' ? undefined : instructions,
         retrievalFocus,
         contextMode: mode,
-        chatTranscript: transcriptParam,
-        selectionText,
+        chatTranscript: taskType === 'mind_map' ? undefined : transcriptParam,
+        selectionText: taskType === 'mind_map' ? undefined : selectionText,
       };
 
       preview.showGeneration({
@@ -211,7 +227,7 @@ export function StudioGenerationProvider({ children }: { children: React.ReactNo
           apiClient.generateStudio(
             taskType as any,
             apiSourceIds,
-            instructions.trim() || undefined,
+            instructionsForApi,
             retrievalFocus?.trim() || undefined,
             studioExtras,
           ),

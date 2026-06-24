@@ -23,14 +23,14 @@ def test_build_chat_policy_block_nonempty():
     assert "**Safety:**" in block
     assert "**Age-appropriate guidance" in block
     assert "patient" in block.lower()
-    assert "9" in block and "17" in block
+    assert "14" in block and "17" in block
 
 
-def test_default_age_tier_targets_9_to_17():
-    with patch.object(settings, "STUDENT_AGE_TIER", "9-17"):
+def test_default_age_tier_targets_14_to_17():
+    with patch.object(settings, "STUDENT_AGE_TIER", "14-17"):
         block = pl.build_chat_policy_block()
-    assert "9 to 17" in block or "years old" in block.lower()
-    assert "grades 4" in block.lower() or "secondary" in block.lower()
+    assert "14" in block and "17" in block
+    assert "secondary" in block.lower() or "grades 9" in block.lower()
 
 
 def test_age_tier_k5_injects_young_learner_bullets():

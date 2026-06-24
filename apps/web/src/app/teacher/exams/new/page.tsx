@@ -17,6 +17,7 @@ import {
   loadDraftFromExam,
   saveDraft,
 } from '@/lib/teacher-exam-storage';
+import { TeacherWizardSkeleton } from '@/components/skeleton';
 import type { ExamWizardDraft, ExamWizardStep } from '@/lib/teacher-exam-types';
 
 export default function NewExamPage() {
@@ -126,7 +127,7 @@ export default function NewExamPage() {
   }, [draft]);
 
   if (!hydrated) {
-    return <div className="teacher-exam-page teacher-exam-wizard">Loading…</div>;
+    return <TeacherWizardSkeleton />;
   }
 
   if (draft.step === 6 && gradedSummary?.gradingSummary) {

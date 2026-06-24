@@ -1,0 +1,215 @@
+{
+  "version": "1.0.0",
+  "attempts": {
+    "show_missing_idea-001": {
+      "example_id": "show_missing_idea-001",
+      "problem_id": "cbse_mathematics-p6-q50",
+      "student_attempt": "I calculated F when V = 40 km/h using the formula F = V²/500 - V/4 + 14. I substituted V = 40 and got F = (40²/500) + (40/4) + 14, which I simplified to F = 3.2 + 10 + 14 = 27.2. I think this is correct, but I noticed option A says F = 20, which I thought might be right since it seems like a reasonable value for fuel consumption.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:13:58Z"
+    },
+    "show_missing_idea-002": {
+      "example_id": "show_missing_idea-002",
+      "problem_id": "cbse_mathematics-p1-q4",
+      "student_attempt": "I calculated Z for the corner points (2, 72), (15, 20), and (40, 15) using the formula Z = 18x + 9y, but I mistakenly thought Z would be minimum at (15, 20) since it has the lowest x value. I ended up selecting option (B) instead of checking all the values properly.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:02Z"
+    },
+    "show_missing_idea-003": {
+      "example_id": "show_missing_idea-003",
+      "problem_id": "cbse_physics-p8-q45",
+      "student_attempt": "For part (a), I think the formula for the position of the minima is given by a sin(θ) = nλ, where I used a = 0.5 mm and λ = 500 nm. I calculated sin(θ) for n = 1 and got 0.001, which seems too high. For part (b), I wrote that the interference pattern from a double slit has no minima, which I believe is because the two slits don't allow for destructive interference like the single slit does.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:05Z"
+    },
+    "show_missing_idea-004": {
+      "example_id": "show_missing_idea-004",
+      "problem_id": "cbse_physics-p8-q46",
+      "student_attempt": "For part (a), I used the formula for energy stored in a capacitor instead of an inductor, writing U = 1/2 CV^2, and I mistakenly substituted V with IR. I also thought that the self-inductance L was just the inductance value in ohms, so I wrote U = 1/2 L I^2 with L as 10 mH and ended up with U = 1/2 * 10 * 10^-3 * (2)^2 = 0.02 J, which doesn't make sense. For part (c), I confused the induced emf with the change in current, calculating the flux as 5 mV * 40 s instead of using the correct formula with the self-inductance. I also thought the total flux linked would be in milliwatts, so I wrote 0.2 mW instead of the correct unit.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:10Z"
+    },
+    "show_missing_idea-005": {
+      "example_id": "show_missing_idea-005",
+      "problem_id": "cbse_physics-p7-q41",
+      "student_attempt": "I drew the ray diagram for the compound microscope but I accidentally used the formula for magnification as m = v + u instead of m = v/u. I also calculated the total linear magnifying power as 10 instead of the correct value, thinking that since the final image is at D, I should just add the values of the distances I found. Can someone help me understand where I went wrong?",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:14Z"
+    },
+    "show_missing_idea-006": {
+      "example_id": "show_missing_idea-006",
+      "problem_id": "jee_jan_2026-p18-q4",
+      "student_attempt": "I calculated the induced EMF in the loop using Faraday's law and got E = -dΦ/dt, where Φ = B * A. I used B = μ₀nI = (4π × 10^-7)(500)(10) = 6.2832 × 10^-5 T and A = π(0.01)^2. Then I found E = -6.2832 × 10^-5 * (0.000314) = -1.973 × 10^-8 V. Finally, I used Ohm's law, but I mistakenly thought the resistance was 1 Ω instead of 10 Ω, so I got I = E/R = -1.973 × 10^-8 / 1 = -1.973 × 10^-8 A, which I converted to μA incorrectly and chose option 1.197.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:19Z"
+    },
+    "show_missing_idea-007": {
+      "example_id": "show_missing_idea-007",
+      "problem_id": "jee_jan_2026-p15-q4",
+      "student_attempt": "I calculated the time taken by bead P to reach point B using the formula tp = (2 * R) / v, where R is the radius of the semicircular string. I assumed that the horizontal distance for bead P is the same as for bead Q, which is not correct. I also thought the relation should be tp = 1.25 to instead of comparing them directly. I picked option 3 (tp = to) because I thought both beads would take the same time since they have the same speed.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:26Z"
+    },
+    "show_missing_idea-008": {
+      "example_id": "show_missing_idea-008",
+      "problem_id": "neet_botany-p13-q49",
+      "student_attempt": "I think the answer is (2) A and E only because I believe that the piece of DNA can replicate itself independently and also shows ability to replicate. But I’m not sure how it relates to the integration into the genome mentioned in option B.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:29Z"
+    },
+    "show_missing_idea-009": {
+      "example_id": "show_missing_idea-009",
+      "problem_id": "neet_botany-p3-q7",
+      "student_attempt": "I think the answer is (2) A, B and D only because I feel like tropical environments being seasonal means they have more diversity, and A makes sense too. But I’m not sure if D is really related to species richness since I thought constant environments were less diverse.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:33Z"
+    },
+    "show_missing_idea-010": {
+      "example_id": "show_missing_idea-010",
+      "problem_id": "neet_chemistry-p12-q16",
+      "student_attempt": "I think the answer is option b, A, B and C only, because I remember that all elements are made of protons and electrons, and I thought isotopes have different chemical properties. Also, I believe Dalton's theory said that atoms can be split, so I’m not sure about E either.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:36Z"
+    },
+    "show_missing_idea-011": {
+      "example_id": "show_missing_idea-011",
+      "problem_id": "neet_chemistry-p1-q0",
+      "student_attempt": "I calculated Kc for the reaction and got 0.25 instead of the expected value. I think I might have used the wrong concentrations because I mixed up the products and reactants in my equation. I also chose option A, but I see now that I should have used the coefficients from the balanced equation to find the correct equilibrium expression.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:39Z"
+    },
+    "show_missing_idea-012": {
+      "example_id": "show_missing_idea-012",
+      "problem_id": "neet_physics-p2-q1",
+      "student_attempt": "I tried to find the electric field E using the formula E = vB, where v is the speed of the electron c/100 and B is 9 x 10^-4 T. I calculated v as (3 x 10^8 m/s) / 100 = 3 x 10^6 m/s, and then E = (3 x 10^6 m/s) * (9 x 10^-4 T) = 2.7 x 10^3 V/m. So, I chose option (2) E is perpendicular to B and its magnitude is 27 × 102 V m-1, but I'm not sure if that's right.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:45Z"
+    },
+    "show_missing_idea-013": {
+      "example_id": "show_missing_idea-013",
+      "problem_id": "neet_physics-p46-q73",
+      "student_attempt": "I calculated the potential V using the formula V = k * P / r², where k = 1/(4πε0), but I mistakenly used r = 4 m instead of 2 m. I ended up with V = ±4.5x10³ V. So, I think both A and R are false, which makes me choose option (2) A is false but R is true.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:48Z"
+    },
+    "show_missing_idea-014": {
+      "example_id": "show_missing_idea-014",
+      "problem_id": "neet_physics-p47-q75",
+      "student_attempt": "I think both statements are incorrect because atoms can gain or lose electrons, making them charged, so Statement I can't be right. For Statement II, I remember something about stability, but I feel like atoms don't emit a spectrum unless they are excited. I’m going with option (4) because it seems like neither statement is true.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:51Z"
+    },
+    "show_missing_idea-015": {
+      "example_id": "show_missing_idea-015",
+      "problem_id": "neet_physics-p25-q37",
+      "student_attempt": "I calculated the new charge on spheres A and B after bringing the uncharged sphere in contact with them. I thought that since the charge on A was q, after contact, it would become 2q and B would be q as well. Then, I used Coulomb's law with these charges and found the force to be 4F, which is option (3). But I’m not sure if I did the charge distribution correctly.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:55Z"
+    },
+    "show_missing_idea-016": {
+      "example_id": "show_missing_idea-016",
+      "problem_id": "neet_physics-p16-q23",
+      "student_attempt": "I thought that since the light is unpolarized and incident at Brewster's angle, both the reflected and transmitted light would be perfectly polarized. So, I chose option ③, thinking the angles would be 60° for reflection and 30° for refraction. But I didn't consider that only the reflected light is polarized at Brewster's angle, and I confused the angles.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:14:59Z"
+    },
+    "show_missing_idea-017": {
+      "example_id": "show_missing_idea-017",
+      "problem_id": "neet_physics-p6-q6",
+      "student_attempt": "I calculated the least count of the Vernier callipers as 0.1 cm - 0.01 cm = 0.09 cm. Then I used the formula for the measured diameter as M + (number of coinciding V.S.D. * least count), so I did 5 cm + (8 * 0.09 cm) = 5.72 cm. I think the answer is (1) 5.18 cm because I thought I had to add the zero error correction instead of subtracting it.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:02Z"
+    },
+    "show_missing_idea-018": {
+      "example_id": "show_missing_idea-018",
+      "problem_id": "neet_physics-p19-q26",
+      "student_attempt": "I calculated the speed of the bus using the formula speed = distance/time, assuming the distance between the cities is 30 km. I divided 30 km by 30 minutes, which gave me a speed of 60 km/h for the bus. Then I thought the period T should be 10 minutes because the bus passes every 30 minutes, so I chose option (3) 10 min, 90 km/h. But I think I might have misunderstood the relationship between the bus frequency and the speed.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:06Z"
+    },
+    "show_missing_idea-019": {
+      "example_id": "show_missing_idea-019",
+      "problem_id": "neet_physics-p24-q36",
+      "student_attempt": "I think the magnetic field due to the displacement current is zero between the plates because there is no actual current flowing through the space. So I chose option (1) zero at all places. But I'm not sure if I considered the effect of the changing surface charge density correctly.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:09Z"
+    },
+    "show_missing_idea-020": {
+      "example_id": "show_missing_idea-020",
+      "problem_id": "neet_physics-p54-q86",
+      "student_attempt": "I think when the plates of a parallel plate capacitor are moved closer, the capacitance increases, so I chose option (4) A, C and E only. But I remember that the energy stored should also increase because the charge is constant, so I thought option (4) was correct. I might have misunderstood how energy changes with capacitance.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:13Z"
+    },
+    "show_missing_idea-021": {
+      "example_id": "show_missing_idea-021",
+      "problem_id": "neet_physics-p52-q82",
+      "student_attempt": "I think the displacement current in the capacitor is actually zero because the plates are not connected directly, so I can choose option (3). I remember that in a capacitor, the electric field builds up and there's no actual current flowing between the plates, just the charging current through the resistor.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:16Z"
+    },
+    "show_missing_idea-022": {
+      "example_id": "show_missing_idea-022",
+      "problem_id": "neet_physics-p29-q45",
+      "student_attempt": "I think both statements A and B are correct because for a solar cell, the I-V characteristics should show positive current in the first quadrant, not the IV quadrant as mentioned in A. Also, in a reverse biased pn junction diode, I believe the current is mainly due to minority charge carriers, so B should be correct too. Therefore, I choose option (1) as my answer.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:20Z"
+    },
+    "show_missing_idea-023": {
+      "example_id": "show_missing_idea-023",
+      "problem_id": "neet_physics-p56-q90",
+      "student_attempt": "I think both statements are incorrect because I remember that photovoltaic devices only work with solar energy and don't convert optical radiation. Also, Zener diodes don't actually operate in breakdown region; they work normally under forward bias. So I chose option c, both Statement I and Statement II are incorrect.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:23Z"
+    },
+    "show_missing_idea-024": {
+      "example_id": "show_missing_idea-024",
+      "problem_id": "neet_physics-p40-q62",
+      "student_attempt": "I think that since point P is at the top of the wheel and point Q is at the bottom, they must have the same linear speed because they are both part of the wheel. So, I chose option (1) Both the points P and Q move with equal speed. But I feel like I might be missing something about how the rotation affects their speeds.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:27Z"
+    },
+    "show_missing_idea-025": {
+      "example_id": "show_missing_idea-025",
+      "problem_id": "neet_physics-p5-q5",
+      "student_attempt": "I tried to use the ideal gas law PV=nRT to find the moles of oxygen after some was withdrawn. I calculated P as 11 atm and V as 30 L, but I mistakenly used R as 8.31 J/(mol·K) instead of the correct value for my calculation. Then, I found the number of moles to be around 5.5, and I multiplied that by the molecular mass of 32 g/mol to get 0.176 kg, which isn't one of the options. I think I should have used a different formula for mass withdrawn.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:32Z"
+    },
+    "show_missing_idea-026": {
+      "example_id": "show_missing_idea-026",
+      "problem_id": "neet_physics-p18-q25",
+      "student_attempt": "I used the formula for magnetic moment as μ = m * e / (2 * B) and calculated it with m as the mass of the electron and B as the magnetic field strength. I ended up with option (1) Tm he instead of considering the quantized nature of the flux, which I think might be affecting my answer.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:35Z"
+    },
+    "show_missing_idea-027": {
+      "example_id": "show_missing_idea-027",
+      "problem_id": "neet_physics-p27-q41",
+      "student_attempt": "I calculated the work done for gas A as W_A = P * ΔV_A, where ΔV_A = rA * 16 cm, and for gas B as W_B = P * ΔV_B, where ΔV_B = rB * 9 cm. I assumed that since the internal energy change is the same, the work done must also be equal, so I set W_A = W_B. I ended up with the ratio rA/rB = 16/9, which I thought meant the answer is option (1), but I'm not sure if I did the right calculations.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:39Z"
+    },
+    "show_missing_idea-028": {
+      "example_id": "show_missing_idea-028",
+      "problem_id": "neet_physics-p33-q51",
+      "student_attempt": "I matched A with I because I thought it corresponds to the highest energy transition, but then I matched B with II since I assumed the wavelengths increase with higher n values. For C, I put III thinking it's a longer wavelength, and for D, I matched IV because I thought it was the lowest energy transition. So my answer is A-I, B-II, C-III, D-IV.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:46Z"
+    },
+    "show_missing_idea-029": {
+      "example_id": "show_missing_idea-029",
+      "problem_id": "neet_physics-p1-q0",
+      "student_attempt": "I used the formula V = I/R instead of V = IR for the circuit diagram, so I calculated the voltage as 10V when the current is 2A and resistance is 5Ω. I thought the resistances in series would just be added up, but I ended up choosing option B instead of the correct one, thinking it represented the total voltage drop incorrectly.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:15:57Z"
+    },
+    "show_missing_idea-030": {
+      "example_id": "show_missing_idea-030",
+      "problem_id": "neet_zoology-p7-q15",
+      "student_attempt": "I think both statements are incorrect because I remember that larger DNA fragments actually move towards the anode, not the wells. So, I chose option (2) for both statements being incorrect. But I'm confused about how the DNA fragments from gel electrophoresis can be used for recombinant DNA if they aren't correct.",
+      "source": "production_llm",
+      "generated_at": "2026-06-23T04:16:00Z"
+    }
+  }
+}

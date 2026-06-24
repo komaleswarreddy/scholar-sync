@@ -237,24 +237,24 @@ add(
     15,
     "Studio Fallback Task Prompt (Legacy)",
     "Generic studio fallback",
-    "Minimal generic task prompt; superseded by per-task templates.",
+    "Self-contained fallback when primary Studio task J2 is missing.",
     read_j2("studio/fallback_task_prompt.j2"),
-    "Input: task_type, context. Output: generic generation request.",
-    "On disk only; not referenced by load_prompt in Python",
+    "Input: task_type, context, custom_instructions. Output: full quiz/flashcards/mind_map/slide_deck artifact.",
+    "studio_service._load_prompt_template on FileNotFoundError; pairs with Agent 10 system prompt",
     "packages/core/prompts/templates/studio/fallback_task_prompt.j2",
-    status="Legacy (not wired)",
+    status="Fallback (wired on FileNotFoundError)",
 )
 
 add(
     16,
     "Studio Context Embedding Query (Legacy)",
     "Studio retrieval query",
-    "Static embedding query text for studio broad retrieval.",
+    "Fallback embedding query builder; live path uses STUDIO_BROAD_RETRIEVAL_QUERIES + Query Rewriter.",
     read_j2("studio/context_embedding_query.j2"),
-    "Input: N/A static string. Output: embedding query for Pinecone.",
-    "Referenced in plans/docs; not load_prompt call site in current studio_service",
+    "Input: studio_task, source_title, topic, retrieval_focus. Output: embedding_query string.",
+    "Not loaded by studio_service; eval/regression and future dynamic embedding path",
     "packages/core/prompts/templates/studio/context_embedding_query.j2",
-    status="Legacy (not wired)",
+    status="Fallback (not wired in live retrieval)",
 )
 
 # --- PROBLEM SOLVER ---

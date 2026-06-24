@@ -128,6 +128,76 @@ class NotebookService:
         )
         return int(result or 0)
 
+    async def get_notebook_list_counts_batch(self, notebook_ids: List[str]) -> Dict[str, Dict[str, int]]:
+        """Batch-fetch list counts for many notebooks (avoids N+1 per notebook)."""
+        empty = {
+            "sources_count": 0,
+            "notes_count": 0,
+            "study_assets_count": 0,
+            "quizzes_count": 0,
+        }
+        if not notebook_ids:
+            return {}
+
+        result: Dict[str, Dict[str, int]] = {nid: dict(empty) for nid in notebook_ids}
+        uuids = [uuid.UUID(nid) for nid in notebook_ids]
+
+        sources_rows = await self.db.execute(
+            select(Source.notebook_id, func.count(Source.id))
+            .where(
+                Source.notebook_id.in_(uuids),
+                Source.tenant_id == self.tenant_id,
+                Source.user_id == self.user_id,
+            )
+            .group_by(Source.notebook_id)
+        )
+        for nb_id, cnt in sources_rows.all():
+            result[str(nb_id)]["sources_count"] = int(cnt or 0)
+
+        notes_rows = await self.db.execute(
+            select(Note.notebook_id, func.count(Note.id))
+            .where(
+                Note.notebook_id.in_(uuids),
+                Note.tenant_id == self.tenant_id,
+                Note.user_id == self.user_id,
+            )
+            .group_by(Note.notebook_id)
+        )
+        for nb_id, cnt in notes_rows.all():
+            result[str(nb_id)]["notes_count"] = int(cnt or 0)
+
+        try:
+            from packages.core.database.models.studio_feature import StudioFeature
+
+            assets_rows = await self.db.execute(
+                select(StudioFeature.notebook_id, func.count(StudioFeature.id))
+                .where(
+                    StudioFeature.notebook_id.in_(uuids),
+                    StudioFeature.tenant_id == self.tenant_id,
+                    StudioFeature.user_id == self.user_id,
+                )
+                .group_by(StudioFeature.notebook_id)
+            )
+            for nb_id, cnt in assets_rows.all():
+                result[str(nb_id)]["study_assets_count"] = int(cnt or 0)
+
+            quiz_rows = await self.db.execute(
+                select(StudioFeature.notebook_id, func.count(StudioFeature.id))
+                .where(
+                    StudioFeature.notebook_id.in_(uuids),
+                    StudioFeature.tenant_id == self.tenant_id,
+                    StudioFeature.user_id == self.user_id,
+                    StudioFeature.type == "quiz",
+                )
+                .group_by(StudioFeature.notebook_id)
+            )
+            for nb_id, cnt in quiz_rows.all():
+                result[str(nb_id)]["quizzes_count"] = int(cnt or 0)
+        except Exception:
+            pass
+
+        return result
+
     async def get_notebook_list_counts(self, notebook_id: str) -> Dict[str, int]:
         base = await self.get_notebook_counts(notebook_id)
         if not base:

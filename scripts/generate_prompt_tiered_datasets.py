@@ -117,7 +117,7 @@ LANGSMITH_KEYS: dict[str, dict[str, list[str]]] = {
     "problem_dna_analyzer": {"input_keys": ["problem_text_normalized", "ncert_context", "class_num", "subject_labels"], "output_keys": ["dna_json"]},
     "explain_from_basics": {"input_keys": ["problem_text_normalized", "ncert_context"], "output_keys": ["coach_json"]},
     "show_best_approach": {"input_keys": ["problem_text_normalized", "ncert_context"], "output_keys": ["coach_json"]},
-    "show_missing_idea": {"input_keys": ["problem_text_normalized", "ncert_context", "student_attempt"], "output_keys": ["coach_json"]},
+    "show_missing_idea": {"input_keys": ["problem_text_normalized", "ncert_context"], "output_keys": ["coach_json"]},
     "help_me_solve_it": {"input_keys": ["problem_text_normalized", "interaction_count", "ncert_context", "student_choice"], "output_keys": ["coach_json"]},
     "problem_solver_followup": {"input_keys": ["action", "problem_text_normalized", "solving_mode", "user_follow_up"], "output_keys": ["coach_json"]},
     "tutor_notebook_bootstrap": {"input_keys": ["class_num", "subject_label", "chapter_no", "chapter_title", "ncert_context", "concept"], "output_keys": ["bootstrap_json"]},
@@ -777,7 +777,6 @@ def build_show_missing_idea_items(count: int) -> list[dict[str, Any]]:
             {
                 "problem_text_normalized": prob,
                 "ncert_context": NCERT_CONTEXTS["lens_formula"],
-                "student_attempt": "Student tried random formula without identifying given quantities.",
             },
             {"coach_json": {
                 "title": "The unlock",

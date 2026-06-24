@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNotebookContextOptional } from '@/contexts/NotebookContext';
 import { useSources, type Source } from '@/hooks/useSources';
 import { useNotebookScopeId } from '@/contexts/NotebookContext';
+import { useClerkQueryEnabled } from '@/hooks/useClerkQueryEnabled';
 import { apiClient } from '@/lib/api-client';
 import {
   buildVirtualNcertSource,
@@ -53,6 +54,7 @@ export function useCombinedSources(notebookId?: string): {
   const notebookCtx = useNotebookContextOptional();
   const query = useSources(resolvedNotebookId);
   const tutorScope = parseTutorScope(notebookCtx?.notebook.settings ?? null);
+  const queryEnabled = useClerkQueryEnabled();
 
   const scopeQuery = useQuery({
     queryKey: [
@@ -63,7 +65,7 @@ export function useCombinedSources(notebookId?: string): {
       tutorScope?.chapter_no,
     ],
     queryFn: () => resolveTutorScope(tutorScope as TutorScopeSettings),
-    enabled: Boolean(notebookCtx?.notebook.mode === 'tutor' && tutorScope),
+    enabled: queryEnabled && Boolean(notebookCtx?.notebook.mode === 'tutor' && tutorScope),
     staleTime: 5 * 60 * 1000,
   });
 

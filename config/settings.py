@@ -337,8 +337,8 @@ class Settings(BaseSettings):
     ENABLE_SYLLABUS_LOCK: bool = False  # Enable syllabus-locked RAG (requires approved sources)
     ENABLE_INTENT_GATE: bool = True  # Enable academic-only intent enforcement
     ENABLE_PII_DETECTION: bool = True  # Enable PII detection and redaction
-    # Injected into central chat policy YAML as age-appropriate guidance (k5 | 6-8 | 9-17 | adult). Default: ages 9–17.
-    STUDENT_AGE_TIER: str = "9-17"
+    # Injected into central chat policy YAML as age-appropriate guidance (k5 | 6-8 | 14-17 | adult). Default: ages 14–17.
+    STUDENT_AGE_TIER: str = "14-17"
     SAFETY_STRICT_MODE: bool = True  # Strict safety filtering
     INJECTION_DETECTION_THRESHOLD: float = 0.6  # Prompt injection detection threshold
     # Second line of defense: cosine similarity vs paraphrased injection probes (OpenAI embeddings).
@@ -392,12 +392,12 @@ class Settings(BaseSettings):
     @classmethod
     def _normalize_student_age_tier(cls, v: Any) -> str:
         if v is None or (isinstance(v, str) and not v.strip()):
-            return "9-17"
+            return "14-17"
         s = str(v).strip().lower()
-        if s == "9-12":
-            s = "9-17"
-        allowed = {"k5", "6-8", "9-17", "adult"}
-        return s if s in allowed else "9-17"
+        if s in {"9-12", "9-17"}:
+            s = "14-17"
+        allowed = {"k5", "6-8", "14-17", "adult"}
+        return s if s in allowed else "14-17"
 
 
 # Singleton instance of settings

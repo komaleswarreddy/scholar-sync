@@ -1,0 +1,52 @@
+﻿python : Traceback (most recent call last):
+At C:\Users\KomaleswarReddy\AppData\Local\Temp\ps-script-d1df5167-1bec-46bc-88e5-e059b020a8e0.ps1:92 char:1
++ python audit_dedup_agents_1_16.py 2>&1 | Out-File -Encoding utf8 audi ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\scripts\audit_dedup_agents_1_16.py", line 246, in <module>
+Examples per agent: {1: 63, 2: 56, 3: 48, 4: 25, 5: 25, 6: 25, 8: 20, 9: 15, 10: 15, 11: 25, 12: 22, 13: 24, 14: 22, 15: 15, 16: 15}
+Total examples parsed: 415
+
+EXACT duplicate 'context': 22 group(s)
+  [A11:studio_quiz-001, A11:studio_quiz-006, A11:studio_quiz-010, A11:studio_quiz-023, A12:studio_flashcards-001, A13:studio_mind_map-001, A13:studio_mind_map-023, A14:studio_slide_deck-001, A15:studio_fallback_legacy-001]
+    ohm's law v=ir. resistivity ?=ra/l. series r_eq=r1+r2. parallel 1/r_eq=1/r1+1/r2. kirchhoff junction...
+  [A11:studio_quiz-002, A12:studio_flashcards-002, A13:studio_mind_map-002, A14:studio_slide_deck-002, A15:studio_fallback_legacy-002]
+    salivary amylase in mouth. stomach: hcl + pepsin. pancreatic juice: trypsin, lipase, amylase. absorp...
+  [A11:studio_quiz-003, A12:studio_flashcards-003, A13:studio_mind_map-003, A14:studio_slide_deck-003, A15:studio_fallback_legacy-009]
+    central metal + ligands. coordination number = ?-donor atoms on metal. [fe(cn)6]4- has cn=6. iupac: ...
+  [A11:studio_quiz-004, A12:studio_flashcards-004, A13:studio_mind_map-004, A14:studio_slide_deck-004]
+    p(e)=favourable/total. p(a?b)=p(a)+p(b)-p(a?b). independent: p(a?b)=p(a)p(b). bayes links prior and ...
+  [A11:studio_quiz-005, A12:studio_flashcards-008, A13:studio_mind_map-008, A14:studio_slide_deck-008, A15:studio_fallback_legacy-004]
+    lens formula 1/f=1/v-1/u. magnification m=v/u. power p=1/f (f in metres). sign: real object u negati...
+Query (A1-4) exact match to A5-6 message/user_request: 0
+
+Near-duplicate pairs (Jaccard >= 0.80): 152
+  1.00 A14 studio_slide_deck-021 (context) <-> A15 studio_fallback_legacy-014 (context)
+  1.00 A14 studio_slide_deck-019 (context) <-> A15 studio_fallback_legacy-010 (context)
+  1.00 A14 studio_slide_deck-013 (context) <-> A15 studio_fallback_legacy-015 (context)
+  1.00 A14 studio_slide_deck-011 (context) <-> A15 studio_fallback_legacy-011 (context)
+  1.00 A14 studio_slide_deck-009 (context) <-> A15 studio_fallback_legacy-012 (context)
+  1.00 A14 studio_slide_deck-008 (context) <-> A15 studio_fallback_legacy-004 (context)
+  1.00 A14 studio_slide_deck-003 (context) <-> A15 studio_fallback_legacy-009 (context)
+  1.00 A14 studio_slide_deck-002 (context) <-> A15 studio_fallback_legacy-002 (context)
+  1.00 A14 studio_slide_deck-001 (context) <-> A15 studio_fallback_legacy-001 (context)
+  1.00 A11 studio_quiz-025 (context) <-> A13 studio_mind_map-011 (context)
+  1.00 A11 studio_quiz-024 (context) <-> A14 studio_slide_deck-022 (context)
+  1.00 A11 studio_quiz-023 (context) <-> A14 studio_slide_deck-001 (context)
+  1.00 A11 studio_quiz-023 (context) <-> A13 studio_mind_map-023 (context)
+  1.00 A11 studio_quiz-023 (context) <-> A13 studio_mind_map-001 (context)
+  1.00 A11 studio_quiz-023 (context) <-> A12 studio_flashcards-001 (context)
+
+Exact duplicate context (refs stripped): 22 group(s)
+  agents [11, 12, 13, 14, 15]: ['studio_quiz-001', 'studio_quiz-006', 'studio_quiz-010', 'studio_quiz-023', 'studio_flashcards-001', 'studio_mind_map-001', 'studio_mind_map-023', 'studio_slide_deck-001', 'studio_fallback_legacy-001']
+    sys.exit(main())
+             ^^^^^^
+  File "C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\scripts\audit_dedup_agents_1_16.py", line 214, in main
+    print(f"    {val[:90].encode('ascii', errors='replace').decode()}...")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\KomaleswarReddy\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u03c1' in position 32: character maps to <undefined>

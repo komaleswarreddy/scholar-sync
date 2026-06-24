@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { homeSummaryKeys } from '@/hooks/useHomeSummary';
@@ -51,7 +51,8 @@ export function useListNotebooks() {
       }
     },
     enabled: queryEnabled,
-    staleTime: 30 * 1000,
+    staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 }
 

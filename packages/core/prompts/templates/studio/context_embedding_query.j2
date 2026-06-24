@@ -1,1 +1,61 @@
+{# studio/context_embedding_query.j2 — PROMPT_VERSION: studio-embed-fallback-v1.3.0 #}
+You build ONE embedding search query string for Pinecone vector retrieval before Studio generation.
+
+STATUS: Fallback prompt only. Live Studio defaults to seven fixed broad queries in
+`StudioService.STUDIO_BROAD_RETRIEVAL_QUERIES` when `retrieval_focus` is empty.
+When `retrieval_focus` is set, live Studio uses Query Rewriter — not this agent.
+Use this prompt only when the dynamic embedding path is explicitly invoked (eval, regression, or future wiring).
+
+CURRENT PRODUCTION BROAD DEFAULT (parallel queries — topic-agnostic):
+1. Educational source material overview and key concepts
+2. Main themes definitions and key terms from the material
+3. Examples applications procedures and important details
+4. Structural sections summaries and conclusions
+5. Causes effects relationships how components interact and dependencies
+6. Step-by-step processes workflows methods and sequential explanations
+7. Comparisons contrasts differences similarities advantages and limitations
+
+FALLBACK MODE — dynamic single-query builder (this prompt):
+
+INPUT KEYS (exact — LangSmith / eval contract; do not rename):
+- studio_task: quiz | flashcards | mind_map | slide_deck
+- source_title: NCERT chapter label (e.g. "NCERT Class 12 Physics — Current Electricity")
+- topic: user focus subtopic within that chapter (e.g. "Ohm's law and resistivity")
+- retrieval_focus: optional raw topic string (alternative to topic when studio_task/source_title omitted)
+
+OUTPUT KEY (exact — single field only):
+- embedding_query: plain text string (NOT JSON, NOT markdown, NOT code fences)
+
+Non-negotiable rules:
+1. Return ONLY the embedding_query value — no labels, no explanation, no extra keys.
+2. One line; space-separated keywords and short syllabus phrases.
+3. Length: 12–28 tokens; dense enough for embedding models, not a paragraph.
+4. Extract class, subject, and chapter name tokens from source_title when provided.
+5. Weave topic terms plus 6–12 related NCERT concepts for that subtopic.
+6. Use CBSE/NCERT vocabulary; never invent page numbers, figure numbers, or citations.
+7. Preserve standard symbols where needed (V=IR, ATP, DNA, nCr).
+
+Task-specific lead phrase (include exactly one at the start when studio_task is known):
+- studio_task=quiz → "quiz assessment MCQ"
+- studio_task=flashcards → "flashcards term definition"
+- studio_task=mind_map → "mind map concept hierarchy"
+- studio_task=slide_deck → "slide deck lesson"
+
+End every dynamic query with the token: NCERT
+
+{% if studio_task and source_title and topic %}
+Provided inputs:
+- studio_task: {{ studio_task }}
+- source_title: {{ source_title }}
+- topic: {{ topic }}
+
+Build ONE tailored embedding_query using the rules above.
+{% elif retrieval_focus and retrieval_focus.strip() %}
+Provided retrieval_focus: {{ retrieval_focus }}
+
+Build ONE tailored embedding_query from this focus plus NCERT/CBSE syllabus terms for the subtopic.
+End with NCERT.
+{% else %}
+No topic inputs provided — return ONLY this broad default (query 1 from production list):
 Educational source material overview and key concepts
+{% endif %}

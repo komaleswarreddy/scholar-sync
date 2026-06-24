@@ -4,10 +4,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   FileQuestion,
   Layers,
-  Network,
   Presentation,
 } from 'lucide-react';
 import { useStudioGenerationSafe } from '@/contexts/StudioGenerationContext';
+import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
+import {
+  EXPLORATORY_STUDIO_SELECTION_BLOCKED_MESSAGE,
+  notebookModeRequiresUploadedSources,
+} from '@/lib/exploratory-studio';
 
 const SELECTION_INSTRUCTION =
   'Use only the excerpt below as factual context. Do not rely on other chat or documents.';
@@ -17,7 +21,6 @@ const ACTIONS: {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
-  { type: 'mind_map', label: 'Mind Map', icon: Network },
   { type: 'flashcards', label: 'Flashcards', icon: Layers },
   { type: 'quiz', label: 'Quiz', icon: FileQuestion },
   { type: 'slide_deck', label: 'Slide Deck', icon: Presentation },
@@ -26,10 +29,18 @@ const ACTIONS: {
 type Props = {
   scrollContainerRef: React.RefObject<HTMLElement | null>;
   enabled: boolean;
+  /** Dashboard chat behaves like exploratory: requires uploaded sources for Studio. */
+  requiresUploadedSources?: boolean;
 };
 
-export function ChatStudioSelectionToolbar({ scrollContainerRef, enabled }: Props) {
+export function ChatStudioSelectionToolbar({
+  scrollContainerRef,
+  enabled,
+  requiresUploadedSources = true,
+}: Props) {
   const gen = useStudioGenerationSafe();
+  const { validSelectedCount } = useValidSelectedSourceIds();
+  const studioBlocked = requiresUploadedSources && validSelectedCount === 0;
   const [menu, setMenu] = useState<{ x: number; y: number; text: string } | null>(null);
 
   const closeMenu = useCallback(() => setMenu(null), []);
@@ -85,7 +96,7 @@ export function ChatStudioSelectionToolbar({ scrollContainerRef, enabled }: Prop
     return () => el.removeEventListener('mouseup', onMouseUp);
   }, [enabled, gen, scrollContainerRef]);
 
-  if (!enabled || !gen || !menu) {
+  if (!enabled || !gen || !menu || studioBlocked) {
     return null;
   }
 
@@ -110,9 +121,11 @@ export function ChatStudioSelectionToolbar({ scrollContainerRef, enabled }: Prop
             key={type}
             type="button"
             role="menuitem"
-            disabled={gen.generating !== null || gen.loading}
+            disabled={gen.generating !== null || gen.loading || studioBlocked}
+            title={studioBlocked ? EXPLORATORY_STUDIO_SELECTION_BLOCKED_MESSAGE : undefined}
             className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-xs text-text-primary hover:bg-surface-hover disabled:opacity-50"
             onClick={() => {
+              if (studioBlocked) return;
               const t = menu.text;
               closeMenu();
               window.getSelection()?.removeAllRanges();

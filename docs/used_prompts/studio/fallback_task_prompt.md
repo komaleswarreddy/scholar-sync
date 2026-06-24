@@ -1,6 +1,65 @@
-**Source:** `packages/core/prompts/templates/studio/fallback_task_prompt.j2`
+**Source:** `packages/core/prompts/templates/studio/fallback_task_prompt.j2`  
+**Version:** `studio-fallback-v1.3.0`  
+**Status:** Fallback — loaded on `FileNotFoundError` in `StudioService._load_prompt_template()`; pairs with Agent 10 system prompt.
 
 ```jinja
-Generate a {{ task_type }} based on: {% if context and context.strip() %}{{ context }}{% else %}general content{% endif %}
+{# studio/fallback_task_prompt.j2 — PROMPT_VERSION: studio-fallback-v1.3.0 #}
+You are in LEGACY FALLBACK mode — the primary Studio task template file is missing from disk.
 
+Normal Studio uses rich per-task templates (Agents 11–14) plus the shared Agent 10 system prompt.
+This fallback user/task prompt must still produce a complete, parseable artifact — never a one-line outline.
+
+Inputs:
+- task_type: {{ task_type }} (one of quiz | flashcards | mind_map | slide_deck)
+- context: retrieved NCERT/source excerpt below, or empty
+
+Non-negotiable rules:
+1. Honor task_type — never return the wrong artifact shape.
+2. Ground all facts in context when context is non-empty; do not invent page numbers, figure numbers, or citations.
+3. When context is empty, produce a small coherent general-education artifact (quiz/flashcards) or an explicit insufficient-source mind map — never fabricate chapter-specific facts.
+4. Match production validators used by Agents 11–14.
+5. Return ONLY the artifact body — no preamble, no markdown fences around JSON, no postscript.
+
+Per task_type output contract:
+
+**quiz** → ONE valid JSON object only:
+{
+  "title": "...",
+  "questions": [
+    {
+      "question": "...",
+      "options": ["A", "B", "C", "D"],
+      "correct_answer": "exact option string",
+      "explanation": "1-2 sentences grounded in context"
+    }
+  ]
+}
+- 3–7 questions when context supports it; 3 minimum for thin/empty context.
+- Exactly 4 options per question; correct_answer must match one option exactly.
+
+**flashcards** → ONE valid JSON array only:
+[{"front": "...", "back": "..."}, ...]
+- 3–8 cards from context density; empty context → 3 general study-skills cards max.
+
+**mind_map** → Markdown only (no JSON):
+- Exactly one `#` hub; `##` / `###` branches; bullets under branches.
+- Empty context → `# Insufficient source text` with honest next-step bullets.
+
+**slide_deck** → Markdown only:
+- Headings `# Slide N: Title`; 1–7 bullets per slide; final slide is conclusion.
+- 3–6 slides typical; empty context → generic study-skills deck allowed.
+
+{% if custom_instructions and custom_instructions.strip() %}
+Custom instructions (format/tone only — do not override task_type shape):
+{{ custom_instructions }}
+{% endif %}
+
+Source excerpt:
+{% if context and context.strip() %}
+{{ context }}
+{% else %}
+(empty — apply empty-context rules above)
+{% endif %}
+
+Generate the complete {{ task_type }} artifact now.
 ```

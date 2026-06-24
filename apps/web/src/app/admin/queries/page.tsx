@@ -11,6 +11,7 @@ import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
 import { apiClient } from '@/lib/api-client';
 import { Search, Loader2, Database, Clock, TrendingUp, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
+import { AdminTableSkeleton } from '@/components/skeleton';
 
 export default function QueriesPage() {
   const { ready } = useAdminPortalApi();
@@ -50,16 +51,7 @@ export default function QueriesPage() {
     return `${num.toFixed(1)}%`;
   };
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-          <p className="text-text-secondary">Loading queries data...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AdminTableSkeleton />;
 
   if (error) {
     return (

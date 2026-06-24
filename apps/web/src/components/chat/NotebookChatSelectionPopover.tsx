@@ -13,10 +13,15 @@ import {
 import { NOTEBOOK_STUDIO_TONE_STYLES } from '@/lib/notebook-ui-tokens';
 import { buildAppendedNoteContent } from '@/components/notes/NoteCreateOrAppendMenu';
 import { notePreviewTitle } from '@/lib/note-content';
-import { useOptionalTutorNoteEditor } from '@/contexts/TutorNoteEditorContext';
+import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
+import {
+  EXPLORATORY_STUDIO_SELECTION_BLOCKED_MESSAGE,
+  notebookModeRequiresUploadedSources,
+} from '@/lib/exploratory-studio';
 
 const SELECTION_INSTRUCTION =
-  'Use only the excerpt below as factual context. Do not rely on other chat or documents.';
+  'Use only the excerpt below as factual context. Do not rely on other chat or documents. ' +
+  'When the notebook has no uploaded sources selected, Studio generation is not available.';
 
 const MIN_SELECTION_LENGTH = 15;
 const EDGE_PAD = 12;
@@ -123,11 +128,15 @@ function computePopoverBox(
 export function NotebookChatSelectionPopover({ scrollContainerRef }: Props) {
   const gen = useStudioGenerationSafe();
   const { notebook } = useNotebookContext();
+  const { validSelectedCount } = useValidSelectedSourceIds();
+  const exploratoryStudioBlocked =
+    notebookModeRequiresUploadedSources(notebook.mode) && validSelectedCount === 0;
   const notebookId = useNotebookScopeId();
-  const studioTools =
+  const studioTools = (
     notebook.mode === 'problem_solver'
       ? PROBLEM_SOLVER_SELECTION_STUDIO_TOOLS
-      : NOTEBOOK_STUDIO_TOOLS;
+      : NOTEBOOK_STUDIO_TOOLS
+  ).filter((tool) => tool.type !== 'mind_map');
   const createNote = useCreateNote(notebookId);
   const updateNote = useUpdateNote();
   const { data: notes = [] } = useNotes(notebookId);
@@ -318,7 +327,7 @@ export function NotebookChatSelectionPopover({ scrollContainerRef }: Props) {
   };
 
   const handleGenerateStudio = (taskType: string) => {
-    if (!gen || !selection) return;
+    if (!gen || !selection || exploratoryStudioBlocked) return;
     const t = selection.text;
     closeAll();
     window.getSelection()?.removeAllRanges();
@@ -392,8 +401,14 @@ export function NotebookChatSelectionPopover({ scrollContainerRef }: Props) {
             className={`notebook-selection-popover-btn${
               studioMenuOpen ? ' notebook-selection-popover-btn--active' : ''
             }`}
-            disabled={!gen || isGenerating}
+            disabled={!gen || isGenerating || exploratoryStudioBlocked}
+            title={
+              exploratoryStudioBlocked
+                ? EXPLORATORY_STUDIO_SELECTION_BLOCKED_MESSAGE
+                : undefined
+            }
             onClick={() => {
+              if (exploratoryStudioBlocked) return;
               setNoteMenuOpen(false);
               setStudioMenuOpen((open) => !open);
             }}
@@ -444,7 +459,7 @@ export function NotebookChatSelectionPopover({ scrollContainerRef }: Props) {
           </div>
         )}
 
-        {studioMenuOpen && (
+        {studioMenuOpen && !exploratoryStudioBlocked && (
           <div
             id="notebook-chat-selection-studio-menu"
             className="notebook-selection-studio-panel"

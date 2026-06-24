@@ -22,6 +22,9 @@ class StudioRequest(BaseModel):
       - sources_only: retrieval from source_ids only (default).
       - chat_hybrid: requires source_ids + chat_transcript; ~60/40 chat vs sources in prompt.
       - selection_only: requires selection_text; no retrieval; source_ids should be empty.
+
+    mind_map: always resolves to sources_only at generation time regardless of context_mode
+    (chat transcript and selection_text are ignored for mind_map).
     """
 
     task_type: Literal[

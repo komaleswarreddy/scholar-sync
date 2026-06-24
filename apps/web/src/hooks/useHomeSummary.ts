@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { useClerkQueryEnabled } from '@/hooks/useClerkQueryEnabled';
@@ -47,5 +47,6 @@ export function useHomeSummary() {
     },
     enabled: queryEnabled,
     staleTime: 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 }

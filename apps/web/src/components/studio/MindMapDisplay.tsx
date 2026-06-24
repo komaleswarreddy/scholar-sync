@@ -274,6 +274,14 @@ export function MindMapDisplay({ mindMapData, filename }: MindMapDisplayProps) {
     return convertNode(root);
   }, [treeData]);
 
+  useEffect(() => {
+    if (!buildLayoutTree?.children?.length) {
+      setExpandedNodes(new Set());
+      return;
+    }
+    setExpandedNodes(new Set(buildLayoutTree.children.map((c) => c.id)));
+  }, [buildLayoutTree?.id]);
+
   const getVisibleNodes = useCallback(
     (node: LayoutNode | null, visible: LayoutNode[] = []): LayoutNode[] => {
       if (!node) return visible;

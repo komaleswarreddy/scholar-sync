@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { ChevronDown, TrendingUp } from 'lucide-react';
-import { HomeTopNav } from '@/components/home/HomeTopNav';
 import { HomeMobileNav } from '@/components/home/HomeMobileNav';
 import { AiDisclaimerFooter } from '@/components/common/AiDisclaimerFooter';
 import { ANALYTICS_FILTERS, ANALYTICS_KPIS } from '@/lib/analytics-prep-mock-data';
@@ -23,11 +22,8 @@ export function PrepAnalyticsPage() {
   const [verificationOpen, setVerificationOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col home-page prep-analytics-page">
-      <HomeTopNav activeStyle="underline" />
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-6">
-          <HomeMobileNav />
+    <div className="prep-analytics-page max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-6">
+      <HomeMobileNav />
 
           <header className="mb-6">
             <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[var(--color-brand-text)] mb-2">
@@ -113,8 +109,6 @@ export function PrepAnalyticsPage() {
           </div>
 
           <CitationLoyaltyBanner onLearnMore={() => setVerificationOpen(true)} />
-        </div>
-      </main>
       <AiDisclaimerFooter />
       <VerificationLearnModal open={verificationOpen} onClose={() => setVerificationOpen(false)} />
     </div>

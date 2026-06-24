@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Search } from 'lucide-react';
 import { ExamCard } from '@/components/teacher/exams/ExamCard';
+import { TeacherExamListSkeleton } from '@/components/skeleton';
 import { TeacherExamsTabToggle } from '@/components/teacher/exams/TeacherExamsTabToggle';
 import { clearDraft } from '@/lib/teacher-exam-storage';
 import { useTeacherExams } from '@/lib/teacher-exam-storage';
@@ -48,11 +49,7 @@ export default function TeacherExamsPage() {
   };
 
   if (!hydrated) {
-    return (
-      <div className="teacher-exam-page">
-        <div className="teacher-exam-page__loading">Loading exams…</div>
-      </div>
-    );
+    return <TeacherExamListSkeleton />;
   }
 
   return (

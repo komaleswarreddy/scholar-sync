@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BookOpenText, CheckCircle2, ChevronRight, Loader2, Sparkles } from 'lucide-react';
-import { HomeTopNav } from '@/components/home/HomeTopNav';
 import { useTutorClass } from '@/contexts/TutorClassContext';
 import { useTutorSubjects } from '@/hooks/useTutorCatalog';
 import { useCreateNotebook } from '@/hooks/useNotebooks';
@@ -88,9 +87,7 @@ export function ProblemSolverLanding() {
   };
 
   return (
-    <div className="min-h-screen home-page flex flex-col">
-      <HomeTopNav activeStyle="pill" />
-      <div className={styles.tutorRoot}>
+    <div className={styles.tutorRoot}>
         <div className={styles.pageWrap}>
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-semibold text-[var(--color-home-text)]">
@@ -256,7 +253,6 @@ export function ProblemSolverLanding() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
 

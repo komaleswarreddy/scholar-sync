@@ -79,6 +79,15 @@ const config: Config = {
         'xl': '1280px',  // Extra large devices (desktops)
         '2xl': '1536px', // 2X large devices (large desktops)
       },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 1.5s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

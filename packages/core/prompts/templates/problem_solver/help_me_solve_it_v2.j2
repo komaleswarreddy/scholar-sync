@@ -13,6 +13,11 @@ NCERT context:
 {{ ncert_context }}
 {% endif %}
 
+{% if prior_response %}
+Previous coach response from the prior turn (include all of this context in your output):
+{{ prior_response }}
+{% endif %}
+
 Use `\[ ... \]` for display equations and `$...$` for inline math inside `bodyMarkdown`.
 Put spaces around multiplication: `72 \\times 1000`. Wrap units in `\\text{}`, e.g. `\\text{ km/h}` and `\\text{ m/s}^2`.
 
@@ -34,21 +39,9 @@ Return JSON with initial hints and checkpoint 1 MCQ (do NOT give final answer):
   "followUpButtons": []
 }
 {% elif interaction_count == 1 %}
-Validate gently, give feedback, then checkpoint 2 OR completion if appropriate. Still no final numeric answer unless ready_for_reveal is true.
+Return COMPLETE cumulative JSON with all prior sections plus "Feedback on your choice" and checkpoint 2. No final answer.
 {% else %}
-Complete guided solution with final answer and takeaway.
-{
-  "title": "string",
-  "sections": [...],
-  "finalAnswer": "string",
-  "revealLevel": "full",
-  "followUpButtons": [
-    {"label": "Show next hint", "action": "SHOW_NEXT_HINT"},
-    {"label": "Reveal solution", "action": "REVEAL_SOLUTION"},
-    {"label": "Show best approach", "action": "SHOW_BEST_APPROACH"},
-    {"label": "Give similar problem", "action": "GIVE_SIMILAR_PROBLEM"}
-  ]
-}
+Return COMPLETE cumulative JSON with full guided solution and finalAnswer.
 {% endif %}
 
 Return valid JSON only.

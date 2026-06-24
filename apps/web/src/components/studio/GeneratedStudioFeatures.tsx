@@ -7,6 +7,7 @@
 import { FileText, X, Download } from 'lucide-react';
 import { useAppToast } from '@/contexts/AppToastContext';
 import { useDeleteStudioFeature, useStudioFeatures } from '@/hooks/useStudioFeatures';
+import { StudyAssetsSkeleton } from '@/components/skeleton';
 import { useStudioFeaturePreview } from '@/hooks/useStudioFeaturePreview';
 import { hasStudioContent } from '@/lib/studio-display';
 import { studioTypeLabel } from '@/lib/studio-content';
@@ -76,9 +77,7 @@ export function GeneratedStudioFeatures({ variant = 'default' }: { variant?: 'de
 
       <div className={`${isNotebook ? 'max-h-48' : 'flex-1'} overflow-y-auto`}>
         {isLoading ? (
-          <p className={`${isNotebook ? 'text-[12px] px-4 py-2' : 'text-sm p-6'} text-text-secondary`}>
-            Loading assets...
-          </p>
+          <StudyAssetsSkeleton count={2} />
         ) : features.length === 0 ? (
           <div
             className={`flex flex-col items-center justify-center text-center ${isNotebook ? 'p-4' : 'h-full p-6'}`}

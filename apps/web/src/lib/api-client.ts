@@ -52,6 +52,14 @@ function extractUserIdFromToken(token: string | null): string | null {
   }
 }
 
+/** Client-side timeouts for Studio generation (multi-query retrieval + LLM can exceed 60s). */
+export const STUDIO_GENERATION_TIMEOUT_MS: Record<string, number> = {
+  mind_map: 180_000,
+  slide_deck: 180_000,
+  quiz: 120_000,
+  flashcards: 120_000,
+};
+
 class ApiClient {
   private client: AxiosInstance;
   private getTokenFunc: TokenGetter | null = null;
@@ -901,8 +909,11 @@ class ApiClient {
           continue; // Retry
         }
 
-        // Successfully completed
-        return;
+            // Successfully completed — ensure onDone runs if text arrived but SSE lacked done event
+            if (hasReceivedText && accumulatedText.trim()) {
+              onDone();
+            }
+            return;
 
       } catch (error: any) {
         // Clean up reader if it exists
@@ -997,8 +1008,9 @@ class ApiClient {
     if (retrievalFocus && retrievalFocus.trim()) {
       body.retrieval_focus = retrievalFocus.trim();
     }
-    // Use longer timeout for AI generation; tutor bootstrap prep may pass extended limits.
-    const timeoutMs = options?.timeoutMs ?? 60000;
+    // Mind map / slide deck use max_tokens=4096; allow up to 3 min for multi-source retrieval + LLM.
+    const timeoutMs =
+      options?.timeoutMs ?? STUDIO_GENERATION_TIMEOUT_MS[taskType] ?? 120_000;
     const res = await this.client.post('/api/v1/studio/generate', body, {
       timeout: timeoutMs,
     });

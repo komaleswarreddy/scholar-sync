@@ -10,7 +10,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { HomeTopNav } from '@/components/home/HomeTopNav';
 import { TOAST_MIN_VISIBLE_MS, useAppToast } from '@/contexts/AppToastContext';
 import { notebookKeys } from '@/hooks/useNotebooks';
 import { homeSummaryKeys } from '@/hooks/useHomeSummary';
@@ -167,8 +166,7 @@ export function TutorModeLanding() {
   };
 
   return (
-    <div className="min-h-screen home-page flex flex-col">
-      <HomeTopNav activeStyle="pill" />
+    <>
       {isPreparing && prepareScope ? (
         <TutorNotebookPreparingOverlay
           scope={prepareScope}
@@ -425,7 +423,7 @@ export function TutorModeLanding() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

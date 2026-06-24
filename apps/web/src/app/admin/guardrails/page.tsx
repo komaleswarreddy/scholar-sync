@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
 import { apiClient } from '@/lib/api-client';
 import { Loader2, Shield, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { AdminTableSkeleton } from '@/components/skeleton';
 
 export default function GuardrailsPage() {
   const { ready } = useAdminPortalApi();
@@ -48,16 +49,7 @@ export default function GuardrailsPage() {
     return `${num.toFixed(2)}%`;
   };
 
-  if (loading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-accent-blue mx-auto mb-4" />
-          <p className="text-text-secondary">Loading guardrails data...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AdminTableSkeleton />;
 
   if (error) {
     return (

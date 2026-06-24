@@ -13,6 +13,8 @@ interface UserContextType {
   getToken: () => Promise<string | null>;
   signOut: () => Promise<void>;
   loading: boolean;
+  /** Clerk loaded and token getter wired (safe to prefetch API). */
+  authReady: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -92,6 +94,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, [getToken, handleLogout, userLoaded, authLoaded, isSignedIn, isClerkConfigured]);
 
+  const isClerkLoaded = userLoaded && authLoaded;
+  const authReady = isClerkConfigured ? isClerkLoaded && !!isSignedIn && !loading : false;
+
   const value: UserContextType = {
     userId: user?.id ?? null,
     fullName: user?.fullName ?? null,
@@ -101,6 +106,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     getToken,
     signOut: handleLogout,
     loading,
+    authReady,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

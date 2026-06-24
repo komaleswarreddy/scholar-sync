@@ -11,8 +11,10 @@ For comparison, see [`STUDIO_FLASHCARDS_FLOW.md`](STUDIO_FLASHCARDS_FLOW.md) (JS
 ## 1. Preconditions
 
 - The user has selected **one or more sources** (unlike Infographic, **no** single-source rule).
-- Optional: **Custom instructions** in the Studio panel are **appended** to the structured mind-map scope block from **`buildMindMapInstructions`**.
-- Sources should be **ingested** into Pinecone; empty retrieval yields minimal or generic maps per prompt rules.
+- **Mind map is source-only (NotebookLM parity):** chat history and highlighted chat text **never** feed generation. The same selected sources produce the same grounding regardless of chat activity.
+- **Custom instructions** are **not** sent for mind map from the web UI (prompt rules live in **`mind_map_prompt.j2`** only).
+- Sources should be **ingested** into Pinecone; empty retrieval yields minimal maps per prompt rules.
+- Mind map is **not** available from chat text selection popovers (quiz, flashcards, slide deck only).
 
 ---
 
@@ -30,17 +32,16 @@ flowchart TB
   root --> u1
 
   subgraph level2["Level 2 — Frontend StudioSuite"]
-    f1[buildMindMapInstructions selectedSourceCount]
-    f2[Merge with global custom instructions]
-    f3["handleGenerate(mind_map, …, combinedInstructions) — no retrieval_focus from UI"]
+    f1["handleMindMapGenerate → contextMode sources_only"]
+    f2["No custom_instructions or chat_transcript"]
   end
-  u1 --> f1 --> f2 --> f3
+  u1 --> f1 --> f2
 
   subgraph level3["Level 3 — API"]
     a1[start pipeline trace + trace_id]
-    a2["StudioService.generate(task_type=mind_map, ...)"]
+    a2["StudioService.generate — forces sources_only for mind_map"]
   end
-  f3 --> a1 --> a2
+  f2 --> a1 --> a2
 
   subgraph level4["Level 4 — Retrieval"]
     r1{retrieval_focus empty?}
@@ -77,15 +78,14 @@ flowchart TB
 | Step | When | What happens |
 |------|------|----------------|
 | 1 | User clicks **Mind Map** | **`handleMindMapGenerate`** runs (no secondary modal). |
-| 2 | — | **`buildMindMapInstructions(n)`** adds scope: selected sources only, hub/spoke structure, single- vs multi-source synthesis rules. |
-| 3 | — | **`combinedInstructions`** = `[scope block, global custom instructions].filter(Boolean).join('\n\n')`. |
-| 4 | API call | **`handleGenerate('mind_map', undefined, combinedInstructions)`** — the current UI does **not** pass **`retrieval_focus`**, so retrieval uses **broad** seven queries. |
+| 2 | — | **`generate({ taskType: 'mind_map', contextMode: 'sources_only' })`** — no custom instructions. |
+| 3 | API call | Frontend and backend both force **`sources_only`** even if chat is active. |
 
-**Global Custom instructions:** merged **after** the scope block.
+**Chat:** Ignored for mind map. Other Studio tools may still use **`chat_hybrid`** when chat + sources are present.
 
-**Generation modal:** The structured scope block is **not** shown under “Custom Instructions” in the modal header for mind map.
+**Selection-only:** Mind map is **not** offered when highlighting text in chat.
 
-**API note:** If a client sends **`retrieval_focus`** for **`mind_map`**, the backend can use **`QueryRewriter`** (topic mode) like Quiz / Slide Deck—the **web app** today does not send it.
+**API note:** If a client sends **`retrieval_focus`** for **`mind_map`**, the backend can use **`QueryRewriter`** (topic mode)—the **web app** today does not send it.
 
 ---
 
@@ -93,12 +93,11 @@ flowchart TB
 
 **File:** [`apps/web/src/components/studio/StudioSuite.tsx`](apps/web/src/components/studio/StudioSuite.tsx)
 
-1. **`buildMindMapInstructions(selectedSourceCount)`** — mandatory scope (evidence-only, one `#` hub, `##` / `###` structure; multi-source integrated map rules).
-2. **`combinedInstructions`** as above.
-3. **`handleGenerate('mind_map', undefined, combinedInstructions)`**.
-4. **`apiClient.generateStudio(...)`** — [`apps/web/src/lib/api-client.ts`](apps/web/src/lib/api-client.ts).
+1. **`handleMindMapGenerate()`** → **`generate({ taskType: 'mind_map', contextMode: 'sources_only' })`**.
+2. **`StudioGenerationContext`** also forces **`sources_only`** for mind map and omits **`custom_instructions`** on the API call.
+3. **`apiClient.generateStudio(...)`** — [`apps/web/src/lib/api-client.ts`](apps/web/src/lib/api-client.ts).
 
-**Retry:** **`lastCustomInstructions`**; **`lastRetrievalFocus`** typically empty for mind map from UI.
+**Retry:** Same parameters (sources-only, no instructions).
 
 **`determineContentType` / `formatContent`:** Markdown **`content`**; preserves `{ task_type, content }`.
 
@@ -120,10 +119,13 @@ flowchart TB
 
 | Setting / behavior | Detail |
 |--------------------|--------|
+| **Context mode** | **`mind_map` always `sources_only`** — `chat_transcript` and `selection_text` cleared; overrides client `chat_hybrid` / `selection_only`. |
 | **`retrieval_focus`** | If **non-empty** → **`topic_rewrite`** + **`QueryRewriter`**, up to **`STUDIO_RETRIEVAL_QUERIES_CAP`** queries. If **empty** (current UI) → **`STUDIO_BROAD_RETRIEVAL_QUERIES`** (all **seven**). |
 | **Filter** | `{"source_id": {"$in": source_ids}}`. |
 | **`merge_studio_match_lists`** | If **`len(source_ids) > 1`** and **`task_type == "mind_map"`**, **`balance_source_ids`** for fair multi-source context. |
 | **`selected_source_count`** | Passed into **`mind_map_prompt.j2`**. |
+| **Broad retrieval perf** | Batch-embeds all broad queries in one API call; Pinecone lookups run in parallel via **`asyncio.gather`** + **`to_thread`**. |
+| **Client timeout** | Web app waits up to **180s** for mind map (`STUDIO_GENERATION_TIMEOUT_MS` in `api-client.ts`). |
 
 **Pipeline spans:** **`StudioRetrieval/QueryRewrite`** when focus is set; **`StudioRetrieval/VectorQuery`**; **`StudioRetrieval`**; **`StudioGenerate`** with **`studio_mind_map`**.
 
@@ -154,11 +156,24 @@ flowchart TB
 
 **File:** [`apps/web/src/components/studio/MindMapDisplay.tsx`](apps/web/src/components/studio/MindMapDisplay.tsx)
 
-- Parses / lays out the hierarchical mind map (interactive disclosure, export hooks, etc.—as implemented).
+- Parses / lays out the hierarchical mind map (interactive disclosure, export hooks, etc.).
+- **Default view:** level-1 branches (direct children of root) are **expanded on load**; deeper nodes remain collapsible.
 
 ---
 
-## 9. Quick reference: Mind map vs Flashcards vs Slide deck
+## 9. Context modes (mind map vs other Studio tools)
+
+| Mode | Mind map | Quiz / flashcards / slide deck |
+|------|----------|--------------------------------|
+| **`sources_only`** | **Always** (forced) | When chat is empty |
+| **`chat_hybrid`** | **Never** | When chat + sources present |
+| **`selection_only`** | **Not offered** | Chat highlight → toolbar (except mind map) |
+
+See also: [`NCERT_Class_9_10_PDFs/notebooklm-vs-scholarsync-mindmap.html`](../NCERT_Class_9_10_PDFs/notebooklm-vs-scholarsync-mindmap.html) for NotebookLM alignment rationale.
+
+---
+
+## 10. Quick reference: Mind map vs Flashcards vs Slide deck
 
 | Aspect | Mind map | Flashcards | Slide deck |
 |--------|----------|------------|------------|
@@ -173,7 +188,7 @@ flowchart TB
 
 ---
 
-## 10. Operational debugging
+## 11. Operational debugging
 
 - Use **`trace_id`** and **Analytics → Pipeline**.
 - Single-source dominance with multiple notebooks selected: confirm **`balance_source_ids`** path and chunk **`source_id`** metadata.
@@ -181,7 +196,7 @@ flowchart TB
 
 ---
 
-## 11. Related files (index)
+## 12. Related files (index)
 
 | Role | Path |
 |------|------|

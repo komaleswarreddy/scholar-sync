@@ -66,9 +66,8 @@ export function UserMenuDropdown() {
     };
   }, [isOpen]);
 
-  const handleProfile = () => {
+  const handleProfileClose = () => {
     setIsOpen(false);
-    router.push('/profile/student-info');
   };
 
   const handleLogout = async () => {
@@ -125,17 +124,17 @@ export function UserMenuDropdown() {
             </div>
 
             <div className="app-user-menu-dropdown__actions">
-              <button
-                type="button"
+              <Link
+                href="/profile/student-info"
                 role="menuitem"
-                onClick={handleProfile}
+                onClick={handleProfileClose}
                 className="app-user-menu-dropdown__item"
               >
                 <span className="app-user-menu-dropdown__item-icon">
                   <User className="w-4 h-4" strokeWidth={1.75} />
                 </span>
                 <span>Profile</span>
-              </button>
+              </Link>
 
               <Link
                 href="/profile/account-security"

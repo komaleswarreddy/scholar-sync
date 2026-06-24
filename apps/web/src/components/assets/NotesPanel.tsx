@@ -14,6 +14,7 @@ import { useAppToast } from '@/contexts/AppToastContext';
 import { NoteModal } from '@/components/notes/NoteModal';
 import { useDeleteNote, useNotes, useUpdateNote } from '@/hooks/useNotes';
 import { useListNotebooks } from '@/hooks/useNotebooks';
+import { NotesListSkeleton } from '@/components/skeleton';
 import { AssetDeleteDialog } from './AssetDeleteDialog';
 import { AssetEditModal } from './AssetEditModal';
 import { AssetsSortDropdown } from './AssetsSortDropdown';
@@ -192,9 +193,7 @@ export function NotesPanel({
       </div>
 
       {isLoading ? (
-        <p className="text-center text-[var(--color-home-text-muted)] py-10 text-[15px]">
-          Loading notes...
-        </p>
+        <NotesListSkeleton count={4} />
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filtered.map((note) => (

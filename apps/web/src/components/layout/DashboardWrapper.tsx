@@ -7,12 +7,13 @@ import { StudioSuite } from '@/components/studio/StudioSuite';
 import { GeneratedStudioFeatures } from '@/components/studio/GeneratedStudioFeatures';
 import { NotesSection } from '@/components/notes/NotesSection';
 import { SourceProvider } from '@/contexts/SourceContext';
-import { UserProvider, useUserContext } from '@/contexts/UserContext';
+import { useUserContext } from '@/contexts/UserContext';
 import { StudioChatBridgeProvider } from '@/contexts/StudioChatBridgeContext';
 import { StudioPreviewProvider } from '@/contexts/StudioPreviewContext';
 import { StudioGenerationProvider } from '@/contexts/StudioGenerationContext';
 import { checkForNoteDrafts, removeDraft } from '@/lib/note-draft-utils';
 import { DraftSaveModal } from '@/components/notes/DraftSaveModal';
+import { RouteLoadingSkeleton } from '@/components/ui/RouteLoadingSkeleton';
 
 export function DashboardWrapper({ children }: { children: React.ReactNode }) {
   const Wrapper = () => {
@@ -161,8 +162,8 @@ export function DashboardWrapper({ children }: { children: React.ReactNode }) {
       pendingNavigationRef.current = null;
     };
 
-    if (loading) return <p>Loading...</p>;
-    if (!isSignedIn) return <p>Redirecting to login...</p>;
+    if (loading) return <RouteLoadingSkeleton variant="dashboard" />;
+    if (!isSignedIn) return <RouteLoadingSkeleton variant="dashboard" />;
 
     return (
       <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
@@ -205,17 +206,15 @@ export function DashboardWrapper({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <UserProvider>
-      <SourceProvider>
-        <StudioChatBridgeProvider>
-          <StudioPreviewProvider>
-            <StudioGenerationProvider>
-              <Wrapper />
-            </StudioGenerationProvider>
-          </StudioPreviewProvider>
-        </StudioChatBridgeProvider>
-      </SourceProvider>
-    </UserProvider>
+    <SourceProvider>
+      <StudioChatBridgeProvider>
+        <StudioPreviewProvider>
+          <StudioGenerationProvider>
+            <Wrapper />
+          </StudioGenerationProvider>
+        </StudioPreviewProvider>
+      </StudioChatBridgeProvider>
+    </SourceProvider>
   );
 }
 

@@ -9,6 +9,7 @@ import { useNotes, useCreateNote, useUpdateNote, useDeleteNote } from '@/hooks/u
 import { useNotebookScopeId } from '@/contexts/NotebookContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { noteKeys } from '@/hooks/useNotes';
+import { NotesListSkeleton } from '@/components/skeleton';
 
 interface Note {
   id: string;
@@ -131,10 +132,7 @@ export function NotesSection() {
       {/* Notes List */}
       <div className="flex-1 overflow-y-auto p-4">
         {loading && notes.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-6 h-6 border-2 border-accent-blue border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-text-secondary text-sm">Loading notes...</p>
-          </div>
+          <NotesListSkeleton count={3} />
         ) : notes.length === 0 && !loading ? (
           <div className="text-center py-8">
             <p className="text-text-secondary text-sm mb-2">No notes yet</p>
