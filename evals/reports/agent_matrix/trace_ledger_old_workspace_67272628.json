@@ -1,0 +1,361 @@
+{
+  "month": "2026-06",
+  "workspace_tenant": "67272628-c819-44db-bbda-e500db0d6982",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 4732,
+  "note": "Reset for 3rd LangSmith workspace (fresh quota). Prior ledgers archived.",
+  "experiments": [
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-hallucination_guard_retry-v1-openai-gpt-5-4-f65b5817",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:14:45.672074+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-hallucination_guard_retry-v1-anthropic-claude-sonnet-4-6-c29979aa",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:15:45.582356+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-hallucination_guard_retry-v1-gemini-gemini-2-5-flash-841a41d0",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:16:28.509677+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-hallucination_guard_retry-v2-openai-gpt-5-4-90e2c88d",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:17:12.448457+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-hallucination_guard_retry-v2-anthropic-claude-sonnet-4-6-964a36c3",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:18:07.129308+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-hallucination_guard_retry-v2-gemini-gemini-2-5-flash-fbf81c1b",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:18:42.061553+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-hallucination_guard_retry-v3-openai-gpt-5-4-a2c4d483",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:19:46.449870+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-hallucination_guard_retry-v3-anthropic-claude-sonnet-4-6-c67b8c43",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:20:59.999149+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-hallucination_guard_retry-v3-gemini-gemini-2-5-flash-6f10e9fa",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:21:37.135023+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_system_json-v1-openai-gpt-5-4-mini-12bc75c1",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:22:09.144770+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_system_json-v1-gemini-gemini-2-5-flash-187fcecb",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:22:39.363780+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v1",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-studio_system_json-v1-openai-gpt-5-mini-b3e3af28",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:23:53.522161+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_system_json-v2-openai-gpt-5-4-mini-1d081687",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:24:50.735656+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_system_json-v2-gemini-gemini-2-5-flash-aa4384e6",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:25:24.536991+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-studio_system_json-v2-openai-gpt-5-mini-8f306fb4",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:26:33.565515+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_system_json-v3-openai-gpt-5-4-mini-78e709d1",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:27:01.702160+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_system_json-v3-gemini-gemini-2-5-flash-27db27e2",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:27:29.588682+00:00"
+    },
+    {
+      "agent_id": "studio_system_json",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-studio_system_json-v3-openai-gpt-5-mini-c6e03e17",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-30T01:28:32.282491+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_quiz-v1-openai-gpt-5-4-mini-d874876e",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:29:55.645805+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_quiz-v1-gemini-gemini-2-5-flash-835fa254",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:31:14.410559+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v1",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-studio_quiz-v1-openai-gpt-5-mini-5520b34c",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:34:56.484687+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_quiz-v2-openai-gpt-5-4-mini-cccc7796",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:36:00.834196+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_quiz-v2-gemini-gemini-2-5-flash-a08aeb56",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:37:11.893996+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-studio_quiz-v2-openai-gpt-5-mini-ba4db3a7",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:41:26.532461+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_quiz-v3-openai-gpt-5-4-mini-71da5646",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:42:54.631380+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_quiz-v3-gemini-gemini-2-5-flash-28aecb55",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:44:10.633983+00:00"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-studio_quiz-v3-openai-gpt-5-mini-2d0d8dbd",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-30T01:48:10.652783+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_flashcards-v1-openai-gpt-5-4-mini-7eb33c50",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:49:08.459779+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_flashcards-v1-gemini-gemini-2-5-flash-5283308a",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:49:57.265758+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v1",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-studio_flashcards-v1-gemini-gemini-3-1-flash-lite-6ec6539c",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:50:37.850981+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_flashcards-v2-openai-gpt-5-4-mini-3b5ac363",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:51:25.133126+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_flashcards-v2-gemini-gemini-2-5-flash-0b6603ab",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:52:09.308717+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v2",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-studio_flashcards-v2-gemini-gemini-3-1-flash-lite-23a8696b",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:52:44.882771+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_flashcards-v3-openai-gpt-5-4-mini-5efc94b4",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:53:22.895748+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_flashcards-v3-gemini-gemini-2-5-flash-bb55043e",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-06-30T01:54:04.251017+00:00"
+    }
+  ],
+  "updated_at": "2026-06-30T01:54:04.252018+00:00"
+}

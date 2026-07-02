@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dataset_id": "studio_flashcards",
   "agent": {
     "sno": 12,
     "category": "Studio",
     "name": "Studio Flashcards Generator",
     "tier": "tier_2",
-    "target_examples": 15,
-    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\n{# Study flashcards: JSON array of {front, back}. selected_source_count from service.\n   Retrieval for flashcards is always STUDIO_BROAD_RETRIEVAL_QUERIES (broad mode only). #}\n\nYou are an **expert instructional designer**. Build a **digital flashcard deck** for review and self-testing.\n\n**Selected source count:** **{{ selected_source_count }}** document(s). The excerpt below was retrieved **only** from these selections—**ignore** any material not in the excerpt.\n\n---\n\n## What a flashcard is\n\n- **`front`:** A **short question**, **key term**, or **prompt** (what the learner sees first).  \n- **`back`:** The **answer**, **definition**, or **concise explanation** (grounded in the excerpt).  \n- Cards must be **useful for spaced review**: clear, self-contained pairs.\n\n---\n\n## Non-negotiable scope\n\n1. **Use ONLY the “Source content” excerpt** (and retrieval query hints if present).  \n2. **Do not invent** facts, names, or numbers not supported by the excerpt.  \n3. **No** sources outside the selection exist for this task—do not pull in outside knowledge.\n\n{% if selected_source_count | int > 1 %}\n## Multi-source deck (required)\n\nThe excerpt may combine content from **{{ selected_source_count }}** documents. Build **one integrated deck**, not separate piles per file.\n\n- Extract **important facts, definitions, and overarching concepts** from **across** the excerpt.  \n- When the excerpt clearly includes material from more than one document, **spread cards** so **each represented source** contributes meaningful cards (terms, facts, or concepts)—**do not** build the whole deck from only one source’s chunks unless the excerpt is overwhelmingly from one.  \n- You may **mix** cards in any order; avoid long runs that only mirror a single subsection unless the excerpt justifies it.  \n{% else %}\n## Single-source deck\n\nPrioritize **core definitions**, **key facts**, and **central concepts** from that one document.  \n{% endif %}\n\n---\n\nOutput requirements (strict):\n- Return **ONLY** a valid **JSON array**.  \n- Do **NOT** include markdown, code fences, or extra commentary.  \n- Each item must be exactly: `{\"front\": \"…\", \"back\": \"…\"}`  \n\nQuality requirements:\n- **Concise, high-value** cards; **no duplicates** (same idea reworded).  \n- **`front`:** short and scannable (typically one line).  \n- **`back`:** accurate, specific, still compact—expand only when needed for clarity.  \n- If the excerpt is dense, **prioritize** the most **study-worthy** items first.\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\nRetrieval used these broad queries (vector search over selected sources only):\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\n### Source content (selected sources only)\n{{ context }}\n{% else %}\nNo source content provided. Return an **empty JSON array** `[]` or a **minimal** array noting insufficient indexed text—do **not** fabricate a full deck from imagination.\n{% endif %}\n\n{% if custom_instructions %}\n### Additional user instructions\n{{ custom_instructions }}\n{% endif %}\n\n**Final reminder:** output **ONLY** the JSON array."
+    "target_examples": 22,
+    "prompt_template": ""
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -22,422 +22,467 @@
   "items": [
     {
       "id": "studio_flashcards-001",
-      "variation": "typo",
-      "tags": [
-        "cbse",
-        "current_electricity"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
-        "selected_source_count": 1
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "selected_source_count": 1,
+        "custom_instructions": "8 cards max, focus Ohm's law only"
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Current Electricity)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Current Electricity)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Ohm's law?\",\n    \"back\": \"V = IR for ohmic conductors.\"\n  },\n  {\n    \"front\": \"Series R_eq?\",\n    \"back\": \"R_eq = R1 + R2\"\n  },\n  {\n    \"front\": \"Parallel rule?\",\n    \"back\": \"1/R_eq = 1/R1 + 1/R2\"\n  },\n  {\n    \"front\": \"Kirchhoff junction?\",\n    \"back\": \"Sum I_in = sum I_out\"\n  },\n  {\n    \"front\": \"Drift velocity relation?\",\n    \"back\": \"I = neAv_d\"\n  },\n  {\n    \"front\": \"Resistivity formula?\",\n    \"back\": \"ρ = RA/l\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_concept",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-002",
-      "variation": "conversational",
-      "tags": [
-        "cbse",
-        "human_digestion"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
-        "selected_source_count": 2
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.",
+        "selected_source_count": 1,
+        "custom_instructions": "5 cards, digestive enzymes only"
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Human Digestion)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Human Digestion)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Salivary amylase site?\",\n    \"back\": \"Mouth — starts starch digestion.\"\n  },\n  {\n    \"front\": \"Pepsin medium?\",\n    \"back\": \"Acidic stomach with HCl.\"\n  },\n  {\n    \"front\": \"Trypsin source?\",\n    \"back\": \"Pancreatic juice → duodenum.\"\n  },\n  {\n    \"front\": \"Lipase function?\",\n    \"back\": \"Digests fats.\"\n  },\n  {\n    \"front\": \"Main absorption?\",\n    \"back\": \"Small intestine villi\"\n  }\n]"
       },
+      "tags": [
+        "neet",
+        "biology",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-003",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "photosynthesis"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "context": "Central metal + ligands. Coordination number = σ-donor atoms on metal. [Fe(CN)6]4- has CN=6. IUPAC: ligands alphabetical; anionic end in -o.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Photosynthesis)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Photosynthesis)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Coordination number?\",\n    \"back\": \"Count of σ-donor atoms on metal.\"\n  },\n  {\n    \"front\": \"Ligand?\",\n    \"back\": \"Ion/molecule bonded to central metal.\"\n  },\n  {\n    \"front\": \"[Fe(CN)6]4- CN?\",\n    \"back\": \"6\"\n  },\n  {\n    \"front\": \"IUPAC ligand order?\",\n    \"back\": \"Alphabetical; anionic ligands end in -o\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-004",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "chemical_bonding"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
-        "selected_source_count": 2
+        "context": "P(E)=favourable/total. P(A∪B)=P(A)+P(B)-P(A∩B). Independent: P(A∩B)=P(A)P(B). Bayes links prior and likelihood.",
+        "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Chemical Bonding)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Chemical Bonding)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Classical P(E)?\",\n    \"back\": \"Favourable / total outcomes.\"\n  },\n  {\n    \"front\": \"Addition rule?\",\n    \"back\": \"P(A∪B)=P(A)+P(B)-P(A∩B)\"\n  },\n  {\n    \"front\": \"Independent events?\",\n    \"back\": \"P(A∩B)=P(A)P(B)\"\n  },\n  {\n    \"front\": \"Bayes links?\",\n    \"back\": \"Prior, likelihood → posterior\"\n  },\n  {\n    \"front\": \"Complement?\",\n    \"back\": \"P(A')=1-P(A)\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-005",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "magnetic_effects"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
-        "selected_source_count": 1
+        "context": "Light reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2. Mitosis: growth/repair, same chromosome number. Meiosis: gametes, halves chromosomes. Prophase I: crossing over.",
+        "selected_source_count": 1,
+        "custom_instructions": "Full breadth, 8 cards"
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Magnetic Effects)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Magnetic Effects)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Light reaction site?\",\n    \"back\": \"Grana — ATP, NADPH.\"\n  },\n  {\n    \"front\": \"Calvin cycle?\",\n    \"back\": \"Stroma — CO2 fixation.\"\n  },\n  {\n    \"front\": \"Mitosis purpose?\",\n    \"back\": \"Growth/repair, same 2n.\"\n  },\n  {\n    \"front\": \"Meiosis output?\",\n    \"back\": \"Gametes with n chromosomes.\"\n  },\n  {\n    \"front\": \"Crossing over?\",\n    \"back\": \"Prophase I of meiosis.\"\n  },\n  {\n    \"front\": \"Stomata role?\",\n    \"back\": \"Gas exchange CO2/O2.\"\n  },\n  {\n    \"front\": \"Chlorophyll?\",\n    \"back\": \"Absorbs light energy.\"\n  },\n  {\n    \"front\": \"ATP use in Calvin?\",\n    \"back\": \"Powers CO2 fixation.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_concept"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-006",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "cell_structure"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
-        "selected_source_count": 2
+        "context": "Kc=[products]/[reactants] at equilibrium. Le Chatelier: stress shifts to oppose change. Catalyst speeds approach, not K. Alkanes CnH2n+2. Markovnikov: H to C with more H. Benzene: delocalized π, extra stability.",
+        "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Cell Structure)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Cell Structure)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Kc definition?\",\n    \"back\": \"Equilibrium concentration ratio.\"\n  },\n  {\n    \"front\": \"Le Chatelier?\",\n    \"back\": \"Shift opposes applied stress.\"\n  },\n  {\n    \"front\": \"Catalyst and K?\",\n    \"back\": \"No change to K.\"\n  },\n  {\n    \"front\": \"Alkane formula?\",\n    \"back\": \"CnH2n+2\"\n  },\n  {\n    \"front\": \"Markovnikov rule?\",\n    \"back\": \"H to C with more H.\"\n  },\n  {\n    \"front\": \"Benzene stability?\",\n    \"back\": \"Delocalized π electrons.\"\n  },\n  {\n    \"front\": \"Pressure on fewer moles?\",\n    \"back\": \"Shifts toward fewer gas moles.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:multi_concept"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-007",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "quadratic_equations"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
+        "context": "(a+b)^n expansion uses nCr. General term Tr+1=nCr a^(n-r) b^r. Middle term depends on n even/odd. Graph ax+by≤c: shade toward origin test point. Feasible region intersection of half-planes. Optimize at vertices.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Quadratic Equations)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Quadratic Equations)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Binomial general term?\",\n    \"back\": \"Tr+1 = nCr a^(n-r) b^r\"\n  },\n  {\n    \"front\": \"nCr meaning?\",\n    \"back\": \"Combination coefficient.\"\n  },\n  {\n    \"front\": \"Feasible region?\",\n    \"back\": \"Intersection of constraint half-planes.\"\n  },\n  {\n    \"front\": \"Corner point method?\",\n    \"back\": \"Optimize at polygon vertices.\"\n  },\n  {\n    \"front\": \"Shade ax+by≤c?\",\n    \"back\": \"Test origin side.\"\n  },\n  {\n    \"front\": \"Middle term n even?\",\n    \"back\": \"Single middle at r=n/2.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_concept"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-008",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "human_reproduction"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
-        "selected_source_count": 2
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.",
+        "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Human Reproduction)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Human Reproduction)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Lens formula?\",\n    \"back\": \"1/f = 1/v − 1/u\"\n  },\n  {\n    \"front\": \"Magnification?\",\n    \"back\": \"m = v/u\"\n  },\n  {\n    \"front\": \"Lens power?\",\n    \"back\": \"P = 1/f (f in m)\"\n  },\n  {\n    \"front\": \"Real object u?\",\n    \"back\": \"Negative in Cartesian convention.\"\n  },\n  {\n    \"front\": \"Optical centre ray?\",\n    \"back\": \"Passes undeviated.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-009",
-      "variation": "security",
-      "tags": [
-        "cbse",
-        "thermodynamics"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
+        "context": "DNA: A-T, G-C pairing. Semiconservative replication. mRNA carries code to ribosomes for translation.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Thermodynamics)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Thermodynamics)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"A pairs with?\",\n    \"back\": \"T\"\n  },\n  {\n    \"front\": \"G pairs with?\",\n    \"back\": \"C\"\n  },\n  {\n    \"front\": \"Replication type?\",\n    \"back\": \"Semiconservative.\"\n  },\n  {\n    \"front\": \"mRNA role?\",\n    \"back\": \"Carries code to ribosomes.\"\n  },\n  {\n    \"front\": \"Translation site?\",\n    \"back\": \"Ribosomes.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-010",
-      "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "coordination_compounds"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
-        "selected_source_count": 2
+        "context": "Galvanic cell: anode oxidation, cathode reduction. E°cell=E°cathode-E°anode. Nernst equation links EMF to concentration.",
+        "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Coordination Compounds)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Coordination Compounds)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Galvanic anode?\",\n    \"back\": \"Oxidation.\"\n  },\n  {\n    \"front\": \"Galvanic cathode?\",\n    \"back\": \"Reduction.\"\n  },\n  {\n    \"front\": \"E°cell?\",\n    \"back\": \"E°cathode − E°anode.\"\n  },\n  {\n    \"front\": \"Nernst equation?\",\n    \"back\": \"Links EMF to concentration.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-011",
-      "variation": "comparison",
-      "tags": [
-        "cbse",
-        "ray_optics"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
+        "context": "Direction cosines l,m,n; l²+m²+n²=1. Line: (x-x1)/a=(y-y1)/b=(z-z1)/c. Skew lines: shortest distance via cross product.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Ray Optics)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Ray Optics)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Direction cosines constraint?\",\n    \"back\": \"l²+m²+n²=1\"\n  },\n  {\n    \"front\": \"3D line form?\",\n    \"back\": \"(x-x1)/a=(y-y1)/b=(z-z1)/c\"\n  },\n  {\n    \"front\": \"Skew line distance?\",\n    \"back\": \"Uses cross product.\"\n  },\n  {\n    \"front\": \"Direction ratios?\",\n    \"back\": \"Define line direction.\"\n  },\n  {\n    \"front\": \"Angles with?\",\n    \"back\": \"Coordinate axes.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-012",
-      "variation": "metadata",
-      "tags": [
-        "cbse",
-        "ecology"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
+        "context": "[Source A — Current Electricity] Ohm's law V=IR; resistivity ρ=RA/l.\n\n[Source B — Electrochemistry] Galvanic cell: anode oxidation; E°cell=E°cathode-E°anode.",
         "selected_source_count": 2
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Ecology)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Ecology)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Ohm's law?\",\n    \"back\": \"V=IR\"\n  },\n  {\n    \"front\": \"ρ relation?\",\n    \"back\": \"ρ=RA/l\"\n  },\n  {\n    \"front\": \"Galvanic anode?\",\n    \"back\": \"Oxidation.\"\n  },\n  {\n    \"front\": \"E°cell?\",\n    \"back\": \"E°cathode−E°anode\"\n  },\n  {\n    \"front\": \"Series R?\",\n    \"back\": \"Adds.\"\n  },\n  {\n    \"front\": \"Charge flow link?\",\n    \"back\": \"Both domains involve charge/energy.\"\n  },\n  {\n    \"front\": \"Resistivity vs cell?\",\n    \"back\": \"Material vs electrochemical driving force.\"\n  },\n  {\n    \"front\": \"Integrated review?\",\n    \"back\": \"Electricity + electrochemistry deck.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-013",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "probability"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
-        "selected_source_count": 1
+        "context": "[Source A — Photosynthesis] Light reaction in grana; Calvin cycle in stroma.\n\n[Source B — Cell division] Mitosis maintains chromosome number; meiosis halves for gametes.",
+        "selected_source_count": 2
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Probability)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Probability)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"Grana product?\",\n    \"back\": \"ATP, NADPH\"\n  },\n  {\n    \"front\": \"Calvin site?\",\n    \"back\": \"Stroma\"\n  },\n  {\n    \"front\": \"Meiosis result?\",\n    \"back\": \"n gametes\"\n  },\n  {\n    \"front\": \"Mitosis?\",\n    \"back\": \"2n somatic cells.\"\n  },\n  {\n    \"front\": \"Crossing over?\",\n    \"back\": \"Prophase I.\"\n  },\n  {\n    \"front\": \"Gas exchange?\",\n    \"back\": \"Stomata.\"\n  },\n  {\n    \"front\": \"Integrated theme?\",\n    \"back\": \"Energy and information in cells.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-014",
-      "variation": "handwritten",
-      "tags": [
-        "cbse",
-        "organic_chemistry"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
+        "context": "[Source A — Probability] P(E)=favourable/total; P(A∩B)=P(A)P(B) if independent.\n\n[Source B — Binomial] Tr+1=nCr a^(n-r) b^r in (a+b)^n expansion.",
         "selected_source_count": 2
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Organic Chemistry)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Organic Chemistry)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[\n  {\n    \"front\": \"P(E) classical?\",\n    \"back\": \"favourable/total\"\n  },\n  {\n    \"front\": \"Independent?\",\n    \"back\": \"P(A∩B)=P(A)P(B)\"\n  },\n  {\n    \"front\": \"Binomial term?\",\n    \"back\": \"nCr a^(n-r) b^r\"\n  },\n  {\n    \"front\": \"nCr?\",\n    \"back\": \"Combination count.\"\n  },\n  {\n    \"front\": \"Link?\",\n    \"back\": \"Combinatorics in probability.\"\n  },\n  {\n    \"front\": \"Deck spans?\",\n    \"back\": \"Both sources.\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     },
     {
       "id": "studio_flashcards-015",
-      "variation": "low_quality_scan",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.\n\nOhm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": "[\n  {\n    \"front\": \"Lens formula?\",\n    \"back\": \"1/f=1/v−1/u\"\n  },\n  {\n    \"front\": \"P=?\",\n    \"back\": \"1/f\"\n  },\n  {\n    \"front\": \"V=IR?\",\n    \"back\": \"Ohm's law\"\n  },\n  {\n    \"front\": \"Series R?\",\n    \"back\": \"R1+R2\"\n  },\n  {\n    \"front\": \"m=?\",\n    \"back\": \"v/u\"\n  },\n  {\n    \"front\": \"Real u sign?\",\n    \"back\": \"Negative\"\n  },\n  {\n    \"front\": \"Kirchhoff junction?\",\n    \"back\": \"ΣI_in=ΣI_out\"\n  },\n  {\n    \"front\": \"Optics+electricity?\",\n    \"back\": \"Two-source deck.\"\n  },\n  {\n    \"front\": \"Review tip?\",\n    \"back\": \"Separate formula cards per topic.\"\n  }\n]"
+      },
       "tags": [
         "cbse",
-        "motion_in_plane"
+        "physics",
+        "scope_mode:multi_source"
       ],
+      "evaluators": [
+        "card_count",
+        "no_duplicates",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_flashcards-016",
+      "variation": "multi_source",
       "inputs": {
-        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.\n\nLight reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": "[\n  {\n    \"front\": \"Amylase?\",\n    \"back\": \"Mouth\"\n  },\n  {\n    \"front\": \"Pepsin?\",\n    \"back\": \"Stomach HCl\"\n  },\n  {\n    \"front\": \"Calvin?\",\n    \"back\": \"Stroma CO2 fix\"\n  },\n  {\n    \"front\": \"Grana?\",\n    \"back\": \"Light reaction\"\n  },\n  {\n    \"front\": \"Trypsin?\",\n    \"back\": \"Pancreatic/duodenum\"\n  },\n  {\n    \"front\": \"Absorption?\",\n    \"back\": \"Small intestine\"\n  },\n  {\n    \"front\": \"ATP use?\",\n    \"back\": \"Calvin cycle\"\n  },\n  {\n    \"front\": \"NEET deck?\",\n    \"back\": \"Cross-topic.\"\n  }\n]"
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "card_count",
+        "no_duplicates",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_flashcards-017",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "flashcards_json": [
-          {
-            "front": "Key term 1 (Motion in Plane)",
-            "back": "Definition from excerpt."
-          },
-          {
-            "front": "Key term 2 (Motion in Plane)",
-            "back": "Second fact from excerpt."
-          }
-        ]
+        "flashcards_json": "[]"
       },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source"
+      ],
       "evaluators": [
-        "valid_json",
-        "flashcard_schema"
+        "empty_deck",
+        "no_fabrication"
+      ]
+    },
+    {
+      "id": "studio_flashcards-018",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "flashcards_json": "[]"
+      },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source"
+      ],
+      "evaluators": [
+        "empty_deck",
+        "no_fabrication"
+      ]
+    },
+    {
+      "id": "studio_flashcards-019",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Superconductivity at low T mentioned briefly.",
+        "selected_source_count": 1,
+        "custom_instructions": "Exactly 2 cards from thin excerpt"
+      },
+      "reference_outputs": {
+        "flashcards_json": "[\n  {\n    \"front\": \"Superconductivity note?\",\n    \"back\": \"Zero resistance at very low temperature (thin excerpt).\"\n  },\n  {\n    \"front\": \"Deck size?\",\n    \"back\": \"Minimal 2-card deck from thin text.\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_source"
+      ],
+      "evaluators": [
+        "card_count",
+        "no_duplicates",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_flashcards-020",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Dicot root: radial vascular bundle. Monocot: polyarch xylem. Casparian strip in endodermis controls flow. Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.",
+        "selected_source_count": 1,
+        "custom_instructions": "10 flashcards"
+      },
+      "reference_outputs": {
+        "flashcards_json": "[\n  {\n    \"front\": \"Dicot root vascular?\",\n    \"back\": \"Radial bundle.\"\n  },\n  {\n    \"front\": \"Monocot xylem?\",\n    \"back\": \"Polyarch.\"\n  },\n  {\n    \"front\": \"Casparian strip?\",\n    \"back\": \"Suberin in endodermis.\"\n  },\n  {\n    \"front\": \"Apoplastic block?\",\n    \"back\": \"Forces symplastic path.\"\n  },\n  {\n    \"front\": \"Salivary amylase?\",\n    \"back\": \"Mouth.\"\n  },\n  {\n    \"front\": \"Pepsin?\",\n    \"back\": \"Stomach.\"\n  },\n  {\n    \"front\": \"Villi?\",\n    \"back\": \"Absorption.\"\n  },\n  {\n    \"front\": \"Endodermis role?\",\n    \"back\": \"Selective uptake.\"\n  },\n  {\n    \"front\": \"Plant-animal link?\",\n    \"back\": \"Surface area for absorption.\"\n  },\n  {\n    \"front\": \"10-card deck?\",\n    \"back\": \"Dense excerpt supports more cards.\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_concept"
+      ],
+      "evaluators": [
+        "card_count",
+        "no_duplicates",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_flashcards-021",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Tollens' test: silver mirror with aldehydes, not ketones. C=O undergoes nucleophilic addition.",
+        "selected_source_count": 1,
+        "custom_instructions": "Exactly 3 flashcards"
+      },
+      "reference_outputs": {
+        "flashcards_json": "[\n  {\n    \"front\": \"Tollens'?\",\n    \"back\": \"Silver mirror — aldehydes.\"\n  },\n  {\n    \"front\": \"Ketones Tollens'?\",\n    \"back\": \"No reaction.\"\n  },\n  {\n    \"front\": \"C=O mechanism?\",\n    \"back\": \"Nucleophilic addition.\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_concept"
+      ],
+      "evaluators": [
+        "card_count",
+        "no_duplicates",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_flashcards-022",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Parabola: focus-directrix equidistance. y²=4ax focus (a,0). e=1 for parabola.\n\nP(E)=favourable/total. P(A∪B)=P(A)+P(B)-P(A∩B). Independent: P(A∩B)=P(A)P(B). Bayes links prior and likelihood.\n\n(a+b)^n expansion uses nCr. General term Tr+1=nCr a^(n-r) b^r. Middle term depends on n even/odd.",
+        "selected_source_count": 3
+      },
+      "reference_outputs": {
+        "flashcards_json": "[\n  {\n    \"front\": \"Parabola e?\",\n    \"back\": \"1\"\n  },\n  {\n    \"front\": \"Focus-directrix?\",\n    \"back\": \"Equidistant locus.\"\n  },\n  {\n    \"front\": \"y²=4ax focus?\",\n    \"back\": \"(a,0)\"\n  },\n  {\n    \"front\": \"P(A∪B)?\",\n    \"back\": \"P(A)+P(B)-P(A∩B)\"\n  },\n  {\n    \"front\": \"Tr+1?\",\n    \"back\": \"nCr a^(n-r) b^r\"\n  },\n  {\n    \"front\": \"Three-source deck?\",\n    \"back\": \"Spread across math topics.\"\n  },\n  {\n    \"front\": \"Review order?\",\n    \"back\": \"Mix conic + probability + binomial.\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "card_count",
+        "no_duplicates",
+        "grounding"
       ]
     }
   ]

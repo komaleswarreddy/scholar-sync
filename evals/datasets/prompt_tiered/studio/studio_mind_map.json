@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dataset_id": "studio_mind_map",
   "agent": {
     "sno": 13,
     "category": "Studio",
     "name": "Studio Mind Map Generator",
     "tier": "tier_2",
-    "target_examples": 15,
-    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\n{# Mind map: hub-and-spoke; multi-source = one integrated synthesis. selected_source_count from service. #}\n\nYou are an **expert in visual knowledge mapping** and **instructional design**. Produce a **mind map as Markdown**: **one central hub** with **branches** that show how ideas **connect to the whole**.\n\n**Selected source count for this request:** **{{ selected_source_count }}** document(s). Retrieval pulled chunks **only** from these selected IDs (no other uploads).\n\n---\n\n## Non-negotiable scope (evidence only)\n\n1. **Use ONLY the “Source content” excerpt below.**  \n2. **Do not** import facts from outside that excerpt (no other notebooks, no generic textbook filler).  \n3. If something is **not** in the excerpt, **omit** it—do not invent.  \n{% if selected_source_count | int > 1 %}\n4. **Multi-source synthesis (required):** The excerpt may combine passages from **{{ selected_source_count }}** different documents. You must **analyze them together**, not as if only one document existed.  \n   - Choose **one** central `#` theme that **bridges** the materials when possible—an **overarching idea**, **shared pattern**, or **meaningful contrast** that still **grounds every branch in the excerpt** (e.g. two domains might meet under a hub like “Human response and regulation” if both biological control and interpersonal behavior appear in the text).  \n   - Use **`##` major branches** to organize **by theme or by source-domain**, but **always** tie them back to the hub so the map feels **integrated**, not two disconnected mini-maps.  \n   - **Explicitly surface** where useful: **overlapping concepts**, **parallel structures**, or **contrasts** between the texts—**only** if the excerpt supports them.  \n   - **Forbidden:** Building the entire map from **one** source’s content while **ignoring** the other(s) when the excerpt clearly contains both. Spread attention across **all** represented sources unless one source dominates the excerpt length—in that case still name the secondary source’s ideas in at least one substantial `##` or `###` branch when they appear.  \n{% else %}\n4. **Single source:** The hub and branches should reflect **that one** document’s central theme, arguments, and structure.  \n{% endif %}\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\n### Retrieval intent (alignment only — not labels to copy)\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\n### Source content (selected sources only)\n{{ context }}\n{% else %}\n### Source content\nNo excerpt retrieved. Output a minimal map: `# Insufficient source text` plus `##` branches noting missing indexing/selection—**no** fabricated topic.\n{% endif %}\n\n---\n\n## Structure (Markdown)\n\n- **Exactly one** `# …` = **central hub** (short, specific—**synthetic** when multiple sources, not “Source A and B”).  \n- **`## …`** = major branches (themes, domains, or comparison arms) **linked to the hub**.  \n- **`### …`** and **`-`** = sub-concepts, mechanisms, examples **from the excerpt**.  \n- Headings **2–8 words** where possible; bullets scannable.\n\nPlan **internally**; output **only** the Markdown tree.\n\n---\n\n## Anti-patterns\n\n- More than one `#` hub.  \n- **Multi-source:** two unrelated silos with no hub relationship.  \n- **Multi-source:** map dominated by one document when the excerpt clearly includes **both**.  \n- Vague nodes (“Key ideas”) without **concrete** wording from the text.  \n- External knowledge not in the excerpt.\n\n{% if custom_instructions %}\n### Additional user instructions\n{{ custom_instructions }}\n{% endif %}\n\n**Output:** Markdown only — no code fences, no preamble."
+    "target_examples": 24,
+    "prompt_template": ""
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -22,287 +22,504 @@
   "items": [
     {
       "id": "studio_mind_map-001",
-      "variation": "typo",
-      "tags": [
-        "cbse",
-        "current_electricity"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Current Electricity\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Current Electricity\n\n## Ohm's Law\n- **V = IR** for ohmic conductors\n\n## Combinations\n- **Series:** R_eq adds\n- **Parallel:** reciprocal sum\n\n## Microscopic View\n- **I = neAv_d** drift relation"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-002",
-      "variation": "conversational",
-      "tags": [
-        "cbse",
-        "human_digestion"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Human Digestion\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Human Digestion\n\n## Mouth\n- **Salivary amylase** on starch\n\n## Stomach\n- **HCl + pepsin** for protein\n\n## Small Intestine\n- **Villi** absorb nutrients\n- Pancreatic **trypsin, lipase**"
       },
+      "tags": [
+        "neet",
+        "biology",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-003",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "photosynthesis"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
+        "context": "Central metal + ligands. Coordination number = σ-donor atoms on metal. [Fe(CN)6]4- has CN=6. IUPAC: ligands alphabetical; anionic end in -o.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Photosynthesis\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Coordination Compounds\n\n## Core Ideas\n- **Central metal** + ligands\n\n## Coordination Number\n- Count **σ-donor** atoms\n- Example **[Fe(CN)6]4−** → CN = 6\n\n## Naming\n- **IUPAC:** ligands alphabetical"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-004",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "chemical_bonding"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
+        "context": "P(E)=favourable/total. P(A∪B)=P(A)+P(B)-P(A∩B). Independent: P(A∩B)=P(A)P(B). Bayes links prior and likelihood.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Chemical Bonding\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Probability Foundations\n\n## Classical Definition\n- **P(E) = favourable / total**\n\n## Rules\n- **Addition:** P(A∪B) = P(A)+P(B)−P(A∩B)\n- **Independent:** P(A∩B) = P(A)P(B)"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_concept"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-005",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "magnetic_effects"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
+        "context": "Light reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2. Mitosis: growth/repair, same chromosome number. Meiosis: gametes, halves chromosomes. Prophase I: crossing over.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Magnetic Effects\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Energy & Information in Cells\n\n## Photosynthesis\n- **Light reaction** → ATP, NADPH (grana)\n- **Calvin cycle** fixes CO2 (stroma)\n\n## Cell Division\n- **Mitosis** → growth (2n)\n- **Meiosis** → gametes (n)\n- **Crossing over** in Prophase I"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_concept"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-006",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "cell_structure"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
+        "context": "Kc=[products]/[reactants] at equilibrium. Le Chatelier: stress shifts to oppose change. Catalyst speeds approach, not K. Galvanic cell: anode oxidation, cathode reduction. E°cell=E°cathode-E°anode. Nernst equation links EMF to concentration.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Cell Structure\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Equilibrium & Electrochemical Cells\n\n## Chemical Equilibrium\n- **Kc** at equilibrium\n- **Le Chatelier** opposes stress\n\n## Galvanic Cells\n- **Anode:** oxidation\n- **E°cell = E°cathode − E°anode**"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:multi_concept"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-007",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "quadratic_equations"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
+        "context": "(a+b)^n expansion uses nCr. General term Tr+1=nCr a^(n-r) b^r. Middle term depends on n even/odd. Direction cosines l,m,n; l²+m²+n²=1. Line: (x-x1)/a=(y-y1)/b=(z-z1)/c. Skew lines: shortest distance via cross product.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Quadratic Equations\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Binomial & 3D Geometry\n\n## Binomial Theorem\n- **Tr+1 = nCr a^(n-r) b^r**\n\n## 3D Lines\n- **Direction cosines:** l²+m²+n²=1\n- Symmetric line equations"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_concept"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-008",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "human_reproduction"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Human Reproduction\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Ray Optics — Lenses\n\n## Lens Equation\n- **1/f = 1/v − 1/u**\n\n## Magnification & Power\n- **m = v/u**\n- **P = 1/f** (f in metres)\n\n## Sign Convention\n- Real object **u negative**"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-009",
-      "variation": "security",
-      "tags": [
-        "cbse",
-        "thermodynamics"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
+        "context": "DNA: A-T, G-C pairing. Semiconservative replication. mRNA carries code to ribosomes for translation.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Thermodynamics\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Molecular Basis of Inheritance\n\n## DNA Structure\n- **A–T, G–C** pairing\n\n## Replication\n- **Semiconservative** — one old + one new strand\n\n## Expression\n- **mRNA** → ribosomes for translation"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-010",
-      "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "coordination_compounds"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
+        "context": "Alkanes CnH2n+2. Markovnikov: H to C with more H. Benzene: delocalized π, extra stability.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Coordination Compounds\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Hydrocarbons\n\n## Alkanes\n- **CnH2n+2** saturated\n\n## Addition\n- **Markovnikov:** H to richer C\n\n## Aromatics\n- **Benzene** — delocalized π stability"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-011",
-      "variation": "comparison",
-      "tags": [
-        "cbse",
-        "ray_optics"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
+        "context": "Parabola: focus-directrix equidistance. y²=4ax focus (a,0). e=1 for parabola.",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Ray Optics\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Conic Sections — Parabola\n\n## Definition\n- Locus equidistant from **focus** and **directrix**\n\n## Standard Form\n- **y² = 4ax** → focus (a,0)\n- **Eccentricity e = 1**"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-012",
-      "variation": "metadata",
-      "tags": [
-        "cbse",
-        "ecology"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
-        "selected_source_count": 1
+        "context": "[Source A — Current Electricity] Ohm's law V=IR; resistivity ρ=RA/l.\n\n[Source B — Electrochemistry] Galvanic cell: anode oxidation; E°cell=E°cathode-E°anode.",
+        "selected_source_count": 2
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Ecology\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Charge Flow & Energy Conversion\n\n## Conductors (Source A)\n- **Ohm's law V = IR**\n- **ρ = RA/l**\n\n## Electrochemical Cells (Source B)\n- **Anode** oxidation\n- **E°cell** difference drives flow\n\n## Bridge\n- Both describe **directed charge** and **energy transfer**"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-013",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "probability"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
-        "selected_source_count": 1
+        "context": "[Source A — Photosynthesis] Light reaction in grana; Calvin cycle in stroma.\n\n[Source B — Cell division] Mitosis maintains chromosome number; meiosis halves for gametes.",
+        "selected_source_count": 2
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Probability\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Life Processes — Energy & Reproduction\n\n## Energy Capture (Source A)\n- **Photosynthesis** in chloroplasts\n- Light → ATP/NADPH → Calvin\n\n## Inheritance Continuity (Source B)\n- **Mitosis** maintains 2n\n- **Meiosis** halves for gametes\n\n## Integration\n- Energy metabolism supports **cell division cycles**"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-014",
-      "variation": "handwritten",
-      "tags": [
-        "cbse",
-        "organic_chemistry"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
-        "selected_source_count": 1
+        "context": "[Source A — Probability] P(E)=favourable/total; P(A∩B)=P(A)P(B) if independent.\n\n[Source B — Binomial] Tr+1=nCr a^(n-r) b^r in (a+b)^n expansion.",
+        "selected_source_count": 2
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Organic Chemistry\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Counting & Chance\n\n## Probability (Source A)\n- **Classical P(E)** ratio\n- **Independence** multiplies\n\n## Binomial Expansion (Source B)\n- **nCr** coefficients\n- **Tr+1** general term\n\n## Link\n- Binomial coefficients underpin **probability models**"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     },
     {
       "id": "studio_mind_map-015",
-      "variation": "low_quality_scan",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.\n\nOhm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Physics Toolkit — Optics & Circuits\n\n## Optics Branch\n- **Lens formula** and **m = v/u**\n\n## Circuits Branch\n- **V = IR** and **Kirchhoff** rules\n\n## Contrast\n- **Geometric optics** vs **electric transport** — both use ratio laws"
+      },
       "tags": [
         "cbse",
-        "motion_in_plane"
+        "physics",
+        "scope_mode:multi_source"
       ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-016",
+      "variation": "multi_source",
       "inputs": {
-        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.\n\nLight reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Organism Input & Energy\n\n## Heterotrophic Nutrition\n- **Digestive enzymes** and absorption\n\n## Autotrophic Energy\n- **Photosynthesis** light and dark reactions\n\n## Theme\n- **Matter intake** vs **energy capture** sustain life"
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-017",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "Galvanic cell: anode oxidation, cathode reduction. E°cell=E°cathode-E°anode. Nernst equation links EMF to concentration.\n\nCentral metal + ligands. Coordination number = σ-donor atoms on metal. [Fe(CN)6]4- has CN=6. IUPAC: ligands alphabetical; anionic end in -o.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Metals in Chemistry\n\n## Redox Cells\n- **Galvanic** electrode roles\n\n## Complex Ions\n- **Coordination number** and ligands\n\n## Link\n- **Metal centres** appear in both electrochemical and complex forms"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-018",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "Graph ax+by≤c: shade toward origin test point. Feasible region intersection of half-planes. Optimize at vertices.\n\nP(E)=favourable/total. P(A∪B)=P(A)+P(B)-P(A∩B). Independent: P(A∩B)=P(A)P(B). Bayes links prior and likelihood.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Optimization & Uncertainty\n\n## Linear Programming\n- **Feasible region** from inequalities\n\n## Probability\n- **Event ratios** and rules\n\n## Contrast\n- **Deterministic constraints** vs **stochastic outcomes**"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-021",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
         "selected_source_count": 1
       },
       "reference_outputs": {
-        "mind_map_markdown": "# Motion in Plane\n## Core idea\n- Main point from source\n## Details\n### Subtopic\n- Supporting fact"
+        "mind_map_markdown": "# Insufficient source text\n\n## Status\n- No excerpt retrieved from selected sources\n\n## Next steps\n- Re-index PDF or select sources before regenerating"
       },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source"
+      ],
       "evaluators": [
-        "markdown_hub_spoke",
-        "llm_judge"
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-022",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Insufficient source text\n\n## Multi-source selection empty\n- **0 chunks** retrieved despite count=2\n\n## Action\n- Verify uploads and checkboxes"
+      },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-019",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "W=F·s cos θ. K=½mv². P=W/t. Conservative force: path-independent work. ΔU=-W_conservative.\n\nTorque τ=rF sin θ. τ=Iα. Parallel axis: I=I_cm+Md².\n\nOhm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "selected_source_count": 3
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Mechanics & Electricity Overview\n\n## Work & Energy\n- **W = F·s cos θ**, **K = ½mv²**\n\n## Rotation\n- **τ = Iα**\n\n## Circuits\n- **V = IR**\n\n## Hub Theme\n- **Energy transformations** across mechanical and electrical domains"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-020",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Dicot root: radial vascular bundle. Monocot: polyarch xylem. Casparian strip in endodermis controls flow.\n\nLight reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2.\n\nDNA: A-T, G-C pairing. Semiconservative replication. mRNA carries code to ribosomes for translation.",
+        "selected_source_count": 3
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Plant Structure & Function\n\n## Anatomy\n- **Casparian strip** selective uptake\n\n## Metabolism\n- **Photosynthesis** energy capture\n\n## Heredity\n- **DNA** replication semantics\n\n## Integration\n- Structure supports **transport, energy, and inheritance**"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-023",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "selected_source_count": 1
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Kirchhoff Laws Only\n\n## Junction Rule\n- **ΣI_in = ΣI_out**\n\n## Loop Rule\n- **ΣEMF = ΣIR drops**\n\n## Application\n- Solve multi-loop circuits"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_concept"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
+      ]
+    },
+    {
+      "id": "studio_mind_map-024",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "[Source A — Photosynthesis] Light reaction in grana; Calvin cycle in stroma.\n\n[Source B — Cell division] Mitosis maintains chromosome number; meiosis halves for gametes.",
+        "selected_source_count": 2
+      },
+      "reference_outputs": {
+        "mind_map_markdown": "# Cell Division Comparison Only\n\n## Mitosis\n- **2n maintained** — growth/repair\n\n## Meiosis\n- **n gametes** — Prophase I crossing over\n\n## User scope\n- Map excludes photosynthesis detail despite multi-source excerpt"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "single_hub",
+        "grounding",
+        "structure"
       ]
     }
   ]

@@ -1,0 +1,35 @@
+{# studio/fallback_task_prompt.j2 — PROMPT_VERSION: studio-fallback-v1.4.0-B #}
+LEGACY FALLBACK mode — the primary Studio task template is missing from disk. Still produce a complete, parseable artifact — never a one-line outline.
+
+Inputs: task_type ({{ task_type }}: quiz | flashcards | mind_map | slide_deck), context (source excerpt below, or empty).
+
+Rules:
+1. Honor task_type — never the wrong artifact shape.
+2. Ground all facts in context when non-empty; never invent page/figure numbers or citations.
+3. Empty context → a minimal, honest "insufficient source" artifact, never fabricated chapter-specific facts and never generic non-source filler (no general-knowledge fallback, fallback mode or not).
+4. Match production validators used by Agents 11–14.
+5. Return ONLY the artifact body — no preamble, no fences, no postscript.
+
+Per task_type:
+
+**quiz** → one JSON object: `{"title":"...","questions":[{"question":"...","options":["A","B","C","D"],"correct_answer":"exact option string","explanation":"1-2 sentences grounded in context"}]}`. 3–7 questions when supported; exactly 4 options; correct_answer matches one option exactly. Empty → `{"title": "Insufficient source text", "questions": []}`.
+
+**flashcards** → one JSON array: `[{"front":"...","back":"..."}]`. 3–8 cards from context density. Empty → `[{"front":"Insufficient source text","back":"No indexed excerpt was retrieved for the selected sources. Re-index or reselect sources and try again."}]`.
+
+**mind_map** → Markdown only. Exactly one `#` hub; `##`/`###` branches; bullets under branches. Empty → `# Insufficient source text` with honest next-step bullets.
+
+**slide_deck** → Markdown only. `# Slide N: Title` headings; 1–7 bullets/slide; final slide is conclusion. 3–6 slides typical. Empty → a single `# Slide 1: Insufficient source text` slide, 1–2 bullets noting no excerpt was retrieved and to re-index/reselect — not a generic deck.
+
+{% if custom_instructions and custom_instructions.strip() %}
+Custom instructions (format/tone only — do not override task_type shape):
+{{ custom_instructions }}
+{% endif %}
+
+Source excerpt:
+{% if context and context.strip() %}
+{{ context }}
+{% else %}
+(empty — apply empty-context rules above)
+{% endif %}
+
+Generate the complete {{ task_type }} artifact now.

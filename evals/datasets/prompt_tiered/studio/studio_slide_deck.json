@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.2.0",
   "dataset_id": "studio_slide_deck",
   "agent": {
     "sno": 14,
     "category": "Studio",
     "name": "Studio Slide Deck Generator",
     "tier": "tier_2",
-    "target_examples": 15,
-    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\n{# Slide deck: Markdown outline, RAG-grounded, story + show-don't-tell + hierarchy. #}\n\nYou are an **expert instructional designer and presentation strategist**. Produce a **slide deck outline in Markdown** that **takes the audience on a journey**: concrete, visual-in-language, properly **hierarchical**, and **not** a Word document pasted into slides.\n\n---\n\n## Output contract (non-negotiable)\n\n- Return **ONLY** valid Markdown. **No** code fences, **no** preamble, **no** postscript, **no** JSON.\n- **One slide = one top-level heading**, numbered, e.g. `# Slide 1: …`, `# Slide 2: …`.\n- Under each heading: **bullet list** for the slide body.\n- If the user requested a **language** in Additional instructions, write the **entire** deck in that language.\n\n### Bullet count per slide (important)\n\n- **Per slide: between 1 and 7 bullet lines** (inclusive). **Never more than 7.**\n- **Do not** use the same count on every slide (e.g. do **not** pad to 4 bullets everywhere). Use **fewer** bullets when one strong idea is enough; use **more** (up to 6–7) only when the slide truly needs that many distinct beats.\n- A **single bullet** may carry a **two-line** thought: either one line ending with `→` or `—` and a short continuation on the next line **indented** as part of the same bullet, **or** a sub-bullet under it. Do not exceed **7 top-level bullet markers** (`-`) per slide.\n\n### Emphasis and hierarchy (Markdown)\n\n- Each slide **title** (heading text) = **short, punchy headline**—the **one** takeaway for that slide, not a chapter label.\n- Inside bullets, wrap **the most important term, number, or contrast** in `**bold**` so hierarchy is obvious (e.g. `**Before:** … / **After:** …`, or `**Insulin** → lowers blood glucose …`).\n- Prefer **breathing room**: shorter bullets, fewer words per line when possible; avoid dense paragraphs disguised as bullets.\n\n---\n\n## A. Story and flow (CRITICAL)\n\nThe deck must feel like it **goes somewhere**, not random topics.\n\nPlan **internally** (do not output the plan), then write slides in roughly this **arc** (adapt to source):\n\n1. **Hook / problem / question** — why this matters or what puzzle you are solving (from the source).\n2. **Orient** — minimal framing (avoid a useless “agenda” slide unless it lists **named** sections from **this** material).\n3. **Explain step by step** — core ideas in **sequence** learners can follow.\n4. **Show with examples** — scenarios, “what it looks like”, mini case moments grounded in the excerpt.\n5. **Contrast or mechanism** — before/after, how it works, A vs B where the source supports it.\n6. **Conclusion slide (required)** — final slide must be **`# Slide N: …`** with a **conclusion** title and **3–6 bullets** that state **main takeaways**, “so what”, and **what to remember** (specific to the source, not generic “thanks”).\n\n**Forbidden:** slides that feel **disconnected** with no logical link to the previous slide—when you change topic, **one bridging bullet or title phrase** should signal why.\n\n---\n\n## B. Show, don’t tell (CRITICAL)\n\n**Weak (do not write):** “This is important”, “There are many types”, “This affects performance”, “Key concepts include…”, empty “Overview” with no substance.\n\n**Strong (prefer):**\n\n- **What it looks like** — observable behavior, structure, or outcome.\n- **How it works** — mechanism in plain steps or cause → effect.\n- **Before vs after** or **X vs Y** when the material allows.\n- **Real examples or scenarios** from the excerpt (or realistic illustrations tied to the text).\n\nPeople remember **examples** more than definitions—**prioritize** at least several bullets across the deck that are **scenario- or example-forward**.\n\n---\n\n## C. Grounding and evidence\n\n1. **Source content** is the authority. Do not invent statistics or claims not supported by the excerpt.\n2. **Retrieval queries** (if listed) describe retrieval intent—stay aligned; do not paste them as slide titles.\n3. If the excerpt is thin, say so briefly on one slide rather than hallucinating.\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\n### Retrieval queries used for vector search\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\n### Source content (retrieved excerpts)\n{{ context }}\n{% else %}\n### Source content\nNo source excerpt was provided. Produce a short, coherent generic educational outline on one topic.\n{% endif %}\n\n---\n\n## D. Engagement\n\nInclude **at least two** moments across the deck (as bullets or a short slide), grounded in the source:\n\n- A **“why” or prediction question** (“Why does …?”, “What would happen if …?”)\n- A **comparison** or **what-if** tied to the material\n\n---\n\n## E. Slides vs Word documents\n\n**Rule:** If a slide is only long prose that could live unchanged in a Word doc with no structure, **rewrite** it into **headline + scannable bullets** with **bold** anchors and **concrete** show-don’t-tell content. Slides help people **see** relationships and priorities, not read walls of text.\n\n---\n\n## Additional user instructions\n\nApply **all** of the following; they override defaults where they conflict.\n\n{% if custom_instructions %}\n{{ custom_instructions }}\n{% else %}\n(No additional user instructions.)\n{% endif %}\n\n---\n\n## Pre-output checklist (silent)\n\n- Slide count within user range.\n- **Every** slide: **1–7** bullets, **not** a fixed count per slide.\n- **Last slide** = **conclusion** with substantive takeaways.\n- Story arc: problem/topic → steps → examples → synthesis.\n- **Show-don’t-tell**; **bold** key terms/numbers; headlines short and teaching-focused.\n- Output **nothing** except the Markdown deck.\n\nBegin the deck now (Markdown only)."
+    "target_examples": 22,
+    "prompt_template": ""
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -22,302 +22,550 @@
   "items": [
     {
       "id": "studio_slide_deck-001",
-      "variation": "typo",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "custom_instructions": "6 slides, medium, focus Ohm's law and series circuits only"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Current Electricity matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: Why Ohm's Law Matters  \n- **Understanding electricity** is crucial for modern technology.  \n- Ohm's Law connects **voltage**, **current**, and **resistance** in simple terms.  \n- What happens when you increase voltage? → **Impact on current** needs exploration.  \n\n# Slide 2: The Basics of Ohm's Law  \n- **Ohm's Law**: V = IR  \n  - **V**: Voltage (Volts)  \n  - **I**: Current (Amperes)  \n  - **R**: Resistance (Ohms)  \n- This relationship helps predict how **electrical components** behave.  \n\n# Slide 3: Exploring Series Circuits  \n- In a **series circuit**, total resistance is the **sum** of individual resistances.  \n- Formula: **R_eq = R1 + R2**  \n- **Current** remains the same throughout the circuit.  \n- What happens to the total resistance if you add more resistors?  \n\n# Slide 4: Visualizing Series Circuits  \n- Example: **Three resistors** in series, R1 = 2Ω, R2 = 3Ω, R3 = 5Ω.  \n  - Total Resistance: **R_eq = 2 + 3 + 5 = 10Ω**  \n- **Voltage drops** across each resistor are proportional to their resistance.  \n- **Illustration**: Diagram of a series circuit with labeled components.\n\n# Slide 5: Contrast: Series vs. Parallel  \n- In **parallel circuits**, total resistance is found using:  \n  - **1/R_eq = 1/R1 + 1/R2**  \n- **Current splits** among paths, differing from series circuits.  \n- Example: Two resistors in parallel, R1 = 4Ω, R2 = 4Ω.  \n  - Total Resistance: **R_eq = 2Ω** → **Lower than individual resistances**.\n\n# Slide 6: Conclusion: Key Takeaways  \n- Ohm's Law (V = IR) is fundamental to understanding circuits.  \n- Series circuits add resistances; current remains constant.  \n- Parallel circuits reduce overall resistance; current divides.  \n- Grasping these concepts is essential for effective circuit design."
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_concept",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-002",
-      "variation": "conversational",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.",
+        "custom_instructions": "5 slides, hard NEET style, digestive enzymes only"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Human Digestion matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Digestive Challenge  \n- **How do we break down food?**  \n- The **human body** needs enzymes to digest various nutrients.  \n- **What happens without them?**  \n- Undigested food leads to **malnutrition** and other health issues.  \n\n# Slide 2: Meet the Digestive Enzymes  \n- **Salivary Amylase**: begins starch digestion in the mouth.  \n- **Pepsin**: activated by **HCl** in the stomach for protein breakdown.  \n- **Pancreatic Juice**: contains **trypsin**, **lipase**, and **amylase** for further digestion.  \n\n# Slide 3: How Enzymes Work  \n- **Amylase** → breaks down starch into sugars.  \n- **Pepsin** → cleaves proteins into peptides.  \n- **Lipase** → targets fats, converting them into fatty acids.  \n- Absorption occurs in the **small intestine** through villi.  \n\n# Slide 4: Real-World Examples  \n- **What if** salivary amylase is absent?  \n  - Starch remains undigested → **energy loss**.  \n- **Before vs. After** enzyme action:  \n  - **Before**: protein molecules intact.  \n  - **After**: smaller peptides ready for absorption.  \n\n# Slide 5: Conclusion: Key Takeaways  \n- Digestive enzymes are **essential** for nutrient breakdown.  \n- Each enzyme has a **specific role** in digestion.  \n- Malnutrition can result from enzyme deficiencies.  \n- Understanding these processes helps improve **digestive health**."
       },
+      "tags": [
+        "neet",
+        "biology",
+        "scope_mode:per_concept",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-003",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Central metal + ligands. Coordination number = σ-donor atoms on metal. [Fe(CN)6]4- has CN=6. IUPAC: ligands alphabetical; anionic end in -o.",
+        "custom_instructions": "4 slides, easy, coordination number concept"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Photosynthesis matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: What is Coordination Number?\n- **Coordination number** refers to the number of **σ-donor atoms** bonded to a central metal atom.\n- Examples include metal complexes like **[Fe(CN)6]4-**, which has a coordination number of **6**.\n\n# Slide 2: How is Coordination Number Determined?\n- Identified through the **IUPAC** naming system: \n  - Ligands are listed in **alphabetical order**.\n  - Anionic ligands end in **-o**.\n- Example: In **[Fe(CN)6]4-**, **CN** is a ligand leading to a coordination number of **6**.\n\n# Slide 3: Why Does Coordination Number Matter?\n- Influences the **geometry** of the complex: \n  - Coordination number of **6** typically results in an **octahedral** shape.\n- What would happen if the coordination number was **4** instead? \n  - It would likely form a **tetrahedral** or **square planar** geometry.\n\n# Slide 4: Conclusion: Key Takeaways on Coordination Number\n- Coordination number is crucial for understanding metal-ligand bonding.\n- **6** is a common coordination number seen in many complexes.\n- The **geometry** of a complex is directly influenced by its coordination number. \n- Remember: The IUPAC system helps in **identifying ligands** and their order."
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_concept",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-004",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "P(E)=favourable/total. P(A∪B)=P(A)+P(B)-P(A∩B). Independent: P(A∩B)=P(A)P(B). Bayes links prior and likelihood.",
+        "custom_instructions": "5 slides, medium, independent events focus"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Chemical Bonding matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Probability Puzzle\n- **What is probability?** → Understanding the chance of events.\n- **Why does it matter?** → Impacts decision-making and predictions.\n- **Key question:** How do we calculate probabilities effectively?\n\n# Slide 2: Core Concepts of Probability\n- **Basic formula:** P(E) = **favourable** outcomes / **total** outcomes.\n- **Union of events:** P(A∪B) = P(A) + P(B) - P(A∩B).\n- **Independent events:** P(A∩B) = P(A) * P(B).\n\n# Slide 3: Bayes' Theorem Unveiled\n- **What is Bayes' Theorem?** → Links prior information with likelihood.\n- **Formula:** P(B|A) = (P(A|B) * P(B)) / P(A).\n- **Example:** Predicting disease based on test results.\n\n# Slide 4: Real-World Applications\n- **Scenario:** Assessing risks in medical testing.\n  - **Before:** Only considering test accuracy.\n  - **After:** Incorporating prior probabilities for better decisions.\n- **What-if question:** What would happen if we ignored prior data?\n\n# Slide 5: Conclusion: Key Takeaways\n- **Probability** is essential for informed decision-making.\n- Understanding **independence** changes the calculations.\n- **Bayes' Theorem** enhances predictions using prior knowledge.\n- Key takeaway: Always consider **prior probabilities** when evaluating outcomes."
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_concept",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-005",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Light reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2. Mitosis: growth/repair, same chromosome number. Meiosis: gametes, halves chromosomes. Prophase I: crossing over.",
+        "custom_instructions": "6 slides, full chapter breadth, no narrow topic"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Magnetic Effects matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Puzzle of Photosynthesis\n- **How do plants convert light into energy?**\n- **Critical process** for life on Earth → sustains ecosystems.\n- **Involves** light reactions and dark reactions (Calvin cycle).\n\n# Slide 2: The Light Reaction\n- Takes place in **grana** of chloroplasts.\n- **Chlorophyll** absorbs light energy → converts to ATP and NADPH.\n- **Stomata** regulate gas exchange → CO2 in, O2 out.\n\n# Slide 3: The Calvin Cycle Unveiled\n- Occurs in the **stroma** of chloroplasts.\n- **Fixes CO2** into glucose → essential for plant growth.\n- **Cycles through** several steps → uses ATP and NADPH from light reactions.\n\n# Slide 4: Mitosis vs. Meiosis\n- **Mitosis**: growth/repair → maintains same chromosome number.\n- **Meiosis**: produces gametes → halves chromosome number.\n- **Why does this matter?** → Crucial for genetic diversity.\n\n# Slide 5: Real-World Impact of Photosynthesis\n- **Example**: A plant's ability to photosynthesize increases in sunlight.\n- **What if** light availability decreases? → Less ATP and glucose production.\n- **Crossing over** during meiosis enhances genetic variation in offspring.\n\n# Slide 6: Conclusion: Key Takeaways\n- Photosynthesis is essential for energy conversion in plants.\n- Light reactions and the Calvin cycle are interconnected.\n- Mitosis and meiosis serve different but vital roles in life cycles.\n- Understanding these processes is crucial for **ecological balance**."
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_concept",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-006",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Kc=[products]/[reactants] at equilibrium. Le Chatelier: stress shifts to oppose change. Catalyst speeds approach, not K. Alkanes CnH2n+2. Markovnikov: H to C with more H. Benzene: delocalized π, extra stability.",
+        "custom_instructions": "5 slides, medium, all topics in context"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Cell Structure matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Equilibrium Puzzle\n- **What happens** at equilibrium? \n- **Kc = [products]/[reactants]** is the ratio at equilibrium.\n- If disturbed, how does the system respond? \n- **Le Chatelier's principle**: stress shifts to oppose change.\n- **Why does this matter?** → Understanding equilibrium is crucial in chemistry.\n\n# Slide 2: Stress and Response\n- **Stressors** can include changes in concentration, temperature, or pressure.\n- System reactions:\n  - **Increase in reactants** → shifts right to produce more products.\n  - **Increase in temperature** → endothermic direction favored.\n- **Predict** the outcomes: What if we change one variable?\n\n# Slide 3: Role of Catalysts\n- **Catalysts** speed up reactions but do not change Kc.\n- They **lower activation energy**, allowing faster equilibrium.\n- **Example**: Adding a catalyst to a reaction mixture reduces the time to reach equilibrium.\n- **What would happen** if no catalyst is used?\n\n# Slide 4: Structure of Alkanes and Benzene\n- **Alkanes**: General formula **CnH2n+2**—simple hydrocarbons.\n- **Benzene**: Contains **delocalized π electrons**, providing extra stability.\n- **Comparison**: Alkanes vs. Benzene → different structures, different stability.\n- **Visualize**: Draw the structural formulas to see differences.\n\n# Slide 5: Conclusion: Key Takeaways\n- **Equilibrium** is dynamic: Kc defines the balance.\n- **Le Chatelier's principle** helps predict system responses.\n- Catalysts accelerate reactions without altering equilibrium constants.\n- Understand the **structure**: Alkanes vs. Benzene impacts stability.\n- **Remember**: Predicting outcomes relies on recognizing stressors and system behavior."
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:multi_concept",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-007",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "(a+b)^n expansion uses nCr. General term Tr+1=nCr a^(n-r) b^r. Middle term depends on n even/odd. Graph ax+by≤c: shade toward origin test point. Feasible region intersection of half-planes. Optimize at vertices.",
+        "custom_instructions": "5 slides, medium, full breadth"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Quadratic Equations matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Challenge of Expansion  \n- **What is the expansion** of (a+b)^n?  \n- Understanding the **general term** Tr+1 = nCr a^(n-r) b^r  \n- **Why it matters:** essential for combinatorial problems  \n\n# Slide 2: Core Concepts Unveiled  \n- **nCr**: the number of combinations of n items taken r at a time  \n- **Middle term** shifts depending on whether n is **even** or **odd**  \n- **Visualization**: Graph ax + by ≤ c shows feasible regions  \n\n# Slide 3: Real-World Application  \n- Consider the **feasible region** as a **project planning** model  \n  - Tasks vs. resources represented in the graph  \n- **What happens** when you change parameters?  \n  - Adjusting c affects the **intersection of half-planes**  \n- **Example**: Optimizing project outcomes at vertices  \n\n# Slide 4: Contrast in Problem Solving  \n- **Before:** Relying solely on linear models  \n- **After:** Integrating (a+b)^n for **complex scenarios**  \n  - More flexible with multiple variables  \n- **What-if scenario:** If we increase n, how does the outcome change?  \n\n# Slide 5: Conclusion: Key Takeaways  \n- The **expansion** of (a+b)^n is foundational in combinatorics  \n- Understanding **nCr** enhances problem-solving capabilities  \n- **Feasible regions** provide visual insights into optimization  \n- Integration of these concepts leads to **better decision-making**"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_concept",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-008",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.",
+        "custom_instructions": "6 slides, CBSE Ray Optics chapter"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Human Reproduction matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Puzzle of Ray Optics\n- **How do rays behave** when they encounter lenses?\n- Understanding **light behavior** is crucial for optics.\n- **Key questions**:\n  - Why does light bend?\n  - How do we calculate image properties?\n\n# Slide 2: The Basics of Lenses\n- **Lens formula:** `1/f = 1/v - 1/u` \n  - Relates focal length (**f**) to image distance (**v**) and object distance (**u**).\n- **Magnification formula:** `m = v/u`\n  - Measures image size relative to the object.\n- **Power (P):** `P = 1/f`\n  - Indicates lens strength in **metres**.\n\n# Slide 3: Real-World Applications\n- **Example:** A camera lens focusing light → creates a sharp image.\n- **Scenario:** Using lenses in **glasses** for clear vision.\n- **Real object (u)** is always **negative** — why it matters in calculations.\n\n# Slide 4: Understanding Ray Diagrams\n- **Ray through optical center** remains **undeviated**.\n- **Three key rays** to draw:\n  - Ray parallel to the axis → refracts through the focal point.\n  - Ray through the center → continues straight.\n  - Ray through the focal point → refracts parallel to the axis.\n- Visualizing helps in understanding **image formation**.\n\n# Slide 5: Before and After Lenses\n- **Before:** Light rays diverging from a point source.\n- **After:** Rays converge at a point to form a clear image.\n- **What if:** What happens if the focal length changes?\n  - Longer focal length → **larger** images.\n\n# Slide 6: Conclusion and Key Takeaways\n- **Ray optics** is essential for understanding lens behavior.\n- **Formulas** help predict outcomes in real-world scenarios.\n- **Key concepts**:\n  - Importance of **focal length** and **magnification**.\n  - Ray diagrams are critical for visualizing optics.\n- Mastering these concepts enhances our ability to design optical devices."
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-009",
-      "variation": "security",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "DNA: A-T, G-C pairing. Semiconservative replication. mRNA carries code to ribosomes for translation.",
+        "custom_instructions": "5 slides, molecular inheritance"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Thermodynamics matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: What is Molecular Inheritance?  \n- **Molecular inheritance** refers to how genetic information is passed through **DNA**.  \n- Key players: **A-T** and **G-C** pairing ensures accurate replication.  \n\n# Slide 2: The Process of DNA Replication  \n- **Semiconservative replication** → each new DNA strand contains one original and one new strand.  \n- Steps involve **unzipping** the DNA and **building** new strands using base pairing.  \n- This ensures fidelity in genetic information transfer.  \n\n# Slide 3: mRNA's Role in Inheritance  \n- **mRNA** carries the genetic code from DNA to ribosomes.  \n- This process is crucial for **protein synthesis**, which affects traits and functions.  \n- Example: A mutation in mRNA can lead to a **defective protein** → changing organism traits.  \n\n# Slide 4: Why is Molecular Inheritance Important?  \n- Understanding molecular inheritance helps explain **genetic diseases**.  \n- **What would happen if** DNA replication were faulty?  \n- Consequences include **cancer** or inherited disorders.  \n\n# Slide 5: Conclusion: Key Takeaways  \n- Molecular inheritance is foundational to **genetics**.  \n- DNA replication is **semiconservative**, ensuring accuracy.  \n- **mRNA** translates genetic code to produce proteins.  \n- Missteps in this process can lead to serious health implications.  \n- Understanding these concepts is essential for advancements in **genetic research**."
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:per_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-010",
-      "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Galvanic cell: anode oxidation, cathode reduction. E°cell=E°cathode-E°anode. Nernst equation links EMF to concentration.",
+        "custom_instructions": "4 slides, galvanic cells"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Coordination Compounds matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Power of Galvanic Cells\n- **Why** are galvanic cells important?  \n  — They convert **chemical energy** into **electrical energy**.\n- Key components:  \n  - **Anode**: site of oxidation  \n  - **Cathode**: site of reduction  \n- Essential for batteries and electrochemical devices.\n\n# Slide 2: How Galvanic Cells Operate\n- **E°cell** formula:  \n  - **E°cell** = **E°cathode** - **E°anode**\n- Electrons flow from anode to cathode → producing current.\n- **Oxidation** and **reduction** reactions drive the process.\n\n# Slide 3: Real-World Examples\n- Common example: **Zinc-Copper galvanic cell**  \n  - Zinc oxidizes at the anode → releases electrons.  \n  - Copper reduces at the cathode → accepts electrons.\n- **Nernst equation**: relates EMF to concentration → influences cell performance.\n- **What would happen if** we used different metals?  \n  - Change in voltage and efficiency based on selected materials.\n\n# Slide 4: Conclusion: Key Takeaways\n- Galvanic cells are crucial for energy conversion.  \n- Understanding **E°cell** is essential for predicting cell behavior.  \n- Real-life applications are found in batteries and sensors.  \n- **Predictive questions** can enhance understanding of material choices.  \n- Remember: **Oxidation** at anode, **reduction** at cathode!"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-011",
-      "variation": "comparison",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Direction cosines l,m,n; l²+m²+n²=1. Line: (x-x1)/a=(y-y1)/b=(z-z1)/c. Skew lines: shortest distance via cross product.",
+        "custom_instructions": "5 slides, 3D geometry"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Ray Optics matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Challenge of 3D Geometry  \n- Understanding **3D shapes** is crucial for real-world applications.  \n- **Why does** knowing about direction cosines and skew lines matter?  \n- These concepts help us navigate **spatial relationships** effectively.  \n\n# Slide 2: Key Elements of 3D Geometry  \n- **Direction cosines**: Represented as **l, m, n** — key for defining angles with axes.  \n- The equation **l² + m² + n² = 1** ensures valid direction cosines.  \n- **Line equation**: Expressed as **(x-x1)/a = (y-y1)/b = (z-z1)/c** for parametric representation.  \n\n# Slide 3: Visualizing Skew Lines  \n- **Skew lines**: Non-intersecting and non-parallel lines in 3D space.  \n- The **shortest distance** between skew lines is found using the **cross product**.  \n- **Example**: Imagine two roads that never meet but are not parallel.  \n\n# Slide 4: Contrasting Directions in 3D  \n- **Before**: Traditional 2D geometry lacks depth — only height and width.  \n- **After**: 3D geometry introduces **depth** — height, width, and length create complex relationships.  \n- **What if** we ignored the third dimension? Spatial understanding would be severely limited.  \n\n# Slide 5: Conclusion: Key Takeaways  \n- **Direction cosines** are essential for understanding angles in 3D.  \n- The line equation allows for precise **spatial representation**.  \n- **Skew lines** demonstrate unique relationships between lines in space.  \n- Grasping these concepts enhances **spatial reasoning** and real-world applications.  \n- Remember: **3D geometry** shapes our perception of the world around us."
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-012",
-      "variation": "metadata",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "[Source A — Current Electricity] Ohm's law V=IR; resistivity ρ=RA/l.\n\n[Source B — Electrochemistry] Galvanic cell: anode oxidation; E°cell=E°cathode-E°anode.",
+        "custom_instructions": "6 slides, integrate electricity and electrochemistry sources"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Ecology matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: Why Understanding Electricity Matters\n- **Current** impacts our daily lives → from **charging devices** to powering homes.\n- **Ohm's Law**: V = IR → fundamental for electrical engineering.\n- Misunderstandings can lead to **inefficient designs** or **safety hazards**.\n\n# Slide 2: Key Concepts of Electricity\n- **Voltage (V)**: electric potential difference.\n- **Current (I)**: flow of electric charge.\n- **Resistance (R)**: opposition to current flow.\n- **Resistivity (ρ)**: material property affecting resistance → ρ = RA/l.\n\n# Slide 3: Exploring Electrochemistry Fundamentals\n- **Galvanic Cell**: converts chemical energy to electrical energy.\n- **Anode**: site of **oxidation**; where electrons are released.\n- **E°cell**: Standard cell potential → E°cell = E°cathode - E°anode.\n- Predict: What happens if anode material changes? \n\n# Slide 4: Real-World Applications\n- **Ohm's Law in Action**: Designing circuits → ensuring devices function properly.\n- **Galvanic Cells**: Used in batteries → powering everyday devices like phones.\n- Compare: **Using resistors** vs. **direct current** in circuits.\n\n# Slide 5: Mechanisms Behind Electrical and Electrochemical Processes\n- **Before**: High resistance → low current flow.\n- **After**: Adjusting resistance increases current → enhances device performance.\n- **How**: Changing materials in a galvanic cell affects E°cell → impacts voltage output.\n\n# Slide 6: Conclusion: Key Takeaways\n- Understanding **Ohm's Law** is essential for effective circuit design.\n- Knowledge of **galvanic cells** enables advancements in energy storage.\n- Mastering these concepts leads to improved **safety** and **efficiency** in electrical applications."
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-013",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "[Source A — Photosynthesis] Light reaction in grana; Calvin cycle in stroma.\n\n[Source B — Cell division] Mitosis maintains chromosome number; meiosis halves for gametes.",
+        "custom_instructions": "5 slides, photosynthesis + cell division"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Probability matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Energy Puzzle\n- **How do plants** convert sunlight into energy?  \n- The process of **photosynthesis** is key — it fuels life on Earth.  \n- **Why does this matter?** Understanding it helps us grasp ecosystems.  \n\n# Slide 2: The Photosynthesis Process\n- **Light reactions** occur in the **grana** — they capture sunlight.  \n- **Calvin cycle** takes place in the **stroma** — it uses CO2 to form sugars.  \n- Sequence: Light → Energy → Chemical bonds.  \n\n# Slide 3: Cell Division Explained\n- **Mitosis** ensures **chromosome number** is maintained — critical for growth.  \n- **Meiosis** halves the chromosome number for gametes — essential for reproduction.  \n- **What if** mitosis didn’t occur properly? → Cells would be dysfunctional.  \n\n# Slide 4: Real-World Examples\n- In photosynthesis, plants like **sunflowers** convert sunlight effectively.  \n- During cell division, a **failure in meiosis** can lead to genetic disorders like Down syndrome.  \n- **Contrast:** Healthy division vs. errors leading to mutations.  \n\n# Slide 5: Conclusion: Key Insights\n- Photosynthesis transforms sunlight into **chemical energy**.  \n- Mitosis and meiosis have distinct roles in **cellular processes**.  \n- Understanding these mechanisms enhances our grasp of **life sciences**.  \n- Remember: **Energy flow** and **genetic integrity** are fundamental to life."
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-014",
-      "variation": "handwritten",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "[Source A — Probability] P(E)=favourable/total; P(A∩B)=P(A)P(B) if independent.\n\n[Source B — Binomial] Tr+1=nCr a^(n-r) b^r in (a+b)^n expansion.",
+        "custom_instructions": "5 slides, probability + binomial"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Organic Chemistry matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Power of Probability  \n- **Understanding probability** helps us navigate uncertainty.  \n- **Why does it matter?**  \n  - It influences decision-making in daily life.  \n  - **Example:** Predicting weather patterns, sports outcomes.  \n\n# Slide 2: Core Probability Concepts  \n- **Probability Formula:** P(E) = **favourable outcomes** / **total outcomes**  \n- **Independent Events:** P(A∩B) = P(A)P(B)  \n  - **Example:** Tossing two coins—each coin's outcome is independent.  \n- **Visualize:** Probability as a **fraction** of possible outcomes.  \n\n# Slide 3: Binomial Distribution Explained  \n- **What is it?** A model for experiments with **two outcomes** (success/failure).  \n- **Formula:** Tr+1 = nCr a^(n-r) b^r  \n  - **a:** Probability of success, **b:** Probability of failure.  \n- **Real-World Application:** Quality control in manufacturing—pass/fail tests.  \n\n# Slide 4: Examples in Action  \n- **Scenario 1:** Flipping a coin 10 times—calculate the probability of getting exactly 5 heads.  \n  - Use binomial distribution for precise predictions.  \n- **Scenario 2:** Drawing cards from a deck—what's the chance of drawing an Ace?  \n  - P(Ace) = **4** (favourable) / **52** (total) → **7.7%** chance.  \n\n# Slide 5: Conclusion: Key Takeaways  \n- Probability provides a **framework** for decision-making under uncertainty.  \n- Binomial distribution models outcomes with **clear parameters**.  \n- Understand the **formulas** to leverage them effectively in real-life scenarios.  \n- **Remember:** Probability is everywhere—from games to serious predictions!"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     },
     {
       "id": "studio_slide_deck-015",
-      "variation": "low_quality_scan",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
-        "custom_instructions": "6 slides, story arc, conclusion slide required"
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.\n\nOhm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "custom_instructions": "7 slides, optics and circuits selected sources"
       },
       "reference_outputs": {
-        "slide_deck_markdown": "# Slide 1: Why Motion in Plane matters\n- Hook from source\n\n# Slide 2: Core mechanism\n- **Key term** → explanation\n\n# Slide 3: Conclusion\n- Takeaway 1\n- Takeaway 2"
+        "slide_deck_markdown": "# Slide 1: The Power of Optics and Circuits  \n- How do **optics** and **electric circuits** interplay?  \n- Understanding these concepts is crucial for modern technology.  \n- What happens when light and electricity meet?  \n\n# Slide 2: Key Optical Formulas  \n- **Lens Formula:** 1/f = 1/v - 1/u  \n  - **f** = focal length, **v** = image distance, **u** = object distance  \n- **Magnification:** m = v/u  \n- **Power of Lens:** P = 1/f (with **f** in metres)  \n\n# Slide 3: Exploring Circuit Basics  \n- **Ohm's Law:** V = IR  \n- **Resistivity Formula:** ρ = RA/l  \n  - **R** = resistance, **A** = cross-sectional area, **l** = length  \n- **Series Circuits:** R_eq = R1 + R2  \n- **Parallel Circuits:** 1/R_eq = 1/R1 + 1/R2  \n\n# Slide 4: Real-World Applications of Optics  \n- **Cameras** use lens formulas to focus light → delivers sharp images.  \n- **Eyeglasses** adjust focal lengths for vision correction.  \n- **Projectors** employ magnification for larger displays.  \n\n# Slide 5: Circuit Scenarios  \n- **Series vs. Parallel:**  \n  - **Series:** Same current, voltage divides → simple circuits like **Christmas lights**.  \n  - **Parallel:** Same voltage, current divides → used in **home wiring** for safety.  \n- **Kirchhoff's Laws:**  \n  - Sum of currents at a junction: I_in = I_out  \n\n# Slide 6: Why Does This Matter?  \n- **What if** we didn't understand these principles?  \n  - Technology failures, poor designs, safety hazards.  \n- Predict the outcome of changing resistance in a circuit.  \n  - Higher resistance → **lower current** → affects performance.  \n\n# Slide 7: Conclusion: Key Takeaways  \n- **Optics** and **circuits** are interlinked in technology.  \n- Mastering formulas enables practical applications in real life.  \n- Understanding **series** and **parallel** systems is essential for safety and efficiency."
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_source",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "markdown_slides",
-        "llm_judge"
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-016",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.\n\nLight reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2.",
+        "custom_instructions": "6 slides, NEET cross-topic"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: The Role of Digestion\n- **Why does digestion matter?**  \n  It’s essential for nutrient absorption and energy production.\n- **Key players:**  \n  Includes enzymes like **amylase**, **pepsin**, and **lipase**.\n- **The journey begins:**  \n  Starts in the mouth, continues through the stomach, and ends in the small intestine.\n\n# Slide 2: Digestion Process Overview\n- **Mouth:**  \n  Salivary **amylase** breaks down carbohydrates.\n- **Stomach:**  \n  **HCl** activates **pepsin** for protein digestion.\n- **Pancreas:**  \n  Releases **trypsin**, **lipase**, and **amylase** into the small intestine for further breakdown.\n- **Final stage:**  \n  Nutrients are absorbed in the small intestine's **villi**.\n\n# Slide 3: Energy Conversion in Plants\n- **Light reaction:**  \n  Occurs in **grana**, producing **ATP** and **NADPH**.\n- **Calvin cycle:**  \n  Takes place in the **stroma**, fixing **CO2** into sugars.\n- **Chlorophyll's role:**  \n  Absorbs light energy, essential for photosynthesis.\n\n# Slide 4: Real-World Application\n- **Scenario:**  \n  What happens if **amylase** is deficient?  \n  - Impaired carbohydrate digestion leads to energy shortages.\n- **Comparison:**  \n  How does digestion differ in animals vs. plants?  \n  - Animals consume nutrients directly; plants synthesize them via photosynthesis.\n\n# Slide 5: Mechanisms of Exchange\n- **Stomata function:**  \n  Control **CO2** and **O2** exchange during photosynthesis.\n- **Absorption processes:**  \n  Villi increase surface area for nutrient uptake in the small intestine.\n- **Before and after:**  \n  - **Before:** Nutrients remain undigested.  \n  - **After:** Nutrients are efficiently absorbed into the bloodstream.\n\n# Slide 6: Conclusion: Key Takeaways\n- Digestion is vital for nutrient absorption and energy.\n- Enzymes like **amylase**, **pepsin**, and **lipase** play crucial roles.\n- Photosynthesis involves **light reactions** and the **Calvin cycle**.\n- Understanding these processes enhances knowledge of biology and health."
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "scope_mode:multi_source",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-017",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
+        "custom_instructions": "4 slides, general study skills — no source"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: The Challenge of Effective Study Skills\n- **Why study well?** → Crucial for **academic success** and lifelong learning.\n- Many students struggle with **time management** and focus.\n- Common pitfalls include **procrastination** and ineffective techniques.\n- **What if** you could change your study habits? \n\n# Slide 2: Steps to Improve Your Study Skills\n- **Set clear goals** → Define what you want to achieve.\n- **Create a study schedule** — Allocate specific times for each subject.\n- Use **active learning strategies**: summarizing, questioning, and teaching others.\n- **Break down material** into manageable chunks for better retention.\n\n# Slide 3: Real-Life Study Techniques\n- **Pomodoro Technique** → Study for **25 minutes**, then take a **5-minute break**.\n- **Mind mapping** — Visualize connections between concepts.\n- **Flashcards** for spaced repetition → Enhance memory of key terms.\n- **Study groups** — Share insights and clarify doubts together.\n\n# Slide 4: Conclusion: Key Takeaways for Effective Studying\n- **Effective study skills** lead to better learning outcomes.\n- Set **clear goals** and stick to a structured schedule.\n- Incorporate **active techniques** to engage with the material.\n- Regularly assess your progress and adapt methods as needed.\n- Remember: **Consistency** is key to mastering study skills."
+      },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-018",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
+        "custom_instructions": "3 slides, minimal generic science outline"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: The Mystery of Photosynthesis\n- **Why does** photosynthesis matter?  \n  — It fuels nearly all life on Earth.\n- **Key process:** Converts **solar energy** into **chemical energy**.\n- Plants, algae, and some bacteria are **photosynthetic** organisms.\n- The **equation:** \n  - **6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂**.\n\n# Slide 2: Steps of Photosynthesis\n- **Light-dependent reactions:**  \n  — Occur in the **thylakoid membranes** of chloroplasts.\n- **Key outputs:** \n  - **ATP** and **NADPH** produced from light energy.\n- **Calvin cycle:**  \n  — Takes place in the **stroma** of chloroplasts.\n- **Carbon fixation** converts CO₂ into glucose.\n- **Energy flow:** \n  - Light energy → chemical energy → stored in glucose.\n\n# Slide 3: Conclusion: Photosynthesis Unlocked\n- **Photosynthesis is vital** for life on Earth.\n- It transforms **solar energy** into usable forms for organisms.\n- Key steps include **light reactions** and the **Calvin cycle**.\n- Understanding this process helps grasp **ecosystem dynamics**.  \n  — Essential for **food webs** and **carbon cycling**.  \n- **Remember:** Without photosynthesis, life as we know it wouldn’t exist!"
+      },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-019",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Torque τ=rF sin θ. τ=Iα. Parallel axis: I=I_cm+Md².",
+        "custom_instructions": "8 slides, hard difficulty, include torque numerical examples"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: What is Torque?\n- **Torque (τ)** → a measure of rotational force\n- Formula: τ = **rF sin θ**\n- **r** = distance from pivot → lever arm\n- **F** = applied force\n- **θ** = angle between force and lever arm\n\n# Slide 2: Why Torque Matters\n- Essential in **mechanical systems** → affects motion\n- Key in **engineering** and **physics** applications\n- Example: **Wrenches** amplify force → make tasks easier\n- Understanding torque helps in **designing** efficient machines\n\n# Slide 3: The Torque Equation Explained\n- **τ = Iα** → relates torque to angular acceleration\n- **I** = moment of inertia → object's resistance to rotation\n- **α** = angular acceleration → change in rotational speed\n- **Understanding** the relationship is crucial for dynamic systems\n\n# Slide 4: Real-World Example: Torque in Action\n- **Example 1:** Car engine → torque affects acceleration\n  - Higher torque = **faster** acceleration\n- **Example 2:** Door hinges → requires torque to open\n  - Positioning of handle changes applied torque\n\n# Slide 5: Calculating Torque: A Numerical Example\n- **Example Calculation:**\n  - **Force (F)** = 10 N, **r** = 0.5 m, **θ** = 90°\n  - τ = 0.5 * 10 * sin(90°) = **5 N·m**\n- **Implications** of results in mechanical design\n\n# Slide 6: Parallel Axis Theorem\n- **I = I_cm + Md²** → calculating moment of inertia\n- **I_cm** = moment of inertia about center of mass\n- **M** = mass of object, **d** = distance from center of mass\n- Critical for **complex systems** and multi-body analysis\n\n# Slide 7: Why Does Torque Change?\n- **What if**: Changing the angle θ affects torque\n  - **θ = 0°** → τ = 0 (no rotation)\n  - **θ = 90°** → maximum torque\n- Predict how torque varies with different lever arm lengths\n\n# Slide 8: Conclusion: Key Takeaways\n- Torque is essential for understanding **rotational dynamics**\n- Key formulas: τ = rF sin θ and τ = Iα\n- Real-world applications enhance **mechanical efficiency**\n- Calculating torque aids in **design decisions** across industries"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_concept",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-020",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Tollens' test: silver mirror with aldehydes, not ketones. C=O undergoes nucleophilic addition.",
+        "custom_instructions": "5 slides, explain in simple English — aldehyde tests only"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: The Mystery of Aldehydes\n- **Why do we care about aldehydes?**  \n  They are crucial in organic chemistry and are identified through specific tests.\n- **The challenge:**  \n  Distinguishing aldehydes from other compounds like ketones can be tricky.\n\n# Slide 2: Introduction to Tollens' Test\n- **What is Tollens' Test?**  \n  A chemical test used to identify **aldehydes**.\n- **Key reagent:**  \n  **Silver nitrate** solution in ammonia forms **Tollens' reagent**.\n- **Reaction outcome:**  \n  Produces a **silver mirror** when aldehydes are present.\n\n# Slide 3: How the Test Works\n- **Nucleophilic addition**:  \n  Aldehydes have a **C=O** group that reacts with Tollens' reagent.\n- **Reaction steps:**  \n  1. Aldehyde interacts with Tollens' reagent.  \n  2. Silver ions are reduced to metallic silver.  \n  3. A shiny silver mirror forms on the test container.\n\n# Slide 4: Aldehydes vs. Ketones\n- **Aldehydes** → **Positive Tollens' Test**:  \n  Produce the silver mirror.\n- **Ketones** → **Negative Tollens' Test**:  \n  Do not react with Tollens' reagent.\n- **Why does this matter?**  \n  Helps chemists identify compounds in unknown mixtures.\n\n# Slide 5: Conclusion: Key Takeaways\n- **Tollens' Test** is essential for identifying **aldehydes**.\n- A **silver mirror** confirms the presence of aldehydes, not ketones.\n- Understanding the reaction helps in organic synthesis and analysis.  \n- Remember the **nucleophilic addition** mechanism for clarity."
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_concept",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-021",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "(a+b)^n expansion uses nCr. General term Tr+1=nCr a^(n-r) b^r. Middle term depends on n even/odd.",
+        "custom_instructions": "3 slides, thin excerpt — minimum viable deck"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: The Challenge of Expansion\n- Understanding the **expansion of (a + b)^n** is crucial in algebra.\n- How do we determine the **general term** in this expansion? \n- The formula uses **nCr** to find **Tr+1**: \n  - **Tr+1** = nCr * a^(n-r) * b^r.\n- Why does the **middle term** depend on whether **n** is **even** or **odd**?\n  \n# Slide 2: Step-by-Step Breakdown\n- **Step 1:** Identify **n** — the exponent in the expression.\n- **Step 2:** Calculate **nCr** for each term needed.\n- **Step 3:** Apply the formula: \n  - Plug in **a** and **b** values.\n- **Example:** For **n=3**, the expansion is:\n  - (a + b)^3 = a^3 + 3a^2b + 3ab^2 + b^3.\n\n# Slide 3: Key Takeaways\n- The expansion of (a + b)^n reveals patterns through **nCr**.\n- The **general term** formula is essential for complex problems.\n- **Middle term significance** depends on whether **n** is even or odd:\n  - Even n → single middle term.\n  - Odd n → two middle terms."
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_source",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "studio_slide_deck-022",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Dicot root: radial vascular bundle. Monocot: polyarch xylem. Casparian strip in endodermis controls flow.",
+        "custom_instructions": "6 slides, whole chapter revision — root anatomy"
+      },
+      "reference_outputs": {
+        "slide_deck_markdown": "# Slide 1: Why Root Anatomy Matters\n- **Roots** are essential for **water** and **nutrient** uptake.\n- Understanding the **structure** can enhance **agricultural practices**.\n- What happens when root systems fail? → **Crop yield** declines.\n\n# Slide 2: The Basics of Root Structure\n- Two main types: **Dicots** and **Monocots**.\n- **Dicot roots** feature a **radial vascular bundle** — organized for efficiency.\n- **Monocot roots** have **polyarch xylem** — multiple xylem strands for support.\n\n# Slide 3: The Role of the Casparian Strip\n- Located in the **endodermis** — a critical barrier.\n- Controls the flow of **water** and **nutrients** into the vascular system.\n- **Why does it matter?** → Prevents harmful substances from entering.\n\n# Slide 4: Real-World Application of Root Anatomy\n- **Example:** In **drought conditions**, deep-rooted plants thrive.\n- **Comparison:** Shallow roots vs deep roots → access to moisture levels.\n- **What would happen if** roots were poorly structured? → Increased vulnerability.\n\n# Slide 5: Mechanisms of Nutrient Uptake\n- Roots use **osmosis** and **active transport** for nutrient absorption.\n- **Before:** Limited nutrient access in poor soil → \n- **After:** Enhanced root structure improves **uptake efficiency**.\n\n# Slide 6: Conclusion: Key Takeaways on Root Anatomy\n- Roots are vital for **sustaining plant life** and productivity.\n- Understanding root types helps in **crop management**.\n- The **Casparian strip** is crucial for selective nutrient flow.\n- Efficient root systems can combat **environmental stresses** effectively."
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_concept",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "slide_count_match",
+        "conclusion_present",
+        "bullet_variance",
+        "custom_instructions",
+        "grounding",
+        "production_llm_gold"
       ]
     }
   ]

@@ -9,6 +9,55 @@ from datetime import datetime
 import re
 
 from packages.core.prompts import load_prompt
+from packages.core.rag.agents.conversation_context import is_rolling_summary_message
+
+
+def _format_messages_block(messages: List[Dict]) -> str:
+    return "\n".join(
+        f"{msg.get('role', 'user').title()}: {msg.get('content', '')}"
+        for msg in messages
+        if (msg.get("content") or "").strip()
+    )
+
+
+def _strip_summary_prefix(text: str) -> str:
+    t = (text or "").strip()
+    prefix = "Previous conversation summary:"
+    if t.lower().startswith(prefix.lower()):
+        return t[len(prefix) :].strip()
+    return t
+
+
+def _split_history_for_summarization(
+    history: List[Dict],
+    *,
+    recent_window: int,
+) -> Dict[str, str]:
+    """
+    Split history into incremental (previous_summary + new_turns) or full old_conversation.
+    """
+    if not history:
+        return {"previous_summary": "", "new_turns": "", "old_conversation": ""}
+
+    recent_messages = history[-recent_window:] if recent_window > 0 else []
+    head = history[: -recent_window] if recent_window > 0 else list(history)
+
+    previous_summary = ""
+    middle_messages: List[Dict] = []
+    for msg in head:
+        if is_rolling_summary_message(msg):
+            previous_summary = _strip_summary_prefix(str(msg.get("content") or ""))
+        else:
+            middle_messages.append(msg)
+
+    new_turns = _format_messages_block(middle_messages)
+    old_conversation = _format_messages_block(head)
+
+    return {
+        "previous_summary": previous_summary,
+        "new_turns": new_turns,
+        "old_conversation": old_conversation,
+    }
 
 
 class ChatSummarizer:
@@ -191,16 +240,13 @@ class ChatSummarizer:
         # Keep recent messages
         recent_messages = history[-self.recent_window:]
         old_messages = history[:-self.recent_window]
-        
-        # Build prompt for summarization
-        old_conversation = "\n".join([
-            f"{msg.get('role', 'user').title()}: {msg.get('content', '')}"
-            for msg in old_messages
-        ])
-        
+
+        parts = _split_history_for_summarization(history, recent_window=self.recent_window)
         summary_prompt = load_prompt(
             "chat/chat_summarizer_prompt.j2",
-            old_conversation=old_conversation,
+            old_conversation=parts["old_conversation"],
+            previous_summary=parts["previous_summary"],
+            new_turns=parts["new_turns"],
         )
 
         # Use LLM to generate summary

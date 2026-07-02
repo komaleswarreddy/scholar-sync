@@ -1,0 +1,113 @@
+[GEMINI] healthy: gemini-3.1-flash-lite
+========================================================================
+[1/9] agent=whole_file_map_summarizer prompt=v1 model=gpt-5.4-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2844/5000 margin=250 remaining=1906 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v1-openai-gpt-5-4-mini-45f7aa5f' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=afa7c608-6b96-4dbe-b19a-ed693f8bacd1
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=2936/5000 (incl. margin 250) | usable_remaining=1814
+
+DONE [1/9] whole_file_map_summarizer/v1/gpt-5.4-mini -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[2/9] agent=whole_file_map_summarizer prompt=v1 model=gemini-3.1-flash-lite (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2936/5000 margin=250 remaining=1814 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v1-gemini-gemini-3-1-flash-lite-10731e82' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=ed3616f4-6884-4503-91ee-abd817e6f2ff
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3028/5000 (incl. margin 250) | usable_remaining=1722
+
+DONE [2/9] whole_file_map_summarizer/v1/gemini-3.1-flash-lite -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[3/9] agent=whole_file_map_summarizer prompt=v1 model=gpt-5-nano (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3028/5000 margin=250 remaining=1722 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v1-openai-gpt-5-nano-ff74fba3' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=cbabfa62-28ec-4394-935c-3c28a09319d4
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3120/5000 (incl. margin 250) | usable_remaining=1630
+
+DONE [3/9] whole_file_map_summarizer/v1/gpt-5-nano -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[4/9] agent=whole_file_map_summarizer prompt=v2 model=gpt-5.4-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3120/5000 margin=250 remaining=1630 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v2-openai-gpt-5-4-mini-5565bf7e' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=8370fbe8-b94a-446c-a2a7-468b5bac9726
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3212/5000 (incl. margin 250) | usable_remaining=1538
+
+DONE [4/9] whole_file_map_summarizer/v2/gpt-5.4-mini -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[5/9] agent=whole_file_map_summarizer prompt=v2 model=gemini-3.1-flash-lite (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3212/5000 margin=250 remaining=1538 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v2-gemini-gemini-3-1-flash-lite-e0d807f6' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=f84877e2-8603-452c-ad69-a50153e45246
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3304/5000 (incl. margin 250) | usable_remaining=1446
+
+DONE [5/9] whole_file_map_summarizer/v2/gemini-3.1-flash-lite -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[6/9] agent=whole_file_map_summarizer prompt=v2 model=gpt-5-nano (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3304/5000 margin=250 remaining=1446 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v2-openai-gpt-5-nano-a08abe86' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=1bfa470b-97de-4db2-a3f2-4a04d0bf3b6b
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3396/5000 (incl. margin 250) | usable_remaining=1354
+
+DONE [6/9] whole_file_map_summarizer/v2/gpt-5-nano -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[7/9] agent=whole_file_map_summarizer prompt=v3 model=gpt-5.4-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3396/5000 margin=250 remaining=1354 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v3-openai-gpt-5-4-mini-df82b234' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=38f1fc26-cdbb-4c50-9ac8-6f4d61aea822
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3488/5000 (incl. margin 250) | usable_remaining=1262
+
+DONE [7/9] whole_file_map_summarizer/v3/gpt-5.4-mini -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[8/9] agent=whole_file_map_summarizer prompt=v3 model=gemini-3.1-flash-lite (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3488/5000 margin=250 remaining=1262 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v3-gemini-gemini-3-1-flash-lite-87026282' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=9e25af89-e4cf-4126-91ff-d48ee8f6de29
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3580/5000 (incl. margin 250) | usable_remaining=1170
+
+DONE [8/9] whole_file_map_summarizer/v3/gemini-3.1-flash-lite -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[9/9] agent=whole_file_map_summarizer prompt=v3 model=gpt-5-nano (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3580/5000 margin=250 remaining=1170 | this run ~92 traces (13 agent + 79 evaluator [13x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_map_summarizer-v3-openai-gpt-5-nano-6697551d' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/5c5a3eb8-19a6-434b-b43d-23de93903742/compare?selectedSessions=74f26ecb-200f-43e4-bcfd-07a6f0bfd2a9
+
+
+[GUARD] DONE: traces_this_experiment=92 (agent=13 + evaluator=79) | monthly_used=3672/5000 (incl. margin 250) | usable_remaining=1078
+
+DONE [9/9] whole_file_map_summarizer/v3/gpt-5-nano -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+
+All 9 experiments complete.
+
+Leaderboard written to C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\evals\reports\agent_matrix\leaderboard_20260702T064854Z.json

@@ -48,6 +48,7 @@ class ScopeNarrower:
         query: str,
         available_sources: Optional[List[str]] = None,  # reserved for future source-aware narrowing
         conversation_history: Optional[List[Dict]] = None,
+        scope: Optional[str] = None,
     ) -> Dict[str, Any]:
         _ = available_sources
         if not query or not str(query).strip():
@@ -70,11 +71,18 @@ class ScopeNarrower:
                 max_chars_per_message=getattr(settings, "AGENT_CONVERSATION_MAX_CHARS_PER_MESSAGE", 1200),
             )
             conversation_section = f"\nConversation:\n{history_block}\n" if history_block else ""
+            scope_hint = (str(scope).strip().lower() if scope else "")
+            scope_section = (
+                f"\nRetrieval scope hint (from intent routing): {scope_hint}\n"
+                if scope_hint and scope_hint != "unspecified"
+                else ""
+            )
             system_prompt = load_prompt("agents/scope_narrower_system.j2")
             prompt = load_prompt(
                 "agents/scope_narrower_user.j2",
                 query=query,
                 conversation_section=conversation_section,
+                scope_section=scope_section,
             )
 
             llm_kwargs: Dict[str, Any] = {

@@ -15,6 +15,7 @@ from apps.api.schemas.source_question import (
     SourceQuestionListResponse,
 )
 from packages.core.services.source_question_extraction_service import SourceQuestionExtractionService
+from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
 
@@ -105,7 +106,7 @@ async def upload_source(
             raise HTTPException(status_code=503, detail="Storage service not configured.")
         raise HTTPException(status_code=400, detail=error_msg)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Upload failed"))
 
 async def process_upload_background(tenant_id: str, user_id: str, source_id: str, content_type: str, pdf_password: str = None):
     """

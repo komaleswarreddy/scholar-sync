@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dataset_id": "studio_system_json",
   "agent": {
     "sno": 10,
     "category": "Studio",
     "name": "Studio System Prompt (JSON tasks)",
     "tier": "tier_3",
-    "target_examples": 5,
-    "prompt_template": "You are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly."
+    "target_examples": 15,
+    "prompt_template": ""
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -16,138 +16,312 @@
       "task_instruction"
     ],
     "output_keys": [
-      "json_output"
+      "json_output",
+      "markdown_output"
     ]
   },
   "items": [
     {
       "id": "studio_system_json-001",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "current"
-      ],
+      "variation": "json_array",
       "inputs": {
-        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
-        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+        "context": "Ohm's law: V = IR. Resistivity ρ = RA/l. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2. Kirchhoff's junction rule: sum of currents into a node equals sum leaving.",
+        "task_instruction": "Return a JSON array of exactly 3 objects, each with keys term and definition, using only the excerpt."
       },
       "reference_outputs": {
-        "json_output": {
-          "terms": [
-            {
-              "term": "example",
-              "definition": "from source"
-            }
-          ]
-        }
+        "json_output": "[\n  {\n    \"term\": \"Ohm's law\",\n    \"definition\": \"Potential difference V equals current I times resistance R (V = IR).\"\n  },\n  {\n    \"term\": \"Resistivity\",\n    \"definition\": \"Material property ρ related to resistance by ρ = RA/l.\"\n  },\n  {\n    \"term\": \"Kirchhoff's junction rule\",\n    \"definition\": \"Sum of currents entering a junction equals sum leaving.\"\n  }\n]"
       },
-      "evaluators": [
-        "valid_json",
-        "no_markdown_fences"
-      ]
-    },
-    {
-      "id": "studio_system_json-002",
-      "variation": "cbse",
       "tags": [
         "cbse",
-        "human"
+        "physics",
+        "source_pdf:leph103"
       ],
-      "inputs": {
-        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
-        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
-      },
-      "reference_outputs": {
-        "json_output": {
-          "terms": [
-            {
-              "term": "example",
-              "definition": "from source"
-            }
-          ]
-        }
-      },
       "evaluators": [
         "valid_json",
-        "no_markdown_fences"
-      ]
-    },
-    {
-      "id": "studio_system_json-003",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "photosynthesis"
-      ],
-      "inputs": {
-        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
-        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
-      },
-      "reference_outputs": {
-        "json_output": {
-          "terms": [
-            {
-              "term": "example",
-              "definition": "from source"
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "valid_json",
-        "no_markdown_fences"
-      ]
-    },
-    {
-      "id": "studio_system_json-004",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemical"
-      ],
-      "inputs": {
-        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
-        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
-      },
-      "reference_outputs": {
-        "json_output": {
-          "terms": [
-            {
-              "term": "example",
-              "definition": "from source"
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "valid_json",
-        "no_markdown_fences"
+        "schema_match",
+        "grounding",
+        "no_fences"
       ]
     },
     {
       "id": "studio_system_json-005",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "magnetic"
-      ],
+      "variation": "json_array",
       "inputs": {
-        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
-        "task_instruction": "Return JSON array of 3 key terms with definitions from excerpt only."
+        "context": "Work W = F·s cos θ. Kinetic energy K = ½mv². Power P = W/t. Work-energy theorem: net work equals change in kinetic energy.",
+        "task_instruction": "Return a JSON array of 4 objects with keys formula and quantity extracted from the excerpt."
       },
       "reference_outputs": {
-        "json_output": {
-          "terms": [
-            {
-              "term": "example",
-              "definition": "from source"
-            }
-          ]
-        }
+        "json_output": "[\n  {\n    \"formula\": \"W = F·s cos θ\",\n    \"quantity\": \"Work\"\n  },\n  {\n    \"formula\": \"K = ½mv²\",\n    \"quantity\": \"Kinetic energy\"\n  },\n  {\n    \"formula\": \"P = W/t\",\n    \"quantity\": \"Power\"\n  },\n  {\n    \"formula\": \"W_net = ΔK\",\n    \"quantity\": \"Work-energy theorem\"\n  }\n]"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "source_pdf:keph105"
+      ],
+      "evaluators": [
+        "count_match",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-006",
+      "variation": "json_array",
+      "inputs": {
+        "context": "Coordination entity: central metal ion + ligands. Coordination number = number of σ-donor atoms bonded to metal. IUPAC: ligands named alphabetically; anionic ligands end in -o.",
+        "task_instruction": "Output JSON array of 3 {term, definition} pairs — valid JSON only, no markdown."
+      },
+      "reference_outputs": {
+        "json_output": "[\n  {\n    \"term\": \"Coordination entity\",\n    \"definition\": \"Central metal ion bonded to ligands in a complex.\"\n  },\n  {\n    \"term\": \"Coordination number\",\n    \"definition\": \"Count of σ-donor atoms directly bonded to the metal.\"\n  },\n  {\n    \"term\": \"IUPAC ligand naming\",\n    \"definition\": \"Ligands listed alphabetically; anionic ligands take -o suffix.\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_pdf:lech105"
+      ],
+      "evaluators": [
+        "grounding",
+        "valid_json"
+      ]
+    },
+    {
+      "id": "studio_system_json-008",
+      "variation": "json_array",
+      "inputs": {
+        "context": "DNA double helix: antiparallel strands, A pairs T, G pairs C. Replication is semiconservative. mRNA carries genetic code to ribosomes for translation.",
+        "task_instruction": "JSON array of exactly 3 term/definition objects from excerpt. JSON only."
+      },
+      "reference_outputs": {
+        "json_output": "[\n  {\n    \"term\": \"Base pairing\",\n    \"definition\": \"Adenine with thymine; guanine with cytosine in DNA.\"\n  },\n  {\n    \"term\": \"Semiconservative replication\",\n    \"definition\": \"Each new DNA duplex has one old and one new strand.\"\n  },\n  {\n    \"term\": \"Translation\",\n    \"definition\": \"Ribosomes synthesize protein using mRNA template.\"\n  }\n]"
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "source_pdf:lebo105"
+      ],
+      "evaluators": [
+        "grounding",
+        "count_match"
+      ]
+    },
+    {
+      "id": "studio_system_json-011",
+      "variation": "json_array",
+      "inputs": {
+        "context": "Electrolysis of molten NaCl: Na+ migrates to cathode, Cl− to anode. Faraday's first law: mass deposited proportional to charge passed.",
+        "task_instruction": "Return JSON array of step objects with step (number) and event or rule (string). Exactly 3 items. JSON only."
+      },
+      "reference_outputs": {
+        "json_output": "[\n  {\n    \"step\": 1,\n    \"event\": \"Na+ ions move to cathode\"\n  },\n  {\n    \"step\": 2,\n    \"event\": \"Cl− ions move to anode\"\n  },\n  {\n    \"step\": 3,\n    \"rule\": \"Faraday's first law — mass ∝ charge\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_pdf:lech103"
+      ],
       "evaluators": [
         "valid_json",
-        "no_markdown_fences"
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-002",
+      "variation": "json_object",
+      "inputs": {
+        "context": "Photosynthesis: light reaction in grana produces ATP and NADPH; Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata allow gas exchange.",
+        "task_instruction": "Return a JSON object with keys process, stages (array of objects with name, location, and products or function), and key_structures (array of strings). Excerpt only."
+      },
+      "reference_outputs": {
+        "json_output": "{\n  \"process\": \"Photosynthesis\",\n  \"stages\": [\n    {\n      \"name\": \"Light reaction\",\n      \"location\": \"grana\",\n      \"products\": [\n        \"ATP\",\n        \"NADPH\"\n      ]\n    },\n    {\n      \"name\": \"Calvin cycle\",\n      \"location\": \"stroma\",\n      \"function\": \"CO2 fixation\"\n    }\n  ],\n  \"key_structures\": [\n    \"chlorophyll\",\n    \"stomata\"\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_pdf:kebo110"
+      ],
+      "evaluators": [
+        "valid_json",
+        "nested_schema",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-007",
+      "variation": "json_object",
+      "inputs": {
+        "context": "P(E) = favourable outcomes / total outcomes. P(A∪B) = P(A)+P(B)−P(A∩B). For independent events P(A∩B) = P(A)P(B).",
+        "task_instruction": "Return one JSON object with topic (string) and rules (array of {rule, expression}). No extra text."
+      },
+      "reference_outputs": {
+        "json_output": "{\n  \"topic\": \"Probability axioms\",\n  \"rules\": [\n    {\n      \"rule\": \"Classical probability\",\n      \"expression\": \"P(E) = n(E)/n(S)\"\n    },\n    {\n      \"rule\": \"Addition theorem\",\n      \"expression\": \"P(A∪B) = P(A)+P(B)−P(A∩B)\"\n    },\n    {\n      \"rule\": \"Independent events\",\n      \"expression\": \"P(A∩B) = P(A)P(B)\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "source_pdf:lemh207"
+      ],
+      "evaluators": [
+        "schema_match",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-003",
+      "variation": "markdown_only",
+      "inputs": {
+        "context": "Lens formula: 1/f = 1/v - 1/u. Sign convention: distances measured from optical centre; u negative for real object.",
+        "task_instruction": "Return Markdown only (no JSON). Use a ## heading and bullet list summarizing the lens formula and sign convention from the excerpt."
+      },
+      "reference_outputs": {
+        "markdown_output": "## Lens formula (sign convention)\n\n- **Formula:** 1/f = 1/v − 1/u\n- **Origin:** Measure distances from the optical centre\n- **Real object:** Object distance u is taken as negative"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "source_pdf:leph201"
+      ],
+      "evaluators": [
+        "markdown_only",
+        "no_json",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-009",
+      "variation": "markdown_only",
+      "inputs": {
+        "context": "Galvanic cell: anode oxidation, cathode reduction. EMF E°cell = E°cathode − E°anode. Nernst equation relates EMF to concentration.",
+        "task_instruction": "Produce Markdown summary with ## heading and bullets. Do NOT return JSON."
+      },
+      "reference_outputs": {
+        "markdown_output": "## Galvanic cell essentials\n\n- **Anode:** site of oxidation\n- **Cathode:** site of reduction\n- **Standard EMF:** E°cell = E°cathode − E°anode\n- **Nernst equation:** links cell EMF to ion concentrations"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_pdf:lech103"
+      ],
+      "evaluators": [
+        "format_discipline",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-012",
+      "variation": "markdown_only",
+      "inputs": {
+        "context": "Mitosis: one division, 2n→2n, growth/repair. Meiosis: two divisions, 2n→n, gamete formation; crossing over in Prophase I.",
+        "task_instruction": "Return Markdown only: ## heading plus a comparison table of mitosis vs meiosis from excerpt. No JSON."
+      },
+      "reference_outputs": {
+        "markdown_output": "## Mitosis vs Meiosis\n\n| Feature | Mitosis | Meiosis |\n|"
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "source_pdf:kebo110"
+      ],
+      "evaluators": [
+        "markdown_only",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-004",
+      "variation": "empty_context",
+      "inputs": {
+        "context": "",
+        "task_instruction": "Return a JSON array of key terms with definitions from the excerpt."
+      },
+      "reference_outputs": {
+        "json_output": "[]"
+      },
+      "tags": [
+        "edge_case",
+        "no_source"
+      ],
+      "evaluators": [
+        "empty_context",
+        "no_hallucination",
+        "valid_json"
+      ]
+    },
+    {
+      "id": "studio_system_json-014",
+      "variation": "empty_context",
+      "inputs": {
+        "context": "",
+        "task_instruction": "Return Markdown summary of key concepts from the excerpt."
+      },
+      "reference_outputs": {
+        "markdown_output": "## Insufficient source\n\n- No indexed excerpt available; cannot summarize without evidence."
+      },
+      "tags": [
+        "edge_case",
+        "no_source"
+      ],
+      "evaluators": [
+        "empty_context",
+        "no_hallucination"
+      ]
+    },
+    {
+      "id": "studio_system_json-010",
+      "variation": "thin_source",
+      "inputs": {
+        "context": "Binomial theorem: (a+b)^n expansion uses nCr coefficients.",
+        "task_instruction": "Return JSON array with as many term/definition pairs as the thin excerpt supports (minimum 1). JSON only."
+      },
+      "reference_outputs": {
+        "json_output": "[\n  {\n    \"term\": \"Binomial coefficient\",\n    \"definition\": \"nCr counts combinations in (a+b)^n expansion.\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "source_pdf:kemh107"
+      ],
+      "evaluators": [
+        "thin_source_handling",
+        "valid_json"
+      ]
+    },
+    {
+      "id": "studio_system_json-013",
+      "variation": "thin_source",
+      "inputs": {
+        "context": "Casparian strip in endodermis has suberin. It blocks apoplastic flow forcing symplastic uptake into stele.",
+        "task_instruction": "JSON array of 3 {question, answer} pairs grounded in excerpt. No markdown fences."
+      },
+      "reference_outputs": {
+        "json_output": "[\n  {\n    \"question\": \"Where is the Casparian strip?\",\n    \"answer\": \"In the endodermis of roots.\"\n  },\n  {\n    \"question\": \"What does suberin do?\",\n    \"answer\": \"Blocks apoplastic flow at the endodermis.\"\n  },\n  {\n    \"question\": \"Why does it matter?\",\n    \"answer\": \"Forces selective symplastic uptake into stele.\"\n  }\n]"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_pdf:kebo106"
+      ],
+      "evaluators": [
+        "valid_json",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_system_json-015",
+      "variation": "json_numeric_object",
+      "inputs": {
+        "context": "For y²=4ax parabola: focus at (a,0), directrix x=−a, eccentricity e=1. Latus rectum length 4a.",
+        "task_instruction": "Return one JSON object with keys conic, standard_form, focus, directrix, eccentricity, latus_rectum. Valid JSON only."
+      },
+      "reference_outputs": {
+        "json_output": "{\n  \"conic\": \"parabola\",\n  \"standard_form\": \"y²=4ax\",\n  \"focus\": \"(a, 0)\",\n  \"directrix\": \"x = -a\",\n  \"eccentricity\": 1,\n  \"latus_rectum\": \"4a\"\n}"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "source_pdf:kemh111"
+      ],
+      "evaluators": [
+        "schema_match",
+        "grounding"
       ]
     }
   ]

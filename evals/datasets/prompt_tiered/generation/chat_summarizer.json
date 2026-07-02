@@ -1,12 +1,12 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dataset_id": "chat_summarizer",
   "agent": {
     "sno": 8,
-    "category": "Genration",
+    "category": "Generation",
     "name": "Chat Summarizer Agent",
     "tier": "tier_2",
-    "target_examples": 15,
+    "target_examples": 20,
     "prompt_template": "You are a study-focused tutor. Summarize the chat for a student so it is easy to review later.\n\n## Output requirements (strict)\n- Output **Markdown** only.\n- Use the following section headings exactly (omit a section if it would be empty):\n  - `## Summary`\n  - `## Key points from the chat`\n  - `## Definitions / formulas (if any)`\n  - `## Examples / analogies used`\n  - `## Open questions / next steps`\n- Keep it concise:\n  - `## Summary`: 2–4 short sentences (not a wall of text).\n  - `## Key points from the chat`: 3–7 bullets, one idea per bullet.\n  - Other sections: up to 3–6 bullets total across all remaining sections.\n- Do not invent facts. Only include what appears in the conversation.\n- If the chat is very short or repetitive, still produce a clean structure with fewer bullets.\n\n## Conversation history\n\n{{ old_conversation }}\n\n## Summary"
   },
   "langsmith": {
@@ -21,272 +21,422 @@
   "items": [
     {
       "id": "chat_summarizer-001",
-      "variation": "typo",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "short_transcript",
       "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum."
+        "old_conversation": "User: What is Ohm's law?\nAssistant: V equals I times R for ohmic conductors at constant temperature.\nUser: Quick numerical?\nAssistant: With R=5 Ω and I=3 A, voltage V=15 V."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+        "summary_markdown": "## Summary\n\nReviewed Ohm's law and a quick numerical using V=IR.\n\n## Key points from the chat\n\n- Ohm's law: V = IR at constant temperature\n- Example: 3 A through 5 Ω gives 15 V\n\n## Definitions / formulas (if any)\n\n- V = IR"
       },
-      "evaluators": [
-        "markdown_sections",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "chat_summarizer-002",
-      "variation": "conversational",
       "tags": [
         "cbse",
-        "chemistry"
+        "physics",
+        "source_pdf:leph103"
       ],
-      "inputs": {
-        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum."
-      },
-      "reference_outputs": {
-        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
-      },
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "chat_summarizer-003",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
-      "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 3]"
-      },
-      "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
-      },
-      "evaluators": [
-        "markdown_sections",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "chat_summarizer-004",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 4]"
-      },
-      "reference_outputs": {
-        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
-      },
-      "evaluators": [
-        "markdown_sections",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "chat_summarizer-005",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science"
-      ],
-      "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 5]"
-      },
-      "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
-      },
-      "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     },
     {
       "id": "chat_summarizer-006",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "short_transcript",
       "inputs": {
-        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 6]"
+        "old_conversation": "User: P(drawing ace from deck)?\nAssistant: 4 favourable / 52 total ≈ 1/13.\nUser: Independent events?\nAssistant: P(A∩B)=P(A)P(B) when outcomes don't affect each other.\nUser: Addition rule?\nAssistant: P(A∪B)=P(A)+P(B)−P(A∩B)."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+        "summary_markdown": "## Summary\n\nPractised basic probability rules with a card example.\n\n## Key points from the chat\n\n- Classical P = favourable/total (ace ≈ 1/13)\n- Independent: P(A∩B)=P(A)P(B)\n- Addition: P(A∪B)=P(A)+P(B)−P(A∩B)\n\n## Examples / analogies used\n\n- Standard deck ace draw"
       },
-      "evaluators": [
-        "markdown_sections",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "chat_summarizer-007",
-      "variation": "neet",
       "tags": [
         "cbse",
-        "chemistry"
+        "mathematics",
+        "source_pdf:lemh207"
       ],
-      "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 7]"
-      },
-      "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
-      },
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "chat_summarizer-008",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
-      "inputs": {
-        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 8]"
-      },
-      "reference_outputs": {
-        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
-      },
-      "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     },
     {
       "id": "chat_summarizer-009",
-      "variation": "security",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "short_transcript",
       "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 9]"
+        "old_conversation": "User: Parabola definition?\nAssistant: Locus equidistant from focus and directrix.\nUser: Standard form y²=4ax?\nAssistant: Focus at (a,0), directrix x=−a.\nUser: Eccentricity of parabola?\nAssistant: e = 1 always."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+        "summary_markdown": "## Summary\n\nDefined parabola, standard form, and eccentricity.\n\n## Key points from the chat\n\n- Parabola: equidistant from focus and directrix\n- y²=4ax → focus (a,0), directrix x=−a\n- Eccentricity e = 1\n\n## Definitions / formulas (if any)\n\n- y² = 4ax"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "source_pdf:kemh111"
+      ],
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-016",
+      "variation": "short_transcript",
+      "inputs": {
+        "old_conversation": "User: (x+y)^5 middle term?\nAssistant: For n=5, middle term is T3 with coefficient 5C2=10.\nUser: General term?\nAssistant: Tr+1 = nCr x^(n−r) y^r.\nUser: When n even?\nAssistant: Single middle term at r = n/2."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nPractised binomial expansion middle term and general term.\n\n## Key points from the chat\n\n- n=5 middle term T3, coeff 5C2=10\n- Tr+1 = nCr x^(n−r) y^r\n- Even n: single middle at r=n/2\n\n## Definitions / formulas (if any)\n\n- Tr+1 = nCr x^(n−r) y^r"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "source_pdf:kemh107"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-004",
+      "variation": "medium_transcript",
+      "inputs": {
+        "old_conversation": "User: Sign of u for real object?\nAssistant: Real object distance u is negative in Cartesian sign convention.\nUser: Lens formula?\nAssistant: 1/f = 1/v − 1/u.\nUser: Magnification?\nAssistant: m = v/u; negative m means inverted image.\nUser: Ray through optical centre?\nAssistant: Undeviated straight-line path."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nCovered lens sign convention, formula, and magnification.\n\n## Key points from the chat\n\n- Real object: u negative\n- Lens formula 1/f = 1/v − 1/u\n- m = v/u; negative m → inverted image\n- Ray through optical centre passes undeviated\n\n## Definitions / formulas (if any)\n\n- 1/f = 1/v − 1/u\n- m = v/u"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "source_pdf:leph201"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-005",
+      "variation": "medium_transcript",
+      "inputs": {
+        "old_conversation": "User: What is coordination number?\nAssistant: Number of donor atoms directly bonded to central metal ion.\nUser: Example with CN=6?\nAssistant: [Fe(CN)6]4− has coordination number six.\nUser: Ligand?\nAssistant: Ion or molecule attached to metal via coordinate bond."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nDefined coordination number and ligands with an example complex.\n\n## Key points from the chat\n\n- Coordination number counts σ-donor atoms on metal\n- [Fe(CN)6]4− has CN = 6\n- Ligands attach via coordinate bonds"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_pdf:lech105"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-008",
+      "variation": "medium_transcript",
+      "inputs": {
+        "old_conversation": "User: Alkane general formula?\nAssistant: CnH2n+2; saturated hydrocarbons.\nUser: Markovnikov rule?\nAssistant: In asymmetric alkene addition, H goes to C with more H atoms.\nUser: Benzene stability?\nAssistant: Delocalized π electrons give extra stability (resonance)."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nReviewed alkane formula, Markovnikov rule, and benzene stability.\n\n## Key points from the chat\n\n- Alkanes: CnH2n+2\n- Markovnikov: H adds to C with more H\n- Benzene stability from delocalized π electrons"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_pdf:kech203"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     },
     {
       "id": "chat_summarizer-010",
-      "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "science"
-      ],
+      "variation": "medium_transcript",
       "inputs": {
-        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 10]"
+        "old_conversation": "User: Semiconservative means?\nAssistant: Each new DNA has one parental and one new strand.\nUser: Enzyme for unwinding?\nAssistant: Helicase separates strands at replication fork.\nUser: Leading vs lagging?\nAssistant: Continuous synthesis on leading; Okazaki fragments on lagging strand."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+        "summary_markdown": "## Summary\n\nExplained semiconservative replication and strand synthesis.\n\n## Key points from the chat\n\n- Each new DNA: one old + one new strand\n- Helicase unwinds at fork\n- Leading continuous; lagging Okazaki fragments"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_pdf:lebo105"
+      ],
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     },
     {
       "id": "chat_summarizer-011",
-      "variation": "comparison",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "medium_transcript",
       "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 11]"
+        "old_conversation": "User: Anode in galvanic cell?\nAssistant: Oxidation occurs; electrons leave anode.\nUser: Standard hydrogen electrode?\nAssistant: Reference with E° = 0.00 V by convention.\nUser: When does cell stop?\nAssistant: When equilibrium reached — net reaction ceases."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+        "summary_markdown": "## Summary\n\nReviewed galvanic cell electrodes and equilibrium stopping condition.\n\n## Key points from the chat\n\n- Anode: oxidation; electrons leave\n- SHE reference E° = 0\n- Cell stops at equilibrium"
       },
-      "evaluators": [
-        "markdown_sections",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "chat_summarizer-012",
-      "variation": "metadata",
       "tags": [
         "cbse",
-        "chemistry"
+        "chemistry",
+        "source_pdf:lech103"
       ],
-      "inputs": {
-        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 12]"
-      },
-      "reference_outputs": {
-        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
-      },
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     },
     {
       "id": "chat_summarizer-013",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "medium_transcript",
       "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 13]"
+        "old_conversation": "User: Dicot vs monocot root?\nAssistant: Dicot: radial vascular bundle; monocot: polyarch xylem.\nUser: Casparian strip?\nAssistant: Suberin band in endodermis controls apoplastic flow.\nUser: Why important?\nAssistant: Forces selective symplastic uptake into stele."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+        "summary_markdown": "## Summary\n\nCompared root anatomy features and Casparian strip function.\n\n## Key points from the chat\n\n- Dicot vs monocot vascular arrangement differs\n- Casparian strip in endodermis has suberin\n- Forces selective uptake into stele"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_pdf:kebo106"
+      ],
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     },
     {
       "id": "chat_summarizer-014",
-      "variation": "handwritten",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "medium_transcript",
       "inputs": {
-        "old_conversation": "User: Explain photosynthesis.\nAssistant: Light reaction in grana; Calvin cycle in stroma.\nUser: NEET table for enzymes?\nAssistant: Pepsin in stomach; trypsin in duodenum.\n[session segment 14]"
+        "old_conversation": "User: Work by variable force?\nAssistant: W = ∫F·dx; graphically area under F-x curve.\nUser: Conservative force?\nAssistant: Work independent of path; e.g. gravity.\nUser: Potential energy relation?\nAssistant: ΔU = −W_conservative."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nPhotosynthesis overview and digestive enzyme sites for NEET revision.\n\n## Key points from the chat\n- Light reaction → ATP, NADPH\n- Calvin cycle fixes CO₂\n- Pepsin (stomach), trypsin (duodenum)\n\n## Open questions / next steps\n- Revise absorption in villi"
+        "summary_markdown": "## Summary\n\nConnected work, conservative forces, and potential energy.\n\n## Key points from the chat\n\n- Variable work W = ∫F·dx\n- Conservative force: path-independent work\n- ΔU = −W_conservative\n\n## Definitions / formulas (if any)\n\n- W = ∫F·dx"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "source_pdf:keph105"
+      ],
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-017",
+      "variation": "medium_transcript",
+      "inputs": {
+        "old_conversation": "User: Kc definition?\nAssistant: Ratio of product to reactant molar concentrations at equilibrium.\nUser: Increase pressure on N2+3H2⇌2NH3?\nAssistant: Shifts toward fewer moles — forward to NH3.\nUser: Catalyst effect on K?\nAssistant: No change to K; speeds attainment only."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nApplied equilibrium constant and Le Chatelier to ammonia synthesis.\n\n## Key points from the chat\n\n- Kc uses molar concentrations at equilibrium\n- Higher pressure favors NH3 (fewer moles)\n- Catalyst does not change K\n\n## Definitions / formulas (if any)\n\n- Kc = [products]/[reactants]"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_pdf:kech106"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-019",
+      "variation": "long_multi_topic",
+      "inputs": {
+        "old_conversation": "User: Graph 2x+y≤6?\nAssistant: Boundary line 2x+y=6; shade toward origin for ≤.\nUser: Feasible region?\nAssistant: Intersection of all constraint half-planes.\nUser: Corner point method?\nAssistant: Evaluate objective function at vertices of feasible polygon."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nGraphed linear inequality and corner-point optimization idea.\n\n## Key points from the chat\n\n- Shade toward origin for 2x+y≤6\n- Feasible region = intersection of constraints\n- Optimize at polygon vertices"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "source_pdf:kemh105"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-020",
+      "variation": "long_multi_topic",
+      "inputs": {
+        "old_conversation": "User: Define drift velocity.\nAssistant: Average velocity of electrons under electric field in conductor.\nUser: Relation to current?\nAssistant: I = neAv_d.\nUser: Resistivity temperature dependence?\nAssistant: For metals ρ increases with T due to more collisions.\nUser: Series circuit rule?\nAssistant: Same current through each element.\nUser: Parallel rule?\nAssistant: Same potential across branches.\nUser: Kirchhoff loop law?\nAssistant: Algebraic sum of EMFs equals sum of IR drops.\nUser: Open question?\nAssistant: We should practice wheatstone bridge next.\nUser: Analogy?\nAssistant: Water flow in pipes parallels current in wires."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nExtended current electricity review from drift velocity through Kirchhoff laws.\n\n## Key points from the chat\n\n- Drift velocity v_d; I = neAv_d\n- Metal resistivity rises with temperature\n- Series: same I; parallel: same V\n- Loop law: ΣEMF = ΣIR\n\n## Definitions / formulas (if any)\n\n- I = neAv_d\n\n## Examples / analogies used\n\n- Water flow in pipes parallels current\n\n## Open questions / next steps\n\n- Practice Wheatstone bridge problems"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "source_pdf:leph103"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-007",
+      "variation": "numerical_formula",
+      "inputs": {
+        "old_conversation": "User: Torque definition?\nAssistant: τ = r × F; magnitude τ = rF sin θ.\nUser: Moment of inertia role?\nAssistant: Rotational analog of mass; τ = Iα.\nUser: Parallel axis theorem?\nAssistant: I = I_cm + Md² shifts axis parallel to CM axis."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nDiscussed torque, moment of inertia, and parallel axis theorem.\n\n## Key points from the chat\n\n- τ = rF sin θ\n- τ = Iα analog of F = ma\n- I = I_cm + Md² for parallel axis shift\n\n## Definitions / formulas (if any)\n\n- τ = r × F"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "source_pdf:keph106"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-012",
+      "variation": "numerical_formula",
+      "inputs": {
+        "old_conversation": "User: Direction cosines?\nAssistant: cos α, cos β, cos γ of line with axes; l²+m²+n²=1.\nUser: Equation of line in 3D?\nAssistant: (x−x1)/a = (y−y1)/b = (z−z1)/c.\nUser: Shortest distance skew lines?\nAssistant: Formula using cross product of direction vectors."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nCovered direction cosines and 3D line equations.\n\n## Key points from the chat\n\n- Direction cosines satisfy l²+m²+n²=1\n- Symmetric line: (x−x1)/a = (y−y1)/b = (z−z1)/c\n- Skew line distance uses cross product\n\n## Definitions / formulas (if any)\n\n- l² + m² + n² = 1"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "source_pdf:lemh205"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     },
     {
       "id": "chat_summarizer-015",
-      "variation": "low_quality_scan",
-      "tags": [
-        "cbse",
-        "science"
-      ],
+      "variation": "numerical_formula",
       "inputs": {
-        "old_conversation": "User: What is Ohm's law?\nAssistant: V=IR for ohmic conductors at constant temperature.\nUser: Give a numerical.\nAssistant: If R=4Ω and I=2A, V=8V.\nUser: Series vs parallel?\nAssistant: Series adds R; parallel uses reciprocal sum.\n[session segment 15]"
+        "old_conversation": "User: Tollens' test?\nAssistant: Ag+ reduced to silver mirror by aldehydes.\nUser: Ketones with Tollens?\nAssistant: No reaction — distinguishes aldehyde vs ketone.\nUser: Nucleophilic addition?\nAssistant: C=O polarized; nucleophile attacks carbonyl carbon."
       },
       "reference_outputs": {
-        "summary_markdown": "## Summary\nDiscussed Ohm's law and a numerical, then compared series and parallel resistance.\n\n## Key points from the chat\n- Ohm's law: V = IR\n- Example: 2 A through 4 Ω → 8 V\n- Series R_eq adds; parallel uses 1/R_eq\n\n## Definitions / formulas (if any)\n- V = IR\n\n## Open questions / next steps\n- Practice mixed series-parallel circuits"
+        "summary_markdown": "## Summary\n\nUsed Tollens' test to distinguish aldehydes from ketones.\n\n## Key points from the chat\n\n- Tollens' gives silver mirror with aldehydes\n- Ketones do not react with Tollens'\n- C=O undergoes nucleophilic addition\n\n## Examples / analogies used\n\n- Silver mirror as visual test"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_pdf:lech203"
+      ],
       "evaluators": [
-        "markdown_sections",
-        "llm_judge"
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-002",
+      "variation": "neet_exam_framing",
+      "inputs": {
+        "old_conversation": "User: Light vs dark reaction location?\nAssistant: Light reaction in grana; Calvin cycle in stroma of chloroplast.\nUser: What enters Calvin cycle?\nAssistant: CO2 is fixed using ATP and NADPH from light reactions.\nUser: NEET one-liner?\nAssistant: Photosynthesis converts light energy to chemical energy in glucose."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nLocated photosynthesis stages and linked them to NEET revision.\n\n## Key points from the chat\n\n- Light reaction in grana; Calvin cycle in stroma\n- CO2 fixed using ATP and NADPH\n- Converts light energy to chemical energy in glucose\n\n## Open questions / next steps\n\n- Revise C4 vs C3 pathways separately"
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "source_pdf:kebo110"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-003",
+      "variation": "neet_exam_framing",
+      "inputs": {
+        "old_conversation": "User: Where does protein digestion start?\nAssistant: Stomach — pepsin works in acidic HCl medium.\nUser: Pancreatic enzymes?\nAssistant: Trypsin, chymotrypsin, lipase, amylase enter duodenum via pancreatic juice.\nUser: Absorption site?\nAssistant: Small intestine villi absorb most nutrients."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nTraced protein digestion and enzyme locations for NEET.\n\n## Key points from the chat\n\n- Pepsin starts protein digestion in acidic stomach\n- Pancreatic trypsin, lipase, amylase act in duodenum\n- Villi in small intestine absorb nutrients"
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "source_pdf:kebo107"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
+      ]
+    },
+    {
+      "id": "chat_summarizer-018",
+      "variation": "neet_exam_framing",
+      "inputs": {
+        "old_conversation": "User: Mitosis vs meiosis purpose?\nAssistant: Mitosis growth/repair; meiosis gamete formation halves chromosome number.\nUser: Prophase I feature?\nAssistant: Crossing over between homologous chromosomes.\nUser: Analogy you used?\nAssistant: Mitosis like photocopy; meiosis like shuffling deck for variety."
+      },
+      "reference_outputs": {
+        "summary_markdown": "## Summary\n\nContrasted mitosis and meiosis with crossing over highlight.\n\n## Key points from the chat\n\n- Mitosis for growth; meiosis for gametes\n- Prophase I: crossing over\n\n## Examples / analogies used\n\n- Mitosis = photocopy; meiosis = shuffled deck"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_pdf:kebo110"
+      ],
+      "evaluators": [
+        "structure",
+        "no_hallucination",
+        "concise",
+        "tag_alignment"
       ]
     }
   ]

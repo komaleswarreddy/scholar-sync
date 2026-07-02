@@ -1,0 +1,77 @@
+[GEMINI] healthy: gemini-3.5-flash
+========================================================================
+[4/9] agent=explain_from_basics prompt=v1 model=claude-sonnet-4-6 (anthropic) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=0/5000 margin=250 remaining=4750 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-explain_from_basics-v1-anthropic-claude-sonnet-4-6-9da945dc' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/9268ee47-5524-4194-89f1-9ed542bcba4a/compare?selectedSessions=e882baf9-bb18-479e-b39e-7635f957ebb6
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=422/5000 (incl. margin 250) | usable_remaining=4328
+
+DONE [4/9] explain_from_basics/v1/claude-sonnet-4-6 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[5/9] agent=explain_from_basics prompt=v2 model=claude-sonnet-4-6 (anthropic) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=422/5000 margin=250 remaining=4328 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-explain_from_basics-v2-anthropic-claude-sonnet-4-6-7ee17f1f' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/9268ee47-5524-4194-89f1-9ed542bcba4a/compare?selectedSessions=8b228ddd-22a3-44f8-9aab-5fae20f4f298
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=1266/5000 (incl. margin 250) | usable_remaining=3484
+
+DONE [5/9] explain_from_basics/v2/claude-sonnet-4-6 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[6/9] agent=explain_from_basics prompt=v2 model=gemini-3.5-flash (gemini) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=1266/5000 margin=250 remaining=3484 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-explain_from_basics-v2-gemini-gemini-3-5-flash-d309e3fe' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/9268ee47-5524-4194-89f1-9ed542bcba4a/compare?selectedSessions=d3262cfe-6669-4166-b4a8-37252dc24311
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=1477/5000 (incl. margin 250) | usable_remaining=3273
+
+DONE [6/9] explain_from_basics/v2/gemini-3.5-flash -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[7/9] agent=explain_from_basics prompt=v3 model=gpt-5.4 (openai) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=1477/5000 margin=250 remaining=3273 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-explain_from_basics-v3-openai-gpt-5-4-05caa06a' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/9268ee47-5524-4194-89f1-9ed542bcba4a/compare?selectedSessions=aa651283-801a-40b2-8079-d2d818808e9b
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=1899/5000 (incl. margin 250) | usable_remaining=2851
+
+DONE [7/9] explain_from_basics/v3/gpt-5.4 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[8/9] agent=explain_from_basics prompt=v3 model=claude-sonnet-4-6 (anthropic) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=1899/5000 margin=250 remaining=2851 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-explain_from_basics-v3-anthropic-claude-sonnet-4-6-583d9c97' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/9268ee47-5524-4194-89f1-9ed542bcba4a/compare?selectedSessions=2bba91e2-ed04-41cb-be6e-439cefaad0cf
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=2110/5000 (incl. margin 250) | usable_remaining=2640
+
+DONE [8/9] explain_from_basics/v3/claude-sonnet-4-6 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[9/9] agent=explain_from_basics prompt=v3 model=gemini-3.5-flash (gemini) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=2110/5000 margin=250 remaining=2640 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-explain_from_basics-v3-gemini-gemini-3-5-flash-4f6de756' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/9268ee47-5524-4194-89f1-9ed542bcba4a/compare?selectedSessions=ff09566a-e1d1-42e3-a844-95264273d8cf
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=2321/5000 (incl. margin 250) | usable_remaining=2429
+
+DONE [9/9] explain_from_basics/v3/gemini-3.5-flash -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+
+All 9 experiments complete.
+
+Leaderboard written to C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\evals\reports\agent_matrix\leaderboard_20260702T084926Z.json

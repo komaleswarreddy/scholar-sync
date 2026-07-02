@@ -1,0 +1,9 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 0,
+  "experiments": [],
+  "workspace_tenant": "cursemes9_ac6f370c",
+  "note": "Fresh ledger after workspace switch (cursemes9_ac6f370c)"
+}

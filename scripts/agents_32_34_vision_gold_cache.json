@@ -1,0 +1,213 @@
+{
+  "version": "1.0.0",
+  "examples": {
+    "image_ocr-001": {
+      "example_id": "image_ocr-001",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "SECTION A — MCQs  \nEach question carries 1 mark. Select the most appropriate option.  \n\nQ1. Identify the plant in which emasculation is not required for artificial hybridization.  \n(A) Rice  \n(B) Wheat  \n(C) Pea  \n(D) Papaya  \n\nQ2. Which of the following is not a functional unit of an ecosystem?  \n(A) Energy flow  \n(B) Decomposition  \n(C) Stratification  \n(D) Productivity  \n\nQ3. Identify the statements that correctly describe Darwin’s Theory of Evolution.  \n(i) Overproduction of organisms leads to competition.  \n(ii) Variation is inherited and causes evolution.  \n(iii) Acquired characters are inherited.  \n(iv) Survival depends on favourable traits.  \n(v) New species arise due to accumulation of favourable variations.  \nChoose the correct option.  \n(A) (i), (ii), (iv) and (v) are correct  \n(B) (ii), (iii) and (iv) are correct  \n(C) All are correct  \n(D) Only (i) and (iv) are correct  \n\nQ4. Given below are two columns. In Column I is the list of four enzymes and in Column II is the list of functions of the given enzymes. Which one of the following options shows the enzymes matched with their respective functions correctly?  \nColumn I (Enzyme)  \nP. DNA Ligase  \nQ. Restriction exonuclease  \nR. Taq polymerase  \nS. Restriction endonuclease  \n\nColumn II (Function)  \ni. Removes nucleotides from ends of DNA  \nii. Extends primer on a DNA template  \niii. Joins the DNA fragments  \niv. Cuts DNA at a specific position  \n\n(a) P-i, Q-ii, R-iv, S-iii  \n(b) P-iv, Q-iii, R-ii, S-i  \n(c) P-i, Q-iv, R-iii, S-ii  \n(d) P-iii, Q-i, R-ii, S-v"
+      },
+      "generated_at": "2026-06-25T09:16:07Z"
+    },
+    "image_ocr-002": {
+      "example_id": "image_ocr-002",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "SECTION C — Short Answer Questions (SAQs)  \nEach question carries 3 marks. Answer with the necessary details.  \n\nQ27. Explain the mode of action of contraceptive pills taken by human females. Mention the schedule to be followed for effective outcome.  \n\nQ28. (a) What are transgenic animals?  \n(b) Name the first transgenic cow and state its importance.  \nOR  \n(a) Explain the convention for naming EcoRI.  \n(b) With the help of an illustration only, show the action of EcoRI on a DNA polynucleotide.  \n\nQ29. (a) What is the carrying capacity of a species in a habitat?  \n(b) Explain the growth curve that takes this capacity into account.  \n\nQ30. (a) Explain the different ways by which apomictic seeds can be developed.  \n(b) Mention one advantage of apomictic seeds for farmers.  \n\nQ31. (a) What is meant by translation in protein synthesis?  \n(b) Explain charging of tRNA, aminoacylation of tRNA, and mention its importance in the process of translation.  \n\nQ32. Identify A, B, C, D, E and F in the table given below:  \n\nName of Human Disease | Causative Organism | Symptoms  \n--- | --- | ---  \nPneumonia | Streptococcus | ‘A’  \nTyphoid | ‘B’ | High fever, weakness, headache, stomach pain  \nCommon Cold | Rhino virus | ‘C’  \nRingworm | ‘D’ | Dry scaly lesions on body parts, redness, itching  \nAscariasis | Ascaris | ‘E’  \n | Entamoeba histolytica | ‘F’ Constipation, cramps, stools with mucus and blood clots  \n\nQ33. With the help of a schematic diagram only, show in three steps, the formation of recombinant DNA by the action of restriction endonuclease EcoRI and DNA ligase.  \n\nQ34. Study the single strand of deoxyribonucleic acid depicted in the stick diagram and answer the questions that follow.  \n(a) Name the covalent bonds depicted as (a) and (b) in the form of slanting lines in the diagram."
+      },
+      "generated_at": "2026-06-25T09:16:16Z"
+    },
+    "image_ocr-003": {
+      "example_id": "image_ocr-003",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "SECTION E — Long Answer Questions (LAQs)  \nEach question carries 5 marks. Answer with detailed explanation wherever required.  \n\nQ37. Trace the events from fertilization till implantation of blastocyst in human female. Also mention the site where fertilization takes place.  \n\nQ38. (a) (i) Watson and Crick’s discovery of double helical structure was based on which two findings. Also mention the names of the scientists associated with these findings.  \n(ii) Write down the salient features of double helix structure of DNA (any three points).  \nOR  \n(b) Given below is a stretch of DNA showing the coding strand of structural gene of transcription unit.  \n5′ - ATG ACC GTA TTT TCT GTA GTG CCC GTA CTT CAG GCA TTA - 3′  \n(i) Write the corresponding template strand and mRNA strand that will be transcribed along with its polarity.  \n(ii) If GUA of transcribed mRNA is an intron, then depict the sequence involved in formation of mRNA / mature / processed hnRNA strand: (1) In a bacterium (2) In humans.  \n(iii) How many amino acids will the resulting polypeptide have after the process of translation in humans?  \n\nQ39. (a) (i) Name the protozoan species that is responsible for causing the most serious and even fatal malarial disease.  \n(ii) Name the host in which the parasite completes its sexual stages and explain the changes taking place.  \n(iii) How does the parasite damage the human body after entering the blood stream?  \n(iv) Suggest two effective preventive measures to control the spread of this disease in endemic regions.  \nOR  \n(b) (i) What are bio-fertilizers?  \n(ii) Name the different types of microorganisms used as bio-fertilizers in organic farming and explain how each contributes to soil fertility.  \n(iii) Write two advantages of using bio-fertilizers over chemical fertilizers.  \n\nQ40. (a) (i) Describe the series of experiments conducted by Frederick Griffith. Comment on the significance of the result obtained.  \n(ii) State the contribution of Avery, MacLeod and McCarty.  \nOR  \n(b) The following questions are based on haemophilia.  \n(i) Work out the crosses between: (I) Normal female and haemophilic male, (II) Carrier female and normal male, (III) Carrier female and haemophilic male.  \n(ii) Write the conclusions you draw from these crosses. Comment on the type of inheritance of the disease.  \nUse: X — Normal, Xh — Haemophilic.  \n\nQ41. (a) (i) Explain any two basic principles/core techniques on which biotechnology is based.  \n(ii) Describe any three key tools used in recombinant DNA technology."
+      },
+      "generated_at": "2026-06-25T09:16:27Z"
+    },
+    "image_ocr-004": {
+      "example_id": "image_ocr-004",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q18. Find the vector equation of a line passing through the origin and perpendicular to both the lines r = 2i - j + 4j + 2k) and r = μ(i - j + k).\n\nQ19. Vectors a = 3i - 2j + 2k and b = i + 2k represent the two adjacent sides of a parallelogram. Find the vectors representing its diagonals and hence find their lengths.\n\nQ20. The area of the circle is increasing at a uniform rate of 2 cm²/sec. How fast is the circumference of the circle increasing if the radius r = 5 cm?\n\nQ21. Check whether the function f(x) defined as f(x) = (x - 3)/[(2x - 3)], if x < 3, and f(x) = (x - 6)/6, if x ≥ 3, is continuous at x = 3 or not.\n\nQ22. Find the sub-interval of (0, ∞) in which f(x) = xe²^(-x) is increasing.\n\nQ23. Find: ∫ (e^(4x) - 1)/(e^(4x) + 1) dx\n\nQ24. If M and m denote the local maximum and local minimum values of the function f(x) = x + 1/x, x ≠ 0, respectively, find the value of (M - m).\n\nQ25. Evaluate: tan⁻¹[2 sin{2 cos⁻¹(√3/2)}]\n\nQ26. A function f : A → B defined as f(x) = 2x is both one-one and onto. If A = {1, 2, 3, 4}, then find the set B.\n\nQ27. If I = ∫ from -π/4 to π/4 [ dx/(1 + cos 2x) ] and I₂ = ∫ from -1/2 to 1/2 |x| dx, then show that I₁ - 4I₂ = 0.\n\nQ28. Evaluate: ∫ from -π/2 to π/2 [ cos²x/(2x² + 1) ] dx\n\nQ29. The position vectors of vertices of ΔABC are A(2i - j + k), B(i - 3j - 5k) and C(3i - 4j - 4k). Find all the angles of ΔABC.\n\nQ30. Verify that lines given by r = (1 - λ)i + (λ - 2j) + (3 - 2λ)k and r = (μ + 1)i + (2μ - 1)j - (2μ + 1)k are skew lines. Hence, find shortest distance between the lines.\n\nQ31. Solve the following linear programming problem graphically: Minimize Z = 13x - 15y, subject to constraints x + y ≤ 7, 2x - 3y + 6 ≥ 0, x ≥ 0, y ≥ 0.\n\nQ32. A survey was conducted on the patients who have undergone knee replacement surgeries. It was found that Robotic Knee replacement surgeries have 90% success rate. On a particular day, robotic surgery was performed on three patients, A, B and C, one after the other. Assuming that the success and failure of each surgery is independent of each other, find the probability that: (i) exactly one surgery is successful, (ii) at most two surgeries are successful.\n\nQ33. The random variable X has the following probability distribution where a and b are some constants:  \nX: 1, 2, 3, 4, 5  \nP(X): 0.2, a, 0.2, b  \n\nIf the mean E(X) = 3, then find values of a and b and hence determine P(X ≥ 3).\n\nQ34. A pair of dice is thrown simultaneously. If X denotes the absolute difference of the numbers appearing on top of the dice, then find the probability distribution of X.\n\nQ35. The side of an equilateral triangle is increasing at the rate of 3 cm/s. At what rate is area increasing when the side of the triangle is 15 cm?\n\nQ36. Evaluate: ∫ from 0 to π/2 [ log(sin x) - log(2 cos x) ] dx"
+      },
+      "generated_at": "2026-06-25T09:16:42Z"
+    },
+    "image_ocr-005": {
+      "example_id": "image_ocr-005",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q37. If x = 3 sin t - sin 3t, y = 3 cos t - cos 3t, find dy/dx and prove that d²y/dx² = -cosec³ 2t · cosec t/3.\n\nQ38. Prove that the line through points A(0, -1, -1) and B(4, 5, 1) intersects the line through points C(3, 9, 4) and D(-4, 4, 4). Hence, write the equation of line passing through the point of intersection of lines AB and CD as well as origin.\n\nQ39. Opposite sides of a square are along the lines: r = i + 2j - 4k + λ(2i + 3j + 6k) and r = 3i + 3j - 5k + μ(2i + 3j + 6k). Find the area of the square if direction ratios of other pair of opposite sides of the square are given by <-3, 6, p>. Also, find the value of p.\n\nQ40. Find the image A' of the point A(1, 6, 3) in the line x/1 = (y - 1)/2 = (z - 2)/3. Also, find the equation of the line joining A and A'.\n\nQ41. Solve the following system of equations, using matrices:  \n2/x + 3/y + 10/z = 4  \n4/x - 6/y + 5/z = 1  \n6/x + 9/y - 20/z = 2  \nwhere x, y, z ≠ 0.\n\nQ42. Find the absolute maximum and absolute minimum value of the function f(x) = 2x³ - 15x² + 36x + 1 on [1, 5].\n\nQ43. Solve the following system of equations by matrix method:  \nx + 2y + 3z = 6  \n2x - y + z = 2  \n3x + 2y - 2z = 3  \n\nQ44. If A₁ denotes the area of region bounded by y² = 4x, x = 1 and x-axis in the first quadrant and A₂ denotes the area of region bounded by y² = 4x, x = 4, find A₁ : A₂.\n\nQ45. Solve the following L.P.P. graphically: Maximise Z = 60x + 40y subject to x + 2y ≤ 12, 2x + y ≤ 12, 4x + 5y ≥ 20, x ≥ 0, y ≥ 0.\n\nQ46. Find the area of the region bounded by the curves x² = y, y = x + 2 and x-axis, using integration."
+      },
+      "generated_at": "2026-06-25T09:16:56Z"
+    },
+    "image_ocr-006": {
+      "example_id": "image_ocr-006",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q14.  \nAssertion (A): Ideal plane and convex mirror systems cannot produce real focus images under any practical circumscribed experimental setup conditions.  \nReason (R): A virtual image structure generated by a primary optics component can never serve as a valid virtual object to produce a real image output from a secondary boundary element.  \n\nQ15.  \nAssertion (A): When a structural bar made of pure copper is placed inside an external magnetic field region, the field flux lines get strongly concentrated within the internal volume of the bar.  \nReason (R): Copper acts as a standard paramagnetic material block when subjected to external fields.  \n\nQ16.  \nAssertion (A): Binding energy is released when heavy atomic nuclei undergo fission or when light elemental nuclei undergo fusion processing loops.  \nReason (R): For heavy nuclei, the binding energy per nucleon parameter increases monotonically with increasing atomic number Z, while for light elements it decreases with an increasing value of Z.  \n\nSECTION B: VERY SHORT ANSWER QUESTIONS (VSAQS)  \nEach question carries 2 marks. Answer the following questions precisely with necessary formulas or clear point-wise steps.  \n\nQ17. The threshold voltage of a silicon diode is 0.7 V. It is operated by connecting the diode in series with a battery of V volts and a resistor of 1000 Ω. Find the required value of V when the active current drawn through the circuit is 15 mA.  \n\nQ18. Two coherent monochromatic light beams possessing intensities I1 and I2 undergo superposition with each other. Determine the quantitative ratio of the maximum and minimum intensities observed within the resulting interference pattern profile.  \n\nQ19. What is the characteristic order of magnitude of the drift velocity of free electrons inside a typical metal conductor under standard fields? Deduce the foundational mathematical relation between the current flowing through a conductor and the drift velocity of electrons within it.  \n\nQ20. Plot a neat current-voltage (I-V) characteristic curve for the semiconductor material gallium arsenide (GaAs). On the generated graph layout, explicitly mark: (a) the region where the dynamic operational resistance becomes negative, and (b) the region where Ohm's law is obeyed.  \n\nQ21. A plane circular conducting coil is rotated about its vertical diameter layout with a constant angular speed ω inside a uniform horizontal magnetic field. Initially, the plane of the coil is parallel to the field vector. Draw dual synchronous plots showing the variation of: (a) the magnetic flux linked with the coil, and (b) the emf induced in the coil, as functions of the phase parameter (ωt)."
+      },
+      "generated_at": "2026-06-25T09:17:08Z"
+    },
+    "image_ocr-007": {
+      "example_id": "image_ocr-007",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q7.  \nThe highest number of helium atoms is in  \n(1) 4 g of helium  \n(2) 2.271098 L of helium at STP  \n(3) 4 mol of helium  \n(4) 4 u of helium  \n\nQ8.  \nWhich one of the following reactions does NOT belong to “Lassaigne’s test”?  \n(1) Na + C + N  ⟶ NaCN  \n(2) 2Na + S ⟶ Na₂S  \n(3) Na + X ⟶ NaX  \n(4) 2CuO + C ⟶ 2Cu + CO₂"
+      },
+      "generated_at": "2026-06-25T09:17:14Z"
+    },
+    "image_ocr-008": {
+      "example_id": "image_ocr-008",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q13.  \nAB is a part of an electrical circuit (see figure). The potential difference “VA – VB”, at the instant when current i = 2 A and is increasing at a rate of 1 amp/second is:  \n(1) 5 volt  \n(2) 6 volt  \n(3) 9 volt  \n(4) 10 volt  \n\nQ14.  \nA ball of mass 0.5 kg is dropped from a height of 40 m. The ball hits the ground and rises to a height of 10 m. The impulse imparted to the ball during its collision with the ground is (Take g = 9.8 m/s²)  \n(1) 21 Ns  \n(2) 7 Ns  \n(3) 0  \n(4) 84 Ns"
+      },
+      "generated_at": "2026-06-25T09:17:20Z"
+    },
+    "image_ocr-009": {
+      "example_id": "image_ocr-009",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q13.  \nThe DNA present in chloroplast is:  \n(1) Linear, single stranded  \n(2) Circular, single stranded  \n(3) Linear, double stranded  \n(4) Circular, double stranded  \n\nQ14.  \nWhich of the following are required for the dark reaction of photosynthesis?  \nA. Light  \nB. Chlorophyll  \nC. CO2  \nD. ATP  \nE. NADPH  \nChoose the correct answer from the options given below:  \n(1) C, D and E only  \n(2) D and E only  \n(3) A, B and C only  \n(4) B, C and D only  \n\nQ15.  \nIdentify the incorrect statement related to Pollination:  \nA. Moths and butterflies are the most dominant pollinating agents among insects  \nB. Pollination by water is quite rare in flowering plants  \nC. Pollination by wind is more common amongst abiotic pollination  \nD. Flowers produce foul odours to attract flies and beetles to get pollinated  \n\nQ16.  \nUnequivocal proof that DNA is the genetic material was first proposed by  \na. Wilkins and Franklin  \nb. Fedrick, Griffith  \nc. Alfred Hershey and Martha Chase  \nd. Avery, Macleoid and McCarthy  \n\nQ17.  \nWhich of the following answers are NOT correct?  \na. The amount of some toxic substances of industrial waste water increases in the organisms at successive trophic levels.  \nb. The micro-organisms involved in biodegradation of organic matter in a sewage polluted water body consume a lot of oxygen causing the death of aquatic organisms.  \nc. Algal blooms caused by excess of organic matter in water improve water quality and promote fisheries.  \nd. Water hyacinth grows abundantly in eutrophic water bodies and leads to an imbalance in the ecosystem dynamics of the water body."
+      },
+      "generated_at": "2026-06-25T09:17:29Z"
+    },
+    "image_ocr-010": {
+      "example_id": "image_ocr-010",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "(3) Antigen binding site is located at C-terminal region of antibody molecules.\n\n(4) Constant region of heavy and light chains are located at C-terminus of antibody molecules.\n\nQ15.  \nGiven below are two statements:  \n\nStatement I: The DNA fragments extracted from gel electrophoresis can be used in construction of recombinant DNA.  \n\nStatement II: Smaller size DNA fragments are observed near anode while larger fragments are found near the wells in an agarose gel.  \n\nIn the light of the above statements, choose the most appropriate answer from the options given below:  \n(1) Both statement I and statement II are correct  \n(2) Both statement I and statement II are incorrect  \n(3) Statement I is correct but statement II is incorrect  \n(4) Statement I is incorrect but statement II is correct  \n\nQ16.  \nSelect the correct statements with reference to chordates.  \nA. Presence of a mid-dorsal, solid and double nerve cord.  \nB. Presence of closed circulatory system.  \nC. Presence of paired pharyngeal gills  \nD. Presence of dorsal heart  \nE. Triploblastic pseudocoelomate animals.  \n\nChoose the correct answer from the options given below:  \na. C, D and E only  \nb. A, C and D only  \nc. B and C only  \nd. B, D and E only  \n\nQ17.  \nMatch List I with List II:  \n\nList I  \n\nList II  \nA. Typhoid  \nI. Fungus  \nB."
+      },
+      "generated_at": "2026-06-25T09:17:36Z"
+    },
+    "image_ocr-011": {
+      "example_id": "image_ocr-011",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q.20 The number of ways, in which 16 oranges can be distributed to four children such that each child gets at least one orange, is  \n1. 403  \n2. 384  \n3. 429  \n4. 455  \n\nQ.21 Let S denote the set of 4-digit numbers abcd such that a > b > c > d and P denote the set of 5-digit numbers having product of its digits equal to 20. Then n(S) + n(P) is equal to _____  \n\nQ.22 If the image of the point P(a, 2, a) in the line  x/2 = (y + a)/1 = (z/1) is Q and the image of Q in the line  (x - 2b)/2 = (y - a)/1 = (z + 2b)/(-5) is P, then a + b is equal to _____.  \n\nQ.23 Let A =  \\[ \\begin{bmatrix} 0 & 2 & -3 \\\\ -2 & 0 & 1 \\\\ 3 & -1 & 0 \\end{bmatrix} \\] and B be a matrix such that B(I - A) = I + A. Then the sum of the diagonal elements of B^T B is equal to ____"
+      },
+      "generated_at": "2026-06-25T09:17:43Z"
+    },
+    "image_ocr-012": {
+      "example_id": "image_ocr-012",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q35.  \nTwo closed vessels of same volume are joined through a narrow tube and both vessels are filled with air of pressure 90 kPa and temperature 400 K. Keeping the temperature of one vessel constant at 400 K the second vessel temperature is raised to 500 K. The final pressure in the vessels is ______ kPa.  \n(1) 100 (2) 120 (3) 90 (4) 105  \n\nQ36.  \nIn interference experiment the path difference between two interfering waves at a point A on the screen is λ/3, where λ is the wavelength of these waves, and at another point B the path difference is λ/6. The ratio of intensities at points A and B is ______.  \n(1) 3 (2) 4 (3) 1/3 (4) 1/4  \n\nQ37.  \nA particle is executing simple harmonic motion. Its amplitude is A and time period is 5 sec. The time required by it to move from x = A to x = A/√2 is ______ sec.  \n(1) 1/4 (2) 5/4 (3) 5/8 (4) 3/8  \n\nQ38.  \nA thin half ring of radius 35 cm is uniformly charged with a total charge of Q coulomb. If the magnitude of the electric field at centre of the half ring is 100 V/m, then the value of Q is ______ nC. (ε₀ = 8.85 × 10⁻¹² C²/Nm² and π = 3.14)  \n(1) 2.14 (2) 2.44 (3) 3.25 (4) 0.7"
+      },
+      "generated_at": "2026-06-25T09:17:55Z"
+    },
+    "image_ocr-013": {
+      "example_id": "image_ocr-013",
+      "agent_id": "image_ocr",
+      "llm_gold": {
+        "extracted_text": "Q.35 To compare EMF of two cells using potentiometer the balancing lengths obtained are 200 cm and 150 cm. The least count of scale is 1 cm. The percentage error in the ratio of EMFs is ________  \n1. 1.65  \n2. 1.55  \n3. 1.45  \n4. 1.75\n\nQ.36 A bead P sliding on a frictionless semi-circular string (ACB) and it is at point S at t = 0 and at this instant the horizontal component of its velocity is v. Another bead Q of the same mass as P is ejected from point A at t = 0 along the horizontal string AB, with the speed v, friction between the beads and the respective strings may be neglected in both cases. Let tP and tQ be the respective times taken by beads P and Q to reach the point B, then the relation between tP and tQ is\n\n[Diagram: The figure depicts a semi-circular string labeled as ACB, with points A and B at the ends and point C at the bottom of the arc. A bead P is shown at point A, sliding along the string, with a horizontal velocity component indicated as v. Another bead Q is positioned at point A, ejected horizontally along the string AB at the same speed v. The angle of 45° is marked between the horizontal line extending from point A and the line connecting point A to point P. The distance s is represented along the arc from point A to point C. The layout is semi-circular, with point A at the top left, point B at the top right, and point C at the bottom center of the arc. There are no visible arrows indicating motion directions or forces, and no numeric annotations for masses, distances, or dimensions are present in the diagram.]\n\n1. tP > tQ  \n2. tP = 1.25 tQ  \n3. tP = tQ  \n4. tP < tQ"
+      },
+      "generated_at": "2026-06-25T09:18:18Z"
+    },
+    "diagram_label_ocr-001": {
+      "example_id": "diagram_label_ocr-001",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "- Input\n- Output\n- Process\n- Flow\n- Control\n- Decision\n- Yes\n- No"
+      },
+      "generated_at": "2026-06-25T09:02:59Z"
+    },
+    "diagram_label_ocr-002": {
+      "example_id": "diagram_label_ocr-002",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "A  \nT  \nG  \nP  \nOH  \n3'  \n5'  \n(a)  \n(b)"
+      },
+      "generated_at": "2026-06-25T09:03:02Z"
+    },
+    "diagram_label_ocr-003": {
+      "example_id": "diagram_label_ocr-003",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "- Balanus balanoides\n- Chthamalus stellatus\n- Highest tides\n- Upper intertidal zone\n- Middle intertidal zone\n- Lower intertidal zone\n- Lowest tides\n- Desiccation\n- Outcompetes\n- Predation"
+      },
+      "generated_at": "2026-06-25T09:03:07Z"
+    },
+    "diagram_label_ocr-004": {
+      "example_id": "diagram_label_ocr-004",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "Taxonomic Richness  \nRegion I  \nRegion II  \nRegion III"
+      },
+      "generated_at": "2026-06-25T09:03:10Z"
+    },
+    "diagram_label_ocr-005": {
+      "example_id": "diagram_label_ocr-005",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "A  \nB  \nC  \nD  \nR  \nl1  \nl2  \n20 m  \nx"
+      },
+      "generated_at": "2026-06-25T09:03:13Z"
+    },
+    "diagram_label_ocr-006": {
+      "example_id": "diagram_label_ocr-006",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "**Figure-1:**\n- Fats & Sugar\n- Pulses & Dairy\n- Fruits & Vegetables\n- Meals & Fillets\n- Portions: (4–6), (2–3), (4–5), (10–15)\n- Fats: 5 g/portion\n- Sugar: 5 g/portion\n- Pulses: 30 g/portion\n- Dairy: 100 g/portion\n- 100 g/portion\n\n**Figure-2:**\n- X\n- Y\n- A (10, 0)\n- B (2, 4)\n- C (1, 5)\n- D (0, 8)\n- 3x + y = 8\n- x + y = 6\n- 4x + 5y = 28\n- x + 2y = 1"
+      },
+      "generated_at": "2026-06-25T09:03:19Z"
+    },
+    "diagram_label_ocr-007": {
+      "example_id": "diagram_label_ocr-007",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "A  \nB  \nC  \n0.32  \n0.09  \ny  \nx  \n0.21  \n0.11"
+      },
+      "generated_at": "2026-06-25T09:03:25Z"
+    },
+    "diagram_label_ocr-008": {
+      "example_id": "diagram_label_ocr-008",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "5 V  \nR_S  \nR = 1 kΩ  \n2 mW  \nLED"
+      },
+      "generated_at": "2026-06-25T09:03:29Z"
+    },
+    "diagram_label_ocr-009": {
+      "example_id": "diagram_label_ocr-009",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "- Inductor\n- Switch\n- Battery\n- Current flow direction (from battery to inductor)"
+      },
+      "generated_at": "2026-06-25T09:03:32Z"
+    },
+    "diagram_label_ocr-010": {
+      "example_id": "diagram_label_ocr-010",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "- Bead P\n- Bead Q\n- Point A\n- Point B\n- Point C\n- Point S\n- Velocity (v)\n- Time (t_P)\n- Time (t_Q)\n- Angle (45°)\n- Distance (s)\n- Frictionless\n- Semi-circular string\n- Horizontal string (AB)"
+      },
+      "generated_at": "2026-06-25T09:03:36Z"
+    },
+    "diagram_label_ocr-011": {
+      "example_id": "diagram_label_ocr-011",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "- A\n- r\n- M\n- x\n- 135°\n- r/4\n- 3r/4\n- Moment of inertia\n- Axis A\n- Disc"
+      },
+      "generated_at": "2026-06-25T09:03:39Z"
+    },
+    "diagram_label_ocr-012": {
+      "example_id": "diagram_label_ocr-012",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "- \\( \\omega(t) \\)\n- \\( A(t) \\)\n- \\( t \\)"
+      },
+      "generated_at": "2026-06-25T09:03:43Z"
+    },
+    "diagram_label_ocr-013": {
+      "example_id": "diagram_label_ocr-013",
+      "agent_id": "diagram_label_ocr",
+      "llm_gold": {
+        "labels_text": "- Gene for ampicillin resistance\n- Plasmid\n- Gene for tetracycline resistance\n- Recombinant DNA\n- Colonies derived from single bacteria growing on agar\n- Plate M\n- Replica plating\n- Plate N\n- Agar with tetracycline and ampicillin"
+      },
+      "generated_at": "2026-06-25T09:03:48Z"
+    }
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "month": "2026-06",
+  "workspace_tenant": "aafff4b5-45a3-4448-9f7d-805bfc70098d",
+  "limit": 5000,
+  "safety_margin": 50,
+  "used": 4803,
+  "note": "Reset for NEW LangSmith workspace (fresh quota). Prior workspace ledger archived in trace_ledger_old_workspace_47ca8a69.json",
+  "experiments": [
+    {
+      "agent_id": "scope_narrower",
+      "prompt_version": "v3",
+      "model": "gpt-5-nano",
+      "experiment_name": "ae-scope_narrower-v3-openai-gpt-5-nano-5720d8af",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:44:12.353292+00:00"
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-chat_policy_block-v1-openai-gpt-5-4-mini-be573ab3",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:45:09.894670+00:00"
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "prompt_version": "v1",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-chat_policy_block-v1-anthropic-claude-haiku-4-5-99891502",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:46:43.693122+00:00"
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-chat_policy_block-v2-openai-gpt-5-4-mini-21659c68",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:46:57.298184+00:00"
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "prompt_version": "v2",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-chat_policy_block-v2-anthropic-claude-haiku-4-5-2c16c8cc",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:47:08.274408+00:00"
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-chat_policy_block-v3-openai-gpt-5-4-mini-28cab236",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:47:19.871733+00:00"
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "prompt_version": "v3",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-chat_policy_block-v3-anthropic-claude-haiku-4-5-6b7b1c87",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:47:31.501757+00:00"
+    },
+    {
+      "agent_id": "direct_chat",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-nano",
+      "experiment_name": "ae-direct_chat-v1-openai-gpt-5-4-nano-2857680f",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:48:20.160813+00:00"
+    },
+    {
+      "agent_id": "direct_chat",
+      "prompt_version": "v1",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-direct_chat-v1-gemini-gemini-3-1-flash-lite-453b7c7a",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:49:07.766708+00:00"
+    },
+    {
+      "agent_id": "direct_chat",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-nano",
+      "experiment_name": "ae-direct_chat-v2-openai-gpt-5-4-nano-b973e0b3",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:49:55.057561+00:00"
+    },
+    {
+      "agent_id": "direct_chat",
+      "prompt_version": "v2",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-direct_chat-v2-gemini-gemini-3-1-flash-lite-6e351faf",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:50:37.403569+00:00"
+    },
+    {
+      "agent_id": "direct_chat",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-nano",
+      "experiment_name": "ae-direct_chat-v3-openai-gpt-5-4-nano-aff50ecd",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:51:24.590961+00:00"
+    },
+    {
+      "agent_id": "direct_chat",
+      "prompt_version": "v3",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-direct_chat-v3-gemini-gemini-3-1-flash-lite-2d748e97",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-06-29T16:52:08.822255+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-rag_chat_response_generator-v1-anthropic-claude-sonnet-4-6-86b527c6",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T16:53:57.578131+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-rag_chat_response_generator-v1-openai-gpt-5-4-26f77295",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T16:54:59.733906+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-rag_chat_response_generator-v1-gemini-gemini-2-5-flash-4c606e78",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T16:55:52.432919+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-rag_chat_response_generator-v2-anthropic-claude-sonnet-4-6-fc141b03",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T16:57:30.259743+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-rag_chat_response_generator-v2-openai-gpt-5-4-1d74247f",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T16:58:27.610109+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-rag_chat_response_generator-v2-gemini-gemini-2-5-flash-c66ecec4",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T16:59:27.418049+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-rag_chat_response_generator-v3-anthropic-claude-sonnet-4-6-9775cf2a",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T17:01:02.239629+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-rag_chat_response_generator-v3-openai-gpt-5-4-e5cb62a3",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T17:01:57.021159+00:00"
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-rag_chat_response_generator-v3-gemini-gemini-2-5-flash-451b60a9",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-06-29T17:02:53.452876+00:00"
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "prompt_version": "v1",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-chat_summarizer-v1-anthropic-claude-haiku-4-5-9818deb7",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-06-29T17:03:43.853457+00:00"
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "prompt_version": "v1",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-chat_summarizer-v1-gemini-gemini-3-1-flash-lite-21b86c1d",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-06-29T17:04:19.260443+00:00"
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "prompt_version": "v2",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-chat_summarizer-v2-anthropic-claude-haiku-4-5-d44a588e",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-06-29T17:05:16.414498+00:00"
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "prompt_version": "v2",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-chat_summarizer-v2-gemini-gemini-3-1-flash-lite-6f136684",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-06-29T17:05:55.108491+00:00"
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "prompt_version": "v3",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-chat_summarizer-v3-anthropic-claude-haiku-4-5-6384d9e6",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-06-29T17:06:46.827083+00:00"
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "prompt_version": "v3",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-chat_summarizer-v3-gemini-gemini-3-1-flash-lite-84172529",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-06-29T17:07:30.448356+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-hallucination_guard_retry-v1-openai-gpt-5-4-1ff192f4",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-29T17:08:09.872011+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-hallucination_guard_retry-v1-anthropic-claude-sonnet-4-6-ca13bdf0",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-29T17:09:02.509552+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-hallucination_guard_retry-v1-gemini-gemini-2-5-flash-040a24df",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-29T17:09:36.044607+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-hallucination_guard_retry-v2-openai-gpt-5-4-5c8a9977",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-29T17:09:57.411862+00:00"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-hallucination_guard_retry-v2-anthropic-claude-sonnet-4-6-5407a05e",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-06-29T17:10:09.068228+00:00"
+    }
+  ],
+  "updated_at": "2026-06-29T17:10:09.068228+00:00"
+}

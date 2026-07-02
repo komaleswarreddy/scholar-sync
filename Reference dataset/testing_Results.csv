@@ -1,0 +1,278 @@
+nec S.No,Agent Name,Agent ID,Models Completed,Models Pending,Prompts Completed,Prompts Pending,Workspace Tenant(s),Gmail Account(s),Gmail Password,LangSmith Compare Links,LangSmith Dataset ID,Primary Workspace Tenant,Run Issues / Notes
+1,Intent Classifier,intent_classifier,"3/3 completed — claude-haiku-4-5, gpt-5-mini, gpt-5.4-mini",none (all planned models done),"3/3 completed — v1, v2, v3",none (all prompts done),15d476d5-df92-4760-96b8-52f9130946bf; 47ca8a69-43eb-4f05-812b-c7778fe6987d,pscmrmindssprint2k25@gmail.com; scombinator26@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/datasets/295b86be-1402-43ff-939d-538344ae7905/compare?selectedSessions=6258031a-b1fe-410b-a193-5756ddc1e50e
+
+https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/datasets/295b86be-1402-43ff-939d-538344ae7905/compare?selectedSessions=66de2add-cbc6-46e2-8883-71014dee19f4
+
+https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/datasets/295b86be-1402-43ff-939d-538344ae7905/compare?selectedSessions=b67c4004-8999-49ba-8f7c-34a24ba59f99
+
+https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/datasets/295b86be-1402-43ff-939d-538344ae7905/compare?selectedSessions=c1e40e8c-2feb-4496-bc5f-ba69cf8f3dc2
+
+https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/datasets/295b86be-1402-43ff-939d-538344ae7905/compare?selectedSessions=7f25fb37-a8fa-4441-a44c-f23ab981e236
+
+https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/datasets/295b86be-1402-43ff-939d-538344ae7905/compare?selectedSessions=38d08c81-9087-41fb-9019-0022f1fc4d0f
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/25a26198-362b-4f9c-a2c9-727e3e1a4620/compare?selectedSessions=5c7c1b52-f287-4f3c-b7ee-759ce1ade121
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/25a26198-362b-4f9c-a2c9-727e3e1a4620/compare?selectedSessions=6774c129-7a52-4200-b3ec-a50b2d09e7f3
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/25a26198-362b-4f9c-a2c9-727e3e1a4620/compare?selectedSessions=e53130d3-481f-4dc0-9dc2-5794ab321ac8",295b86be-1402-43ff-939d-538344ae7905,15d476d5-df92-4760-96b8-52f9130946bf,9/9 complete — gpt-5.4-mini + claude-haiku-4-5 on pscmrmindssprint2k25; gpt-5-mini on scombinator26 (63/63 outputs each).
+2,Query Rewriter,query_rewriter,"2/2 completed — claude-haiku-4-5, gpt-5-mini",gemini-2.5-flash-lite,"3/3 completed — v1, v2, v3",none (all prompts done),47ca8a69-43eb-4f05-812b-c7778fe6987d,scombinator26@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/84a1c3ca-4fee-4806-8e29-0eca58633d1f/compare?selectedSessions=15c8a6af-d8d9-4c82-85fd-7c85279b124c
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/1639fdf1-4885-4798-aa90-fc324bf063a6/compare?selectedSessions=5e08e856-f83d-4c2f-a13f-313da0ac435e
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/84a1c3ca-4fee-4806-8e29-0eca58633d1f/compare?selectedSessions=676f122a-94bf-48ac-9822-5024780c7ac9
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/84a1c3ca-4fee-4806-8e29-0eca58633d1f/compare?selectedSessions=64a85056-5b60-4fdf-8853-36d86f117787
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/84a1c3ca-4fee-4806-8e29-0eca58633d1f/compare?selectedSessions=4b1e3d22-b8fc-459d-ad29-2663efa79303
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/84a1c3ca-4fee-4806-8e29-0eca58633d1f/compare?selectedSessions=ce775c9b-f80c-4a8d-b6e4-c57d7f3a51e6",84a1c3ca-4fee-4806-8e29-0eca58633d1f,47ca8a69-43eb-4f05-812b-c7778fe6987d,"6/6 runtime complete (56/56 each). v1/gpt-5-mini re-run on gra7399 (scombinator26 trace-capped). | v1/gemini-2.5-flash-lite: PARTIAL OUTPUT 43/56 (empty rows — needs re-run) | v2/gemini-2.5-flash-lite: PARTIAL OUTPUT 34/56 (empty rows — needs re-run) | GEMINI SKIPPED — gemini-2.5-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent query_rewriter | v1/gemini-2.5-flash-lite: cannot read runs (Project ae-query_rewriter-v1-gemini-gemini-2-5-flash-lite-4a9fa172 not found) | v2/gemini-2.5-flash-lite: cannot read runs (Project ae-query_rewriter-v2-gemini-gemini-2-5-flash-lite-cb5a1432 not found)"
+3,Query Decomposer,query_decomposer,"3/2 completed — claude-haiku-4-5, gemini-2.5-flash, gpt-5-mini",gemini-2.5-flash,"3/3 completed — v1, v2, v3",none (all prompts done),47ca8a69-43eb-4f05-812b-c7778fe6987d,scombinator26@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/8951e898-1021-4c0d-8b8c-875ee08b9eed/compare?selectedSessions=8f6c5d95-cdd5-4a5f-972a-70ff48e70204
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/c3328aa5-c137-4e01-a6e8-02054d4ce5ed/compare?selectedSessions=b4537a6a-50fb-4ac4-afa4-af355b55d54a
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/8951e898-1021-4c0d-8b8c-875ee08b9eed/compare?selectedSessions=b263a443-be16-40ed-84ad-6931fb320375
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/c3328aa5-c137-4e01-a6e8-02054d4ce5ed/compare?selectedSessions=f90327f6-582c-4f8a-bc0d-8220608c103a
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/c3328aa5-c137-4e01-a6e8-02054d4ce5ed/compare?selectedSessions=62a76975-0615-4f9a-a5bf-23e9c3da654d
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/99c0d70c-b7da-49bf-9793-843c35e35a1c/compare?selectedSessions=d27fd3df-a832-4ec3-aac5-455b95faad4e
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/c3328aa5-c137-4e01-a6e8-02054d4ce5ed/compare?selectedSessions=e54c94e1-4961-4661-b065-d95a2725516e
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/c3328aa5-c137-4e01-a6e8-02054d4ce5ed/compare?selectedSessions=07b34c7f-84e7-49e6-8628-5afe03d05206
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/99c0d70c-b7da-49bf-9793-843c35e35a1c/compare?selectedSessions=b979d9da-6815-445a-8216-94c4158c76e8",c3328aa5-c137-4e01-a6e8-02054d4ce5ed,47ca8a69-43eb-4f05-812b-c7778fe6987d,"GEMINI SKIPPED — gemini-2.5-flash: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent query_decomposer | GEMINI SKIPPED — gemini-2.5-flash: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent query_decomposer"
+4,Scope Narrower,scope_narrower,"2/2 completed — claude-haiku-4-5, gpt-5-mini",gemini-2.5-flash-lite,"3/3 completed — v1, v2, v3",none (all prompts done),47ca8a69-43eb-4f05-812b-c7778fe6987d,scombinator26@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/02275774-755e-45fa-aa0f-3f64c1cfc0b1/compare?selectedSessions=91ed9afd-a5d6-4ced-80c5-bfffa84b499e
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626db1f0-b9db-4a84-a0ed-50f3f23a533a/compare?selectedSessions=f2632cb1-25aa-4def-b5f2-dc6b80c6f3f9
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/02275774-755e-45fa-aa0f-3f64c1cfc0b1/compare?selectedSessions=8e25a242-5520-4ff5-8479-5d52c29591e5
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626db1f0-b9db-4a84-a0ed-50f3f23a533a/compare?selectedSessions=799e3612-2fb1-4aa6-b173-4c885d2b4c4b
+
+https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/02275774-755e-45fa-aa0f-3f64c1cfc0b1/compare?selectedSessions=3635c682-cd0d-4cd7-a58b-cbba6bb1146a
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626db1f0-b9db-4a84-a0ed-50f3f23a533a/compare?selectedSessions=52a898c4-3155-45b4-9f2a-240e2f1ff3f9",02275774-755e-45fa-aa0f-3f64c1cfc0b1,47ca8a69-43eb-4f05-812b-c7778fe6987d,"v1/gemini-2.5-flash-lite: PARTIAL OUTPUT 21/25 (empty rows — needs re-run) | v2/gemini-2.5-flash-lite: PARTIAL OUTPUT 22/25 (empty rows — needs re-run) | v3/gemini-2.5-flash-lite: PARTIAL OUTPUT 17/25 (empty rows — needs re-run) | GEMINI SKIPPED — gemini-2.5-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent scope_narrower | v1/gemini-2.5-flash-lite: cannot read runs (Project ae-scope_narrower-v1-gemini-gemini-2-5-flash-lite-1530fa6d not found) | v2/gemini-2.5-flash-lite: cannot read runs (Project ae-scope_narrower-v2-gemini-gemini-2-5-flash-lite-ca4a3a66 not found) | v3/gemini-2.5-flash-lite: cannot read runs (Project ae-scope_narrower-v3-gemini-gemini-2-5-flash-lite-7e2715aa not found)"
+5,Direct Chat,direct_chat,"2/1 completed — gemini-3.1-flash-lite, gpt-5.4-nano",gemini-3.1-flash-lite; gemini-2.5-flash-lite,"3/3 completed — v1, v2, v3",none (all prompts done),aafff4b5-45a3-4448-9f7d-805bfc70098d,emaildam3@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/e3f9e470-cdb8-4400-a079-aa9411f0117d/compare?selectedSessions=ab99feb5-85d1-4bf8-823c-2e9495ec85fb
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/e3f9e470-cdb8-4400-a079-aa9411f0117d/compare?selectedSessions=073c1318-9e79-421b-8845-4c80adb0255e
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/e3f9e470-cdb8-4400-a079-aa9411f0117d/compare?selectedSessions=42d5e5ad-e281-4826-bb7e-9ac6a2bf772d
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/e3f9e470-cdb8-4400-a079-aa9411f0117d/compare?selectedSessions=a9de4a9c-f232-4a8c-b374-76a4a7cbf052
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/e3f9e470-cdb8-4400-a079-aa9411f0117d/compare?selectedSessions=66e56d44-5a3b-4a2a-a32a-30123b122c06
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/e3f9e470-cdb8-4400-a079-aa9411f0117d/compare?selectedSessions=cfbb5d59-e676-4107-a7da-f725def67dc3",e3f9e470-cdb8-4400-a079-aa9411f0117d,aafff4b5-45a3-4448-9f7d-805bfc70098d,"GEMINI SKIPPED — gemini-2.5-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent direct_chat"
+6,Chat Summarizer,chat_summarizer,"2/1 completed — claude-haiku-4-5, gemini-3.1-flash-lite",gemini-2.5-flash-lite; gemini-3.1-flash-lite,"3/3 completed — v1, v2, v3",none (all prompts done),aafff4b5-45a3-4448-9f7d-805bfc70098d,emaildam3@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/813c16ca-3306-4204-9662-c34bca691b95/compare?selectedSessions=dcfa0e5e-ebfa-419d-b283-dad34420f85d
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/813c16ca-3306-4204-9662-c34bca691b95/compare?selectedSessions=038a2e57-5e7c-4b40-b54b-545490614508
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/813c16ca-3306-4204-9662-c34bca691b95/compare?selectedSessions=c6ca0af4-6503-4345-8662-cac286b62c9a
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/813c16ca-3306-4204-9662-c34bca691b95/compare?selectedSessions=25e401f2-f032-478e-9395-0abf462e7bad
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/813c16ca-3306-4204-9662-c34bca691b95/compare?selectedSessions=72dfb819-6532-4c8a-89ed-2d12b1b17ea2
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/813c16ca-3306-4204-9662-c34bca691b95/compare?selectedSessions=7f50f850-fe7d-4048-827a-26c081fbccb8",813c16ca-3306-4204-9662-c34bca691b95,aafff4b5-45a3-4448-9f7d-805bfc70098d,"GEMINI SKIPPED — gemini-2.5-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent chat_summarizer"
+7,RAG Chat Response Generator,rag_chat_response_generator,"3/2 completed — claude-sonnet-4-6, gemini-2.5-flash, gpt-5.4",gemini-2.5-flash,"3/3 completed — v1, v2, v3",none (all prompts done),aafff4b5-45a3-4448-9f7d-805bfc70098d,emaildam3@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=48703da3-8673-4771-ba00-7f8dcfacff9d
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=933e9dcd-10a0-4ee3-ae89-91d28f19d7f3
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=8f3eb860-160d-4a67-82dc-9fcba0897dfe
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=179c3f53-15c6-4263-8c60-cd5f11aed69e
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=4b9f5685-9634-4393-9215-401037303760
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=dba4ec6a-c73f-4717-93fb-bd482c4cbe56
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=f2addd13-92dc-45b5-86d3-5946c272a450
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=f5958ea0-5a93-4c80-b16a-bf616bb6fcf3
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7/compare?selectedSessions=bdff7342-b519-4431-9298-234f9e9604cd",626b2e4e-dcc5-4610-ad1f-5fd2e66fefc7,aafff4b5-45a3-4448-9f7d-805bfc70098d,All runtime models: 100% output fill on dedicated workspace.
+8,Studio System JSON,studio_system_json,"3/2 completed — gemini-2.5-flash, gpt-5-mini, gpt-5.4-mini",gemini-2.5-flash,"3/3 completed — v1, v2, v3",none (all prompts done),67272628-c819-44db-bbda-e500db0d6982,gra7399@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=94e85f34-df0b-4b0c-97dc-bdf0d2c08877
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=4080bc3f-19e5-4bf1-82a5-cb9850cfbc35
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=de9a59db-6e1f-4d4d-93c2-bad424341a00
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=d02967b8-76bb-4eb9-81ec-ea3f6430fd82
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=a050287d-20c2-4867-8c88-f24a53091a6c
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=35d49f3f-aa21-4b91-ab7f-44b90311f446
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=7873fd86-c350-4e29-ac27-7ee6087766b7
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=280aca72-990c-40ef-a63d-5ef07a02bd07
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ce80306d-aaf4-420c-929f-12f3fc4d7e25/compare?selectedSessions=59ca65df-3603-4de9-b6a1-101e467b2393",ce80306d-aaf4-420c-929f-12f3fc4d7e25,67272628-c819-44db-bbda-e500db0d6982,All runtime models: 100% output fill on dedicated workspace.
+9,Studio Quiz,studio_quiz,"2/2 completed — gpt-5-mini, gpt-5.4-mini",gemini-2.5-flash,"3/3 completed — v1, v2, v3",none (all prompts done),67272628-c819-44db-bbda-e500db0d6982,gra7399@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/5d6d7d20-a35f-4cf4-b0bc-1f811ce3c8c3/compare?selectedSessions=05adc530-67e8-492e-8fff-f097e0825b68
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/5d6d7d20-a35f-4cf4-b0bc-1f811ce3c8c3/compare?selectedSessions=d1d28a4a-a1da-41f2-9bd8-f10fbdb1b006
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/5d6d7d20-a35f-4cf4-b0bc-1f811ce3c8c3/compare?selectedSessions=7410757a-eb98-470d-9ce3-270141854002
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/5d6d7d20-a35f-4cf4-b0bc-1f811ce3c8c3/compare?selectedSessions=a86242d0-a9ed-48ac-9ade-49108fc6cb21
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/5d6d7d20-a35f-4cf4-b0bc-1f811ce3c8c3/compare?selectedSessions=7c26b0e7-3203-4d5a-8d8c-9531b7e7effa
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/5d6d7d20-a35f-4cf4-b0bc-1f811ce3c8c3/compare?selectedSessions=aea90037-dac6-4531-a9fc-60296dead108",5d6d7d20-a35f-4cf4-b0bc-1f811ce3c8c3,67272628-c819-44db-bbda-e500db0d6982,"6/6 runtime combos verified — 100% output fill on LangSmith (all examples scored). | GEMINI SKIPPED — gemini-2.5-flash: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent studio_quiz"
+10,Studio Flashcards,studio_flashcards,1/1 completed — gpt-5.4-mini,gemini-2.5-flash; gemini-3.1-flash-lite,"3/3 completed — v1, v2, v3",none (all prompts done),33d88f33-0349-4117-89c6-5d0d56252773,sui332307@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/ed0b1f2a-6909-42c0-bb19-706d07713f6f/compare?selectedSessions=fd4b6c82-126a-4d91-b1db-fd383e0c1119
+
+https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/datasets/ab1e1a1d-f913-4798-8850-7c79653f788c/compare?selectedSessions=4a2bfbcf-7923-4d36-9f57-750ac64f5d5c
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/ed0b1f2a-6909-42c0-bb19-706d07713f6f/compare?selectedSessions=8e578648-6a2f-45d6-84c1-7a487bd19a22",ed0b1f2a-6909-42c0-bb19-706d07713f6f,33d88f33-0349-4117-89c6-5d0d56252773,"3/3 runtime combos verified — 100% output fill on LangSmith (all examples scored). | GEMINI SKIPPED — gemini-2.5-flash: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent studio_flashcards | GEMINI SKIPPED — gemini-3.1-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent studio_flashcards"
+11,Studio Mind Map,studio_mind_map,"3/2 completed — claude-haiku-4-5, gemini-2.5-flash, gpt-5.4-mini",gemini-2.5-flash,"3/3 completed — v1, v2, v3",none (all prompts done),33d88f33-0349-4117-89c6-5d0d56252773,sui332307@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=12fbc4c8-68f5-4028-a028-bd7b8aa1c5b6
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=6d3fb084-e3f8-4fa1-babd-0cc69311eb23
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=841654e6-bad7-491a-b28a-96c172620ae0
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=927d5f64-bc77-43e7-8e16-834652c9ae59
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=78c0dd34-7d7e-4ff4-8c20-08d6fe66d5d9
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=0bb7f478-da2f-4b48-82f2-35cc8d01d696
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=06762860-fdc9-4e8f-bc2b-6f26d37415db
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=68cc7ecd-e1dc-4bc7-ac80-f64547584fe4
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/85b7f4ee-2126-44c2-9f31-af7584fdc28e/compare?selectedSessions=af8df55c-5556-4e51-9556-b62779c4aa27",85b7f4ee-2126-44c2-9f31-af7584fdc28e,33d88f33-0349-4117-89c6-5d0d56252773,All runtime models: 100% output fill on dedicated workspace.
+12,Studio Slide Deck,studio_slide_deck,"3/2 completed — gemini-2.5-flash, gpt-5-mini, gpt-5.4",gemini-2.5-flash,"3/3 completed — v1, v2, v3",none (all prompts done),33d88f33-0349-4117-89c6-5d0d56252773,sui332307@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=f74e5758-d2a1-44d9-b8b5-f106d870039d
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=0b5aa23e-583c-44ad-a3c9-68cb7f000d24
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=2de33dcc-50f1-48fd-b12d-9d7bb9b19bc4
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=95ac9c28-e946-435c-8b1e-4282aadf1575
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=40fd058b-497d-4efe-8464-3990b0d03183
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=35ccb64f-6897-4d16-8bb4-30f4cc678796
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=647929b0-8505-41b0-97f3-a6d3543909ad
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=d11a6928-03df-423a-aac2-794985c62ae3
+
+https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/datasets/d7a057aa-284a-4dd8-86d4-ab0d0926e3c8/compare?selectedSessions=e12b48b5-2ed5-4fd6-b6a8-8e403b7919d1",d7a057aa-284a-4dd8-86d4-ab0d0926e3c8,33d88f33-0349-4117-89c6-5d0d56252773,All runtime models: 100% output fill on dedicated workspace.
+13,Studio Fallback Legacy,studio_fallback_legacy,"3/1 completed — gemini-2.5-flash-lite, gemini-3.1-flash-lite, gpt-5.4-nano",gemini-3.1-flash-lite; gemini-2.5-flash-lite,"3/3 completed — v1, v2, v3",none (all prompts done),03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b,eskomal66@gmail.com,asdfvbnm1234,"https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/6b9c897c-893c-4ce4-b03f-379a7c46acc4/compare?selectedSessions=28406d65-94b5-4412-8224-49838dc0fe7c
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/6b9c897c-893c-4ce4-b03f-379a7c46acc4/compare?selectedSessions=76677464-707d-4c4d-a379-dee75e5f6643
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/6b9c897c-893c-4ce4-b03f-379a7c46acc4/compare?selectedSessions=1e1eb822-19d0-45d4-b1a0-a6dbffd57cdf
+
+https://smith.langchain.com/o/03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b/datasets/c2a6c1e7-7297-4ff1-ab3c-2be5712a9076/compare?selectedSessions=decf05a3-a427-4a2b-ae0a-2f37a7086103
+
+https://smith.langchain.com/o/03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b/datasets/c2a6c1e7-7297-4ff1-ab3c-2be5712a9076/compare?selectedSessions=608d9cde-e34f-49a0-867e-3b483596912c
+
+https://smith.langchain.com/o/aafff4b5-45a3-4448-9f7d-805bfc70098d/datasets/6b9c897c-893c-4ce4-b03f-379a7c46acc4/compare?selectedSessions=a64d607e-8503-4bce-b81b-69f31ab437fc
+
+https://smith.langchain.com/o/03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b/datasets/c2a6c1e7-7297-4ff1-ab3c-2be5712a9076/compare?selectedSessions=70fbf3ff-8661-4aa7-9f7d-5afc4e48c159
+
+https://smith.langchain.com/o/03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b/datasets/c2a6c1e7-7297-4ff1-ab3c-2be5712a9076/compare?selectedSessions=3ff2fd8a-47d0-44d5-8c3b-234e4d972814
+
+https://smith.langchain.com/o/03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b/datasets/c2a6c1e7-7297-4ff1-ab3c-2be5712a9076/compare?selectedSessions=ca1d4933-eb50-4c81-94d8-27708fd95b95",c2a6c1e7-7297-4ff1-ab3c-2be5712a9076,03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b,"GEMINI SKIPPED — gemini-3.1-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent studio_fallback_legacy | GEMINI SKIPPED — gemini-2.5-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent studio_fallback_legacy | GEMINI SKIPPED — gemini-3.1-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent studio_fallback_legacy | GEMINI SKIPPED — gemini-2.5-flash-lite: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent studio_fallback_legacy"
+14,Problem DNA Analyzer,problem_dna_analyzer,9/9 completed — gpt-5.4-mini + gpt-5.4 × v1/v2/v3 (OK); claude-sonnet-4-6 × v1/v2/v3 (rerun OK on shivaprapulsp after Anthropic limit fixed),none (all combos done),"3/3 completed — v1, v2, v3",none (all prompts done),6fb8fab2-fc02-49fb-ad42-5df052958213; c997e411-7986-45a4-991c-db218a869d43,shivaprapul550@gmail.com; shivaprapul.sp@gmail.com,Password@123,"https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/6b934edf-f05c-4a3f-bb9d-ea63a1230c1c/compare?selectedSessions=41ba4fab-d541-43a3-81a4-5fa351c5093a
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/6b934edf-f05c-4a3f-bb9d-ea63a1230c1c/compare?selectedSessions=cd2e501c-9152-4bdf-9eaa-14e96bc98613
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=93abcd7f-2290-4ffd-91e6-54dffdddb5f3
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/6b934edf-f05c-4a3f-bb9d-ea63a1230c1c/compare?selectedSessions=7106be2a-a2f4-4738-9038-dd487d8e3dd8
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/6b934edf-f05c-4a3f-bb9d-ea63a1230c1c/compare?selectedSessions=7be2b7cf-de44-49b0-9ceb-e5c7b521e1d6
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=aa1caa34-a4f4-4555-8c0b-cefc48039370
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=2e17bf9c-4497-4e9a-a1f3-08b7473e2c79
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=1f5c472c-df97-42ba-8ec0-f705fd696d43
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=bfb4c1f9-6f59-47cd-9316-1ccc22107b18",6b934edf-f05c-4a3f-bb9d-ea63a1230c1c (v1-v2 OpenAI); 0ec56467-f8c3-4248-b7bb-202b444a7d97 (v1-v3 claude + v3 OpenAI),c997e411-7986-45a4-991c-db218a869d43,9/9 combos complete. gpt-5.4-mini + gpt-5.4 ran on shivaprapul550 (dataset 6b934edf). claude-sonnet-4-6 × v1/v2/v3 + gpt-5.4-mini/gpt-5.4 × v3 rerun on shivaprapulsp (dataset 0ec56467) after Anthropic monthly limit was fixed. All outputs OK.
+v1/gpt-5.4:             https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=9628bbab-a670-4ea5-8d6f-d72089d543cb
+v1/claude-sonnet-4-6:   https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=1034f339-9254-45cb-af51-efbc5e0db51f
+v2/gpt-5.4-mini:        https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=58963d15-767b-4e85-9811-1c1751ba44d5
+v2/gpt-5.4:             https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=06e712ab-d405-4093-ad38-4a1e91e9f20b
+v2/claude-sonnet-4-6:   https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=98333241-5bed-4b15-94d9-59632fa24674
+v3/gpt-5.4-mini:        https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=09646911-f210-4ec0-a4d2-2d2101aece21
+v3/gpt-5.4:             https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=0c583c5a-1377-435f-8d30-dfa613a89e9f
+"v3/claude-sonnet-4-6:   https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/3884fde6-91ed-424e-aed4-41ad68ce53b3/compare?selectedSessions=28ea58f0-78e7-4601-8577-e6e8144c3eaa""",3884fde6-91ed-424e-aed4-41ad68ce53b3,9fced417-9e4c-442f-bcda-d11a78caaec8,9/9 combos COMPLETE on citizena45 (fresh run with all 6 evaluator bugs fixed + MAX_TOKENS=3000). v3/claude-sonnet-4-6 combo 9: Anthropic API hit monthly limit (example 28/30 may have empty output — Anthropic resets 2026-08-01). Previous partial runs on eskomal66 (03ba6fa5) are superseded and not used.
+15,Whole File Reduce,whole_file_reduce,"3/3 completed — gpt-5.4, gemini-2.5-flash, gpt-5-mini",none (all planned models done),"3/3 completed — v1, v2, v3",none (all prompts done),6fb8fab2-fc02-49fb-ad42-5df052958213,shivaprapul550@gmail.com,Password@123,"https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=0dc0b570-d18f-46e3-8045-4403cae84be1
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=22bf3055-2e8f-41e4-a81d-270e1f976d23
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=b7cded82-8722-45fa-a665-1554a6b2a4d7
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=0cc106e8-1e3e-4a69-8293-0842064b8c87
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=1156e2d4-08a2-4399-801b-d83e02451464
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=567db4d8-cd41-46e8-a3a1-7bfb8bd1c621
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=5e0d668f-46fe-4bd5-ba2c-1e9f5bbb5fa2
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=db3068bd-2624-4e0d-a217-9ccfe1c8bf02
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=b67042b9-b552-4200-9952-5de3c77ca914",4c9ac445-801b-4d95-bb94-86e3b945aa5c,6fb8fab2-fc02-49fb-ad42-5df052958213,9/9 combos complete on shivaprapul550. Gemini (gemini-2.5-flash) ran successfully. No Anthropic models in this agent.
+v1/gpt-5-mini:       https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=f16ac199-bf3f-4c8d-84ad-7b37eec98625
+v1/gemini-2.5-flash: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=623b4ef5-9415-463a-b84f-96c170d56f7e
+v2/gpt-5.4:          https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=cde7e957-5714-4a5e-8c0f-af5dcd0d128b
+v2/gpt-5-mini:       https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=3a9febf6-2052-4f92-ad52-cd3a80d3aa47
+v2/gemini-2.5-flash: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=9ec13256-a4ce-4277-a753-f5d103f8c836
+v3/gpt-5.4:          https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=998d52c5-69d0-4523-b0d1-796760881e69
+v3/gpt-5-mini:       https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=ebc7162e-ec28-4a0a-ae1e-94630bceb9c8
+"v3/gemini-2.5-flash: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=da4c8bd0-773a-45af-bcdb-591b71581c17""",ab6845e9-eec2-42ac-b727-269852bf480c,9fced417-9e4c-442f-bcda-d11a78caaec8,9/9 combos COMPLETE on citizena45 (fresh run — SOP followed: bugs fixed + verified before run). gemini-2.5-flash passed health check and ran all 3 prompt versions successfully. Previous partial runs on sujithgundala97 superseded.
+16,Whole File Map Summarizer,whole_file_map_summarizer,"3/3 completed — gpt-5.4-mini, gemini-3.1-flash-lite, gpt-5-nano",none (all planned models done),"3/3 completed — v1, v2, v3",none (all prompts done),d28c3c60-acaf-4c17-af45-a056921cdb06,komaleswarreddy@gmail.com,,"https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=fb791a4a-c996-4e46-a617-a97edbb57a4e
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=b6f61a9c-fb90-4da3-a32d-8eecc0c37f2c
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=ba8a7c35-c06c-4c9f-83cd-00eff47d3084
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=6a0ba02f-afce-491b-9c0d-5c727f15256b
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=11067a5c-b186-4496-9735-37ae89719b84
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=021d78ea-ea1a-402d-8214-fe004b570f54
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=1ae75eab-4a1e-4fd0-80ad-5005a489b104
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=f107f620-1f9d-4714-a2d8-596ed4d71408
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8f00c153-f639-44e3-9c29-fc9170a6ca77/compare?selectedSessions=94b49144-7543-433d-ae86-6017cae90078",8f00c153-f639-44e3-9c29-fc9170a6ca77,d28c3c60-acaf-4c17-af45-a056921cdb06,"9/9 combos COMPLETE on komaleswarreddy (13/13 fill, 0 errors). Fixes: parts injected into user prompt, json_mode removed, parser hardened. Judge=gpt-4o. Prior shivaprapul550/citizena45 runs superseded (0/13 empty outputs)."
+17,Explain From Basics,explain_from_basics,"1/3 completed — gpt-5.4 (30/30 all prompts)","claude-sonnet-4-6 (partial); gemini-3.5-flash (partial)","3/3 completed — v1, v2, v3",none (all prompts done),d28c3c60-acaf-4c17-af45-a056921cdb06,komaleswarreddy@gmail.com,,"https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=e9993a62-e82e-4e46-b21d-baaa6c9de282
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=cd51ca17-c011-47c6-bf85-575127c66b26
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=4c7bd3d3-d0c4-4a2f-ab40-99f41f961383
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=4edc7bef-dbdf-435f-b95e-fb3d1169666c
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=5adf16d0-b635-4bb4-9270-b2b369d58248
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=7ef4e256-925c-4128-b45b-b3f0e8f73546
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=fdfd8029-adc4-4f80-a4c6-2c75593aee11
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=f462e0c3-aa06-47f1-884c-4427932461eb
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=6b9c507d-8587-4138-b20d-d7e04eaaa7ba",5a1ef3eb-c70a-40f3-867c-40b28d5a869f,d28c3c60-acaf-4c17-af45-a056921cdb06,"9/9 combos RUN on komaleswarreddy (2026-07-02). FULL 30/30: v1/v2/v3 gpt-5.4. PARTIAL: v1/claude 28/30, v2/claude 26/30, v1/gemini 28/30, v2/gemini 29/30, v3/gemini 29/30. FAILED: v3/claude 0/30 (Anthropic credit balance too low — empty outputs). Fixes applied in repo: max_tokens=8000, lenient coach_json parser for LaTeX escapes — re-run needed for partial combos. Judge=gpt-4o. Prior shivaprapul550/sp runs superseded."
+18,Show Best Approach,show_best_approach,"1/3 completed — gpt-5.4 (30/30 all prompts)","gemini-3.1-pro (SKIPPED — model 404 not found; config updated to gemini-3.5-flash, not yet run); claude-sonnet-4-6 (partial)","3/3 completed — v1, v2, v3",none (all prompts done),d28c3c60-acaf-4c17-af45-a056921cdb06,komaleswarreddy@gmail.com,,"https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8dbb9006-8d61-4188-a5d8-2049f04cfaf3/compare?selectedSessions=d152f93f-a072-4993-845c-5ff74428c86a
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8dbb9006-8d61-4188-a5d8-2049f04cfaf3/compare?selectedSessions=d2b6bb35-28cd-4832-845c-6c33750e48ce
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8dbb9006-8d61-4188-a5d8-2049f04cfaf3/compare?selectedSessions=7f2acf30-41d3-4171-aa13-276be9ae6546
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8dbb9006-8d61-4188-a5d8-2049f04cfaf3/compare?selectedSessions=e2331994-b492-4840-abae-385c94706bc8
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8dbb9006-8d61-4188-a5d8-2049f04cfaf3/compare?selectedSessions=b1e8f147-49e2-46d7-8feb-b553a4e0e128
+
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/8dbb9006-8d61-4188-a5d8-2049f04cfaf3/compare?selectedSessions=d42d9c80-50b1-4b56-9efb-a262ae22dee7",8dbb9006-8d61-4188-a5d8-2049f04cfaf3,d28c3c60-acaf-4c17-af45-a056921cdb06,"6/9 combos RUN on komaleswarreddy (2026-07-02). FULL 30/30: v1/v2/v3 gpt-5.4. PARTIAL: v1/claude 27/30, v2/claude 25/30. FAILED: v3/claude 0/30 (Anthropic credits exhausted). GEMINI SKIPPED — gemini-3.1-pro HTTP 404 (model not found); agent_models.json updated to gemini-3.5-flash pending re-run. Fixes in repo: max_tokens=8000, lenient coach_json parser — re-run needed. Judge=gpt-4o. Prior cursemes9 runs superseded."
+19,Show Missing Idea,show_missing_idea,0/2 completed — none,gemini-3.5-flash; gpt-5.4; claude-sonnet-4-6,0/3 completed — none,"v1, v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,,894b6e87-01b5-4c22-804a-34934044c0be,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,"v1/gpt-5.4: PARTIAL OUTPUT 29/30 (empty rows — needs re-run) | v1/claude-sonnet-4-6: PARTIAL OUTPUT 29/30 (empty rows — needs re-run) | v2/gpt-5.4: PARTIAL OUTPUT 28/30 (empty rows — needs re-run) | v2/claude-sonnet-4-6: PARTIAL OUTPUT 28/30 (empty rows — needs re-run) | v3/gpt-5.4: PARTIAL OUTPUT 27/30 (empty rows — needs re-run) | v3/claude-sonnet-4-6: PARTIAL OUTPUT 27/30 (empty rows — needs re-run) | GEMINI SKIPPED — gemini-3.5-flash: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent show_missing_idea | MISSING — v1/gpt-5.4: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v2/gpt-5.4: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v3/gpt-5.4: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v1/claude-sonnet-4-6: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v2/claude-sonnet-4-6: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v3/claude-sonnet-4-6: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7"
+20,NCERT Document Sketch,ncert_document_sketch,"2/3 completed — claude-haiku-4-5, gpt-5.4-mini",gpt-5-mini,"3/3 completed — v1, v2, v3",none (all prompts done),ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,"https://smith.langchain.com/o/ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7/datasets/61abca7e-7a3a-4239-b67f-606e8fb05440/compare?selectedSessions=10b2e480-1d16-478b-a887-4f9a55bc5a6e
+
+https://smith.langchain.com/o/ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7/datasets/61abca7e-7a3a-4239-b67f-606e8fb05440/compare?selectedSessions=37762d7e-b372-461e-8435-00095fb131c0
+
+https://smith.langchain.com/o/ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7/datasets/61abca7e-7a3a-4239-b67f-606e8fb05440/compare?selectedSessions=89ad1e54-8ba6-4e14-a92e-77b9dbb24b6e
+
+https://smith.langchain.com/o/ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7/datasets/61abca7e-7a3a-4239-b67f-606e8fb05440/compare?selectedSessions=b2600178-8aa3-42bb-b4fb-0a4eab871530
+
+https://smith.langchain.com/o/ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7/datasets/61abca7e-7a3a-4239-b67f-606e8fb05440/compare?selectedSessions=3cf9bf15-dbcd-44fe-8a4f-cd73ceed998e
+
+https://smith.langchain.com/o/ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7/datasets/61abca7e-7a3a-4239-b67f-606e8fb05440/compare?selectedSessions=038f3edd-16b1-4add-8eaf-1914801f56db",61abca7e-7a3a-4239-b67f-606e8fb05440,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,v1/gpt-5-mini: PARTIAL OUTPUT 4/13 (empty rows — needs re-run) | v2/gpt-5-mini: PARTIAL OUTPUT 1/13 (empty rows — needs re-run) | v3/gpt-5-mini: PARTIAL OUTPUT 3/13 (empty rows — needs re-run) | MISSING — v1/gpt-5-mini: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v2/gpt-5-mini: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v3/gpt-5-mini: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7
+21,Help Me Solve It,help_me_solve_it,0/2 completed — none,gemini-3.1-pro; gpt-5.4; claude-sonnet-4-6,0/3 completed — none,"v1, v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,,7ea61a2d-cb6f-4d33-ba75-f39876d84ba4,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,"v1/gpt-5.4: PARTIAL OUTPUT 29/30 (empty rows — needs re-run) | v1/claude-sonnet-4-6: PARTIAL OUTPUT 22/30 (empty rows — needs re-run) | v2/gpt-5.4: PARTIAL OUTPUT 24/29 (empty rows — needs re-run) | v2/claude-sonnet-4-6: PARTIAL OUTPUT 21/30 (empty rows — needs re-run) | v3/gpt-5.4: PARTIAL OUTPUT 0/30 (empty rows — needs re-run) | v3/claude-sonnet-4-6: PARTIAL OUTPUT 9/30 (empty rows — needs re-run) | GEMINI SKIPPED — gemini-3.1-pro: configured skip_runtime=true (health-check 503/UNAVAILABLE). Missing prompts: v1, v2, v3. Re-run when Gemini API is stable: python -m evals.agent_eval.run_matrix --step --agent help_me_solve_it | MISSING — v1/gpt-5.4: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v2/gpt-5.4: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v3/gpt-5.4: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v1/claude-sonnet-4-6: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v2/claude-sonnet-4-6: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7 | MISSING — v3/claude-sonnet-4-6: no valid full-run experiment on tenant ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7"
+22,Problem Solver Follow-up,problem_solver_followup,1/3 completed — gpt-5.4-mini,"claude-sonnet-4-6, gemini-3.5-flash (Gemini — health-check skipped)",1/3 completed — v1,"v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,https://smith.langchain.com/o/ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7/datasets/81e2d202-bdc4-4fd6-ad0c-62f84b247018/compare?selectedSessions=4a94f7bc-3020-4c7b-8a7e-12d587fbabf8,81e2d202-bdc4-4fd6-ad0c-62f84b247018,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,
+23,Tutor Notebook Bootstrap,tutor_notebook_bootstrap,0/3 completed — none,"gpt-5.4, claude-sonnet-4-6, gpt-5-mini",0/3 completed — none,"v1, v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,,15cab6a2-656e-4975-b6da-af013625ce43,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,
+24,Tutor Follow-up Questions,tutor_follow_up_questions,0/3 completed — none,"gpt-5.4-mini, gpt-5-mini, gemini-2.5-flash-lite (Gemini — health-check skipped)",0/3 completed — none,"v1, v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,,c1688ab5-a0a0-47d2-89fa-886951337885,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,
+25,Source Question Extraction,source_question_extraction,0/3 completed — none,"gpt-5.4-mini, gemini-2.5-flash (Gemini — health-check skipped), gpt-5-mini",0/3 completed — none,"v1, v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,,c93f6c51-a200-489c-aa67-8935d6638e8d,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,
+26,Image OCR,image_ocr,0/3 completed — none,"gemini-2.5-flash (Gemini — health-check skipped), gpt-5-mini, gemini-2.5-flash-lite (Gemini — health-check skipped)",0/3 completed — none,"v1, v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,,2486b89f-d5da-43e7-83ad-7efc3d49259a,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,
+27,Diagram Label OCR,diagram_label_ocr,0/3 completed — none,"gemini-2.5-flash (Gemini — health-check skipped), gpt-5-mini, gemini-2.5-flash-lite (Gemini — health-check skipped)",0/3 completed — none,"v1, v2, v3",ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,,491929ad-a052-471e-848c-d1e52757ddb3,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,

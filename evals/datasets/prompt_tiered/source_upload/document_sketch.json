@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.1",
   "dataset_id": "document_sketch",
   "agent": {
     "sno": 26,
-    "category": "Source Upload",
+    "category": "RAG Ingestion",
     "name": "Document Sketch Agent",
     "tier": "tier_3",
-    "target_examples": 5,
-    "prompt_template": "SYSTEM:\nReturn JSON only. Do not include markdown fences.\n\nUSER/TASK TEMPLATE:\nYou are helping build a retrieval index for user-uploaded documents.\n\nGiven the document text and a small header, produce a compact JSON \"document sketch\" that can be reused\nfor contextualizing many chunks from the same document.\n\nHeader:\n{{ header }}\n\nDocument (may be truncated):\n{{ document_text }}\n\nReturn a single JSON object with these keys:\n- chapter_title: best-effort document title or main topic (empty string if unknown)\n- main_sections: array of short section or topic headings (best-effort)\n- key_definitions: object mapping term -> short definition (keep very short; include only important terms)\n- concepts: array of important terms or entities a user might search for (10–30 items)\n\nRules:\n- Output JSON only. No markdown fences. No extra keys.\n- Keep it compact: do not quote long excerpts."
+    "target_examples": 13,
+    "prompt_template": "You are helping build a retrieval index for user-uploaded documents.\n\nGiven the document text and a small header, produce a compact JSON \"document sketch\" that can be reused\nfor contextualizing many chunks from the same document.\n\nHeader:\n{{ header }}\n\nDocument (may be truncated):\n{{ document_text }}\n\nReturn a single JSON object with these keys:\n- chapter_title: best-effort document title or main topic (empty string if unknown)\n- main_sections: array of short section or topic headings (best-effort)\n- key_definitions: object mapping term -> short definition (keep very short; include only important terms)\n- concepts: array of important terms or entities a user might search for (10–30 items)\n\nRules:\n- Output JSON only. No markdown fences. No extra keys.\n- Keep it compact: do not quote long excerpts."
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -22,202 +22,713 @@
   "items": [
     {
       "id": "document_sketch-001",
-      "variation": "typo",
-      "tags": [
-        "cbse",
-        "science"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "header": "Class 10 Science Notes — Electricity",
-        "document_text": "Unit III Electricity. Ohm's law. Resistance. Heating effect. Domestic circuits."
+        "header": "CBSE Biology — cbse_biology page 1",
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 1\nBIOLOGY TESTING QUESTION BANK\nCBSE Class XII — Curated Question Bank from 6 Board Papers\nIncludes MCQs, Assertion–Reasoning, VSAQs, SAQs, LAQs and Case Study Questions.\nDiagrams, graphs, tables, sequences and process figures are included wherever relevant.\nQuestion Type\nCount\nMCQ\n10\nAssertion–Reasoning\n6\nVSAQ\n10\nSAQ\n10\nLAQ\n10\nCase Study\n6\nTotal\n52 upload-1"
       },
       "reference_outputs": {
         "sketch_json": {
-          "chapter_title": "Class 10 Science Notes — Electricity",
+          "chapter_title": "CBSE Class XII Biology - Testing Question Bank",
           "main_sections": [
-            "Unit III Electricity",
-            "Ohm's law",
-            "Resistance",
-            "Heating effect"
+            "Question Type",
+            "Count"
           ],
           "key_definitions": {
-            "Ohm's law": "V=IR"
+            "MCQ": "Multiple Choice Questions",
+            "Assertion–Reasoning": "Questions requiring justification of statements",
+            "VSAQ": "Very Short Answer Questions",
+            "SAQ": "Short Answer Questions",
+            "LAQ": "Long Answer Questions",
+            "Case Study": "Questions based on real-life scenarios"
           },
           "concepts": [
-            "Unit",
-            "III",
-            "Electricity.",
-            "Ohm's",
-            "law.",
-            "Resistance.",
-            "Heating",
-            "effect.",
-            "Domestic",
-            "circuits."
+            "Biology",
+            "CBSE",
+            "Class XII",
+            "Question Bank",
+            "MCQs",
+            "Assertion–Reasoning",
+            "VSAQs",
+            "SAQs",
+            "LAQs",
+            "Case Studies",
+            "Diagrams",
+            "Graphs",
+            "Tables",
+            "Sequences",
+            "Process Figures",
+            "Board Papers",
+            "Testing",
+            "Education",
+            "Assessment",
+            "Curriculum"
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "compact_sketch"
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
       "id": "document_sketch-002",
-      "variation": "conversational",
-      "tags": [
-        "cbse",
-        "science"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "header": "JEE Organic Chemistry Handout",
-        "document_text": "Nomenclature. Isomerism. SN1 SN2 mechanisms. Carbohydrates lipids."
+        "header": "CBSE Biology — cbse_biology page 2",
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 2\nSECTION A — MCQs\nEach question carries 1 mark. Select the most appropriate option.\nQ1. Identify the plant in which emasculation is not required for artificial hybridization.\n(A) Rice\n(B) Wheat\n(C) Pea\n(D) Papaya\nQ2. Which of the following is not a functional unit of an ecosystem?\n(A) Energy flow\n(B) Decomposition\n(C) Stratification\n(D) Productivity\nQ3. Identify the statements that correctly describe Darwin’s Theory of Evolution.\n(i) Overprodu upload-2"
       },
       "reference_outputs": {
         "sketch_json": {
-          "chapter_title": "JEE Organic Chemistry Handout",
+          "chapter_title": "CBSE Class XII Biology",
           "main_sections": [
-            "Nomenclature",
-            "Isomerism",
-            "SN1 SN2 mechanisms",
-            "Carbohydrates lipids."
+            "SECTION A — MCQs"
           ],
           "key_definitions": {
-            "Ohm's law": "V=IR"
+            "Emasculation": "Removal of male parts of a flower to prevent self-pollination.",
+            "Artificial Hybridization": "Crossing of two different varieties or species.",
+            "Ecosystem": "A community of living organisms and their environment.",
+            "Darwin’s Theory of Evolution": "Theory explaining the process of natural selection."
           },
           "concepts": [
-            "Nomenclature.",
-            "Isomerism.",
-            "SN1",
-            "SN2",
-            "mechanisms.",
-            "Carbohydrates",
-            "lipids."
+            "Emasculation",
+            "Artificial Hybridization",
+            "Ecosystem",
+            "Energy Flow",
+            "Decomposition",
+            "Stratification",
+            "Productivity",
+            "Darwin’s Theory of Evolution",
+            "MCQs",
+            "CBSE Biology",
+            "Class XII",
+            "Hybridization",
+            "Natural Selection",
+            "Functional Units",
+            "Plant Biology",
+            "Ecology"
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "compact_sketch"
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
       "id": "document_sketch-003",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "science"
-      ],
+      "variation": "conversational",
       "inputs": {
-        "header": "CBSE Maths Assignment Quadratic",
-        "document_text": "Solve by factorization. Quadratic formula. Word problems on area."
+        "header": "CBSE Chemistry — cbse_biology page 3",
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 3\nQ5. You know that there are twenty different types of naturally occurring amino acids\nand four different types of bases in the DNA. A combination of 3 such bases codes for a\nspecific amino acid. If instead there are 96 different amino acids and 12 different\nbases in the DNA, then the minimum number of combination of bases required to form\na codon is:\n(A) 6\n(B) 8\n(C) 2\n(D) 4\nQ6. The rate of formation of new organic matter by consumers, and the upload-3"
       },
       "reference_outputs": {
         "sketch_json": {
-          "chapter_title": "CBSE Maths Assignment Quadratic",
+          "chapter_title": "CBSE Class XII Biology",
           "main_sections": [
-            "Solve by factorization",
-            "Quadratic formula",
-            "Word problems on area."
+            "Testing Question Bank",
+            "Amino Acids and DNA Bases"
           ],
           "key_definitions": {
-            "Ohm's law": "V=IR"
+            "Amino Acids": "Building blocks of proteins.",
+            "DNA": "Molecule carrying genetic instructions.",
+            "Codon": "Sequence of three bases coding for an amino acid.",
+            "Organic Matter": "Substances produced by living organisms."
           },
           "concepts": [
-            "Solve",
-            "by",
-            "factorization.",
-            "Quadratic",
-            "formula.",
-            "Word",
-            "problems",
-            "on",
-            "area."
+            "Amino Acids",
+            "DNA Bases",
+            "Codon",
+            "Organic Matter",
+            "Consumers",
+            "Genetic Code",
+            "Biology",
+            "Question Bank",
+            "CBSE",
+            "Class XII",
+            "Natural Amino Acids",
+            "Base Combinations",
+            "Genetic Instructions",
+            "Protein Synthesis",
+            "Molecular Biology"
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_upload",
+        "conversational",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "compact_sketch"
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
       "id": "document_sketch-004",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "science"
-      ],
+      "variation": "conversational",
       "inputs": {
-        "header": "NEET Biology Question Paper 2024",
-        "document_text": "Section A MCQs digestion enzymes. Section B case study on genetics."
+        "header": "CBSE Chemistry — cbse_biology page 4",
+        "document_text": "Q9. Use the given information to select the amino acid attached to the 3′ end of tRNA during the process of translation, if the coding strand of the structural gene being transcribed has the nucleotide sequence TAC.  \nCodons for the amino acids:  \nAUC — Isoleucine  \nAUG — Methionine  \nUAC — Tyrosine  \nGUA — Valine  \nOptions:  \n(A) Isoleucine  \n(B) Methionine  \n(C) Tyrosine  \n(D) Valine  \n\nQ10. In a pea plant (Pisum sativum) inflated pod shape is dominant over constricted pod shape. The expected upload-4"
       },
       "reference_outputs": {
         "sketch_json": {
-          "chapter_title": "NEET Biology Question Paper 2024",
+          "chapter_title": "CBSE Chemistry",
           "main_sections": [
-            "Section A MCQs digestion enzymes",
-            "Section B case study on genetics."
+            "Amino Acids",
+            "Genetics"
           ],
           "key_definitions": {
-            "Ohm's law": "V=IR"
+            "tRNA": "Transfer RNA, involved in translation.",
+            "codon": "Three-nucleotide sequence coding for an amino acid.",
+            "dominant": "Trait that masks the effect of a recessive trait."
           },
           "concepts": [
-            "Section",
-            "A",
-            "MCQs",
-            "digestion",
-            "enzymes.",
-            "Section",
-            "B",
-            "case",
-            "study",
-            "on",
-            "genetics."
+            "amino acid",
+            "translation",
+            "tRNA",
+            "codon",
+            "Isoleucine",
+            "Methionine",
+            "Tyrosine",
+            "Valine",
+            "pea plant",
+            "Pisum sativum",
+            "pod shape",
+            "dominant trait",
+            "constricted pod",
+            "inflated pod"
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_upload",
+        "conversational",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "compact_sketch"
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
-      "id": "document_sketch-005",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science"
-      ],
+      "id": "document_sketch-007",
+      "variation": "cbse",
       "inputs": {
-        "header": "Teacher's Ray Optics Summary",
-        "document_text": "Reflection refraction. Lens mirror formula. Prism deviation."
+        "header": "CBSE Chemistry — cbse_biology page 7",
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 7\n5′ GUGGCACUCAGUCCUUAAUGGCG 3′\nHow many amino acids will be specified in case (a) and case (b) on translation? Justify\nyour answer.\nQ25. The basic scheme of the essential steps involved in the process of recombinant\nDNA technology is summarized below in the form of a flow diagram. Study the given\nflow diagram and answer the questions that follow.\n(a) Name the enzyme used in Step-1 to join the cut plasmid and alien DNA.\n(b) State the technical upload-7"
       },
       "reference_outputs": {
         "sketch_json": {
-          "chapter_title": "Teacher's Ray Optics Summary",
+          "chapter_title": "CBSE Class XII Biology",
           "main_sections": [
-            "Reflection refraction",
-            "Lens mirror formula",
-            "Prism deviation."
+            "Testing Question Bank",
+            "Recombinant DNA Technology"
           ],
           "key_definitions": {
-            "Ohm's law": "V=IR"
+            "Recombinant DNA Technology": "A method to combine DNA from different sources.",
+            "Plasmid": "A small circular DNA molecule used in genetic engineering.",
+            "Enzyme": "A protein that catalyzes biochemical reactions."
           },
           "concepts": [
-            "Reflection",
-            "refraction.",
-            "Lens",
-            "mirror",
-            "formula.",
-            "Prism",
-            "deviation."
+            "amino acids",
+            "translation",
+            "flow diagram",
+            "Step-1",
+            "cut plasmid",
+            "alien DNA",
+            "enzyme",
+            "biotechnology",
+            "genetic engineering",
+            "molecular biology",
+            "DNA",
+            "RNA",
+            "genetic material",
+            "cloning",
+            "gene expression",
+            "biological processes"
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_upload",
+        "cbse",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "compact_sketch"
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-008",
+      "variation": "cbse",
+      "inputs": {
+        "header": "CBSE Biology — cbse_biology page 8",
+        "document_text": "SECTION C — Short Answer Questions (SAQs)  \nEach question carries 3 marks. Answer with the necessary details.  \n\nQ27. Explain the mode of action of contraceptive pills taken by human females. Mention the schedule to be followed for effective outcome.  \n\nQ28. (a) What are transgenic animals?  \n(b) Name the first transgenic cow and state its importance.  \nOR  \n(a) Explain the convention for naming EcoRI.  \n(b) With the help of an illustration only, show the action of EcoRI on a DNA polynucleotide. upload-8"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "Short Answer Questions",
+            "Contraceptive Pills",
+            "Transgenic Animals",
+            "EcoRI"
+          ],
+          "key_definitions": {
+            "Contraceptive Pills": "Hormonal medication to prevent pregnancy.",
+            "Transgenic Animals": "Animals genetically modified to express foreign genes.",
+            "EcoRI": "Restriction enzyme that cuts DNA at specific sequences."
+          },
+          "concepts": [
+            "contraceptive pills",
+            "human females",
+            "transgenic animals",
+            "first transgenic cow",
+            "EcoRI",
+            "DNA polynucleotide",
+            "genetic modification",
+            "hormonal regulation",
+            "reproductive health",
+            "biotechnology",
+            "molecular biology",
+            "gene expression",
+            "DNA manipulation",
+            "genetic engineering",
+            "animal genetics",
+            "biological research"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "cbse",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-009",
+      "variation": "neet",
+      "inputs": {
+        "header": "CBSE Biology — cbse_biology page 9",
+        "document_text": "(b) How many purines are present in the given strand?  \n(c) Draw the chemical structure of the given polynucleotide chain of DNA.  \n\nQ35. Given below is a flower with its characteristic features specialised for the most common type of abiotic pollination. Answer the following questions based on the diagram.  \n(a) Name the mode of abiotic pollination that will be adopted by the given plant species in the above picture.  \n(b) State the need of exposed large feathery stigmas for the flower.  \n(c) W upload-9"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "Purines in DNA",
+            "Abiotic Pollination",
+            "Flower Features"
+          ],
+          "key_definitions": {
+            "Purines": "A type of nitrogenous base in DNA.",
+            "Polynucleotide": "A polymer consisting of many nucleotide monomers.",
+            "Abiotic Pollination": "Pollination that occurs without the involvement of living organisms.",
+            "Stigmas": "The part of the flower that receives pollen."
+          },
+          "concepts": [
+            "DNA structure",
+            "Purines",
+            "Polynucleotide chain",
+            "Abiotic pollination",
+            "Flower anatomy",
+            "Feathery stigmas",
+            "Pollination mechanisms",
+            "Plant reproduction",
+            "Pollen",
+            "Stigma function",
+            "Flower features",
+            "Pollination types",
+            "Environmental factors",
+            "Plant species",
+            "Diagram analysis"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "neet",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-010",
+      "variation": "jee",
+      "inputs": {
+        "header": "CBSE Biology — cbse_biology page 10",
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 10\nSECTION E — Long Answer Questions (LAQs)\nEach question carries 5 marks. Answer with detailed explanation wherever required.\nQ37. Trace the events from fertilization till implantation of blastocyst in human female.\nAlso mention the site where fertilization takes place.\nQ38. (a) (i) Watson and Crick’s discovery of double helical structure was based on\nwhich two findings. Also mention the names of the scientists associated with these\nfindings. upload-10"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "SECTION E — Long Answer Questions",
+            "Fertilization and Implantation",
+            "Watson and Crick's Discovery"
+          ],
+          "key_definitions": {
+            "Fertilization": "Union of sperm and egg.",
+            "Blastocyst": "Early stage of embryonic development.",
+            "Implantation": "Attachment of blastocyst to uterine wall.",
+            "Double Helix": "Structure of DNA discovered by Watson and Crick."
+          },
+          "concepts": [
+            "Fertilization",
+            "Implantation",
+            "Blastocyst",
+            "Watson and Crick",
+            "Double Helix",
+            "Human Female Reproductive System",
+            "Embryonic Development",
+            "Genetics",
+            "Cell Division",
+            "DNA Structure",
+            "Reproductive Biology",
+            "Long Answer Questions",
+            "CBSE Biology",
+            "Question Bank",
+            "Marks Allocation"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "jee",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-011",
+      "variation": "multi_part",
+      "inputs": {
+        "header": "CBSE Biology — cbse_biology page 11",
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 11\nOR\n(b) “Early and accurate diagnosis of diseases is vital in medical technology.”\n(i) Name the conventional methods of diagnosis and their disadvantages.\n(ii) Which three diagnostic techniques have been developed through Biotechnology?\nExplain how each one helps in detecting diseases.\nQ42. (a) (i) Explain how double fertilisation takes place in a flowering plant.\n(ii) Write the fate of the products of double fertilization in these plants.\nOR upload-11"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "Testing Question Bank",
+            "Diagnosis Methods",
+            "Biotechnology Techniques",
+            "Double Fertilisation"
+          ],
+          "key_definitions": {
+            "Diagnosis": "Identification of a disease.",
+            "Biotechnology": "Use of biological processes for technological applications.",
+            "Double Fertilisation": "Process in flowering plants where one sperm fertilizes the egg and another fuses with polar nuclei."
+          },
+          "concepts": [
+            "medical technology",
+            "conventional diagnosis",
+            "diagnostic techniques",
+            "disease detection",
+            "double fertilisation",
+            "flowering plants",
+            "biotechnology applications",
+            "fertilization products",
+            "diagnosis disadvantages",
+            "plant reproduction"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "multi_part",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-012",
+      "variation": "conceptual",
+      "inputs": {
+        "header": "CBSE Biology — cbse_biology page 13",
+        "document_text": "SECTION D — Case Study Questions  \nEach question carries 4 marks. Read the passage / study the figure carefully and answer the sub-questions.\n\nQ47. The diagram below shows the distribution of two barnacle species, Chthamalus and Balanus on a rocky sea shore. When Balanus is experimentally removed, Chthamalus expands its range in lower intertidal zone.  \n(a) Identify and define the ecological phenomenon demonstrated by this observation.  \nOR  \n(a) State the principle that explains the elimination upload-12"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "SECTION D — Case Study Questions"
+          ],
+          "key_definitions": {
+            "Chthamalus": "A barnacle species that expands its range when Balanus is removed.",
+            "Balanus": "A barnacle species that competes with Chthamalus for space.",
+            "intertidal zone": "The area between high and low tide where marine organisms live.",
+            "ecological phenomenon": "A natural occurrence that affects the distribution of species."
+          },
+          "concepts": [
+            "barnacle",
+            "Chthamalus",
+            "Balanus",
+            "rocky shore",
+            "intertidal zone",
+            "ecological competition",
+            "species distribution",
+            "habitat",
+            "marine biology",
+            "case study",
+            "ecosystem dynamics",
+            "principle of competitive exclusion",
+            "environmental factors",
+            "species interaction",
+            "ecology"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "conceptual",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-013",
+      "variation": "case_study",
+      "inputs": {
+        "header": "CBSE Biology — cbse_biology page 14",
+        "document_text": "Q49. Read the following passage and answer the questions that follow. India’s land area is only a small percentage of the world’s total land area whereas its share of the global species diversity is an impressive 8.1 per cent. However, in these estimates of species, prokaryotes do not figure anywhere. Biologists are always keen on collecting data with respect to species diversity observed in different regions of the world. The data collected based on the survey conducted for species richness of upload-13"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "Species Diversity",
+            "Prokaryotes",
+            "Species Richness"
+          ],
+          "key_definitions": {
+            "species diversity": "Variety of species in a given area",
+            "prokaryotes": "Single-celled organisms without a nucleus",
+            "species richness": "Number of different species in a habitat"
+          },
+          "concepts": [
+            "India",
+            "global species diversity",
+            "8.1 percent",
+            "biologists",
+            "data collection",
+            "species",
+            "regions",
+            "surveys",
+            "biodiversity",
+            "ecosystems",
+            "flora",
+            "fauna",
+            "environment",
+            "conservation",
+            "habitat",
+            "taxonomy"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "case_study",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-014",
+      "variation": "ncert_strict",
+      "inputs": {
+        "header": "CBSE Biology — cbse_biology page 15",
+        "document_text": "Q50. Read the following passage and answer the questions that follow. Gene expresses itself in a cell system as a protein/enzyme. How does expression of gene occur in a cell system and when does it need to occur, and how gene expression is regulated in a prokaryote cell system, was studied by the combined efforts of Jacques Monod, the biochemist, and François Jacob, the geneticist. For their work on lactose metabolism in E. coli and proposing the lac operon concept, they were awarded the Nobel P upload-14"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "Gene Expression in Prokaryotes",
+          "main_sections": [
+            "Gene Expression",
+            "Regulation of Gene Expression",
+            "Lactose Metabolism",
+            "Lac Operon Concept"
+          ],
+          "key_definitions": {
+            "Gene": "Unit of heredity that expresses as a protein/enzyme.",
+            "Gene Expression": "Process by which a gene's information is converted into a functional product.",
+            "Prokaryote": "Single-celled organism without a nucleus.",
+            "Lactose Metabolism": "Biochemical process of breaking down lactose.",
+            "Lac Operon": "Genetic system that controls lactose metabolism in E. coli."
+          },
+          "concepts": [
+            "Gene",
+            "Gene Expression",
+            "Prokaryote",
+            "Lactose",
+            "E. coli",
+            "Lac Operon",
+            "Jacques Monod",
+            "François Jacob",
+            "Nobel Prize",
+            "Biochemistry",
+            "Genetics",
+            "Protein",
+            "Enzyme",
+            "Metabolism",
+            "Regulation",
+            "Cell System",
+            "Biochemical Pathways",
+            "Transcription",
+            "Translation",
+            "Operon Model"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "source_upload",
+        "ncert_strict",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "document_sketch-015",
+      "variation": "proof",
+      "inputs": {
+        "header": "CBSE Chemistry — cbse_biology page 16",
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 16\nquestions that follow.\n(a) To which category of evolution — divergent or convergent — do the following\nevolutionary relationships belong to: (i) Humans and Macaque, (ii) Humans and Frog?\n(b) What do the biochemical similarities in haemoglobin suggest about the\nevolutionary relationship between humans, frog and lamprey?\n(c) (i) Which one of the two is closely related to humans and why?\nOR\n(c) (ii) Which one of the two is distantly related to upload-15"
+      },
+      "reference_outputs": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "Testing Question Bank",
+            "Evolutionary Relationships"
+          ],
+          "key_definitions": {
+            "Divergent Evolution": "Evolution of different species from a common ancestor.",
+            "Convergent Evolution": "Evolution of similar traits in unrelated species.",
+            "Haemoglobin": "Protein in red blood cells that carries oxygen."
+          },
+          "concepts": [
+            "Humans",
+            "Macaque",
+            "Frog",
+            "Lamprey",
+            "Biochemical Similarities",
+            "Evolutionary Relationships",
+            "Closely Related Species",
+            "Distantly Related Species",
+            "Evolutionary Biology",
+            "CBSE",
+            "Class XII",
+            "Testing Question Bank"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "source_upload",
+        "proof",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "schema_complete",
+        "concept_coverage",
+        "subject_alignment",
+        "compactness",
+        "production_llm_gold"
       ]
     }
   ]

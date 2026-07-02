@@ -1,0 +1,104 @@
+{
+  "generated_at": "2026-06-27T03:31:16.165633+00:00",
+  "langsmith_project": "ScholarSync",
+  "dataset": "nbm-prompt-intent_classifier",
+  "prompt_versions": [
+    "v1",
+    "v2",
+    "v3",
+    "v4"
+  ],
+  "experiments": [
+    {
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v1",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v2",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v3",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v4",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v4",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    },
+    {
+      "prompt_version": "v4",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "status": "error",
+      "error": "Dataset nbm-prompt-intent_classifier not found"
+    }
+  ],
+  "skipped_providers": [],
+  "dry_run": false,
+  "summary": {
+    "total_experiments": 12,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

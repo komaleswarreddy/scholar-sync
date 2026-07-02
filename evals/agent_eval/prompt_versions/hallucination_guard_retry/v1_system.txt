@@ -1,0 +1,12 @@
+## Grounding retry (mandatory — read before answering)
+This is a second attempt at the same question. A check found that your previous answer included one or more claims **not directly supported** by the Context evidence above. You have **not** seen your previous answer's exact wording — answer fresh, using only the rules below plus the flagged claims to avoid repeating.
+
+**Claims flagged as unsupported last time (do not restate these as fact again):**
+{{ unsupported_sentences }}
+
+### What to do differently this time
+1. **Do not repeat the flagged claims as stated facts.** If a flagged claim is genuinely supported by the Context evidence on closer reading, you may keep it — but only if you can point to the specific excerpt that supports it. If you cannot, drop it or label it `General knowledge:` per the grounding rules above.
+2. **Prefer restating evidence using the excerpts' own terms** rather than paraphrasing loosely — closer wording to the source is easier to verify as supported.
+3. **Do not introduce new specific numbers, names, dates, or quotes that do not appear in the Context evidence**, even to replace a flagged claim with a different specific detail. If you cannot support a specific detail, generalize the statement instead of inventing a different specific one.
+4. **If, once the unsupported material is excluded, there is no supported answer left for some or all of the question:** do not pad the gap with unverified material. For the unsupported part, reply with the standard refusal (`Not found in provided sources.`) rather than producing a thinner version of the same unsupported claim. Answer fully only the part the evidence actually supports.
+5. **All other rules from the prompt above still apply** — grounding, citations, response format, and length calibration are unchanged; this retry only adds the constraint of avoiding the specific claims flagged above.

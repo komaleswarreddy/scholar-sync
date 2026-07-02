@@ -7,8 +7,8 @@ import {
   hasTeacherSession,
   setTeacherToken,
   TEACHER_PORTAL_EMAIL,
-  validateTeacherLogin,
 } from '@/lib/teacher-auth';
+import { apiClient } from '@/lib/api-client';
 
 export default function TeacherLoginPage() {
   const router = useRouter();
@@ -28,14 +28,13 @@ export default function TeacherLoginPage() {
     setError(null);
     setLoading(true);
     try {
-      if (!validateTeacherLogin(email, password)) {
-        throw new Error('Invalid email or password');
-      }
-      setTeacherToken('teacher-portal-session');
+      // Credentials are verified server-side; we store the signed JWT it returns.
+      const token = await apiClient.teacherLogin(email, password);
+      setTeacherToken(token);
       router.replace('/teacher/exams');
-    } catch (err: unknown) {
-      const message = (err as Error)?.message || 'Invalid email or password';
-      setError(message);
+    } catch {
+      // Avoid leaking which field was wrong; backend returns a 401 for bad creds.
+      setError('Invalid email or password');
     } finally {
       setLoading(false);
     }

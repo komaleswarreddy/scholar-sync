@@ -1,0 +1,1777 @@
+{
+  "version": "1.0.0",
+  "examples": {
+    "document_sketch-001": {
+      "example_id": "document_sketch-001",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology - Testing Question Bank",
+          "main_sections": [
+            "Question Type",
+            "Count"
+          ],
+          "key_definitions": {
+            "MCQ": "Multiple Choice Questions",
+            "Assertion–Reasoning": "Questions requiring justification of statements",
+            "VSAQ": "Very Short Answer Questions",
+            "SAQ": "Short Answer Questions",
+            "LAQ": "Long Answer Questions",
+            "Case Study": "Questions based on real-life scenarios"
+          },
+          "concepts": [
+            "Biology",
+            "CBSE",
+            "Class XII",
+            "Question Bank",
+            "MCQs",
+            "Assertion–Reasoning",
+            "VSAQs",
+            "SAQs",
+            "LAQs",
+            "Case Studies",
+            "Diagrams",
+            "Graphs",
+            "Tables",
+            "Sequences",
+            "Process Figures",
+            "Board Papers",
+            "Testing",
+            "Education",
+            "Assessment",
+            "Curriculum"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T12:59:53Z"
+    },
+    "whole_file_map_summarizer-001": {
+      "example_id": "whole_file_map_summarizer-001",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: Electric current is defined as the flow of electric charge, with its relationship to drift velocity and mobility described by Ohm's law.\nPart 2: Resistivity is determined by the formula ρ = RA/L, and electrical power is calculated using P = VI, with considerations for Joule's heating effect and the behavior of cells in series and parallel.\nPart 3: Kirchhoff's rules include the junction rule for current conservation and the loop rule for voltage conservation, illustrated through examples and exercises involving circuits."
+      },
+      "generated_at": "2026-06-24T13:00:30Z"
+    },
+    "document_sketch-002": {
+      "example_id": "document_sketch-002",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "SECTION A — MCQs"
+          ],
+          "key_definitions": {
+            "Emasculation": "Removal of male parts of a flower to prevent self-pollination.",
+            "Artificial Hybridization": "Crossing of two different varieties or species.",
+            "Ecosystem": "A community of living organisms and their environment.",
+            "Darwin’s Theory of Evolution": "Theory explaining the process of natural selection."
+          },
+          "concepts": [
+            "Emasculation",
+            "Artificial Hybridization",
+            "Ecosystem",
+            "Energy Flow",
+            "Decomposition",
+            "Stratification",
+            "Productivity",
+            "Darwin’s Theory of Evolution",
+            "MCQs",
+            "CBSE Biology",
+            "Class XII",
+            "Hybridization",
+            "Natural Selection",
+            "Functional Units",
+            "Plant Biology",
+            "Ecology"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:06Z"
+    },
+    "document_sketch-003": {
+      "example_id": "document_sketch-003",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "Testing Question Bank",
+            "Amino Acids and DNA Bases"
+          ],
+          "key_definitions": {
+            "Amino Acids": "Building blocks of proteins.",
+            "DNA": "Molecule carrying genetic instructions.",
+            "Codon": "Sequence of three bases coding for an amino acid.",
+            "Organic Matter": "Substances produced by living organisms."
+          },
+          "concepts": [
+            "Amino Acids",
+            "DNA Bases",
+            "Codon",
+            "Organic Matter",
+            "Consumers",
+            "Genetic Code",
+            "Biology",
+            "Question Bank",
+            "CBSE",
+            "Class XII",
+            "Natural Amino Acids",
+            "Base Combinations",
+            "Genetic Instructions",
+            "Protein Synthesis",
+            "Molecular Biology"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:11Z"
+    },
+    "document_sketch-004": {
+      "example_id": "document_sketch-004",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Chemistry",
+          "main_sections": [
+            "Amino Acids",
+            "Genetics"
+          ],
+          "key_definitions": {
+            "tRNA": "Transfer RNA, involved in translation.",
+            "codon": "Three-nucleotide sequence coding for an amino acid.",
+            "dominant": "Trait that masks the effect of a recessive trait."
+          },
+          "concepts": [
+            "amino acid",
+            "translation",
+            "tRNA",
+            "codon",
+            "Isoleucine",
+            "Methionine",
+            "Tyrosine",
+            "Valine",
+            "pea plant",
+            "Pisum sativum",
+            "pod shape",
+            "dominant trait",
+            "constricted pod",
+            "inflated pod"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:16Z"
+    },
+    "document_sketch-005": {
+      "example_id": "document_sketch-005",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "SECTION A — Assertion–Reasoning"
+          ],
+          "key_definitions": {
+            "Assertion": "A statement that is claimed to be true.",
+            "Reason": "An explanation for the assertion.",
+            "Melanized moths": "Moths with dark coloration that increased in industrial areas."
+          },
+          "concepts": [
+            "Assertion-Reasoning",
+            "Industrial Revolution",
+            "Melanized moths",
+            "Population increase",
+            "Natural selection",
+            "Environmental adaptation",
+            "Biology",
+            "CBSE",
+            "Question Bank",
+            "Section A",
+            "True statement",
+            "False statement",
+            "Correct explanation",
+            "Incorrect explanation",
+            "Ecology",
+            "Evolution"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:21Z"
+    },
+    "document_sketch-006": {
+      "example_id": "document_sketch-006",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "SECTION B — Very Short Answer Questions"
+          ],
+          "key_definitions": {
+            "humoral immune response": "The aspect of immunity that involves antibodies produced by B cells.",
+            "antibodies": "Proteins produced by B cells that bind to specific antigens.",
+            "dormancy of seed": "A period in which seeds are inactive and do not germinate.",
+            "primary oocyte": "The immature egg cell that undergoes meiosis."
+          },
+          "concepts": [
+            "humoral immune response",
+            "antibodies",
+            "B cells",
+            "dormancy of seed",
+            "pea seed",
+            "castor seed",
+            "follicle stage",
+            "primary oocyte",
+            "meiosis",
+            "immunity",
+            "VSAQs",
+            "CBSE Biology",
+            "question bank",
+            "marks",
+            "seed germination",
+            "agriculture"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:28Z"
+    },
+    "document_sketch-007": {
+      "example_id": "document_sketch-007",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "Testing Question Bank",
+            "Recombinant DNA Technology"
+          ],
+          "key_definitions": {
+            "Recombinant DNA Technology": "A method to combine DNA from different sources.",
+            "Plasmid": "A small circular DNA molecule used in genetic engineering.",
+            "Enzyme": "A protein that catalyzes biochemical reactions."
+          },
+          "concepts": [
+            "amino acids",
+            "translation",
+            "flow diagram",
+            "Step-1",
+            "cut plasmid",
+            "alien DNA",
+            "enzyme",
+            "biotechnology",
+            "genetic engineering",
+            "molecular biology",
+            "DNA",
+            "RNA",
+            "genetic material",
+            "cloning",
+            "gene expression",
+            "biological processes"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:38Z"
+    },
+    "document_sketch-008": {
+      "example_id": "document_sketch-008",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "Short Answer Questions",
+            "Contraceptive Pills",
+            "Transgenic Animals",
+            "EcoRI"
+          ],
+          "key_definitions": {
+            "Contraceptive Pills": "Hormonal medication to prevent pregnancy.",
+            "Transgenic Animals": "Animals genetically modified to express foreign genes.",
+            "EcoRI": "Restriction enzyme that cuts DNA at specific sequences."
+          },
+          "concepts": [
+            "contraceptive pills",
+            "human females",
+            "transgenic animals",
+            "first transgenic cow",
+            "EcoRI",
+            "DNA polynucleotide",
+            "genetic modification",
+            "hormonal regulation",
+            "reproductive health",
+            "biotechnology",
+            "molecular biology",
+            "gene expression",
+            "DNA manipulation",
+            "genetic engineering",
+            "animal genetics",
+            "biological research"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:43Z"
+    },
+    "document_sketch-009": {
+      "example_id": "document_sketch-009",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "Purines in DNA",
+            "Abiotic Pollination",
+            "Flower Features"
+          ],
+          "key_definitions": {
+            "Purines": "A type of nitrogenous base in DNA.",
+            "Polynucleotide": "A polymer consisting of many nucleotide monomers.",
+            "Abiotic Pollination": "Pollination that occurs without the involvement of living organisms.",
+            "Stigmas": "The part of the flower that receives pollen."
+          },
+          "concepts": [
+            "DNA structure",
+            "Purines",
+            "Polynucleotide chain",
+            "Abiotic pollination",
+            "Flower anatomy",
+            "Feathery stigmas",
+            "Pollination mechanisms",
+            "Plant reproduction",
+            "Pollen",
+            "Stigma function",
+            "Flower features",
+            "Pollination types",
+            "Environmental factors",
+            "Plant species",
+            "Diagram analysis"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:48Z"
+    },
+    "document_sketch-010": {
+      "example_id": "document_sketch-010",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "SECTION E — Long Answer Questions",
+            "Fertilization and Implantation",
+            "Watson and Crick's Discovery"
+          ],
+          "key_definitions": {
+            "Fertilization": "Union of sperm and egg.",
+            "Blastocyst": "Early stage of embryonic development.",
+            "Implantation": "Attachment of blastocyst to uterine wall.",
+            "Double Helix": "Structure of DNA discovered by Watson and Crick."
+          },
+          "concepts": [
+            "Fertilization",
+            "Implantation",
+            "Blastocyst",
+            "Watson and Crick",
+            "Double Helix",
+            "Human Female Reproductive System",
+            "Embryonic Development",
+            "Genetics",
+            "Cell Division",
+            "DNA Structure",
+            "Reproductive Biology",
+            "Long Answer Questions",
+            "CBSE Biology",
+            "Question Bank",
+            "Marks Allocation"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:53Z"
+    },
+    "document_sketch-011": {
+      "example_id": "document_sketch-011",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "Testing Question Bank",
+            "Diagnosis Methods",
+            "Biotechnology Techniques",
+            "Double Fertilisation"
+          ],
+          "key_definitions": {
+            "Diagnosis": "Identification of a disease.",
+            "Biotechnology": "Use of biological processes for technological applications.",
+            "Double Fertilisation": "Process in flowering plants where one sperm fertilizes the egg and another fuses with polar nuclei."
+          },
+          "concepts": [
+            "medical technology",
+            "conventional diagnosis",
+            "diagnostic techniques",
+            "disease detection",
+            "double fertilisation",
+            "flowering plants",
+            "biotechnology applications",
+            "fertilization products",
+            "diagnosis disadvantages",
+            "plant reproduction"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:01:59Z"
+    },
+    "document_sketch-012": {
+      "example_id": "document_sketch-012",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "SECTION D — Case Study Questions"
+          ],
+          "key_definitions": {
+            "Chthamalus": "A barnacle species that expands its range when Balanus is removed.",
+            "Balanus": "A barnacle species that competes with Chthamalus for space.",
+            "intertidal zone": "The area between high and low tide where marine organisms live.",
+            "ecological phenomenon": "A natural occurrence that affects the distribution of species."
+          },
+          "concepts": [
+            "barnacle",
+            "Chthamalus",
+            "Balanus",
+            "rocky shore",
+            "intertidal zone",
+            "ecological competition",
+            "species distribution",
+            "habitat",
+            "marine biology",
+            "case study",
+            "ecosystem dynamics",
+            "principle of competitive exclusion",
+            "environmental factors",
+            "species interaction",
+            "ecology"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:02:06Z"
+    },
+    "document_sketch-013": {
+      "example_id": "document_sketch-013",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Biology",
+          "main_sections": [
+            "Species Diversity",
+            "Prokaryotes",
+            "Species Richness"
+          ],
+          "key_definitions": {
+            "species diversity": "Variety of species in a given area",
+            "prokaryotes": "Single-celled organisms without a nucleus",
+            "species richness": "Number of different species in a habitat"
+          },
+          "concepts": [
+            "India",
+            "global species diversity",
+            "8.1 percent",
+            "biologists",
+            "data collection",
+            "species",
+            "regions",
+            "surveys",
+            "biodiversity",
+            "ecosystems",
+            "flora",
+            "fauna",
+            "environment",
+            "conservation",
+            "habitat",
+            "taxonomy"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:02:11Z"
+    },
+    "document_sketch-014": {
+      "example_id": "document_sketch-014",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Gene Expression in Prokaryotes",
+          "main_sections": [
+            "Gene Expression",
+            "Regulation of Gene Expression",
+            "Lactose Metabolism",
+            "Lac Operon Concept"
+          ],
+          "key_definitions": {
+            "Gene": "Unit of heredity that expresses as a protein/enzyme.",
+            "Gene Expression": "Process by which a gene's information is converted into a functional product.",
+            "Prokaryote": "Single-celled organism without a nucleus.",
+            "Lactose Metabolism": "Biochemical process of breaking down lactose.",
+            "Lac Operon": "Genetic system that controls lactose metabolism in E. coli."
+          },
+          "concepts": [
+            "Gene",
+            "Gene Expression",
+            "Prokaryote",
+            "Lactose",
+            "E. coli",
+            "Lac Operon",
+            "Jacques Monod",
+            "François Jacob",
+            "Nobel Prize",
+            "Biochemistry",
+            "Genetics",
+            "Protein",
+            "Enzyme",
+            "Metabolism",
+            "Regulation",
+            "Cell System",
+            "Biochemical Pathways",
+            "Transcription",
+            "Translation",
+            "Operon Model"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:02:19Z"
+    },
+    "document_sketch-015": {
+      "example_id": "document_sketch-015",
+      "agent_id": "document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "CBSE Class XII Biology",
+          "main_sections": [
+            "Testing Question Bank",
+            "Evolutionary Relationships"
+          ],
+          "key_definitions": {
+            "Divergent Evolution": "Evolution of different species from a common ancestor.",
+            "Convergent Evolution": "Evolution of similar traits in unrelated species.",
+            "Haemoglobin": "Protein in red blood cells that carries oxygen."
+          },
+          "concepts": [
+            "Humans",
+            "Macaque",
+            "Frog",
+            "Lamprey",
+            "Biochemical Similarities",
+            "Evolutionary Relationships",
+            "Closely Related Species",
+            "Distantly Related Species",
+            "Evolutionary Biology",
+            "CBSE",
+            "Class XII",
+            "Testing Question Bank"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:02:24Z"
+    },
+    "ncert_document_sketch-001": {
+      "example_id": "ncert_document_sketch-001",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Current Electricity",
+          "main_sections": [
+            "Introduction",
+            "Electric Current",
+            "Ohm's Law and Resistance",
+            "Electrical Energy and Power",
+            "Cells in Series and Parallel",
+            "Kirchhoff's Rules",
+            "Examples",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Electric Current": "Flow of electric charge.",
+            "Ohm's Law": "V = IR; relationship between voltage, current, and resistance.",
+            "Resistivity": "ρ = RA/L; material property affecting resistance.",
+            "Electrical Power": "P = VI = I²R; rate of energy transfer.",
+            "EMF": "Electromotive force; voltage provided by a source.",
+            "Internal Resistance": "Resistance within a cell affecting output voltage.",
+            "Joule's Law": "Heating effect of current in a resistor.",
+            "Drift Velocity": "Average velocity of charge carriers.",
+            "Kirchhoff's Junction Rule": "ΣI_in = ΣI_out; conservation of charge.",
+            "Kirchhoff's Loop Rule": "ΣΔV = 0; conservation of energy in circuits."
+          },
+          "concepts": [
+            "Electric Current",
+            "Ohm's Law",
+            "Resistance",
+            "Resistivity",
+            "Electrical Power",
+            "EMF",
+            "Internal Resistance",
+            "Joule's Law",
+            "Drift Velocity",
+            "Kirchhoff's Rules",
+            "Series Circuit",
+            "Parallel Circuit",
+            "Wheatstone Bridge",
+            "Terminal Voltage",
+            "Heating Effect",
+            "Charge",
+            "Conductor",
+            "Voltage",
+            "Current",
+            "Energy"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:02:34Z"
+    },
+    "ncert_document_sketch-002": {
+      "example_id": "ncert_document_sketch-002",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Digestion and Absorption",
+          "main_sections": [
+            "Digestive System",
+            "Digestion of Food",
+            "Absorption"
+          ],
+          "key_definitions": {
+            "Alimentary canal": "The whole passage along which food passes through the body.",
+            "Salivary amylase": "Enzyme that breaks down carbohydrates in the mouth.",
+            "Pepsin": "Enzyme that digests proteins in the stomach.",
+            "Trypsin": "Enzyme that continues protein digestion in the duodenum.",
+            "Bile": "Digestive fluid that emulsifies fats.",
+            "Lipase": "Enzyme that breaks down fats.",
+            "Villi": "Small finger-like projections in the small intestine that absorb nutrients.",
+            "Microvilli": "Tiny projections on villi that increase surface area for absorption."
+          },
+          "concepts": [
+            "Digestive System",
+            "Alimentary canal",
+            "Salivary amylase",
+            "Pancreatic amylase",
+            "Pepsin",
+            "HCl",
+            "Pepsinogen",
+            "Trypsin",
+            "Duodenum",
+            "Bile",
+            "Lipase",
+            "Villi",
+            "Microvilli",
+            "Absorption",
+            "Carbohydrates",
+            "Proteins",
+            "Fats",
+            "Enzymes",
+            "Surface area",
+            "Starch",
+            "Digestion disorders"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:02:50Z"
+    },
+    "ncert_document_sketch-003": {
+      "example_id": "ncert_document_sketch-003",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Chemical Bonding",
+          "main_sections": [
+            "Kossel-Lewis approach",
+            "Ionic Bonding",
+            "Covalent Bonding",
+            "Valence Bond Theory",
+            "Molecular Orbital Theory",
+            "Examples",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Octet Rule": "Atoms tend to form bonds to achieve a full outer shell of eight electrons.",
+            "Ionic Bonding": "Electrostatic attraction between oppositely charged ions.",
+            "Lattice Enthalpy": "Energy required to separate one mole of an ionic solid into gaseous ions.",
+            "Covalent Bonding": "Sharing of electron pairs between atoms.",
+            "VSEPR Theory": "Predicts molecular geometry based on electron pair repulsion.",
+            "Hybridisation": "Mixing of atomic orbitals to form new hybrid orbitals.",
+            "Sigma Bond": "Single covalent bond formed by head-on overlap of orbitals.",
+            "Pi Bond": "Bond formed by the side-to-side overlap of p orbitals.",
+            "Bond Order": "Number of bonds between two atoms.",
+            "Paramagnetic": "Substances with unpaired electrons that are attracted to magnetic fields.",
+            "Diamagnetic": "Substances with all electrons paired that are repelled by magnetic fields."
+          },
+          "concepts": [
+            "Kossel-Lewis approach",
+            "Octet rule",
+            "Ionic Bonding",
+            "Lattice enthalpy",
+            "Born-Haber cycle",
+            "Covalent Bonding",
+            "VSEPR theory",
+            "Valence Bond Theory",
+            "Hybridisation",
+            "Sigma bond",
+            "Pi bond",
+            "Molecular Orbital Theory",
+            "Bond order",
+            "Paramagnetic",
+            "Diamagnetic",
+            "NH₃ geometry",
+            "O₂ MO configuration",
+            "Polarity",
+            "Dipole moment",
+            "Hydrogen bonding"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:02:59Z"
+    },
+    "ncert_document_sketch-004": {
+      "example_id": "ncert_document_sketch-004",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Integrals",
+          "main_sections": [
+            "Integration as inverse of differentiation",
+            "Methods",
+            "Definite integrals",
+            "Area under a curve",
+            "Examples",
+            "Properties of definite integrals",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Indefinite integral": "Integral without limits, ∫f(x)dx = F(x) + C.",
+            "Definite integral": "Integral with limits, ∫ₐᵇ f(x)dx = F(b) − F(a).",
+            "Substitution": "Method to simplify integrals by changing variables.",
+            "Partial fractions": "Method to break down rational functions for integration.",
+            "Integration by parts": "Method based on the product rule of differentiation.",
+            "Area under a curve": "The definite integral represents the area between the curve and the x-axis."
+          },
+          "concepts": [
+            "Integration",
+            "Differentiation",
+            "Indefinite integral",
+            "Definite integral",
+            "Substitution",
+            "Partial fractions",
+            "Integration by parts",
+            "Fundamental theorem",
+            "Area under a curve",
+            "Parabola",
+            "Properties of integrals",
+            "Exercises",
+            "Examples",
+            "Functions",
+            "Limits",
+            "Integration techniques"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:03:04Z"
+    },
+    "ncert_document_sketch-005": {
+      "example_id": "ncert_document_sketch-005",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Molecular Basis of Inheritance",
+          "main_sections": [
+            "The DNA",
+            "Search for Genetic Material",
+            "DNA Replication",
+            "Transcription",
+            "Genetic Code"
+          ],
+          "key_definitions": {
+            "DNA": "Deoxyribonucleic acid, genetic material.",
+            "Double helix": "Structure of DNA.",
+            "Base pairing": "A–T and G–C pairing rules.",
+            "Antiparallel strands": "Orientation of DNA strands.",
+            "Griffith experiment": "Demonstrated transformation.",
+            "Avery experiment": "Identified DNA as genetic material.",
+            "Hershey-Chase experiment": "Confirmed DNA as genetic material.",
+            "Semiconservative model": "DNA replication method.",
+            "Leading strand": "Continuously synthesized DNA strand.",
+            "Lagging strand": "Discontinuously synthesized DNA strand.",
+            "Okazaki fragments": "Short DNA segments on lagging strand.",
+            "Transcription": "Process of mRNA synthesis.",
+            "Template strand": "Strand used for mRNA synthesis.",
+            "Genetic code": "Set of rules for translating mRNA to proteins.",
+            "Triplet codons": "Three-nucleotide sequences in mRNA.",
+            "Degeneracy": "Multiple codons for the same amino acid.",
+            "Start codon": "Initiates protein synthesis.",
+            "Stop codon": "Terminates protein synthesis."
+          },
+          "concepts": [
+            "DNA",
+            "Double helix",
+            "Base pairing",
+            "Antiparallel strands",
+            "Griffith experiment",
+            "Avery experiment",
+            "Hershey-Chase experiment",
+            "DNA replication",
+            "Semiconservative model",
+            "Leading strand",
+            "Lagging strand",
+            "Okazaki fragments",
+            "Transcription",
+            "mRNA",
+            "Template strand",
+            "Genetic code",
+            "Triplet codons",
+            "Degeneracy",
+            "Start codon",
+            "Stop codon",
+            "Central dogma",
+            "Mutations"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:03:14Z"
+    },
+    "ncert_document_sketch-006": {
+      "example_id": "ncert_document_sketch-006",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Gravitation",
+          "main_sections": [
+            "Kepler's laws of planetary motion",
+            "Universal law of gravitation",
+            "Acceleration due to gravity",
+            "Gravitational potential energy",
+            "Escape velocity",
+            "Satellite orbital speed",
+            "Energy of satellite",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Kepler's laws": "Laws describing planetary motion.",
+            "Universal law of gravitation": "F = Gm₁m₂/r².",
+            "Acceleration due to gravity": "g = GM/R².",
+            "Gravitational potential energy": "Energy due to position in a gravitational field.",
+            "Escape velocity": "Minimum speed to break free from gravitational pull."
+          },
+          "concepts": [
+            "Kepler's laws",
+            "gravitational force",
+            "mass",
+            "distance",
+            "orbital speed",
+            "satellite",
+            "energy",
+            "gravity",
+            "potential energy",
+            "altitude",
+            "depth",
+            "variation of g",
+            "escape velocity",
+            "orbits",
+            "gravitational field",
+            "exercise"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:03:20Z"
+    },
+    "ncert_document_sketch-007": {
+      "example_id": "ncert_document_sketch-007",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Equilibrium",
+          "main_sections": [
+            "Equilibrium in physical processes",
+            "Chemical equilibrium",
+            "Le Chatelier's principle",
+            "Ionic equilibrium",
+            "Example 7.1",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Kc": "Equilibrium constant for a reaction.",
+            "Le Chatelier's principle": "System adjusts to counteract changes in equilibrium.",
+            "Ka": "Acid dissociation constant.",
+            "Kb": "Base dissociation constant.",
+            "Kw": "Ion product of water.",
+            "pH": "Measure of acidity or basicity.",
+            "Buffer solution": "Resists changes in pH."
+          },
+          "concepts": [
+            "equilibrium",
+            "physical processes",
+            "chemical equilibrium",
+            "homogeneous equilibrium",
+            "heterogeneous equilibrium",
+            "Le Chatelier's principle",
+            "concentration",
+            "pressure",
+            "temperature",
+            "ionic equilibrium",
+            "acid-base reactions",
+            "dissociation",
+            "Kc calculations",
+            "buffer solutions",
+            "pH scale",
+            "degree of dissociation",
+            "exercises",
+            "reaction rates",
+            "dynamic equilibrium",
+            "system changes"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:03:26Z"
+    },
+    "ncert_document_sketch-008": {
+      "example_id": "ncert_document_sketch-008",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Electricity",
+          "main_sections": [
+            "Electric current and circuit",
+            "Ohm's law",
+            "Factors affecting resistance",
+            "Heating effect",
+            "Electric power",
+            "Activities and Exercises"
+          ],
+          "key_definitions": {
+            "Electric current": "Flow of electric charge.",
+            "Circuit": "Closed path for current.",
+            "Ammeter": "Measures current.",
+            "Voltmeter": "Measures voltage.",
+            "Ohm's law": "V = IR, relationship between voltage, current, and resistance.",
+            "Resistance": "Opposition to current flow.",
+            "Heating effect": "Heat produced by current.",
+            "Electric fuse": "Safety device to prevent overload.",
+            "Electric power": "Rate of doing work, P = VI.",
+            "kWh": "Commercial unit of energy."
+          },
+          "concepts": [
+            "Electric current",
+            "Circuit",
+            "Ammeter",
+            "Voltmeter",
+            "Ohm's law",
+            "Resistance",
+            "Heating effect",
+            "Electric fuse",
+            "Electric power",
+            "kWh",
+            "Series circuit",
+            "Parallel circuit",
+            "Factors affecting resistance",
+            "Current",
+            "Voltage",
+            "Electrical energy",
+            "Conductors",
+            "Insulators",
+            "Power calculation",
+            "Electrical safety",
+            "Activity",
+            "Exercise"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:03:32Z"
+    },
+    "ncert_document_sketch-009": {
+      "example_id": "ncert_document_sketch-009",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Quadratic Equations",
+          "main_sections": [
+            "Standard form",
+            "Discriminant",
+            "Sum and product of roots",
+            "Word problems",
+            "Examples",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Quadratic Equation": "An equation of the form ax² + bx + c = 0.",
+            "Discriminant": "D = b² - 4ac; determines the nature of roots.",
+            "Roots": "Solutions of the quadratic equation.",
+            "Factorisation": "Method to find roots by expressing the equation as a product.",
+            "Quadratic Formula": "Roots can be found using x = (-b ± √D) / (2a).",
+            "Sum of Roots": "-b/a.",
+            "Product of Roots": "c/a."
+          },
+          "concepts": [
+            "Quadratic Equation",
+            "Roots",
+            "Discriminant",
+            "Factorisation",
+            "Quadratic Formula",
+            "Sum of Roots",
+            "Product of Roots",
+            "Word Problems",
+            "Area",
+            "Speed",
+            "Consecutive Integers",
+            "Examples",
+            "Exercises",
+            "Real Roots",
+            "Complex Roots",
+            "Coefficient",
+            "Polynomial",
+            "Graph of Quadratic",
+            "Vertex",
+            "Axis of Symmetry"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:03:44Z"
+    },
+    "ncert_document_sketch-010": {
+      "example_id": "ncert_document_sketch-010",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Photosynthesis",
+          "main_sections": [
+            "Photosynthesis as anabolic process",
+            "Light reaction in grana",
+            "Calvin cycle in stroma",
+            "C4 pathway in maize and sugarcane"
+          ],
+          "key_definitions": {
+            "Photosynthesis": "Process by which plants convert light energy into chemical energy.",
+            "Photolysis": "Splitting of water molecules during light reactions.",
+            "ATP": "Energy currency of the cell.",
+            "NADPH": "Electron carrier in photosynthesis.",
+            "RuBisCO": "Enzyme that catalyzes the first step of the Calvin cycle.",
+            "C3 pathway": "Main pathway of carbon fixation in plants.",
+            "C4 pathway": "Alternative pathway for carbon fixation in some plants.",
+            "Kranz anatomy": "Leaf structure in C4 plants.",
+            "Z-scheme": "Model of electron transport in light reactions.",
+            "Photophosphorylation": "Process of generating ATP using light energy."
+          },
+          "concepts": [
+            "Photosynthesis",
+            "Anabolic process",
+            "Light reaction",
+            "Calvin cycle",
+            "RuBisCO",
+            "C3 pathway",
+            "C4 pathway",
+            "Photolysis",
+            "ATP",
+            "NADPH",
+            "Kranz anatomy",
+            "Z-scheme",
+            "Cyclic photophosphorylation",
+            "Non-cyclic photophosphorylation",
+            "Maize",
+            "Sugarcane",
+            "Exercise",
+            "NCERT"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:03:51Z"
+    },
+    "ncert_document_sketch-011": {
+      "example_id": "ncert_document_sketch-011",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Ray Optics",
+          "main_sections": [
+            "Reflection",
+            "Refraction",
+            "Total Internal Reflection",
+            "Lens Formula",
+            "Prism Deviation",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Mirror Formula": "1/f = 1/v + 1/u",
+            "Snell's Law": "n₁ sin i = n₂ sin r",
+            "Critical Angle": "Angle for total internal reflection",
+            "Lens Formula": "1/f = 1/v − 1/u",
+            "Magnification": "m = v/u",
+            "Dispersive Power": "Ability of prism to separate colors"
+          },
+          "concepts": [
+            "Reflection",
+            "Refraction",
+            "Total Internal Reflection",
+            "Critical Angle",
+            "Lens",
+            "Convex Lens",
+            "Concave Lens",
+            "Prism",
+            "Ray Diagram",
+            "Image Position",
+            "Magnification",
+            "Exercises",
+            "Optics",
+            "Light",
+            "Snell's Law",
+            "Mirror",
+            "Focal Length",
+            "Deviation",
+            "Dispersion",
+            "Optical Phenomena"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:04:00Z"
+    },
+    "ncert_document_sketch-012": {
+      "example_id": "ncert_document_sketch-012",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Electrochemistry",
+          "main_sections": [
+            "Electrochemical cells",
+            "Standard electrode potential",
+            "Nernst equation",
+            "Conductance and molar conductivity",
+            "Batteries and fuel cells",
+            "Corrosion"
+          ],
+          "key_definitions": {
+            "Anode": "Electrode where oxidation occurs.",
+            "Cathode": "Electrode where reduction occurs.",
+            "Standard electrode potential": "Measure of the tendency of a chemical species to be reduced.",
+            "Cell EMF": "Electromotive force of the cell.",
+            "Nernst equation": "Relates EMF to concentration.",
+            "Conductance": "Ability of a solution to conduct electricity.",
+            "Molar conductivity": "Conductivity of a solution divided by its molarity.",
+            "Kohlrausch law": "Relationship between conductivity and concentration.",
+            "Batteries": "Devices that store chemical energy and convert it to electrical energy.",
+            "Fuel cells": "Devices that convert chemical energy directly into electrical energy."
+          },
+          "concepts": [
+            "Electrochemical cells",
+            "Anode",
+            "Cathode",
+            "Standard electrode potential",
+            "Cell EMF",
+            "Nernst equation",
+            "Conductance",
+            "Molar conductivity",
+            "Kohlrausch law",
+            "Batteries",
+            "Fuel cells",
+            "Corrosion",
+            "Oxidation",
+            "Reduction",
+            "Electrolyte",
+            "Redox reactions",
+            "Electrode",
+            "Electrolytic cell",
+            "Galvanic cell",
+            "Half-cell",
+            "Electrochemical series"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:04:08Z"
+    },
+    "ncert_document_sketch-013": {
+      "example_id": "ncert_document_sketch-013",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "National Income",
+          "main_sections": [
+            "Circular flow of income",
+            "GDP at market prices",
+            "NDP and NNP",
+            "Real vs nominal GDP",
+            "Methods of measuring national income"
+          ],
+          "key_definitions": {
+            "GDP": "Gross Domestic Product",
+            "GNP": "Gross National Product",
+            "NFIA": "Net Factor Income from Abroad",
+            "NDP": "Net Domestic Product",
+            "NNP": "Net National Product",
+            "Depreciation": "Reduction in value of an asset",
+            "Real GDP": "GDP adjusted for inflation",
+            "Nominal GDP": "GDP measured at current prices",
+            "GDP Deflator": "Measure of price inflation",
+            "Macroeconomic aggregates": "Overall economic indicators"
+          },
+          "concepts": [
+            "Circular flow of income",
+            "Factor payments",
+            "Expenditure",
+            "Market prices",
+            "National income",
+            "Economic indicators",
+            "Inflation",
+            "Depreciation",
+            "Income method",
+            "Expenditure method",
+            "Product method",
+            "Macroeconomics",
+            "Aggregate demand",
+            "Aggregate supply",
+            "Economic growth",
+            "Income distribution",
+            "Investment",
+            "Consumption",
+            "Savings",
+            "Government spending"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:04:18Z"
+    },
+    "ncert_document_sketch-014": {
+      "example_id": "ncert_document_sketch-014",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Gender, Religion and Caste",
+          "main_sections": [
+            "Gender and Politics",
+            "Religion",
+            "Caste and Politics",
+            "Case Study",
+            "Exercise"
+          ],
+          "key_definitions": {
+            "Gender": "Social roles based on sex.",
+            "Communalism": "Loyalty to a specific religious community.",
+            "Secularism": "Separation of religion from politics.",
+            "Caste": "Social stratification in India.",
+            "Reservation Policy": "Affirmative action for marginalized groups.",
+            "Political Representation": "Participation of groups in governance."
+          },
+          "concepts": [
+            "Gender",
+            "Politics",
+            "Communalism",
+            "Secularism",
+            "Caste",
+            "Reservation",
+            "Women's Representation",
+            "Electoral Outcomes",
+            "Social Divisions",
+            "Caste-based Mobilisation",
+            "Women's Reservation Bill",
+            "Public/Private Division",
+            "Case Study",
+            "Political Participation",
+            "Affirmative Action"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:04:29Z"
+    },
+    "ncert_document_sketch-015": {
+      "example_id": "ncert_document_sketch-015",
+      "agent_id": "ncert_document_sketch",
+      "llm_gold": {
+        "sketch_json": {
+          "chapter_title": "Permutations and Combinations",
+          "main_sections": [
+            "Fundamental principle of counting",
+            "Permutations",
+            "Circular permutations",
+            "Combinations",
+            "Applications to binomial coefficients and probability",
+            "Examples",
+            "Exercises"
+          ],
+          "key_definitions": {
+            "Permutations": "Arrangements of objects in a specific order.",
+            "Combinations": "Selections of objects without regard to order.",
+            "nPr": "Number of permutations of n items taken r at a time.",
+            "nCr": "Number of combinations of n items taken r at a time.",
+            "Factorial": "Product of all positive integers up to a given number."
+          },
+          "concepts": [
+            "counting principle",
+            "multiplication rule",
+            "arrangements",
+            "selection problems",
+            "binomial coefficients",
+            "probability",
+            "repetition",
+            "examples",
+            "exercises",
+            "nPr",
+            "nCr",
+            "factorial",
+            "circular permutations",
+            "combinatorial problems",
+            "mathematical reasoning",
+            "discrete mathematics"
+          ]
+        }
+      },
+      "generated_at": "2026-06-24T13:04:36Z"
+    },
+    "chunk_contextualization-001": {
+      "example_id": "chunk_contextualization-001",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses Ohm's law and its implications for electric current in conductors, emphasizing the relationship between voltage, current, and resistance under constant temperature conditions.",
+          "chunk_summary": "Ohm's law defines the relationship V = IR for metallic conductors, with resistivity linking material properties to geometry.",
+          "chunk_type": "formula",
+          "section_title": "Ohm's Law and Resistance",
+          "concept_hint": "Ohm's law, resistivity, voltage, current, resistance"
+        }
+      },
+      "generated_at": "2026-06-24T13:04:41Z"
+    },
+    "chunk_contextualization-002": {
+      "example_id": "chunk_contextualization-002",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the digestive enzymes involved in protein digestion, specifically focusing on pepsin and trypsin. It highlights their activation and action in different parts of the digestive system.",
+          "chunk_summary": "Pepsin is activated in the stomach's acidic environment, while trypsin functions in the alkaline duodenum after pancreatic secretion.",
+          "chunk_type": "definition",
+          "section_title": "16.2 Digestion of Food",
+          "concept_hint": "pepsin, trypsin, stomach, duodenum, pancreatic secretion"
+        }
+      },
+      "generated_at": "2026-06-24T13:04:45Z"
+    },
+    "chunk_contextualization-003": {
+      "example_id": "chunk_contextualization-003",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the VSEPR theory, which is part of covalent bonding in chemical bonding. It explains how molecular geometry is determined by the repulsion between electron pairs, providing examples like NH₃.",
+          "chunk_summary": "VSEPR theory explains that molecular geometry arises from electron pair repulsion, exemplified by NH₃'s pyramidal shape due to a lone pair.",
+          "chunk_type": "definition",
+          "section_title": "4.3 Covalent Bonding",
+          "concept_hint": "VSEPR theory, molecular geometry, electron pairs, NH₃, pyramidal shape"
+        }
+      },
+      "generated_at": "2026-06-24T13:04:49Z"
+    },
+    "chunk_contextualization-004": {
+      "example_id": "chunk_contextualization-004",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the fundamental theorem of calculus, which connects the concept of definite integrals to the evaluation of antiderivatives. It emphasizes the relationship between area under a curve and accumulation of quantities.",
+          "chunk_summary": "The definite integral ∫ₐᵇ f(x)dx equals F(b)−F(a), linking area to accumulation through antiderivatives.",
+          "chunk_type": "formula",
+          "section_title": "7.3 Definite integrals",
+          "concept_hint": "definite integral, antiderivative, fundamental theorem, area, accumulation"
+        }
+      },
+      "generated_at": "2026-06-24T13:04:54Z"
+    },
+    "chunk_contextualization-005": {
+      "example_id": "chunk_contextualization-005",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the molecular basis of inheritance, focusing on DNA structure, replication, and the central dogma of molecular biology. It covers key experiments that identified DNA as the genetic material and the mechanisms of DNA replication.",
+          "chunk_summary": "DNA replication is semiconservative, resulting in duplexes with one parental and one new strand at the replication fork.",
+          "chunk_type": "definition",
+          "section_title": "6.3 DNA Replication",
+          "concept_hint": "semiconservative, replication fork, parental strand, newly synthesised strand, DNA"
+        }
+      },
+      "generated_at": "2026-06-24T13:04:58Z"
+    },
+    "chunk_contextualization-006": {
+      "example_id": "chunk_contextualization-006",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "In the study of gravitation, understanding escape velocity is crucial as it defines the speed required for an object to overcome a planet's gravitational pull. This concept is essential in astrophysics and satellite dynamics.",
+          "chunk_summary": "Escape velocity v_e = √(2gR) is the speed needed to exit a planet's gravitational influence without additional thrust.",
+          "chunk_type": "formula",
+          "section_title": "7.4 Gravitational potential energy",
+          "concept_hint": "escape velocity, gravitational field, propulsion, planetary motion, gravitational potential"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:02Z"
+    },
+    "chunk_contextualization-007": {
+      "example_id": "chunk_contextualization-007",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses Le Chatelier's principle, which is crucial for understanding how equilibrium systems respond to changes. It is part of the broader topic of chemical equilibrium, which includes the calculation of equilibrium constants and the effects of various stresses on a system.",
+          "chunk_summary": "Le Chatelier's principle states that a system at equilibrium will shift to counteract changes in concentration, pressure, or temperature.",
+          "chunk_type": "definition",
+          "section_title": "7.3 Le Chatelier's principle",
+          "concept_hint": "equilibrium, stress, concentration, pressure, temperature"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:06Z"
+    },
+    "chunk_contextualization-008": {
+      "example_id": "chunk_contextualization-008",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the behavior of electric current in series circuits, highlighting how current remains constant while voltage divides among components. It is part of the broader exploration of electric circuits and their properties.",
+          "chunk_summary": "In a series circuit, the same current flows through each resistor, and the total voltage divides across components.",
+          "chunk_type": "definition",
+          "section_title": "12.3 Factors affecting resistance",
+          "concept_hint": "series circuit, current, voltage, resistors, electric circuit"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:10Z"
+    },
+    "chunk_contextualization-009": {
+      "example_id": "chunk_contextualization-009",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the standard form of quadratic equations and the significance of the discriminant in determining the nature of the roots. It provides foundational knowledge for solving quadratic equations through various methods.",
+          "chunk_summary": "The discriminant D=b²−4ac indicates the nature of roots: D>0 for two distinct real roots, D=0 for equal roots, and D<0 for no real roots.",
+          "chunk_type": "definition",
+          "section_title": "Quadratic Equations",
+          "concept_hint": "quadratic equation, discriminant, roots, real roots, factorization"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:15Z"
+    },
+    "chunk_contextualization-010": {
+      "example_id": "chunk_contextualization-010",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "The chapter discusses photosynthesis, detailing the light reactions occurring in the grana and the subsequent Calvin cycle in the stroma, where CO₂ is fixed into glucose using energy carriers.",
+          "chunk_summary": "The Calvin cycle utilizes ATP and NADPH from light reactions to fix CO₂ into glucose.",
+          "chunk_type": "procedure",
+          "section_title": "Calvin cycle in stroma",
+          "concept_hint": "Calvin cycle, CO₂ fixation, ATP, NADPH, light reactions"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:19Z"
+    },
+    "chunk_contextualization-011": {
+      "example_id": "chunk_contextualization-011",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section covers the principles of ray optics, including reflection, refraction, and lens behavior. It discusses the mirror and lens formulas, critical angles, and the behavior of light through prisms, providing foundational knowledge for understanding optical systems.",
+          "chunk_summary": "For a convex lens, the object distance (u) is negative, while the image distance (v) is positive for real images formed on the opposite side.",
+          "chunk_type": "definition",
+          "section_title": "Ray Optics",
+          "concept_hint": "convex lens, object distance, image distance, real image, optics"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:23Z"
+    },
+    "chunk_contextualization-012": {
+      "example_id": "chunk_contextualization-012",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses electrochemical cells, focusing on the relationship between cell EMF and ion concentrations through the Nernst equation, particularly at equilibrium in galvanic cells.",
+          "chunk_summary": "The Nernst equation relates EMF to ion concentrations at equilibrium in a galvanic cell.",
+          "chunk_type": "formula",
+          "section_title": "3.3 Nernst equation links EMF to concentration",
+          "concept_hint": "Nernst equation, EMF, ion concentrations, galvanic cell, equilibrium"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:28Z"
+    },
+    "chunk_contextualization-013": {
+      "example_id": "chunk_contextualization-013",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the components of national income, focusing on the relationship between Gross Domestic Product (GDP) and Gross National Product (GNP). It highlights how GNP accounts for income from abroad, providing a broader view of economic activity.",
+          "chunk_summary": "GNP is defined as GDP plus Net Factor Income from Abroad (NFIA), reflecting income earned by residents from foreign sources.",
+          "chunk_type": "definition",
+          "section_title": "2.2 GDP at market prices; GNP = GDP + NFIA",
+          "concept_hint": "GNP, GDP, NFIA, national income, economic activity"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:34Z"
+    },
+    "chunk_contextualization-014": {
+      "example_id": "chunk_contextualization-014",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the principles of Indian secularism within the broader themes of gender, religion, and caste in politics. It highlights the state's role in ensuring equal treatment of all religions while maintaining religious freedom.",
+          "chunk_summary": "Indian secularism ensures no official religion, treating all religions equally in public policy.",
+          "chunk_type": "definition",
+          "section_title": "Religion communalism vs secularism in India",
+          "concept_hint": "Indian secularism, religious freedom, public policy, equality, state neutrality"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:38Z"
+    },
+    "chunk_contextualization-015": {
+      "example_id": "chunk_contextualization-015",
+      "agent_id": "chunk_contextualization",
+      "llm_gold": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses combinations, specifically focusing on the selection of objects from a larger set. It highlights the formula for calculating combinations, which is essential for understanding how to choose items without regard to order.",
+          "chunk_summary": "The formula for choosing r objects from n distinct objects without order is given as nCr = n!/[(n−r)!r!].",
+          "chunk_type": "formula",
+          "section_title": "7.3 Combinations",
+          "concept_hint": "combinations, nCr, distinct objects, selection, formula"
+        }
+      },
+      "generated_at": "2026-06-24T13:05:42Z"
+    },
+    "whole_file_map_summarizer-002": {
+      "example_id": "whole_file_map_summarizer-002",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: The digestive system consists of the alimentary canal and associated glands.\nPart 2: Carbohydrate digestion begins in the mouth with salivary amylase and continues in the pancreas with pancreatic amylase.\nPart 3: Protein digestion involves pepsin in the stomach and trypsin in the duodenum, while fats are emulsified by bile and acted upon by lipase.\nPart 4: Villi and microvilli enhance the surface area for absorption in the small intestine, with a table detailing enzymes, their sites of action, and products."
+      },
+      "generated_at": "2026-06-24T13:05:46Z"
+    },
+    "whole_file_map_summarizer-003": {
+      "example_id": "whole_file_map_summarizer-003",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: The Kossel-Lewis approach discusses the octet rule and its limitations in chemical bonding.\nPart 2: Lattice enthalpy and the Born-Haber cycle are essential concepts in understanding covalent bonding.\nPart 3: VSEPR theory explains molecular geometry based on the repulsion between electron pairs.\nPart 4: Hybridisation involves the mixing of atomic orbitals to form sigma and pi bonds in molecular structures.\nPart 5: Bond order distinguishes between paramagnetic and diamagnetic substances, illustrated by the pyramidal geometry of NH₃."
+      },
+      "generated_at": "2026-06-24T13:05:51Z"
+    },
+    "whole_file_map_summarizer-004": {
+      "example_id": "whole_file_map_summarizer-004",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: Integration is presented as the inverse of differentiation, with methods including substitution, partial fractions, and integration by parts.\nPart 2: The fundamental theorem of calculus states that the definite integral of a function over an interval equals the difference of its antiderivative evaluated at the endpoints, representing the area under the curve.\nPart 3: Examples illustrate the application of integration techniques and the properties of definite integrals, including finding areas bounded by curves."
+      },
+      "generated_at": "2026-06-24T13:05:56Z"
+    },
+    "whole_file_map_summarizer-005": {
+      "example_id": "whole_file_map_summarizer-005",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: The structure of DNA is a double helix with antiparallel strands and specific base pairing between adenine-thymine and guanine-cytosine.\nPart 2: The search for genetic material was advanced by the experiments of Griffith, Avery, and Hershey-Chase.\nPart 3: DNA replication follows a semiconservative model involving leading and lagging strands, with Okazaki fragments formed on the lagging strand, and mRNA synthesis occurs using a template strand.\nPart 4: Genetic coding is based on triplet codons, which include start and stop codons, and is illustrated by the replication fork in Figure 6.5."
+      },
+      "generated_at": "2026-06-24T13:06:00Z"
+    },
+    "whole_file_map_summarizer-006": {
+      "example_id": "whole_file_map_summarizer-006",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: Kepler's laws describe the motion of planets in elliptical orbits around the sun.\nPart 2: The universal law of gravitation states that the force between two masses is proportional to the product of their masses and inversely proportional to the square of the distance between them.\nPart 3: The acceleration due to gravity varies with altitude and depth, following the formula g = GM/R².\nPart 4: Gravitational potential energy is the energy an object possesses due to its position in a gravitational field.\nPart 5: Escape velocity is the minimum speed needed for an object to break free from a celestial body's gravitational pull, calculated as v_e = √(2gR)."
+      },
+      "generated_at": "2026-06-24T13:06:06Z"
+    },
+    "whole_file_map_summarizer-007": {
+      "example_id": "whole_file_map_summarizer-007",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: This section discusses the concepts of equilibrium in both physical processes, such as solid-liquid and liquid-vapour transitions, and chemical reactions.\nPart 2: It introduces the equilibrium constant expression (Kc) for both homogeneous and heterogeneous systems, along with Le Chatelier's principle regarding the effects of concentration, pressure, and temperature changes.\nPart 3: This part covers ionic equilibrium, including the definitions of Ka, Kb, Kw, the pH scale, and buffer solutions, along with an example of calculating Kc from equilibrium concentrations."
+      },
+      "generated_at": "2026-06-24T13:06:11Z"
+    },
+    "whole_file_map_summarizer-008": {
+      "example_id": "whole_file_map_summarizer-008",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: Part 1 introduces the concepts of electric current, circuits, and essential components like ammeters, voltmeters, and switches.\nPart 2: Part 2 explains Ohm's law and discusses the factors that influence electrical resistance.\nPart 3: Part 3 describes how to calculate total resistance in series and parallel circuits and mentions the formula for heat generated in a conductor and the function of an electric fuse.\nPart 4: Part 4 defines electric power and includes an activity comparing current flow in series and parallel circuits."
+      },
+      "generated_at": "2026-06-24T13:06:16Z"
+    },
+    "whole_file_map_summarizer-009": {
+      "example_id": "whole_file_map_summarizer-009",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: The standard form of a quadratic equation is expressed as ax² + bx + c = 0.\nPart 2: Roots of a quadratic equation can be found using factorization or the quadratic formula.\nPart 3: The discriminant D = b² - 4ac indicates the nature of the roots of a quadratic equation.\nPart 4: The sum and product of the roots of a quadratic equation are given by -b/a and c/a, respectively.\nPart 5: The section includes word problems related to area, speed, and consecutive integers."
+      },
+      "generated_at": "2026-06-24T13:06:20Z"
+    },
+    "whole_file_map_summarizer-010": {
+      "example_id": "whole_file_map_summarizer-010",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: Photosynthesis is an anabolic process that converts carbon dioxide and water into glucose and oxygen.\nPart 2: The light reaction occurs in the grana, involving photolysis and the production of ATP and NADPH, while the Calvin cycle in the stroma utilizes RuBisCO in the C3 pathway.\nPart 3: The C4 pathway, found in maize and sugarcane, features Kranz anatomy and is illustrated by the Z-scheme of the light reaction."
+      },
+      "generated_at": "2026-06-24T13:06:24Z"
+    },
+    "whole_file_map_summarizer-011": {
+      "example_id": "whole_file_map_summarizer-011",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: The mirror formula relates the focal length, image distance, and object distance in reflection.\nPart 2: Snell's law describes the relationship between the angles of incidence and refraction when light passes between different media.\nPart 3: Total internal reflection occurs when the angle of incidence exceeds the critical angle, preventing light from escaping a medium.\nPart 4: The lens formula connects the focal length, image distance, and object distance in lenses, while magnification is the ratio of image distance to object distance."
+      },
+      "generated_at": "2026-06-24T13:06:29Z"
+    },
+    "whole_file_map_summarizer-012": {
+      "example_id": "whole_file_map_summarizer-012",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: Electrochemical cells convert chemical energy into electrical energy through redox reactions.\nPart 2: Oxidation occurs at the anode while reduction takes place at the cathode in electrochemical cells.\nPart 3: The standard electrode potential (E°) is a measure of the tendency of a chemical species to be reduced.\nPart 4: The cell electromotive force (E°cell) is calculated by subtracting the anode potential from the cathode potential.\nPart 5: The Nernst equation relates the electromotive force (EMF) of a cell to the concentrations of the reactants and products."
+      },
+      "generated_at": "2026-06-24T13:06:36Z"
+    },
+    "whole_file_map_summarizer-013": {
+      "example_id": "whole_file_map_summarizer-013",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: The circular flow of income illustrates the relationship between factor payments and expenditure in an economy.\nPart 2: Gross Domestic Product (GDP) at market prices is defined, along with the relationship between Gross National Product (GNP) and Net Factor Income from Abroad (NFIA), as well as concepts of Net Domestic Product (NDP) and Net National Product (NNP) considering depreciation.\nPart 3: The distinction between real and nominal GDP is explained, along with the GDP deflator and the various methods for measuring national income, including product, income, and expenditure approaches."
+      },
+      "generated_at": "2026-06-24T13:06:40Z"
+    },
+    "whole_file_map_summarizer-014": {
+      "example_id": "whole_file_map_summarizer-014",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: This section discusses the intersection of gender and political dynamics.\nPart 2: It examines the impact of the public/private division on women's political representation.\nPart 3: This part explores the tension between communalism and secularism in India.\nPart 4: It analyzes the influence of caste on political structures and behaviors."
+      },
+      "generated_at": "2026-06-24T13:06:45Z"
+    },
+    "whole_file_map_summarizer-015": {
+      "example_id": "whole_file_map_summarizer-015",
+      "agent_id": "whole_file_map_summarizer",
+      "llm_gold": {
+        "map_summaries": "Part 1: The fundamental principle of counting establishes a method for determining the total number of outcomes in a scenario.\nPart 2: Permutations are calculated using the formula nPr = n!/(n−r)!, which counts the arrangements of r items from a set of n distinct items.\nPart 3: Circular permutations refer to arrangements of items in a circle, where the starting point is irrelevant.\nPart 4: Combinations are determined using the formula nCr = n!/[(n−r)!r!], which counts the selections of r items from a set of n distinct items without regard to order.\nPart 5: The applications of binomial coefficients and probability involve using combinations and permutations to solve problems related to likelihood and outcomes."
+      },
+      "generated_at": "2026-06-24T13:06:52Z"
+    },
+    "whole_file_reduce-001": {
+      "example_id": "whole_file_reduce-001",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "### Summary of Document for Exam Revision\n\n**Part 1: Electric Current**\n- Electric current is characterized as the flow of electric charge.\n- The relationship between current, drift velocity, and mobility is articulated through Ohm's law, which provides a foundational understanding of how electric currents behave in conductive materials.\n\n**Part 2: Resistivity and Power**\n- Resistivity is defined by the formula ρ = RA/L, where ρ represents resistivity, R is resistance, A is the cross-sectional area, and L is the length of the conductor.\n- Electrical power is calculated using the formula P = VI, where P is power, V is voltage, and I is current.\n- The section discusses Joule's heating effect, which describes the heat generated by electric currents in resistive materials.\n- It also covers the behavior of electrical cells when arranged in series and parallel configurations, highlighting how these arrangements affect overall circuit performance.\n\n**Part 3: Kirchhoff's Rules**\n- Kirchhoff's rules are essential for circuit analysis:\n  - The **junction rule** states that the total current entering a junction must equal the total current leaving it, ensuring current conservation.\n  - The **loop rule** states that the sum of the voltage gains and losses around any closed loop in a circuit must equal zero, ensuring voltage conservation.\n- Examples and exercises are provided to illustrate these rules in practical circuit scenarios, reinforcing their application in analyzing complex circuits.\n\nThis summary encapsulates the key concepts and formulas related to electric current, resistivity, power, and Kirchhoff's rules, providing a comprehensive overview for exam preparation.",
+        "section_summaries": "Part 1: Electric current is defined as the flow of electric charge, with its relationship to drift velocity and mobility described by Ohm's law.\nPart 2: Resistivity is determined by the formula ρ = RA/L, and electrical power is calculated using P = VI, with considerations for Joule's heating effect and the behavior of cells in series and parallel.\nPart 3: Kirchhoff's rules include the junction rule for current conservation and the loop rule for voltage conservation, illustrated through examples and exercises involving circuits."
+      },
+      "generated_at": "2026-06-24T13:09:59Z"
+    },
+    "whole_file_reduce-002": {
+      "example_id": "whole_file_reduce-002",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "Here are the key formulas and definitions to remember from your document on the digestive system:\n\n### Key Definitions\n\n- **Alimentary Canal**: The continuous tube that runs from the mouth to the anus, involved in the digestion and absorption of food.\n- **Associated Glands**: Organs such as the salivary glands, pancreas, and liver that secrete digestive enzymes and substances.\n\n### Key Formulas and Processes\n\n1. **Carbohydrate Digestion**:\n   - **Salivary Amylase**: Enzyme in the mouth that begins the breakdown of carbohydrates.\n   - **Pancreatic Amylase**: Enzyme secreted by the pancreas that continues carbohydrate digestion in the small intestine.\n\n2. **Protein Digestion**:\n   - **Pepsin**: Enzyme activated in the stomach that initiates protein digestion.\n   - **Trypsin**: Enzyme released by the pancreas that further digests proteins in the duodenum.\n\n3. **Fat Digestion**:\n   - **Bile**: Substance produced by the liver that emulsifies fats, increasing their surface area for enzyme action.\n   - **Lipase**: Enzyme that breaks down fats into fatty acids and glycerol.\n\n### Absorption Enhancements\n\n- **Villi and Microvilli**: Structures in the small intestine that increase the surface area for nutrient absorption, allowing for more efficient uptake of digested food.\n\n### Summary Table (for reference)\n- **Enzymes**: Salivary Amylase, Pancreatic Amylase, Pepsin, Trypsin, Lipase\n- **Sites of Action**: Mouth, Pancreas, Stomach, Duodenum\n- **Products**: Simple sugars (from carbohydrates), Amino acids (from proteins), Fatty acids and glycerol (from fats)\n\nThese key formulas and definitions encapsulate the essential processes and components of the digestive system as outlined in your document.",
+        "section_summaries": "Part 1: The digestive system consists of the alimentary canal and associated glands.\nPart 2: Carbohydrate digestion begins in the mouth with salivary amylase and continues in the pancreas with pancreatic amylase.\nPart 3: Protein digestion involves pepsin in the stomach and trypsin in the duodenum, while fats are emulsified by bile and acted upon by lipase.\nPart 4: Villi and microvilli enhance the surface area for absorption in the small intestine, with a table detailing enzymes, their sites of action, and products."
+      },
+      "generated_at": "2026-06-24T13:10:09Z"
+    },
+    "whole_file_reduce-003": {
+      "example_id": "whole_file_reduce-003",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "The document covers several key topics related to chemical bonding and molecular structure. Here is a structured overview of the main topics discussed in each section:\n\n1. **Kossel-Lewis Approach**:\n   - Explores the octet rule and its limitations in explaining chemical bonding.\n\n2. **Lattice Enthalpy and Born-Haber Cycle**:\n   - Introduces essential concepts for understanding covalent bonding, emphasizing the energy changes associated with the formation of ionic compounds.\n\n3. **VSEPR Theory**:\n   - Discusses how molecular geometry is determined by the repulsion between electron pairs, providing insights into the shapes of molecules.\n\n4. **Hybridisation**:\n   - Describes the process of mixing atomic orbitals to create sigma and pi bonds, which are fundamental to the formation of molecular structures.\n\n5. **Bond Order**:\n   - Differentiates between paramagnetic and diamagnetic substances, using the pyramidal geometry of ammonia (NH₃) as a specific illustration.\n\nOverall, the document provides a comprehensive overview of fundamental concepts in chemical bonding, including theoretical frameworks, energy considerations, molecular shapes, and the nature of chemical bonds.",
+        "section_summaries": "Part 1: The Kossel-Lewis approach discusses the octet rule and its limitations in chemical bonding.\nPart 2: Lattice enthalpy and the Born-Haber cycle are essential concepts in understanding covalent bonding.\nPart 3: VSEPR theory explains molecular geometry based on the repulsion between electron pairs.\nPart 4: Hybridisation involves the mixing of atomic orbitals to form sigma and pi bonds in molecular structures.\nPart 5: Bond order distinguishes between paramagnetic and diamagnetic substances, illustrated by the pyramidal geometry of NH₃."
+      },
+      "generated_at": "2026-06-24T13:10:18Z"
+    },
+    "whole_file_reduce-004": {
+      "example_id": "whole_file_reduce-004",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "Here is a structured overview based on the provided document summaries:\n\n### Overview of Integration\n\n- **Part 1: Introduction to Integration**\n  - Integration is defined as the inverse process of differentiation.\n  - Key methods of integration include:\n    - Substitution\n    - Partial fractions\n    - Integration by parts\n\n- **Part 2: Fundamental Theorem of Calculus**\n  - The theorem establishes a crucial relationship between differentiation and integration.\n  - It states that:\n    - The definite integral of a function over a specified interval is equal to the difference of its antiderivative evaluated at the interval's endpoints.\n    - This concept represents the area under the curve of the function.\n\n- **Part 3: Practical Applications of Integration**\n  - Examples are provided to demonstrate the application of various integration techniques.\n  - The section highlights the properties of definite integrals, specifically:\n    - Calculating areas that are bounded by curves.\n\nThis overview encapsulates the key concepts and methods of integration, the fundamental theorem, and practical applications as discussed in the document.",
+        "section_summaries": "Part 1: Integration is presented as the inverse of differentiation, with methods including substitution, partial fractions, and integration by parts.\nPart 2: The fundamental theorem of calculus states that the definite integral of a function over an interval equals the difference of its antiderivative evaluated at the endpoints, representing the area under the curve.\nPart 3: Examples illustrate the application of integration techniques and the properties of definite integrals, including finding areas bounded by curves."
+      },
+      "generated_at": "2026-06-24T13:10:24Z"
+    },
+    "whole_file_reduce-005": {
+      "example_id": "whole_file_reduce-005",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "The sections of your document collectively build a comprehensive understanding of molecular genetics, which is vital for NEET preparation. Here’s how they connect:\n\n### 1. **Fundamental Structure of DNA**\n   - **Part 1** introduces the structure of DNA as a double helix, emphasizing the antiparallel nature of the strands and specific base pairing. This foundational knowledge is critical, as it sets the stage for understanding how genetic information is stored and transmitted.\n\n### 2. **Historical Context of Genetic Material**\n   - **Part 2** discusses significant experiments by Griffith, Avery, and Hershey-Chase that advanced the understanding of DNA as genetic material. This historical perspective is essential for grasping how scientific inquiry has shaped current knowledge of genetics, reinforcing the importance of DNA’s structure from Part 1.\n\n### 3. **DNA Replication Mechanism**\n   - **Part 3** details the process of DNA replication, which is crucial for cell division and the propagation of genetic information. The mention of the semiconservative model and the formation of Okazaki fragments on the lagging strand connects directly to the structure outlined in Part 1, illustrating how the antiparallel strands function during replication. Additionally, the synthesis of mRNA using a template strand links to the transcription process, which is a key concept in genetics.\n\n### 4. **Genetic Coding and Expression**\n   - **Part 4** explains genetic coding through triplet codons, including the roles of start and stop codons. This section ties back to the information provided in Parts 1 and 3 by showing how the structure of DNA and its replication processes lead to the coding of proteins. The reference to the replication fork serves as a visual aid that reinforces the connection between DNA structure, replication, and the eventual expression of genetic information.\n\n### Conclusion\nThe sections of your document interrelate to provide a comprehensive overview of molecular genetics, from the structural basis of DNA to its functional implications in replication and coding. Understanding these connections is crucial for NEET preparation, as they encompass fundamental concepts that underpin many biological processes.",
+        "section_summaries": "Part 1: The structure of DNA is a double helix with antiparallel strands and specific base pairing between adenine-thymine and guanine-cytosine.\nPart 2: The search for genetic material was advanced by the experiments of Griffith, Avery, and Hershey-Chase.\nPart 3: DNA replication follows a semiconservative model involving leading and lagging strands, with Okazaki fragments formed on the lagging strand, and mRNA synthesis occurs using a template strand.\nPart 4: Genetic coding is based on triplet codons, which include start and stop codons, and is illustrated by the replication fork in Figure 6.5."
+      },
+      "generated_at": "2026-06-24T13:10:32Z"
+    },
+    "whole_file_reduce-006": {
+      "example_id": "whole_file_reduce-006",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "### Revision Notes on Gravitational Concepts\n\n#### Kepler's Laws\n- Planets move in elliptical orbits around the sun.\n- The laws describe the relationship between the orbital motion of planets and their distance from the sun.\n\n#### Universal Law of Gravitation\n- The gravitational force between two masses is:\n  - Proportional to the product of their masses.\n  - Inversely proportional to the square of the distance between them.\n\n#### Acceleration Due to Gravity\n- Varies with altitude and depth.\n- Formula: g = GM/R², where:\n  - G = gravitational constant,\n  - M = mass of the celestial body,\n  - R = distance from the center of the body.\n\n#### Gravitational Potential Energy\n- Defined as the energy an object has due to its position within a gravitational field.\n- Influenced by the mass of the object and its height above a reference point.\n\n#### Escape Velocity\n- Minimum speed required for an object to escape a celestial body's gravitational influence.\n- Calculated using the formula: v_e = √(2gR), where:\n  - g = acceleration due to gravity,\n  - R = radius of the celestial body.\n\nThese notes summarize the key concepts related to gravitational motion and energy, providing a clear overview of the chapter's content.",
+        "section_summaries": "Part 1: Kepler's laws describe the motion of planets in elliptical orbits around the sun.\nPart 2: The universal law of gravitation states that the force between two masses is proportional to the product of their masses and inversely proportional to the square of the distance between them.\nPart 3: The acceleration due to gravity varies with altitude and depth, following the formula g = GM/R².\nPart 4: Gravitational potential energy is the energy an object possesses due to its position in a gravitational field.\nPart 5: Escape velocity is the minimum speed needed for an object to break free from a celestial body's gravitational pull, calculated as v_e = √(2gR)."
+      },
+      "generated_at": "2026-06-24T13:10:39Z"
+    },
+    "whole_file_reduce-007": {
+      "example_id": "whole_file_reduce-007",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "To effectively prepare for your board exam questions, focus on the following key areas derived from the entire document:\n\n### 1. Understanding Equilibrium Concepts\n- **Physical Equilibrium**: Familiarize yourself with the principles of equilibrium in physical processes, specifically solid-liquid and liquid-vapour transitions. Be able to explain how these transitions achieve equilibrium.\n- **Chemical Equilibrium**: Understand how chemical reactions reach equilibrium and the factors that influence this state.\n\n### 2. Equilibrium Constant Expressions\n- **Kc Expression**: Learn how to write and interpret the equilibrium constant expression (Kc) for both homogeneous and heterogeneous systems. \n- **Le Chatelier's Principle**: Study how changes in concentration, pressure, and temperature affect the position of equilibrium. Be prepared to apply this principle to predict the direction of shifts in equilibrium.\n\n### 3. Ionic Equilibrium\n- **Key Definitions**: Master the definitions and relationships between Ka (acid dissociation constant), Kb (base dissociation constant), and Kw (ion product of water).\n- **pH Scale**: Understand the pH scale, how to calculate pH from concentrations, and the significance of pH in chemical reactions.\n- **Buffer Solutions**: Review the concept of buffer solutions, including how they work to maintain pH levels in a solution.\n- **Calculating Kc**: Practice calculating Kc from equilibrium concentrations using provided examples to solidify your understanding.\n\n### Study Tips\n- Create summary notes for each section to reinforce your understanding.\n- Work through practice problems related to equilibrium constants and Le Chatelier's principle.\n- Conduct group discussions or study sessions to clarify complex concepts, especially ionic equilibria and buffer systems.\n\nBy focusing on these areas, you will be well-prepared to tackle questions related to equilibrium in your board exams.",
+        "section_summaries": "Part 1: This section discusses the concepts of equilibrium in both physical processes, such as solid-liquid and liquid-vapour transitions, and chemical reactions.\nPart 2: It introduces the equilibrium constant expression (Kc) for both homogeneous and heterogeneous systems, along with Le Chatelier's principle regarding the effects of concentration, pressure, and temperature changes.\nPart 3: This part covers ionic equilibrium, including the definitions of Ka, Kb, Kw, the pH scale, and buffer solutions, along with an example of calculating Kc from equilibrium concentrations."
+      },
+      "generated_at": "2026-06-24T13:08:01Z"
+    },
+    "whole_file_reduce-009": {
+      "example_id": "whole_file_reduce-009",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "Here’s a concise summary of the document, suitable for a 5-minute oral recap:\n\n---\n\n**Overview of Quadratic Equations**\n\n1. **Standard Form**:  \n   The standard form of a quadratic equation is expressed as \\( ax^2 + bx + c = 0 \\). Here, \\( a \\), \\( b \\), and \\( c \\) are constants, with \\( a \\) not equal to zero.\n\n2. **Finding Roots**:  \n   The roots of a quadratic equation can be determined through two primary methods:\n   - **Factorization**: This involves rewriting the equation in a product form and solving for the variable.\n   - **Quadratic Formula**: This is a universal method given by \\( x = \\frac{-b \\pm \\sqrt{D}}{2a} \\), where \\( D \\) is the discriminant.\n\n3. **Discriminant**:  \n   The discriminant, denoted as \\( D = b^2 - 4ac \\), plays a crucial role in determining the nature of the roots:\n   - If \\( D > 0 \\): There are two distinct real roots.\n   - If \\( D = 0 \\): There is exactly one real root (a repeated root).\n   - If \\( D < 0 \\): The roots are complex and not real.\n\n4. **Sum and Product of Roots**:  \n   The relationships between the roots of a quadratic equation can be expressed as:\n   - The sum of the roots is given by \\( -\\frac{b}{a} \\).\n   - The product of the roots is given by \\( \\frac{c}{a} \\).\n\n5. **Application Through Word Problems**:  \n   The document also includes practical applications of quadratic equations through word problems that cover various scenarios such as:\n   - Calculating areas.\n   - Solving problems related to speed.\n   - Working with consecutive integers.\n\n---\n\nThis summary encapsulates the essential concepts and applications of quadratic equations as outlined in the document, providing a comprehensive overview for your oral presentation.",
+        "section_summaries": "Part 1: The standard form of a quadratic equation is expressed as ax² + bx + c = 0.\nPart 2: Roots of a quadratic equation can be found using factorization or the quadratic formula.\nPart 3: The discriminant D = b² - 4ac indicates the nature of the roots of a quadratic equation.\nPart 4: The sum and product of the roots of a quadratic equation are given by -b/a and c/a, respectively.\nPart 5: The section includes word problems related to area, speed, and consecutive integers."
+      },
+      "generated_at": "2026-06-24T13:11:08Z"
+    },
+    "whole_file_reduce-010": {
+      "example_id": "whole_file_reduce-010",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "Here is a comprehensive overview highlighting the definitions, procedures, and examples from your document on photosynthesis:\n\n### Definitions\n- **Photosynthesis**: An anabolic process that transforms carbon dioxide and water into glucose and oxygen.\n- **Light Reaction**: A phase of photosynthesis that occurs in the grana, where light energy is converted into chemical energy.\n- **Calvin Cycle**: A phase that takes place in the stroma, utilizing RuBisCO in the C3 pathway to fix carbon and produce glucose.\n- **C4 Pathway**: A photosynthetic pathway found in certain plants like maize and sugarcane, characterized by Kranz anatomy.\n\n### Procedures\n1. **Light Reaction Process**:\n   - Occurs in the grana of chloroplasts.\n   - Involves **photolysis**, which is the splitting of water molecules to release oxygen.\n   - Produces **ATP** and **NADPH**, which are essential for the subsequent stages of photosynthesis.\n\n2. **Calvin Cycle Process**:\n   - Takes place in the stroma of chloroplasts.\n   - Utilizes the enzyme **RuBisCO** to fix carbon dioxide into organic molecules through the C3 pathway.\n\n3. **C4 Pathway Process**:\n   - Involves specialized leaf anatomy known as **Kranz anatomy**.\n   - This pathway is designed to efficiently capture carbon dioxide in environments where it is less available.\n\n### Examples\n- **Plants Utilizing C4 Pathway**: Maize and sugarcane are prime examples of plants that employ the C4 pathway, showcasing adaptations that enhance their photosynthetic efficiency.\n- **Z-Scheme Illustration**: The Z-scheme represents the light reaction, depicting the flow of electrons and the conversion of light energy into chemical energy.\n\nThis structured response captures the essential definitions, procedures, and examples from your document, providing a clear understanding of the key concepts related to photosynthesis.",
+        "section_summaries": "Part 1: Photosynthesis is an anabolic process that converts carbon dioxide and water into glucose and oxygen.\nPart 2: The light reaction occurs in the grana, involving photolysis and the production of ATP and NADPH, while the Calvin cycle in the stroma utilizes RuBisCO in the C3 pathway.\nPart 3: The C4 pathway, found in maize and sugarcane, features Kranz anatomy and is illustrated by the Z-scheme of the light reaction."
+      },
+      "generated_at": "2026-06-24T13:11:20Z"
+    },
+    "whole_file_reduce-011": {
+      "example_id": "whole_file_reduce-011",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "# Exam-Oriented Notes\n\n## Part 1: Mirror Formula\n- **Concept**: The mirror formula is essential for understanding how mirrors form images.\n- **Key Relationship**: The formula relates three important distances:\n  - Focal Length (f)\n  - Image Distance (v)\n  - Object Distance (u)\n- **Formula**: 1/f = 1/v + 1/u\n- **Applications**: Used to calculate the position and characteristics of images formed by concave and convex mirrors.\n\n## Part 2: Snell's Law\n- **Concept**: Snell's Law is fundamental in optics, specifically in the study of refraction.\n- **Key Relationship**: It describes how light bends when it passes from one medium to another.\n- **Formula**: n1 * sin(θ1) = n2 * sin(θ2)\n  - Where n is the refractive index of the media, and θ is the angle of incidence (θ1) and refraction (θ2).\n- **Applications**: Critical for understanding lens behavior and optical devices.\n\n## Part 3: Total Internal Reflection\n- **Concept**: Total internal reflection is a phenomenon that occurs under specific conditions.\n- **Condition**: It happens when the angle of incidence is greater than the critical angle.\n- **Critical Angle**: The minimum angle of incidence at which light cannot pass through the boundary and is instead reflected entirely within the medium.\n- **Applications**: Used in fiber optics and other technologies where light needs to be contained within a medium.\n\n## Part 4: Lens Formula\n- **Concept**: The lens formula is crucial for analyzing how lenses form images.\n- **Key Relationship**: Similar to the mirror formula, it connects:\n  - Focal Length (f)\n  - Image Distance (v)\n  - Object Distance (u)\n- **Formula**: 1/f = 1/v + 1/u\n- **Magnification**: Defined as the ratio of image distance to object distance (v/u).\n- **Applications**: Important for understanding the function of various lenses in optical instruments.\n\n### Summary\n- Mastering the mirror and lens formulas is critical for solving problems related to image formation.\n- Understanding Snell's Law and total internal reflection is essential for applications in optics, including the design of lenses and fiber optics.",
+        "section_summaries": "Part 1: The mirror formula relates the focal length, image distance, and object distance in reflection.\nPart 2: Snell's law describes the relationship between the angles of incidence and refraction when light passes between different media.\nPart 3: Total internal reflection occurs when the angle of incidence exceeds the critical angle, preventing light from escaping a medium.\nPart 4: The lens formula connects the focal length, image distance, and object distance in lenses, while magnification is the ratio of image distance to object distance."
+      },
+      "generated_at": "2026-06-24T13:11:32Z"
+    },
+    "whole_file_reduce-012": {
+      "example_id": "whole_file_reduce-012",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "Here are the critical takeaways from each part of your document:\n\n### Part 1: Electrochemical Cells\n- Electrochemical cells are devices that transform chemical energy into electrical energy through redox (reduction-oxidation) reactions.\n\n### Part 2: Oxidation and Reduction\n- In electrochemical cells, oxidation occurs at the anode, where electrons are released, while reduction occurs at the cathode, where electrons are gained.\n\n### Part 3: Standard Electrode Potential\n- The standard electrode potential (E°) quantifies the likelihood of a chemical species to undergo reduction, serving as a key indicator of its reactivity.\n\n### Part 4: Calculating Cell EMF\n- The electromotive force (E°cell) of a cell is determined by the difference in potential between the cathode and anode, calculated by subtracting the anode potential from the cathode potential.\n\n### Part 5: The Nernst Equation\n- The Nernst equation connects the electromotive force (EMF) of an electrochemical cell to the concentrations of the reactants and products, allowing for the calculation of cell potential under non-standard conditions.\n\nThese takeaways encapsulate the fundamental principles and calculations involved in understanding electrochemical cells and their operations.",
+        "section_summaries": "Part 1: Electrochemical cells convert chemical energy into electrical energy through redox reactions.\nPart 2: Oxidation occurs at the anode while reduction takes place at the cathode in electrochemical cells.\nPart 3: The standard electrode potential (E°) is a measure of the tendency of a chemical species to be reduced.\nPart 4: The cell electromotive force (E°cell) is calculated by subtracting the anode potential from the cathode potential.\nPart 5: The Nernst equation relates the electromotive force (EMF) of a cell to the concentrations of the reactants and products."
+      },
+      "generated_at": "2026-06-24T13:11:38Z"
+    },
+    "whole_file_reduce-013": {
+      "example_id": "whole_file_reduce-013",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "The document provides a comprehensive overview of key economic concepts related to the circular flow of income and national income accounting. Below is a structured summary of each major section:\n\n### Part 1: Circular Flow of Income\n- This section outlines the circular flow of income model, which illustrates how factor payments (wages, rent, interest, and profits) are linked to expenditure in an economy. It emphasizes the interdependence between households and businesses, highlighting how income generated from factors of production is spent on goods and services.\n\n### Part 2: National Income Definitions\n- The document defines Gross Domestic Product (GDP) at market prices and explains its significance in measuring economic performance. It also clarifies the relationships between various national income concepts:\n  - **Gross National Product (GNP)** and its connection to **Net Factor Income from Abroad (NFIA)**.\n  - The definitions of **Net Domestic Product (NDP)** and **Net National Product (NNP)**, including considerations of depreciation, which affect the overall assessment of economic health.\n\n### Part 3: Measuring National Income\n- This section distinguishes between real and nominal GDP, explaining how inflation affects economic measurements. It introduces the GDP deflator as a tool for adjusting nominal figures to reflect real economic growth. Additionally, it discusses the different methodologies for measuring national income:\n  - **Product Approach**: Focuses on total output.\n  - **Income Approach**: Centers on total income earned.\n  - **Expenditure Approach**: Looks at total spending in the economy.\n\nOverall, the document provides a detailed exploration of the circular flow of income and the various frameworks for understanding and measuring national income, offering insights into the dynamics of economic activity.",
+        "section_summaries": "Part 1: The circular flow of income illustrates the relationship between factor payments and expenditure in an economy.\nPart 2: Gross Domestic Product (GDP) at market prices is defined, along with the relationship between Gross National Product (GNP) and Net Factor Income from Abroad (NFIA), as well as concepts of Net Domestic Product (NDP) and Net National Product (NNP) considering depreciation.\nPart 3: The distinction between real and nominal GDP is explained, along with the GDP deflator and the various methods for measuring national income, including product, income, and expenditure approaches."
+      },
+      "generated_at": "2026-06-24T13:11:46Z"
+    },
+    "whole_file_reduce-014": {
+      "example_id": "whole_file_reduce-014",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "Here’s a quick recap of all parts of your document, structured for clarity:\n\n### Part 1: Gender and Political Dynamics\n- This section highlights how gender intersects with political dynamics, emphasizing the unique challenges and opportunities women face in political arenas.\n\n### Part 2: Public/Private Division\n- It examines the implications of the public/private divide on women's political representation, illustrating how societal norms and roles can limit women's participation in politics.\n\n### Part 3: Communalism vs. Secularism\n- This part explores the ongoing tension between communalism and secularism in India, discussing how these forces shape political discourse and impact various communities, particularly women.\n\n### Part 4: Caste and Political Structures\n- It analyzes the role of caste in influencing political structures and behaviors, detailing how caste identities affect political engagement and representation.\n\nThis recap encapsulates the key themes and insights from each section, providing a comprehensive overview of the document's content.",
+        "section_summaries": "Part 1: This section discusses the intersection of gender and political dynamics.\nPart 2: It examines the impact of the public/private division on women's political representation.\nPart 3: This part explores the tension between communalism and secularism in India.\nPart 4: It analyzes the influence of caste on political structures and behaviors."
+      },
+      "generated_at": "2026-06-24T13:11:52Z"
+    },
+    "whole_file_reduce-015": {
+      "example_id": "whole_file_reduce-015",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "### Notes on Counting Principles, Permutations, and Combinations\n\n- **Fundamental Principle of Counting**: This principle provides a systematic way to calculate the total number of possible outcomes in various scenarios.\n\n- **Permutations**: \n  - Formula: nPr = n! / (n−r)!\n  - Purpose: Counts the number of ways to arrange r items selected from a set of n distinct items.\n\n- **Circular Permutations**: \n  - Definition: Arrangements of items in a circle where the starting point does not matter, altering the counting method compared to linear arrangements.\n\n- **Combinations**: \n  - Formula: nCr = n! / [(n−r)!r!]\n  - Purpose: Counts the number of ways to select r items from a set of n distinct items without considering the order of selection.\n\n- **Applications of Binomial Coefficients and Probability**: \n  - Involves using permutations and combinations to address problems related to likelihood and outcomes, enhancing understanding of statistical scenarios.",
+        "section_summaries": "Part 1: The fundamental principle of counting establishes a method for determining the total number of outcomes in a scenario.\nPart 2: Permutations are calculated using the formula nPr = n!/(n−r)!, which counts the arrangements of r items from a set of n distinct items.\nPart 3: Circular permutations refer to arrangements of items in a circle, where the starting point is irrelevant.\nPart 4: Combinations are determined using the formula nCr = n!/[(n−r)!r!], which counts the selections of r items from a set of n distinct items without regard to order.\nPart 5: The applications of binomial coefficients and probability involve using combinations and permutations to solve problems related to likelihood and outcomes."
+      },
+      "generated_at": "2026-06-24T13:11:58Z"
+    },
+    "whole_file_reduce-008": {
+      "example_id": "whole_file_reduce-008",
+      "agent_id": "whole_file_reduce",
+      "llm_gold": {
+        "final_answer": "The document is structured into four distinct parts, each focusing on fundamental concepts of electricity and circuits:\n\n### Part 1: Introduction to Electric Current and Components\n- Introduces basic concepts such as electric current and circuits.\n- Highlights essential components including ammeters (for measuring current), voltmeters (for measuring voltage), and switches (for controlling the flow of electricity).\n\n### Part 2: Ohm's Law and Electrical Resistance\n- Explains Ohm's law, which relates voltage, current, and resistance.\n- Discusses the various factors that influence electrical resistance, providing a deeper understanding of how materials affect current flow.\n\n### Part 3: Calculating Resistance and Heat Generation\n- Describes methods for calculating total resistance in both series and parallel circuits.\n- Introduces formulas for heat generation in conductors and explains the role of electric fuses in protecting circuits from overloads.\n\n### Part 4: Understanding Electric Power\n- Defines electric power and its significance in circuits.\n- Includes an interactive activity that allows for a practical comparison of current flow in series versus parallel circuits, reinforcing the theoretical concepts discussed earlier.\n\n### Comparison of Main Ideas\n- **Conceptual Foundation**: Parts 1 and 2 lay the groundwork by introducing key concepts and laws governing electricity, while Parts 3 and 4 build on this foundation with practical applications and calculations.\n- **Focus on Resistance**: Part 2 specifically addresses resistance, a crucial aspect that connects to the calculations in Part 3.\n- **Application and Interaction**: Part 4 not only defines electric power but also engages the learner through activities, contrasting with the more theoretical nature of the earlier sections.\n\nOverall, the document progresses from foundational concepts to practical applications, emphasizing the relationship between theory and real-world circuit behavior.",
+        "section_summaries": "Part 1: Part 1 introduces the concepts of electric current, circuits, and essential components like ammeters, voltmeters, and switches.\nPart 2: Part 2 explains Ohm's law and discusses the factors that influence electrical resistance.\nPart 3: Part 3 describes how to calculate total resistance in series and parallel circuits and mentions the formula for heat generated in a conductor and the function of an electric fuse.\nPart 4: Part 4 defines electric power and includes an activity comparing current flow in series and parallel circuits."
+      }
+    }
+  }
+}

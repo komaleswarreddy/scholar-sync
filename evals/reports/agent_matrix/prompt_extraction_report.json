@@ -1,0 +1,234 @@
+{
+  "written": [
+    {
+      "agent_id": "query_rewriter",
+      "agent_name": "Query Rewriter Agent",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "query_decomposer",
+      "agent_name": "Query Decomposer Agent",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "scope_narrower",
+      "agent_name": "Scope Narrower Agent",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "agent_name": "Chat Policy Block (YAML)",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "direct_chat",
+      "agent_name": "Direct Chat Agent (ScholarSync)",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "agent_name": "RAG Chat Response Generator",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "agent_name": "Chat Summarizer Agent",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "agent_name": "Hallucination Guard Retry Suffix",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "studio_system_json",
+      "agent_name": "Studio System Prompt (JSON tasks)",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "studio_quiz",
+      "agent_name": "Studio Quiz Generator",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "agent_name": "Studio Flashcards Generator",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "agent_name": "Studio Mind Map Generator",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "agent_name": "Studio Slide Deck Generator",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "agent_name": "Studio Fallback Task Prompt (Legacy)",
+      "versions": [
+        "v1",
+        "v2",
+        "v3"
+      ]
+    }
+  ],
+  "skipped": [
+    {
+      "agent": "Intent Classifier Agent",
+      "reason": "intent_classifier_eval unchanged"
+    },
+    {
+      "agent": "Intent Classifier Agent",
+      "reason": "intent_classifier_eval unchanged"
+    },
+    {
+      "agent": "Studio Context Embedding Query (Legacy)",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Problem DNA Analyzer",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Explain From Basics Coach",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Show Best Approach Coach",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Show Missing Idea Coach",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Help Me Solve It Coach",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Problem Solver Follow-up Handler",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Tutor Notebook Bootstrap Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Tutor Follow-up Questions Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Source Question Extraction Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Document Sketch Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "NCERT Document Sketch Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Chunk Contextualization Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Whole File Map Summarizer",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Whole File Reduce Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Image OCR Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Diagram Label OCR Agent",
+      "reason": "not in agent_eval scope"
+    },
+    {
+      "agent": "Refusal Templates (Guardrails)",
+      "reason": "not in agent_eval scope"
+    }
+  ],
+  "flags": [
+    {
+      "agent_id": "chat_policy_block",
+      "version": "v2",
+      "issue": "empty system prompt"
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "version": "v3",
+      "issue": "empty system prompt"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "version": "v2",
+      "issue": "empty system prompt"
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "version": "v3",
+      "issue": "empty system prompt"
+    }
+  ]
+}

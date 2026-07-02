@@ -279,11 +279,6 @@ AGENT_SPECIFIC: Dict[str, Dict[str, str]] = {
         "evaluates": "Final answer format; coherent structured output.",
         "key_outputs": "`final_answer`",
     },
-    "whole_file_map_template": {
-        "role": "Template for map-phase summaries across document excerpts.",
-        "evaluates": "Map summaries JSON structure; format compliance.",
-        "key_outputs": "`map_summaries`",
-    },
     "image_ocr": {
         "role": "Extracts text from uploaded image fixtures (OCR simulation).",
         "evaluates": "Extracted text format; readable output structure.",

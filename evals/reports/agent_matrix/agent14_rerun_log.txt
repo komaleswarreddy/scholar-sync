@@ -1,0 +1,64 @@
+========================================================================
+[5/9] agent=problem_dna_analyzer prompt=v1 model=claude-sonnet-4-6 (anthropic) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=0/5000 margin=250 remaining=4750 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-problem_dna_analyzer-v1-anthropic-claude-sonnet-4-6-069ded2c' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=93abcd7f-2290-4ffd-91e6-54dffdddb5f3
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=211/5000 (incl. margin 250) | usable_remaining=4539
+
+DONE [5/9] problem_dna_analyzer/v1/claude-sonnet-4-6 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[6/9] agent=problem_dna_analyzer prompt=v2 model=claude-sonnet-4-6 (anthropic) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=211/5000 margin=250 remaining=4539 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-problem_dna_analyzer-v2-anthropic-claude-sonnet-4-6-5fd838d8' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=aa1caa34-a4f4-4555-8c0b-cefc48039370
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=633/5000 (incl. margin 250) | usable_remaining=4117
+
+DONE [6/9] problem_dna_analyzer/v2/claude-sonnet-4-6 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[7/9] agent=problem_dna_analyzer prompt=v3 model=gpt-5.4-mini (openai) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=633/5000 margin=250 remaining=4117 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-problem_dna_analyzer-v3-openai-gpt-5-4-mini-9fcaf362' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=2e17bf9c-4497-4e9a-a1f3-08b7473e2c79
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=844/5000 (incl. margin 250) | usable_remaining=3906
+
+DONE [7/9] problem_dna_analyzer/v3/gpt-5.4-mini -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[8/9] agent=problem_dna_analyzer prompt=v3 model=gpt-5.4 (openai) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=844/5000 margin=250 remaining=3906 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-problem_dna_analyzer-v3-openai-gpt-5-4-025d4eef' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=1f5c472c-df97-42ba-8ec0-f705fd696d43
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=1055/5000 (incl. margin 250) | usable_remaining=3695
+
+DONE [8/9] problem_dna_analyzer/v3/gpt-5.4 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+========================================================================
+[9/9] agent=problem_dna_analyzer prompt=v3 model=claude-sonnet-4-6 (anthropic) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=1055/5000 margin=250 remaining=3695 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-problem_dna_analyzer-v3-anthropic-claude-sonnet-4-6-16e48cc2' at:
+https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/datasets/0ec56467-f8c3-4248-b7bb-202b444a7d97/compare?selectedSessions=bfb4c1f9-6f59-47cd-9316-1ccc22107b18
+
+
+[GUARD] DONE: traces_this_experiment=211 (agent=30 + evaluator=181) | monthly_used=1688/5000 (incl. margin 250) | usable_remaining=3062
+
+DONE [9/9] problem_dna_analyzer/v3/claude-sonnet-4-6 -> ok
+View: https://smith.langchain.com/o/c997e411-7986-45a4-991c-db218a869d43/projects/p/ScholarSync-v2
+
+All 9 experiments complete.
+
+Leaderboard written to C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\evals\reports\agent_matrix\leaderboard_20260702T083611Z.json

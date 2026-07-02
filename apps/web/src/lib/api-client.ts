@@ -306,6 +306,29 @@ class ApiClient {
   }
 
   /**
+   * Authenticate against the standalone teacher portal.
+   * Returns the signed Bearer token; the caller stores it as the teacher session.
+   */
+  async teacherLogin(email: string, password: string): Promise<string> {
+    const tenantId = getTenantIdFromCookie();
+    const res = await this.client.post(
+      '/api/v1/teacher/auth/login',
+      { email, password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
+        },
+      }
+    );
+    const accessToken = res.data?.access_token as string | undefined;
+    if (!accessToken) {
+      throw new Error('Login succeeded but no access token was returned');
+    }
+    return accessToken;
+  }
+
+  /**
    * Check if token is expired or will expire soon (within 60 seconds)
    */
   private isTokenExpired(): boolean {

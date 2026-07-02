@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-06-27T09:39:20.362233+00:00",
+  "langsmith_project": "ScholarSync",
+  "dataset": "nbm-prompt-intent_classifier",
+  "prompt_versions": [
+    "v1"
+  ],
+  "example_limit": 3,
+  "experiments": [
+    {
+      "experiment_prefix": "ic-v1-openai-gpt-5-4-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 19.68,
+      "experiment_name": "ic-v1-openai-gpt-5-4-mini-09825e46",
+      "langsmith_url": "https://smith.langchain.com/o/b1a9c405-21ec-4718-8de0-455c45cfcb26/projects/p/ScholarSync"
+    }
+  ],
+  "skipped_providers": [],
+  "dry_run": false,
+  "summary": {
+    "total_experiments": 1,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dataset_id": "hallucination_guard_retry",
   "agent": {
     "sno": 9,
-    "category": "Genration",
+    "category": "Generation",
     "name": "Hallucination Guard Retry Suffix",
     "tier": "tier_3",
-    "target_examples": 5,
-    "prompt_template": "Grounding instruction (hallucination guard):\n- Remove, soften, or label as `General knowledge:` any sentence not directly supported by the Context evidence.\n- Prefer restating the evidence using the same terms as the excerpts.\n- Do not add new specific numbers, names, dates, or quotes unless they appear in the evidence.\n+ optional list of unsupported sentences"
+    "target_examples": 15,
+    "prompt_template": ""
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -23,113 +23,318 @@
   "items": [
     {
       "id": "hallucination_guard_retry-001",
-      "variation": "ncert_strict",
-      "tags": [
-        "grounding",
-        "retry"
-      ],
+      "variation": "rewrite_remove",
       "inputs": {
-        "answer": "The heart has five chambers and pumps blue blood.",
-        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
-        "unsupported_sentences": [
-          "The heart has five chambers"
-        ]
+        "answer": "The human heart has five chambers and blue blood circulates in all arteries.",
+        "context": "NCERT Biology: Pepsin acts in stomach at acidic pH; trypsin and chymotrypsin act in duodenum with pancreatic juice.",
+        "unsupported_sentences": "[\"The human heart has five chambers\"]"
       },
       "reference_outputs": {
-        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+        "corrected_answer": "Pepsin acts in the stomach at acidic pH. Trypsin and chymotrypsin act in the duodenum with pancreatic juice."
       },
-      "evaluators": [
-        "grounding_check"
+      "tags": [
+        "grounding",
+        "biology",
+        "negative"
       ],
-      "notes": "The excerpt does not describe heart chambers; remove unsupported claim."
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
     },
     {
       "id": "hallucination_guard_retry-002",
-      "variation": "ncert_strict",
-      "tags": [
-        "grounding",
-        "retry"
-      ],
+      "variation": "rewrite_remove",
       "inputs": {
-        "answer": "Newton published Principia in 1685 and invented calculus alone.",
-        "context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "unsupported_sentences": [
-          "Newton published Principia in 1685"
-        ]
+        "answer": "Newton published Principia in 1685 and invented calculus independently of Leibniz.",
+        "context": "Ray optics: Lens formula 1/f = 1/v − 1/u. Magnification m = v/u. Power P = 1/f.",
+        "unsupported_sentences": "[\"Newton published Principia in 1685\"]"
       },
       "reference_outputs": {
-        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+        "corrected_answer": "For lenses, 1/f = 1/v − 1/u and magnification m = v/u. Lens power P = 1/f."
       },
-      "evaluators": [
-        "grounding_check"
+      "tags": [
+        "grounding",
+        "physics",
+        "negative"
       ],
-      "notes": "Date and attribution not in provided optics excerpt."
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
     },
     {
       "id": "hallucination_guard_retry-003",
-      "variation": "ncert_strict",
-      "tags": [
-        "grounding",
-        "retry"
-      ],
+      "variation": "rewrite_remove",
       "inputs": {
-        "answer": "Photosynthesis occurs only at night in all plants.",
-        "context": "NCERT Class 11 Biology Ch.13: Photosynthesis occurs in chloroplasts; light reaction in grana, Calvin cycle in stroma.",
-        "unsupported_sentences": [
-          "Photosynthesis occurs only at night"
-        ]
+        "answer": "Photosynthesis occurs only at night in all plant species worldwide.",
+        "context": "Photosynthesis in chloroplasts: light reaction in grana produces ATP and NADPH; Calvin cycle in stroma fixes CO2.",
+        "unsupported_sentences": "[\"Photosynthesis occurs only at night\"]"
       },
       "reference_outputs": {
-        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+        "corrected_answer": "Photosynthesis occurs in chloroplasts: the light reaction in grana produces ATP and NADPH, and the Calvin cycle in stroma fixes CO2."
       },
-      "evaluators": [
-        "grounding_check"
+      "tags": [
+        "grounding",
+        "biology",
+        "negative"
       ],
-      "notes": "Contradicts context about light reaction."
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-006",
+      "variation": "rewrite_remove",
+      "inputs": {
+        "answer": "Superconductors have infinite resistance at room temperature in all household wires.",
+        "context": "Current electricity: Ohm's law V = IR. Resistivity ρ increases with temperature for metals.",
+        "unsupported_sentences": "[\"Superconductors have infinite resistance at room temperature\"]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "Ohm's law states V = IR. For metals, resistivity ρ increases with temperature."
+      },
+      "tags": [
+        "grounding",
+        "physics",
+        "negative"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-013",
+      "variation": "rewrite_remove",
+      "inputs": {
+        "answer": "Benzene has alternating single and double bonds that flip every millisecond at room temperature.",
+        "context": "Hydrocarbons: Benzene has delocalized π electrons giving extra stability (resonance). Markovnikov rule applies to asymmetric alkene addition.",
+        "unsupported_sentences": "[\"alternating single and double bonds that flip every millisecond\"]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "Benzene has delocalized π electrons giving extra stability through resonance."
+      },
+      "tags": [
+        "grounding",
+        "chemistry",
+        "negative"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
     },
     {
       "id": "hallucination_guard_retry-004",
-      "variation": "ncert_strict",
-      "tags": [
-        "grounding",
-        "retry"
-      ],
+      "variation": "rewrite_soften",
       "inputs": {
-        "answer": "Resistance always decreases when temperature rises for all metals.",
-        "context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A.",
-        "unsupported_sentences": [
-          "Resistance always decreases when temperature rises"
-        ]
+        "answer": "Gold is the most abundant metal in Earth's crust and dissolves easily in water.",
+        "context": "Electrochemistry: In galvanic cells oxidation occurs at anode; E°cell = E°cathode − E°anode.",
+        "unsupported_sentences": "[\"Gold is the most abundant metal\", \"dissolves easily in water\"]"
       },
       "reference_outputs": {
-        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+        "corrected_answer": "In galvanic cells, oxidation occurs at the anode. Standard cell EMF E°cell = E°cathode − E°anode."
       },
-      "evaluators": [
-        "grounding_check"
+      "tags": [
+        "grounding",
+        "chemistry",
+        "negative"
       ],
-      "notes": "Overgeneralization beyond excerpt."
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-014",
+      "variation": "rewrite_soften",
+      "inputs": {
+        "answer": "Every linear inequality graph is always a circle in the coordinate plane.",
+        "context": "Linear inequalities: Graph ax+by≤c by shading the half-plane toward the origin test point. Feasible region is intersection of constraints.",
+        "unsupported_sentences": "[\"always a circle\"]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "Graph ax+by≤c by shading the half-plane that satisfies the inequality (e.g. toward origin for ≤). Feasible region is the intersection of all constraint half-planes."
+      },
+      "tags": [
+        "grounding",
+        "mathematics",
+        "negative"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
     },
     {
       "id": "hallucination_guard_retry-005",
-      "variation": "ncert_strict",
-      "tags": [
-        "grounding",
-        "retry"
-      ],
+      "variation": "rewrite_label_gk",
       "inputs": {
-        "answer": "Trypsin is secreted by the stomach lining.",
-        "context": "NCERT Class 11 Biology Ch.16: Pepsin acts in stomach; trypsin and chymotrypsin in duodenum.",
-        "unsupported_sentences": [
-          "Trypsin is secreted by the stomach"
-        ]
+        "answer": "The probability of rolling sum 7 with two dice is exactly 1/2 every time.",
+        "context": "Probability: P(E) = favourable outcomes / total outcomes. For two fair dice, sum 7 has 6 favourable outcomes out of 36.",
+        "unsupported_sentences": "[\"The probability of rolling sum 7 with two dice is exactly 1/2 every time\"]"
       },
       "reference_outputs": {
-        "corrected_answer": "Rewrite using only excerpt terms; soften or remove unsupported sentences."
+        "corrected_answer": "P(E) = favourable outcomes / total outcomes. For two fair dice, sum 7 has 6 favourable outcomes out of 36 (P = 6/36 = 1/6)."
       },
-      "evaluators": [
-        "grounding_check"
+      "tags": [
+        "grounding",
+        "mathematics",
+        "negative"
       ],
-      "notes": "Trypsin acts in duodenum per context."
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-007",
+      "variation": "pass_through",
+      "inputs": {
+        "answer": "Ohm's law states V = IR for ohmic conductors. In series, equivalent resistance adds: R_eq = R1 + R2.",
+        "context": "Ohm's law: V = IR. Series combination R_eq = R1 + R2. Parallel: 1/R_eq = 1/R1 + 1/R2.",
+        "unsupported_sentences": "[]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "Ohm's law states V = IR for ohmic conductors. In series, equivalent resistance adds: R_eq = R1 + R2."
+      },
+      "tags": [
+        "grounding",
+        "physics",
+        "positive"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-008",
+      "variation": "pass_through",
+      "inputs": {
+        "answer": "Mitosis produces genetically identical cells for growth; meiosis halves chromosome number for gametes.",
+        "context": "Cell division: Mitosis maintains chromosome number for growth and repair. Meiosis reduces chromosome number to form gametes.",
+        "unsupported_sentences": "[]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "Mitosis produces genetically identical cells for growth; meiosis halves chromosome number for gametes."
+      },
+      "tags": [
+        "grounding",
+        "biology",
+        "positive"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-010",
+      "variation": "pass_through",
+      "inputs": {
+        "answer": "For a parabola y² = 4ax, the focus is at (a, 0) and eccentricity equals 1.",
+        "context": "Conic sections: Standard parabola y² = 4ax has focus (a,0), directrix x = −a, eccentricity e = 1.",
+        "unsupported_sentences": "[]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "For a parabola y² = 4ax, the focus is at (a, 0) and eccentricity equals 1."
+      },
+      "tags": [
+        "grounding",
+        "mathematics",
+        "positive"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-011",
+      "variation": "pass_through",
+      "inputs": {
+        "answer": "DNA replication is semiconservative: each new duplex contains one parental and one newly synthesized strand.",
+        "context": "Molecular basis of inheritance: DNA replication is semiconservative — each new molecule has one old and one new strand.",
+        "unsupported_sentences": "[]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "DNA replication is semiconservative: each new duplex contains one parental and one newly synthesized strand."
+      },
+      "tags": [
+        "grounding",
+        "biology",
+        "positive"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-012",
+      "variation": "pass_through",
+      "inputs": {
+        "answer": "Lens power P equals the reciprocal of focal length in metres: P = 1/f.",
+        "context": "Ray optics: Lens power P = 1/f when f is in metres. Sign convention uses Cartesian distances from optical centre.",
+        "unsupported_sentences": "[]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "Lens power P equals the reciprocal of focal length in metres: P = 1/f."
+      },
+      "tags": [
+        "grounding",
+        "physics",
+        "positive"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-015",
+      "variation": "pass_through",
+      "inputs": {
+        "answer": "Le Chatelier's principle states that a system at equilibrium shifts to oppose an applied stress such as pressure or concentration change.",
+        "context": "Equilibrium: Le Chatelier — system shifts to partially counteract imposed stress. Catalyst does not change Kc.",
+        "unsupported_sentences": "[]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "Le Chatelier's principle states that a system at equilibrium shifts to oppose an applied stress such as pressure or concentration change."
+      },
+      "tags": [
+        "grounding",
+        "chemistry",
+        "positive"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
+    },
+    {
+      "id": "hallucination_guard_retry-009",
+      "variation": "pass_minor_edit",
+      "inputs": {
+        "answer": "In coordination compounds, the coordination number counts donor atoms bonded to the central metal ion.",
+        "context": "Coordination compounds: Coordination number is the count of σ-donor atoms directly bonded to the metal.",
+        "unsupported_sentences": "[]"
+      },
+      "reference_outputs": {
+        "corrected_answer": "In coordination compounds, the coordination number counts σ-donor atoms directly bonded to the central metal ion."
+      },
+      "tags": [
+        "grounding",
+        "chemistry",
+        "positive"
+      ],
+      "evaluators": [
+        "grounding",
+        "retry_suffix_compliance"
+      ]
     }
   ]
 }

@@ -1,0 +1,71 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 1446,
+  "experiments": [
+    {
+      "agent_id": "query_decomposer",
+      "prompt_version": "v2",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-query_decomposer-v2-anthropic-claude-haiku-4-5-a972a857",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T11:38:50.945439+00:00"
+    },
+    {
+      "agent_id": "query_decomposer",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-query_decomposer-v2-gemini-gemini-2-5-flash-f82c5e4f",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T11:40:36.763831+00:00"
+    },
+    {
+      "agent_id": "query_decomposer",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-query_decomposer-v2-openai-gpt-5-mini-6294e6b8",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T11:43:01.506028+00:00"
+    },
+    {
+      "agent_id": "query_decomposer",
+      "prompt_version": "v3",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-query_decomposer-v3-anthropic-claude-haiku-4-5-02916d58",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T11:44:42.888017+00:00"
+    },
+    {
+      "agent_id": "query_decomposer",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-query_decomposer-v3-gemini-gemini-2-5-flash-23b52f48",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T11:46:13.844880+00:00"
+    },
+    {
+      "agent_id": "query_decomposer",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-query_decomposer-v3-openai-gpt-5-mini-45c2a672",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T11:48:57.463647+00:00"
+    }
+  ],
+  "workspace_tenant": "emaildam3_aafff4b5",
+  "note": "Fresh ledger after switching workspace (emaildam3_aafff4b5)",
+  "updated_at": "2026-07-01T11:48:57.464651+00:00"
+}

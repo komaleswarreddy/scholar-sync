@@ -5,8 +5,10 @@
 
 const STORAGE_KEY = 'teacher_portal_token';
 
+// UX prefill only — NOT a secret and NOT used for authentication. The password
+// is never stored in the client; credentials are verified server-side at
+// POST /api/v1/teacher/auth/login, which returns a signed JWT session token.
 export const TEACHER_PORTAL_EMAIL = 'teacher@gmail.com';
-export const TEACHER_PORTAL_PASSWORD = 'admin123';
 
 export function getTeacherToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -25,14 +27,6 @@ export function clearTeacherSession(): void {
 
 export function hasTeacherSession(): boolean {
   return Boolean(getTeacherToken());
-}
-
-export function validateTeacherLogin(email: string, password: string): boolean {
-  const normalizedEmail = email.trim().toLowerCase();
-  return (
-    normalizedEmail === TEACHER_PORTAL_EMAIL.toLowerCase() &&
-    password === TEACHER_PORTAL_PASSWORD
-  );
 }
 
 export function redirectToTeacherLogin(): void {

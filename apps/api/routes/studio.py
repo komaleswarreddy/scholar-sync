@@ -15,6 +15,7 @@ from packages.core.database.models.source import Source
 from packages.core.services.studio_service import StudioService
 from packages.core.monitoring.pipeline_trace import get_pipeline_trace_store
 from apps.api.schemas.studio import StudioRequest
+from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
 
@@ -138,24 +139,22 @@ async def generate_studio_content(
         print(f"[STUDIO ENDPOINT] ValueError traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=400, detail=error_msg)
     except json.JSONDecodeError as e:
-        # JSON parsing errors
-        error_msg = f"Failed to parse AI response as JSON: {str(e)}"
-        print(f"[STUDIO ENDPOINT] JSONDecodeError: {error_msg}")
-        print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=error_msg)
+        # JSON parsing errors — log detail, return generic message.
+        raise HTTPException(
+            status_code=500,
+            detail=safe_detail(e, "Failed to parse AI response"),
+        )
     except Exception as e:
-        # Log the full error for debugging
-        error_type = type(e).__name__
+        # Log the full error for debugging (handled inside safe_detail).
         error_msg = str(e)
-        print(f"[STUDIO ENDPOINT] Error: {error_type}: {error_msg}")
-        print(traceback.format_exc())
-        # Return user-friendly error message with more context
+        # Configuration problems must NOT echo provider/API-key text to the client.
         if "API key" in error_msg or "not configured" in error_msg:
+            safe_detail(e, "Studio configuration error")
             raise HTTPException(
                 status_code=400,
-                detail=f"Configuration error: {error_msg}. Please check your API keys in the backend .env file."
+                detail="Server configuration error. Please contact an administrator.",
             )
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate {request_body.task_type}: {error_msg}"
+            detail=safe_detail(e, f"Failed to generate {request_body.task_type}"),
         )

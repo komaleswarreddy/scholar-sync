@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "show_missing_idea",
   "agent": {
     "sno": 20,
@@ -7,14 +7,13 @@
     "name": "Show Missing Idea Coach",
     "tier": "tier_1",
     "target_examples": 30,
-    "prompt_template": "{# Mode: SHOW_MISSING_IDEA #}\nYou are ScholarSync AI Coach revealing the key unlock, not a full solution by default.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"The Missing Idea\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Why It Feels Tricky\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Correct Mental Model\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"How to Start\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Common Mistake\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"revealLevel\": \"partial\",\n  \"followUpButtons\": [\n    {\"label\": \"Now show full solution\", \"action\": \"REVEAL_SOLUTION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give one similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain this concept\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+    "prompt_template": "You are ScholarSync AI Coach revealing the key unlock, not a full solution by default.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nIdentify what students typically miss on this problem type — without assuming any specific student work.\nFrame \"The Missing Idea\" as the conceptual unlock and \"Where Most Students Get Stuck\" as the common trap or wrong path for this problem (generic, not tied to one attempt).\n\n{% include 'problem_solver/math_formatting_contract.j2' %}\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"The Missing Idea\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Why It Feels Tricky\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Correct Mental Model\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"How to Start\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Where Most Students Get Stuck\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"revealLevel\": \"partial\",\n  \"followUpButtons\": [\n    {\"label\": \"Now show full solution\", \"action\": \"REVEAL_SOLUTION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give one similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain this concept\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
     "input_keys": [
       "problem_text_normalized",
-      "ncert_context",
-      "student_attempt"
+      "ncert_context"
     ],
     "output_keys": [
       "coach_json"
@@ -22,873 +21,2204 @@
   },
   "items": [
     {
-      "id": "show_missing_idea-001",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-002",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-003",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
-      "inputs": {
-        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-004",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-005",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-006",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-007",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-008",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
-      "id": "show_missing_idea-009",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "The unlock",
-          "sections": [
-            {
-              "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
-            }
-          ],
-          "revealLevel": "partial"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "partial_reveal"
-      ]
-    },
-    {
       "id": "show_missing_idea-010",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q16. Select the correct statements from the following: A. Atoms of all elements are composed of two fundamental particles. B. The mass of the electron is 9.10939 × 10⁻³¹ kg. C. All the isotopes of a given element show same chemical properties. D. Protons and electrons are collectively known as nucleons. E. Dalton’s atomic theory, regarded the atom as an ultimate particle of matter. Choose the correct answer from the options given below: a. B, C and E only b. A, B and C only c. C, D and E only d. A and E only",
+        "ncert_context": "NCERT Class 12 Chemistry Ch.3: Galvanic cell — oxidation at anode, reduction at cathode. E°cell=E°cathode−E°anode."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Atomic Structure and Properties",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "Students often overlook the specific definitions [answer hidden]nd distinctions between [answer hidden]tomic p[answer hidden]rticles [answer hidden]nd their roles in the structure of [answer hidden]toms. Recognizing th[answer hidden]t protons [answer hidden]nd neutrons [answer hidden]re nucleons, while electrons [answer hidden]re not, is cruci[answer hidden]l."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The st[answer hidden]tements mix fund[answer hidden]ment[answer hidden]l concepts of [answer hidden]tomic theory with specific properties of p[answer hidden]rticles, which c[answer hidden]n confuse students. Misunderst[answer hidden]nding the terms 'nucleons' [answer hidden]nd 'isotopes' c[answer hidden]n le[answer hidden]d to incorrect selections."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "[answer hidden] cle[answer hidden]r underst[answer hidden]nding of [answer hidden]tomic structure is essenti[answer hidden]l. Remember th[answer hidden]t protons [answer hidden]nd neutrons [answer hidden]re found in the nucleus (collectively c[answer hidden]lled nucleons), while electrons orbit [answer hidden]round the nucleus. Isotopes of [answer hidden]n element h[answer hidden]ve the s[answer hidden]me number of protons but different numbers of neutrons, [answer hidden]ffecting their m[answer hidden]ss but not their chemic[answer hidden]l properties."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by [answer hidden]n[answer hidden]lyzing e[answer hidden]ch st[answer hidden]tement individu[answer hidden]lly. Check the definitions of terms like 'nucleons' [answer hidden]nd 'isotopes' [answer hidden]nd rec[answer hidden]ll key f[answer hidden]cts [answer hidden]bout [answer hidden]tomic theory to determine which st[answer hidden]tements [answer hidden]re [answer hidden]ccur[answer hidden]te."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "M[answer hidden]ny students mist[answer hidden]kenly believe th[answer hidden]t [answer hidden]ll p[answer hidden]rticles within [answer hidden]n [answer hidden]tom [answer hidden]re nucleons or confuse the properties of isotopes, le[answer hidden]ding them to select incorrect combin[answer hidden]tions of st[answer hidden]tements."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-011",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "NEET Chemistry v1.0 90 curated mixed-style questions for RAG problem-solving evaluation This is a version. Each question has four options. Reaction schemes, chemical structures, equations, graphs and matching tables are preserved from the source qu Answers, solutions, chapter headings, difficulty labels, and original source numbering are intentionally not includ NEET Chemistry v1.0 |",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Equilibrium and Kc in Chemical Reactions",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "Students often overlook the significance of the equilibrium constant (Kc) in predicting the direction of a reaction when a change is applied. They may not fully grasp how changes in concentration, pressure, or temperature affect the system's equilibrium position."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The concept of equilibrium can be counterintuitive, as it involves dynamic processes where reactants and products are formed at the same rate. Additionally, the application of Le Chatelier's principle requires a nuanced understanding of how different stresses influence the system, which can lead to confusion."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "To correctly approach equilibrium problems, students should visualize the reaction as a balance between reactants and products. They must understand that Kc provides a quantitative measure of this balance and that any disturbance will shift the equilibrium to restore balance, either by favoring reactants or products."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by identifying the reaction and writing the expression for Kc. Next, analyze the changes being applied to the system and consider how these changes will affect the concentrations of reactants and products. Use Le Chatelier's principle to predict the direction of the shift."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume that increasing the concentration of reactants will always favor the formation of products without considering the specific context of the reaction. They may also struggle with the implications of temperature changes on Kc, often confusing the effects on reaction rates with shifts in equilibrium."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-012",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q1. An electron (mass 9 × 10⁻³¹ kg and charge 1.6 × 10⁻¹⁹ C) moving with speed c/100 (c = speed of light) is injected into a magnetic field B of magnitude 9 × 10⁴ T perpendicular to its direction of motion. We wish to apply an uniform electric E together with the magnetic field so that the electron does not deflect from its path. Then (speed of light c = 3 × 10⁸ ms⁻¹) (1) E is perpendicular to B and its magnitude is 27 × 10⁴ V m⁻¹ (2) E is perpendicular to B and its magnitude is 27 × 10² V m⁻¹ (3) E is parallel to B and its magnitude is 27 × 10² V m⁻¹ (4) E is parallel to B and its magnitude is 27 × 10⁴ V m⁻¹",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Motion of Charged Particles in Electric and Magnetic Fields",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "To keep the electron moving in a straight line without deflection, the electric force must exactly balance the magnetic force acting on it. This requires understanding the relationship between the electric field (E), magnetic field (B), and the velocity (v) of the charged particle."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the directions of the forces involved and may not realize that the electric and magnetic forces must counteract each other. Additionally, the perpendicular nature of the fields can lead to confusion about how to set up the equations."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "The key is to apply the Lorentz force equation: F = q(E + v × B). For the electron to not deflect, the net force must be zero, which means E must be set such that it balances the magnetic force (qvB) acting on the electron."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by calculating the speed of the electron (c/100) and then determine the magnetic force using the formula F_m = qvB. Next, set this equal to the electric force F_e = qE to find the required electric field E."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students overlook the need for the electric field to be perpendicular to the magnetic field and fail to correctly apply the right-hand rule for the cross product in the magnetic force calculation, leading to incorrect conclusions about the direction and magnitude of E."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-013",
       "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
       "inputs": {
-        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q73. Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R. Assertion A: The potential (V) at any axial point, at 2 m distance (r) from the centre of the dipole of dipole moment vector → P of magnitude, 4×10⁻⁶ C m, is ±9×10³ V. (Take 1/4πε₀ = 9×10⁹ SI units) Reason R: V = ±(2P/4πε₀r²), where r is the distance of any axial point, situated at 2 m from the centre of the dipole. In the light of the above statements, choose the correct answer from the options given below: (1) A is true but R is false. (2) A is false but R is true. (3) Both A and R are true and R is the correct explanation of A. (4) Both A and R are true and R is NOT the correct explanation of A.",
+        "ncert_context": "NCERT Class 11 Physics Ch.6: Work W=F·s cosθ. Kinetic energy K=½mv². Power P=W/t."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Dipole Potential",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "To solve this problem, students need to accurately apply the formula for the electric potential due to a dipole and understand how the parameters relate to each other, particularly the significance of the dipole moment and the distance from the dipole."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The confusion often arises from the signs and the interpretation of the potential at a given distance. Students may miscalculate or misinterpret the values leading to incorrect conclusions about the assertion and reason."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Students should visualize the dipole's effect on potential and remember that the potential decreases with the square of the distance. They should also recognize how to derive the potential from the dipole moment and distance correctly."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by substituting the given values into the formula for the potential due to a dipole. Ensure that you understand each variable and its role in the equation before proceeding to evaluate the assertion and reason."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students fail to correctly apply the formula for potential, particularly in understanding how to manipulate the equation for the dipole potential. They might also overlook the significance of the distance and how it affects the potential value."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "numerical",
+        "assertion_reason",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-014",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q75. Given below are two statements : Statement I: Atoms are electrically neutral as they contain equal number of positive and negative charges. Statement II: Atoms of each element are stable and emit their characteristic spectrum. In the light of the above statements, choose the most appropriate answer from the options given below : (1) Statement I is correct but Statement II is incorrect. (2) Statement I is incorrect but Statement II is correct. (3) Both Statement I and Statement II are correct. (4) Both Statement I and Statement II are incorrect.\n\n;",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Atomic Structure and Stability",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "The key to this problem lies in understanding the fundamental properties of atoms, specifically their charge neutrality and stability. Atoms are neutral due to having equal numbers of protons (positive charges) and electrons (negative charges). Additionally, the stability of atoms is linked to their electron configurations and the emission of characteristic spectra when they transition between energy levels."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students may confuse the stability of atoms with the behavior of ions or molecules. They might also misinterpret the concept of 'characteristic spectrum' and its relation to atomic stability, leading to uncertainty about the correctness of Statement II."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Atoms are indeed electrically neutral, and this neutrality is a result of having equal numbers of protons and electrons. Furthermore, atoms of each element are stable under normal conditions and can emit a characteristic spectrum when electrons transition between energy levels. Understanding these concepts helps clarify the relationship between charge neutrality and atomic stability."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing each statement independently. Recall the definitions of atomic structure, charge neutrality, and what is meant by 'characteristic spectrum.' Assess whether each statement aligns with established scientific principles."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students may incorrectly assume that the stability of atoms implies they do not emit any spectrum or that emission indicates instability. This misunderstanding can lead to confusion about the validity of Statement II, causing them to incorrectly judge the statements as either both correct or both incorrect."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-015",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q37. Two identical charged conducting spheres A and B have their centres separated by a certain distance. Charge on each sphere is q and the force of repulsion between them is F. A third identical uncharged conducting sphere is brought in contact with sphere A first and then with B and finally removed from both. New force of repulsion between spheres A and B (Radii of A and B are negligible compared to the distance of separation so that for calculating force between them they can be considered as point charges) is best given as: (1) 3F 5 (2) 2F 3 (3) F 2 (4) 3F q\n\n;",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Gauss's law relates net flux through a closed surface to enclosed charge. Conductor electrostatics: field inside conductor is zero in electrostatic equilibrium."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Charge Redistribution in Conductors",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "When a conducting sphere comes into contact with another conductor, charge redistributes between them. This redistribution affects the total charge on each sphere and thus alters the force of repulsion between them."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often overlook the fact that the uncharged sphere will take on charge from the charged spheres when they come into contact. This can lead to confusion about how the final charges on spheres A and B are calculated."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the process of charge transfer: when the uncharged sphere touches sphere A, it gains charge, and then when it touches sphere B, it redistributes charge again. Understanding that the total charge remains conserved is key to solving the problem."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by calculating the charge on the uncharged sphere after it contacts sphere A, then determine the new charge on sphere A and subsequently on sphere B after the uncharged sphere contacts it. Use Coulomb's law to find the new force of repulsion."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume that the charge on spheres A and B remains the same after the uncharged sphere is introduced. They fail to account for the redistribution of charge, which leads to incorrect calculations of the new force."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-016",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q23. An unpolarized light beam travelling in air is incident on a medium of refractive index 1.73 at Brewster's angle. Then- (1) reflected light is completely polarized and the angle of reflection is close to 60° (2) reflected light is partially polarized and the angle of reflection is close to 30° (3) both reflected and transmitted light are perfectly polarized with angles of reflection and refraction close to 60° and 30°, respectively. (4) transmitted light is completely polarized with angle of refraction close to 30°\n\n;",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f=1/v-1/u. Magnification m=v/u. Sign convention: real object distance u negative."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Brewster's Angle and Polarization",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "The key concept here is Brewster's angle, which is the angle of incidence at which light with a particular polarization is perfectly transmitted through a transparent dielectric surface, with no reflection. At this angle, the reflected light is completely polarized."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the conditions for complete polarization with those for partial polarization. Additionally, the relationship between the angles of incidence, reflection, and refraction can lead to misunderstandings about which angles correspond to which type of light."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "When light hits a surface at Brewster's angle, the reflected light is completely polarized. The angle of reflection equals the angle of incidence, and the angle of refraction can be calculated using Snell's law. Understanding these relationships helps clarify the behavior of light at this specific angle."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by recalling the formula for Brewster's angle: it can be calculated using the refractive indices of the two media. Once you have this angle, analyze the properties of the reflected and refracted light at this angle."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly believe that both reflected and transmitted light can be polarized at Brewster's angle, or they may not correctly apply Snell's law to find the angles involved. This leads to confusion about the nature of the light after it interacts with the medium."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-017",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q6. Consider the diameter of a spherical object being measured with the help of a Vernier callipers. Suppose its 10 Vernier Scale Divisions (V.S.D.) are equal to its 9 Main Scale Divisions (M.S.D.). The least division in the M.S. is 0.1 cm and the zero of V.S. is at x = 0.1 cm when the jaws of Vernier callipers are closed. If the main scale reading for the diameter is M = 5 cm and the number of coinciding vernier division is 8, the measured diameter after zero error correction, is: (1) 5.18 cm (2) 5.08 cm (3) 4.98 cm (4) 5.00 cm\n\n;",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Measurements with Vernier Callipers",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "Students often overlook the importance of zero error correction in measurements. Understanding how to adjust the reading based on the zero error is crucial for obtaining an accurate measurement."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The problem involves multiple steps: identifying the zero error, calculating the actual reading from the Vernier scale, and then applying the zero error correction. This can lead to confusion, especially if students mix up the values or forget to apply the correction."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "To solve this problem, students should visualize the process of measuring with Vernier callipers: first, determine the zero error, then read the main scale and Vernier scale correctly, and finally combine these readings while accounting for any zero error."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by identifying the zero error from the Vernier scale. Then, read the main scale and the Vernier scale to find the total measurement before applying the zero error correction."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students forget to account for the zero error when calculating the final measurement. They may also misinterpret the relationship between the Vernier and main scale divisions, leading to incorrect readings."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "jee",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-018",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q26. Two cities X and Y are connected by a regular bus service with a bus leaving in either direction every T min. A girl is driving scooty with a speed of 60 km/h in the direction X to Y notices that a bus goes past her every 30 minutes in the direction of her motion, and every 10 minutes in the opposite direction. Choose the correct option for the period T of the bus service and the speed (assumed constant) of the buses. (1) 9 min, 40 km/h (2) 25 min, 100 km/h (3) 10 min, 90 km/h (4) 15 min, 120 km/h\n\n;",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Relative Motion in Bus and Scooty Problem",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "To solve this problem, students need to understand the concept of relative speed and how it applies to two moving objects (the scooty and the buses). The key is to relate the frequency of buses passing the girl to their speed and the time intervals given."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often get confused by the different directions of motion and the intervals at which the buses pass by. They may misinterpret the time intervals as direct measures of speed without considering the relative speeds involved."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "The correct approach involves setting up equations based on the relative speed of the scooty and the buses. When the girl sees a bus every 30 minutes in the same direction, it indicates a specific relationship between her speed and the bus speed, while the 10-minute interval in the opposite direction provides another equation."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by defining the speed of the bus as 'v_b' and using the given information about the scooty's speed (60 km/h) to set up equations based on the time intervals for both directions. Use the concept of relative speed to relate these intervals to the bus's speed."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students fail to correctly apply the concept of relative speed, leading to incorrect equations. They might also overlook the need to convert time intervals into consistent units (e.g., hours) when calculating speeds, which can lead to confusion and errors in their final answers."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "jee",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-019",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q36. A parallel plate capacitor made of circular plates is being charged such that the surface charge density on its plates is increasing at a constant rate with time. The magnetic field arising due to displacement current is: (1) zero at all places (2) constant between the plates and zero outside the plates. (3) non-zero everywhere with maximum at the imaginary cylindrical surface connecting peripheries of the plates. (4) zero between the plates and non-zero outside.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Magnetic Fields in Charging Capacitors",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "The key concept here is the relationship between displacement current and the resulting magnetic field. As the surface charge density increases, the displacement current density also increases, which leads to the creation of a magnetic field in the surrounding space."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the effects of displacement current with those of conduction current. They may not fully grasp that even in the absence of a physical current through the capacitor, a changing electric field can still generate a magnetic field."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the capacitor plates as creating an electric field between them. As the charge builds up, this changing electric field induces a displacement current, which in turn generates a magnetic field. Remember that the magnetic field is not confined to the space between the plates but exists in the surrounding area as well."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by identifying the nature of the displacement current due to the changing electric field between the plates. Use Maxwell's equations, particularly the modified Ampère's law, to relate the displacement current to the magnetic field."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume that the magnetic field is zero between the plates, not recognizing that the displacement current creates a magnetic field in that region. They may also overlook the fact that the magnetic field exists outside the plates, leading to confusion about the spatial distribution of the field."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "jee",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-020",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q86. If the plates of a parallel plate capacitor connected to a battery are moved close to each other, then A. the charge stored in it, increase. B. the energy stored in it, decreases. C. its capacitance increases. D. the ratio of charge to its potential remains the same. E. the product of charge and voltage increases. Choose the most appropriate answer from the options given below: (1) B, D and E only (2) A, B and C only (3) A, B and E only (4) A, C and E only\n\n;",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Parallel Plate Capacitors",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "The key concept here is the relationship between capacitance, charge, and voltage in a parallel plate capacitor. When the plates are moved closer together, the capacitance increases, which affects the charge stored and the energy in the system."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the effects of changing plate separation on capacitance with the effects on charge and energy. They may not fully grasp how these quantities interrelate when the physical configuration of the capacitor changes."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Remember that capacitance (C) is defined as C = Q/V, where Q is the charge and V is the voltage. When the plates are moved closer, capacitance increases, which can lead to an increase in charge if connected to a constant voltage source, or a change in energy stored if the capacitor is isolated."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing how moving the plates affects capacitance. Then, consider how this change influences charge and energy based on whether the capacitor is connected to a battery or isolated."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly believe that moving the plates closer always increases the charge stored, without considering the role of the voltage source. They also often overlook the implications of energy changes when capacitance increases."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "jee",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-021",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q82. A parallel plate capacitor is charged by connecting it to a battery through a resistor. If I is the current in the circuit, then in the gap between the plates; (1) displacement current of magnitude equal to I flows in a direction opposite to that of I. (2) displacement current of magnitude greater than I flows but can be in any direction. (3) there is no current. (4) displacement current of magnitude equal to I flows in the same direction as I.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Displacement Current in Capacitors",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "The key concept here is the understanding of displacement current, which is not a conventional current but rather a term introduced by Maxwell to account for changing electric fields in regions where there is no conduction current, such as the gap between capacitor plates."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse displacement current with conduction current. They may not fully grasp that displacement current is related to the changing electric field between the plates of the capacitor, which occurs as the capacitor charges."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the capacitor charging: as the plates accumulate charge, an electric field builds up in the gap. The displacement current is proportional to the rate of change of this electric field and flows in the same direction as the conduction current, effectively completing the circuit in the context of Maxwell's equations."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by recalling the definition of displacement current and its relation to changing electric fields. Then, consider the direction of the electric field established between the capacitor plates as the capacitor charges."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly think that displacement current is absent or flows in the opposite direction to the conduction current. This misunderstanding leads them to overlook the relationship between the changing electric field and the displacement current's direction."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "jee",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-008",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q49. What is the fate of piece of DNA carrying only gene of interest which is transferred into an alien organism? A. The piece of DNA would be able to multiply itself independently in the progeny cells of the organisms. B. It may get integrated into the genome of the recipient. C. It may multiply and be inherited along with the host DNA. D. The alien piece of DNA is not an integrated part of chromosome. E. It shows ability to replicate. Choose the correct answer from the options given below: (1) B and C only (2) A and E only (3) A and B only (4) D and E only",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding DNA Transfer in Alien Organisms",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "The key concept here is understanding the behavior of foreign DNA within a host organism. Specifically, whether the DNA can exist independently, integrate into the host genome, or replicate alongside it."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the mechanisms of DNA replication and integration. They may not fully grasp the distinction between plasmid behavior (which can replicate independently) and chromosomal integration (which becomes part of the host's genetic material)."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Foreign DNA can either integrate into the host's genome or exist as an independent entity (like a plasmid). Understanding these pathways helps clarify the potential outcomes of introducing foreign DNA into an organism."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing each option in the context of how DNA functions within cells. Consider whether the DNA is likely to integrate into the genome or remain separate, and think about the implications of each scenario."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume that any piece of DNA introduced into a cell will automatically replicate independently or integrate without considering the specific mechanisms of DNA behavior in the host organism."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-009",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q7. Tropical regions show greatest level of species richness because A. Tropical latitudes have remained relatively undisturbed for millions of years, hence more time was available for species diversification. B. Tropical environments are more seasonal. C. More solar energy is available in tropics. D. Constant environments promote niche specialization. E. Tropical environments are constant and predictable. Choose the correct answer from the options given below: (1) A, B and E only (2) A, B and D only (3) A, C, D and E only (4) A and B only",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Species Richness in Tropical Regions",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "The key to understanding species richness in tropical regions lies in recognizing the interplay between environmental stability, solar energy availability, and time for diversification. Each of these factors contributes uniquely to the high biodiversity observed in these areas."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the effects of environmental stability with seasonal variability. While some options highlight important aspects of tropical environments, not all contribute equally to species richness. This can lead to misinterpretation of which factors are truly significant."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "To correctly assess species richness, consider how stable environments allow for niche specialization and how abundant solar energy supports diverse life forms. Additionally, the long-term stability of tropical ecosystems fosters greater evolutionary time for species to diversify."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing each option carefully. Identify which factors directly relate to species richness and consider how they interact with one another. Look for connections between environmental stability, energy availability, and time for diversification."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly focus on seasonal aspects or assume that all tropical features contribute equally to species richness. This can lead to selecting options that include irrelevant factors or overlook the importance of stability and energy in fostering biodiversity."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-022",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "multi_part",
       "inputs": {
-        "problem_text_normalized": "Find area under y=x from 0 to 3.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q45. Consider the following statements A and B and identify the correct answer : I (II) (I) (III) (IV) A. For a solar-cell, the I-V characteristics lies in the IV quadrant of the given graph. B. In a reverse biased pn junction diode, the current measured in (μA), is due to majority charge carriers. (1) Both A and B are correct. (2) Both A and B are incorrect. (3) A is correct but B is incorrect. (4) A is incorrect but B is correct.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding I-V Characteristics and Diode Behavior",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "Students often overlook the specific behaviors of current and voltage in different configurations of diodes, particularly how they relate to charge carriers in reverse bias conditions."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The confusion arises from mixing up the characteristics of solar cells and diodes, especially regarding the direction of current flow and the role of majority vs. minority charge carriers."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "For a solar cell, the I-V characteristics indeed lie in the IV quadrant, indicating that both current and voltage are positive. In a reverse-biased pn junction diode, the current is primarily due to minority carriers, not majority carriers."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing each statement independently. Recall the fundamental principles of how solar cells operate and the behavior of diodes under reverse bias conditions."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly believe that the current in a reverse-biased diode is due to majority carriers, leading them to incorrectly assess the truth of statement B."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "multi_part",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-001",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q50. Overspeeding increases fuel consumption and decreases fuel economy as a result of tyre rolling friction and air resistance. While vehicles reach optimal fuel economy at different speeds, fuel mileage usually decreases rapidly at speeds above 80 km/h. The relation between fuel consumption F (l/100 km) and speed V (km/h) under some constraints is given as F = V/500 - V/4 + 14. On the basis of the above information, answer the following questions: (i) Find F, when V = 40 km/h. (ii) Find df/dV. (iii) (a) Find the speed V for which fuel consumption F is minimum. OR (iii) (b) Find the quantity of fuel required to travel 600 km at the speed V at which dF/dV = -0.01.",
+        "ncert_context": "NCERT Class 12 Mathematics Ch.12: Feasible region from constraint inequalities; optimum at corner points."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Fuel Consumption Optimization",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Students often overlook the importance of interpreting the function F(V) in terms of its critical points and how they relate to the context of fuel consumption. Recognizing that the minimum fuel consumption corresponds to a specific speed requires understanding the behavior of the function, particularly its derivative."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The problem involves multiple steps, including evaluating a function, finding its derivative, and optimizing it. Students may feel overwhelmed by the different tasks and might not clearly connect how each part contributes to finding the optimal speed for fuel efficiency."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "To tackle this problem, students should view F(V) as a quadratic function where the vertex represents the minimum fuel consumption. Understanding that the derivative dF/dV indicates the rate of change of fuel consumption with respect to speed is crucial for identifying optimal points."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by substituting the given speed into the function F to find fuel consumption at specific speeds. Then, calculate the derivative dF/dV to analyze how fuel consumption changes with speed. This sets the stage for finding minimum values and understanding the relationship between speed and fuel efficiency."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students struggle with finding the derivative correctly or misinterpret the results. They may also get confused between finding the minimum fuel consumption and simply evaluating the function at given speeds, leading to incorrect conclusions about optimal speeds."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "mathematics",
+        "cbse",
+        "source_pdf_cbse_mathematics",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-002",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q4. The corner points of the feasible region in the graphical representation of an L.P.P. are (2, 72), (15, 20) and (40, 15). If Z = 18x + 9y be the objective function, then: ((A)) Z is maximum at (2, 72), minimum at (15, 20) ((B)) Z is maximum at (15, 20), minimum at (40, 15) ((C)) Z is maximum at (40, 15), minimum at (15, 20) ((D)) Z is maximum at (40, 15), minimum at (2, 72)",
+        "ncert_context": "NCERT Class 12 Mathematics Ch.12: Feasible region from constraint inequalities; optimum at corner points."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Optimal Solutions in Linear Programming",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "To determine the maximum or minimum value of the objective function at the corner points of the feasible region, students need to evaluate the objective function at each corner point and compare the results."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often focus on the coordinates of the corner points without calculating the corresponding values of the objective function, leading to incorrect conclusions about where the maximum or minimum occurs."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "The optimal solution for a linear programming problem is found at one of the corner points of the feasible region. Evaluating the objective function at these points allows you to identify which point yields the highest or lowest value."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by substituting the coordinates of each corner point into the objective function Z = 18x + 9y. Calculate Z for each point to find the maximum and minimum values."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume the maximum and minimum values based solely on the coordinates of the corner points without performing the necessary calculations to evaluate the objective function."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "mathematics",
+        "cbse",
+        "source_pdf_cbse_mathematics",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-003",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q45. (a) A parallel monochromatic light beam falls normally onto a single slit having an aperture width parameter 'a' to produce a standard Fraunhofer diffraction pattern on a screen positioned at a distance D. Explain clearly: (i) the physical mechanics governing the formation of secondary maxima and minima zones, and (ii) why the secondary maxima peaks go on becoming weaker and weaker in intensity as their order integer n increases. (b) Detail two distinct physical and structural points of difference to contrast an interference field due to a double-slit layout from a single-slit diffraction field configuration.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Single-Slit Diffraction and Interference",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Students often overlook the relationship between the slit width and the wavelength of light in determining the diffraction pattern. The formation of minima and maxima is fundamentally linked to the path difference of light waves emanating from different parts of the slit."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The concepts of diffraction and interference can be confusing because they involve wave behavior that is not intuitive. Students may struggle to visualize how light waves interact and how the geometry of the slit affects the resulting pattern."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "To understand the diffraction pattern, think of the slit as a source of wavelets that spread out and interfere with each other. The positions of minima and maxima are determined by the condition for constructive and destructive interference, which is influenced by the slit width and wavelength."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing the conditions for minima and maxima in single-slit diffraction. Use the formula for minima, which is given by \\( a \\sin(\\theta) = n\\lambda \\), where \\( n \\) is the order of the minimum. Then, explore how these conditions lead to the formation of secondary maxima."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly believe that the intensity of all maxima is equal or that the secondary maxima are as strong as the primary maximum. They fail to realize that the intensity diminishes due to the increasing path difference and the nature of interference as the order of maxima increases."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-004",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q46. (a) Define the self-inductance parameter of an electrical component. Derive the mathematical expression for the total internal magnetic energy stored within an inductor of self-inductance L when the current has been built up to a steady state value I. (b) The currents passing through two independent isolated inductor components of self-inductances 10 mH and 20 mH are forced to increase at the exact same uniform rate with respect to time. Sketch distinct comparative graphs showing the variation of: (i) the induced emf magnitude as a function of the current ramp rate, and (ii) the total stored magnetic energy as a function of the instantaneous current value. (c) The current passing through an inductor is increased uniformly from 0 to 2 A over a time window of 40 s. If an internal emf of 5 mV is induced during this transition period, calculate the total magnetic flux linked with the inductor at the specific intermediate instant $t = 10 ext{ s}$. Testing Question Bank 8",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Self-Inductance and Magnetic Energy",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Students often overlook the relationship between current, self-inductance, and the induced electromotive force (emf). Understanding how the rate of change of current affects the induced emf and the energy stored in the magnetic field is crucial."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The problem involves multiple concepts: self-inductance, induced emf, and magnetic energy. Students may struggle to connect these concepts, especially when transitioning from one part of the problem to another, such as from deriving formulas to applying them in specific scenarios."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize an inductor as a component that stores energy in a magnetic field when current flows through it. The self-inductance (L) quantifies how effectively this energy is stored based on the current (I) flowing through it. The induced emf is directly related to the rate of change of this current."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by recalling the definition of self-inductance and the formula for magnetic energy stored in an inductor: U = (1/2)LI². Then, use the relationship between induced emf (ε = -L(dI/dt)) to analyze how changes in current affect the emf and energy stored."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume that the induced emf is constant or fail to correctly apply the relationship between current and time. They may also struggle with calculating the total magnetic flux linked with the inductor, particularly when given specific time intervals."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-005",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q41. With the help of a detailed, clearly labelled ray diagram, describe the construction, alignment adjustment, and geometric working of a standard Compound Microscope system adjusted such that the final virtual image is generated exactly at the least distance of distinct vision ((D)) . Derive the complete mathematical expression for the total linear magnifying power of the system under this specific operational condition.",
+        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f=1/v-1/u. Magnification m=v/u. Sign convention: real object distance u negative."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding the Compound Microscope System",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Students often overlook the importance of the alignment of the optical components in a compound microscope. Specifically, they may not fully grasp how the objective and eyepiece lenses work together to produce a virtual image at the least distance of distinct vision (D). Understanding the relationship between the object distance, image distance, and the focal lengths of the lenses is crucial."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The complexity arises from the need to consider multiple lenses and their respective focal lengths, as well as the sign conventions for distances. Additionally, deriving the total magnification requires careful attention to the individual magnifications of the objective and eyepiece, which can lead to confusion if students do not clearly separate these components."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the compound microscope as a system where the objective lens first forms a real, inverted image of the object. This image then acts as the object for the eyepiece lens, which magnifies it further to produce a virtual image at the least distance of distinct vision. Understanding this two-step magnification process is key to solving the problem."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by sketching a detailed ray diagram of the compound microscope. Label the objective and eyepiece lenses, the object, the real image formed by the objective, and the final virtual image produced by the eyepiece. Use the lens formula and magnification equations to set up your relationships, ensuring you apply the correct sign conventions."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students struggle with correctly applying the lens formula and magnification equations simultaneously, especially when it comes to calculating the total magnification. They may also confuse the distances related to the objective and eyepiece, leading to incorrect conclusions about the system's behavior."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-023",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "proof",
       "inputs": {
-        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q90. Given below are two statements: Statement I: Photovoltaic devices can convert optical radiation into electricity. Statement II: Zener diode is designed to operate under reverse bias in breakdown region. In the light of the above statements, choose the most appropriate answer from the options given below: a. Statement I is incorrect but Statement II is correct. b. Both Statement I and Statement II are correct. c. Both Statement I and Statement II are incorrect. d. Statement I is correct but Statement II is incorrect.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Photovoltaic Devices and Zener Diodes",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "Students often overlook the specific functions and operational principles of photovoltaic devices and Zener diodes. Recognizing that photovoltaic devices convert light into electricity and that Zener diodes are designed to operate in reverse [answer hidden]ias is crucial for evaluating the correctness of the statements."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The statements may seem unrelated at first glance, leading students to misinterpret their validity. The technical nature of the terms used can also create confusion, especially if students are not familiar with the applications of these devices."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Understanding that photovoltaic devices are specifically designed for converting optical radiation into electrical energy and that Zener diodes function in a specific [answer hidden]reakdown region under reverse [answer hidden]ias helps clarify the statements. [answer hidden]oth concepts are fundamental in electronics and renewa[answer hidden]le energy."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "[answer hidden]egin [answer hidden]y analyzing each statement independently. Recall the definitions and functions of photovoltaic devices and Zener diodes. This will help you determine the truth of each statement [answer hidden]efore considering their relationship."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students may incorrectly assume that [answer hidden]ecause the statements are a[answer hidden]out different devices, one must [answer hidden]e incorrect. They might also confuse the operational principles of Zener diodes, leading to an incorrect assessment of Statement II."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "proof",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-024",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "proof",
       "inputs": {
-        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q62. A wheel of a bullock cart is rolling on a level road as shows in the figure below. If its linear speed is v in the direction shown, which one of the following options is correct (P and Q are any highest and lowest points on the wheel respectively)?\n\n[Diagram: The figure depicts a circular wheel representing a bullock cart wheel, oriented horizontally. The wheel is rolling on a level road, with a horizontal arrow labeled \"v\" indicating the linear speed of the wheel in the rightward direction. Two points are marked on the wheel: point \"P\" at the topmost position (highest point) and point \"Q\" at the bottommost position (lowest point) directly above the road surface. The wheel is divided into eight equal segments, but no specific numeric annotations, dimensions, or angles are provided. The road is represented as a straight horizontal line beneath point Q. There are no additional connections, arrows, or forces depicted in the diagram.]\n\n(1) Both the points P and Q move with equal speed.  \n(2) Point P has zero speed.  \n(3) Point P moves slower than point Q.  \n(4) Point P moves faster than point Q.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Wheel Motion: Key Concepts",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "The key concept here is the relationship between linear speed and rotational motion. As the wheel rolls without slipping, different points on the wheel have different velocities depending on their position relative to the ground."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the motion of points on the wheel with the overall linear speed of the wheel. They may assume that all points on the wheel move at the same speed, which is not the case due to the rotational motion."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the wheel as a series of points in circular motion. The point at the bottom (Q) is in contact with the ground and has a linear speed of zero at that instant, while the top point (P) moves with the highest speed due to the combination of its rotational and translational motion."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing the motion of the wheel. Consider the center of the wheel and how the linear speed (v) affects points at different heights. Use the concept of rotational motion to understand how the speed varies across the wheel."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly think that since the wheel is rolling at speed v, all points on the wheel must also have that speed. They overlook the fact that the point in contact with the ground has zero velocity at that moment, leading to confusion about the speeds of points P and Q."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "proof",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-006",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q27. A full wave rectifier circuit with diodes (D1) and (D2) is shown in the figure. If input supply voltage Vin = 220sin(100πt) volt, then at t = 15 m sec\n\n[Diagram: The figure depicts a full wave rectifier circuit. On the left side, there is an AC voltage source labeled \\( V_{in} \\) with a sine wave symbol. The voltage source is connected to a transformer represented by two parallel lines, indicating the primary winding. The transformer has two output terminals leading to two diodes, labeled \\( D_1 \\) and \\( D_2 \\). The diodes are oriented such that \\( D_1 \\) is positioned above \\( D_2 \\), with their anodes connected to the transformer outputs and cathodes connected together. From the junction of the diodes, a resistor labeled \\( R_L \\) is connected to the right. The circuit layout is horizontal, with the voltage source on the left, followed by the transformer, diodes, and resistor arranged in a linear fashion. There are no numeric annotations, angles, or additional connections visible in the diagram.]",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Full Wave Rectification",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "Students often overlook the behavior of the full wave rectifier in relation to the input AC signal. Specifically, they may not fully grasp how the rectification process alters the waveform and what the output voltage looks like at a given time."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The challenge arises from the need to analyze both the AC input and the resulting DC output simultaneously. Students may confuse the instantaneous voltage of the AC input with the rectified output voltage, leading to errors in their calculations."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the full wave rectifier as a device that inverts the negative half of the AC waveform, resulting in a continuous positive output. Understanding that the output voltage is always positive and follows the peaks of the input sine wave is crucial."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by calculating the input voltage at the specified time using the formula for the sine function. Then, determine how the full wave rectifier modifies this input voltage to find the output voltage."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly try to apply Ohm's law directly to the input AC voltage without considering the rectification process. They may also misinterpret the phase of the output voltage relative to the input, leading to incorrect conclusions about the circuit's behavior."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_missing_idea-007",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q.36 A bead P sliding on a frictionless semi-circular string (A C B) and it is at point S at t = 0 and at this instant the horizontal component of its velocity is v. Another bead Q of the same mass as P is ejected from point A at t = 0 along the horizontal string A B, with the speed v, friction between the beads and the respective strings may be neglected in both cases. Let t P and t Q be the respective times taken by beads P and Q to reach the point B, then the relation between t P and t Q is\n\n[Diagram: The figure depicts a semi-circular string labeled ACB, with points A and B at the ends and point C at the bottom of the arc. A bead P is shown sliding on the string, positioned at point S, with a horizontal velocity component indicated as v. Another bead Q is ejected from point A along the horizontal string AB at the same speed v. The angle of 45° is marked at point S, indicating the angle between the horizontal line and the line connecting points A and S. The distance s is represented along the arc from point A to point P. The layout is primarily horizontal for string AB and semi-circular for string ACB, with arrows indicating the direction of motion for beads P and Q towards point B. There are no numeric annotations or additional connections visible in the diagram.]\n\n1. t P > t Q  \n2. t P = 1.25 t Q  \n3. t P = t Q  \n4. t P < t Q",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding the Motion of Beads on Different Paths",
+          "sections": [
+            {
+              "heading": "The Missing Idea",
+              "bodyMarkdown": "The key to solving this problem lies in understanding the different paths taken by beads P and Q. While both beads start with the same speed, bead P moves along a curved path, which affects its acceleration and the time it takes to reach point B."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often assume that since both beads start with the same speed, they will take the same amount of time to reach point B. However, the curvature of the path for bead P introduces a change in velocity due to gravitational acceleration, which complicates the comparison."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the motion of both beads: bead Q moves in a straight line with constant velocity, while bead P experiences a change in velocity as it slides down the arc. This difference in motion dynamics is crucial for determining the time taken by each bead."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by analyzing the motion of bead Q, which can be calculated using simple kinematics. Then, for bead P, consider the forces acting on it and how they affect its acceleration along the curved path."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students get stuck when they try to directly compare the times without accounting for the effects of the curved path on bead P's motion. They may overlook the fact that bead P will take longer due to its changing velocity as it descends the arc."
+            }
+          ],
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_jan_2026",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-025",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "ncert_strict",
       "inputs": {
-        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q5. An oxygen cylinder of volume 30 litre has 18.20 moles of oxygen. After some oxygen is withdrawn from the cylinder, its gauge pressure drops to 11 atmospheric pressure at temperature 27°C. The mass of the oxygen withdrawn from the cylinder is nearly equal to : [Given, R = 100/12 J mol⁻¹ K⁻¹, and molecular mass of O₂ = 32, 1 atm pressure = 1.01 × 10⁵ N/m²] (1) 0.125 kg (2) 0.144 kg (3) 0.116 kg (4) 0.156 kg",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Gas Laws and Mass Calculation",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "To solve this problem, students often overlook the relationship between pressure, volume, and the number of moles of gas as described by the Ideal Gas Law (PV = nRT). Understanding how to manipulate this equation to find the change in moles of gas is crucial."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "The challenge arises from needing to calculate the mass of oxygen withdrawn after a change in pressure, which requires careful application of the gas laws and conversion between moles and mass. Students may get confused about how to relate pressure changes to the amount of gas."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "The correct approach involves recognizing that the pressure drop indicates a change in the number of moles of gas. By applying the Ideal Gas Law before and after the withdrawal of gas, students can find the initial and final moles, and subsequently calculate the mass of the gas withdrawn."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by applying the Ideal Gas Law to find the initial amount of gas in moles and then the final amount after the pressure change. Use the given gauge pressure to convert to absolute pressure and ensure you are using the correct temperature in Kelvin."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume that the volume remains constant or forget to convert gauge pressure to absolute pressure. Additionally, they might struggle with converting moles to mass correctly, leading to errors in their final answer."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "ncert_strict",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-026",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q25. A model for quantized motion of an electron in a uniform magnetic field B states that the flux passing through the orbit of the electron is n(h/e) where n is an integer, h is Planck's constant and e is the magnitude of electron's charge. According to the model, the magnetic moment of an electron in its lowest energy state will be (m is the mass of the electron) (1) he πm (2) he 2πm (3) heB πm (4) heB 2πm",
+        "ncert_context": "NCERT Class 11 Physics Ch.6: Work W=F·s cosθ. Kinetic energy K=½mv². Power P=W/t."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding the Magnetic Moment of an Electron",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "To determine the magnetic moment of an electron in a magnetic field, one must connect the concepts of quantization of angular momentum and the relationship between magnetic moment and angular momentum. The key is recognizing how the quantized flux relates to the magnetic moment."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the relationships between magnetic flux, angular momentum, and magnetic moment. The presence of constants like Planck's constant and the electron's charge can complicate the calculations, leading to errors in deriving the correct expression."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "The magnetic moment is directly proportional to the angular momentum of the electron. Understanding that the quantization condition (n(h/e)) relates to the angular momentum helps in deriving the magnetic moment correctly. Remembering that the magnetic moment is defined as the product of current and area can also guide you."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by recalling the quantization of angular momentum for an electron in a magnetic field. Use the relationship between the magnetic moment and angular momentum to set up the equation. Identify the relevant constants and how they interact in the context of the problem."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students misinterpret the relationship between the quantized flux and the resulting magnetic moment, leading to incorrect assumptions about the constants involved. They may also overlook the significance of the integer n and its role in determining the lowest energy state."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-027",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q41. Two gases A and B are filled at the same pressure in separate cylinders with movable pistons of radius rA and rB, respectively. On supplying an equal amount of heat to both the systems reversibly under constant pressure, the pistons of gas A and B are displaced by 16 cm and 9 cm, respectively. If the change in their internal energy is the same, then the ratio rA/ rB is equal to (1) 4/3 (2) 3/4 (3) 2/√3 (4) √3/2\n\n;",
+        "ncert_context": "NCERT Class 11 Physics Ch.6: Work W=F·s cosθ. Kinetic energy K=½mv². Power P=W/t."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Gas Displacement and Internal Energy Changes",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "To solve this problem, it's crucial to understand the relationship between work done by the gas, the displacement of the pistons, and the geometric factors involved, particularly the area of the pistons."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often focus solely on the displacement of the pistons without considering how the area of the pistons (which depends on their radius) affects the work done by the gas during expansion."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "The work done by each gas can be expressed in terms of the pressure and the area of the piston multiplied by the distance moved. Since the internal energy change is the same for both gases, this relationship will help establish a ratio between the radii of the pistons."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by writing the expression for work done by each gas, which is given by W = P × A × d, where A is the area of the piston (πr²) and d is the displacement. Set the work done equal for both gases since their internal energy changes are the same."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly assume that the displacement alone is sufficient to compare the two systems without incorporating the effect of the piston area, leading to incorrect conclusions about the ratio of the radii."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-028",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q51. Match the List-I with List-II. List-I (Spectral Lines of Hydrogen for transitions from) ((A)) n₂ = 3 to n₁ = 2 ((B)) n₂ = 4 to n₁ = 2 ((C)) n₂ = 5 to n₁ = 2 ((D)) n₂ = 6 to n₁ = 2 List-II (Wavelengths (nm)) I. 410.2 II. 434.1 III. 656.3 IV. 486.1 Choose the correct answer from the options given below: (1) A-IV, B-III, C-I, D-II (2) A-I, B-II, C-III, D-IV (3) A-II, B-I, C-IV, D-III (4) A-III, B-IV, C-II, D-I",
+        "ncert_context": "NCERT Class 12 Physics: Use SI units, free-body diagrams, and sign conventions from the relevant chapter."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Hydrogen Spectral Lines",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "To solve this problem, students need to understand the relationship between the energy levels of hydrogen and the wavelengths of light emitted during electron transitions. Each transition corresponds to a specific wavelength, which can be calculated using the Rydberg formula."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the transitions and their corresponding wavelengths, especially if they do not recall the specific wavelengths associated with each transition. Additionally, the order of energy levels can lead to mistakes in matching."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the energy levels of hydrogen and remember that transitions from higher to lower energy levels emit specific wavelengths. Familiarity with the Balmer series, which includes transitions to n=2, is crucial for identifying the correct wavelengths."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by identifying the transitions listed in List-I and recalling or calculating the corresponding wavelengths using the Rydberg formula. Write down the wavelengths for each transition to facilitate matching."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students mistakenly match the transitions without calculating or recalling the correct wavelengths, leading to incorrect pairings. They may also overlook the significance of the order of transitions when matching with the given wavelengths."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-029",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "case_study",
       "inputs": {
-        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "NEET Physics v1.0 90 curated mixed-style questions for RAG problem-solving evaluation This is a version. Each question has four options. Diagrams, graphs, circuits and mathematical expressions are preserved from the source question blocks. Answers, solutions, chapter headings, difficulty labels, and original source numbering are intentionally not includ NEET Physics v1.0 |",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding Ohm's Law and Resistivity",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "Many students overlook the relationship between voltage, current, and resistance as defined by Ohm's Law ([answer hidden]). They often fail to recognize how changes in one variable affect the others, especially when resistors are combined in series or parallel."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students may find it challenging to apply the formulas correctly when resistors are combined in different configurations. The transition from understanding individual resistors to analyzing complex circuits can create confusion, particularly with series and parallel combinations."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Visualize the circuit as a flow of current through resistors. Understand that in series, the total resistance increases, while in parallel, the total resistance decreases. This affects the overall voltage and current distribution in the circuit."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by identifying the configuration of the resistors (series or parallel). Write down the known values (voltage, current, resistance) and apply Ohm's Law or the appropriate formulas for series and parallel resistances to find the unknowns."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Students often miscalculate the total resistance when combining resistors, leading to incorrect applications of Ohm's Law. They may also mix up the formulas for series and parallel circuits, which can result in confusion about the current and voltage across each component."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "case_study",
+        "diagram",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_missing_idea-030",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "case_study",
       "inputs": {
-        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
-        "ncert_context": "NCERT Class 12 Physics Ch.9: Lens formula 1/f = 1/v - 1/u; sign convention Cartesian.",
-        "student_attempt": "Student tried random formula without identifying given quantities."
+        "problem_text_normalized": "Q15. Given below are two statements: Statement I: The DNA fragments extracted from gel electrophoresis can be used in construction of recombinant DNA. Statement II: Smaller size DNA fragments are observed near anode while larger fragments are found near the wells in an agarose gel. In the light of the above statements, choose the most appropriate answer from the options given below: (1) Both statement I and statement II are correct (2) Both statement I and statement II are incorrect (3) Statement I is correct but statement II is incorrect (4) Statement I is incorrect but statement II is correct",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "The unlock",
+          "title": "Understanding DNA Fragment Behavior in Gel Electrophoresis",
           "sections": [
             {
               "heading": "The Missing Idea",
-              "bodyMarkdown": "Key insight without full solution."
+              "bodyMarkdown": "The key concept here is understanding how DNA fragments behave during gel electrophoresis based on their size and how this relates to their use in recombinant DNA technology."
+            },
+            {
+              "heading": "Why It Feels Tricky",
+              "bodyMarkdown": "Students often confuse the movement of DNA fragments with their size and charge. The direction of movement (toward the anode) and the size-related behavior in the gel can lead to misunderstandings about the implications for recombinant DNA construction."
+            },
+            {
+              "heading": "Correct Mental Model",
+              "bodyMarkdown": "Smaller DNA fragments migrate faster and further in the gel towards the anode, while larger fragments remain closer to the wells. This migration pattern is crucial for isolating specific DNA fragments for recombinant DNA applications."
+            },
+            {
+              "heading": "How to Start",
+              "bodyMarkdown": "Begin by recalling the principles of gel electrophoresis, focusing on how DNA size affects migration. Then, relate this to the practical applications of these fragments in recombinant DNA technology."
+            },
+            {
+              "heading": "Where Most Students Get Stuck",
+              "bodyMarkdown": "Many students misinterpret the implications of the statements regarding the size and migration of DNA fragments, leading them to incorrectly assess the correctness of each statement without fully understanding the underlying principles."
             }
           ],
-          "revealLevel": "partial"
+          "revealLevel": "partial",
+          "followUpButtons": [
+            {
+              "label": "Now show full solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give one similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain this concept",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "case_study",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "partial_reveal"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "typical_student_trap",
+        "production_llm_gold"
       ]
     }
   ]

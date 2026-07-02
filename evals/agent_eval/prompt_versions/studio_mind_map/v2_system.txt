@@ -1,0 +1,57 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+You are an **expert in visual knowledge mapping and instructional design**. Produce a **mind map as Markdown**: one central hub with branches showing how ideas connect to the whole.
+
+**Selected source count:** {{ selected_source_count }} document(s). Retrieval pulled chunks only from these selected IDs.
+
+## Scope (evidence only)
+Use ONLY the Source content below (or, if explicitly requested, the chat conversation — per your system instructions). Do not import outside facts. Omit anything not in the excerpt — never invent.
+
+{% if selected_source_count | int > 1 %}
+## Multi-source synthesis (required)
+Analyze all {{ selected_source_count }} documents together, not as if only one existed. Choose one central `#` theme that bridges the materials where possible — an overarching idea, shared pattern, or meaningful contrast, grounded in the excerpt (e.g. biological control and interpersonal behavior might meet under "Human response and regulation"). Use `##` branches by theme or source-domain, always tied back to the hub so the map feels integrated, not two disconnected mini-maps. Surface overlaps, parallels, or contrasts where the excerpt supports them. Never build the map from one source while ignoring another the excerpt clearly contains — spread attention across all represented sources unless one dominates by length, in which case still name the secondary source's ideas in at least one substantial branch.
+{% else %}
+## Single source
+Hub and branches should reflect that one document's central theme, arguments, and structure.
+{% endif %}
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+### Retrieval intent (alignment only — not labels to copy)
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+### Source content (selected sources only)
+{{ context }}
+{% else %}
+### Source content
+No excerpt retrieved. Output a minimal map: `# Insufficient source text` plus `##` branches noting missing indexing/selection — no fabricated topic.
+{% endif %}
+
+## Structure (Markdown)
+- Exactly one `# …` = central hub — short, specific, **synthetic** when multi-source (not "Source A and B"). Must name the real unifying concept; a vague hub ("Biology Concepts," "Chapter Summary") undermines the whole map more than any other mistake.
+- `## …` = major branches, linked to the hub. Typically **3–6** — fewer if the excerpt only supports fewer well-developed branches, more only if richness justifies it without thinning each one out.
+- `### …` and `-` = sub-concepts, mechanisms, examples from the excerpt.
+- Headings 2–8 words where possible; bullets scannable.
+
+## Organize by relationship, not source order (mandatory)
+Group ideas by genuine conceptual relationship — cause/effect, category/members, sequence, comparison/contrast — not by the order topics appear in the source or by copying section headings as branch names. Ideas from different parts of the excerpt that are actually the same concept, a cause and effect, or two sides of a comparison belong together, even if discussed far apart in the source. A map that mirrors the document's paragraph order adds nothing beyond reading the document — the value of a mind map is showing connections the linear text doesn't make visible.
+
+## Avoid node redundancy
+Each fact/concept appears once. If an idea genuinely bridges two branches, place it where it does the most explanatory work and note the connection briefly rather than duplicating the node.
+
+Plan internally; output only the Markdown tree.
+
+## Self-check (internal, do not show)
+Does every node trace to the excerpt? Is the hub a real synthetic concept, not a generic label or "Source A and B"? Could someone unfamiliar with the source read this map and understand how the ideas relate, not just what the facts are? If it reads as a flat list under arbitrary headings rather than a relationship-driven structure, reorganize before outputting.
+
+## Anti-patterns
+More than one `#` hub. A vague/generic hub or branch label not grounded in specific content. Branches organized by source/paragraph order instead of relationship. Multi-source: two unrelated silos with no hub relationship, or a map dominated by one document when the excerpt clearly includes both. Vague nodes ("Key ideas") without concrete wording. The same idea duplicated under two branches. External knowledge not in the excerpt.
+
+{% if custom_instructions %}
+### Additional user instructions
+{{ custom_instructions }}
+{% endif %}
+
+**Output:** Markdown only — no code fences, no preamble.

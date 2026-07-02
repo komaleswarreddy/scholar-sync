@@ -1,0 +1,160 @@
+[GEMINI] healthy: gemini-2.5-flash
+========================================================================
+[3/9] agent=whole_file_reduce prompt=v1 model=gpt-5-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2109/5000 margin=250 remaining=2641 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v1-openai-gpt-5-mini-0ec8f7b9' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=f16ac199-bf3f-4c8d-84ad-7b37eec98625
+
+
+0it [00:00, ?it/s]1it [00:11, 11.63s/it]2it [00:16,  7.45s/it]3it [00:23,  7.32s/it]4it [00:32,  8.18s/it]6it [00:38,  5.33s/it]8it [00:44,  4.37s/it]10it [00:50,  3.76s/it]12it [00:54,  3.24s/it]13it [00:55,  2.77s/it]13it [00:55,  4.28s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2214/5000 (incl. margin 250) | usable_remaining=2536
+
+DONE [3/9] whole_file_reduce/v1/gpt-5-mini -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[4/9] agent=whole_file_reduce prompt=v2 model=gpt-5.4 (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2214/5000 margin=250 remaining=2536 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v2-openai-gpt-5-4-2ce29bb1' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=cde7e957-5714-4a5e-8c0f-af5dcd0d128b
+
+
+0it [00:00, ?it/s]1it [00:08,  8.82s/it]2it [00:14,  7.01s/it]3it [00:19,  6.27s/it]5it [00:25,  4.41s/it]7it [00:33,  4.23s/it]10it [00:36,  2.50s/it]11it [00:39,  2.73s/it]13it [00:45,  2.74s/it]13it [00:45,  3.48s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2319/5000 (incl. margin 250) | usable_remaining=2431
+
+DONE [4/9] whole_file_reduce/v2/gpt-5.4 -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[5/9] agent=whole_file_reduce prompt=v2 model=gemini-2.5-flash (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2319/5000 margin=250 remaining=2431 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v2-gemini-gemini-2-5-flash-631edb22' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=9ec13256-a4ce-4277-a753-f5d103f8c836
+
+
+0it [00:00, ?it/s]WARNING Gemini stream failed, falling back: Gemini stream HTTP 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+WARNING Gemini stream failed, falling back: Gemini stream HTTP 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+WARNING Gemini error 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+1it [00:05,  5.40s/it]WARNING Gemini error 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+2it [00:07,  3.52s/it]WARNING Gemini stream failed, falling back: Gemini stream HTTP 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+WARNING Gemini stream failed, falling back: Gemini stream HTTP 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+WARNING Gemini error 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+3it [00:11,  3.56s/it]WARNING Gemini error 503: {
+  "error": {
+    "code": 503,
+    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+    "status": "UNAVAILABLE"
+  }
+}
+
+4it [00:12,  2.71s/it]5it [00:13,  2.00s/it]6it [00:18,  3.13s/it]8it [00:20,  1.96s/it]9it [00:23,  2.27s/it]10it [00:24,  1.96s/it]11it [00:25,  1.65s/it]12it [00:26,  1.42s/it]13it [00:27,  1.47s/it]13it [00:27,  2.14s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2424/5000 (incl. margin 250) | usable_remaining=2326
+
+DONE [5/9] whole_file_reduce/v2/gemini-2.5-flash -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[6/9] agent=whole_file_reduce prompt=v2 model=gpt-5-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2424/5000 margin=250 remaining=2326 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v2-openai-gpt-5-mini-14c0526c' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=3a9febf6-2052-4f92-ad52-cd3a80d3aa47
+
+
+0it [00:00, ?it/s]1it [00:10, 10.00s/it]2it [00:17,  8.37s/it]3it [00:24,  7.67s/it]5it [00:33,  6.04s/it]6it [00:39,  5.86s/it]8it [00:43,  4.28s/it]10it [00:48,  3.59s/it]11it [00:56,  4.51s/it]12it [00:59,  4.19s/it]13it [01:00,  3.27s/it]13it [01:00,  4.64s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2529/5000 (incl. margin 250) | usable_remaining=2221
+
+DONE [6/9] whole_file_reduce/v2/gpt-5-mini -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[7/9] agent=whole_file_reduce prompt=v3 model=gpt-5.4 (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2529/5000 margin=250 remaining=2221 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v3-openai-gpt-5-4-c5a8d3b1' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=998d52c5-69d0-4523-b0d1-796760881e69
+
+
+0it [00:00, ?it/s]1it [00:10, 10.92s/it]3it [00:15,  4.47s/it]5it [00:20,  3.60s/it]7it [00:25,  3.14s/it]9it [00:27,  2.22s/it]10it [00:29,  2.17s/it]11it [00:31,  2.07s/it]12it [00:31,  1.73s/it]13it [00:33,  1.84s/it]13it [00:33,  2.61s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2634/5000 (incl. margin 250) | usable_remaining=2116
+
+DONE [7/9] whole_file_reduce/v3/gpt-5.4 -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[8/9] agent=whole_file_reduce prompt=v3 model=gemini-2.5-flash (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2634/5000 margin=250 remaining=2116 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v3-gemini-gemini-2-5-flash-e6a1ba67' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=da4c8bd0-773a-45af-bcdb-591b71581c17
+
+
+0it [00:00, ?it/s]1it [00:07,  7.01s/it]3it [00:10,  3.24s/it]4it [00:14,  3.23s/it]5it [00:14,  2.22s/it]6it [00:17,  2.53s/it]7it [00:19,  2.52s/it]9it [00:22,  2.05s/it]11it [00:24,  1.44s/it]12it [00:24,  1.22s/it]13it [00:26,  1.42s/it]13it [00:26,  2.04s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2739/5000 (incl. margin 250) | usable_remaining=2011
+
+DONE [8/9] whole_file_reduce/v3/gemini-2.5-flash -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+========================================================================
+[9/9] agent=whole_file_reduce prompt=v3 model=gpt-5-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2739/5000 margin=250 remaining=2011 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v3-openai-gpt-5-mini-322f6e75' at:
+https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/datasets/ab6845e9-eec2-42ac-b727-269852bf480c/compare?selectedSessions=ebc7162e-ec28-4a0a-ae1e-94630bceb9c8
+
+
+0it [00:00, ?it/s]1it [00:10, 10.46s/it]2it [00:17,  8.20s/it]3it [00:24,  7.91s/it]4it [00:33,  8.44s/it]6it [00:39,  5.52s/it]8it [00:46,  4.52s/it]10it [00:49,  3.53s/it]11it [00:56,  4.07s/it]13it [01:02,  3.66s/it]13it [01:02,  4.77s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2844/5000 (incl. margin 250) | usable_remaining=1906
+
+DONE [9/9] whole_file_reduce/v3/gpt-5-mini -> ok
+View: https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2
+
+All 9 experiments complete.
+
+Leaderboard written to C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\evals\reports\agent_matrix\leaderboard_20260702T060937Z.json

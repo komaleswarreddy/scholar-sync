@@ -1,10 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ScholarSync Tiered Prompt Dataset",
+  "description": "JSON datasets are kept pin-to-pin in sync with the source of truth Reference dataset/Complete_Agent_DataSet.md. Each dataset_id maps to one '## N. <Agent>' section; items mirror that section's evaluation examples (id, variation, tags, inputs, reference outputs, evaluator/quality-check dimensions). Verified by scripts/verify_prompt_tiered_md_sync.py.",
   "type": "object",
   "required": ["version", "dataset_id", "agent", "items"],
   "properties": {
-    "version": { "type": "string", "const": "1.0.0" },
+    "version": { "type": "string" },
     "dataset_id": { "type": "string" },
     "agent": {
       "type": "object",
@@ -37,7 +38,11 @@
           "tags": { "type": "array", "items": { "type": "string" } },
           "inputs": { "type": "object" },
           "reference_outputs": { "type": "object" },
-          "evaluators": { "type": "array", "items": { "type": "string" } },
+          "evaluators": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Evaluation/quality-check dimensions for this example, mirroring the MD 'Quality Check' line for the agent."
+          },
           "notes": { "type": "string" }
         }
       }

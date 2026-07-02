@@ -1,0 +1,182 @@
+agent,evaluator_schema,dataset_schema,production_schema,evaluator_vs_dataset_diff,evaluator_vs_production_diff
+intent_classifier,"Exact 7-key set: {intent, scope, requires_retrieval, requires_attachment, content_type, confidence, reasoning}
+intent enum: security_block, conversational, direct_answer, explanation, summarization, comparison, analytical_reasoning, content_generation, unclear
+scope enum: specific_query, selected_text, section, whole_document, conversation_context, none
+requires_retrieval: bool
+requires_attachment: bool
+content_type: null unless intent=content_generation, else quiz/flashcards/mind_map/slide_deck/practice_questions/study_plan/other
+confidence: float 0.0-1.0 (cap 0.70 when scope=conversation_context)
+reasoning: string <=40 words
+Source: evals/datasets/final_Evalutors/intent_classifier.py","Output keys (7): {intent, scope, requires_retrieval, requires_attachment, content_type, confidence, reasoning}
+intent gold values used: security_block, conversational, direct_answer, explanation, summarization, comparison, analytical_reasoning, content_generation, unclear
+scope gold values: specific_query, selected_text, section, whole_document, conversation_context, none
+content_type: null unless content_generation
+input_keys: query, source_count
+Source: evals/datasets/prompt_tiered/routing/intent_classifier.json","Emits 6 keys: {intent, confidence, reasoning, scope, requires_retrieval, requires_attachment} (no content_type)
+intent enum (UserIntent): security_block, conversational, question, explanation, summary, whole_document_summary, comparison, definition, how_to, analysis, creation, general
+scope enum: whole_document, section, fact, unspecified
+requires_retrieval: bool
+requires_attachment: bool
+confidence: float 0.0-1.0 (no scope-based cap)
+reasoning: string <=60 words
+Source: packages/core/rag/agents/intent_classifier.py","ALIGNED - dataset output_keys exactly match the evaluator 7-key set; gold intent/scope values use the same enums; the evaluator was written to validate this dataset","key_set DIFFERS - production omits content_type, so evaluator's exact 7-key gate fails
+intent DIFFERS - only security_block/conversational/explanation/comparison overlap; evaluator-only: direct_answer, summarization, analytical_reasoning, content_generation, unclear; production-only: question, summary, whole_document_summary, definition, how_to, analysis, creation, general
+scope DIFFERS - only section/whole_document overlap; evaluator-only: specific_query, selected_text, conversation_context, none; production-only: fact, unspecified
+requires_retrieval SAME
+requires_attachment SAME
+content_type MISSING IN PRODUCTION
+confidence DIFFERS - evaluator enforces conversation_context confidence cap production lacks
+reasoning DIFFERS - word limit 40 (eval) vs 60 (prod)"
+query_rewriter,"Exact set: {queries, confidence, reasoning}
+queries: non-empty list[str], count <= max_rewrites, each 2-18 words, no duplicates after normalization
+confidence: float 0.0-1.0
+reasoning: string <=40 words
+Source: evals/datasets/final_Evalutors/query_rewriter.py","Output keys: {queries, confidence, reasoning}
+input_keys: query, transcript_section, max_rewrites
+Source: evals/datasets/prompt_tiered/retrieval/query_rewriter.json","{queries, confidence, used_rewrites, reasoning}
+queries: list[str], truncated to max_rewrites+1 (focused query appended for merge/fallback)
+confidence: float (default 0.75)
+reasoning: string (no word cap)
+used_rewrites: bool
+Source: packages/core/rag/agents/query_rewriter.py","ALIGNED - dataset output_keys match the evaluator exact set {queries, confidence, reasoning}","key_set EXTRA IN PRODUCTION - adds used_rewrites, so evaluator exact-key gate fails
+queries DIFFERS - production can return max_rewrites+1 items; evaluator caps at max_rewrites
+confidence SAME
+reasoning DIFFERS - evaluator caps <=40 words; production has no cap
+used_rewrites EXTRA IN PRODUCTION"
+query_decomposer,"Required {primary_concept, sub_queries}; optional {confidence, reasoning}; allowed = those 4 only
+primary_concept: non-empty string
+sub_queries: list[str], 1..max_sub_queries, each <=20 words, distinct
+confidence: optional float 0.0-1.0
+reasoning: optional string <=40 words
+Source: evals/datasets/final_Evalutors/query_decomposer.py","Output keys: {primary_concept, sub_queries, confidence, reasoning}
+input_keys: query, max_sub_queries, source_count
+Source: evals/datasets/prompt_tiered/retrieval/query_decomposer.json","{primary_concept, sub_queries, used}
+primary_concept: string
+sub_queries: list[str], capped and de-duplicated
+(confidence/reasoning not emitted)
+used: bool
+Source: packages/core/rag/agents/query_decomposer.py","ALIGNED - dataset always provides all 4 keys; evaluator treats confidence/reasoning as optional and accepts them","key_set EXTRA IN PRODUCTION - adds 'used'; evaluator allowed-key set excludes it so schema fails
+primary_concept SAME
+sub_queries SAME
+confidence SAME - optional in evaluator; absence accepted
+reasoning SAME - optional in evaluator; absence accepted
+used EXTRA IN PRODUCTION"
+scope_narrower,"Exact set: {key_terms, focused_query, max_chunks}
+key_terms: list[str], 3-7 distinct compact phrases (<=8 words each)
+focused_query: string 3-30 words
+max_chunks: integer 3-15
+Source: evals/datasets/final_Evalutors/scope_narrower.py","Output keys: {key_terms, focused_query, max_chunks}
+input_keys: query, conversation_section
+Source: evals/datasets/prompt_tiered/retrieval/scope_narrower.json","{focused_query, key_terms, filters, max_chunks}
+key_terms: list[str] of retrieval terms
+focused_query: concise retrieval string
+max_chunks: integer clamped 3-15
+filters: metadata filters (currently always None)
+Source: packages/core/rag/agents/scope_narrower.py","ALIGNED - dataset output_keys exactly match the evaluator set","key_set EXTRA IN PRODUCTION - adds 'filters'; evaluator exact-key gate fails
+key_terms SAME
+focused_query SAME
+max_chunks SAME
+filters EXTRA IN PRODUCTION"
+chat_policy_block,"Required {passes_policy, violations}; optional {corrected_answer}
+passes_policy: bool
+violations: list[str] enum: academic_integrity, fake_citation, overconfident_unsupported, banned_pattern, age_inappropriate_tone, dismissive_mental_health, graphic_or_unsafe_detail
+corrected_answer: optional string (required non-empty for fail cases)
+Source: evals/datasets/final_Evalutors/chat_policy_block_evaluators.py","Output keys: {passes_policy, violations, corrected_answer}
+input_keys: user_request, draft_answer
+Source: evals/datasets/prompt_tiered/generation/chat_policy_block.json","Not a separate LLM call. The YAML policy is injected as text into rag_prompt.j2; no structured output is produced.
+Source: config policy YAML / packages/core/prompts/templates/chat/rag_prompt.j2","ALIGNED - dataset output_keys match the evaluator required+optional set","passes_policy MISSING IN PRODUCTION
+violations MISSING IN PRODUCTION
+corrected_answer MISSING IN PRODUCTION
+Whole agent is eval-only linter contract; production only injects policy text into the RAG prompt"
+direct_chat,"Exact set: {response: str}
+input: message (optional chat_rolling_summary, conversation_transcript)
+Source: evals/datasets/final_Evalutors/direct_chat_evaluators.py","Output keys: {response}
+input_keys: message
+Source: evals/datasets/prompt_tiered/generation/direct_chat.json","final_answer (markdown string) stored in ChatGraphState
+Source: packages/core/langgraph/chat_graph.py (_node_direct_chat)","ALIGNED - dataset output key {response} matches the evaluator exact set","response DIFFERS - key name: evaluator 'response' vs production 'final_answer'; content type (markdown string) is the same"
+rag_chat_response_generator,"Accepts any of {final_answer | answer | response} (str); optional citations list[str] or dict
+Gold/reference-only: required_citations, must_include, must_not_include, answer_type
+Source: evals/datasets/final_Evalutors/rag_chat_response_generator_evaluators.py","Output keys (5): {final_answer, required_citations, must_include, must_not_include, answer_type}
+final_answer: markdown string (gold answer)
+required_citations / must_include / must_not_include: optional list[str] gold checks
+answer_type: optional str (e.g. factual_definition)
+input_keys: user_message, context, citations
+Source: evals/datasets/prompt_tiered/generation/rag_chat_response_generator.json","final_answer (markdown string) + citations list in ChatGraphState
+Source: packages/core/langgraph/chat_graph.py","ALIGNED - dataset now exists; gold answer key (final_answer) is one of the evaluator's accepted keys {final_answer|answer|response}; gold fields required_citations/must_include/must_not_include/answer_type match the evaluator's gold-reference contract","answer SAME - production 'final_answer' is one of the accepted evaluator keys
+citations SAME
+gold_reference_fields N/A - required_citations/must_include/must_not_include/answer_type live only on the gold side, not in production output"
+chat_summarizer,"Exact set: {summary_markdown: str}
+input: old_conversation
+Source: evals/datasets/final_Evalutors/chat_summarizer_evaluators.py","Output keys: {summary_markdown}
+input_keys: old_conversation
+Source: evals/datasets/prompt_tiered/generation/chat_summarizer.json","LLM returns markdown text stored as 'summary' inside {summarized_history, summary, original_count, new_count, was_summarized}
+inputs: old_conversation plus previous_summary and new_turns (incremental mode)
+Source: packages/core/memory/chat_summarizer.py","ALIGNED - dataset output key {summary_markdown} and input old_conversation match the evaluator","summary_markdown DIFFERS - key/wrapper: evaluator expects {summary_markdown}; production nests markdown under 'summary' in a larger dict; markdown content is the same
+inputs DIFFERS - production template also accepts previous_summary/new_turns not modeled by the evaluator"
+hallucination_guard_retry,"Exact set: {corrected_answer: str}
+inputs: answer, context, unsupported_sentences
+Source: evals/datasets/final_Evalutors/hallucination_guard_retry_evaluators.py","Output keys: {corrected_answer}
+input_keys: answer, context, unsupported_sentences
+Source: evals/datasets/prompt_tiered/generation/hallucination_guard_retry.json","Regenerated answer text from retry LLM call (full RAG prompt + strict_retry_suffix); not keyed as corrected_answer
+uses answer, context, unsupported_sentences list
+Source: packages/core/rag/hallucination_guard.py","ALIGNED - dataset output key {corrected_answer} and the three input keys match the evaluator exactly","corrected_answer DIFFERS - key name: production returns plain regenerated answer text, not wrapped under 'corrected_answer'
+inputs SAME"
+studio_system_json,"Exactly one of {json_output, markdown_output}
+inputs: context, task_instruction
+Source: evals/datasets/final_Evalutors/studio_system_json_evaluators.py","Output keys: {json_output, markdown_output}
+input_keys: context, task_instruction
+Source: evals/datasets/prompt_tiered/studio/studio_system_json.json","Raw LLM content string (JSON or Markdown) returned by studio_service; not wrapped under json_output/markdown_output
+inputs: context + task template instruction
+Source: packages/core/services/studio_service.py","ALIGNED - dataset declares both output keys; evaluator requires exactly one present per task; consistent","output_key DIFFERS - wrapper naming: production returns raw content (parsed downstream), not a {json_output|markdown_output} envelope
+inputs SAME"
+studio_quiz,"Exact set: {quiz_json: {title, questions[]}}
+question: {question, options (exactly 4, correct_answer must be in options), correct_answer, explanation}
+Source: evals/datasets/final_Evalutors/studio_quiz_evaluators.py","Output keys: {quiz_json}
+input_keys: context, custom_instructions
+Source: evals/datasets/prompt_tiered/studio/studio_quiz.json","Raw JSON object {title, questions[]} returned directly (no quiz_json wrapper)
+question.title: string; options: exactly 4; correct_answer matches one option; explanation: 1-2 sentences
+Source: packages/core/prompts/templates/studio/quiz_prompt.j2","ALIGNED - dataset wraps gold under quiz_json, same as the evaluator","quiz_json_wrapper DIFFERS - evaluator nests under quiz_json; production returns the quiz object at top level
+title SAME
+questions[].question SAME
+questions[].options SAME
+questions[].correct_answer SAME
+questions[].explanation SAME"
+studio_flashcards,"Exact set: {flashcards_json: {title, cards[]}}
+card: {front, back, optional type, optional source_hint}
+Source: evals/datasets/final_Evalutors/studio_flashcards_evaluators.py","Output keys: {flashcards_json}
+input_keys: context, selected_source_count
+Source: evals/datasets/prompt_tiered/studio/studio_flashcards.json","Bare JSON array [{front, back}] (no wrapper object, no deck title)
+card.front: string; card.back: string
+Source: packages/core/prompts/templates/studio/flashcards_prompt.j2","ALIGNED - dataset wraps gold under flashcards_json with title+cards, same as the evaluator","flashcards_json_wrapper DIFFERS - structural: evaluator expects object with title + cards; production returns top-level array of cards
+title MISSING IN PRODUCTION
+cards DIFFERS - production array is not nested under a 'cards' key
+card.front SAME
+card.back SAME
+card.type/source_hint SAME - optional in evaluator"
+studio_mind_map,"Exact set: {mind_map_markdown: str}
+Source: evals/datasets/final_Evalutors/studio_mind_map_evaluators.py","Output keys: {mind_map_markdown}
+input_keys: context, selected_source_count
+Source: evals/datasets/prompt_tiered/studio/studio_mind_map.json","Raw Markdown (one # hub, ## branches), not wrapped
+Source: packages/core/prompts/templates/studio/mind_map_prompt.j2","ALIGNED - dataset output key {mind_map_markdown} matches the evaluator","mind_map_markdown DIFFERS - wrapper key: production returns raw markdown, not under mind_map_markdown; content (markdown hierarchy) is the same"
+studio_slide_deck,"Exact set: {slide_deck_markdown} (markdown only; slide_deck_json variant removed)
+slide_deck_markdown: non-empty markdown string
+Source: evals/datasets/final_Evalutors/studio_slide_deck_evaluators.py","Output keys: {slide_deck_markdown} (markdown only; no JSON variant used)
+input_keys: context, custom_instructions
+Source: evals/datasets/prompt_tiered/studio/studio_slide_deck.json","Raw Markdown only (JSON explicitly forbidden by prompt), not wrapped
+Source: packages/core/prompts/templates/studio/slide_deck_prompt.j2","ALIGNED - evaluator now accepts only slide_deck_markdown (slide_deck_json variant removed); matches the dataset exactly","output_key DIFFERS - wrapper key only: production returns raw markdown, evaluator expects {slide_deck_markdown}; both sides are markdown-only (no JSON variant on either)"
+studio_fallback_legacy,"Exact set: {output: str}
+input task_type enum: quiz, flashcards, mind_map, slide_deck
+Source: evals/datasets/final_Evalutors/studio_fallback_legacy_evaluators.py","Output keys: {output}
+input_keys: task_type, context
+Source: evals/datasets/prompt_tiered/studio/studio_fallback_legacy.json","Raw generated string (JSON object/array or Markdown per task_type), not wrapped under {output}
+same task types
+Source: packages/core/services/studio_service.py / fallback_task_prompt.j2","ALIGNED - dataset output key {output} and task_type input match the evaluator","output DIFFERS - wrapper key: production returns the raw artifact string, not wrapped under {output}; per-task contract (quiz JSON / flashcards JSON / mind_map md / slide_deck md) matches
+task_type_input SAME"
+orchestration_flow,"Trace object: {final_route, agents_invoked, agents_bypassed, route_events, flags, agent_inputs, agent_outputs, map_reduce_ok, template_missing, error}
+final_route enum: cache_hit, moderation_block, security_block, direct_chat, standard_rag, rag, whole_file_map_reduce_success, whole_file_map_reduce_fallback, studio, problem_solver, problem_solver_followup, tutor_bootstrap, tutor_followup, source_question_extraction, ingestion, ocr, refusal
+Source: evals/datasets/final_Evalutors/orchestration_flow_evaluators.py","input_keys: request, flow_trace (gold flow_trace replayed in inputs)
+Gold contract (output_keys): expected_route, required_agents, forbidden_agents, expected_order, expected_handoffs
+Source: evals/datasets/prompt_tiered/orchestration/orchestration_flow.json","No single native trace object; routing/state assembled across ChatGraphState + graph edges; needs a target_fn adapter to expose this shape
+routing implicit in graph nodes/edges (DirectChat, Retrieval, WholeFileMapReduce, ModerationOutput, etc.)
+Source: packages/core/langgraph/chat_graph.py","ALIGNED - dataset now exists; gold contract (expected_route, required_agents, forbidden_agents, expected_order, expected_handoffs) matches the evaluator's checks (route_match, agent_invocation_contract, dependency_and_order_integrity, critical_handoff_integrity); flow_trace is replayed via inputs for the target_fn adapter","trace_schema DIFFERS - production has no dedicated orchestration-trace output matching these keys; evaluator defines an adapter contract, not a production object
+final_route DIFFERS - production node/edge names are not the same string slugs as the evaluator route enum; a mapping layer is required"

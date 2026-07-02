@@ -12,6 +12,7 @@ from sqlalchemy.exc import DBAPIError, OperationalError
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import asyncio
+import hmac
 import httpx
 import time
 import uuid
@@ -21,7 +22,17 @@ from packages.core.database.models.user import User
 from packages.core.database.models.chat import Chat, Message
 from packages.core.monitoring.metrics import get_metrics_collector
 from packages.core.guardrails.cost_manager import get_cost_manager
-from apps.api.middleware.auth import extract_user_id_from_token, create_admin_portal_token
+from apps.api.middleware.auth import (
+    extract_user_id_from_token,
+    create_admin_portal_token,
+    verify_portal_password,
+)
+from apps.api.middleware.login_guard import (
+    check_login_allowed,
+    record_failure,
+    record_success,
+)
+from apps.api.utils.safe_errors import safe_detail
 from config.settings import settings
 from sqlalchemy import func
 
@@ -239,16 +250,30 @@ async def check_admin_role(
 
 
 @router.post("/auth/login")
-async def admin_portal_login(body: AdminPortalLoginRequest):
+async def admin_portal_login(body: AdminPortalLoginRequest, request: Request):
     """
     Standalone admin portal login (email/password).
     Returns a Bearer JWT for ops dashboard API calls — not a Clerk session.
+
+    Hardening: per-IP+email rate limiting/lockout, constant-time password
+    comparison, and support for a bcrypt password hash.
     """
     email = (body.email or "").strip().lower()
     password = body.password or ""
     expected_email = (settings.ADMIN_PORTAL_EMAIL or "").strip().lower()
-    if email != expected_email or password != settings.ADMIN_PORTAL_PASSWORD:
+
+    check_login_allowed("admin", request, email)
+
+    email_ok = hmac.compare_digest(email.encode("utf-8"), expected_email.encode("utf-8"))
+    password_ok = verify_portal_password(
+        password, settings.ADMIN_PORTAL_PASSWORD, settings.ADMIN_PORTAL_PASSWORD_HASH
+    )
+    if not (email_ok and password_ok):
+        record_failure("admin", request, email)
+        # Generic message — do not reveal which field was wrong.
         raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    record_success("admin", request, email)
     access_token, expires_in = create_admin_portal_token()
     return {
         "access_token": access_token,
@@ -370,7 +395,7 @@ async def backfill_users_from_clerk(
     try:
         clerk_users = await _fetch_all_clerk_users()
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Failed to fetch users from Clerk: {str(e)}")
+        raise HTTPException(status_code=502, detail=safe_detail(e, "Failed to fetch users from Clerk"))
 
     if not clerk_users:
         return {
@@ -448,7 +473,7 @@ async def backfill_users_from_clerk(
         await db.commit()
     except Exception as e:
         await db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to persist backfill: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to persist backfill"))
 
     return {
         "ok": True,

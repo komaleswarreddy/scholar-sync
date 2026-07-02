@@ -38,6 +38,11 @@ def format_conversation_transcript(
 
 
 def _is_rolling_summary_message(msg: Dict[str, Any]) -> bool:
+    """Backward-compatible alias."""
+    return is_rolling_summary_message(msg)
+
+
+def is_rolling_summary_message(msg: Dict[str, Any]) -> bool:
     """True for ChatSummarizer-injected system summary rows."""
     if not isinstance(msg, dict):
         return False
@@ -78,3 +83,29 @@ def split_summary_and_transcript_for_prompt(
         max_chars_per_message=max_chars_per_message,
     )
     return summary, (transcript or "").strip()
+
+
+def format_routing_hints_section(
+    *,
+    scope: Optional[str] = None,
+    requires_retrieval: Optional[bool] = None,
+    requires_attachment: Optional[bool] = None,
+) -> str:
+    """Advisory routing hints from IntentClassifier for retrieval agents (prompt-only)."""
+    lines: List[str] = []
+    scope_s = (scope or "").strip().lower()
+    if scope_s and scope_s != "unspecified":
+        lines.append(f"- Retrieval scope hint: `{scope_s}`")
+    if requires_retrieval is not None:
+        lines.append(
+            f"- Requires source retrieval: `{'yes' if requires_retrieval else 'no'}` "
+            "(advisory — optimize queries accordingly; do not refuse to rewrite)."
+        )
+    if requires_attachment is not None:
+        lines.append(
+            f"- User expects attached sources: `{'yes' if requires_attachment else 'no'}` "
+            "(advisory — prefer source-grounded phrasing when yes)."
+        )
+    if not lines:
+        return ""
+    return "## Routing hints (from intent classifier — advisory only)\n" + "\n".join(lines) + "\n\n"

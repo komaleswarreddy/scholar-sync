@@ -1,0 +1,76 @@
+{
+  "written": [
+    {
+      "agent_id": "help_me_solve_it",
+      "agent_name": "Help Me Solve It Coach",
+      "sno": "21",
+      "chars": {
+        "v1": 6652,
+        "v2": 5786,
+        "v3": 5440
+      }
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "agent_name": "Problem Solver Follow-up Handler",
+      "sno": "22",
+      "chars": {
+        "v1": 3051,
+        "v2": 2277,
+        "v3": 1852
+      }
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "agent_name": "Tutor Notebook Bootstrap Agent",
+      "sno": "23",
+      "chars": {
+        "v1": 3202,
+        "v2": 2498,
+        "v3": 2019
+      }
+    },
+    {
+      "agent_id": "tutor_follow_up_questions",
+      "agent_name": "Tutor Follow-up Questions Agent",
+      "sno": "24",
+      "chars": {
+        "v1": 1598,
+        "v2": 1290,
+        "v3": 1037
+      }
+    },
+    {
+      "agent_id": "source_question_extraction",
+      "agent_name": "Source Question Extraction Agent",
+      "sno": "25",
+      "chars": {
+        "v1": 3395,
+        "v2": 2007,
+        "v3": 1589
+      }
+    },
+    {
+      "agent_id": "image_ocr",
+      "agent_name": "Image OCR Agent",
+      "sno": "31",
+      "chars": {
+        "v1": 1013,
+        "v2": 806,
+        "v3": 633
+      }
+    },
+    {
+      "agent_id": "diagram_label_ocr",
+      "agent_name": "Diagram Label OCR Agent",
+      "sno": "32",
+      "chars": {
+        "v1": 1431,
+        "v2": 1064,
+        "v3": 810
+      }
+    }
+  ],
+  "skipped": [],
+  "flags": []
+}

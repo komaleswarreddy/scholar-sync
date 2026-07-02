@@ -20,6 +20,7 @@ from apps.api.schemas.problem_solver import (
 from config.settings import settings
 from packages.core.database.connection import get_db
 from packages.core.services.problem_solver_service import ProblemSolverService
+from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
 
@@ -149,7 +150,10 @@ async def respond_stream(
                 yield f"event: {event['event']}\n"
                 yield f"data: {event_data}\n\n"
         except Exception as e:
-            error_data = json.dumps({"error": str(e)}, ensure_ascii=False)
+            error_data = json.dumps(
+                {"error": safe_detail(e, "An error occurred during streaming")},
+                ensure_ascii=False,
+            )
             yield f"event: error\n"
             yield f"data: {error_data}\n\n"
 

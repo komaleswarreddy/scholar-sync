@@ -1,0 +1,8 @@
+Workspace #,Tenant ID,Gmail Account,Gmail Password,LangSmith Project,Agents Count,Agent IDs
+1,03ba6fa5-eb21-4c9a-9eab-fbf8c26ad03b,eskomal66@gmail.com,asdfvbnm1234,ScholarSync-v2,4,problem_dna_analyzer; studio_fallback_legacy; whole_file_map_summarizer; whole_file_reduce
+2,15d476d5-df92-4760-96b8-52f9130946bf,pscmrmindssprint2k25@gmail.com,asdfvbnm1234,ScholarSync-v2,1,intent_classifier
+3,33d88f33-0349-4117-89c6-5d0d56252773,sui332307@gmail.com,asdfvbnm1234,ScholarSync-v2,3,studio_flashcards; studio_mind_map; studio_slide_deck
+4,47ca8a69-43eb-4f05-812b-c7778fe6987d,scombinator26@gmail.com,asdfvbnm1234,ScholarSync-v2,3,query_decomposer; query_rewriter; scope_narrower
+5,67272628-c819-44db-bbda-e500db0d6982,gra7399@gmail.com,asdfvbnm1234,ScholarSync-v2,2,studio_quiz; studio_system_json
+6,aafff4b5-45a3-4448-9f7d-805bfc70098d,emaildam3@gmail.com,asdfvbnm1234,ScholarSync-v2,3,chat_summarizer; direct_chat; rag_chat_response_generator
+7,ac6f370c-8fcd-46f3-a85c-b5cd59a9f2e7,cursemes9@gmail.com,ASDFvbnm1234@,ScholarSync-v2,11,diagram_label_ocr; explain_from_basics; help_me_solve_it; image_ocr; ncert_document_sketch; problem_solver_followup; show_best_approach; show_missing_idea; source_question_extraction; tutor_follow_up_questions; tutor_notebook_bootstrap

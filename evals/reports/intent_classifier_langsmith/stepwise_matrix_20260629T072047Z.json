@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-06-29T07:20:47.781167+00:00",
+  "langsmith_project": "ScholarSync",
+  "dataset": "nbm-prompt-intent_classifier",
+  "mode": "stepwise",
+  "experiments": [
+    {
+      "experiment_prefix": "ic-v1-openai-gpt-5-4-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 122.62,
+      "experiment_name": "ic-v1-openai-gpt-5-4-mini-6661c91e",
+      "langsmith_url": "https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v1-anthropic-claude-haiku-4-5",
+      "prompt_version": "v1",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "elapsed_seconds": 142.26,
+      "experiment_name": "ic-v1-anthropic-claude-haiku-4-5-fe00a594",
+      "langsmith_url": "https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v2-openai-gpt-5-4-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 128.32,
+      "experiment_name": "ic-v2-openai-gpt-5-4-mini-8929b01c",
+      "langsmith_url": "https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v2-anthropic-claude-haiku-4-5",
+      "prompt_version": "v2",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "elapsed_seconds": 131.47,
+      "experiment_name": "ic-v2-anthropic-claude-haiku-4-5-8c78391f",
+      "langsmith_url": "https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v3-openai-gpt-5-4-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 104.7,
+      "experiment_name": "ic-v3-openai-gpt-5-4-mini-a2f4c392",
+      "langsmith_url": "https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v3-anthropic-claude-haiku-4-5",
+      "prompt_version": "v3",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "elapsed_seconds": 156.3,
+      "experiment_name": "ic-v3-anthropic-claude-haiku-4-5-d18e76c6",
+      "langsmith_url": "https://smith.langchain.com/o/15d476d5-df92-4760-96b8-52f9130946bf/projects/p/ScholarSync"
+    }
+  ],
+  "skipped_providers": [],
+  "summary": {
+    "total_experiments": 6,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

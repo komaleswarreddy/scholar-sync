@@ -8,6 +8,7 @@ import uuid
 
 from packages.core.database.connection import get_db
 from packages.core.services.note_service import NotesService
+from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
 
@@ -91,7 +92,7 @@ async def list_notes(
         if _is_db_unavailable_error(e):
             print("[WARNING] [NOTES] Database unavailable; returning empty notes list fallback")
             return NotesListResponse(notes=[])
-        raise HTTPException(status_code=500, detail=f"Failed to list notes: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to list notes"))
 
 @router.post("", response_model=NoteResponse)
 async def create_note(
@@ -121,7 +122,7 @@ async def create_note(
         import traceback
         print(f"[ERROR] [NOTES] Error creating note: {type(e).__name__}: {str(e)}")
         print(f"[ERROR] [NOTES] Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Failed to create note: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to create note"))
 
 @router.get("/{note_id}", response_model=NoteResponse)
 async def get_note(note_id: str, request: Request, db: AsyncSession = Depends(get_db)):
@@ -145,7 +146,7 @@ async def get_note(note_id: str, request: Request, db: AsyncSession = Depends(ge
         import traceback
         print(f"[ERROR] [NOTES] Error getting note: {type(e).__name__}: {str(e)}")
         print(f"[ERROR] [NOTES] Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Failed to get note: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to get note"))
 
 @router.put("/{note_id}", response_model=NoteResponse)
 async def update_note(
@@ -174,7 +175,7 @@ async def update_note(
         import traceback
         print(f"[ERROR] [NOTES] Error updating note: {type(e).__name__}: {str(e)}")
         print(f"[ERROR] [NOTES] Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Failed to update note: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to update note"))
 
 @router.delete("/{note_id}")
 async def delete_note(note_id: str, request: Request, db: AsyncSession = Depends(get_db)):
@@ -190,4 +191,4 @@ async def delete_note(note_id: str, request: Request, db: AsyncSession = Depends
         import traceback
         print(f"[ERROR] [NOTES] Error deleting note: {type(e).__name__}: {str(e)}")
         print(f"[ERROR] [NOTES] Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Failed to delete note: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to delete note"))

@@ -1,0 +1,21 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 92,
+  "experiments": [
+    {
+      "agent_id": "diagram_label_ocr",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-diagram_label_ocr-v3-openai-gpt-5-mini-1c155439",
+      "measured_traces": 92,
+      "estimated_traces": 92,
+      "charged_traces": 92,
+      "at": "2026-07-01T04:28:51.896490+00:00"
+    }
+  ],
+  "workspace_tenant": "scombinator26_47ca8a69",
+  "note": "Fresh ledger after workspace switch (scombinator26_47ca8a69)",
+  "updated_at": "2026-07-01T04:28:51.897507+00:00"
+}

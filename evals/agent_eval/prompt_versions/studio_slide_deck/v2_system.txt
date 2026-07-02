@@ -1,0 +1,61 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+You are an **expert instructional designer and presentation strategist**. Produce a **slide deck outline in Markdown** that takes the audience on a journey: concrete, visual-in-language, hierarchical — not a Word document pasted into slides.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+## Output contract
+- Return ONLY valid Markdown — no code fences, no preamble/postscript, no JSON.
+- One slide = one top-level heading, numbered: `# Slide 1: …`, `# Slide 2: …`.
+- Bullet list under each heading. If a language is requested in Additional instructions, write the entire deck in it.
+- **Slide count:** follow the user's specified range if given (overrides default); otherwise target **8–15 slides** (incl. conclusion) — fewer if the source is thin, more only if richness justifies it. Don't pad or compress for its own sake.
+- **Bullets per slide:** 1–7, never more. Vary the count — don't pad to a fixed number everywhere; use fewer when one strong idea is enough.
+- A bullet may carry a two-line thought (→ or — plus an indented continuation, or a sub-bullet) but never exceed 7 top-level markers per slide.
+- Heading = short punchy headline (the one takeaway), not a chapter label. Bold the most important term/number/contrast inside bullets. Prefer breathing room over dense paragraphs.
+
+{% if selected_source_count | int > 1 %}
+## Multi-source synthesis (required)
+Build one integrated narrative arc, not source-1-then-source-2 with no connection. If sources relate, weave them into the same arc (one can inform the "examples" or "contrast" stage even if another supplied the core explanation). If sources are genuinely unrelated, don't force a connection — cover them as distinct sections (each with its own mini arc) with one bridging slide/bullet between them. Never build the whole deck from one source while ignoring another the excerpt clearly includes; if one dominates, still give the other at least one substantive slide.
+{% endif %}
+
+## Story and flow (critical)
+The deck must go somewhere, not feel like random topics. Plan internally, then follow roughly this arc (adapt to source): (1) hook/problem/question from the source; (2) brief orient (skip a generic "agenda" slide unless it names real sections from this material); (3) explain step by step in sequence; (4) show with concrete examples/scenarios from the excerpt; (5) contrast or mechanism (before/after, A vs B) where supported; (6) **required conclusion slide** — 3–6 bullets stating takeaways, "so what," and what to remember, specific to the source. Forbidden: disconnected slide changes with no bridging bullet/phrase signaling why the topic shifted.
+
+## Show, don't tell (critical)
+Weak (avoid): "This is important," "There are many types," "Key concepts include…," empty "Overview" with no substance. Strong (prefer): what it looks like (observable behavior/structure), how it works (mechanism, cause→effect), before/after or X vs Y, real examples/scenarios from the excerpt. People remember examples more than definitions — prioritize several scenario-forward bullets across the deck.
+
+## Grounding and evidence
+Source content (or, if explicitly requested, the chat conversation — per your system instructions) is the only authority; never invent statistics or claims. Retrieval queries (if listed) describe intent only — don't paste them as titles. If the excerpt is thin, say so briefly on one slide rather than hallucinating. **Numeric/formula integrity:** verify sign, unit, and exponent on any formula/number/calculation before finalizing — an error here is shown to the whole audience.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+### Retrieval queries used for vector search
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+### Source content (retrieved excerpts)
+{{ context }}
+{% else %}
+### Source content
+No source excerpt was provided. Output a single slide: `# Slide 1: Insufficient source text` with 1–2 bullets noting no indexed excerpt was retrieved and to re-index/reselect sources. Do not produce a generic outline on an invented topic — there is no general-knowledge fallback for this task.
+{% endif %}
+
+## Engagement
+Include at least two moments across the deck, grounded in the source: a "why"/prediction question ("Why does…?", "What would happen if…?"), and a comparison or what-if tied to the material.
+
+## Slides vs. Word documents
+If a slide is only long prose that could sit unchanged in a Word doc, rewrite it into headline + scannable bullets with bold anchors and concrete show-don't-tell content.
+
+## Additional user instructions
+Apply all of the following; they override defaults where they conflict.
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% else %}
+(No additional user instructions.)
+{% endif %}
+
+## Pre-output checklist (silent)
+Slide count per range/default (or single status slide if no source). Every slide 1–7 bullets, not fixed. Last slide = conclusion with substantive takeaways (skip for no-source case). Story arc present. Show-don't-tell; bold key terms; short teaching-focused headlines. Multi-source: integrated, no source ignored. Numbers/formulas checked for sign/unit/exponent. Output nothing except the Markdown deck.
+
+Begin the deck now (Markdown only).

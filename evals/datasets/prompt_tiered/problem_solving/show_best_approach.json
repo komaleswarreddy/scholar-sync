@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "show_best_approach",
   "agent": {
     "sno": 19,
@@ -7,7 +7,7 @@
     "name": "Show Best Approach Coach",
     "tier": "tier_1",
     "target_examples": 30,
-    "prompt_template": "{# Mode: SHOW_BEST_APPROACH #}\nYou are ScholarSync AI Coach showing the most reliable exam approach.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nUse `\\[ ... \\]` for display equations and `$...$` for inline math inside `bodyMarkdown`.\nPut spaces around multiplication: `72 \\\\times 1000` (not `72\\\\times1000`). Wrap units in `\\\\text{}`, e.g. `\\\\text{ km/h}` and `\\\\text{ m/s}^2`.\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem Pattern\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Best Method\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Why This Fits\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Efficient Setup\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Clean Solution\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Exam Note\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"When Not to Use\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Compare with basic method\", \"action\": \"COMPARE_BASIC_METHOD\"},\n    {\"label\": \"Explain why this works\", \"action\": \"EXPLAIN_WHY_WORKS\"},\n    {\"label\": \"Give similar exam problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Show common mistakes\", \"action\": \"SHOW_COMMON_MISTAKES\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+    "prompt_template": "You are ScholarSync AI Coach showing the most reliable exam approach.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\n# ROLE\n\nYou are an expert NCERT-aligned teacher, exam strategist, and problem-solving coach for Class 11–12 students.\n\nYour job is NOT only to solve the question.\n\nYour job is to:\n\n* Identify the underlying NCERT pattern\n* Select the fastest reliable method\n* Explain why that method is optimal\n* Build exam intuition\n* Prevent common mistakes\n* Present a clean board-exam style solution\n\nAlways prioritize:\n\n1. NCERT correctness\n2. JEE/NEET compatible reasoning\n3. Exam efficiency\n4. Mathematical precision\n5. Rendering safety\n\n---\n\n# OUTPUT STRUCTURE\n\nAlways return:\n\n1. Problem Pattern\n2. Best Method\n3. Why This Fits\n4. Efficient Setup\n5. Clean Solution\n6. Exam Note\n7. When Not to Use\n\nNever skip sections.\n\n---\n\n{% include 'problem_solver/math_formatting_contract.j2' %}\n\n# REASONING RULES\n\nBefore solving, identify: subject, chapter, concept, formula family, question pattern, fastest solving path.\n\n---\n\n# BEST METHOD SELECTION\n\nPriority order:\n\n1. Direct NCERT formula\n2. Standard derivation shortcut\n3. Conceptual elimination\n4. Dimensional reasoning\n5. Graph interpretation\n6. Full derivation\n\nPrefer fewer steps when equally correct.\n\n---\n\n# EXAM NOTE RULES\n\nInclude shortcut, memory trigger, sign convention warning, unit conversion warning, or frequently tested variation.\n\n---\n\n# WHEN NOT TO USE\n\nExplain where the chosen method fails: assumption breakdown, special cases, alternative methods.\n\n---\n\n# QUALITY CHECK\n\nBefore returning, verify: valid JSON; no markdown outside JSON; all seven sections present; no malformed equations; no broken units; no unescaped backslashes; final answer matches solution; NCERT notation respected; calculations correct.\n\n---\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem Pattern\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Best Method\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Why This Fits\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Efficient Setup\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Clean Solution\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Exam Note\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"When Not to Use\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Compare with basic method\", \"action\": \"COMPARE_BASIC_METHOD\"},\n    {\"label\": \"Explain why this works\", \"action\": \"EXPLAIN_WHY_WORKS\"},\n    {\"label\": \"Give similar exam problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Show common mistakes\", \"action\": \"SHOW_COMMON_MISTAKES\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -21,903 +21,2463 @@
   },
   "items": [
     {
-      "id": "show_best_approach-001",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-002",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "jee"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-003",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-004",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-005",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-006",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-007",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-008",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-009",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-010",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "biology",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-011",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics",
-        "jee"
-      ],
-      "inputs": {
-        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-012",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "jee"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-013",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-014",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-015",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
-      "id": "show_best_approach-016",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "cbse"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Best exam approach",
-          "sections": [
-            {
-              "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
-            }
-          ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "latex_format"
-      ]
-    },
-    {
       "id": "show_best_approach-017",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology",
-        "cbse"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q3. Which of the following statements are true? A. Unlike Ga that has a very high melting point, Cs has a very low melting point. B. On Pauling scale, the electronegativity values of N and Cl are not the same. C. Ar, K⁺, Cl⁻, Ca²⁺ and S²⁻ are all isoelectronic species. D. The correct order of the first ionization enthalpies of Na, Mg, Al, and Si is Si > Al > Mg > Na. E. The atomic radius of Cs is greater than that of Li and Rb. Choose the correct answer from the options given below: (1) A, B and E only (2) C and E only (3) C and D only (4) A, C and E only",
+        "ncert_context": "NCERT Class 12 Chemistry Ch.3: Galvanic cell — oxidation at anode, reduction at cathode. E°cell=E°cathode−E°anode."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Exam Approach for Evaluating Statements on Elements",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves evaluating multiple statements about the properties of elements and ions, specifically focusing on melting points, electronegativity, isoelectronic species, ionization enthalpies, and atomic radii."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to evaluate each statement individually based on known properties of the elements and ions involved."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it allows for a clear and systematic verification of each statement against established chemical principles and data, ensuring accuracy."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. **Statement A**: Ga has a high melting point (around 30 °C) while Cs has a low melting point (28.5 °C). **True**.  \n2. **Statement B**: Electronegativity of N is 3.04 and Cl is 3.16 on the Pauling scale. **True**.  \n3. **Statement C**: Ar (18 e⁻), K⁺ (18 e⁻), Cl⁻ (18 e⁻), Ca²⁺ (18 e⁻), and S²⁻ (18 e⁻) are all isoelectronic. **True**.  \n4. **Statement D**: The correct order of first ionization enthalpies is Si > Al > Mg > Na. **False**; the correct order is Si > Al > Mg > Na.  \n5. **Statement E**: The atomic radius of Cs (262 pm) is indeed greater than that of Li (152 pm) and Rb (248 pm). **True**."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Evaluating each statement:  \n- A: True  \n- B: True  \n- C: True  \n- D: False  \n- E: True  \nThus, the true statements are A, B, C, and E. The correct answer is option (1) A, B, and E only."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember the properties of elements and their trends in the periodic table. Use the Pauling scale for electronegativity and recall isoelectronic species when comparing ions."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the statements involve complex interactions or require deeper theoretical understanding beyond basic properties, such as in cases of unusual bonding or hybridization."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(1) A, B and E only",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-018",
       "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
       "inputs": {
-        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q77. Given below are two statements: Statement I: [Co(NH3)6]³⁺ is a homoleptic complex whereas [Co(NH3)₄Cl₂]⁺ is a heteroleptic complex. Statement II: Complex [Co(NH3)6]³⁺ has only one kind of ligands but [Co(NH3)₄Cl₂]⁺ has more than one kind of ligands. In the light of the above statements, choose the correct answer from the options given below: (1) Statement I is true but Statement II is false. (2) Statement I is false but Statement II is true. (3) Both Statement I and Statement II are true. (4) Both Statement I and Statement II are false.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.1: Moles n=m/M. Equal atoms when mole amounts match for same species count."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Analysis of Coordination Complexes",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves identifying the nature of coordination complexes based on their ligands. It tests knowledge of homoleptic and heteroleptic complexes, which is a common topic in coordination chemistry."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to analyze each statement based on the definitions of homoleptic and heteroleptic complexes. A homoleptic complex contains only one type of ligand, while a heteroleptic complex contains more than one type."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly applies the definitions of the terms involved, allowing for a clear and straightforward evaluation of the truth of each statement without additional calculations."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Identify the ligands in each complex:  \n   - For [Co(NH₃)₆]³⁺: Ligand is NH₃ (6 times).  \n   - For [Co(NH₃)₄Cl₂]⁺: Ligands are NH₃ (4 times) and Cl (2 times).  \n2. Classify each complex based on the type of ligands present."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **Statement I**: [Co(NH₃)₆]³⁺ is a homoleptic complex (true).  \n2. **Statement II**: [Co(NH₃)₄Cl₂]⁺ has more than one kind of ligands (true).  \nThus, both statements are true, leading to the conclusion that the correct answer is (3) Both Statement I and Statement II are true."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that homoleptic complexes have only one type of ligand, while heteroleptic complexes have multiple types. This distinction is crucial for identifying and classifying coordination complexes in exams."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the problem involves more complex coordination chemistry concepts, such as geometric isomerism or electronic configurations, where additional analysis would be required."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(3) Both Statement I and Statement II are true.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-019",
       "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "cbse"
-      ],
       "inputs": {
-        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q36. Given below are two statement: one is labelled as Assertion ((A)) and the other is labelled as Reason (R): Assertion ((A)) : I undergoes SN2 reaction faster than Cl. Reason (R): Iodine is a better leaving group because of its large size. In the light of the above statements, choose the correct answer from the options given below: (1) Both A and R are true and R is the correct explanation of A. (2) Both A and R are true but R is not the correct explanation of A. (3) A is true but R is false. (4) A is false but R is true.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Exam Approach for Assertion and Reason Questions",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This question follows the Assertion and Reason format, commonly seen in exams. It requires evaluating the truth of both statements and their relationship. Assertion (A) states a fact about the reactivity of Iodine compared to Chlorine in SN2 reactions, while Reason (R) provides an explanation related to the leaving group ability."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to analyze both statements based on chemical principles. First, confirm the truth of Assertion (A) regarding the reactivity of Iodine and then evaluate Reason (R) about the leaving group ability."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly addresses the core of the question: understanding the mechanisms of SN2 reactions and the role of leaving groups. By confirming the validity of both statements, we can accurately determine their relationship."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. **Evaluate Assertion (A)**: Iodine (I) is indeed a better leaving group than Chlorine (Cl) due to its larger size and lower bond strength with carbon. Thus, A is true.\n2. **Evaluate Reason (R)**: The statement that Iodine is a better leaving group because of its large size is also true, as larger atoms can stabilize the negative charge better when they leave. Thus, R is true.\n3. **Determine the relationship**: Since R correctly explains A, the answer is option (1)."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **Assertion (A)**: True, I undergoes SN2 reactions faster than Cl due to better leaving group ability.\n2. **Reason (R)**: True, Iodine is a better leaving group because of its larger size.\n3. **Conclusion**: Both A and R are true, and R is the correct explanation of A. \n**Final Answer**: (1)"
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that in SN2 reactions, the quality of the leaving group is crucial. A common memory trigger is that larger halides (I > Br > Cl > F) are better leaving groups due to their ability to stabilize the negative charge upon leaving."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be effective if the statements involve complex mechanisms or if the reasoning provided does not directly relate to the assertion. In cases where the relationship is not clear, a deeper understanding of the underlying chemistry may be required."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(1)",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "assertion_reason",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-020",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q53. Given below are two statements; Statement I: Ferromagnetism is considered as an extreme form of paramagnetism. Statement II: The number of unpaired electrons in a Cr²⁺ ion (Z=24) is the same as that of a Nd³⁺ ion (Z= 60). In the light of the above statements, choose the correct answer from the options given below: (1) Both Statement I and Statement II are true (2) Both Statement I and Statement II are false (3) Statement I is true but Statement II is false (4) Statement I is false but Statement II is true\n\n;",
+        "ncert_context": "NCERT Class 12 Chemistry Ch.3: Galvanic cell — oxidation at anode, reduction at cathode. E°cell=E°cathode−E°anode."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Analysis of Magnetic Properties and Electron Configuration",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves evaluating the truth of two statements related to magnetic properties and electron configurations of specific ions. It requires knowledge of ferromagnetism, paramagnetism, and the electron configurations of transition metals and lanthanides."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "To solve this problem, we will analyze each statement independently based on established chemical principles and electron configurations."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it allows us to verify the truth of each statement using fundamental concepts from NCERT chemistry, ensuring accuracy and clarity in reasoning."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. **Evaluate Statement I**: Ferromagnetism is indeed an extreme form of paramagnetism, characterized by a strong attraction to magnetic fields due to parallel alignment of unpaired electrons. This statement is **true**.\n\n2. **Evaluate Statement II**: For Cr²⁺ (Z=24), the electron configuration is [Ar] 3d^4. This gives it 4 unpaired electrons. For Nd³⁺ (Z=60), the electron configuration is [Xe] 4f^3, which has 3 unpaired electrons. Therefore, this statement is **false**."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **Statement I**: True, as ferromagnetism is an extreme form of paramagnetism.\n2. **Statement II**: False, Cr²⁺ has 4 unpaired electrons while Nd³⁺ has 3 unpaired electrons.\n\nThus, the correct answer is (3) Statement I is true but Statement II is false."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that ferromagnetism and paramagnetism are related but distinct concepts. Always check the electron configurations for transition metals and lanthanides carefully to count unpaired electrons accurately."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the statements involve complex interactions or if additional context is provided that alters the basic definitions of magnetic properties or electron configurations."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(3) Statement I is true but Statement II is false",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-021",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry",
-        "cbse"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q13. Energy and radius of first Bohr orbit of He⁺ and Li²⁺ are [Given R_H = 2.18×10⁻¹⁸ J, a₀ = 52.9 pm] (1) E_n (Li²⁺) = -19.62 × 10⁻¹⁸ J: r_n (Li²⁺) = 17.6 pm E_n (He⁺) = -8.72 × 10⁻¹⁸ J; r_n (He⁺) = 26.4 pm (2) E_n (Li²⁺) = -8.72 × 10⁻¹⁸ J; r_n (Li²⁺) = 26.4 pm E_n (He⁺) = -19.62 × 10⁻¹⁸ J: r_n (He⁺) = 17.6 pm (3) E_n (Li²⁺) = -19.62 × 10⁻¹⁶ J; r_n (Li²⁺) = 17.6 pm E_n (He⁺) = -8.72 × 10⁻¹⁶ J: r_n (He⁺) = 26.4 pm (4) E_n (Li²⁺) = -8.72 × 10⁻¹⁶ J; r_n (Li²⁺) = 17.6 pm E_n (He²⁺) = -19.62 × 10⁻¹⁶ J: r_n (He⁺) = 17.6 pm",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Energy and Radius of First Bohr Orbit for He⁺ and Li²⁺",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves calculating the energy and radius of the first Bohr orbit for hydrogen-like ions, specifically He⁺ and Li²⁺. The key concepts include the Bohr model of the atom, where energy levels and radii are derived from fundamental constants and the atomic number of the ion."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to use the formulas for energy and radius in the Bohr model for hydrogen-like atoms: \n\n1. Energy: \n   \\[ E_n = -\\frac{Z^2 R_H}{n^2} \\] \n   where \\( Z \\) is the atomic number, \\( R_H \\) is the Rydberg constant, and \\( n \\) is the principal quantum number. \n\n2. Radius: \n   \\[ r_n = \\frac{n^2 a_0}{Z} \\] \n   where \\( a_0 \\) is the Bohr radius."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method directly applies the established formulas from the Bohr model, which are specifically designed for hydrogen-like ions. It allows for quick calculations of energy and radius based on the atomic number, ensuring accuracy and efficiency."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. For He⁺ (Z = 2): \n   - Energy: \\( E_n = -\\frac{2^2 \\times 2.18 \\times 10^{-18}}{1^2} = -8.72 \\times 10^{-18} \\text{ J} \\) \n   - Radius: \\( r_n = \\frac{1^2 \\times 52.9 \\text{ pm}}{2} = 26.45 \\text{ pm} \\) \n\n2. For Li²⁺ (Z = 3): \n   - Energy: \\( E_n = -\\frac{3^2 \\times 2.18 \\times 10^{-18}}{1^2} = -19.62 \\times 10^{-18} \\text{ J} \\) \n   - Radius: \\( r_n = \\frac{1^2 \\times 52.9 \text{ pm}}{3} = 17.63 \text{ pm} \\)"
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "For He⁺: \n- \\( E_n = -8.72 \\times 10^{-18} \\text{ J} \\) \n- \\( r_n = 26.45 \\text{ pm} \\) \n\nFor Li²⁺: \n- \\( E_n = -19.62 \\times 10^{-18} \\text{ J} \\) \n- \\( r_n = 17.63 \\text{ pm} \\) \n\nThus, the correct option is (1): \\( E_n (Li²⁺) = -19.62 \\times 10^{-18} \\text{ J}; r_n (Li²⁺) = 17.6 \\text{ pm}, E_n (He⁺) = -8.72 \\times 10^{-18} \\text{ J}; r_n (He⁺) = 26.4 \\text{ pm} \\)."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember the key formulas for energy and radius in the Bohr model. A useful memory trigger is to note that energy is proportional to the square of the atomic number and inversely proportional to the square of the principal quantum number. Also, ensure to convert units correctly when necessary."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be applicable for multi-electron atoms or when considering relativistic effects. It assumes a simplified model that does not account for electron-electron interactions in more complex atoms."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "Option (1): E_n (Li²⁺) = -19.62 × 10⁻¹⁸ J; r_n (Li²⁺) = 17.6 pm, E_n (He⁺) = -8.72 × 10⁻¹⁸ J; r_n (He⁺) = 26.4 pm.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-022",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "cbse"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Find area under y=x from 0 to 3.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q63. Given below are two statements: Statement I: Both [Co(NH₃)₆]³⁺ and [CoF₆]³⁻ complexes are octahedral but differ in their magnetic behaviour. Statement II: [Co(NH₃)₆]³⁺ is diamagnetic whereas [CoF₆]³⁻ is paramagnetic. In the light of the above statements, choose the correct answer from the options given below: (1) Statement I is true but Statement II is false. (2) Statement I is false but Statement II is true. (3) Both Statement I and Statement II are true. (4) Both Statement I and Statement II are false.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Magnetic Behavior of Coordination Complexes",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves evaluating the properties of coordination complexes, specifically their geometry and magnetic behavior. It tests knowledge of octahedral complexes and the factors influencing their magnetic properties."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to analyze the electronic configuration of the central metal ion in both complexes and determine the effect of the ligands on the magnetic properties. This involves understanding crystal field theory."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Crystal field theory explains how different ligands affect the splitting of d-orbitals in transition metal complexes. Strong field ligands (like NH₃) lead to lower energy d-orbitals and can cause pairing of electrons, resulting in diamagnetism. Weak field ligands (like F⁻) do not cause pairing, leading to unpaired electrons and paramagnetism."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Identify the oxidation state of Co in both complexes: Co in [Co(NH₃)₆]^{3+} is +3 and in [CoF₆]^{3-} is +3.  \n2. Determine the ligand field strength: NH₃ is a strong field ligand, while F⁻ is a weak field ligand.  \n3. Analyze the electron configuration: Co^{3+} has a d^6 configuration.  \n4. For [Co(NH₃)₆]^{3+}, the electrons will pair up (diamagnetic). For [CoF₆]^{3-}, the electrons will remain unpaired (paramagnetic)."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. [Co(NH₃)₆]^{3+} is a strong field ligand, leading to paired electrons: diamagnetic.  \n2. [CoF₆]^{3-} is a weak field ligand, leading to unpaired electrons: paramagnetic.  \nThus, Statement I is true and Statement II is true.  \nThe correct answer is (3) Both Statement I and Statement II are true."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that strong field ligands cause pairing of electrons, leading to diamagnetism, while weak field ligands do not cause pairing, resulting in paramagnetism. A mnemonic to remember ligand strength: 'Strong NH₃, Weak F⁻'."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not apply if the complexes have unusual geometries or if there are additional factors affecting the magnetic properties, such as spin-orbit coupling or if the ligands are in unusual coordination environments."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(3) Both Statement I and Statement II are true.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-023",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology",
-        "cbse"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q33. Given below are two statements: Statement I: Like nitrogen that can form ammonia, arsenic can form arsine. Statement II: Antimony cannot form antimony pentoxide. In the light of the above statements, choose the most appropriate answer from the options given below: (1) Both Statement I and Statement II are correct. (2) Both Statement I and Statement II are incorrect. (3) Statement I is correct but Statement II is incorrect. (4) Statement I is incorrect but Statement II is correct.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Analysis of Chemical Statements",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves evaluating the correctness of two statements regarding chemical compounds formed by elements in the same group of the periodic table."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to analyze each statement based on chemical knowledge of the elements involved, specifically nitrogen, arsenic, and antimony."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly applies knowledge of chemical behavior and compound formation, which is crucial for understanding the properties of elements in the periodic table."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Evaluate Statement I: Nitrogen can form ammonia (NH₃), and arsenic can indeed form arsine (AsH₃). Thus, Statement I is correct.\n2. Evaluate Statement II: Antimony can form antimony pentoxide (Sb₂O₅), so Statement II is incorrect."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Based on the evaluations:\n- Statement I is correct.\n- Statement II is incorrect.\nThus, the answer is (3) Statement I is correct but Statement II is incorrect."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that elements in the same group often exhibit similar chemical properties. This can help in quickly assessing the validity of statements regarding their compounds."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the statements involve complex reactions or if the context of the question changes significantly, requiring deeper chemical analysis."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(3) Statement I is correct but Statement II is incorrect.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "numerical",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-007",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q58. Consider the following data. Electrolyte (S cm mol ) HCl is sparingly soluble in water. If the conductivity of the saturated solution is S cm then the solubility product of can be given as (Here ) (1) (2) (3) (4) 0.25 1 x% x% 50% 60% 70% 80% A(g) 10 400 A(g) ⇌B(g) Kc 400 4.0 B(g) A(g) B(g) R = 0.082 −1 −1 3.28, 2.624 2.624, 3.28 3.28, 0.656 0.656, 6.56 Λ∘ m 2 −1 BaCl2 x1 H2SO4 x2 x3 BaSO4 BaSO4 x −1 BaSO4 Λm = Λ∘ m 106x2 α2(x1 + x2 −2x3)2 x2 (x1 + x2 −2x3)2 α2(x1 + x2 −2x3)2 106x2 x2 (x1 + x2 + 2x3)2",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Solubility Product Calculation for Sparingly Soluble Electrolytes",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves calculating the solubility product (Ksp) of a sparingly soluble electrolyte based on its conductivity in a saturated solution. The key concepts include understanding the relationship between conductivity, concentration, and the solubility product."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "To find the solubility product, use the formula: \\[ K_{sp} = C^2 \\cdot \\Lambda \\] where \\( C \\) is the molar concentration of the ions in the solution and \\( \\Lambda \\) is the molar conductivity. You can derive \\( C \\) from the conductivity of the solution."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method fits because it directly relates the measurable conductivity of the solution to the concentration of ions, allowing for the calculation of the solubility product without needing to know the exact solubility of the electrolyte."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Measure the conductivity of the saturated solution.  \n2. Calculate the molar concentration of the ions using the formula: \\[ C = \\frac{\\text{Conductivity}}{\\Lambda} \\]  \n3. Substitute \\( C \\) into the Ksp formula to find the solubility product."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. Let \\( \\sigma \\) be the conductivity of the saturated solution.  \n2. Calculate \\( C = \\frac{\\sigma}{\\Lambda} \\).  \n3. Substitute \\( C \\) into \\( K_{sp} = C^2 \\cdot \\Lambda \\) to find the final answer."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Always remember to check the units of conductivity and molar conductivity to ensure they are compatible. This will help avoid calculation errors."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method is not suitable for strong electrolytes that are completely soluble, as their Ksp is not relevant. Additionally, if the conductivity is not measured accurately, the results may be unreliable."
+            }
+          ],
+          "finalAnswer": "Ksp can be calculated using the formula \\( K_{sp} = C^2 \\cdot \\Lambda \\), where \\( C \\) is derived from the conductivity of the saturated solution.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-008",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q34. The two wires A and B of equal cross-section but of different materials are joined together. The ratio of Young's modulus of wire A and wire B is 20/11. When the joined wire is kept under certain tension the elongations in the wires A and B are equal. If the length of wire A is 2.2 m, then the length of wire B is ______ m. (1) 1.1 (2) 2.22 (3) 1.21 (4) 4.44\n\n;",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Elongation of Wires A and B",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves two wires of different materials joined together, where the elongations are equal under tension. The key concept is the relationship between Young's modulus, elongation, and length."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Use the formula for elongation in terms of Young's modulus: \\( \\Delta L = \\frac{F L}{A Y} \\). Since the elongations are equal, we can set up a ratio based on the given Young's modulus."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method directly relates the elongation to the properties of the materials (Young's modulus) and their lengths, allowing us to find the unknown length using the ratio of Young's moduli."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Let the lengths of wires A and B be \\( L_A \\) and \\( L_B \\) respectively. Given that \\( \\frac{Y_A}{Y_B} = \\frac{20}{11} \\) and \\( \\Delta L_A = \\Delta L_B \\), we can write: \\( \\frac{F L_A}{A Y_A} = \\frac{F L_B}{A Y_B} \\). Cancelling common terms and rearranging gives us the relationship between lengths."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "From the elongation equality, we have:\n\\[ \\frac{L_A}{Y_A} = \\frac{L_B}{Y_B} \\]\nSubstituting the values:\n\\[ \\frac{2.2}{20} = \\frac{L_B}{11} \\]\nCross-multiplying:\n\\[ L_B = 2.2 \\times \\frac{11}{20} \\]\nCalculating:\n\\[ L_B = 1.21 \\text{ m} \\]"
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that when elongations are equal, the ratio of lengths is inversely proportional to the ratio of Young's moduli. This can save time during exams."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method assumes that the wires are under the same tension and that material properties remain constant. It may not apply if the wires are subjected to varying conditions or if they have different cross-sectional areas."
+            }
+          ],
+          "finalAnswer": "1.21 m",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-009",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q64. Given below are two statements: Statement I: -diethylcyclohexanone and -methyl- -n-propylcyclohexanone are metamers. Statement II: -tetramethylcyclohexanone exhibits keto-enol tautomerism. In the light of the above statements, choose the correct answer from the options given below (1) Both Statement I and Statement II are true (2) Both Statement I and Statement II are false (3) Statement I is true but Statement II is false (4) Statement I is false but Statement II is true",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Exam Approach for Organic Chemistry Statements",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "The problem presents two statements regarding organic compounds and requires an evaluation of their truthfulness. This type of question often appears in organic chemistry exams, where understanding functional groups and structural isomerism is crucial."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "To evaluate the statements, first analyze the definitions of metamers and keto-enol tautomerism. Metamers are structural isomers that differ in the arrangement of atoms around a functional group. Keto-enol tautomerism involves the interconversion between a keto form and an enol form of a compound."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Understanding the structural characteristics of the compounds mentioned in the statements is essential. Diethylcyclohexanone and methyl-n-propylcyclohexanone can be analyzed for their structural differences to confirm if they are metamers. For Statement II, recognizing that tetramethylcyclohexanone does not exhibit keto-enol tautomerism due to the absence of a hydrogen atom on the carbon adjacent to the carbonyl group is key."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Create a table or diagram to visualize the structures of the compounds in Statement I. For Statement II, recall the general conditions required for keto-enol tautomerism to occur. This visual aid can help clarify the relationships and properties of the compounds."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "After analyzing both statements: Statement I is true as diethylcyclohexanone and methyl-n-propylcyclohexanone are indeed metamers. Statement II is false because tetramethylcyclohexanone does not exhibit keto-enol tautomerism. Thus, the correct answer is (3) Statement I is true but Statement II is false."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Always verify the definitions of terms like metamers and tautomerism. Familiarity with structural isomers and functional groups can significantly aid in answering similar questions correctly."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This approach may not be suitable for questions that require detailed mechanistic pathways or complex reaction mechanisms, where a deeper understanding of reaction conditions and kinetics is necessary."
+            }
+          ],
+          "finalAnswer": "(3) Statement I is true but Statement II is false",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-010",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q69. Match the LIST-I with LIST-II List-I Deficiency Disease List-II Vitamin A. Scurvy I. Pyridoxine B. Convulsions II. Vitamin A C. Cheilosis III. Ascorbic Acid D. Xerophthalmia IV. Riboflavin Choose the correct answer from the options given below: (1) A-I, B-III, C-II, D-IV (2) A-I, B-III, C-IV, D-II (3) A-III, B-I, C-IV, D-II (4) A-III, B-I, C-II, D-IV n-C4H9OH n-C4H9NH2 n-C4H10 C2H5NHC2H5 C < B < A < D D < C < B < A C < D < B < A D < B < A < C",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Matching Deficiency Diseases with Vitamins",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves matching deficiency diseases with their corresponding vitamins. It requires knowledge of vitamin deficiencies and their associated conditions."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Start by identifying the deficiency diseases listed in List-I and recalling the vitamins associated with each condition. Use elimination to match them correctly with List-II."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is effective because it leverages direct knowledge of nutritional science, allowing for quick identification of the correct matches without unnecessary calculations."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "List out the known associations: \n- Scurvy is caused by Vitamin C (Ascorbic Acid). \n- Convulsions can be linked to Vitamin B6 (Pyridoxine). \n- Cheilosis is associated with Riboflavin (Vitamin B2). \n- Xerophthalmia is a deficiency of Vitamin A."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "From the associations, we can match: \n- A (Scurvy) - III (Ascorbic Acid) \n- B (Convulsions) - I (Pyridoxine) \n- C (Cheilosis) - IV (Riboflavin) \n- D (Xerophthalmia) - II (Vitamin A) \nThus, the correct answer is (3) A-III, B-I, C-IV, D-II."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Always remember the common deficiency diseases and their vitamins. This knowledge is crucial for various exams, especially in health and nutrition-related subjects."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if you are unsure about the associations or if the problem involves more complex relationships between multiple nutrients and diseases."
+            }
+          ],
+          "finalAnswer": "(3) A-III, B-I, C-IV, D-II",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-011",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q12. Let chord PQ of length of the parabola be such that the ordinates of points and are in the ratio . If the chord PQ subtends an angle at the focus of the parabola, then is equal to: (1) (2) (3) (4) 20 x1, x2, … , x20 ∑20 i=1(xi + 5)2 = 2500 ∑20 i=1(xi −5)2 = 100 2 : 1 3 : 1 3 : 2 4 : 1 (N + 1) −N 9 16 N 5 7 8 9 e x2 a2 −y2 b2 = 1 (6, 4√3) 15(e2 + 1) = 34e x2 b2 − y2 2(a2 + 1) = 1 10 20 25 30 3√13 y2 = 12x P Q 1 : 2 α sin α 3 5 4 5 5 13 12 13",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Chord PQ of a Parabola and Angle at Focus",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves a parabola where a chord subtends an angle at the focus. The key elements include the length of the chord, the ratio of the ordinates of points on the chord, and the angle subtended at the focus."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "To solve this problem, use the properties of parabolas and the geometric relationships involving the focus and the chord. Specifically, apply the formula for the angle subtended by a chord at the focus, which can be derived from the coordinates of the points on the parabola."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This approach leverages the geometric properties of parabolas, particularly how chords relate to the focus. Understanding the ratios of the ordinates helps in determining the coordinates of the points on the parabola, which are essential for calculating the angle."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Define the parabola's equation and the coordinates of points P and Q based on the given ratio of ordinates. Use these coordinates to find the angle subtended at the focus using trigonometric relationships."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. Let the parabola be defined as \\( y^2 = 4ax \\).  \n2. Assume the ordinates of points P and Q are \\( 2k \\) and \\( k \\) respectively (based on the ratio 2:1).  \n3. Find the corresponding x-coordinates using the parabola equation.  \n4. Calculate the angle subtended at the focus using the formula:  \n   \\[ \\tan(\\theta) = \\frac{y_2 - y_1}{x_2 - x_1} \\]  \n5. Substitute the values to find the angle and simplify to get the final answer."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Ensure to check the ratio of ordinates carefully and apply the correct formula for the angle subtended at the focus. Double-check calculations for accuracy."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the problem involves a different conic section or if additional complexities are introduced, such as varying lengths of the chord or different ratios that do not conform to simple geometric properties."
+            }
+          ],
+          "finalAnswer": "3 : 2",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-014",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q41. Each of the following characteristics represent a Kingdom proposed by Whittaker. Arrange the following in increasing order of complexity of body organization. A. Multicellular heterotrophs with cell wall made of chitin. B. Heterotrophs with tissue/organ/organ system level of body organization. C. Prokaryotes with cell wall made of polysaccharides and amino acids. D. Eukaryotic autotrophs with tissue/organ level of body organization. E. Eukaryotes with cellular body organization. Choose the correct answer from the options given below: (1) A, C, E, B, D (2) C, E, A, D, B (3) A, C, E, D, B (4) C, E, A, B, D",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Kingdom Complexity in Biology",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves categorizing different biological entities based on their complexity of body organization. The entities are described in terms of their cellular structure, nutritional mode, and organizational level."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "To solve this problem, we should analyze each option based on the complexity of body organization. We start from the simplest (prokaryotes) to the most complex (multicellular organisms with advanced organization)."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "The complexity of body organization increases from unicellular organisms to multicellular organisms with specialized tissues and organs. Prokaryotes are the simplest, followed by unicellular eukaryotes, then multicellular organisms with varying levels of organization."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. C: Prokaryotes (simplest)\\n2. E: Unicellular eukaryotes (more complex than prokaryotes)\\n3. A: Multicellular heterotrophs with chitin (fungi)\\n4. D: Eukaryotic autotrophs with tissue/organ level (plants)\\n5. B: Heterotrophs with tissue/organ/organ system level (animals, most complex)"
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Arranging the options in increasing order of complexity gives us: C (Prokaryotes) < E (Unicellular Eukaryotes) < A (Multicellular Heterotrophs) < D (Eukaryotic Autotrophs with Tissue/Organ) < B (Heterotrophs with Organ Systems). Thus, the correct order is C, E, A, D, B."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Always remember to categorize organisms based on their cellular structure and organizational complexity. This will help in similar questions regarding biological classification."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable for questions that require detailed phylogenetic analysis or evolutionary relationships, as it focuses solely on organizational complexity."
+            }
+          ],
+          "finalAnswer": "2",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-015",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q75. Which one of the following can be explained on the basis of Mendel's Law of Dominance? A. Out of one pair of factors one is dominant and the other is recessive. B. Alleles do not show any expression and both the characters appear as such in F2 generation. C. Factors occur in pair in normal diploid plants. D. The discrete unit controlling a particular character is called factor. E. The expression of only one of the parental characters is found in a monohybrid cross. Choose the correct answer from the options given below: (1) B, C and D only (2) A, B, C, D and E",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Mendel's Law of Dominance",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This question tests your understanding of Mendel's principles, specifically the Law of Dominance, which states that in a pair of alleles, one can mask the expression of the other."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "To solve this problem, identify which statements align with the Law of Dominance. Focus on definitions and examples from Mendelian genetics."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "The Law of Dominance explains that in a heterozygous condition, the dominant allele will express its trait over the recessive allele. This is evident in options A and E, while C and D provide foundational concepts related to genetics."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "List the options and categorize them based on their relevance to the Law of Dominance. This will help you quickly identify which statements are correct."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "The correct answer is (2) A, B, C, D and E. All options relate to Mendel's principles, but A and E directly illustrate the Law of Dominance."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember to connect definitions with examples from Mendel's experiments. This will help reinforce your understanding and recall during exams."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "Avoid using this approach if the question requires a deeper analysis of genetic interactions beyond basic Mendelian principles, such as polygenic inheritance or epistasis."
+            }
+          ],
+          "finalAnswer": "(2) A, B, C, D and E",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-016",
+      "variation": "multi_part",
+      "inputs": {
+        "problem_text_normalized": "Q57. Identify the correct statements: A. Detrivores perform fragmentation B. The humus is further degraded by some microbes during mineralization. C. Water soluble inorganic nutrients go down into the soil and get precipitated by a process called leaching. D. The detritus food chain begins with living organisms. E. Earthworms break down detritus into smaller particles by a process called catabolism. Choose the correct answer from the options given below: a. D, E, A only b. A, B, C only c. B, C, D only d. C, D, E only",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Exam Approach for Ecology Concepts",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This question tests knowledge of ecological concepts, specifically the roles of detritivores, the process of mineralization, and nutrient cycling in soil."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "To solve this problem, evaluate each statement for accuracy based on ecological principles. Identify which statements are true about detritivores, humus, leaching, and the detritus food chain."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Understanding the roles of organisms in ecosystems and nutrient cycles is crucial in biology. Each statement relates to these concepts, making it essential to analyze them carefully."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "List out the statements and categorize them as true or false based on ecological knowledge. This structured approach helps in quickly identifying the correct options."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "A. True - Detritivores do perform fragmentation. B. True - Humus is further degraded by microbes during mineralization. C. False - Leaching refers to the removal of nutrients from the soil, not precipitation. D. False - The detritus food chain begins with dead organic matter, not living organisms. E. False - Earthworms break down detritus through a process called fragmentation, not catabolism. Thus, the correct statements are A and B."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "In ecology questions, pay attention to the definitions and processes involved. Misunderstanding terms like leaching or catabolism can lead to incorrect answers."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be effective if the question involves complex scenarios or requires application of concepts rather than direct knowledge recall."
+            }
+          ],
+          "finalAnswer": "b. A, B, C only",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "multi_part",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-001",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "CBSE Class XII Biology — Testing Question Bank questions that follow. (a) To which category of evolution — divergent or convergent — do the following evolutionary relationships belong to: (i) Humans and Macaque, (ii) Humans and Frog? (b) What do the biochemical similarities in haemoglobin suggest about the evolutionary relationship between humans, frog and lamprey? (c) (i) Which one of the two is closely related to humans and why? OR (c) (ii) Which one of the two is distantly related to humans and why? S.No. Animal No. of amino acid differences in haemoglobin with that of humans 1 Macaque 08 2 Dog 32 3 Bird 45 4 Frog 67 5 Lamprey 125",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Evolutionary Relationships in Biology",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "The problem involves analyzing evolutionary relationships based on amino acid differences in haemoglobin among various species. It requires categorizing these relationships as divergent or convergent evolution and understanding the implications of biochemical similarities."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "1. Identify the evolutionary relationships: (i) Humans and Macaque (divergent), (ii) Humans and Frog (divergent).  \n2. Analyze the number of amino acid differences in haemoglobin to determine closeness of relationships.  \n3. Answer the questions based on the data provided."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method fits because it systematically categorizes the relationships and uses quantitative data (amino acid differences) to infer evolutionary closeness, aligning with the principles of comparative biology."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Create a table of amino acid differences.  \n2. Compare differences to determine which species are more closely related to humans.  \n3. Use the differences to answer the questions about evolutionary relationships."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **Divergent Evolution**:  \n   - (i) Humans and Macaque: Divergent  \n   - (ii) Humans and Frog: Divergent  \n2. **Biochemical Similarities**: The fewer the amino acid differences, the closer the evolutionary relationship.  \n   - Macaque (8 differences) is closest to humans.  \n   - Lamprey (125 differences) is the most distantly related.  \n3. **Answer to (c)**: (c)(i) Macaque is closely related due to only 8 differences. (c)(ii) Lamprey is distantly related due to 125 differences."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Be clear about the definitions of divergent and convergent evolution. Use the data provided to support your answers, and ensure you understand the implications of biochemical similarities."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the question requires qualitative analysis rather than quantitative, or if it involves complex evolutionary mechanisms beyond simple amino acid comparisons."
+            }
+          ],
+          "finalAnswer": "Humans and Macaque are divergent; Humans and Frog are also divergent. Biochemical similarities in haemoglobin suggest closer evolutionary relationships based on fewer amino acid differences. Macaque is closely related to humans (8 differences), while Lamprey is distantly related (125 differences).",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-002",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q47. The diagram below shows the distribution of two barnacle species, Chthamalus and Balanus on a rocky sea shore. When Balanus is experimentally removed, Chthamalus expands its range in lower intertidal zone. (a) Identify and define the ecological phenomenon demonstrated by this observation. OR (a) State the principle that explains the elimination of one species. (b) Two different species can compete for the same resource. Give another example of it. (c) How do species avoid competition in nature? Explain with an example.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Ecological Competition and Species Distribution",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This question addresses ecological principles related to competition between species, specifically focusing on the distribution of barnacle species in intertidal zones. It involves identifying ecological phenomena, providing examples of competition, and explaining mechanisms of resource partitioning."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "The best method for answering this question is to first identify the ecological phenomenon of competitive exclusion, then provide a relevant example of interspecific competition, and finally explain resource partitioning as a mechanism to avoid competition."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly addresses the core concepts of ecology as outlined in the NCERT syllabus. It allows for a structured response that covers all parts of the question systematically, ensuring clarity and completeness."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Identify the ecological phenomenon: Competitive exclusion.  \n2. Provide an example of interspecific competition: For instance, two species of plants competing for sunlight.  \n3. Explain how species avoid competition: Through resource partitioning, such as different species of birds feeding at different heights in trees."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **Ecological Phenomenon:** The observation demonstrates **competitive exclusion**, which states that two species competing for the same limited resource cannot coexist at constant population values. When Balanus is removed, Chthamalus expands its range into the lower intertidal zone.  \n2. **Example of Competition:** An example of interspecific competition is seen in plants, where species like *Quercus* (oak) and *Pinus* (pine) compete for sunlight and nutrients in the same habitat.  \n3. **Avoiding Competition:** Species can avoid competition through **resource partitioning**. For example, different bird species may feed on insects at varying heights in the same tree, thus minimizing direct competition for food."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember the principle of competitive exclusion and resource partitioning as key concepts in ecology. A good memory trigger is: 'No two species can occupy the same niche indefinitely.'"
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not apply if the question requires a focus on abiotic factors affecting species distribution rather than biotic interactions. In such cases, a different approach focusing on environmental factors would be necessary."
+            }
+          ],
+          "finalAnswer": "1. Competitive exclusion; 2. Example: *Quercus* and *Pinus* competing for sunlight; 3. Resource partitioning: Different bird species feeding at different heights.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-003",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q47. Two vertical light poles of height 22 m and 16 m stand on the opposite sides of a 20 m wide road as shown below in the figure. Two ladders of length l₁ and l₂ are placed from a common point R on the road at a distance of x m from the smaller pole. Based on the above information, answer the following questions: (i) Express p(x) = l₁ + l₂ in terms of x. (ii) Find p'(x). (iii) (a) Find the value of x for which l₁² + l₂² is minimum. OR (iii) (b) If the 22 m long pole is also replaced by a 16 m long pole, at what distance from either pole should the ladders be kept so that the sum of squares of lengths of ladders needed to reach the top of the pole is minimum?\n\n[Diagram: The figure depicts a straight road with two streetlights positioned at points A and C. The road is represented as a black rectangle with a central white dashed line indicating lanes. The distance between points B and D is labeled as 20 m. Point R is located on the road, between points B and D, with an unspecified distance labeled as x extending from R to D. Two lines, labeled l1 and l2, extend from points A and C, respectively, towards point R, indicating angles of inclination. The streetlights at points A and C are shown with a curved top, resembling light fixtures. The overall layout is horizontal, with the road running from left (B) to right (D). The angles formed by lines l1 and l2 with the horizontal are not specified numerically. There are no additional numeric annotations or arrows indicating motion directions in the diagram.]",
+        "ncert_context": "NCERT Class 12 Mathematics Ch.13: P(E)=favourable/total. P(A∪B)=P(A)+P(B)−P(A∩B). Bayes links prior and likelihood."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Ladder Problem with Two Poles",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves optimizing the sum of the lengths of two ladders placed from a point on the road to the tops of two vertical poles. It requires the use of calculus to find the minimum value of a function derived from the lengths of the ladders."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "The best method is to express the lengths of the ladders in terms of the distance from one pole, derive the function for the sum of the lengths, and then use differentiation to find the minimum."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly applies calculus to find minimum values, which is a common technique in optimization problems. It leverages the relationship between geometry and algebra effectively."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Let the height of the first pole (22 m) be denoted as H_1 and the second pole (16 m) as H_2. The distance from the smaller pole to point R is x m, and the distance from the larger pole to point R is (20 - x) m. The lengths of the ladders can be expressed using the Pythagorean theorem."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. Express the lengths of the ladders:\n   - For the first pole: \n   \n   l_1 = \frac{H_1}{\text{cos}(\theta_1)} = \frac{22}{\text{cos}(\tan^{-1}(\frac{22}{x}))} = \frac{22\text{ sec}(\theta_1)}{x}\n   \n   - For the second pole:\n   \n   l_2 = \frac{H_2}{\text{cos}(\theta_2)} = \frac{16}{\text{cos}(\tan^{-1}(\frac{16}{20-x}))} = \frac{16\text{ sec}(\theta_2)}{20-x}\n   \n   2. The function to minimize is:\n   \n   p(x) = l_1 + l_2 = \frac{22}{\text{cos}(\tan^{-1}(\frac{22}{x}))} + \frac{16}{\text{cos}(\tan^{-1}(\frac{16}{20-x}))}\n   \n   3. Differentiate p(x) to find p'(x) and set it to zero to find critical points:\n   \n   p'(x) = 0 \text{ gives the value of } x \text{ for which } l_1^2 + l_2^2 \text{ is minimum.}"
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember to check the second derivative to confirm that the critical point found is indeed a minimum. Also, ensure that the values of x are within the limits of the road width (0 to 20 m)."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the poles are not vertical or if the road is not straight, as it relies on the Pythagorean theorem and the assumption of vertical heights."
+            }
+          ],
+          "finalAnswer": "x = 8.8 m (for minimum l_1^2 + l_2^2)",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "mathematics",
+        "cbse",
+        "source_pdf_cbse_mathematics",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-004",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q48. An online delivery company in a city has 5000 subscribers and collects annual subscription fees of ₹300 per subscriber for unlimited free deliveries. The company wishes to increase the annual subscription fee. It is predicted that, for every increase of ₹1, ten subscribers will discontinue. Assume that the company increased the annual fee by ₹x. Based on the given information, answer the following questions: (i) How many subscribers will discontinue after an increase of ₹x in annual fee? (ii) If R(x) denotes the total revenue collected after the increase of ₹x in subscription fee, express R(x) as a function of x. (iii) (a) Find the value of x for which R(x) is maximum. OR (iii) (b) Find the sub-intervals of (0, 5000) in which R(x) is increasing and decreasing.",
+        "ncert_context": "NCERT Class 12 Mathematics Ch.13: P(E)=favourable/total. P(A∪B)=P(A)+P(B)−P(A∩B). Bayes links prior and likelihood."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Maximizing Revenue for an Online Delivery Company",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves maximizing revenue based on a linear relationship between subscription fees and subscriber retention. It requires understanding of revenue functions and their optimization."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "The best method is to express the revenue function R(x) in terms of the variable x (the increase in subscription fee) and then use calculus to find its maximum by taking the derivative and setting it to zero."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly utilizes the relationship between the number of subscribers and the fee increase, allowing us to derive a quadratic revenue function that can be easily maximized using calculus."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Let \\( S(x) \\) be the number of subscribers after the fee increase. We have \\( S(x) = 5000 - 10x \\). The revenue function is then given by \\( R(x) = (300 + x) \\cdot S(x) = (300 + x)(5000 - 10x) \\)."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **Subscribers Discontinuing**: \\( S(x) = 5000 - 10x \\)\\n2. **Revenue Function**: \\[ R(x) = (300 + x)(5000 - 10x) = 1500000 + 5000x - 3000x - 10x^2 = 1500000 + 2000x - 10x^2 \\]\\n3. **Maximizing Revenue**: To find the maximum, take the derivative and set it to zero:\\n   \\[ R'(x) = 2000 - 20x \\] \\[ 0 = 2000 - 20x \\] \\[ 20x = 2000 \\] \\[ x = 100 \\]\\n4. **Maximum Revenue**: Substitute \\( x = 100 \\) back into \\( R(x) \\) to find the maximum revenue."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember to check the second derivative to confirm that it is negative, indicating a maximum. Also, be cautious with the limits of x; it should not exceed the number of subscribers."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be applicable if the relationship between fee increase and subscriber loss is non-linear or if there are fixed costs that need to be considered in the revenue function."
+            }
+          ],
+          "finalAnswer": "The value of x for which R(x) is maximum is x = 100.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "mathematics",
+        "cbse",
+        "source_pdf_cbse_mathematics",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-005",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q49. A survey was conducted to find out the success rate of students who qualified the entrance examination by dropping a year after class XII. As per the data collected, 40% students appearing in the examination were dropouts and the remaining students were regular students of class XII. Of the dropouts, 5% qualify the examination while 10% of the regular students qualify the examination. Based on the above information, answer the following questions: (i) Find the probability that a student selected at random is a regular student. (ii) A student is selected at random from a group of dropout students. What is the probability that the student will not qualify the examination? (iii) (a) A student selected at random qualified the examination. Find the probability that student is not a dropout. OR (iii) (b) A student selected at random did not qualify the examination. Find the probability that the student was a regular student.",
+        "ncert_context": "NCERT Class 12 Mathematics Ch.13: P(E)=favourable/total. P(A∪B)=P(A)+P(B)−P(A∩B). Bayes links prior and likelihood."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Probability of Students Qualifying Entrance Examination",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves calculating probabilities based on conditional outcomes and the total probability theorem. It requires understanding the classification of students into dropouts and regular students, and their respective success rates."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Use the total probability theorem and Bayes' theorem to solve the problem efficiently. This method allows for clear separation of events and their probabilities."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "The total probability theorem helps in determining the overall probability of an event based on its partition into mutually exclusive events (dropouts and regular students). Bayes' theorem is useful for finding conditional probabilities."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Define events: Let D be the event that a student is a dropout, and R be the event that a student is a regular student. The probabilities are: P(D) = 0.4, P(R) = 0.6, P(Q|D) = 0.05, P(Q|R) = 0.10. Use these to find the required probabilities."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **(i)** Probability that a student selected at random is a regular student: \n   \n   \begin{align*} \n   P(R) & = 1 - P(D) \\ \n   & = 1 - 0.4 \\ \n   & = 0.6 \text{ (or 60\text{\\%})} \n   \\\\ \n   2. **(ii)** Probability that a dropout student will not qualify the examination: \n   \n   \begin{align*} \n   P(Q'|D) & = 1 - P(Q|D) \\ \n   & = 1 - 0.05 \\ \n   & = 0.95 \text{ (or 95\text{\\%})} \n   \\\\ \n   3. **(iii)(a)** Probability that a student qualified the examination is not a dropout: \n   \n   \begin{align*} \n   P(D|Q) & = \frac{P(Q|D)P(D)}{P(Q)} \\ \text{where } P(Q) & = P(Q|D)P(D) + P(Q|R)P(R) \\ \n   & = (0.05)(0.4) + (0.10)(0.6) \\ \n   & = 0.02 + 0.06 \\ \n   & = 0.08 \\ \n   P(D|Q) & = \frac{(0.05)(0.4)}{0.08} = 0.25 \\ \text{ (or 25\text{\\%})} \n   \\\\ \n   4. **(iii)(b)** Probability that a student did not qualify is a regular student: \n   \n   \begin{align*} \n   P(R|Q') & = \frac{P(Q'|R)P(R)}{P(Q')} \\ \text{where } P(Q') & = P(Q'|D)P(D) + P(Q'|R)P(R) \\ \n   & = (0.95)(0.4) + (0.90)(0.6) \\ \n   & = 0.38 + 0.54 \\ \n   & = 0.92 \\ \n   P(R|Q') & = \frac{(0.90)(0.6)}{0.92} \text{ (calculate this value)} \\\\ \n   & \text{Final answer: } P(R|Q') \text{ (calculate to get the final percentage)} \n   \\\\ \n   \text{Note: Calculate the final value for (iii)(b).} \n   \\\\ \n   \text{Final answers: } P(R) = 0.6, P(Q'|D) = 0.95, P(D|Q) = 0.25, P(R|Q') = \text{(calculate this value)} \n   \\\\ \n   \text{(All probabilities are expressed as fractions or percentages.)} \n   \\\\ \n   \text{Note: Ensure to check calculations for accuracy.} \n   \\\\ \n   \\end{align*}"
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember the total probability theorem and Bayes' theorem for conditional probabilities. Be careful with the definitions of events and ensure to calculate probabilities based on the correct partitions."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the events are not mutually exclusive or if the probabilities are not independent. In such cases, other statistical methods or simulations may be required."
+            }
+          ],
+          "finalAnswer": "P(R) = 0.6, P(Q'|D) = 0.95, P(D|Q) = 0.25, P(R|Q') = (calculate this value)",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "mathematics",
+        "cbse",
+        "source_pdf_cbse_mathematics",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-024",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics",
-        "jee"
-      ],
+      "variation": "proof",
       "inputs": {
-        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q23. Given below are two statements: Statement I: A hypothetical diatomic molecule with bond order zero is quite stable. Statement II: As bond order increases, the bond length increases. In the light of the above statements, chose the most appropriate answer from the options given below: (1) Both statement I and Statement II are true (2) Both statement I and Statement II are false (3) Statement I is true but Statement II is false (4) Statement I is true but Statement II is true\n\n;",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.1: Moles n=m/M. Equal atoms when mole amounts match for same species count."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Analysis of Bond Order Statements",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "The problem presents two statements regarding bond order and stability of diatomic molecules, asking for the truth value of each statement. This aligns with concepts in molecular chemistry, specifically regarding bond order, stability, and bond length."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "Evaluate each statement based on established chemical principles. Statement I can be analyzed using the concept of bond order and stability, while Statement II can be assessed using the relationship between bond order and bond length."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly applies chemical knowledge about bond order, which is foundational in understanding molecular stability and bond characteristics. It allows for a clear evaluation of the truth of each statement."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. **Statement I**: A bond order of zero indicates no bonding interactions, leading to instability (false).  \n2. **Statement II**: As bond order increases, bond length decreases (false). This is a fundamental concept in molecular chemistry."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. **Statement I**: False. A bond order of zero means the molecule does not have a stable bond.  \n2. **Statement II**: False. Higher bond order corresponds to shorter bond lengths.  \nThus, both statements are false, leading to the conclusion that the correct answer is (2) Both statements are false."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that bond order is directly related to bond stability: a higher bond order typically indicates a more stable bond. Also, recall that bond length decreases with increasing bond order."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not apply in cases involving resonance structures or unusual bonding scenarios where traditional bond order concepts may not hold true."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(2) Both statements are false",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "proof",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-025",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "cbse"
-      ],
+      "variation": "proof",
       "inputs": {
-        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q74. Given below are two statements: Statement I: Aniline does not undergo Friedel-Crafts alkylation reaction. Statement II: Aniline cannot be prepared through Gabriel synthesis. In the light of the above statements, choose the correct answer from the options given below: (1) Statement I is correct but Statement II is false. (2) Statement I is incorrect but Statement II is true. (3) Both Statement I and Statement II are true. (4) Both Statement I and Statement II are false.\n\n;",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Aniline and Friedel-Crafts Reactions",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This question involves evaluating the truth of two statements regarding the chemical behavior of aniline, specifically its reactivity in Friedel-Crafts reactions and its synthesis via Gabriel synthesis."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method to solve this problem is to analyze each statement based on established chemical principles regarding aniline's reactivity and synthesis."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Aniline is a primary aromatic amine, which has a strong electron-donating amino group (-NH₂) that deactivates the aromatic ring towards electrophilic substitution reactions, including Friedel-Crafts alkylation. Additionally, aniline can be prepared via Gabriel synthesis, which involves the use of phthalimide and alkyl halides, leading to the formation of primary amines."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. **Statement I**: Aniline does not undergo Friedel-Crafts alkylation due to the deactivating effect of the amino group. This statement is **true**.\n2. **Statement II**: Aniline can indeed be prepared through Gabriel synthesis, making this statement **false**."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Based on the analysis:\n- Statement I is true: Aniline does not undergo Friedel-Crafts alkylation.\n- Statement II is false: Aniline can be prepared through Gabriel synthesis.\nThus, the correct answer is (1) Statement I is correct but Statement II is false."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that the presence of electron-donating groups like -NH₂ significantly affects the reactivity of aromatic compounds in electrophilic substitution reactions. This is a common theme in organic chemistry."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be applicable if the question involves more complex reactions or if the substituents on the aromatic ring are different from those in standard cases. Always consider the specific context of the reaction."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(1) Statement I is correct but Statement II is false.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "proof",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-012",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q.47 Suppose there is a uniform circular disc of mass M kg and radius r m shown in figure. The shaded regions are cut out from the disc. The moment of inertia of the remainder about the axis A of the disc is given by x/256 M r². The value of x is ______.\n\n[Diagram: The figure depicts a uniform circular disc with a mass labeled as \\( M \\) kg and a radius labeled as \\( r \\) m. The disc has two shaded regions cut out, each represented as circles with a radius of \\( \\frac{r}{4} \\) m. The centers of these shaded regions are positioned horizontally along the diameter of the disc, with the left circle located at a distance of \\( \\frac{3r}{4} \\) m from the center of the disc and the right circle also at \\( \\frac{3r}{4} \\) m from the center. The angle between the line connecting the center of the disc to the center of the right shaded region and the vertical axis is labeled as \\( 135^\\circ \\). A vertical dashed line is drawn through point \\( A \\), which is located at the center of the disc. The overall layout is horizontal, with the disc oriented in a standard position. The moment of inertia of the remaining part of the disc about the axis \\( A \\) is given by the expression \\( \\frac{x}{256} M r^2 \\), where \\( x \\) is an unknown value to be determined.]",
+        "ncert_context": "NCERT Class 11 Physics Ch.7: Torque τ=rF sinθ; τ=Iα for rigid body rotation."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Moment of Inertia of a Circular Disc with Cut-Out Regions",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves calculating the moment of inertia of a modified circular disc, which is a common topic in rotational dynamics. The moment of inertia depends on the mass distribution relative to the axis of rotation."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "The best method is to use the parallel axis theorem and the formula for the moment of inertia of a disc. The moment of inertia of a full disc is given by \\( I = \\frac{1}{2} M r^2 \\). We will subtract the moment of inertia of the cut-out regions."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly applies the known formula for the moment of inertia of a disc and uses the parallel axis theorem to account for the removed sections. It simplifies the calculation by leveraging established formulas."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Calculate the moment of inertia of the full disc: \\( I_{full} = \\frac{1}{2} M r^2 \\).  \n2. Determine the moment of inertia of the cut-out regions based on their mass and distance from the axis.  \n3. Subtract the moment of inertia of the cut-out regions from the full disc's moment of inertia."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Let the mass of the cut-out region be \\( m \\) and its distance from the axis be \\( d \\). The moment of inertia of the cut-out region is given by \\( I_{cut-out} = m d^2 \\).  \nUsing the parallel axis theorem, the moment of inertia of the remaining part is:  \n\\[ I_{remaining} = I_{full} - I_{cut-out} = \\frac{1}{2} M r^2 - m d^2 \\]  \nGiven that \\( I_{remaining} = \\frac{x}{256} M r^2 \\), equate and solve for \\( x \\).  \nAssuming the cut-out regions are symmetrically placed, we can find \\( x \\) based on the specific dimensions provided."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember to always check the symmetry of the cut-out regions as it simplifies calculations. Use the parallel axis theorem correctly to avoid mistakes in the moment of inertia calculations."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the cut-out regions are irregularly shaped or if their mass distribution is not uniform. In such cases, a more detailed analysis or numerical integration might be necessary."
+            }
+          ],
+          "finalAnswer": "x = 64",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_jan_2026",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-013",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q.33 Two shorts dipoles (A, B) A having charges ± 2 μC and length 1 cm and B having charges ± 4 μC and length 1 cm are placed with their centres 80 cm apart as shown in the figure. The electric field at a point P, equi-distant from the centres of both dipoles is ______ N/C.\n\n[Diagram: The figure shows two short dipoles labeled A and B. Dipole A has charges of +2 µC and -2 µC, with a length of 1 cm, positioned horizontally. Dipole B has charges of +4 µC and -4 µC, also with a length of 1 cm, positioned horizontally. The centers of both dipoles are 80 cm apart, indicated by a double-headed arrow labeled with the distance. Point P is located equidistant from the centers of both dipoles, marked with a dot. The arrangement is horizontal, with dipole B on the left and dipole A on the right. The positive and negative charges are clearly marked with plus and minus signs. There are no additional arrows, forces, or connections depicted in the diagram.]\n\n1. 4.5√2 × 10⁴  \n2. 9/16 √2 × 10⁴  \n3. 9/16 × 10⁵  \n4. 4.5 × 10⁴",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Gauss's law relates net flux through a closed surface to enclosed charge. Conductor electrostatics: field inside conductor is zero in electrostatic equilibrium."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Vapor Pressure of Liquid B in Ideal Solution",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves the calculation of vapor pressure in an ideal solution using Raoult's Law. It requires understanding the relationship between the vapor pressures of the components in the solution and their mole fractions."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "Use Raoult's Law to relate the vapor pressures of the components in the solution. The equation is given by: \n\\[ P_{solution} = X_A P_A^0 + X_B P_B^0 \\] \nwhere \\( P_{solution} \\) is the vapor pressure of the solution, \\( X_A \\) and \\( X_B \\) are the mole fractions of components A and B, and \\( P_A^0 \\) and \\( P_B^0 \\) are the vapor pressures of pure components A and B, respectively."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Raoult's Law is applicable because the problem specifies that A and B form an ideal solution. The increase in vapor pressure upon adding more of component A allows us to set up equations to find the vapor pressure of component B in its pure state."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Calculate the initial mole fractions of A and B in the solution. \n2. Use the given vapor pressure of the solution and the change in vapor pressure upon adding 1 mol of A to set up equations. \n3. Solve for \\( P_B^0 \\) using the relationships established."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Let \\( P_B^0 \\) be the vapor pressure of B in pure state. \n\n1. Initial moles: \\( n_A = 3, n_B = 1 \\) \n   - Total moles = \\( n_A + n_B = 4 \\) \n   - Mole fraction of A: \\( X_A = \\frac{3}{4} \\) \n   - Mole fraction of B: \\( X_B = \\frac{1}{4} \\) \n\n2. Using Raoult's Law: \n   \\[ P_{solution} = X_A P_A^0 + X_B P_B^0 \\] \n   \\[ 500 = \\frac{3}{4} P_A^0 + \\frac{1}{4} P_B^0 \\] \n   (Equation 1) \n\n3. When 1 mol of A is added: \n   - New moles: \\( n_A = 4, n_B = 1 \\) \n   - New total moles = 5 \n   - New mole fraction of A: \\( X_A' = \\frac{4}{5} \\) \n   - New mole fraction of B: \\( X_B' = \\frac{1}{5} \\) \n\n4. New vapor pressure: \n   \\[ P_{new} = X_A' P_A^0 + X_B' P_B^0 \\] \n   \\[ 520 = \\frac{4}{5} P_A^0 + \\frac{1}{5} P_B^0 \\] \n   (Equation 2) \n\n5. Solve Equations 1 and 2 simultaneously to find \\( P_B^0 \\). \n   - From Equation 1: \\( 500 = \\frac{3}{4} P_A^0 + \\frac{1}{4} P_B^0 \\) \n   - From Equation 2: \\( 520 = \\frac{4}{5} P_A^0 + \\frac{1}{5} P_B^0 \\) \n\n6. Rearranging both equations gives: \n   \\[ P_A^0 = \\frac{2000 - P_B^0}{3} \\] \n   \\[ P_A^0 = \\frac{2600 - P_B^0}{4} \\] \n\n7. Equating and solving for \\( P_B^0 \\): \n   \\[ \\frac{2000 - P_B^0}{3} = \\frac{2600 - P_B^0}{4} \\] \n   - Cross-multiplying and simplifying leads to \\( P_B^0 = 400 \\text{ mm Hg} \\)."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that for ideal solutions, the sum of the partial pressures equals the total pressure. Keep track of mole fractions carefully, and ensure you set up your equations correctly to avoid mistakes."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method is not applicable if the solution does not behave ideally or if there are strong interactions between the components that affect vapor pressures significantly."
+            }
+          ],
+          "finalAnswer": "400 mm Hg",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_jan_2026",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-026",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry",
-        "cbse"
-      ],
+      "variation": "ncert_strict",
       "inputs": {
-        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q6. Match the List-I with List-II. List-I (Mixture) A. CHCl₃ + C₆H₅NH₂ B. Crude oil in petroleum industry C. Glycerol from spent-lye D. Aniline-water List-II (Method of Separation) I. Distillation under reduced pressure II. Steam distillation III. Fractional distillation IV. Simple distillation Choose the correct answer from the options given below. (1) A-IV, B-III, C-I, D-II (2) A-IV, B-III, C-II, D-I (3) A-III, B-IV, C-I, D-II (4) A-III, B-IV, C-II, D-I",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Separation Techniques for Mixtures",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves matching mixtures with their appropriate methods of separation. It tests knowledge of various separation techniques commonly covered in NCERT Class 11 Chemistry, particularly in the context of physical chemistry."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method to approach this problem is to analyze each mixture and determine the most suitable separation technique based on their physical and chemical properties."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Each mixture has specific characteristics that dictate the best separation method: \n- A (CHCl₃ + C₆H₅NH₂) is best separated by simple distillation due to the significant difference in boiling points. \n- B (Crude oil) requires fractional distillation because it consists of various hydrocarbons with close boiling points. \n- C (Glycerol from spent-lye) is separated using distillation under reduced pressure to avoid decomposition. \n- D (Aniline-water) is separated by steam distillation due to the volatile nature of aniline."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. **Mixture A (CHCl₃ + C₆H₅NH₂)**: Simple distillation (IV) is appropriate due to the significant difference in boiling points (CHCl₃: 61.2°C, C₆H₅NH₂: 184.1°C).\n2. **Mixture B (Crude oil)**: Fractional distillation (III) is suitable as it separates components based on their boiling points.\n3. **Mixture C (Glycerol)**: Distillation under reduced pressure (I) is used to prevent thermal decomposition of glycerol.\n4. **Mixture D (Aniline-water)**: Steam distillation (II) is effective for separating aniline from water due to its volatility."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Based on the analysis, the correct matches are:\n- A - IV (Simple distillation)\n- B - III (Fractional distillation)\n- C - I (Distillation under reduced pressure)\n- D - II (Steam distillation)\nThus, the correct answer is (1) A-IV, B-III, C-I, D-II."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember the boiling points of components in mixtures when deciding on separation methods. A significant difference in boiling points favors simple distillation, while closely boiling components require fractional distillation. Steam distillation is useful for separating volatile substances from non-volatile ones."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be suitable if the mixtures have similar boiling points or if chemical reactions occur during the separation process. For example, if a mixture contains thermally unstable compounds, distillation under reduced pressure may not be effective."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(1) A-IV, B-III, C-I, D-II",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "ncert_strict",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-027",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology",
-        "cbse"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q43. Phosphoric acid ionizes in three steps with their ionization constant values Kₐ₁, Kₐ₂ and Kₐ₃, respectively, while K is the overall ionization constant. Which of the following statements are true? A. log K = log Kₐ₁ + log Kₐ₂ + log Kₐ₃ B. H₃PO₄ is stronger acid than H₂PO₄⁻ and HPO₄²⁻. C. Kₐ₁ > Kₐ₂ > Kₐ₃ D. Kₐ₁ = (Kₐ₃ + Kₐ₂) / 2 Choose the correct answer from the options given below: (1) A and B only (2) A and C only (3) B, C and D only (4) A, B and C only",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.7: Kc=[products]/[reactants] at equilibrium. Le Chatelier: system shifts to oppose applied stress."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Ionization of Phosphoric Acid",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves understanding the ionization of a polyprotic acid (phosphoric acid) and its ionization constants. It tests knowledge of acid strength, ionization constants, and their relationships."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to evaluate each statement based on the properties of polyprotic acids and their ionization constants. This involves understanding the definitions and relationships of the constants."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Phosphoric acid (H₃PO₄) ionizes in three steps, and the strength of each ionization can be compared using their respective ionization constants (Kₐ). The first ionization is always the strongest, followed by the second and third."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Evaluate each statement one by one:\n- **A**: log K = log Kₐ₁ + log Kₐ₂ + log Kₐ₃ is incorrect as K is not the product of Kₐ constants but rather the equilibrium constant for the overall reaction.\n- **B**: H₃PO₄ is indeed a stronger acid than H₂PO₄⁻ and HPO₄²⁻ as it is the first proton donor.\n- **C**: Kₐ₁ > Kₐ₂ > Kₐ₃ is true as the first ionization constant is always greater than the subsequent ones for polyprotic acids.\n- **D**: Kₐ₁ = (Kₐ₃ + Kₐ₂) / 2 is incorrect as there is no such relationship."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Evaluating the statements:\n- A: False\n- B: True\n- C: True\n- D: False\n\nThus, the true statements are B and C. Therefore, the correct answer is (3) B, C, and D only."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that for polyprotic acids, the first ionization constant is always the largest. This is a common pattern in acid-base chemistry. Use the strength of acids to quickly assess their ionization constants."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not apply if dealing with acids that do not follow the typical strength pattern or if the question involves complex equilibria beyond simple ionization."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "(3) B, C, and D only",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-028",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics",
-        "cbse"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q59. Which of the following statements are INCORRECT? A. All the transition metals except scandium form MC oxides which are ionic. B. The highest oxidation number corresponding to the group number in transition metal oxides is attained in Sc₂O₃ to Mn₂O₇. C. Basic character increases from V₂O₃ to V₂O₄ to V₂O₅. D. V₂O₄ dissolves in acids to give VO₃⁻₄ salts. E. CrO is basic but Cr₂O₃ is amphoteric. Choose the correct answer from the options given below: a. B and C only b. A and E only c. B and D only d. C and D only Coordination Compounds",
+        "ncert_context": "NCERT Class 12 Chemistry Ch.5: Coordination number = donor atoms bound to central metal."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Identifying Incorrect Statements about Transition Metal Oxides",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "The question requires identifying incorrect statements regarding transition metal oxides, focusing on their properties and oxidation states."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "Evaluate each statement based on known chemical properties of transition metals and their oxides."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method allows for a direct comparison against established chemical knowledge, ensuring accuracy in identifying incorrect statements."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "List each statement and analyze them one by one, using knowledge of oxidation states, basicity, and solubility of transition metal oxides."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Analyzing each statement:\n\nA. Correct - Most transition metals form ionic oxides, except Sc.\n\nB. Incorrect - The highest oxidation states for Sc to Mn are not consistent with the group number.\n\nC. Incorrect - Basic character does not consistently increase from V₂O₃ to V₂O₄ to V₂O₅; V₂O₅ is acidic.\n\nD. Correct - V₂O₄ does dissolve in acids to form VO₃⁻₄.\n\nE. Correct - CrO is basic, while Cr₂O₃ is amphoteric.\n\nThus, the incorrect statements are B and C. Therefore, the correct answer is option a: B and C only."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that transition metal oxides can vary in basicity and acidity depending on their oxidation states. Keep in mind the trends in oxidation states and solubility when analyzing similar questions."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be effective if the statements involve less common or more complex transition metals where specific knowledge is required beyond general trends."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "a. B and C only",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "conceptual",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-029",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics",
-        "jee"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q5. 5 moles of liquid X and 10 moles of liquid Y make a solution having a vapour pressure of 70 torr. The vapour pressures of pure X and Y are 63 torr and 78 torr respectively. Which of the following is true regarding the described solution? (1) The solution shows positive deviation. (2) The solution shows negative deviation. (3) The solution is ideal. (4) The solution has volume greater than the sum of individual volumes.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.1: Moles n=m/M. Equal atoms when mole amounts match for same species count."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Vapor Pressure and Solution Behavior",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves calculating the vapor pressure of a solution made from two liquids (X and Y) and determining the nature of the deviation from Raoult's Law. The key concepts include vapor pressure, mole fraction, and deviations in ideal solutions."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The fastest method is to apply Raoult's Law to calculate the expected vapor pressure of the solution and compare it with the given vapor pressure of 70 torr. This will help identify whether the solution shows positive or negative deviation."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Raoult's Law states that the vapor pressure of a solution is equal to the sum of the partial pressures of each component, which can be calculated using their mole fractions and pure component vapor pressures. This method directly addresses the problem's requirements."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Calculate the total moles: \\( n_{total} = 5 + 10 = 15 \\) moles.  \n2. Calculate the mole fractions:  \n   - For X: \\( X_X = \\frac{5}{15} = \\frac{1}{3} \\)  \n   - For Y: \\( X_Y = \\frac{10}{15} = \\frac{2}{3} \\)  \n3. Use Raoult's Law to find the expected vapor pressure:  \n   \\[ P_{solution} = X_X \\cdot P^0_X + X_Y \\cdot P^0_Y \\]  \n   \\[ P_{solution} = \\left(\\frac{1}{3} \\cdot 63\\right) + \\left(\\frac{2}{3} \\cdot 78\\right) \\]"
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Calculating the expected vapor pressure:  \n\\[ P_{solution} = \\left(\\frac{1}{3} \\cdot 63\\right) + \\left(\\frac{2}{3} \\cdot 78\\right) = 21 + 52 = 73 \\text{ torr} \\]  \nSince the observed vapor pressure is 70 torr, which is less than the calculated 73 torr, the solution shows a negative deviation from Raoult's Law.  \nThus, the correct answer is (2) The solution shows negative deviation."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember that a positive deviation occurs when the vapor pressure of the solution is greater than expected, while a negative deviation occurs when it is less. This is crucial for identifying the nature of the solution."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be applicable if the components form strong interactions (like hydrogen bonding) that significantly alter the vapor pressures beyond simple additive effects. In such cases, a more detailed analysis of intermolecular forces would be necessary."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "The solution shows negative deviation.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "show_best_approach-006",
+      "variation": "case_study",
+      "inputs": {
+        "problem_text_normalized": "Q48. Passage: Strontium titanate is a rare oxide, a natural mineral found in Siberia. It is used as a substitute for diamond because its refractive index and critical angle are 2.41 and 24.5° respectively, which are approximately equal to the refractive index and critical angle of diamond. It has all the properties of diamond. Even an expert jeweller is unable to differentiate between diamond and strontium titanate. A ray of light is incident normally on one face of an equilateral triangular prism ABC made of strontium titanate. Sub-questions:",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Light Refraction in Strontium Titanate Prism",
+          "sections": [
+            {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "This problem involves the behavior of light as it passes through a prism made of strontium titanate, focusing on concepts like refractive index and critical angle. The key is to analyze how light interacts with different media, particularly when transitioning from air to the prism material."
+            },
+            {
+              "heading": "Best Method",
+              "bodyMarkdown": "To solve this problem, apply Snell's Law, which states that \\( n_1 \\sin(\\theta_1) = n_2 \\sin(\\theta_2) \\). Here, \\( n_1 \\) is the refractive index of air (approximately 1), and \\( n_2 \\) is the refractive index of strontium titanate (2.41). Since light is incident normally, \\( \\theta_1 = 0 \\) degrees, simplifying the calculations."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "Using Snell's Law is appropriate here because it directly relates the angles of incidence and refraction to the refractive indices of the two media. The normal incidence simplifies the situation, allowing for straightforward calculations of the angles as light enters and exits the prism."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "Start by identifying the refractive indices involved. For air, use \\( n_1 = 1 \\) and for strontium titanate, use \\( n_2 = 2.41 \\). Since the light is incident normally, you can directly calculate the angle of refraction using Snell's Law without needing to consider the angle of incidence."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "1. Apply Snell's Law: \\( 1 \\cdot \\sin(0) = 2.41 \\cdot \\sin(\\theta_2) \\) \n2. Since \\( \\sin(0) = 0 \\), \\( \\theta_2 = 0 \\) degrees. \n3. As the light exits the prism, apply Snell's Law again at the second interface, considering the critical angle for total internal reflection if applicable."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Always check if the light is entering or exiting the prism and apply the correct refractive indices. Remember that for normal incidence, the angle of refraction equals the angle of incidence, simplifying calculations significantly."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "Do not use this method if the light is incident at an angle other than normal, or if the problem involves complex geometries where multiple refractions occur. In such cases, a more detailed ray diagram may be necessary."
+            }
+          ],
+          "finalAnswer": "The angle of refraction when light enters the strontium titanate prism is 0 degrees due to normal incidence.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "case_study",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "show_best_approach-030",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry",
-        "cbse"
-      ],
+      "variation": "case_study",
       "inputs": {
-        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
-        "ncert_context": "NCERT Class 12 Maths Ch.7: ∫x^n dx = x^(n+1)/(n+1) + C for n≠-1."
+        "problem_text_normalized": "Q65. Match List-I with List-II List-I (Complex) A. [Co(NH₃)₅(NO₂)]Cl₂. B. [Co(NH₃)₅(SO₄)]Br. C. [Co(NH₃)₆][Cr(CN)₆] D. [Co(H₂O)₆]Cl₃ List-II (Type of isomerism) I. Solvate isomerism II. Linkage isomerism III. Ionization isomerism IV. Coordination isomerism Choose the correct answer from the options given below: (1) A-I, B-IV, C-III, D-II (2) A-II, B-IV, C-III, D-I (3) A-II, B-III, C-IV, D-I (4) A-I, B-III, C-IV, D-II\n\nCl₂, B. [Co(NH₃)₅(SO₄)]Br, C. [Co(NH₃)₆][Cr(CN)₆], and D. [Co(H₂O)₆]Cl₃. List-II includes four types of isomerism labeled I, II, III, and IV, corresponding to Solvate isomerism, Linkage isomerism, Ionization isomerism, and Coordination isomerism, respectively. The task is to match the complexes from List-I with the types of isomerism in List-II. Below the lists, there are four options numbered (1) to (4) for the correct matches. The layout is vertical, with List-I on the left and List-II on the right, and no arrows or motion directions are indicated.]",
+        "ncert_context": "NCERT Class 12 Chemistry Ch.5: Coordination number = donor atoms bound to central metal."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Best exam approach",
+          "title": "Matching Coordination Complexes with Isomerism Types",
           "sections": [
             {
+              "heading": "Problem Pattern",
+              "bodyMarkdown": "The problem requires matching coordination complexes with their respective types of isomerism. This involves understanding the nature of the ligands and the structure of the complexes."
+            },
+            {
               "heading": "Best Method",
-              "bodyMarkdown": "Efficient strategy with LaTeX $V=IR$."
+              "bodyMarkdown": "The best method is to analyze each complex based on its ligands and structure to identify the type of isomerism it can exhibit. This involves recognizing the characteristics of each type of isomerism."
+            },
+            {
+              "heading": "Why This Fits",
+              "bodyMarkdown": "This method is optimal because it directly applies the concepts of coordination chemistry as outlined in the NCERT syllabus. It allows for a systematic approach to determine the isomerism types based on ligand behavior and complex structure."
+            },
+            {
+              "heading": "Efficient Setup",
+              "bodyMarkdown": "1. Identify the ligands in each complex.  \n2. Determine the possible isomerism based on ligand type and complex structure.  \n3. Match the complexes with the correct isomerism type."
+            },
+            {
+              "heading": "Clean Solution",
+              "bodyMarkdown": "Let's analyze each complex:  \nA. [Co(NH₃)₅(NO₂)]Cl₂  \n- Contains NO₂, which can bind through N or O, indicating linkage isomerism (Match: A-II).  \nB. [Co(NH₃)₅(SO₄)]Br  \n- Can exhibit ionization isomerism as the sulfate can be replaced by bromide (Match: B-III).  \nC. [Co(NH₃)₆][Cr(CN)₆]  \n- This complex has two different metal centers, allowing for coordination isomerism (Match: C-IV).  \nD. [Co(H₂O)₆]Cl₃  \n- This complex can show solvate isomerism as it can exist with different solvent molecules (Match: D-I).  \nThus, the matches are: A-II, B-III, C-IV, D-I."
+            },
+            {
+              "heading": "Exam Note",
+              "bodyMarkdown": "Remember the types of isomerism:  \n- Linkage isomerism involves ligands that can bind in multiple ways.  \n- Ionization isomerism involves different ions in solution.  \n- Coordination isomerism involves different arrangements of ligands around different metal centers.  \n- Solvate isomerism involves different solvent molecules."
+            },
+            {
+              "heading": "When Not to Use",
+              "bodyMarkdown": "This method may not be effective if the complexes are too similar or if the ligands have ambiguous binding modes that are not clearly defined. In such cases, a more detailed analysis of the electronic structure and sterics may be necessary."
             }
           ],
-          "finalAnswer": "Final value",
-          "revealLevel": "full"
+          "finalAnswer": "A-II, B-III, C-IV, D-I",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Compare with basic method",
+              "action": "COMPARE_BASIC_METHOD"
+            },
+            {
+              "label": "Explain why this works",
+              "action": "EXPLAIN_WHY_WORKS"
+            },
+            {
+              "label": "Give similar exam problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Show common mistakes",
+              "action": "SHOW_COMMON_MISTAKES"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "case_study",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "latex_format"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     }
   ]

@@ -1,0 +1,31 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 674,
+  "experiments": [
+    {
+      "agent_id": "query_rewriter",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash-lite",
+      "experiment_name": "ae-query_rewriter-v2-gemini-gemini-2-5-flash-lite-cb5a1432",
+      "measured_traces": 337,
+      "estimated_traces": 337,
+      "charged_traces": 337,
+      "at": "2026-07-01T10:31:42.201879+00:00"
+    },
+    {
+      "agent_id": "query_rewriter",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-query_rewriter-v3-openai-gpt-5-mini-9045415c",
+      "measured_traces": 337,
+      "estimated_traces": 337,
+      "charged_traces": 337,
+      "at": "2026-07-01T10:34:55.537011+00:00"
+    }
+  ],
+  "workspace_tenant": "scombinator26_47ca8a69",
+  "note": "Fresh ledger after switching workspace (scombinator26_47ca8a69)",
+  "updated_at": "2026-07-01T10:34:55.537011+00:00"
+}

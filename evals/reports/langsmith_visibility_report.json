@@ -3,7 +3,7 @@
   "langsmith_project": "notebooklm-dev",
   "langsmith_url": "https://smith.langchain.com",
   "visibility_checklist": {
-    "datasets_visible": "Datasets tab -> nbm-prompt-* (33 agents)",
+    "datasets_visible": "Datasets tab -> nbm-prompt-* (32 agents)",
     "example_inputs_outputs": "Each dataset example has inputs + reference_outputs",
     "evaluator_metadata": "On each example: evaluator, variation, tags in metadata",
     "experiment_runs": "Tracing -> Runs named eval/{agent}/{example_id}",
@@ -247,14 +247,6 @@
       "langsmith_runs": 10,
       "evaluator": "formatter",
       "dataset_hash": "47291180778eb827"
-    },
-    {
-      "agent": "whole_file_map_template",
-      "score": 100.0,
-      "passed": true,
-      "langsmith_runs": 10,
-      "evaluator": "formatter",
-      "dataset_hash": "ce7f4e930893cd5e"
     },
     {
       "agent": "image_ocr",

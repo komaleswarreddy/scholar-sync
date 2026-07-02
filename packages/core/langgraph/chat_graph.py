@@ -596,11 +596,11 @@ class LangGraphChatPipeline:
         return sync_wrapped
 
     def _moderation_refusal(self) -> str:
-        return self.refusals.get_refusal(RefusalReason.SAFETY_VIOLATION)
+        return self.refusals.get_refusal(RefusalReason.SAFETY_VIOLATION, variation_key=self.user_id)
 
     def _prompt_injection_refusal_message(self) -> str:
         m = (getattr(settings, "PROMPT_INJECTION_REFUSAL_MESSAGE", "") or "").strip()
-        return m or self.refusals.get_refusal(RefusalReason.PROMPT_INJECTION)
+        return m or self.refusals.get_refusal(RefusalReason.PROMPT_INJECTION, variation_key=self.user_id)
 
     def _merge_guardrails_trace(self, state: ChatGraphState) -> None:
         if not getattr(settings, "ENABLE_PIPELINE_TRACE", True):
@@ -739,7 +739,7 @@ class LangGraphChatPipeline:
             redacted, pii = self.pii_detector.redact(text)
             if pii.get("has_pii"):
                 state["blocked"] = True
-                state["error"] = self.refusals.get_refusal(RefusalReason.PII_DETECTED)
+                state["error"] = self.refusals.get_refusal(RefusalReason.PII_DETECTED, variation_key=self.user_id)
                 self._merge_guardrails_trace(state)
                 return state
             text = redacted
@@ -782,7 +782,7 @@ class LangGraphChatPipeline:
                 state["blocked"] = True
                 state["error"] = (
                     intent.get("message")
-                    or self.refusals.get_refusal(RefusalReason.ACADEMIC_ONLY)
+                    or self.refusals.get_refusal(RefusalReason.ACADEMIC_ONLY, variation_key=self.user_id)
                 )
                 self._merge_guardrails_trace(state)
                 return state
@@ -790,7 +790,7 @@ class LangGraphChatPipeline:
         cheating = detect_cheating_request(text)
         if cheating.get("is_cheating"):
             state["blocked"] = True
-            state["error"] = self.refusals.get_refusal(RefusalReason.ACADEMIC_INTEGRITY)
+            state["error"] = self.refusals.get_refusal(RefusalReason.ACADEMIC_INTEGRITY, variation_key=self.user_id)
             state["generation_blocked_reason"] = "ACADEMIC_INTEGRITY"
             self._merge_guardrails_trace(state)
             return state
@@ -799,7 +799,7 @@ class LangGraphChatPipeline:
             safe = self.safety_filter.check_input(text, context="academic")
             if safe.get("blocked"):
                 state["blocked"] = True
-                state["error"] = self.refusals.get_refusal(RefusalReason.INAPPROPRIATE_CONTENT)
+                state["error"] = self.refusals.get_refusal(RefusalReason.INAPPROPRIATE_CONTENT, variation_key=self.user_id)
                 self._merge_guardrails_trace(state)
                 return state
 
@@ -807,7 +807,7 @@ class LangGraphChatPipeline:
             res = check_moderation(text)
             if moderation_indicates_block(res):
                 state["blocked"] = True
-                state["error"] = self.refusals.get_refusal(RefusalReason.INAPPROPRIATE_CONTENT)
+                state["error"] = self.refusals.get_refusal(RefusalReason.INAPPROPRIATE_CONTENT, variation_key=self.user_id)
                 self._merge_guardrails_trace(state)
                 return state
         except ValueError as e:
@@ -816,13 +816,13 @@ class LangGraphChatPipeline:
                 pass
             elif is_openai_moderation_configured() and not settings.MODERATION_FAIL_OPEN_ON_ERROR:
                 state["blocked"] = True
-                state["error"] = self.refusals.get_refusal(RefusalReason.GENERAL)
+                state["error"] = self.refusals.get_refusal(RefusalReason.GENERAL, variation_key=self.user_id)
                 self._merge_guardrails_trace(state)
                 return state
         except Exception:
             if is_openai_moderation_configured() and not settings.MODERATION_FAIL_OPEN_ON_ERROR:
                 state["blocked"] = True
-                state["error"] = self.refusals.get_refusal(RefusalReason.GENERAL)
+                state["error"] = self.refusals.get_refusal(RefusalReason.GENERAL, variation_key=self.user_id)
                 self._merge_guardrails_trace(state)
                 return state
 
@@ -951,6 +951,12 @@ class LangGraphChatPipeline:
         has_prior_conversation = bool(
             (conversation_transcript or "").strip() or has_chat_summary
         )
+        try:
+            from packages.core.knowledge.policy_loader import build_chat_policy_block
+
+            chat_policy_block = build_chat_policy_block()
+        except Exception:
+            chat_policy_block = ""
 
         full_prompt = load_prompt(
             "chat/direct_chat.j2",
@@ -959,6 +965,7 @@ class LangGraphChatPipeline:
             has_prior_conversation=has_prior_conversation,
             chat_rolling_summary=chat_rolling_summary,
             has_chat_summary=has_chat_summary,
+            chat_policy_block=chat_policy_block,
         )
         if getattr(settings, "ENABLE_PROMPT_INTEGRITY_CHECK", True):
             ok_dc, reason_dc = validate_direct_chat_prompt(full_prompt)
@@ -997,6 +1004,9 @@ class LangGraphChatPipeline:
         intent = r.get("intent")
         intent_label = (getattr(intent, "value", str(intent)) if intent else "").strip().lower()
         state["classified_intent"] = intent_label
+        state["scope"] = str(r.get("scope") or "unspecified").strip().lower() or "unspecified"
+        state["requires_retrieval"] = bool(r.get("requires_retrieval", True))
+        state["requires_attachment"] = bool(r.get("requires_attachment", False))
         try:
             state["intent_classification_confidence"] = float(r.get("confidence", 0.5) or 0.5)
         except (TypeError, ValueError):
@@ -1132,6 +1142,9 @@ class LangGraphChatPipeline:
             conversation_history=state.get("effective_history") or state.get("history") or [],
             classified_intent=state.get("classified_intent") or None,
             classified_intent_confidence=state.get("intent_classification_confidence"),
+            scope=state.get("scope") or None,
+            requires_retrieval=state.get("requires_retrieval"),
+            requires_attachment=state.get("requires_attachment"),
             include_ncert_global=include_g,
             ncert_class=state.get("ncert_class"),
             ncert_subject=state.get("ncert_subject"),

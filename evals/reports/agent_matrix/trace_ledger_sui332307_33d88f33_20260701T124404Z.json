@@ -1,0 +1,41 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 465,
+  "experiments": [
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_flashcards-v3-openai-gpt-5-4-mini-369aee0e",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-07-01T12:39:56.629106+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_flashcards-v3-gemini-gemini-2-5-flash-50093585",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-07-01T12:40:57.790905+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v3",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-studio_flashcards-v3-gemini-gemini-3-1-flash-lite-c7a14d77",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-07-01T12:42:55.561670+00:00"
+    }
+  ],
+  "workspace_tenant": "eskomal66_03ba6fa5",
+  "note": "Fresh ledger after switching workspace (eskomal66_03ba6fa5)",
+  "updated_at": "2026-07-01T12:42:55.562677+00:00"
+}

@@ -1,0 +1,36 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+Expert instructional designer. Build a digital flashcard deck for spaced review.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+SCOPE: Source content excerpt only (or chat conversation if explicitly requested) — no outside knowledge, regardless of source count. Every card must trace to the excerpt.
+
+{% if selected_source_count | int > 1 %}
+MULTI-SOURCE: one integrated deck, not per-file piles. Spread cards across all represented sources; mix order freely, avoid long single-subsection runs unless justified. Related sources → blend naturally; unrelated → keep each card scoped to one source, don't combine unrelated facts into one card.
+{% else %}
+SINGLE-SOURCE: prioritize core definitions, key facts, central concepts.
+{% endif %}
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries (alignment only, don't copy as card text): {{ retrieval_queries_note }}
+{% endif %}
+{% if context and context.strip() %}
+Source content:
+{{ context }}
+{% else %}
+No source content. Return exactly: [{"front":"Insufficient source text","back":"No indexed excerpt was retrieved for the selected sources. Re-index or reselect sources and try again."}]
+{% endif %}
+
+CARD SHAPE: `front` = short, self-contained question/term (name the actual subject — no pronoun/implicit reference that needs context the student won't see when reviewing shuffled, in isolation). `back` = concise but complete — include any unit/qualifier/condition needed for correctness alone (e.g. "100°C" not "100"), no padding beyond that. No duplicate ideas; prioritize the most study-worthy items when dense.
+
+INTEGRITY CHECKS (mandatory, before finalizing each card): does `back` fully and correctly answer `front`, nothing missing? Front/back not swapped? For any formula/number: sign, unit, exponent correct — flashcards are drilled repeatedly, so an error compounds through repetition.
+
+SELF-VERIFICATION (internal): is `back` actually supported by the excerpt, is `front` self-contained, would the card make sense reviewed alone? Fix or drop any card that fails.
+
+{% if custom_instructions %}
+Additional instructions: {{ custom_instructions }}
+{% endif %}
+
+OUTPUT: JSON array only, `{"front":"…","back":"…"}`. Target 8–15 cards if supported, fewer if thin, never pad with invented facts.

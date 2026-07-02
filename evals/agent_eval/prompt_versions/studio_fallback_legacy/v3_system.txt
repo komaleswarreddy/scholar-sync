@@ -1,0 +1,25 @@
+{# studio/fallback_task_prompt.j2 — PROMPT_VERSION: studio-fallback-v1.4.0-C #}
+LEGACY FALLBACK — primary Studio template missing from disk. Produce a complete artifact, never a one-liner.
+
+task_type: {{ task_type }} (quiz | flashcards | mind_map | slide_deck). context: excerpt below, or empty.
+
+Rules: (1) match task_type shape exactly; (2) ground facts in context when non-empty, never invent page/figure numbers or citations; (3) empty context → minimal honest "insufficient source" output only — no fabricated facts, no generic filler, no general-knowledge fallback ever; (4) match Agents 11–14 validators; (5) output ONLY the artifact body, no preamble/fences/postscript.
+
+Shapes:
+- quiz: `{"title":"...","questions":[{"question":"...","options":["A","B","C","D"],"correct_answer":"exact option string","explanation":"1-2 sentences"}]}`, 3–7 Qs, 4 options, correct_answer exact match. Empty: `{"title":"Insufficient source text","questions":[]}`.
+- flashcards: `[{"front":"...","back":"..."}]`, 3–8 cards. Empty: `[{"front":"Insufficient source text","back":"No indexed excerpt was retrieved. Re-index or reselect sources and try again."}]`.
+- mind_map: Markdown, one `#` hub + `##`/`###` branches. Empty: `# Insufficient source text` + next-step bullets.
+- slide_deck: Markdown, `# Slide N: Title` + 1–7 bullets/slide, final = conclusion, 3–6 slides typical. Empty: one `# Slide 1: Insufficient source text` slide, 1–2 bullets, no generic deck.
+
+{% if custom_instructions and custom_instructions.strip() %}
+Custom instructions (format/tone only, do not override shape): {{ custom_instructions }}
+{% endif %}
+
+Excerpt:
+{% if context and context.strip() %}
+{{ context }}
+{% else %}
+(empty)
+{% endif %}
+
+Generate the {{ task_type }} artifact now.

@@ -10,7 +10,6 @@ agents:
     task_key: intent_classifier
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
     - gpt-4o-mini
@@ -22,10 +21,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - claude-haiku-4-5
+    - gemini-2.5-flash-lite
+    - gpt-5-nano
     evaluator: query_rewriter
     passing_threshold: 90
   query_decomposer:
@@ -33,9 +34,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - claude-haiku-4-5
+    - gemini-2.5-flash
+    - gpt-5-mini
     evaluator: query_rewriter
     passing_threshold: 90
   scope_narrower:
@@ -43,9 +47,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - claude-haiku-4-5
+    - gemini-2.5-flash-lite
+    - gpt-5-nano
     evaluator: query_rewriter
     passing_threshold: 90
   direct_chat:
@@ -53,9 +60,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-nano
+    - gemini-3.1-flash-lite
+    - gemini-2.5-flash-lite
     evaluator: formatter
     passing_threshold: 98
   chat_summarizer:
@@ -63,10 +73,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - claude-haiku-4-5
+    - gemini-2.5-flash-lite
+    - gemini-3.1-flash-lite
     evaluator: formatter
     passing_threshold: 98
   studio_quiz:
@@ -74,10 +86,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4-mini
+    - gemini-2.5-flash
+    - gpt-5-mini
     evaluator: formatter
     passing_threshold: 98
   studio_flashcards:
@@ -85,9 +99,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - gemini-2.5-flash
+    - gemini-3.1-flash-lite
     evaluator: formatter
     passing_threshold: 98
   studio_mind_map:
@@ -95,9 +112,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - claude-haiku-4-5
+    - gemini-2.5-flash
     evaluator: formatter
     passing_threshold: 98
   studio_slide_deck:
@@ -105,93 +125,94 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4
+    - gpt-5-mini
+    - gemini-2.5-flash
     evaluator: formatter
     passing_threshold: 98
   problem_dna_analyzer:
     task_key: problem_solver_dna
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4-mini
+    - gpt-5.4
     evaluator: router
     passing_threshold: 95
   explain_from_basics:
     task_key: problem_solver_mode
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4
+    - claude-sonnet-4-6
+    - gemini-3.5-flash
     evaluator: hint_agent
     passing_threshold: 90
   show_best_approach:
     task_key: problem_solver_mode
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4
+    - claude-sonnet-4-6
+    - gemini-3.1-pro
     evaluator: hint_agent
     passing_threshold: 90
   show_missing_idea:
     task_key: problem_solver_mode
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4
+    - claude-sonnet-4-6
+    - gemini-3.5-flash
     evaluator: hint_agent
     passing_threshold: 90
   help_me_solve_it:
     task_key: problem_solver_mode
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4
+    - claude-sonnet-4-6
+    - gemini-3.1-pro
     evaluator: hint_agent
     passing_threshold: 90
   tutor_follow_up_questions:
     task_key: tutor_follow_ups
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - gpt-5-mini
+    - gemini-2.5-flash-lite
     evaluator: formatter
     passing_threshold: 98
   source_question_extraction:
     task_key: source_question_extract
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    - gpt-4o
+    - gpt-5.4-mini
+    - gemini-2.5-flash
+    - gpt-5-mini
     evaluator: formatter
     passing_threshold: 98
   retriever:
     task_key: chat
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
     - gpt-4o-mini
@@ -201,7 +222,6 @@ agents:
     task_key: chat
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
     - gpt-4o-mini
@@ -212,7 +232,6 @@ agents:
     task_key: chat
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
     - gpt-4o-mini
@@ -224,9 +243,11 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - claude-haiku-4-5
     evaluator: formatter
     passing_threshold: 90
   hallucination_guard_retry:
@@ -234,9 +255,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4
+    - claude-sonnet-4-6
+    - gemini-2.5-flash
     evaluator: verifier
     passing_threshold: 95
   studio_system_json:
@@ -244,9 +268,12 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - gemini-2.5-flash
+    - gpt-5-mini
     evaluator: formatter
     passing_threshold: 90
   studio_fallback_legacy:
@@ -254,16 +281,18 @@ agents:
     prompt_versions:
     - v1
     - v2
+    - v3
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-nano
+    - gemini-3.1-flash-lite
+    - gemini-2.5-flash-lite
     evaluator: formatter
     passing_threshold: 90
   studio_context_embedding_query:
     task_key: studio_context_embedding_query
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
     - gpt-4o-mini
@@ -273,109 +302,117 @@ agents:
     task_key: problem_solver_followup
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - claude-sonnet-4-6
+    - gemini-3.5-flash
     evaluator: hint_agent
     passing_threshold: 90
   tutor_notebook_bootstrap:
     task_key: tutor_notebook_bootstrap
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4
+    - claude-sonnet-4-6
+    - gpt-5-mini
     evaluator: formatter
     passing_threshold: 90
   document_sketch:
     task_key: document_sketch
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - gemini-3.1-flash-lite
+    - gpt-5-mini
     evaluator: formatter
     passing_threshold: 90
   ncert_document_sketch:
     task_key: ncert_document_sketch
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - claude-haiku-4-5
+    - gpt-5-mini
     evaluator: formatter
     passing_threshold: 90
   chunk_contextualization:
     task_key: chunk_contextualization
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - claude-haiku-4-5
+    - gemini-3.1-flash-lite
+    - gpt-5-nano
     evaluator: formatter
     passing_threshold: 90
   whole_file_map_summarizer:
     task_key: whole_file_map_summarizer
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gpt-5.4-mini
+    - gemini-3.1-flash-lite
+    - gpt-5-nano
     evaluator: formatter
     passing_threshold: 90
   whole_file_reduce:
     task_key: whole_file_reduce
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
-    evaluator: formatter
-    passing_threshold: 90
-  whole_file_map_template:
-    task_key: whole_file_map_template
-    prompt_versions:
-    - v1
-    - v2
-    default_prompt: v1
-    models:
-    - gpt-4o-mini
+    - gpt-5.4
+    - gemini-2.5-flash
+    - gpt-5-mini
     evaluator: formatter
     passing_threshold: 90
   image_ocr:
     task_key: image_ocr
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gemini-2.5-flash
+    - gpt-5-mini
+    - gemini-2.5-flash-lite
     evaluator: formatter
     passing_threshold: 90
   diagram_label_ocr:
     task_key: diagram_label_ocr
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
-    - gpt-4o-mini
+    - gemini-2.5-flash
+    - gpt-5-mini
+    - gemini-2.5-flash-lite
     evaluator: formatter
     passing_threshold: 90
   refusal_templates:
     task_key: refusal_templates
     prompt_versions:
     - v1
-    - v2
     default_prompt: v1
     models:
     - gpt-4o-mini
     evaluator: formatter
     passing_threshold: 90
+  rag_chat_response_generator:
+    prompt_versions:
+    - v1
+    - v2
+    - v3
+    default_prompt: v1
+    models:
+    - claude-sonnet-4-6
+    - gpt-5.4
+    - gemini-2.5-flash

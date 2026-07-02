@@ -1,0 +1,9 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 0,
+  "experiments": [],
+  "workspace_tenant": "eskomal66_03ba6fa5",
+  "note": "Fresh ledger after switching workspace (eskomal66_03ba6fa5)"
+}

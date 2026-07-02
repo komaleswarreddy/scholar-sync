@@ -273,14 +273,12 @@ def strict_retry_suffix(unsupported_sentences: List[str]) -> str:
     """
     A minimal instruction suffix to reduce hallucinations on a retry.
     """
-    examples = unsupported_sentences[:3]
-    ex = "\n".join([f"- {s}" for s in examples if s])
-    hint = f"\n\nUnsupported sentences detected:\n{ex}\n" if ex else ""
-    return (
-        "\n\nGrounding instruction (hallucination guard):\n"
-        "- Remove, soften, or label as `General knowledge:` any sentence not directly supported by the Context evidence.\n"
-        "- Prefer restating the evidence using the same terms as the excerpts.\n"
-        "- Do not add new specific numbers, names, dates, or quotes unless they appear in the evidence.\n"
-        + hint
-    )
+    from packages.core.prompts import load_prompt
+
+    sentences = [str(s).strip() for s in (unsupported_sentences or []) if str(s).strip()]
+    body = load_prompt(
+        "eval/hallucination_guard_retry_v1.j2",
+        unsupported_sentences=sentences,
+    ).strip()
+    return f"\n\n{body}\n" if body else ""
 

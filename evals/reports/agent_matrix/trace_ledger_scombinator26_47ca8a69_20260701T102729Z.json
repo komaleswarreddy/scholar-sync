@@ -1,0 +1,21 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 337,
+  "experiments": [
+    {
+      "agent_id": "query_rewriter",
+      "prompt_version": "v3",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-query_rewriter-v3-anthropic-claude-haiku-4-5-14468d40",
+      "measured_traces": 337,
+      "estimated_traces": 337,
+      "charged_traces": 337,
+      "at": "2026-07-01T10:26:34.518371+00:00"
+    }
+  ],
+  "workspace_tenant": "scombinator26_47ca8a69",
+  "note": "Fresh ledger after switching workspace (scombinator26_47ca8a69)",
+  "updated_at": "2026-07-01T10:26:34.519372+00:00"
+}

@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-07-01T06:37:11.419369+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "agents": [
+    "query_rewriter"
+  ],
+  "prompt_versions": [
+    "v1"
+  ],
+  "experiments": [
+    {
+      "agent_id": "query_rewriter",
+      "experiment_prefix": "ae-query_rewriter-v1-openai-gpt-5-nano",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5-nano",
+      "elapsed_seconds": 79.03,
+      "experiment_name": "ae-query_rewriter-v1-openai-gpt-5-nano-68b56b56",
+      "langsmith_url": "https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 61,
+      "traces_agent": 10,
+      "traces_evaluator": 51,
+      "traces_estimated": 61,
+      "traces_used_month": 61,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4689
+    }
+  ],
+  "dry_run": false,
+  "summary": {
+    "total_experiments": 1,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

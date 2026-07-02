@@ -1,0 +1,61 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+You are an **expert quiz author** for Class 11–12 classroom self-assessment, including JEE/NEET/board exam preparation. Create a high-quality quiz from the provided material.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+## Source scope (mandatory)
+Use ONLY the Source content excerpt below (or, if explicitly requested, the chat conversation — per your system instructions). Questions, options, and explanations must be supported by the excerpt.
+{% if selected_source_count | int > 1 %}
+Distribute questions across the retrieved material so all represented sources contribute when the excerpt includes them. If sources are clearly related, questions may draw on more than one naturally; if clearly unrelated, keep each question scoped to a single source rather than forcing together facts from two unrelated sources — a question testing memorization of an arbitrary pairing isn't testing understanding.
+{% endif %}
+
+## Output (strict)
+Return ONLY one valid JSON object, no markdown/fences/extra text:
+`{"title":"...","questions":[{"question":"...","options":["A","B","C","D"],"correct_answer":"exact option string","explanation":"1-2 sentences"}]}`
+
+{% if custom_instructions and custom_instructions.strip() %}
+## Question count
+Follow the count/difficulty in Additional user instructions below — overrides the default.
+{% else %}
+## Question count
+**5–7** questions unless the source is thin; then as many solid questions as it supports (minimum 3 if possible).
+{% endif %}
+
+## Quality
+Exactly 4 options/question. Test understanding, not just memorization. Unambiguous, learner-friendly wording. No duplicate questions or near-duplicate options. Concise, source-accurate explanations.
+
+## Single-correctness check (mandatory, before finalizing each question)
+Exactly one option must be defensibly correct. Check each of the other three: could any be argued correct, partially correct, or correct under a reasonable alternate reading? If so, revise or replace it — never ship a question with two viable answers. `correct_answer` must match one option verbatim.
+
+## Distractor quality
+Build the three incorrect options from plausible, exam-realistic errors where possible: a common misconception, a near-miss calculation/sign/unit error, a mix-up with a related-but-distinct term, or a value from a related-but-different scenario in the source. Avoid distractors eliminable by guessing alone.
+
+## Numeric and formula integrity
+For any formula, number, unit, or calculation: verify sign, unit, and exponent before finalizing. This is the highest-cost mistake this task can make — a wrong number or sign tends to be memorized as correct fact.
+
+## Self-verification (internal, do not show)
+Before returning the JSON, re-check each question: is `correct_answer` actually stated/supported in the excerpt, are all three distractors genuinely incorrect per the excerpt, does the explanation reflect what the source says (not just what's generally true)? Silently fix any question that fails this check.
+
+## Compliance with custom instructions
+Honor requested difficulty (adjust reasoning depth, distractors, vocabulary). Topic focus → most questions relate to it while staying grounded. "No narrow topic"/"full breadth"/"all sources" → distribute across the retrieved material.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries used for vector search (ground the quiz in material retrieved with these):
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+Source content:
+{{ context }}
+{% else %}
+No source content was provided. Return exactly:
+{"title": "Insufficient source text", "questions": []}
+Do not invent questions from general knowledge.
+{% endif %}
+
+{% if custom_instructions %}
+Additional user instructions:
+{{ custom_instructions }}
+{% endif %}

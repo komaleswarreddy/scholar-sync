@@ -63,4 +63,9 @@ def test_rag_prompt_includes_source_content_boundary():
         has_chat_summary=False,
     )
     assert "Source content boundary" in out
-    assert "untrusted document" in out.lower() or "untrusted document **data**" in out.lower()
+    lower = out.lower()
+    assert (
+        "untrusted document" in lower
+        or "untrusted document **data**" in lower
+        or "untrusted **data**" in lower
+    )

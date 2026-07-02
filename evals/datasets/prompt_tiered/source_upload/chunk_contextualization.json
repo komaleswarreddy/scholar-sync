@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.1",
   "dataset_id": "chunk_contextualization",
   "agent": {
     "sno": 28,
-    "category": "Source Upload",
+    "category": "RAG Ingestion",
     "name": "Chunk Contextualization Agent",
     "tier": "tier_3",
-    "target_examples": 5,
-    "prompt_template": "SYSTEM:\nReturn JSON only. Do not include markdown fences.\n\nUSER/TASK TEMPLATE:\n{{ whole_document }}\n\nHere is the chunk we want to situate within the whole document:\n\n{{ chunk_content }}\n\nReturn a single JSON object with these keys:\n- chunk_context: short context that situates the chunk within the whole document (target ~{{ target_context_tokens }} tokens)\n- chunk_summary: succinct summary of the chunk itself (target ~{{ target_summary_tokens }} tokens)\n- chunk_type: one short label like definition|procedure|example|table|figure|argument|formula|qa|other\n- section_title: best-effort section/chapter heading (empty string if unknown)\n- concept_hint: a short comma-separated string of {{ target_concept_terms }} important terms/entities/identifiers a user might search for\n\nRules:\n- Output JSON only. No markdown fences. No extra keys.\n- Keep all fields compact. Do not quote large excerpts from the document."
+    "target_examples": 13,
+    "prompt_template": "{{ whole_document }}\n\nHere is the chunk we want to situate within the whole document:\n\n{{ chunk_content }}\n\nReturn a single JSON object with these keys:\n- chunk_context: short context that situates the chunk within the whole document (target ~{{ target_context_tokens }} tokens)\n- chunk_summary: succinct summary of the chunk itself (target ~{{ target_summary_tokens }} tokens)\n- chunk_type: one short label like definition|procedure|example|table|figure|argument|formula|qa|other\n- section_title: best-effort section/chapter heading (empty string if unknown)\n- concept_hint: a short comma-separated string of {{ target_concept_terms }} important terms/entities/identifiers a user might search for\n\nRules:\n- Output JSON only. No markdown fences. No extra keys.\n- Keep all fields compact. Do not quote large excerpts from the document."
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -25,137 +25,431 @@
   "items": [
     {
       "id": "chunk_contextualization-001",
-      "variation": "typo",
-      "tags": [
-        "ingestion",
-        "chunk"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "whole_document": "Full chapter on electricity with Ohm's law and resistivity.",
-        "chunk_content": "Ohm's law states V = IR for metallic conductors at constant temperature.",
+        "whole_document": "NCERT Class 12 Physics Ch.3 Current Electricity. 3.1 Introduction. Electric current is the flow of electric charge through a conductor. 3.2 Electric Current. The current I = dQ/dt; drift velocity and mobility relate microscopic motion to macroscopic current. Ohm's law: V = IR for ohmic conductors at constant temperature. 3.3 Ohm's Law and Resistance. Resistivity ρ = RA/L; temperature dependence of resistance. 3.4 Electrical Energy and Power. P = VI = I²R; heating effect Joule's law. 3.5 Cells in Series and Parallel. EMF, internal resistance, terminal voltage. 3.6 Kirchhoff's Rules. Junction rule ΣI_in = ΣI_out; loop rule ΣΔV = 0. Example 3.1: Finding current in a series circuit. Example 3.2: Wheatstone bridge balance. Exercise 3.1–3.15 on combination of resistors and meter bridge.",
+        "chunk_content": "Ohm's law states that V = IR for metallic conductors when temperature remains constant. Resistivity ρ = RA/L relates material property to geometry.",
         "target_context_tokens": 80,
         "target_summary_tokens": 40,
         "target_concept_terms": 5
       },
       "reference_outputs": {
         "contextualization_json": {
-          "chunk_context": "This chunk is from the Full chapter on electricity with Ohm's l... section on definition.",
-          "chunk_summary": "Ohm's law states V = IR for metallic conductors at constant temperature.",
-          "chunk_type": "definition",
-          "section_title": "Section 1",
-          "concept_hint": "Ohm, resistance, V=IR"
+          "chunk_context": "This section discusses Ohm's law and its implications for electric current in conductors, emphasizing the relationship between voltage, current, and resistance under constant temperature conditions.",
+          "chunk_summary": "Ohm's law defines the relationship V = IR for metallic conductors, with resistivity linking material properties to geometry.",
+          "chunk_type": "formula",
+          "section_title": "Ohm's Law and Resistance",
+          "concept_hint": "Ohm's law, resistivity, voltage, current, resistance"
         }
       },
+      "tags": [
+        "ingestion",
+        "physics",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema"
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
       "id": "chunk_contextualization-002",
-      "variation": "conversational",
-      "tags": [
-        "ingestion",
-        "chunk"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "whole_document": "Photosynthesis chapter.",
-        "chunk_content": "The Calvin cycle occurs in the stroma of chloroplasts.",
+        "whole_document": "NCERT Class 11 Biology Ch.16 Digestion and Absorption. 16.1 Digestive System. Alimentary canal and associated glands. 16.2 Digestion of Food. Carbohydrates: salivary amylase in mouth; pancreatic amylase. Proteins: pepsin in stomach (HCl activates pepsinogen); trypsin in duodenum. Fats: bile emulsification; lipase action. 16.3 Absorption. Villi and microvilli increase surface area; absorption in small intestine. Table 16.1: Enzymes, site of action, and products. Activity 16.1: Testing action of salivary amylase on starch. Exercise questions on disorders of digestion and enzyme specificity.",
+        "chunk_content": "Pepsin is activated in the acidic environment of the stomach; trypsin acts in the alkaline duodenum after pancreatic secretion.",
         "target_context_tokens": 80,
         "target_summary_tokens": 40,
         "target_concept_terms": 5
       },
       "reference_outputs": {
         "contextualization_json": {
-          "chunk_context": "This chunk is from the Photosynthesis chapter.... section on procedure.",
-          "chunk_summary": "The Calvin cycle occurs in the stroma of chloroplasts.",
-          "chunk_type": "procedure",
-          "section_title": "Section 2",
-          "concept_hint": "chloroplast, Calvin"
+          "chunk_context": "This section discusses the digestive enzymes involved in protein digestion, specifically focusing on pepsin and trypsin. It highlights their activation and action in different parts of the digestive system.",
+          "chunk_summary": "Pepsin is activated in the stomach's acidic environment, while trypsin functions in the alkaline duodenum after pancreatic secretion.",
+          "chunk_type": "definition",
+          "section_title": "16.2 Digestion of Food",
+          "concept_hint": "pepsin, trypsin, stomach, duodenum, pancreatic secretion"
         }
       },
+      "tags": [
+        "ingestion",
+        "biology",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema"
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
       "id": "chunk_contextualization-003",
-      "variation": "multi_part",
-      "tags": [
-        "ingestion",
-        "chunk"
-      ],
+      "variation": "conversational",
       "inputs": {
-        "whole_document": "Quadratic equations chapter.",
-        "chunk_content": "Discriminant D = b² - 4ac determines nature of roots.",
+        "whole_document": "NCERT Class 12 Chemistry Ch.4 Chemical Bonding. 4.1 Kossel-Lewis approach. Octet rule and limitations. 4.2 Ionic Bonding. Lattice enthalpy; Born-Haber cycle. 4.3 Covalent Bonding. VSEPR theory predicts geometry from electron pair repulsion. 4.4 Valence Bond Theory. Hybridisation sp, sp², sp³; sigma and pi bonds. 4.5 Molecular Orbital Theory. Bond order; paramagnetic vs diamagnetic. Example 4.1: NH₃ pyramidal geometry. Example 4.2: O₂ MO configuration. Exercise 4.1–4.12 on polarity, dipole moment, and hydrogen bonding.",
+        "chunk_content": "VSEPR theory predicts molecular geometry from repulsion between valence electron pairs; NH₃ has pyramidal shape with a lone pair.",
         "target_context_tokens": 80,
         "target_summary_tokens": 40,
         "target_concept_terms": 5
       },
       "reference_outputs": {
         "contextualization_json": {
-          "chunk_context": "This chunk is from the Quadratic equations chapter.... section on formula.",
-          "chunk_summary": "Discriminant D = b² - 4ac determines nature of roots.",
-          "chunk_type": "formula",
-          "section_title": "Section 3",
-          "concept_hint": "chloroplast, Calvin"
+          "chunk_context": "This section discusses the VSEPR theory, which is part of covalent bonding in chemical bonding. It explains how molecular geometry is determined by the repulsion between electron pairs, providing examples like NH₃.",
+          "chunk_summary": "VSEPR theory explains that molecular geometry arises from electron pair repulsion, exemplified by NH₃'s pyramidal shape due to a lone pair.",
+          "chunk_type": "definition",
+          "section_title": "4.3 Covalent Bonding",
+          "concept_hint": "VSEPR theory, molecular geometry, electron pairs, NH₃, pyramidal shape"
         }
       },
+      "tags": [
+        "ingestion",
+        "chemistry",
+        "conversational",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema"
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
       "id": "chunk_contextualization-004",
-      "variation": "diagram",
-      "tags": [
-        "ingestion",
-        "chunk"
-      ],
+      "variation": "conversational",
       "inputs": {
-        "whole_document": "Human digestion.",
-        "chunk_content": "Table 16.1 lists enzymes: salivary amylase, pepsin, trypsin.",
+        "whole_document": "NCERT Class 12 Mathematics Ch.7 Integrals. 7.1 Integration as inverse of differentiation. Indefinite integral ∫f(x)dx = F(x) + C. 7.2 Methods: substitution, partial fractions, integration by parts. 7.3 Definite integrals. Fundamental theorem: ∫ₐᵇ f(x)dx = F(b) − F(a). 7.4 Area under a curve between x = a and x = b. Example 7.1: ∫ x√(1−x²) dx by substitution. Example 7.2: Area bounded by parabola. Theorem 7.1: Properties of definite integrals. Exercise 7.1–7.20.",
+        "chunk_content": "The definite integral ∫ₐᵇ f(x)dx equals F(b)−F(a) where F is an antiderivative of f, linking area to accumulation.",
         "target_context_tokens": 80,
         "target_summary_tokens": 40,
         "target_concept_terms": 5
       },
       "reference_outputs": {
         "contextualization_json": {
-          "chunk_context": "This chunk is from the Human digestion.... section on table.",
-          "chunk_summary": "Table 16.1 lists enzymes: salivary amylase, pepsin, trypsin.",
-          "chunk_type": "table",
-          "section_title": "Section 4",
-          "concept_hint": "chloroplast, Calvin"
+          "chunk_context": "This section discusses the fundamental theorem of calculus, which connects the concept of definite integrals to the evaluation of antiderivatives. It emphasizes the relationship between area under a curve and accumulation of quantities.",
+          "chunk_summary": "The definite integral ∫ₐᵇ f(x)dx equals F(b)−F(a), linking area to accumulation through antiderivatives.",
+          "chunk_type": "formula",
+          "section_title": "7.3 Definite integrals",
+          "concept_hint": "definite integral, antiderivative, fundamental theorem, area, accumulation"
         }
       },
+      "tags": [
+        "ingestion",
+        "mathematics",
+        "conversational",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema"
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
       ]
     },
     {
-      "id": "chunk_contextualization-005",
-      "variation": "numerical",
-      "tags": [
-        "ingestion",
-        "chunk"
-      ],
+      "id": "chunk_contextualization-007",
+      "variation": "cbse",
       "inputs": {
-        "whole_document": "Ray optics.",
-        "chunk_content": "Figure 9.12: ray diagram for image formation by convex lens.",
+        "whole_document": "NCERT Class 11 Chemistry Ch.7 Equilibrium. 7.1 Equilibrium in physical processes. Solid-liquid, liquid-vapour equilibrium. 7.2 Chemical equilibrium. Kc = [products]/[reactants]; homogeneous and heterogeneous. 7.3 Le Chatelier's principle. Effect of concentration, pressure, temperature. 7.4 Ionic equilibrium. Ka, Kb, Kw; pH scale; buffer solutions. Example 7.1: Calculating Kc from equilibrium concentrations. Exercise 7.1–7.18 on Q vs K and degree of dissociation.",
+        "chunk_content": "Le Chatelier's principle: a system at equilibrium opposes imposed stress by shifting to partially counteract the change in concentration, pressure, or temperature.",
         "target_context_tokens": 80,
         "target_summary_tokens": 40,
         "target_concept_terms": 5
       },
       "reference_outputs": {
         "contextualization_json": {
-          "chunk_context": "This chunk is from the Ray optics.... section on figure.",
-          "chunk_summary": "Figure 9.12: ray diagram for image formation by convex lens.",
-          "chunk_type": "figure",
-          "section_title": "Section 5",
-          "concept_hint": "chloroplast, Calvin"
+          "chunk_context": "This section discusses Le Chatelier's principle, which is crucial for understanding how equilibrium systems respond to changes. It is part of the broader topic of chemical equilibrium, which includes the calculation of equilibrium constants and the effects of various stresses on a system.",
+          "chunk_summary": "Le Chatelier's principle states that a system at equilibrium will shift to counteract changes in concentration, pressure, or temperature.",
+          "chunk_type": "definition",
+          "section_title": "7.3 Le Chatelier's principle",
+          "concept_hint": "equilibrium, stress, concentration, pressure, temperature"
         }
       },
+      "tags": [
+        "ingestion",
+        "chemistry",
+        "cbse",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema"
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-008",
+      "variation": "cbse",
+      "inputs": {
+        "whole_document": "NCERT Class 10 Science Ch.12 Electricity. 12.1 Electric current and circuit. Ammeter, voltmeter, switch. 12.2 Ohm's law V = IR. Resistance R = ρL/A. 12.3 Factors affecting resistance. Series: R = R₁+R₂; parallel: 1/R = 1/R₁+1/R₂. 12.4 Heating effect. H = I²Rt; electric fuse. 12.5 Electric power P = VI. Commercial unit kWh. Activity 12.1: Compare current in series vs parallel. Exercise 12.1–12.10.",
+        "chunk_content": "In a series circuit the same current flows through each resistor; the supply voltage divides as V = V₁ + V₂ across components.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the behavior of electric current in series circuits, highlighting how current remains constant while voltage divides among components. It is part of the broader exploration of electric circuits and their properties.",
+          "chunk_summary": "In a series circuit, the same current flows through each resistor, and the total voltage divides across components.",
+          "chunk_type": "definition",
+          "section_title": "12.3 Factors affecting resistance",
+          "concept_hint": "series circuit, current, voltage, resistors, electric circuit"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "science",
+        "cbse",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-009",
+      "variation": "neet",
+      "inputs": {
+        "whole_document": "NCERT Class 10 Mathematics Ch.4 Quadratic Equations. 4.1 Standard form ax²+bx+c=0. Roots by factorisation and quadratic formula. 4.2 Discriminant D = b²−4ac determines nature of roots. 4.3 Sum and product of roots: −b/a and c/a. 4.4 Word problems on area, speed, and consecutive integers. Example 4.1: Finding roots when D > 0. Example 4.2: No real roots when D < 0. Exercise 4.1–4.4.",
+        "chunk_content": "For ax²+bx+c=0, discriminant D=b²−4ac: D>0 two distinct real roots, D=0 equal roots, D<0 no real roots.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the standard form of quadratic equations and the significance of the discriminant in determining the nature of the roots. It provides foundational knowledge for solving quadratic equations through various methods.",
+          "chunk_summary": "The discriminant D=b²−4ac indicates the nature of roots: D>0 for two distinct real roots, D=0 for equal roots, and D<0 for no real roots.",
+          "chunk_type": "definition",
+          "section_title": "Quadratic Equations",
+          "concept_hint": "quadratic equation, discriminant, roots, real roots, factorization"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "mathematics",
+        "neet",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-010",
+      "variation": "jee",
+      "inputs": {
+        "whole_document": "NCERT Class 11 Biology Ch.13 Photosynthesis. 13.1 Photosynthesis as anabolic process. 6CO₂+6H₂O → C₆H₁₂O₆+6O₂. 13.2 Light reaction in grana: photolysis, ATP, NADPH. 13.3 Calvin cycle in stroma; RuBisCO; C3 pathway. 13.4 C4 pathway in maize and sugarcane; Kranz anatomy. Figure 13.4: Z-scheme of light reaction. Table 13.1: Cyclic vs non-cyclic photophosphorylation. Exercise 13.1–13.8.",
+        "chunk_content": "The Calvin cycle in the stroma fixes CO₂ using ATP and NADPH produced by the light-dependent reactions in the grana.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "The chapter discusses photosynthesis, detailing the light reactions occurring in the grana and the subsequent Calvin cycle in the stroma, where CO₂ is fixed into glucose using energy carriers.",
+          "chunk_summary": "The Calvin cycle utilizes ATP and NADPH from light reactions to fix CO₂ into glucose.",
+          "chunk_type": "procedure",
+          "section_title": "Calvin cycle in stroma",
+          "concept_hint": "Calvin cycle, CO₂ fixation, ATP, NADPH, light reactions"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "biology",
+        "jee",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-011",
+      "variation": "multi_part",
+      "inputs": {
+        "whole_document": "NCERT Class 12 Physics Ch.9 Ray Optics. 9.1 Reflection; mirror formula 1/f = 1/v + 1/u. 9.2 Refraction; Snell's law n₁ sin i = n₂ sin r. 9.3 Total internal reflection; critical angle. 9.4 Lens formula 1/f = 1/v − 1/u; magnification m = v/u. 9.5 Prism deviation; dispersive power. Figure 9.12: Ray diagram for convex lens. Example 9.3: Image position. Exercise 9.1–9.15.",
+        "chunk_content": "For a convex lens with real object, object distance u is negative; image distance v is positive for a real image on the opposite side.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "This section covers the principles of ray optics, including reflection, refraction, and lens behavior. It discusses the mirror and lens formulas, critical angles, and the behavior of light through prisms, providing foundational knowledge for understanding optical systems.",
+          "chunk_summary": "For a convex lens, the object distance (u) is negative, while the image distance (v) is positive for real images formed on the opposite side.",
+          "chunk_type": "definition",
+          "section_title": "Ray Optics",
+          "concept_hint": "convex lens, object distance, image distance, real image, optics"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "physics",
+        "multi_part",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-012",
+      "variation": "conceptual",
+      "inputs": {
+        "whole_document": "NCERT Class 12 Chemistry Ch.3 Electrochemistry. 3.1 Electrochemical cells. Anode oxidation; cathode reduction. 3.2 Standard electrode potential E°. Cell EMF E°cell = E°cathode − E°anode. 3.3 Nernst equation links EMF to concentration. 3.4 Conductance and molar conductivity; Kohlrausch law. 3.5 Batteries and fuel cells. Corrosion as electrochemical process. Example 3.1: Calculate Ecell at non-standard concentrations. Exercise 3.1–3.12.",
+        "chunk_content": "At equilibrium of a galvanic cell, the Nernst equation E = E° − (0.0591/n)log Q relates EMF to ion concentrations at 298 K.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses electrochemical cells, focusing on the relationship between cell EMF and ion concentrations through the Nernst equation, particularly at equilibrium in galvanic cells.",
+          "chunk_summary": "The Nernst equation relates EMF to ion concentrations at equilibrium in a galvanic cell.",
+          "chunk_type": "formula",
+          "section_title": "3.3 Nernst equation links EMF to concentration",
+          "concept_hint": "Nernst equation, EMF, ion concentrations, galvanic cell, equilibrium"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "chemistry",
+        "conceptual",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-013",
+      "variation": "case_study",
+      "inputs": {
+        "whole_document": "NCERT Class 12 Economics Ch.2 National Income. 2.1 Circular flow of income. Factor payments and expenditure. 2.2 GDP at market prices; GNP = GDP + NFIA. 2.3 NDP and NNP; depreciation. 2.4 Real vs nominal GDP; GDP deflator. 2.5 Methods of measuring national income: product, income, expenditure. Table 2.1: Relationship between macro aggregates. Exercise 2.1–2.8.",
+        "chunk_content": "GNP equals GDP plus Net Factor Income from Abroad (NFIA), capturing income earned by residents regardless of geographic production.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the components of national income, focusing on the relationship between Gross Domestic Product (GDP) and Gross National Product (GNP). It highlights how GNP accounts for income from abroad, providing a broader view of economic activity.",
+          "chunk_summary": "GNP is defined as GDP plus Net Factor Income from Abroad (NFIA), reflecting income earned by residents from foreign sources.",
+          "chunk_type": "definition",
+          "section_title": "2.2 GDP at market prices; GNP = GDP + NFIA",
+          "concept_hint": "GNP, GDP, NFIA, national income, economic activity"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "economics",
+        "case_study",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-014",
+      "variation": "ncert_strict",
+      "inputs": {
+        "whole_document": "NCERT Class 10 Civics Ch.3 Gender Religion and Caste. 3.1 Gender and politics. Public/private division; women's political representation. 3.2 Religion communalism vs secularism in India. 3.3 Caste and politics. Reservation policy; caste-based mobilisation. Case study: Women's reservation bill debate. Exercise: Analyse how social divisions affect electoral outcomes.",
+        "chunk_content": "Indian secularism implies the state has no official religion and treats all religions equally in public policy while allowing religious freedom.",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses the principles of Indian secularism within the broader themes of gender, religion, and caste in politics. It highlights the state's role in ensuring equal treatment of all religions while maintaining religious freedom.",
+          "chunk_summary": "Indian secularism ensures no official religion, treating all religions equally in public policy.",
+          "chunk_type": "definition",
+          "section_title": "Religion communalism vs secularism in India",
+          "concept_hint": "Indian secularism, religious freedom, public policy, equality, state neutrality"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "civics",
+        "ncert_strict",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "chunk_contextualization-015",
+      "variation": "proof",
+      "inputs": {
+        "whole_document": "NCERT Class 11 Mathematics Ch.7 Permutations and Combinations. 7.1 Fundamental principle of counting. Multiplication rule. 7.2 Permutations nPr = n!/(n−r)!. Circular permutations. 7.3 Combinations nCr = n!/[(n−r)!r!]. 7.4 Applications to binomial coefficients and probability. Example 7.1: Arrangements with repetition. Example 7.2: Selection problems. Exercise 7.1–7.10.",
+        "chunk_content": "The number of ways to choose r objects from n distinct objects without order is nCr = n!/[(n−r)!r!].",
+        "target_context_tokens": 80,
+        "target_summary_tokens": 40,
+        "target_concept_terms": 5
+      },
+      "reference_outputs": {
+        "contextualization_json": {
+          "chunk_context": "This section discusses combinations, specifically focusing on the selection of objects from a larger set. It highlights the formula for calculating combinations, which is essential for understanding how to choose items without regard to order.",
+          "chunk_summary": "The formula for choosing r objects from n distinct objects without order is given as nCr = n!/[(n−r)!r!].",
+          "chunk_type": "formula",
+          "section_title": "7.3 Combinations",
+          "concept_hint": "combinations, nCr, distinct objects, selection, formula"
+        }
+      },
+      "tags": [
+        "ingestion",
+        "mathematics",
+        "proof",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "input_keys_complete",
+        "chunk_type_valid",
+        "grounding",
+        "compactness",
+        "production_llm_gold"
       ]
     }
   ]

@@ -1,0 +1,61 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 1125,
+  "experiments": [
+    {
+      "agent_id": "source_question_extraction",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-source_question_extraction-v1-openai-gpt-5-4-mini-6696282f",
+      "measured_traces": 225,
+      "estimated_traces": 225,
+      "charged_traces": 225,
+      "at": "2026-07-01T03:59:31.511729+00:00"
+    },
+    {
+      "agent_id": "source_question_extraction",
+      "prompt_version": "v1",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-source_question_extraction-v1-openai-gpt-5-mini-eea38c33",
+      "measured_traces": 225,
+      "estimated_traces": 225,
+      "charged_traces": 225,
+      "at": "2026-07-01T04:02:19.456588+00:00"
+    },
+    {
+      "agent_id": "source_question_extraction",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-source_question_extraction-v2-openai-gpt-5-4-mini-46854570",
+      "measured_traces": 225,
+      "estimated_traces": 225,
+      "charged_traces": 225,
+      "at": "2026-07-01T04:03:18.207625+00:00"
+    },
+    {
+      "agent_id": "source_question_extraction",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-source_question_extraction-v2-openai-gpt-5-mini-910ca2c2",
+      "measured_traces": 225,
+      "estimated_traces": 225,
+      "charged_traces": 225,
+      "at": "2026-07-01T04:05:50.017733+00:00"
+    },
+    {
+      "agent_id": "source_question_extraction",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-source_question_extraction-v2-openai-gpt-5-mini-6115b320",
+      "measured_traces": 225,
+      "estimated_traces": 225,
+      "charged_traces": 225,
+      "at": "2026-07-01T04:05:56.078316+00:00"
+    }
+  ],
+  "workspace_tenant": "pscmrmindssprint2k25_15d476d5",
+  "note": "Fresh ledger after switching workspace (pscmrmindssprint2k25_15d476d5)",
+  "updated_at": "2026-07-01T04:05:56.079323+00:00"
+}

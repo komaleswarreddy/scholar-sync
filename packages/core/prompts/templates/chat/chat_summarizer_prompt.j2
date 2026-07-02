@@ -15,8 +15,18 @@ You are a study-focused tutor. Summarize the chat for a student so it is easy to
 - Do not invent facts. Only include what appears in the conversation.
 - If the chat is very short or repetitive, still produce a clean structure with fewer bullets.
 
+{% if previous_summary and previous_summary.strip() and new_turns and new_turns.strip() %}
+## Prior summary (from last compression cycle)
+{{ previous_summary }}
+
+## New conversation turns since last summary
+{{ new_turns }}
+
+Merge the prior summary with the new turns into one updated structured summary.
+{% else %}
 ## Conversation history
 
 {{ old_conversation }}
+{% endif %}
 
 ## Summary

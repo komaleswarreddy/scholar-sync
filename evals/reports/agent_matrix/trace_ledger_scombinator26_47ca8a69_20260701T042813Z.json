@@ -1,0 +1,71 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 552,
+  "experiments": [
+    {
+      "agent_id": "diagram_label_ocr",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-diagram_label_ocr-v2-gemini-gemini-2-5-flash-9511c2ca",
+      "measured_traces": 92,
+      "estimated_traces": 92,
+      "charged_traces": 92,
+      "at": "2026-07-01T04:24:28.234698+00:00"
+    },
+    {
+      "agent_id": "diagram_label_ocr",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-diagram_label_ocr-v2-openai-gpt-5-mini-5a4231fa",
+      "measured_traces": 92,
+      "estimated_traces": 92,
+      "charged_traces": 92,
+      "at": "2026-07-01T04:25:51.625560+00:00"
+    },
+    {
+      "agent_id": "diagram_label_ocr",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash-lite",
+      "experiment_name": "ae-diagram_label_ocr-v2-gemini-gemini-2-5-flash-lite-e528d1ff",
+      "measured_traces": 92,
+      "estimated_traces": 92,
+      "charged_traces": 92,
+      "at": "2026-07-01T04:26:53.831972+00:00"
+    },
+    {
+      "agent_id": "diagram_label_ocr",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash-lite",
+      "experiment_name": "ae-diagram_label_ocr-v2-gemini-gemini-2-5-flash-lite-f8846c21",
+      "measured_traces": 92,
+      "estimated_traces": 92,
+      "charged_traces": 92,
+      "at": "2026-07-01T04:27:19.451584+00:00"
+    },
+    {
+      "agent_id": "diagram_label_ocr",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-diagram_label_ocr-v3-gemini-gemini-2-5-flash-2e8175a3",
+      "measured_traces": 92,
+      "estimated_traces": 92,
+      "charged_traces": 92,
+      "at": "2026-07-01T04:27:20.577161+00:00"
+    },
+    {
+      "agent_id": "diagram_label_ocr",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-diagram_label_ocr-v3-gemini-gemini-2-5-flash-f067224c",
+      "measured_traces": 92,
+      "estimated_traces": 92,
+      "charged_traces": 92,
+      "at": "2026-07-01T04:28:07.255267+00:00"
+    }
+  ],
+  "workspace_tenant": "pscmrmindssprint2k25_15d476d5",
+  "note": "Fresh ledger after workspace switch (pscmrmindssprint2k25_15d476d5)",
+  "updated_at": "2026-07-01T04:28:07.256296+00:00"
+}

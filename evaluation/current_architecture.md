@@ -35,7 +35,6 @@ Generated as the baseline for the Agentic RAG Evaluation & Optimization framewor
 | 28 | `chunk_contextualization` | Source | 3 | `rag/chunk_contextualization.j2` | `chunk_contextualization` |
 | 29 | `whole_file_map_summarizer` | Source | 2 | `rag/whole_file_map_prompt.j2` | `chat` |
 | 30 | `whole_file_reduce` | Source | 2 | `rag/whole_file_reduce_prompt.j2` | `chat` |
-| 31 | `whole_file_map_template` | Source | 3 | `rag/whole_file_map_prompt.j2` | `chat` |
 | 32 | `image_ocr` | Source | 2 | inline vision prompt | `source_image_ocr` |
 | 33 | `diagram_label_ocr` | Source | 2 | inline vision prompt | `source_image_ocr` |
 | 34 | `refusal_templates` | Safety | 3 | `refusal_templates.py` | — |

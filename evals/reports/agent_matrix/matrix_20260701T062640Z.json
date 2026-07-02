@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-07-01T06:26:23.253762+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "agents": [
+    "query_rewriter"
+  ],
+  "prompt_versions": [
+    "v1"
+  ],
+  "experiments": [
+    {
+      "agent_id": "query_rewriter",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5-nano",
+      "status": "error",
+      "error": "Dataset nbm-prompt-query_rewriter not found"
+    }
+  ],
+  "dry_run": false,
+  "summary": {
+    "total_experiments": 1,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

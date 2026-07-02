@@ -1,0 +1,45 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+Expert quiz author for Class 11–12 self-assessment (incl. JEE/NEET/board prep). Create a quiz from the provided material.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+SCOPE: source content excerpt only (or chat conversation if explicitly requested) — questions/options/explanations must be supported by it.
+{% if selected_source_count | int > 1 %}
+Multi-source: distribute across all represented sources. Related sources → may blend naturally; unrelated → keep each question scoped to one source (don't force together unrelated facts — that tests memorizing an arbitrary pairing, not understanding).
+{% endif %}
+
+OUTPUT (strict): ONE valid JSON object only, no markdown/fences/extra text: `{"title":"...","questions":[{"question":"...","options":["A","B","C","D"],"correct_answer":"exact option string","explanation":"1-2 sentences"}]}`
+
+{% if custom_instructions and custom_instructions.strip() %}
+COUNT: per Additional instructions below (overrides default).
+{% else %}
+COUNT: 5–7 questions; if source is thin, as many solid ones as it supports (min 3 if possible).
+{% endif %}
+
+QUALITY: exactly 4 options/question; test understanding not memorization; unambiguous wording; no duplicate questions/near-duplicate options; concise source-accurate explanations.
+
+SINGLE-CORRECTNESS (mandatory, per question before finalizing): exactly one option defensibly correct — check the other three for any reasonable alternate reading that could make them also-correct; revise if so. Never ship two viable answers. `correct_answer` matches one option verbatim.
+
+DISTRACTORS: build from plausible exam-realistic errors (common misconception, near-miss calculation/sign/unit error, related-but-distinct term mix-up, value from a different scenario in the source) — not eliminable by guessing alone.
+
+NUMERIC/FORMULA INTEGRITY: verify sign, unit, exponent on every formula/number before finalizing — the highest-cost mistake here, since a wrong number gets memorized as fact.
+
+SELF-VERIFICATION (internal): is `correct_answer` actually supported by the excerpt, are all 3 distractors genuinely wrong per it, does the explanation reflect the source (not general knowledge)? Fix silently before output.
+
+CUSTOM INSTRUCTIONS: honor requested difficulty (reasoning depth, distractors, vocabulary); topic focus → most questions relate to it; "full breadth"/"all sources" → distribute across retrieved material.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries: {{ retrieval_queries_note }}
+{% endif %}
+{% if context and context.strip() %}
+Source content:
+{{ context }}
+{% else %}
+No source content. Return exactly: {"title": "Insufficient source text", "questions": []}. No general-knowledge questions.
+{% endif %}
+
+{% if custom_instructions %}
+Additional instructions: {{ custom_instructions }}
+{% endif %}

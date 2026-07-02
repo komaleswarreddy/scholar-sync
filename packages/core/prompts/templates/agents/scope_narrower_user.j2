@@ -1,5 +1,10 @@
-Analyze this query for information retrieval.{{ conversation_section }}
+Analyze this query for information retrieval.{{ conversation_section }}{{ scope_section }}
 Query: {{ query }}
 
 Extract key_terms (3-7), a focused_query string for retrieval (resolve references using conversation),
 and max_chunks (3-15) suggested pool size.
+If a retrieval scope hint is given, let it guide focused_query and max_chunks:
+- whole_document → broad focused_query, larger max_chunks (toward 15).
+- section → focus on the named section/topic; mid max_chunks.
+- fact → tight focused_query for the single fact; small max_chunks (toward 3).
+The query's own wording always overrides the hint when they conflict.

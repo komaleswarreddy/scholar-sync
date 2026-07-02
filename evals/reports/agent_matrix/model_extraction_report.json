@@ -1,0 +1,284 @@
+{
+  "source": "C:\\Users\\KomaleswarReddy\\Desktop\\S_COM\\NotebookLM\\Reference dataset\\Model Selection.xlsx",
+  "sheet": "All Different LLM Responses",
+  "row_filter": "LLM Used == GPT",
+  "agents": {
+    "query_rewriter": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "deepseek-v4-flash",
+        "provider": "deepseek",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "query_decomposer": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "scope_narrower": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      },
+      {
+        "model": "deepseek-v4-flash",
+        "provider": "deepseek",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "chat_policy_block": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true,
+        "fallback": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true,
+        "fallback": true
+      }
+    ],
+    "direct_chat": [
+      {
+        "model": "gpt-5.4-nano",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      },
+      {
+        "model": "deepseek-chat",
+        "provider": "deepseek",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "rag_chat_response_generator": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "chat_summarizer": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "hallucination_guard_retry": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "studio_system_json": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "studio_quiz": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "studio_flashcards": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "studio_mind_map": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "studio_slide_deck": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ],
+    "studio_fallback_legacy": [
+      {
+        "model": "gpt-5.4-nano",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": true,
+        "configured": true
+      },
+      {
+        "model": "deepseek-chat",
+        "provider": "deepseek",
+        "skip_runtime": true,
+        "configured": true
+      }
+    ]
+  },
+  "runtime_skip": "gemini + deepseek + unknown (configured but skipped at runtime)"
+}

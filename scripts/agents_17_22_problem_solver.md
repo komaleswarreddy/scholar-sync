@@ -1986,6 +1986,8 @@ NCERT context:
 {{ ncert_context }}
 {% endif %}
 
+{% include 'problem_solver/math_formatting_contract.j2' %}
+
 Return JSON only:
 {
   "title": "string",
@@ -4764,135 +4766,7 @@ Never skip sections.
 
 ---
 
-# MATHEMATICAL FORMATTING CONTRACT
-
-All mathematical content inside `bodyMarkdown` must strictly follow these rules.
-
-## Inline Mathematics
-
-Use: $F = ma$
-
-Never use: (...)
-
-## Display Mathematics
-
-Use:
-\[
-F = ma
-\]
-
-Never use: $$F = ma$$
-
-Never use: \begin{equation}...\end{equation}
-
-## Multiplication
-
-Always insert spaces around multiplication.
-
-Correct: 72 \times 1000, a \times b
-
-Incorrect: 72\times1000
-
-## Fractions
-
-Prefer \frac{a}{b}. Avoid a/b except for very simple inline references.
-
-## Powers
-
-Correct: x^2, x^{10}, 10^{-3}. Never: x**2
-
-## Roots
-
-Correct: \sqrt{x}, \sqrt{a+b}. Never: sqrt(x)
-
-## Subscripts
-
-Correct: V_{max}, I_{rms}, x_1. Never: Vmax, Irms when subscripts are required.
-
-## Units
-
-Always wrap units using \text{} — e.g. 20\text{ m}, 72\text{ km/h}, 9.8\text{ m/s}^2. Never: 20m, 72km/h
-
-## Scientific Notation
-
-Correct: 3 \times 10^8, 6.02 \times 10^{23}. Never: 3e8, 6.02e23
-
-## Percentages
-
-Inside equations: 25\%
-
-## Angles
-
-Use: 30^\circ, 45^\circ. Never: 30° inside equations.
-
-## Trigonometric Functions
-
-Use: \sin \theta, \cos \theta, \tan \theta. Never: sinθ, cosθ
-
-## Logarithms
-
-Use: \log x, \ln x. Never: log(x) unless discussing programming syntax.
-
-## Vectors
-
-Use: \vec{A}, \vec{v}. Maintain consistency throughout.
-
-## Dot and Cross Products
-
-Use: \vec{A} \cdot \vec{B}, \vec{A} \times \vec{B}
-
-## Matrices
-
-Use \begin{bmatrix}...\end{bmatrix} only when required.
-
-## Inequalities
-
-Use: x \ge 5, x \le 10. Never: x>=5
-
-## Approximation
-
-Use: \approx. Never: ~
-
-## Chemical Formulae
-
-Keep standalone chemical formulae outside math mode when possible (e.g. H₂SO₄, NaCl, CH₄).
-
-## Chemical Equations
-
-Use display format:
-\[
-2H_2 + O_2 \rightarrow 2H_2O
-\]
-
-## Greek Symbols
-
-Use: \lambda, \rho, \mu, \omega, \theta, \phi. Never spell them out inside equations.
-
-## Significant Figures
-
-Preserve precision exactly as given (e.g. 3.00\text{ m} must not become 3\text{ m}).
-
-## Final Answers
-
-Every numerical answer must contain units whenever applicable.
-
-Correct: v = 20\text{ m/s}. Incorrect: v = 20
-
-## Multi-Step Derivations
-
-Prefer separate display equations. Avoid large unreadable single-line equations.
-
-## Tables
-
-Do NOT place equations inside markdown tables.
-
-## JSON Safety
-
-All backslashes must be escaped properly in JSON strings.
-
-Correct: "bodyMarkdown": "\\[F = ma\\]"
-
----
+{% include 'problem_solver/math_formatting_contract.j2' %}
 
 # REASONING RULES
 
@@ -7538,6 +7412,7 @@ NCERT Class 12 Chemistry Ch.5: Coordination number = donor atoms bound to centra
 * **reveal_level** — `revealLevel: partial`; no `finalAnswer` in gold.
 * **ncert_alignment** — Mental model cites correct chapter principle.
 * **typical_student_trap** — Common trap is problem-specific, not a generic placeholder.
+* **latex_format** — Multiplication spaced; units in `\text{}`; JSON backslashes escaped in `bodyMarkdown`.
 
 **LangSmith configuration**
 
@@ -7560,6 +7435,8 @@ NCERT context:
 
 Identify what students typically miss on this problem type — without assuming any specific student work.
 Frame "The Missing Idea" as the conceptual unlock and "Where Most Students Get Stuck" as the common trap or wrong path for this problem (generic, not tied to one attempt).
+
+{% include 'problem_solver/math_formatting_contract.j2' %}
 
 Return JSON only:
 {
@@ -9902,6 +9779,7 @@ NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative rep
 * **checkpoint_quality** — Checkpoint MCQ has four plausible options; A is concept-correct.
 * **interaction_branch** — Gold shape matches `interaction_count` branch in template.
 * **cumulative_context** — Counts 1–2 include decode, hints, feedback, and checkpointHistory with studentChoice/selectedLabel.
+* **latex_format** — Multiplication spaced; units in `\text{}`; JSON backslashes escaped in `bodyMarkdown`.
 
 **LangSmith configuration**
 
@@ -9931,8 +9809,7 @@ Previous coach response from the prior turn (preserve checkpoint 1 prompt/option
 {{ prior_response }}
 {% endif %}
 
-Use `\[ ... \]` for display equations and `$...$` for inline math inside `bodyMarkdown`.
-Put spaces around multiplication: `72 \\times 1000`. Wrap units in `\\text{}`, e.g. `\\text{ km/h}` and `\\text{ m/s}^2`.
+{% include 'problem_solver/math_formatting_contract.j2' %}
 
 {% if interaction_count == 0 %}
 Return JSON with initial hints and checkpoint 1 MCQ (do NOT give final answer):
@@ -13320,6 +13197,7 @@ A
 * **action_compliance** — Title and body reflect the requested `action` slug.
 * **context_retention** — References original problem stem and prior `solving_mode`.
 * **reveal_level** — `hint` vs `full` matches action semantics.
+* **latex_format** — Multiplication spaced; units in `\text{}`; JSON backslashes escaped in `bodyMarkdown`.
 
 **LangSmith configuration**
 
@@ -13345,8 +13223,7 @@ NCERT context:
 {{ ncert_context }}
 {% endif %}
 
-Use `\[ ... \]` for display equations and `$...$` for inline math inside `bodyMarkdown`.
-Put spaces around multiplication: `72 \\times 1000`. Wrap units in `\\text{}`.
+{% include 'problem_solver/math_formatting_contract.j2' %}
 
 Return JSON only:
 {

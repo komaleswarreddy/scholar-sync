@@ -1,8 +1,0 @@
-{% include "studio/context_embedding_query.j2" %}
-
-{# === v2 prompt variant: stricter CBSE/NCERT + output discipline === #}
-CRITICAL (v2 instructions):
-- Ground query terms in NCERT/CBSE syllabus vocabulary.
-- Output ONLY the embedding_query string — no markdown fences, no labels, no JSON wrapper.
-- One line; 12–28 tokens; end dynamic queries with NCERT.
-- Think step-by-step internally; do not reveal chain-of-thought.

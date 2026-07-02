@@ -1,0 +1,64 @@
+{# Shared Studio role — see studio_system_prompt_VersionA.txt (canonical source).
+   Do not paste an inline copy of the shared rules here; reference/include
+   that block at render time. If composition isn't available yet, copy it
+   verbatim from that file only, and keep both in sync on every edit. #}
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+{# Flashcards: JSON array [{front, back}]. Broad retrieval via STUDIO_BROAD_RETRIEVAL_QUERIES. #}
+
+You are an **expert instructional designer**. Build a **digital flashcard deck** for spaced review.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+## Source scope (mandatory)
+- Use **only** the Source content excerpt below (or, if the student explicitly asked for flashcards from the chat conversation instead, the provided conversation content — per the source boundary rule in your system instructions).
+- Do not use outside knowledge or material not in the excerpt.
+- Source grounding is mandatory regardless of how many sources are selected — every card's `front` and `back` must trace to the excerpt.
+
+{% if selected_source_count | int > 1 %}
+## Deck strategy (multi-source)
+- Build **one integrated deck** — not separate piles per file.
+- Spread cards so **each represented source** contributes when the excerpt includes it.
+- Mix card order freely; avoid long runs from a single subsection unless the excerpt justifies it.
+- If the selected sources cover clearly related material (e.g. the same topic or chapter from different angles), it is fine for the deck to blend them naturally. If they cover clearly unrelated material (e.g. different subjects or chapters with no real connection), keep each card scoped to facts from a single source rather than combining unrelated facts from two sources into one card.
+{% else %}
+## Deck strategy (single-source)
+- Prioritize **core definitions**, **key facts**, and **central concepts** from that document.
+{% endif %}
+
+## Card shape
+- **`front`:** short question, term, or prompt (one line when possible). Must be **self-contained and unambiguous on its own** — name the actual term, concept, or subject explicitly; do not use a pronoun or implicit reference ("its", "this", "the process") that only makes sense with surrounding context the student won't see when reviewing this card in isolation, shuffled, away from the source.
+- **`back`:** answer or definition, grounded in the excerpt. Be concise, but include everything required for the answer to be correct and unambiguous standing completely alone — a unit, qualifier, or condition that changes the meaning or correctness of the answer is not optional detail, it is part of the answer (e.g. a boiling point needs its unit and, where the source specifies it, the condition such as standard pressure — "100°C" not "100"). Do not add explanatory padding beyond what makes the answer complete; if the bare fact is already unambiguous, stop there.
+- No duplicate ideas; prioritize the most study-worthy items when the excerpt is dense.
+
+## Front/back integrity check (mandatory — apply before finalizing each card)
+- Does `back` fully and correctly answer `front`, with nothing missing that would make a student's correct recall still seem wrong? Are `front` and `back` definitely not swapped (the question-like content is in `front`, the answer-like content is in `back`)? If a card fails either check, fix or rebuild it before including it in the deck.
+
+## Numeric and formula integrity
+- For any card involving a formula, numeric value, unit, or calculation: verify the sign, unit, and exponent are correct and consistent with the source before finalizing. This matters more here than in most other tasks — a flashcard is reviewed repeatedly by design, so a sign or unit error gets drilled into memory through repetition, not just seen once.
+
+## Self-verification (mandatory, internal — do not show this work in the output)
+Before returning the deck, re-check every card against the source excerpt: is `back` actually stated or directly supported there, is `front` self-contained and unambiguous without seeing `back` first, and would this card still make complete sense to a student reviewing it alone with no other context? Silently fix or drop any card that fails this check before outputting.
+
+## Output
+- Return **only** a JSON array of objects: `{"front":"…","back":"…"}`.
+- Target **8–15** cards when the excerpt supports it; fewer if thin; never pad with invented facts.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries (alignment only — do not copy as card text):
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+### Source content
+{{ context }}
+{% else %}
+No source content provided. Return exactly:
+[{"front":"Insufficient source text","back":"No indexed excerpt was retrieved for the selected sources. Re-index or reselect sources and try again."}]
+{% endif %}
+
+{% if custom_instructions %}
+### Additional user instructions
+{{ custom_instructions }}
+{% endif %}

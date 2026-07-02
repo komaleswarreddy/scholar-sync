@@ -1,0 +1,150 @@
+{
+  "generated_at": "2026-07-01T12:29:23.168746+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "mode": "stepwise",
+  "harness": "agent_eval",
+  "note": "intent_classifier uses evals.intent_classifier_eval (unchanged)",
+  "experiments": [
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v1-openai-gpt-5.4-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_quiz-v1-openai-gpt-5-4-mini-d874876e"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v1-gemini-gemini-2-5-flash",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "elapsed_seconds": 85.81,
+      "experiment_name": "ae-studio_quiz-v1-gemini-gemini-2-5-flash-791e093f",
+      "langsmith_url": "https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 176,
+      "traces_agent": 25,
+      "traces_evaluator": 151,
+      "traces_estimated": 176,
+      "traces_used_month": 176,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4574
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v1-openai-gpt-5-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 188.23,
+      "experiment_name": "ae-studio_quiz-v1-openai-gpt-5-mini-84f53c1e",
+      "langsmith_url": "https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 176,
+      "traces_agent": 25,
+      "traces_evaluator": 151,
+      "traces_estimated": 176,
+      "traces_used_month": 176,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4574
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v2-openai-gpt-5.4-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_quiz-v2-openai-gpt-5-4-mini-cccc7796"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v2-gemini-gemini-2-5-flash",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "elapsed_seconds": 80.24,
+      "experiment_name": "ae-studio_quiz-v2-gemini-gemini-2-5-flash-7e6401a3",
+      "langsmith_url": "https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 176,
+      "traces_agent": 25,
+      "traces_evaluator": 151,
+      "traces_estimated": 176,
+      "traces_used_month": 352,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4398
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v2-openai-gpt-5-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 161.31,
+      "experiment_name": "ae-studio_quiz-v2-openai-gpt-5-mini-863176cb",
+      "langsmith_url": "https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 176,
+      "traces_agent": 25,
+      "traces_evaluator": 151,
+      "traces_estimated": 176,
+      "traces_used_month": 176,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4574
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v3-openai-gpt-5.4-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-studio_quiz-v3-openai-gpt-5-4-mini-71da5646"
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v3-gemini-gemini-2-5-flash",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "elapsed_seconds": 71.4,
+      "experiment_name": "ae-studio_quiz-v3-gemini-gemini-2-5-flash-52935d71",
+      "langsmith_url": "https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 176,
+      "traces_agent": 25,
+      "traces_evaluator": 151,
+      "traces_estimated": 176,
+      "traces_used_month": 176,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4574
+    },
+    {
+      "agent_id": "studio_quiz",
+      "experiment_prefix": "ae-studio_quiz-v3-openai-gpt-5-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 164.34,
+      "experiment_name": "ae-studio_quiz-v3-openai-gpt-5-mini-905a1dc3",
+      "langsmith_url": "https://smith.langchain.com/o/67272628-c819-44db-bbda-e500db0d6982/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 176,
+      "traces_agent": 25,
+      "traces_evaluator": 151,
+      "traces_estimated": 176,
+      "traces_used_month": 176,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4574
+    }
+  ],
+  "winners_by_agent": {
+    "studio_quiz": {
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "ship_recommendation": null,
+      "severity_score": null,
+      "experiment_name": "ae-studio_quiz-v3-gemini-gemini-2-5-flash-52935d71"
+    }
+  },
+  "summary": {
+    "total_experiments": 9,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

@@ -1,0 +1,52 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+You are an **expert instructional designer**. Build a **digital flashcard deck** for spaced review.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+## Source scope (mandatory)
+Use ONLY the Source content excerpt below (or, if explicitly requested, the chat conversation — per your system instructions). No outside knowledge. Source grounding is mandatory regardless of source count — every card must trace to the excerpt.
+
+{% if selected_source_count | int > 1 %}
+## Deck strategy (multi-source)
+Build one integrated deck, not separate piles per file. Spread cards so each represented source contributes when included. Mix card order freely; avoid long runs from one subsection unless the excerpt justifies it. If sources are clearly related, blend naturally; if clearly unrelated, keep each card scoped to a single source rather than combining unrelated facts into one card.
+{% else %}
+## Deck strategy (single-source)
+Prioritize core definitions, key facts, and central concepts from that document.
+{% endif %}
+
+## Card shape
+**`front`:** short, self-contained question/term/prompt (one line when possible) — name the actual term or subject explicitly; no pronoun or implicit reference ("its," "this," "the process") that only makes sense with context the student won't see when reviewing the card shuffled, in isolation.
+**`back`:** concise but complete — include any unit, qualifier, or condition that's necessary for the answer to be correct standing alone (e.g. "100°C" not "100" for a boiling point), but don't pad beyond what completeness requires.
+No duplicate ideas; prioritize the most study-worthy items when the excerpt is dense.
+
+## Front/back integrity check (mandatory)
+Before finalizing each card: does `back` fully and correctly answer `front` with nothing missing? Are front/back definitely not swapped? Fix or rebuild any card that fails.
+
+## Numeric and formula integrity
+Verify sign, unit, and exponent on any formula/number before finalizing — flashcards are reviewed repeatedly, so an error here is drilled into memory through repetition, not just seen once.
+
+## Self-verification (internal, do not show)
+Before returning the deck, re-check every card: is `back` actually supported by the excerpt, is `front` self-contained, would this card make complete sense reviewed alone with no other context? Fix or drop any card that fails.
+
+## Output
+Return ONLY a JSON array: `{"front":"…","back":"…"}`. Target **8–15** cards when the excerpt supports it; fewer if thin; never pad with invented facts.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries (alignment only — do not copy as card text):
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+### Source content
+{{ context }}
+{% else %}
+No source content provided. Return exactly:
+[{"front":"Insufficient source text","back":"No indexed excerpt was retrieved for the selected sources. Re-index or reselect sources and try again."}]
+{% endif %}
+
+{% if custom_instructions %}
+### Additional user instructions
+{{ custom_instructions }}
+{% endif %}

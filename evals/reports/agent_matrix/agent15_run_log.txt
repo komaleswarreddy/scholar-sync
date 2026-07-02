@@ -1,0 +1,133 @@
+[GEMINI] healthy: gemini-2.5-flash
+========================================================================
+[1/9] agent=whole_file_reduce prompt=v1 model=gpt-5.4 (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=1266/5000 margin=250 remaining=3484 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v1-openai-gpt-5-4-01cdfde7' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=0dc0b570-d18f-46e3-8045-4403cae84be1
+
+
+0it [00:00, ?it/s]1it [00:20, 20.71s/it]4it [00:23,  4.63s/it]5it [00:29,  5.15s/it]6it [00:31,  4.09s/it]7it [00:34,  3.97s/it]8it [00:36,  3.33s/it]9it [00:38,  2.92s/it]10it [00:42,  3.21s/it]12it [00:47,  2.76s/it]13it [00:52,  3.40s/it]13it [00:52,  4.03s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=1463/5000 (incl. margin 250) | usable_remaining=3287
+
+DONE [1/9] whole_file_reduce/v1/gpt-5.4 -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[2/9] agent=whole_file_reduce prompt=v1 model=gemini-2.5-flash (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=1463/5000 margin=250 remaining=3287 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v1-gemini-gemini-2-5-flash-9962fe31' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=22bf3055-2e8f-41e4-a81d-270e1f976d23
+
+
+0it [00:00, ?it/s]1it [00:11, 11.72s/it]3it [00:15,  4.62s/it]5it [00:19,  3.03s/it]6it [00:19,  2.42s/it]7it [00:21,  2.24s/it]8it [00:23,  2.16s/it]9it [00:24,  1.90s/it]10it [00:25,  1.55s/it]11it [00:28,  1.92s/it]12it [00:28,  1.45s/it]13it [00:31,  1.99s/it]13it [00:31,  2.45s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=1779/5000 (incl. margin 250) | usable_remaining=2971
+
+DONE [2/9] whole_file_reduce/v1/gemini-2.5-flash -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[3/9] agent=whole_file_reduce prompt=v1 model=gpt-5-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=1871/5000 margin=250 remaining=2879 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v1-openai-gpt-5-mini-4e36424d' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=b7cded82-8722-45fa-a665-1554a6b2a4d7
+
+
+0it [00:00, ?it/s]1it [00:12, 12.96s/it]3it [00:20,  6.22s/it]5it [00:30,  5.66s/it]7it [00:36,  4.39s/it]8it [00:40,  4.37s/it]10it [00:52,  4.92s/it]12it [00:57,  4.04s/it]13it [00:59,  3.68s/it]13it [00:59,  4.57s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2068/5000 (incl. margin 250) | usable_remaining=2682
+
+DONE [3/9] whole_file_reduce/v1/gpt-5-mini -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[4/9] agent=whole_file_reduce prompt=v2 model=gpt-5.4 (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2068/5000 margin=250 remaining=2682 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v2-openai-gpt-5-4-a484edc7' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=0cc106e8-1e3e-4a69-8293-0842064b8c87
+
+
+0it [00:00, ?it/s]1it [00:11, 11.62s/it]3it [00:16,  4.98s/it]5it [00:23,  4.01s/it]7it [00:30,  3.91s/it]WARNING OpenAI stream failed, falling back: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING call_model failed provider=openai model=gpt-4o: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING OpenAI stream failed, falling back: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING call_model failed provider=openai model=gpt-4o: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING call_model failed provider=openai model=gpt-5.4: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+8it [01:05, 11.10s/it]10it [01:14,  8.52s/it]11it [01:27,  9.53s/it]12it [01:31,  8.13s/it]13it [01:36,  7.36s/it]13it [01:36,  7.44s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2265/5000 (incl. margin 250) | usable_remaining=2485
+
+DONE [4/9] whole_file_reduce/v2/gpt-5.4 -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[5/9] agent=whole_file_reduce prompt=v2 model=gemini-2.5-flash (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2568/5000 margin=250 remaining=2182 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v2-gemini-gemini-2-5-flash-de5d5f7e' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=1156e2d4-08a2-4399-801b-d83e02451464
+
+
+0it [00:00, ?it/s]1it [00:14, 14.56s/it]2it [00:20,  9.54s/it]3it [00:30,  9.69s/it]5it [00:36,  5.88s/it]7it [00:54,  7.41s/it]9it [00:57,  4.93s/it]10it [00:57,  3.92s/it]11it [01:04,  4.64s/it]12it [01:05,  3.83s/it]13it [01:10,  4.14s/it]13it [01:11,  5.47s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=2884/5000 (incl. margin 250) | usable_remaining=1866
+
+DONE [5/9] whole_file_reduce/v2/gemini-2.5-flash -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[6/9] agent=whole_file_reduce prompt=v2 model=gpt-5-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=2884/5000 margin=250 remaining=1866 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v2-openai-gpt-5-mini-f42e2201' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=567db4d8-cd41-46e8-a3a1-7bfb8bd1c621
+
+
+0it [00:00, ?it/s]WARNING OpenAI stream failed, falling back: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING OpenAI stream failed, falling back: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING call_model failed provider=openai model=gpt-4o: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING call_model failed provider=openai model=gpt-4o: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+1it [00:43, 43.27s/it]3it [00:57, 16.30s/it]5it [01:11, 11.66s/it]7it [01:33, 11.33s/it]8it [01:49, 12.54s/it]11it [02:06,  8.97s/it]13it [02:14,  7.45s/it]13it [02:14, 10.35s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=3173/5000 (incl. margin 250) | usable_remaining=1577
+
+DONE [6/9] whole_file_reduce/v2/gpt-5-mini -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[7/9] agent=whole_file_reduce prompt=v3 model=gpt-5.4 (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3173/5000 margin=250 remaining=1577 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v3-openai-gpt-5-4-34acc811' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=5e0d668f-46fe-4bd5-ba2c-1e9f5bbb5fa2
+
+
+0it [00:00, ?it/s]1it [00:19, 19.96s/it]3it [00:29,  8.60s/it]4it [00:31,  6.32s/it]5it [00:42,  8.03s/it]7it [00:52,  6.46s/it]8it [00:54,  5.30s/it]9it [01:05,  7.03s/it]11it [01:18,  6.69s/it]13it [01:25,  5.42s/it]13it [01:25,  6.56s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=3792/5000 (incl. margin 250) | usable_remaining=958
+
+DONE [7/9] whole_file_reduce/v3/gpt-5.4 -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[8/9] agent=whole_file_reduce prompt=v3 model=gemini-2.5-flash (gemini) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3792/5000 margin=250 remaining=958 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v3-gemini-gemini-2-5-flash-b90cc800' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=db3068bd-2624-4e0d-a217-9ccfe1c8bf02
+
+
+0it [00:00, ?it/s]1it [00:15, 15.42s/it]2it [00:17,  7.71s/it]3it [00:27,  8.44s/it]4it [00:34,  7.89s/it]WARNING Gemini stream failed, falling back: HTTPSConnectionPool(host='generativelanguage.googleapis.com', port=443): Max retries exceeded with url: /v1beta/models/gemini-2.5-flash:streamGenerateContent?key=AQ.Ab8RN6IIq9XrHcmjv0qVEGid6J5J8G1vyP9RM4OiOeAbdgQAjQ&alt=sse (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+WARNING Gemini stream failed, falling back: HTTPSConnectionPool(host='generativelanguage.googleapis.com', port=443): Max retries exceeded with url: /v1beta/models/gemini-2.5-flash:streamGenerateContent?key=AQ.Ab8RN6IIq9XrHcmjv0qVEGid6J5J8G1vyP9RM4OiOeAbdgQAjQ&alt=sse (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+6it [00:51,  8.20s/it]9it [01:00,  5.44s/it]11it [01:12,  5.70s/it]13it [01:18,  4.85s/it]13it [01:18,  6.05s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=3989/5000 (incl. margin 250) | usable_remaining=761
+
+DONE [8/9] whole_file_reduce/v3/gemini-2.5-flash -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+========================================================================
+[9/9] agent=whole_file_reduce prompt=v3 model=gpt-5-mini (openai) | 13 examples
+========================================================================
+[GUARD] month=2026-07 used=3989/5000 margin=250 remaining=761 | this run ~105 traces (13 agent + 92 evaluator [13x7+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-whole_file_reduce-v3-openai-gpt-5-mini-1c9d5a74' at:
+https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/datasets/4c9ac445-801b-4d95-bb94-86e3b945aa5c/compare?selectedSessions=b67042b9-b552-4200-9952-5de3c77ca914
+
+
+0it [00:00, ?it/s]1it [00:20, 20.69s/it]2it [00:23, 10.34s/it]3it [00:38, 12.26s/it]5it [00:49,  8.44s/it]6it [00:59,  8.98s/it]7it [01:08,  9.00s/it]9it [01:24,  8.56s/it]12it [01:35,  6.06s/it]13it [01:38,  5.49s/it]13it [01:38,  7.56s/it]
+[GUARD] DONE: traces_this_experiment=105 (agent=13 + evaluator=92) | monthly_used=4305/5000 (incl. margin 250) | usable_remaining=445
+
+DONE [9/9] whole_file_reduce/v3/gpt-5-mini -> ok
+View: https://smith.langchain.com/o/6fb8fab2-fc02-49fb-ad42-5df052958213/projects/p/ScholarSync-v2
+
+All 9 experiments complete.
+
+Leaderboard written to C:\Users\KomaleswarReddy\Desktop\S_COM\NotebookLM\evals\reports\agent_matrix\leaderboard_20260702T074557Z.json

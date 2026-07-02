@@ -416,18 +416,6 @@ add(
     "packages/core/prompts/templates/rag/whole_file_reduce_prompt.j2",
 )
 
-add(
-    31,
-    "Whole File Map Template (Unused file)",
-    "Map phase template file",
-    "Jinja template mirroring map prompt; live code uses inline string.",
-    read_j2("rag/whole_file_map_prompt.j2"),
-    "Same semantics as Whole File Map Summarizer.",
-    "Not passed to load_prompt in Python",
-    "packages/core/prompts/templates/rag/whole_file_map_prompt.j2",
-    status="Legacy (duplicate of inline)",
-)
-
 # --- VISION OCR ---
 add(
     32,

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "explain_from_basics",
   "agent": {
     "sno": 18,
@@ -7,7 +7,7 @@
     "name": "Explain From Basics Coach",
     "tier": "tier_1",
     "target_examples": 30,
-    "prompt_template": "{# Mode-specific response: EXPLAIN_FROM_BASICS #}\nYou are ScholarSync AI Coach. Explain from the basics for an Indian student.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Question Understanding\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Given Information\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"What to Find\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Concept Needed\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Formula/Principle\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Step-by-step Solution\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Final Answer\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Key Learning\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show shorter version\", \"action\": \"SHOW_SHORTER_VERSION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain concept again\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+    "prompt_template": "You are ScholarSync AI Coach. Explain from the basics for an Indian student.\n\nProblem:\n{{ problem_text_normalized }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\n{% include 'problem_solver/math_formatting_contract.j2' %}\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Question Understanding\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Given Information\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"What to Find\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Concept Needed\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Formula/Principle\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Step-by-step Solution\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Final Answer\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Key Learning\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show shorter version\", \"action\": \"SHOW_SHORTER_VERSION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Explain concept again\", \"action\": \"EXPLAIN_CONCEPT_AGAIN\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -21,873 +21,2567 @@
   },
   "items": [
     {
-      "id": "explain_from_basics-001",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Physics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-002",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Mathematics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-003",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
-      "inputs": {
-        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Biology problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-004",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Physics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-005",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Physics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-006",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Mathematics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-007",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Chemistry problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-008",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Mathematics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-009",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Physics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-010",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Biology problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-011",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Physics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-012",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Mathematics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-013",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
-      "inputs": {
-        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Chemistry problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-014",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Chemistry problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-015",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Physics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
       "id": "explain_from_basics-016",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q.68 Iodoform test can differentiate between A. Methanol and Ethanol B. CH₃COOH and CH₃CH₂COOH C. Cyclohexene and cyclohexanone D. Diethyl ether and Pentan-3-one E. Anisole and acetone Choose the correct answer from the options given below:",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Mathematics problem",
+          "title": "Iodoform Test and Its Applications",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The question asks which pair of compounds can be differentiated using the iodoform test. The iodoform test is a chemical reaction that identifies the presence of methyl ketones or alcohols that can be oxidized to methyl ketones."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "The options provided are: A. Methanol and Ethanol B. CH₃COOH (acetic acid) and CH₃CH₂COOH (propanoic acid) C. Cyclohexene and cyclohexanone D. Diethyl ether and Pentan-3-one E. Anisole and acetone."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine which of the given pairs can be differentiated using the iodoform test."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "The iodoform test is specific for compounds that have a methyl group adjacent to a carbonyl group (C=O) or for secondary alcohols that can be oxidized to such ketones."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "The principle behind the iodoform test is that when a methyl ketone or a suitable alcohol is treated with iodine and a base (like NaOH), a yellow precipitate of iodoform (CHI₃) is formed."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Analyze each option to see if they contain a methyl ketone or can be oxidized to one.\n2. A. Methanol and Ethanol: Neither gives a positive iodoform test.\n3. B. CH₃COOH and CH₃CH₂COOH: Only acetic acid (CH₃COOH) can give a positive test.\n4. C. Cyclohexene and cyclohexanone: Cyclohexanone can give a positive test.\n5. D. Diethyl ether and Pentan-3-one: Pentan-3-one can give a positive test.\n6. E. Anisole and acetone: Acetone can give a positive test.\n7. Conclusion: The pairs that can be differentiated are those containing a methyl ketone."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct answer is C. Cyclohexene and cyclohexanone, as cyclohexanone can be differentiated using the iodoform test."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "The iodoform test is a useful qualitative test in organic chemistry for identifying methyl ketones and certain alcohols. Understanding the structure of the compounds helps in predicting the outcomes of such tests."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "C. Cyclohexene and cyclohexanone",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_jan_2026",
+        "numerical",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-017",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
-      "inputs": {
-        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Biology problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-018",
       "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
       "inputs": {
-        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q.14 Let PQ be a chord of the hyperbola \\(\\frac{x^{2}}{4} - \\frac{y^{2}}{b^{2}} = 1\\), perpendicular to the x-axis such that OPQ is an equilateral triangle, O being the centre of the hyperbola. If the eccentricity of the hyperbola is \\(\\sqrt{3}\\), then the area of the triangle OPQ is\n1. \\(\\frac{11}{5}\\)  \n2. \\(\\frac{9}{5}\\)  \n3. \\(\\frac{8\\sqrt{3}}{5}\\)  \n4. \\(\\frac{2\\sqrt{3}}{3}\\)",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Physics problem",
+          "title": "Area of Triangle OPQ in a Hyperbola",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "We need to find the area of triangle OPQ formed by points O, P, and Q, where OPQ is an equilateral triangle and PQ is a chord of the hyperbola perpendicular to the x-axis."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "1. The equation of the hyperbola is \\(\\frac{x^{2}}{4} - \\frac{y^{2}}{b^{2}} = 1\\).\n2. The eccentricity of the hyperbola is \\(\\sqrt{3}\\).\n3. The triangle OPQ is equilateral with O as the center of the hyperbola."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to calculate the area of triangle OPQ."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To find the area of an equilateral triangle, we can use the formula: \\(\\text{Area} = \\frac{\\sqrt{3}}{4} a^2\\), where \\(a\\) is the length of one side of the triangle."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. The relationship between the semi-major axis \\(a\\), semi-minor axis \\(b\\), and eccentricity \\(e\\) of the hyperbola is given by \\(e = \\frac{a}{b}\\).\n2. For our hyperbola, \\(a^2 = 4\\) implies \\(a = 2\\).\n3. Given \\(e = \\sqrt{3}\\), we can find \\(b\\) using \\(b = \\frac{a}{e} = \\frac{2}{\\sqrt{3}}\\)."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Calculate \\(b\\):\n   \\[ b = \\frac{2}{\\sqrt{3}} \\]\n2. The coordinates of points P and Q can be determined as follows:\n   - Since PQ is perpendicular to the x-axis, let P be at \\((x_0, y_0)\\) and Q at \\((x_0, -y_0)\\).\n3. The length of PQ is \\(2y_0\\).\n4. The height of triangle OPQ from O to PQ is the distance from O to the line PQ, which is \\(x_0\\).\n5. The area of triangle OPQ is:\n   \\[ \\text{Area} = \\frac{1}{2} \\times \\text{Base} \\times \\text{Height} = \\frac{1}{2} \\times 2y_0 \\times x_0 = y_0 x_0 \\]\n6. To find \\(y_0\\), substitute \\(x_0\\) into the hyperbola equation:\n   \\[ \\frac{x_0^2}{4} - \\frac{y_0^2}{b^2} = 1 \\]\n   - Rearranging gives:\n   \\[ y_0^2 = b^2 \\left( \\frac{x_0^2}{4} - 1 \\right) \\]\n7. Substitute \\(b = \\frac{2}{\\sqrt{3}}\\) and solve for area."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The area of triangle OPQ is \\(\\frac{2\\sqrt{3}}{3}\\)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the properties of hyperbolas and the relationship between their axes and eccentricity is crucial for solving problems related to areas and geometric figures formed by points on the hyperbola."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "The area of triangle OPQ is \\(\\frac{2\\sqrt{3}}{3}\\).",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_jan_2026",
+        "numerical",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-019",
       "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
       "inputs": {
-        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q22. Given below are two statements: One is labelled as Assertion A and the other is labeled as Reason R: Assertion A: A flower is defined as modified shoot wherein the shoot apical meristem changes to floral meristem. Reason R: Internode of the shoot gets condensed to produce different floral appendages laterally at successive nodes instead of leaves. In the light of the above statements, choose the correct answer from the options given below: a. A is false but R is true. b. Both A and R are true and R is the correct explanation of A. c. Both A and R are true but R is NOT the correct explanation of A. d. A is true but R is false.",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Mathematics problem",
+          "title": "Understanding Assertion and Reason in Botany",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "We need to analyze two statements: Assertion A and Reason R, to determine their truthfulness and relationship."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "Assertion A states that a flower is a modified shoot where the shoot apical meristem changes to floral meristem. Reason R explains that the internode of the shoot condenses to produce floral appendages instead of leaves."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to evaluate whether both A and R are true, and if R correctly explains A."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding the structure and function of flowers, including the role of meristems and how floral structures develop from shoots."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "A flower is indeed a modified shoot, and the transformation from shoot apical meristem to floral meristem is a key concept in botany. The internode condensing to form floral appendages is also a recognized process."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Evaluate Assertion A: True, as flowers are modified shoots.  \n2. Evaluate Reason R: True, as the internode condenses to form floral parts.  \n3. Determine the relationship: R explains the process of how flowers form from shoots, thus supporting A."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Both A and R are true, and R is the correct explanation of A. Therefore, the correct option is (b)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the relationship between plant structures and their functions is crucial in botany. This question illustrates the importance of recognizing how modifications in plant growth lead to the formation of complex structures like flowers."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "b. Both A and R are true and R is the correct explanation of A.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "numerical",
+        "assertion_reason",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-020",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q86. Given below are two statements: Statement I: Gause’s ‘Competitive Exclusive Principle’ states that two closely related species competing for the same related species competing for the same resources cannot co-exist indefinitely and competitively inferior one will be eliminated eventually. Statement II: In general, carnivores are more adversely affected by competition than herbivores. In the light of the above statements, choose the correct answer from the options given below: a. Statement I is incorrect but Statement II is true b. Both Statement I and Statement II are true c. Both Statement I and Statement II are false d. Statement I is correct but Statement II is false.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Physics problem",
+          "title": "Understanding Competition in Ecology",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The problem presents two statements regarding ecological competition and asks us to determine their validity."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "1. **Statement I**: Gause’s ‘Competitive Exclusive Principle’ states that two closely related species competing for the same resources cannot co-exist indefinitely; the competitively inferior one will be eliminated.  \n2. **Statement II**: In general, carnivores are more adversely affected by competition than herbivores."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to assess the truthfulness of both statements and choose the correct answer from the given options."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding Gause’s Competitive Exclusion Principle is crucial, as well as the general dynamics of competition between carnivores and herbivores."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "Gause’s Competitive Exclusion Principle: If two species are competing for the same resources, one will outcompete the other, leading to the extinction of the less competitive species."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Evaluate Statement I**: This statement accurately reflects Gause’s principle. It is true that two species cannot coexist indefinitely if they are competing for the same limited resources.  \n2. **Evaluate Statement II**: Generally, carnivores are at a higher trophic level and may have fewer resources available compared to herbivores, which often have a wider range of food sources. Therefore, this statement is considered false."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Based on the evaluations, Statement I is correct, while Statement II is false. Therefore, the correct answer is: d. Statement I is correct but Statement II is false."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the dynamics of competition in ecology helps explain species interactions and the balance of ecosystems. Gause’s principle is fundamental in ecology, illustrating how competition can lead to the exclusion of species."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "d. Statement I is correct but Statement II is false.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-021",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q79. Given below are two statements: One is labelled as Assertion A and the other is labelled as Reason R: Assertion A: The first stage of gametophyte in the life cycle of moss is protonema stage. Reason R: Protonema develops directly from spores produced in capsule. In the light of the above statements, choose the most appropriate answer from the options given below: a. A is not correct but R is correct. b. Both A and R are correct and R is the correct explanation of A. c. Both A and R are correct but R is NOT the correct explanation of A. d. A is correct but R is not correct.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Chemistry problem",
+          "title": "Understanding the Life Cycle of Moss",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The problem presents two statements about the life cycle of moss, specifically focusing on the gametophyte stage and the protonema stage."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "Assertion A states that the first stage of the gametophyte in the life cycle of moss is the protonema stage. Reason R claims that the protonema develops directly from spores produced in the capsule."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine the correctness of both Assertion A and Reason R, and whether R correctly explains A."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding the life cycle of moss, particularly the stages of gametophyte development and the role of spores."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "In mosses, the life cycle alternates between a haploid gametophyte and a diploid sporophyte. The protonema is the initial stage of the gametophyte that develops from a spore."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Evaluate Assertion A**: The protonema is indeed the first stage of the gametophyte in moss. This statement is correct.\n2. **Evaluate Reason R**: Protonema does develop from spores, which are produced in the capsule of the sporophyte. This statement is also correct.\n3. **Determine the relationship**: Reason R explains how the protonema stage arises from spores, thus supporting Assertion A."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Both A and R are correct, and R is the correct explanation of A. Therefore, the answer is (b)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "In the life cycle of moss, understanding the relationship between different stages, especially how the protonema arises from spores, is crucial for grasping plant biology."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "b. Both A and R are correct and R is the correct explanation of A.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
-      "evaluators": [
-        "json_schema",
-        "coach_sections"
-      ]
-    },
-    {
-      "id": "explain_from_basics-022",
-      "variation": "cbse",
       "tags": [
-        "cbse",
-        "mathematics"
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "numerical",
+        "assertion_reason",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "problem_text_normalized": "Find area under y=x from 0 to 3.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Explain: Mathematics problem",
-          "sections": [
-            {
-              "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
-            }
-          ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
-        }
-      },
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-023",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q24. Given below are two statements : Statement I: The forces generated by transpiration can lift a xylem-sized column of water over 130 meters height. Statement II: Transpiration cools leaf surfaces sometimes 10 to 15 degrees, by evaporative cooling. In the light of the above statements, choose the most appropriate answer from the options given below: a. Statement I is incorrect but Statement II is correct. b. Both Statement I and Statement II are correct. c. Both Statement I and Statement II are incorrect. d. Statement I is correct but Statement II is incorrect.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Biology problem",
+          "title": "Understanding Transpiration and Its Effects",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The question presents two statements about transpiration in plants and asks us to evaluate their correctness."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "1. Statement I: The forces generated by transpiration can lift a xylem-sized column of water over 130 meters height.\n2. Statement II: Transpiration cools leaf surfaces sometimes 10 to 15 degrees, by evaporative cooling."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine whether each statement is correct or incorrect and select the appropriate answer from the given options."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Transpiration is the process through which plants lose water vapor from their leaves. This process creates a negative pressure that helps in the upward movement of water through the xylem. Additionally, evaporative cooling is a phenomenon where the evaporation of water from leaf surfaces helps in reducing temperature."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "The principle of transpiration involves the cohesion and adhesion of water molecules, which allows water to be pulled up through the xylem against gravity. The cooling effect is due to the latent heat of vaporization, where heat is absorbed from the leaf surface during evaporation."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Evaluate Statement I: The maximum height that transpiration can lift water is generally around 120 meters in ideal conditions. Thus, stating it can lift over 130 meters is likely incorrect.\n2. Evaluate Statement II: Transpiration does indeed cool leaf surfaces significantly, often by 10 to 15 degrees due to evaporative cooling, which is correct.\n3. Based on the evaluations, Statement I is incorrect and Statement II is correct."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct answer is: a. Statement I is incorrect but Statement II is correct."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the process of transpiration is crucial in plant physiology. It not only facilitates water transport but also plays a significant role in temperature regulation of the plant."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "a. Statement I is incorrect but Statement II is correct.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-024",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q61. Given below are the stages in the life cycle of pteridophytes. Arrange the following stages in the correct sequence. A. Prothallus stage B. Meiosis in spore mother cells C. Fertilisation D. Formation of archegonia and antheridia in gametophyte. E. Transfer of antherozoids to the archegonia in presence of water. Choose the correct answer from the options given below: (1) B, A, D, E, C (2) B, A, E, C, D (3) D, E, C, A, B (4) E, D, C, B, A",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Physics problem",
+          "title": "Understanding the Life Cycle of Pteridophytes",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The question asks us to arrange the stages of the pteridophyte life cycle in the correct order, based on the processes involved in their reproduction."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "The stages provided are: A. Prothallus stage B. Meiosis in spore mother cells C. Fertilisation D. Formation of archegonia and antheridia in gametophyte E. Transfer of antherozoids to the archegonia in presence of water."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine the correct sequence of these stages in the life cycle of pteridophytes."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Pteridophytes have a distinct life cycle that includes both a sporophyte (diploid) and a gametophyte (haploid) stage. The process begins with meiosis, leading to spore formation, followed by the development of the gametophyte, fertilization, and ultimately the formation of the sporophyte."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "The life cycle of pteridophytes can be summarized as follows: Meiosis → Spore formation → Gametophyte development → Fertilization → Sporophyte development."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Meiosis in spore mother cells (B)**: This is the first step where diploid cells undergo meiosis to produce haploid spores.  \n2. **Prothallus stage (A)**: The haploid spores germinate to form the prothallus, which is the gametophyte stage.  \n3. **Formation of archegonia and antheridia in gametophyte (D)**: The prothallus develops reproductive structures.  \n4. **Transfer of antherozoids to the archegonia in presence of water (E)**: Sperm (antherozoids) swim to the archegonia for fertilization.  \n5. **Fertilisation (C)**: The sperm fertilizes the egg, leading to the formation of a zygote, which will develop into the sporophyte."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct sequence is: B, A, D, E, C. Thus, the answer is (1) B, A, D, E, C."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the life cycle of pteridophytes helps in grasping the concepts of alternation of generations, where the sporophyte and gametophyte stages alternate in the life cycle."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "(1) B, A, D, E, C",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "numerical",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-010",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q25. Let be the solution of the differential equation , . If , then the greatest integer less than is _______. A = ⎡ ⎣ −1 1 −1 1 0 1 0 0 1 ⎤ ⎦ A2 + α(adj(adj ((A)) )) + β(adj ((A)) (adj(adj ((A)) ))) = ⎡ ⎣ 2 −2 2 −2 0 −1 0 0 −1 ⎤ ⎦ α, β ∈R (α −β)2 x2 + y2 + 2gx + 2fy + 25 = 0 2x −y = 4 27√3 x = 1 →a = ^i + ^j + ^k →b = ^j −^k →c →a × →c = →b →a ⋅→c = 3 →c ⋅(→a −2→b) f(θ) = α tan2 θ + β cot2 θ g(θ) = α sin2 θ + β cos2 θ α > β > 0 min0<θ<π/2 f(θ) = max0<θ<π g(θ) ( α 2β ) ( 2β α ) 10 m n gcd(m, n) = 1 m + n y = y(x) (x2 −x√x2 −1)dy + (y(x −√x2 −1) −x)dx = 0 x ≥1 y(1) = 1 y(√5)",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding a Complex Mathematical Problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem involves solving a differential equation and matrix operations, and it requires finding the greatest integer less than a certain value derived from these calculations."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have a matrix A, a differential equation, and some constants α and β. We also have conditions and equations that need to be solved."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find the greatest integer less than a specific value related to the solution of the differential equation."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding of matrices, determinants, adjoints, and solving differential equations is required. Additionally, knowledge of how to find the greatest integer function is necessary."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. For matrices: A^2 + α(adj(adj(A))) + β(adj(A)(adj(adj(A)))) = B (where B is given).  \n2. For the differential equation: (α - β)² x² + y² + 2gx + 2fy + 25 = 0.  \n3. The greatest integer function ⌊x⌋ gives the largest integer less than or equal to x."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Calculate A² and adj(A).  \n2. Substitute these into the equation to solve for α and β.  \n3. Solve the differential equation for y in terms of x.  \n4. Substitute the values obtained into the greatest integer function to find the required value."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The final answer will be the greatest integer less than the derived value."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "This problem integrates multiple mathematical concepts, including matrix algebra and differential equations, showcasing the interconnectedness of different areas of mathematics."
+            }
+          ],
+          "finalAnswer": "The greatest integer less than the derived value is ____.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-011",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q20. Let be the base of natural logarithm and let and be two bijective functions such that is strictly decreasing and is strictly increasing. If , then the area of the region is: (1) (2) (3) (4) limx→0 ( x2 sin2 x x2 −sin2 x ) 2 3 4 6 ∫π/4 −π/4 ( 32 cos4 x 1 + esin x )dx 4π + 2 3π + 8 3π + 4 4π + 3 {(x, y) : 0 ≤y ≤6 −x, y2 ≥4x −3, x ≥0} 8 9 12 15 e f : {1, 2, 3, 4} →{1, e, e2, e3} g : {1, e, e2, e3} →{1, 1 2 , 1 3 , 1 4 } f g ϕ(x) = [f −1 {g−1 ( 1 2 )}] x R = {(x, y) : x2 ≤y ≤ϕ(x), 0 ≤x ≤1} 3 −loge(2) 3 loge(2) 1 3 loge(2) 3 + loge(2) 3 + loge(2) 2 + loge(3)",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding the Problem",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem presents a mathematical scenario involving functions and integrals, asking for the area of a specific region defined by inequalities and functions."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have two bijective functions, one strictly decreasing and the other strictly increasing. We also have expressions involving limits and integrals, along with specific inequalities defining a region."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine the area of the region defined by the inequalities and the functions provided in the problem."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To solve this problem, we need to understand the concepts of area under curves, properties of bijective functions, and how to evaluate integrals."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "The area under a curve can be calculated using integrals. The area between two curves can be found by integrating the difference of the functions over a specified interval."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Identify the functions involved and their properties (increasing/decreasing).\n2. Set up the inequalities to define the region.\n3. Use integration to find the area of the region by evaluating the integral of the upper function minus the lower function over the defined limits."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The area of the region is determined to be one of the provided options based on the evaluation of the integral."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the relationship between functions and their properties is crucial in determining areas and solving integrals. This problem emphasizes the importance of bijective functions and their implications in calculus."
+            }
+          ],
+          "finalAnswer": "The area of the region is 12.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-012",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q4. Let the set of all values of such that the equation , , has at least one solution, be the interval . Then is equal to: (1) (2) (3) (4) [⋅] f(x) = sin−1 ( x + [x] 3 ) [α, β) α2 + β2 2 5 10 13 x (k2 −15k + 27)x2 + 9(k −1)x + 18 = 0 y2 = 6kx 4 6 8 12 e1 e2 x2 −ax + 2 = 0 {a ∈R : e1 and e2 are the eccentricities of hyperbolas} = (α, β) {a ∈R : e1 and e2 are the eccentricities of an ellipse and a hyperbola, respectively} = (γ, ∞) α2 + β2 + γ 2 18 22 26 34 k ∈R z(¯z + 2 + i) + k(2 + 3i) = 0 z ∈C [α, β] 9(α + β) −10 −8 10√13 8√13",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding the Problem of Finding Solutions to Equations",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem involves finding the interval of values for a variable such that a given equation has at least one solution. This requires understanding the nature of the equation and the conditions under which solutions exist."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have an equation involving the variable 'x' and a parameter 'k'. The equation is of the form: \\( (k^2 - 15k + 27)x^2 + 9(k - 1)x + 18 = 0 \\) and we need to determine the values of 'k' for which this quadratic equation has real solutions."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find the interval \\([\\alpha, \\beta)\\) for the parameter 'k' such that the quadratic equation has at least one real solution."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To determine the existence of real solutions for a quadratic equation, we use the discriminant. For a quadratic equation of the form \\( ax^2 + bx + c = 0 \\), the discriminant \\( D \\) is given by \\( D = b^2 - 4ac \\). The equation has real solutions if \\( D \\geq 0 \\)."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "For our equation, we identify \\( a = k^2 - 15k + 27 \\), \\( b = 9(k - 1) \\), and \\( c = 18 \\). The discriminant is calculated as follows: \\( D = [9(k - 1)]^2 - 4(k^2 - 15k + 27)(18) \\). We need to solve the inequality \\( D \\geq 0 \\)."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Calculate the discriminant: \\( D = 81(k - 1)^2 - 72(k^2 - 15k + 27) \\).  \n2. Expand and simplify the expression for D.  \n3. Set the discriminant greater than or equal to zero: \\( 81(k - 1)^2 - 72(k^2 - 15k + 27) \\geq 0 \\).  \n4. Solve the resulting inequality to find the values of 'k'.  \n5. Determine the interval \\([\\alpha, \\beta)\\) based on the solutions obtained."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The interval \\([\\alpha, \\beta)\\) for which the equation has at least one solution is determined to be \\([5, 10)\\)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding how to apply the concept of the discriminant is crucial in determining the conditions for real solutions of quadratic equations. This method can be applied to various problems involving quadratic equations in mathematics."
+            }
+          ],
+          "finalAnswer": "[5, 10)",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-013",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q16. Let a line be perpendicular to both the lines and . If is the acute angle between the lines and , then is equal to: (1) (2) (3) (4) 0 < α < 1 β = 1 3α tan−1(1 −α) + tan−1(1 −β) = π 4 6(α + β) 6 7 8 9 S = {θ ∈(−2π, 2π) : cos θ + 1 = √3 sin θ} ∑θ∈S θ −2π 3 −4π 3 2π 3 4π 3 P(1, 6, a) L : x 1 = y −1 2 = z −a + 1 b b > 0 ( a 3 , 0, a + c) S(α, β, γ) α > 0 L S P L 2√14 α + β + γ 19 20 21 22 L L1 : x + 1 3 = y + 3 5 = z + 5 7 L2 : x −2 1 = y −4 4 = z −6 7 θ L L3 : x −8 7 2 = y −4 7 1 = z 2 tan θ 3 2 √2 5 2 √2 5 3 √2 4 3 √2",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Perpendicular Lines and Angles",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem involves finding the acute angle between two lines and determining the relationship between this angle and a perpendicular line to both lines."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have two lines, and we need to find the acute angle (α) between them. We also know that there is a line that is perpendicular to both these lines."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find the value of α in relation to the other variables given in the problem."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To solve this problem, we need to understand the properties of angles between lines, particularly how to find the acute angle between two lines and how perpendicular lines relate to each other."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "The formula for the angle (θ) between two lines with slopes m1 and m2 is given by: \\[ \\tan(θ) = \\left| \\frac{m_1 - m_2}{1 + m_1 m_2} \\right| \\] For perpendicular lines, the product of their slopes is -1."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Identify the slopes of the two lines from their equations.\n2. Use the angle formula to find the acute angle α between the lines.\n3. Determine the relationship of α with the perpendicular line."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The final answer will depend on the calculations performed using the given slopes and the relationships defined."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the relationship between angles and slopes of lines is crucial in geometry and can be applied in various mathematical problems."
+            }
+          ],
+          "finalAnswer": "The acute angle α can be determined using the slopes of the lines and the relationship with the perpendicular line.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-014",
+      "variation": "jee",
+      "inputs": {
+        "problem_text_normalized": "Q70. Match the LIST-I with LIST-II List-I Amino acid A. Glutamine B. Lysine C. Tyrosine D. Serine List-II Positive reaction/Test for functional group present in side chain of amino acid I. Hinsberg's test II. Neutral FeCl₃ test III. Ceric ammonium nitrate test IV. Hoffman bromamide degradation Choose the correct answer from the options given below: (1) A-IV, B-II, C-I, D-III (2) A-IV, B-I, C-II, D-III (3) A-III, B-II, C-I, D-IV (4) A-IV, B-I, C-III, D-II",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Matching Amino Acids with Tests",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem requires us to match amino acids with specific tests that indicate the presence of functional groups in their side chains."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have four amino acids: Glutamine, Lysine, Tyrosine, and Serine. We also have four tests: Hinsberg's test, Neutral FeCl₃ test, Ceric ammonium nitrate test, and Hoffman bromamide degradation."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine which test corresponds to each amino acid based on the functional groups present in their side chains."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding the structure of amino acids and the specific reactions that can be used to identify functional groups is crucial. Each amino acid has unique characteristics that can be tested."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. **Hinsberg's test**: Used to distinguish between primary, secondary, and tertiary amines. \n2. **Neutral FeCl₃ test**: Used to detect phenolic compounds, such as tyrosine. \n3. **Ceric ammonium nitrate test**: Indicates the presence of alcohols and phenols. \n4. **Hoffman bromamide degradation**: Used for primary amides."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Glutamine**: Contains an amide group, thus it will give a positive result in **Hoffman bromamide degradation** (A-IV).\n2. **Lysine**: Contains an amino group, which will react positively in **Hinsberg's test** (B-I).\n3. **Tyrosine**: Contains a phenolic hydroxyl group, which will give a positive result in **Neutral FeCl₃ test** (C-II).\n4. **Serine**: Contains a hydroxyl group, which will react positively in the **Ceric ammonium nitrate test** (D-III)."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct matches are: A-IV, B-I, C-II, D-III. Thus, the answer is option (2)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the functional groups present in amino acids and the specific tests used to identify them is essential in biochemistry. This knowledge helps in characterizing amino acids based on their side chains."
+            }
+          ],
+          "finalAnswer": "(2) A-IV, B-I, C-II, D-III",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-006",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q16. Assertion ((A)) : Binding energy is released when heavy atomic nuclei undergo fission or when light elemental nuclei undergo fusion processing loops. Reason (R): For heavy nuclei, the binding energy per nucleon parameter increases monotonically with increasing atomic number Z, while for light elements it decreases with an increasing value of Z. VERY SHORT ANSWER QUESTIONS (VSAQS) Each question carries 2 marks. Answer the following questions precisely with necessary formulas or clear point-wise steps.",
+        "ncert_context": "NCERT Class 11 Physics Ch.6: Work W=F·s cosθ. Kinetic energy K=½mv². Power P=W/t."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Binding Energy in Nuclear Reactions",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem presents an assertion and a reason regarding the concept of binding energy in nuclear fission and fusion. We need to analyze the truth of both statements."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "1. Assertion (A): Binding energy is released during fission of heavy nuclei and fusion of light nuclei.  \n2. Reason (R): Binding energy per nucleon increases with atomic number Z for heavy nuclei and decreases for light elements."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine if both the assertion and reason are true and if the reason correctly explains the assertion."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding of binding energy, nuclear fission, nuclear fusion, and the relationship between atomic number and binding energy per nucleon."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "Binding Energy (BE) = Total mass defect (Δm) × c², where c is the speed of light (approximately 3 × 10^8 m/s)."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Assertion Analysis**:  \n   - Fission of heavy nuclei (like Uranium) releases energy because the products have a higher binding energy per nucleon than the original nucleus.  \n   - Fusion of light nuclei (like Hydrogen) releases energy as well, as the resulting nucleus has a higher binding energy per nucleon.  \n   - Therefore, Assertion (A) is true.  \n\n2. **Reason Analysis**:  \n   - For heavy nuclei, binding energy per nucleon increases with Z, meaning they become more stable as they split.  \n   - For light nuclei, binding energy per nucleon decreases with Z, indicating they become less stable as they combine.  \n   - Therefore, Reason (R) is also true.  \n\n3. **Conclusion**:  \n   - Both Assertion (A) and Reason (R) are true, and R explains A."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Both the assertion and reason are true, and the reason correctly explains the assertion."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding binding energy is crucial in nuclear physics, as it explains why energy is released during fission and fusion processes. The stability of atomic nuclei is directly related to their binding energy per nucleon."
+            }
+          ],
+          "finalAnswer": "Both the assertion and reason are true, and the reason correctly explains the assertion.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "neet",
+        "assertion_reason",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-018",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q1. Read the following statements and choose the set of correct statements. In the members of Phaeophyceae. A. Asexual reproduction occurs usually by biflagellate zoospores. B. Sexual reproduction is by oogamous method only. C. Stored food is in the form of carbohydrates which is either mannitol or laminarin D. The major pigments found are chlorophyll a, c and carotenoids and xanthophyll. E. Vegetative cells have a cellulosic wall, usually covered on the outside by gelatinous coating of algin. Choose the correct answer from the options given below: (1) A, C, D and E only (2) A, B, C and E only (3) A, B, C and D only (4) B, C, D and E only",
+        "ncert_context": "NCERT Class 11 Biology Ch.3: Algae groups differ in pigments, stored food, and flagella number."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Phaeophyceae Reproduction and Characteristics",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "We need to analyze statements about Phaeophyceae (brown algae) and determine which ones are correct."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "The statements provided discuss aspects of reproduction, stored food, pigments, and cell structure in Phaeophyceae."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to identify the correct set of statements regarding Phaeophyceae from the options given."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding the characteristics of Phaeophyceae, including their reproduction methods, stored food types, pigments, and cell wall structure."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "Phaeophyceae characteristics include: 1. Asexual reproduction via biflagellate zoospores. 2. Sexual reproduction is typically oogamous. 3. Stored food is mannitol or laminarin. 4. Major pigments include chlorophyll a, c, carotenoids, and xanthophyll. 5. Cell walls are cellulosic with a gelatinous coating of algin."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "Let's evaluate each statement:\n- **A**: True, asexual reproduction occurs by biflagellate zoospores.\n- **B**: False, sexual reproduction can also occur through other methods, not just oogamous.\n- **C**: True, stored food is in the form of carbohydrates like mannitol or laminarin.\n- **D**: True, the major pigments present are chlorophyll a, c, carotenoids, and xanthophyll.\n- **E**: True, vegetative cells have a cellulosic wall often covered by algin.\n\nThus, the correct statements are A, C, D, and E."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct answer is option (1) A, C, D and E only."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Phaeophyceae have distinct reproductive methods, food storage forms, and structural characteristics that differentiate them from other algal groups."
+            }
+          ],
+          "finalAnswer": "1",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-025",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "multi_part",
       "inputs": {
-        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q6. Match List I with List II List I List II A. Two or more alternative forms of a gene I. Back cross B. Cross of F1 progeny with homozygous recessive parent II. Ploidy C. Cross of F1 progeny with any of the parents III. Allele D. Number of chromosome sets in plant IV. Test cross Choose the correct answer from the options given below: (1) A-III, B-IV, C-I, D-II (2) A-IV, B-III, C-II, D-I (3) A-I, B-II, C-III, D-IV (4) A-II, B-I, C-III, D-IV",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Mathematics problem",
+          "title": "Understanding Genetic Crosses and Terminology",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The problem requires us to match terms related to genetics from List I with their corresponding definitions or concepts in List II."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "List I contains genetic terms: A. Two or more alternative forms of a gene, B. Cross of F1 progeny with homozygous recessive parent, C. Cross of F1 progeny with any of the parents, D. Number of chromosome sets in plant. List II contains definitions: I. Back cross, II. Ploidy, III. Allele, IV. Test cross."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to match each item from List I with the correct item from List II."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding basic genetic terminology is crucial. Key concepts include alleles, crosses (test cross and back cross), and ploidy."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. Allele: Different forms of a gene. 2. Test Cross: Cross between an F1 hybrid and a homozygous recessive to determine genotype. 3. Back Cross: Cross between F1 and one of the parental genotypes. 4. Ploidy: Refers to the number of sets of chromosomes in a cell."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "A. Two or more alternative forms of a gene - III. Allele. \nB. Cross of F1 progeny with homozygous recessive parent - IV. Test cross. \nC. Cross of F1 progeny with any of the parents - I. Back cross. \nD. Number of chromosome sets in plant - II. Ploidy."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct matches are: A-III, B-IV, C-I, D-II. Therefore, the answer is option (1)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding genetic terminology is essential for solving problems related to genetics. Familiarity with concepts like alleles, test crosses, back crosses, and ploidy will help in future studies."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "(1) A-III, B-IV, C-I, D-II",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "multi_part",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-001",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q3. Identify the statements that correctly describe Darwin’s Theory of Evolution. (i) Overproduction of organisms leads to competition. (ii) Variation is inherited and causes evolution. (iii) Acquired characters are inherited. (iv) Survival depends on favourable traits. (v) New species arise due to accumulation of favourable variations. Choose the correct option. ((A)) (i), (ii), (iv) and (v) are correct ((B)) (ii), (iii) and (iv) are correct ((C)) All are correct ((D)) Only (i) and (iv) are correct",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Darwin’s Theory of Evolution",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The question asks us to identify which statements accurately describe Darwin's Theory of Evolution. We need to analyze each statement to determine its correctness."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have five statements related to Darwin's Theory of Evolution. Each statement discusses different aspects of evolution, such as overproduction, variation, inheritance, survival, and the emergence of new species."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find out which of the provided statements (i) to (v) are correct according to Darwin's Theory of Evolution."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Darwin's Theory of Evolution is based on several key concepts: natural selection, variation, inheritance, and the survival of the fittest. Understanding these concepts will help us evaluate the statements."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. Overproduction leads to competition for resources.\n2. Variations among individuals can be inherited.\n3. Only favorable traits increase chances of survival and reproduction.\n4. Accumulation of favorable variations can lead to the emergence of new species."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "Let's evaluate each statement:\n1. **(i) Overproduction of organisms leads to competition.** - This is correct; Darwin noted that organisms tend to produce more offspring than can survive, leading to competition.\n2. **(ii) Variation is inherited and causes evolution.** - This is also correct; variations that can be passed down are essential for evolution.\n3. **(iii) Acquired characters are inherited.** - This is incorrect; Darwin's theory does not support the inheritance of acquired traits (this idea was proposed by Lamarck).\n4. **(iv) Survival depends on favourable traits.** - Correct; those with advantageous traits are more likely to survive and reproduce.\n5. **(v) New species arise due to accumulation of favourable variations.** - Correct; over time, favorable variations can lead to the development of new species."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Based on the evaluation, the correct statements are (i), (ii), (iv), and (v). Therefore, the correct option is (A)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Darwin's Theory of Evolution emphasizes the role of natural selection and the importance of inherited variations in the process of evolution. Understanding which traits are favorable is crucial for survival and the emergence of new species."
+            }
+          ],
+          "finalAnswer": "(A) (i), (ii), (iv) and (v) are correct",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-002",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q4. Given below are two columns. In Column I is the list of four enzymes and in Column II is the list of functions of the given enzymes. Which one of the following options shows the enzymes matched with their respective functions correctly? Column I (Enzyme) P. DNA Ligase Q. Restriction exonuclease R. Taq polymerase S. Restriction endonuclease Column II (Function) i. Removes nucleotides from ends of DNA ii. Extends primer on a DNA template iii. Joins the DNA fragments iv. Cuts DNA at a specific position (a) P-i, Q-ii, R-iv, S-iii (b) P-iv, Q-iii, R-ii, S-i (c) P-i, Q-iv, R-iii, S-ii (d) P-iii, Q-i, R-ii, S-iv",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Enzymes and Their Functions",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "We need to match four enzymes listed in Column I with their correct functions in Column II."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "Column I (Enzyme): P. DNA Ligase, Q. Restriction exonuclease, R. Taq polymerase, S. Restriction endonuclease. Column II (Function): i. Removes nucleotides from ends of DNA, ii. Extends primer on a DNA template, iii. Joins the DNA fragments, iv. Cuts DNA at a specific position."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to identify which option correctly matches the enzymes with their respective functions."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding the functions of different enzymes involved in DNA manipulation is crucial. Each enzyme has a specific role in processes like DNA replication and restriction."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. DNA Ligase: Joins DNA fragments. 2. Restriction exonuclease: Removes nucleotides from the ends of DNA. 3. Taq polymerase: Extends primers during DNA synthesis. 4. Restriction endonuclease: Cuts DNA at specific sequences."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. DNA Ligase (P) - Joins the DNA fragments (iii). 2. Restriction exonuclease (Q) - Removes nucleotides from ends of DNA (i). 3. Taq polymerase (R) - Extends primer on a DNA template (ii). 4. Restriction endonuclease (S) - Cuts DNA at a specific position (iv). Now, matching these: P-iii, Q-i, R-ii, S-iv."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct matching is: P-iii, Q-i, R-ii, S-iv, which corresponds to option (d)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the specific functions of enzymes is essential for applications in molecular biology, such as cloning and DNA analysis."
+            }
+          ],
+          "finalAnswer": "d",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-003",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q25. The basic scheme of the essential steps involved in the process of recombinant DNA technology is summarized below in the form of a flow diagram. Study the given flow diagram and answer the questions that follow. (a) Name the enzyme used in Step-1 to join the cut plasmid and alien DNA. (b) State the technical term used for Step-3. (c) Justify the use of the same restriction enzyme EcoRI to cut both the vector DNA and the alien DNA. Step-1: Vector DNA cut using restriction enzyme EcoRI + alien DNA cut using restriction enzyme EcoR ↓ Enzyme A Step-2: Recombinant DNA molecule ↓ Step-3: Transfer of recombinant DNA molecule in E. coli host ↓ Step-4: Replication of recombinant DNA molecule in E. coli",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Recombinant DNA Technology",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem involves a flow diagram summarizing the steps of recombinant DNA technology. We need to identify specific enzymes and terms related to the process."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "The flow diagram outlines the following steps: 1. Vector DNA and alien DNA are cut using the same restriction enzyme, EcoRI. 2. An enzyme (referred to as Enzyme A) is used to join the cut plasmid and alien DNA. 3. The recombinant DNA molecule is transferred into an E. coli host. 4. The recombinant DNA replicates within the E. coli."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find: (a) The enzyme used in Step-1, (b) The technical term for Step-3, (c) The justification for using the same restriction enzyme EcoRI for both vector and alien DNA."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Recombinant DNA technology involves cutting DNA at specific sites using restriction enzymes, joining DNA fragments using ligases, and transferring the recombinant DNA into host cells for replication."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. Restriction enzymes cut DNA at specific sequences. 2. DNA ligase (Enzyme A) is used to join DNA fragments. 3. Transformation is the process of introducing recombinant DNA into host cells."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "a) The enzyme used in Step-1 to join the cut plasmid and alien DNA is DNA ligase (Enzyme A). b) The technical term for Step-3 is 'transformation'. c) The same restriction enzyme EcoRI is used to cut both vector DNA and alien DNA to create compatible ends, allowing them to be joined together effectively."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "a) DNA ligase (Enzyme A). b) Transformation. c) EcoRI creates compatible ends for both DNA fragments, facilitating their ligation."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the steps of recombinant DNA technology is crucial for genetic engineering, including the importance of restriction enzymes and ligases in creating recombinant DNA."
+            }
+          ],
+          "finalAnswer": "a) DNA ligase (Enzyme A). b) Transformation. c) EcoRI creates compatible ends for both DNA fragments, facilitating their ligation.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-004",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q39. (a) (i) Name the protozoan species that is responsible for causing the most serious and even fatal malarial disease. (ii) Name the host in which the parasite completes its sexual stages and explain the changes taking place. (iii) How does the parasite damage the human body after entering the blood stream? (iv) Suggest two effective preventive measures to control the spread of this disease in endemic regions. OR (b) (i) What are bio-fertilizers? (ii) Name the different types of microorganisms used as bio-fertilizers in organic farming and explain how each contributes to soil fertility. (iii) Write two advantages of using bio-fertilizers over chemical fertilizers.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Malaria and Bio-Fertilizers",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem presents two options: (a) related to malaria and (b) related to bio-fertilizers. Each option has multiple parts that require specific information."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "(a) (i) Identify the protozoan causing malaria. (ii) Identify the host for the parasite's sexual stages and describe the changes. (iii) Explain how the parasite damages the human body. (iv) Suggest preventive measures. OR (b) (i) Define bio-fertilizers. (ii) Name microorganisms used as bio-fertilizers and their contributions. (iii) List advantages of bio-fertilizers over chemical fertilizers."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "For option (a), we need to identify the malaria-causing protozoan, its host, the damage it causes, and preventive measures. For option (b), we need to define bio-fertilizers, list microorganisms used, and discuss their benefits."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding of malaria, its causative agent, life cycle, and effects on the human body. Knowledge of bio-fertilizers, their types, and benefits in agriculture."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "For malaria: Life cycle of Plasmodium (the protozoan), including stages in the mosquito and human. For bio-fertilizers: Role of microorganisms in enhancing soil fertility."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "For (a): \n1. The protozoan responsible for malaria is Plasmodium falciparum. \n2. The host for sexual stages is the female Anopheles mosquito. Changes include gametocyte formation and fertilization in the mosquito's gut. \n3. The parasite damages the human body by invading red blood cells, leading to their destruction and causing anemia and other symptoms. \n4. Preventive measures include using mosquito nets and insect repellents, and anti-malarial medications. \n\nFor (b): \n1. Bio-fertilizers are natural fertilizers that contain living microorganisms. \n2. Types include Rhizobium (fixes nitrogen in legumes), Azospirillum (enhances root growth), and Mycorrhizae (improves nutrient uptake). \n3. Advantages include improved soil health and sustainability, and reduced chemical runoff."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "For (a): (i) Plasmodium falciparum; (ii) Anopheles mosquito; (iii) Destroys red blood cells, causing anemia; (iv) Use mosquito nets, insect repellents. \nFor (b): (i) Natural fertilizers with living microorganisms; (ii) Rhizobium, Azospirillum, Mycorrhizae; (iii) Advantages: eco-friendly, enhances soil fertility."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the life cycle of malaria-causing protozoans and the role of bio-fertilizers in sustainable agriculture is crucial for both health and environmental science."
+            }
+          ],
+          "finalAnswer": "For (a): (i) Plasmodium falciparum; (ii) Anopheles mosquito; (iii) Destroys red blood cells, causing anemia; (iv) Use mosquito nets, insect repellents. For (b): (i) Natural fertilizers with living microorganisms; (ii) Rhizobium, Azospirillum, Mycorrhizae; (iii) Advantages: eco-friendly, enhances soil fertility.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-005",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q43. (a) Meselson and Stahl carried out an experiment to prove the nature of DNA replication. Recall the experiment and answer the following questions. (i) Which two types of nitrogen were used by them in their experiment and why? (ii) Why did they take samples of E. coli at definite time intervals for their observation? (iii) State the role of caesium chloride density gradient in their experiment. (iv) Write the conclusions they arrived at. OR (b) A true-breeding pea plant with round seeds and tall plant was crossed with a pea plant having wrinkled seeds and dwarf plant. Represent this cross up to F₂ generation showing F₁ and F₂ phenotypic ratio respectively. (ii) State the Mendel’s law that can be derived from this type of cross.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding DNA Replication and Mendelian Genetics",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem presents two parts: (a) regarding the Meselson and Stahl experiment on DNA replication, and (b) a genetic cross involving pea plants to illustrate Mendelian inheritance."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "(a) Meselson and Stahl's experiment on DNA replication. (b) A true-breeding pea plant with round seeds and tall stature crossed with a plant having wrinkled seeds and dwarf stature."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "For part (a), we need to identify the nitrogen types used, the sampling method, the role of caesium chloride, and the conclusions of the experiment. For part (b), we need to represent the genetic cross and state the derived Mendelian law."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding DNA replication mechanisms (semiconservative replication) and Mendelian genetics principles, including dominant and recessive traits."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "Mendel's laws of inheritance, particularly the law of segregation and the law of independent assortment."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "(a) (i) Meselson and Stahl used two isotopes of nitrogen: N-15 (heavy) and N-14 (light) to differentiate between newly synthesized and original DNA strands. (ii) They took samples of E. coli at definite time intervals to observe the changes in DNA density and confirm the replication pattern over generations. (iii) Caesium chloride density gradient was used to separate DNA based on density, allowing them to visualize the different DNA strands. (iv) They concluded that DNA replication is semiconservative, meaning each new DNA molecule consists of one original strand and one new strand. (b) The cross can be represented as follows: \n\n- Parent Generation (P): Round, Tall (RR TT) x Wrinkled, Dwarf (rr tt) \n- F1 Generation: All Round, Tall (Rr Tt) \n- F2 Generation: 3 Round, Tall : 1 Round, Dwarf : 1 Wrinkled, Tall : 1 Wrinkled, Dwarf (9:3:3:1 ratio). \n\nThe law derived from this cross is Mendel's Law of Segregation."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "For part (a): (i) N-15 and N-14; (ii) To observe DNA density changes; (iii) To separate DNA strands by density; (iv) DNA replication is semiconservative. For part (b): F₁ phenotypic ratio is 100% Round, Tall; F₂ phenotypic ratio is 9:3:3:1. The derived law is Mendel's Law of Segregation."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "The Meselson and Stahl experiment provided crucial evidence for the semiconservative model of DNA replication, while Mendel's experiments laid the foundation for understanding genetic inheritance patterns."
+            }
+          ],
+          "finalAnswer": "For part (a): (i) N-15 and N-14; (ii) To observe DNA density changes; (iii) To separate DNA strands by density; (iv) DNA replication is semiconservative. For part (b): F₁ phenotypic ratio is 100% Round, Tall; F₂ phenotypic ratio is 9:3:3:1. The derived law is Mendel's Law of Segregation.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-022",
+      "variation": "proof",
+      "inputs": {
+        "problem_text_normalized": "Q17. Which of the following answers are NOT correct? a. The amount of some toxic substances of industrial waste water increases in the organisms at successive trophic levels. b. The micro-organisms involved in biodegradation of organic matter in a sewage polluted water body consume a lot of oxygen causing the death of aquatic organisms. c. Algal blooms caused by excess of organic matter in water improve water quality and promote fisheries. d. Water hyacinth grows abundantly in eutrophic water bodies and leads to an imbalance in the ecosystem dynamics of the water body.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Toxic Substances and Eutrophication",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The question asks us to identify which statements about toxic substances in water, biodegradation, algal blooms, and water hyacinth are NOT correct."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have four statements regarding the effects of industrial wastewater, microbial activity in polluted water, algal blooms, and the growth of water hyacinth in eutrophic water bodies."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine which of the four statements are incorrect based on our understanding of ecology and environmental science."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "We need to understand concepts like biomagnification, eutrophication, the role of microorganisms in water bodies, and the ecological impact of invasive species like water hyacinth."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. **Biomagnification**: The concentration of toxic substances increases as they move up the food chain.  \n2. **Eutrophication**: Excess nutrients lead to algal blooms, which can deplete oxygen and harm aquatic life.  \n3. **Invasive Species**: Species like water hyacinth can disrupt local ecosystems."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "a. **True**: Toxic substances do increase in organisms at higher trophic levels due to biomagnification.  \n\nb. **True**: Microorganisms consume oxygen during biodegradation, which can lead to hypoxia and death of aquatic organisms.  \n\nc. **False**: Algal blooms can actually degrade water quality and harm fisheries by depleting oxygen and blocking sunlight.  \n\nd. **True**: Water hyacinth can grow in nutrient-rich (eutrophic) waters and disrupt the ecosystem by outcompeting native species."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The statement that is NOT correct is **c**: Algal blooms caused by excess organic matter in water do NOT improve water quality and can harm fisheries."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the ecological impacts of pollutants, nutrient overload, and invasive species is crucial for environmental science. Recognizing how these factors interact helps us appreciate the complexity of ecosystems."
+            }
+          ],
+          "finalAnswer": "c",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "proof",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-026",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "proof",
       "inputs": {
-        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q32. Given below are two statements: Statement I: Endarch and exarch are the terms often used for describing the position of secondary xylem in the plant body. Statement II: Exarch condition is the most common feature of the root system. In the light of the above statements, choose the correct answer from the options given below: a. Statement I is incorrect but Statement II is true. b. Both Statement I and Statement II are true. c. Both Statement I and Statement II are false. d. Statement I is correct but Statement II is false.",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Chemistry problem",
+          "title": "Understanding Endarch and Exarch Conditions in Plants",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The problem presents two statements regarding the terms 'endarch' and 'exarch' related to the position of secondary xylem in plants and asks us to evaluate their correctness."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "1. **Statement I**: Endarch and exarch are terms used for describing the position of secondary xylem in the plant body.  \n2. **Statement II**: Exarch condition is the most common feature of the root system."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine whether each statement is true or false and select the correct option from the given choices."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To answer this question, we need to understand the definitions of 'endarch' and 'exarch' conditions in relation to plant anatomy, particularly in xylem arrangement."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. **Endarch**: In this condition, the protoxylem (the first formed xylem) is located towards the center of the stem or root, while the metaxylem (the later formed xylem) is located towards the periphery. This is typical in stems.  \n2. **Exarch**: In this condition, the protoxylem is located towards the periphery, and the metaxylem is towards the center. This is typical in roots."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Analyze **Statement I**: Endarch and exarch are indeed terms used to describe the arrangement of xylem. Therefore, Statement I is **true**.  \n2. Analyze **Statement II**: The exarch condition is characteristic of roots, but it is not the most common feature of root systems. Roots can have various arrangements, but exarch is common in many roots. Therefore, Statement II is **true** but can be misleading as it implies exclusivity."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Both statements are true, but the context of Statement II might lead to confusion. Therefore, the correct answer is **b. Both Statement I and Statement II are true.**"
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the terms endarch and exarch helps in recognizing the structural differences in plant anatomy, particularly in how xylem is arranged in stems and roots. This knowledge is crucial for studying plant biology and physiology."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "b. Both Statement I and Statement II are true.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "proof",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-009",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q29. Two blocks (P and Q) with respectively masses 2 kg and 1.5 kg are joined by a massless thread. These blocks are mounted on a frictionless pulley which is fixed on the edge of a cube (S), as shown in the figure below. Block P is positioned on the top surface which has no friction and block Q is in contact with side-surface, having coefficient friction μ. The cube (S) moves towards the right with acceleration of g/2, where g is gravitational acceleration. During this movement the block P and Q remain stationary. The value of μ is ______. (take g = 10 m/s²)\n\n[Diagram: The figure depicts a three-dimensional cube. Inside the cube, there are two labeled blocks: block P, which has a mass of 2 kg, is positioned at the top left corner, and block Q, with a mass of 1.5 kg, is located at the bottom right corner. A string connects block P to a point at the top of the cube, where a small circle is drawn, indicating a pulley or attachment point. The string runs horizontally from block P to the circle and then vertically down to block Q. The label 'S' is placed at the bottom left corner of the cube. The spatial layout shows block P at the top left, the circle at the top center, and block Q at the bottom right, creating a vertical drop from the circle to block Q. There are no numeric annotations for distances, angles, or additional forces shown in the diagram.]\n\n(1) 0.33 (2) 0.67 (3) 1 (4) 0.5",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding the Problem of Blocks on a Pulley System",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "We have two blocks, P and Q, connected by a thread over a pulley. Block P is on top of a cube and Block Q is hanging down. The cube is accelerating to the right, and we need to find the coefficient of friction (μ) for Block Q to remain stationary."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "- Mass of Block P (m₁) = 2 kg\n- Mass of Block Q (m₂) = 1.5 kg\n- Acceleration of the cube (a) = g/2 = 5 m/s² (since g = 10 m/s²)\n- Coefficient of friction (μ) is what we need to find."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find the value of the coefficient of friction (μ) that allows Block Q to remain stationary while the cube accelerates."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To solve this problem, we need to understand the concepts of forces acting on the blocks, including gravitational force, tension in the thread, and frictional force."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. Gravitational force (Weight) on Block Q: F_gravity = m₂ * g\n2. Tension in the thread: T\n3. Frictional force: F_friction = μ * N, where N is the normal force acting on Block Q.\n4. For Block Q to remain stationary: T = F_friction + m₂ * a (where a is the acceleration of the cube)."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Calculate the gravitational force on Block Q: F_gravity = m₂ * g = 1.5 kg * 10 m/s² = 15 N.\n2. The normal force (N) acting on Block Q is equal to its weight since it is not moving vertically: N = m₂ * g = 15 N.\n3. The frictional force can be expressed as: F_friction = μ * N = μ * 15 N.\n4. The tension T in the thread can be expressed as: T = F_gravity - F_friction = 15 N - μ * 15 N.\n5. Since the cube accelerates to the right with a = 5 m/s², we can write: T = m₂ * a = 1.5 kg * 5 m/s² = 7.5 N.\n6. Setting the two expressions for T equal gives us: 7.5 N = 15 N - μ * 15 N.\n7. Rearranging gives: μ * 15 N = 15 N - 7.5 N = 7.5 N.\n8. Thus, μ = 7.5 N / 15 N = 0.5."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The value of the coefficient of friction (μ) is 0.5."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "This problem illustrates the balance of forces in a system with friction and acceleration. Understanding how to apply Newton's laws and the concepts of tension and friction is crucial for solving such problems."
+            }
+          ],
+          "finalAnswer": "0.5",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-015",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q43. An inductor of inductance 10 mH having resistance of 100 Ω is connected to battery of E.M.F. 1.0 V through a switch as shown in the figure below. After switch is closed, the ratio of instantaneous voltages across the inductor when the current passing through it is 2 mA and 4 mA is ________.\n\n[Diagram: The figure depicts a simple electrical circuit. On the left side, there is a coiled spring symbol representing an inductor, labeled with a series of loops. To the right of the inductor, there is a battery symbol, indicating a power source. Below the inductor, there is a switch represented by a line that connects to a pivot point, allowing for an open or closed position. The switch is connected to two points, one leading to the inductor and the other to the battery. The layout is horizontal, with the inductor on the left and the battery on the right, and the switch positioned below the inductor. There are no numeric annotations, arrows, or additional labels present in the diagram.]\n\n(1) 4/3 (2) 3/4 (3) 5/3 (4) 3/5",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding Magnification in a Spherical Lens",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem involves a point source placed in front of a spherical interface lens that separates two media with different refractive indices. We need to determine the magnification of the image formed by this lens."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "1. Radius of the spherical lens: R  \n2. Distance of the point source from the lens: 4R  \n3. Refractive index of medium 1 (n1): 1  \n4. Refractive index of medium 2 (n2): 1.4"
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find the magnitude of the magnification of the image formed by the point source."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To solve this problem, we need to understand the concepts of refraction, the lens maker's formula, and the magnification formula for lenses."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. The lens formula:  \n   \\[ \\frac{1}{f} = (n_2 - n_1) \\left( \\frac{1}{R_1} - \\frac{1}{R_2} \\right) \\]  \n   where \\( f \\) is the focal length, \\( R_1 \\) and \\( R_2 \\) are the radii of curvature of the lens surfaces.  \n2. The magnification formula:  \n   \\[ m = \\frac{h'}{h} = -\\frac{v}{u} \\]  \n   where \\( m \\) is the magnification, \\( h' \\) is the height of the image, \\( h \\) is the height of the object, \\( v \\) is the image distance, and \\( u \\) is the object distance."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. For a spherical interface lens, we can assume it has one surface with radius R and the other surface is flat (R2 = ∞). Thus, \\( R_1 = R \\) and \\( R_2 = ∞ \\).  \n2. Using the lens formula:  \n   \\[ \\frac{1}{f} = (1.4 - 1) \\left( \\frac{1}{R} - 0 \\right) = 0.4 \\cdot \\frac{1}{R} \\]  \n   Therefore, \\( f = \\frac{R}{0.4} = 2.5R \\).  \n3. The object distance \\( u = -4R \\) (negative as per sign convention).  \n4. Using the lens formula again to find the image distance \\( v \\):  \n   \\[ \\frac{1}{f} = \\frac{1}{v} - \\frac{1}{u} \\]  \n   \\[ \\frac{1}{2.5R} = \\frac{1}{v} + \\frac{1}{4R} \\]  \n   Rearranging gives:  \n   \\[ \\frac{1}{v} = \\frac{1}{2.5R} - \\frac{1}{4R} = \\frac{4 - 2.5}{10R} = \\frac{1.5}{10R} = \\frac{0.15}{R} \\]  \n   Thus, \\( v = \\frac{R}{0.15} = \\frac{20R}{3} \\).  \n5. Now, using the magnification formula:  \n   \\[ m = -\\frac{v}{u} = -\\frac{\\frac{20R}{3}}{-4R} = \\frac{20}{12} = \\frac{5}{3} \\approx 1.66 \\."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The magnitude of the magnification of the point source image is approximately 1.66."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "This problem illustrates the application of the lens formula and magnification concepts in optics, specifically for spherical lenses separating two media with different refractive indices."
+            }
+          ],
+          "finalAnswer": "1.66",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-027",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "ncert_strict",
       "inputs": {
-        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q30. Match List-I with List-II. List-I List-II ((A)) Nucleolus (I) Site of formation of glycolipid ((B)) Centriole (II) Organization like the cartwheel ((C)) Leucoplasts (III) Site for active ribosomal RNA synthesis ((D)) Golgi apparatus (IV) For storing nutrients Choose the correct answer from the options given below (1) A-III, B-IV, C-II, D-I (2) A-I, B-II, C-III, D-IV (3) A-III, B-II, C-IV, D-I (4) A-II, B-III, C-I, D-IV",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Biology problem",
+          "title": "Understanding Cellular Structures and Their Functions",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The problem requires us to match cellular structures (List-I) with their respective functions or characteristics (List-II)."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have four cellular structures: Nucleolus, Centriole, Leucoplasts, and Golgi apparatus. We also have four functions or characteristics to match them with."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find the correct pairs of structures and their functions from the given options."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding the functions of various cellular organelles is crucial. Each organelle has specific roles in the cell."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. **Nucleolus**: Site for active ribosomal RNA synthesis (III).  \n2. **Centriole**: Organization like the cartwheel (II).  \n3. **Leucoplasts**: For storing nutrients (IV).  \n4. **Golgi apparatus**: Site of formation of glycolipid (I)."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Nucleolus** matches with (III) because it is where ribosomal RNA is synthesized.  \n2. **Centriole** matches with (II) due to its cartwheel-like organization.  \n3. **Leucoplasts** match with (IV) as they store nutrients.  \n4. **Golgi apparatus** matches with (I) as it is involved in the formation of glycolipids."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The correct matches are: A-III, B-II, C-IV, D-I. Therefore, the correct option is (3)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the functions of cellular organelles helps in grasping how cells operate and interact with their environment. This knowledge is fundamental in biology."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "3",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "ncert_strict",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-028",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q38. Given below are two statements: One is labelled as Assertion A and the other is labelled as Reason R: Assertion A: ATP is used at two steps in glycolysis. Reason R: First ATP is used in converting glucose into glucose-6-phosphate and second ATP is used in conversion of fructose-6- phosphate into fructose-1-6-diphosphate. In the light of the above statements, choose the correct answer from the options given below is true, a. A is false but R is true. b. Both A and R are true and R is the correct explanation of A",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Physics problem",
+          "title": "Understanding Glycolysis and ATP Usage",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The problem presents two statements regarding glycolysis: an assertion about ATP usage and a reason explaining that usage. We need to evaluate the truth of both statements."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "Assertion A states that ATP is used at two steps in glycolysis. Reason R specifies the steps where ATP is utilized: converting glucose into glucose-6-phosphate and converting fructose-6-phosphate into fructose-1,6-bisphosphate."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine if both Assertion A and Reason R are true, and if R correctly explains A."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Glycolysis is a metabolic pathway that converts glucose into pyruvate, producing ATP and NADH. Understanding the steps of glycolysis and where ATP is consumed is crucial."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "In glycolysis, ATP is used in the phosphorylation of glucose and fructose-6-phosphate. The steps are: 1) Glucose + ATP → Glucose-6-phosphate + ADP 2) Fructose-6-phosphate + ATP → Fructose-1,6-bisphosphate + ADP."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Verify Assertion A: ATP is indeed used in two steps of glycolysis. 2. Verify Reason R: The steps mentioned in R are correct. 3. Since both A and R are true, and R explains A, the correct option is that both A and R are true, and R is the correct explanation of A."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Both A and R are true, and R is the correct explanation of A."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "In glycolysis, ATP is utilized in the initial steps to facilitate the conversion of glucose and fructose-6-phosphate, highlighting the importance of ATP in energy investment during metabolic processes."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "Both A and R are true and R is the correct explanation of A.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "conceptual",
+        "assertion_reason",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-029",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q14. Given below are two statements: Statement I : The boiling point of three isomeric pentanes follows the order. n-pentane > isopentane > neopentane Statement II : When branching increases, the molecule attains a shape of sphere. This results in smaller surface area for contact, due to which the intermolecular forces between the spherical molecules are weak, thereby lowering the boiling point. In the light of the above statements, choose the most appropriate answer from the options given below: (1) Statement I is correct but Statement II is incorrect. (2) Statement I is incorrect but Statement II is correct. (3) Both Statement I and Statement II are correct. (4) Both Statement I and Statement II are incorrect.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.1: Moles n=m/M. Equal atoms when mole amounts match for same species count."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Mathematics problem",
+          "title": "Understanding Boiling Points of Isomeric Pentanes",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "The problem presents two statements regarding the boiling points of isomeric pentanes and asks us to evaluate their correctness."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "1. **Statement I**: The boiling point of three isomeric pentanes follows the order: n-pentane > isopentane > neopentane.  \n2. **Statement II**: When branching increases, the molecule attains a spherical shape, resulting in a smaller surface area for contact, which weakens intermolecular forces and lowers the boiling point."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to determine whether Statement I and Statement II are correct or incorrect."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To understand the boiling points of isomers, we need to know how molecular structure affects intermolecular forces. Generally, straight-chain alkanes have higher boiling points than their branched isomers due to greater surface area leading to stronger van der Waals forces."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. **Boiling Point Trend**: Straight-chain alkanes (like n-pentane) have higher boiling points than branched isomers (like isopentane and neopentane) due to increased surface area.  \n2. **Intermolecular Forces**: The strength of intermolecular forces affects boiling points; weaker forces result in lower boiling points."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Evaluate Statement I**:  \n   - n-pentane (straight-chain) has the highest boiling point due to maximum surface area.  \n   - Isopentane (branched) has a lower boiling point than n-pentane but higher than neopentane.  \n   - Neopentane (more branched) has the lowest boiling point due to the smallest surface area.  \n   - **Conclusion**: Statement I is correct.  \n\n2. **Evaluate Statement II**:  \n   - The statement correctly describes that increased branching leads to a more spherical shape, reducing surface area and thus weakening intermolecular forces.  \n   - **Conclusion**: Statement II is also correct."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Both Statement I and Statement II are correct."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "Understanding the relationship between molecular structure and boiling points is crucial. Straight-chain alkanes generally have higher boiling points than their branched isomers due to stronger intermolecular forces resulting from larger surface areas."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "3. Both Statement I and Statement II are correct.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     },
     {
       "id": "explain_from_basics-030",
       "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
       "inputs": {
-        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
-        "ncert_context": "NCERT Class 10 Science Ch.12: Ohm's law states V = IR for metallic conductors at constant temperature. Resistance R = ρL/A."
+        "problem_text_normalized": "Q35. Given below are two statements: Statement I : The boiling point of hydrides of Group 16 elements follow the order H₂O > H₂Te > H₂Se > H₂S. Statement II : On the basis of molecular mass, H₂O is expected to have lower boiling point than the other members of the group but due to the presence of extensive H-bonding in H₂O, it has higher boiling point. In the light of the above statements, choose the correct answer from the options given below: (1) Statement I is true but Statement II is false. (2) Statement I is false but Statement II is true. (3) Both Statement I and Statement II are true. (4) Both Statement I and Statement II are false.",
+        "ncert_context": "NCERT Class 11 Chemistry Ch.1: Moles n=m/M. Equal atoms when mole amounts match for same species count."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Explain: Chemistry problem",
+          "title": "Understanding Boiling Points of Group 16 Hydrides",
           "sections": [
             {
               "heading": "Question Understanding",
-              "bodyMarkdown": "Restate problem."
+              "bodyMarkdown": "We need to analyze two statements regarding the boiling points of hydrides of Group 16 elements (like H₂O, H₂S, H₂Se, and H₂Te) and determine their truthfulness."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "Statement I claims that the boiling point order is H₂O > H₂Te > H₂Se > H₂S. Statement II explains that despite H₂O's lower molecular mass, its boiling point is higher due to hydrogen bonding."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to evaluate the truth of both statements and select the correct option from the provided choices."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "Understanding boiling points involves knowledge of molecular mass, intermolecular forces (like hydrogen bonding), and how these factors influence physical properties."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "Boiling point trends can be influenced by molecular mass and the strength of intermolecular forces. Hydrogen bonding significantly raises the boiling point of substances."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. **Evaluate Statement I**: The boiling points of the hydrides are influenced by molecular mass and hydrogen bonding. H₂O has a high boiling point due to strong hydrogen bonds, while H₂Te, H₂Se, and H₂S have weaker Van der Waals forces. The order given (H₂O > H₂Te > H₂Se > H₂S) is correct.\n2. **Evaluate Statement II**: It correctly states that H₂O's boiling point is higher than expected based on molecular mass due to hydrogen bonding. Thus, this statement is also true.\n3. **Conclusion**: Both statements are true."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "Both Statement I and Statement II are true."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "The boiling points of hydrides in Group 16 are affected by molecular mass and intermolecular forces, particularly hydrogen bonding, which can lead to unexpected results in boiling point comparisons."
             }
           ],
-          "finalAnswer": "Worked answer with units.",
-          "revealLevel": "full"
+          "finalAnswer": "3",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "chemistry",
+        "neet",
+        "source_pdf_neet_chemistry",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "coach_sections"
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-007",
+      "variation": "case_study",
+      "inputs": {
+        "problem_text_normalized": "Q51. Passage: A galvanometer is an instrument used to show the direction and strength of the current passing through it. It essentially works on the fact that a current-carrying coil experiences a deflecting torque when placed in a magnetic field. A spring attached to the coil provides a counter torque. In equilibrium, the deflecting torque is balanced by the restoring torque of the spring: NBAI = kφ. A small resistance, called a shunt, of a suitable value is connected in parallel with the galvanometer to convert it into an ammeter of a desired range. By connecting a high resistance in series, a galvanometer can be converted into a voltmeter. Sub-questions:",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Understanding the Galvanometer and Its Applications",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The passage discusses how a galvanometer functions and how it can be modified to measure current (as an ammeter) or voltage (as a voltmeter)."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "A galvanometer shows the direction and strength of current, operates on the principle of torque in a magnetic field, and can be modified with shunt and series resistances."
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to understand how the galvanometer works and how to convert it into an ammeter or voltmeter."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "The basic concepts of electric current, resistance, and the principles of series and parallel circuits are needed to understand the galvanometer's operation."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "The equilibrium condition for the galvanometer is given by the equation: NBAI = kφ, where N is the number of turns, B is the magnetic field strength, A is the area of the coil, I is the current, k is the spring constant, and φ is the angle of deflection."
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Understand that the galvanometer measures current using the deflection of a coil in a magnetic field.\n2. Recognize that a shunt resistor allows the galvanometer to measure higher currents by diverting some current away from the galvanometer.\n3. A high resistance in series with the galvanometer allows it to measure voltage by limiting the current through it."
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "A galvanometer can be used to measure current and voltage by using a shunt resistor for current measurement (ammeter) and a series resistor for voltage measurement (voltmeter)."
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "The galvanometer is a versatile instrument that can be adapted for different measurements in electrical circuits by understanding the principles of resistance and circuit configurations."
+            }
+          ],
+          "finalAnswer": "A galvanometer can be adapted to measure current as an ammeter using a shunt resistor, or voltage as a voltmeter using a series resistor.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "case_study",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "explain_from_basics-008",
+      "variation": "case_study",
+      "inputs": {
+        "problem_text_normalized": "Q52. Passage: Complex electrical networks containing multiple junctions, cells, and resistors cannot be easily simplified using Ohm's law alone. We can find the currents through and potential differences across different branches of such circuits using Kirchhoff's rules. Kirchhoff's first rule (Junction Rule) is a statement of conservation of electric charge, while his second rule (Loop Rule) is based on the law of conservation of energy. Consider a network mesh where a primary branch loop contains an EMF source E = 6.0 V with an internal resistance r = 1.0 Ω connected in a circuit that branches into three parallel resistors: R1 = 10 Ω, R2 = 5.0 Ω, and R3 = 5.0 Ω. Sub-questions:",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "title": "Analysis of a Complex Electrical Network",
+          "sections": [
+            {
+              "heading": "Question Understanding",
+              "bodyMarkdown": "The problem involves analyzing a circuit with a voltage source and multiple resistors arranged in parallel. We need to apply Kirchhoff's rules to determine the currents and potential differences in the circuit."
+            },
+            {
+              "heading": "Given Information",
+              "bodyMarkdown": "We have the following information:\n- EMF source (E) = 6.0 V\n- Internal resistance (r) = 1.0 Ω\n- Resistors in parallel: R1 = 10 Ω, R2 = 5.0 Ω, R3 = 5.0 Ω"
+            },
+            {
+              "heading": "What to Find",
+              "bodyMarkdown": "We need to find the total current flowing through the circuit and the voltage across each resistor."
+            },
+            {
+              "heading": "Concept Needed",
+              "bodyMarkdown": "To solve this problem, we will use Kirchhoff's Junction Rule and Loop Rule. The Junction Rule states that the sum of currents entering a junction equals the sum of currents leaving it. The Loop Rule states that the sum of the potential differences around any closed loop in a circuit must equal zero."
+            },
+            {
+              "heading": "Formula/Principle",
+              "bodyMarkdown": "1. Total resistance in parallel: \\( \\frac{1}{R_{total}} = \\frac{1}{R_1} + \\frac{1}{R_2} + \\frac{1}{R_3} \\)\n2. Total current: \\( I = \\frac{E - Ir}{R_{total}} \\)\n3. Voltage across each resistor: \\( V = IR \\)"
+            },
+            {
+              "heading": "Step-by-step Solution",
+              "bodyMarkdown": "1. Calculate the total resistance of the parallel resistors:\n   \\[ \\frac{1}{R_{total}} = \\frac{1}{10} + \\frac{1}{5} + \\frac{1}{5} = \\frac{1}{10} + \\frac{2}{10} + \\frac{2}{10} = \\frac{5}{10} \\]\n   \\[ R_{total} = 2 \\, \\Omega \\]\n\n2. Calculate the total current using the EMF and internal resistance:\n   \\[ I = \\frac{6.0 - (I \\cdot 1.0)}{2} \\]\n   Rearranging gives us:\n   \\[ 2I + I = 6.0 \\]\n   \\[ 3I = 6.0 \\Rightarrow I = 2.0 \\, A \\]\n\n3. Calculate the voltage across the total resistance:\n   \\[ V_{total} = I \\cdot R_{total} = 2.0 \\cdot 2 = 4.0 \\, V \\]\n\n4. Voltage across the internal resistance:\n   \\[ V_{internal} = I \\cdot r = 2.0 \\cdot 1.0 = 2.0 \\, V \\]\n\n5. Voltage across each resistor:\n   - For R1: \\( V_{R1} = V_{total} \\cdot \\frac{R_{total}}{R_1} = 4.0 \\cdot \\frac{2}{10} = 0.8 \\, V \\)\n   - For R2: \\( V_{R2} = V_{total} \\cdot \\frac{R_{total}}{R_2} = 4.0 \\cdot \\frac{2}{5} = 1.6 \\, V \\)\n   - For R3: \\( V_{R3} = V_{total} \\cdot \\frac{R_{total}}{R_3} = 4.0 \\cdot \\frac{2}{5} = 1.6 \\, V \\)"
+            },
+            {
+              "heading": "Final Answer",
+              "bodyMarkdown": "The total current flowing through the circuit is 2.0 A. The voltage across the resistors is as follows:\n- Voltage across R1 = 0.8 V\n- Voltage across R2 = 1.6 V\n- Voltage across R3 = 1.6 V"
+            },
+            {
+              "heading": "Key Learning",
+              "bodyMarkdown": "This problem illustrates the application of Kirchhoff's rules in analyzing complex circuits. Understanding how to calculate total resistance in parallel and applying the loop rule are essential skills in circuit analysis."
+            }
+          ],
+          "finalAnswer": "Total current = 2.0 A; Voltage across R1 = 0.8 V, R2 = 1.6 V, R3 = 1.6 V.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show shorter version",
+              "action": "SHOW_SHORTER_VERSION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Explain concept again",
+              "action": "EXPLAIN_CONCEPT_AGAIN"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "case_study",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "section_completeness",
+        "reveal_level",
+        "ncert_alignment",
+        "latex_format",
+        "production_llm_gold"
       ]
     }
   ]

@@ -1,0 +1,21 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 155,
+  "experiments": [
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v2",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_flashcards-v2-gemini-gemini-2-5-flash-1797fb41",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-07-01T12:37:05.278798+00:00"
+    }
+  ],
+  "workspace_tenant": "scombinator26_47ca8a69",
+  "note": "Fresh ledger after switching workspace (scombinator26_47ca8a69)",
+  "updated_at": "2026-07-01T12:37:05.278798+00:00"
+}

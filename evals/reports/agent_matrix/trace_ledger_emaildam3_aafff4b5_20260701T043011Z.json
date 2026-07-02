@@ -1,0 +1,9 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 0,
+  "experiments": [],
+  "workspace_tenant": "pscmrmindssprint2k25_15d476d5",
+  "note": "Fresh ledger after workspace switch (pscmrmindssprint2k25_15d476d5)"
+}

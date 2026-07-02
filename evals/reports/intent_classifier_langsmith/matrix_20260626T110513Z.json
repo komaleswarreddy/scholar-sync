@@ -1,0 +1,94 @@
+{
+  "generated_at": "2026-06-26T11:00:39.061262+00:00",
+  "langsmith_project": "ScholarSync",
+  "dataset": "nbm-prompt-intent_classifier",
+  "prompt_versions": [
+    "v1",
+    "v2",
+    "v3",
+    "v4"
+  ],
+  "experiments": [
+    {
+      "experiment_prefix": "ic-v1-openai-gpt-5-4-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 114.7,
+      "experiment_name": "ic-v1-openai-gpt-5-4-mini-40db6216",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v1-gemini-gemini-3-5-flash",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "elapsed_seconds": 141.21,
+      "experiment_name": "ic-v1-gemini-gemini-3-5-flash-d8110670",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v2-openai-gpt-5-4-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 10.58,
+      "experiment_name": "ic-v2-openai-gpt-5-4-mini-1a49fccd",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v2-gemini-gemini-3-5-flash",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "elapsed_seconds": 1.23,
+      "experiment_name": "ic-v2-gemini-gemini-3-5-flash-c4d19649",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v3-openai-gpt-5-4-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 1.17,
+      "experiment_name": "ic-v3-openai-gpt-5-4-mini-7f7f31c3",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v3-gemini-gemini-3-5-flash",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "elapsed_seconds": 1.56,
+      "experiment_name": "ic-v3-gemini-gemini-3-5-flash-c2b63018",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v4-openai-gpt-5-4-mini",
+      "prompt_version": "v4",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "elapsed_seconds": 1.21,
+      "experiment_name": "ic-v4-openai-gpt-5-4-mini-97c18bd9",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    },
+    {
+      "experiment_prefix": "ic-v4-gemini-gemini-3-5-flash",
+      "prompt_version": "v4",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "elapsed_seconds": 1.19,
+      "experiment_name": "ic-v4-gemini-gemini-3-5-flash-ccd9d32b",
+      "langsmith_url": "https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/projects/p/ScholarSync"
+    }
+  ],
+  "skipped_providers": [
+    "anthropic-claude-haiku-4-5"
+  ],
+  "dry_run": false,
+  "summary": {
+    "total_experiments": 8,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

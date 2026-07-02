@@ -117,7 +117,6 @@ Quick lookup. **Full evaluation criteria for each agent are in Section 4 below**
 | 28 | chunk_contextualization | formatter | 90 | 5 | nbm-prompt-chunk_contextualization |
 | 29 | whole_file_map_summarizer | formatter | 90 | 15 | nbm-prompt-whole_file_map_summarizer |
 | 30 | whole_file_reduce | formatter | 90 | 15 | nbm-prompt-whole_file_reduce |
-| 31 | whole_file_map_template | formatter | 90 | 5 | nbm-prompt-whole_file_map_template |
 | 32 | image_ocr | formatter | 90 | 15 | nbm-prompt-image_ocr |
 | 33 | diagram_label_ocr | formatter | 90 | 15 | nbm-prompt-diagram_label_ocr |
 | 34 | refusal_templates | formatter | 90 | 5 | nbm-prompt-refusal_templates |
@@ -3131,99 +3130,6 @@ FAIL if weighted_score < 90
 ---
 
 
-## Agent 31: `whole_file_map_template` — Whole File Map Template (Unused file)
-
-### A. Agent overview
-
-| Field | Value |
-|-------|-------|
-| **S.no** | 31 |
-| **Agent ID** | `whole_file_map_template` |
-| **Display name** | Whole File Map Template (Unused file) |
-| **Category** | source_upload |
-| **Tier** | tier_3 (5 examples) |
-| **Role** | Template for map-phase summaries across document excerpts. |
-
-### B. Dataset used
-
-| Field | Value |
-|-------|-------|
-| **Local path** | `evals/datasets/prompt_tiered/source_upload/whole_file_map_template.json` |
-| **LangSmith dataset** | `nbm-prompt-whole_file_map_template` |
-| **Example count** | 5 |
-| **Variations in dataset** | `metadata` (5) |
-| **Item-level annotations** | `map_format` |
-
-### C. Input / output contract
-
-| Direction | Keys |
-|-----------|------|
-| **Inputs** | `excerpts` |
-| **Reference outputs (gold)** | `map_summaries` |
-| **Key outputs evaluated** | `map_summaries` |
-
-### D. Evaluator assigned to this agent
-
-| Field | Value |
-|-------|-------|
-| **Runtime evaluator** | `formatter` |
-| **Evaluator class** | `FormatterEvaluator` |
-| **Pass threshold** | **90%** |
-| **Prompt versions tested** | `v1`, `v2` |
-| **Models tested** | `gpt-4o-mini` |
-
-### E. Evaluation criteria (detailed scoring for this agent)
-
-**What this agent is evaluated on:** Map summaries JSON structure; format compliance.
-
-**Scoring formula:**
-```
-weighted_score = (Σ metric_i × weight_i) / (Σ weight_i) × 100
-PASS if weighted_score >= 90
-FAIL if weighted_score < 90
-```
-
-| Metric | Weight | How it is scored for `whole_file_map_template` |
-|--------|--------|------------------------------|
-| `schema_compliance` | 50% | If `quiz_json`/`json_output`/`flashcards_json` etc. expected: 1.0 if output parses as valid JSON; else 0.0. Otherwise 1.0 |
-| `format_quality` | 30% | 1.0 if markdown headings (`#`), bullets (`-`), numbered lists, OR valid JSON present; else 0.5 |
-| `consistency` | 20% | Same as format_quality — stable structure across output |
-
-**Pass rule for this agent:** weighted_score >= passing_threshold; JSON agents require parseable JSON for schema_compliance=1.0 (threshold = 90%)
-
-**Common failure modes for this agent:**
-- Invalid JSON when JSON output required
-- No markdown structure for text outputs
-- Markdown fences wrapping JSON body
-
-### F. Worked example from dataset
-
-**Example ID:** `whole_file_map_template-001` | **Variation:** `metadata` | **Tags:** template, regression
-
-**Input:**
-```json
-{
-  "excerpts": "Part 1 excerpt on Physics.\nPart 2 excerpt continued."
-}
-```
-
-**Reference output (gold label):**
-```json
-{
-  "map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."
-}
-```
-
-### G. LangSmith verification
-
-- **Dataset:** Datasets & Experiments → `nbm-prompt-whole_file_map_template`
-- **Eval runs:** Tracing → `eval/whole_file_map_template/{example_id}`
-- **Experiment summary:** Tracing → `experiment/whole_file_map_template/{prompt}/{model}`
-- **Feedback keys:** `weighted_score`, `passed`, `metric_*`, `total_cost_usd`
-
----
-
-
 ## Agent 32: `image_ocr` — Image OCR Agent
 
 ### A. Agent overview
@@ -3505,7 +3411,7 @@ FAIL if weighted_score < 90
 ---
 
 
-*Total agents documented: 33*
+*Total agents documented: 32*
 <!-- PER_AGENT_EVAL_CRITERIA_END -->
 
 ---
@@ -3540,19 +3446,19 @@ python scripts/generate_agent_eval_criteria_sections.py
 <!-- COMPARISON_APPENDIX_START -->
 # Agent prompt × model comparison (auto-generated)
 
-*Generated: 2026-06-18T04:37:30.482992+00:00*
+*Generated: 2026-06-26T02:30:14.183131+00:00*
 
 ## Overall summary
 
 | Metric | Value |
 |--------|-------|
-| Agents evaluated | 33 |
-| Agents with winner above threshold | 27 |
+| Agents evaluated | 32 |
+| Agents with winner above threshold | 26 |
 | Agents below threshold | 6 |
-| Total eval cost (all rows) | $0.5765 |
+| Total eval cost (all rows) | $0.5760 |
 | v1 prompt wins | 12 |
-| v2 prompt wins | 15 |
-| gpt-4o-mini wins | 24 |
+| v2 prompt wins | 14 |
+| gpt-4o-mini wins | 23 |
 | gpt-4o wins | 3 |
 
 **Below threshold:** intent_classifier, query_rewriter, query_decomposer, scope_narrower, studio_quiz, problem_dna_analyzer
@@ -3569,8 +3475,8 @@ python scripts/generate_agent_eval_criteria_sections.py
 | 6 | image_ocr | v2 | gpt-4o-mini | 100.0 | $0.000135 | PASS |
 | 7 | studio_system_json | v2 | gpt-4o-mini | 100.0 | $0.000142 | PASS |
 | 8 | refusal_templates | v2 | gpt-4o-mini | 100.0 | $0.000199 | PASS |
-| 9 | whole_file_map_template | v1 | gpt-4o-mini | 100.0 | $0.000221 | PASS |
-| 10 | whole_file_map_template | v2 | gpt-4o-mini | 100.0 | $0.000255 | PASS |
+| 9 | tutor_follow_up_questions | v1 | gpt-4o-mini | 100.0 | $0.000297 | PASS |
+| 10 | hallucination_guard_retry | v2 | gpt-4o-mini | 100.0 | $0.000300 | PASS |
 
 Do not edit manually — regenerate with `python scripts/generate_comparison_report.py`.
 
@@ -3578,7 +3484,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_1 (30 examples) |
+| Tier | tier_1 (63 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/routing/intent_classifier.json` |
 | LangSmith dataset | `nbm-prompt-intent_classifier` |
 | Evaluator | `router` (pass ≥ 95%) |
@@ -3588,7 +3494,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `system=agents/intent_classifier_system.j2, user=agents/intent_classifier_user.j2`
-- **v2**: `system=agents/intent_classifier_system_v2.j2, user=agents/intent_classifier_user_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -3627,11 +3532,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 ---
 
-### 2. `query_rewriter` — Query Rewriter Agent
+### 2. `query_rewriter` — Query Rewriter Agent (Refined)
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_1 (30 examples) |
+| Tier | tier_1 (56 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/retrieval/query_rewriter.json` |
 | LangSmith dataset | `nbm-prompt-query_rewriter` |
 | Evaluator | `query_rewriter` (pass ≥ 90%) |
@@ -3641,7 +3546,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `system=agents/query_rewriter_system.j2, user=agents/query_rewriter_user.j2`
-- **v2**: `system=agents/query_rewriter_system_v2.j2, user=agents/query_rewriter_user_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -3685,11 +3589,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 ---
 
-### 3. `query_decomposer` — Query Decomposer Agent
+### 3. `query_decomposer` — Query Decomposer Agent (Refined)
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (48 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/retrieval/query_decomposer.json` |
 | LangSmith dataset | `nbm-prompt-query_decomposer` |
 | Evaluator | `query_rewriter` (pass ≥ 90%) |
@@ -3699,7 +3603,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=eval/query_decomposer_v1.j2`
-- **v2**: `template=eval/query_decomposer_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -3738,11 +3641,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 ---
 
-### 4. `scope_narrower` — Scope Narrower Agent
+### 4. `scope_narrower` — Scope Narrower Agent (Refined)
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (25 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/retrieval/scope_narrower.json` |
 | LangSmith dataset | `nbm-prompt-scope_narrower` |
 | Evaluator | `query_rewriter` (pass ≥ 90%) |
@@ -3752,7 +3655,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `system=agents/scope_narrower_system.j2, user=agents/scope_narrower_user.j2`
-- **v2**: `system=agents/scope_narrower_system_v2.j2, user=agents/scope_narrower_user_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -3799,7 +3701,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (25 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/generation/chat_policy_block.json` |
 | LangSmith dataset | `nbm-prompt-chat_policy_block` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -3809,7 +3711,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=eval/chat_policy_block_v1.j2`
-- **v2**: `template=eval/chat_policy_block_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -3852,7 +3753,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (25 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/generation/direct_chat.json` |
 | LangSmith dataset | `nbm-prompt-direct_chat` |
 | Evaluator | `formatter` (pass ≥ 98%) |
@@ -3862,7 +3763,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=chat/direct_chat.j2`
-- **v2**: `template=chat/direct_chat_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -3902,17 +3802,16 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (20 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/generation/chat_summarizer.json` |
 | LangSmith dataset | `nbm-prompt-chat_summarizer` |
 | Evaluator | `formatter` (pass ≥ 98%) |
 | Candidate models | gpt-4o-mini, gpt-4o |
-| Sample example IDs | chat_summarizer-001, chat_summarizer-002, chat_summarizer-003 |
+| Sample example IDs | chat_summarizer-001, chat_summarizer-006, chat_summarizer-009 |
 
 **Prompt versions**
 
 - **v1**: `template=chat/chat_summarizer_prompt.j2`
-- **v2**: `template=chat/chat_summarizer_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -3952,7 +3851,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (15 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/generation/hallucination_guard_retry.json` |
 | LangSmith dataset | `nbm-prompt-hallucination_guard_retry` |
 | Evaluator | `verifier` (pass ≥ 95%) |
@@ -3962,7 +3861,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=eval/hallucination_guard_retry_v1.j2`
-- **v2**: `template=eval/hallucination_guard_retry_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4004,17 +3902,16 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (15 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/studio/studio_system_json.json` |
 | LangSmith dataset | `nbm-prompt-studio_system_json` |
 | Evaluator | `formatter` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini |
-| Sample example IDs | studio_system_json-001, studio_system_json-002, studio_system_json-003 |
+| Sample example IDs | studio_system_json-001, studio_system_json-005, studio_system_json-006 |
 
 **Prompt versions**
 
 - **v1**: `template=studio/system_educational_json_markdown.j2`
-- **v2**: `template=studio/system_educational_json_markdown_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4060,7 +3957,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (25 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/studio/studio_quiz.json` |
 | LangSmith dataset | `nbm-prompt-studio_quiz` |
 | Evaluator | `formatter` (pass ≥ 98%) |
@@ -4070,7 +3967,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=studio/quiz_prompt.j2`
-- **v2**: `template=studio/quiz_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4132,7 +4028,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (22 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/studio/studio_flashcards.json` |
 | LangSmith dataset | `nbm-prompt-studio_flashcards` |
 | Evaluator | `formatter` (pass ≥ 98%) |
@@ -4142,7 +4038,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=studio/flashcards_prompt.j2`
-- **v2**: `template=studio/flashcards_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4190,7 +4085,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (24 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/studio/studio_mind_map.json` |
 | LangSmith dataset | `nbm-prompt-studio_mind_map` |
 | Evaluator | `formatter` (pass ≥ 98%) |
@@ -4200,7 +4095,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=studio/mind_map_prompt.j2`
-- **v2**: `template=studio/mind_map_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4239,7 +4133,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (22 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/studio/studio_slide_deck.json` |
 | LangSmith dataset | `nbm-prompt-studio_slide_deck` |
 | Evaluator | `formatter` (pass ≥ 98%) |
@@ -4249,7 +4143,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=studio/slide_deck_prompt.j2`
-- **v2**: `template=studio/slide_deck_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4295,12 +4188,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-studio_fallback_legacy` |
 | Evaluator | `formatter` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini |
-| Sample example IDs | studio_fallback_legacy-001, studio_fallback_legacy-002, studio_fallback_legacy-003 |
+| Sample example IDs | studio_fallback_legacy-001, studio_fallback_legacy-005, studio_fallback_legacy-009 |
 
 **Prompt versions**
 
 - **v1**: `template=studio/fallback_task_prompt.j2`
-- **v2**: `template=studio/fallback_task_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4339,17 +4231,16 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (15 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/studio/studio_context_embedding_query.json` |
 | LangSmith dataset | `nbm-prompt-studio_context_embedding_query` |
 | Evaluator | `formatter` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini |
-| Sample example IDs | studio_context_embedding_query-001, studio_context_embedding_query-002, studio_context_embedding_query-003 |
+| Sample example IDs | studio_context_embedding_query-001, studio_context_embedding_query-005, studio_context_embedding_query-009 |
 
 **Prompt versions**
 
 - **v1**: `template=eval/studio_context_embedding_query_v1.j2`
-- **v2**: `template=eval/studio_context_embedding_query_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4394,12 +4285,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-problem_dna_analyzer` |
 | Evaluator | `router` (pass ≥ 95%) |
 | Candidate models | gpt-4o-mini, gpt-4o |
-| Sample example IDs | problem_dna_analyzer-001, problem_dna_analyzer-002, problem_dna_analyzer-003 |
+| Sample example IDs | problem_dna_analyzer-011, problem_dna_analyzer-012, problem_dna_analyzer-020 |
 
 **Prompt versions**
 
 - **v1**: `template=problem_solver/dna.j2`
-- **v2**: `template=problem_solver/dna_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4466,12 +4356,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-explain_from_basics` |
 | Evaluator | `hint_agent` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini, gpt-4o |
-| Sample example IDs | explain_from_basics-001, explain_from_basics-002, explain_from_basics-003 |
+| Sample example IDs | explain_from_basics-016, explain_from_basics-017, explain_from_basics-019 |
 
 **Prompt versions**
 
 - **v1**: `template=problem_solver/explain_from_basics.j2`
-- **v2**: `template=problem_solver/explain_from_basics_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4527,12 +4416,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-show_best_approach` |
 | Evaluator | `hint_agent` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini, gpt-4o |
-| Sample example IDs | show_best_approach-001, show_best_approach-002, show_best_approach-003 |
+| Sample example IDs | show_best_approach-017, show_best_approach-018, show_best_approach-019 |
 
 **Prompt versions**
 
 - **v1**: `template=problem_solver/show_best_approach.j2`
-- **v2**: `template=problem_solver/show_best_approach_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4588,12 +4476,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-show_missing_idea` |
 | Evaluator | `hint_agent` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini, gpt-4o |
-| Sample example IDs | show_missing_idea-001, show_missing_idea-002, show_missing_idea-003 |
+| Sample example IDs | show_missing_idea-010, show_missing_idea-011, show_missing_idea-012 |
 
 **Prompt versions**
 
 - **v1**: `template=problem_solver/show_missing_idea.j2`
-- **v2**: `template=problem_solver/show_missing_idea_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4649,12 +4536,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-help_me_solve_it` |
 | Evaluator | `hint_agent` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini, gpt-4o |
-| Sample example IDs | help_me_solve_it-001, help_me_solve_it-002, help_me_solve_it-003 |
+| Sample example IDs | help_me_solve_it-006, help_me_solve_it-007, help_me_solve_it-008 |
 
 **Prompt versions**
 
 - **v1**: `template=problem_solver/help_me_solve_it.j2`
-- **v2**: `template=problem_solver/help_me_solve_it_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4721,7 +4607,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=problem_solver/follow_up.j2`
-- **v2**: `template=problem_solver/follow_up_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4776,12 +4661,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-tutor_notebook_bootstrap` |
 | Evaluator | `formatter` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini |
-| Sample example IDs | tutor_notebook_bootstrap-001, tutor_notebook_bootstrap-002, tutor_notebook_bootstrap-003 |
+| Sample example IDs | tutor_notebook_bootstrap-001, tutor_notebook_bootstrap-015, tutor_notebook_bootstrap-002 |
 
 **Prompt versions**
 
 - **v1**: `template=tutor/notebook_bootstrap.j2`
-- **v2**: `template=tutor/notebook_bootstrap_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4856,12 +4740,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 | LangSmith dataset | `nbm-prompt-tutor_follow_up_questions` |
 | Evaluator | `formatter` (pass ≥ 98%) |
 | Candidate models | gpt-4o-mini |
-| Sample example IDs | tutor_follow_up_questions-001, tutor_follow_up_questions-002, tutor_follow_up_questions-003 |
+| Sample example IDs | tutor_follow_up_questions-001, tutor_follow_up_questions-011, tutor_follow_up_questions-002 |
 
 **Prompt versions**
 
 - **v1**: `template=tutor/follow_up_questions.j2`
-- **v2**: `template=tutor/follow_up_questions_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4908,17 +4791,16 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_1 (30 examples) |
+| Tier | tier_1 (28 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/source_question_extraction.json` |
 | LangSmith dataset | `nbm-prompt-source_question_extraction` |
 | Evaluator | `formatter` (pass ≥ 98%) |
 | Candidate models | gpt-4o-mini, gpt-4o |
-| Sample example IDs | source_question_extraction-001, source_question_extraction-002, source_question_extraction-003 |
+| Sample example IDs | source_question_extraction-001, source_question_extraction-002, source_question_extraction-004 |
 
 **Prompt versions**
 
 - **v1**: `template=source_questions/extract.j2`
-- **v2**: `template=source_questions/extract_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -4973,7 +4855,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/document_sketch.json` |
 | LangSmith dataset | `nbm-prompt-document_sketch` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -4983,7 +4865,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=rag/document_sketch.j2`
-- **v2**: `template=rag/document_sketch_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -5045,7 +4926,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/ncert_document_sketch.json` |
 | LangSmith dataset | `nbm-prompt-ncert_document_sketch` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -5055,7 +4936,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=rag/ncert_document_sketch.j2`
-- **v2**: `template=rag/ncert_document_sketch_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -5107,7 +4987,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/chunk_contextualization.json` |
 | LangSmith dataset | `nbm-prompt-chunk_contextualization` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -5117,7 +4997,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=rag/chunk_contextualization.j2`
-- **v2**: `template=rag/chunk_contextualization_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -5161,11 +5040,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 ---
 
-### 29. `whole_file_map_summarizer` — Whole File Map Summarizer
+### 29. `whole_file_map_summarizer` — Whole File Map Summarizer Agent
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/whole_file_map_summarizer.json` |
 | LangSmith dataset | `nbm-prompt-whole_file_map_summarizer` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -5175,7 +5054,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=rag/whole_file_map_prompt.j2`
-- **v2**: `template=rag/whole_file_map_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -5217,7 +5095,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/whole_file_reduce.json` |
 | LangSmith dataset | `nbm-prompt-whole_file_reduce` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -5227,7 +5105,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=rag/whole_file_reduce_prompt.j2`
-- **v2**: `template=rag/whole_file_reduce_prompt_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -5262,59 +5139,11 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 ---
 
-### 31. `whole_file_map_template` — Whole File Map Template (Unused file)
-
-| Field | Value |
-|-------|-------|
-| Tier | tier_3 (5 examples) |
-| Local dataset | `evals/datasets/prompt_tiered/source_upload/whole_file_map_template.json` |
-| LangSmith dataset | `nbm-prompt-whole_file_map_template` |
-| Evaluator | `formatter` (pass ≥ 90%) |
-| Candidate models | gpt-4o-mini |
-| Sample example IDs | whole_file_map_template-001, whole_file_map_template-002, whole_file_map_template-003 |
-
-**Prompt versions**
-
-- **v1**: `template=eval/whole_file_map_template_v1.j2`
-- **v2**: `template=eval/whole_file_map_template_v2.j2`
-
-**v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
-
-**Prompt × model comparison**
-
-| Prompt | Model | Score | Pass rate | Input $ | Output $ | Total $ | Latency ms | Passed |
-|--------|-------|-------|-----------|---------|----------|---------|------------|--------|
-| v1 | gpt-4o-mini | 100.0 | 1.0 | $0.000057 | $0.000164 | $0.000221 | 9535.97 | PASS |
-| v2 | gpt-4o-mini | 100.0 | 1.0 | $0.000112 | $0.000143 | $0.000255 | 9438.29 | PASS |
-
-**Best config:** prompt=`v2` model=`gpt-4o-mini` score=100.0 total_cost=$0.000255 (composite=0.9056)
-
-*Eval mode: live LLM | batch: `20260618T025756Z`*
-
-**Worked example (first result)**
-
-- Example ID: `whole_file_map_template-001` | variation: `metadata` | prompt: `v1` | model: `gpt-4o-mini` | score: 100.0
-
-```json
-{
-  "inputs": {
-    "excerpts": "Part 1 excerpt on Physics.\nPart 2 excerpt continued."
-  },
-  "expected": {
-    "map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."
-  }
-}
-```
-
-**Verify in LangSmith:** Tracing → project `notebooklm-dev` → filter run name `experiment/whole_file_map_template/` or `eval/whole_file_map_template/` → check metadata `prompt_version`, `input_cost_usd`.
-
----
-
 ### 32. `image_ocr` — Image OCR Agent
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/image_ocr.json` |
 | LangSmith dataset | `nbm-prompt-image_ocr` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -5324,7 +5153,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=eval/image_ocr_v1.j2`
-- **v2**: `template=eval/image_ocr_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -5362,17 +5190,16 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_2 (15 examples) |
+| Tier | tier_2 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/source_upload/diagram_label_ocr.json` |
 | LangSmith dataset | `nbm-prompt-diagram_label_ocr` |
 | Evaluator | `formatter` (pass ≥ 90%) |
 | Candidate models | gpt-4o-mini |
-| Sample example IDs | diagram_label_ocr-001, diagram_label_ocr-002, diagram_label_ocr-003 |
+| Sample example IDs | diagram_label_ocr-001, diagram_label_ocr-008, diagram_label_ocr-009 |
 
 **Prompt versions**
 
 - **v1**: `template=eval/diagram_label_ocr_v1.j2`
-- **v2**: `template=eval/diagram_label_ocr_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 
@@ -5410,7 +5237,7 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 
 | Field | Value |
 |-------|-------|
-| Tier | tier_3 (5 examples) |
+| Tier | tier_3 (13 examples) |
 | Local dataset | `evals/datasets/prompt_tiered/safety/refusal_templates.json` |
 | LangSmith dataset | `nbm-prompt-refusal_templates` |
 | Evaluator | `formatter` (pass ≥ 90%) |
@@ -5420,7 +5247,6 @@ Do not edit manually — regenerate with `python scripts/generate_comparison_rep
 **Prompt versions**
 
 - **v1**: `template=eval/refusal_templates_v1.j2`
-- **v2**: `template=eval/refusal_templates_v2.j2`
 
 **v1 vs v2 difference:** v2 adds: stricter NCERT/CBSE grounding, JSON-only output, reasoning ≤40 words, no chain-of-thought in output fields.
 

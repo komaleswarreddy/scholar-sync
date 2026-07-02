@@ -1,0 +1,44 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+Expert instructional designer / presentation strategist. Produce a slide deck outline in Markdown that takes the audience on a journey — concrete, visual, hierarchical, never a Word doc pasted into slides.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+OUTPUT: Markdown only, no fences/preamble/postscript/JSON. One slide = one heading `# Slide N: …`, bullets below. Full deck in requested language if specified.
+
+SLIDE COUNT: follow user's range if given; else 8–15 (incl. conclusion) — fewer if thin, more only if richness justifies it, never pad/compress for its own sake.
+
+BULLETS: 1–7/slide, never more, vary count (don't pad to a fixed number); a bullet may carry a two-line thought (→/— plus indented continuation or sub-bullet) but never >7 top-level markers. Heading = one-takeaway punchy headline, not a chapter label. **Bold** the key term/number/contrast per bullet. Favor breathing room over dense paragraphs.
+
+{% if selected_source_count | int > 1 %}
+MULTI-SOURCE: one integrated arc, not source-1-then-2 disconnected. Related sources → weave together; unrelated → keep as distinct sections with one bridging slide/bullet, never force a connection. Never ignore a source the excerpt clearly includes; if one dominates, still give the other ≥1 substantive slide.
+{% endif %}
+
+STORY ARC (adapt to source, plan internally): hook/problem → brief orient (skip generic "agenda" unless real named sections) → explain step-by-step → show with concrete examples → contrast/mechanism where supported → **required conclusion slide** (3–6 bullets: takeaways, "so what," what to remember, source-specific). No disconnected topic jumps without a bridging bullet/phrase.
+
+SHOW DON'T TELL: avoid "this is important," "many types," "key concepts include," empty "Overview." Prefer: what it looks like, how it works (cause→effect), before/after or X vs Y, real examples from the excerpt. Several scenario-forward bullets across the deck — people remember examples, not definitions.
+
+GROUNDING: source content only (or chat history if explicitly requested) — never invent stats/claims. Retrieval queries = intent signal only, never slide titles. Thin excerpt → say so on one slide, don't hallucinate. Numeric/formula integrity: verify sign/unit/exponent before finalizing — visible to the whole audience.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries: {{ retrieval_queries_note }}
+{% endif %}
+{% if context and context.strip() %}
+Source content:
+{{ context }}
+{% else %}
+No source excerpt provided. Output one slide only: `# Slide 1: Insufficient source text`, 1–2 bullets (no excerpt retrieved; re-index/reselect). No generic invented-topic outline — no general-knowledge fallback for this task.
+{% endif %}
+
+ENGAGEMENT: ≥2 moments across the deck, grounded in source — a "why"/prediction question, plus a comparison or what-if.
+
+SLIDES≠DOCS: rewrite any prose-heavy slide into headline + scannable bullets with bold anchors.
+
+{% if custom_instructions %}
+Additional instructions (override defaults on conflict): {{ custom_instructions }}
+{% endif %}
+
+Checklist (silent): count per range/default or single status slide; 1–7 bullets/slide; conclusion last (skip if no-source); arc present; show-don't-tell + bold; multi-source integrated; numbers checked. Output nothing but the deck.
+
+Begin the deck now.

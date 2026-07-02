@@ -73,7 +73,9 @@ def test_rag_prompt_with_context_includes_policy_before_evidence():
         **common,
     )
     assert "## Central response policy (mandatory)" in ctx_prompt
-    assert ctx_prompt.index("Central response policy") < ctx_prompt.index("Context evidence")
+    assert ctx_prompt.index("Central response policy") < ctx_prompt.index(
+        "## Context evidence from vector store"
+    )
 
 
 def test_rag_prompt_no_context_branch_includes_policy():

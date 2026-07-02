@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "tutor_follow_up_questions",
   "agent": {
     "sno": 24,
@@ -7,7 +7,7 @@
     "name": "Tutor Follow-up Questions Agent",
     "tier": "tier_1",
     "target_examples": 30,
-    "prompt_template": "SYSTEM:\nReturn valid JSON only.\n\nUSER/TASK TEMPLATE:\nYou are ScholarSync Tutor. Given the student's scope and the last exchange, suggest follow-up questions that give **directionality** — deeper understanding, application, exam prep, or fixing misconceptions.\n\n## Scope\nClass {{ class_num }} · {{ subject_label }} · Ch. {{ chapter_no }} {{ chapter_title }}\n{% if concept %}Concept: {{ concept }}{% endif %}\n\n## Last exchange\nStudent: {{ user_message }}\nTutor: {{ assistant_message }}\n\n## Rules\n- Return JSON only: {\"follow_ups\": [\"...\", \"...\", \"...\"]}\n- Exactly 3 questions, each ≤90 characters\n- Must be **specific** to what was just discussed (no generic \"Tell me more\")\n- Mix: 1 clarify/deepen, 1 apply/practice, 1 connect/exam-angle\n- Student tone; no teacher jargon\n- Do not repeat the student's exact question\n- If assistant said \"Not found in provided sources\", suggest rephrases or related NCERT subtopics instead"
+    "prompt_template": "You are ScholarSync Tutor. Given the student's scope and the last exchange, suggest follow-up questions that give **directionality** — deeper understanding, application, exam prep, or fixing misconceptions.\n\n## Scope\nClass {{ class_num }} · {{ subject_label }} · Ch. {{ chapter_no }} {{ chapter_title }}\n{% if concept %}Concept: {{ concept }}{% endif %}\n\n## Last exchange\nStudent: {{ user_message }}\nTutor: {{ assistant_message }}\n\n## Rules\n- Return JSON only: {\"follow_ups\": [\"...\", \"...\", \"...\"]}\n- Exactly 3 questions, each ≤90 characters\n- Must be **specific** to what was just discussed (no generic \"Tell me more\")\n- Mix: 1 clarify/deepen, 1 apply/practice, 1 connect/exam-angle\n- Student tone; no teacher jargon\n- Do not repeat the student's exact question\n- If assistant said \"Not found in provided sources\", suggest rephrases or related NCERT subtopics instead"
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -17,7 +17,8 @@
       "class_num",
       "subject_label",
       "chapter_no",
-      "chapter_title"
+      "chapter_title",
+      "concept"
     ],
     "output_keys": [
       "follow_ups"
@@ -27,841 +28,1051 @@
     {
       "id": "tutor_follow_up_questions-001",
       "variation": "typo",
+      "inputs": {
+        "user_message": "In a series circuit with two 4Ω resistors and a 12V battery, why is current the same through both resistors but voltage splits?",
+        "assistant_message": "In series, charge has one path so current I is identical. Each resistor drops V=IR; total 12V splits as 4I + 4I = 8I, giving I = 1.5 A.",
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 12,
+        "chapter_title": "Electricity",
+        "concept": "Ohm's law"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "What happens to current if one resistor is removed from the circuit?",
+            "Can you calculate voltage drop across each resistor with 1.5 A current?",
+            "How would this change if the resistors were in parallel instead?"
+          ]
+        }
+      },
       "tags": [
         "cbse",
         "science",
-        "cbse"
+        "typo",
+        "production_llm_gold"
       ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-011",
+      "variation": "typo",
       "inputs": {
-        "user_message": "What is Ohm's law?",
-        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
-        "class_num": 10,
+        "user_message": "Why does escape velocity depend on planet radius and g but not on the mass of the escaping object?",
+        "assistant_message": "Escape speed balances kinetic and gravitational potential per unit mass: ½v² = GM/R. The object's mass cancels; only the field strength at the surface matters.",
+        "class_num": 11,
         "subject_label": "Physics",
-        "chapter_no": 1,
-        "chapter_title": "Chapter topic 1"
+        "chapter_no": 7,
+        "chapter_title": "Gravitation",
+        "concept": "Kepler's laws"
       },
       "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on What is Ohm's law??",
-          "Where is this in NCERT exam?",
-          "Common mistake about What is Ohm's law??"
-        ]
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain how g changes with altitude and its effect on escape velocity?",
+            "How would you calculate escape velocity for a planet with double the radius?",
+            "What might be a common mistake when applying Kepler's laws in exam questions?"
+          ]
+        }
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "typo",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "three_follow_ups"
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
       ]
     },
     {
       "id": "tutor_follow_up_questions-002",
       "variation": "conversational",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
       "inputs": {
-        "user_message": "Explain photosynthesis light reaction.",
-        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
-        "class_num": 11,
-        "subject_label": "Chemistry",
-        "chapter_no": 2,
-        "chapter_title": "Chapter topic 2"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Explain photosynthesis light r?",
-          "Where is this in NCERT exam?",
-          "Common mistake about Explain photosynthesis li?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-003",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_advanced"
-      ],
-      "inputs": {
-        "user_message": "How to balance redox equations?",
-        "assistant_message": "Split into half-reactions; balance atoms then charge.",
-        "class_num": 12,
-        "subject_label": "Biology",
-        "chapter_no": 3,
-        "chapter_title": "Chapter topic 3"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on How to balance redox equations?",
-          "Where is this in NCERT exam?",
-          "Common mistake about How to balance redox equa?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-004",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "user_message": "Difference mitosis meiosis?",
-        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
-        "class_num": 10,
-        "subject_label": "Mathematics",
-        "chapter_no": 4,
-        "chapter_title": "Chapter topic 4"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Difference mitosis meiosis??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Difference mitosis meiosi?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-005",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
-      "inputs": {
-        "user_message": "Projectile range formula?",
-        "assistant_message": "R = u² sin2θ / g for level ground.",
-        "class_num": 11,
-        "subject_label": "Science",
-        "chapter_no": 5,
-        "chapter_title": "Chapter topic 5"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Projectile range formula??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Projectile range formula??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-006",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "user_message": "What is Ohm's law?",
-        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
-        "class_num": 12,
-        "subject_label": "Physics",
-        "chapter_no": 6,
-        "chapter_title": "Chapter topic 6"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on What is Ohm's law??",
-          "Where is this in NCERT exam?",
-          "Common mistake about What is Ohm's law??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-007",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
-      "inputs": {
-        "user_message": "Explain photosynthesis light reaction.",
-        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
-        "class_num": 10,
-        "subject_label": "Chemistry",
-        "chapter_no": 7,
-        "chapter_title": "Chapter topic 7"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Explain photosynthesis light r?",
-          "Where is this in NCERT exam?",
-          "Common mistake about Explain photosynthesis li?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-008",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_advanced"
-      ],
-      "inputs": {
-        "user_message": "How to balance redox equations?",
-        "assistant_message": "Split into half-reactions; balance atoms then charge.",
+        "user_message": "How does gastric pH affect pepsinogen activation, and what happens if antacid raises stomach pH too much?",
+        "assistant_message": "HCl converts pepsinogen to active pepsin near pH 2. Excess antacid raises pH, reducing pepsin activity and slowing protein digestion in the stomach.",
         "class_num": 11,
         "subject_label": "Biology",
-        "chapter_no": 8,
-        "chapter_title": "Chapter topic 8"
+        "chapter_no": 16,
+        "chapter_title": "Digestion and Absorption",
+        "concept": ""
       },
       "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on How to balance redox equations?",
-          "Where is this in NCERT exam?",
-          "Common mistake about How to balance redox equa?"
-        ]
+        "follow_ups": {
+          "follow_ups": [
+            "What are the consequences of low gastric pH on digestion?",
+            "Can you explain how pepsin works on proteins?",
+            "How might this topic appear in exam questions on digestion?"
+          ]
+        }
       },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-009",
-      "variation": "security",
       "tags": [
         "cbse",
-        "science",
-        "neet"
+        "biology",
+        "conversational",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "user_message": "Difference mitosis meiosis?",
-        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
-        "class_num": 12,
-        "subject_label": "Mathematics",
-        "chapter_no": 9,
-        "chapter_title": "Chapter topic 9"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Difference mitosis meiosis??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Difference mitosis meiosi?"
-        ]
-      },
       "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-010",
-      "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
-      "inputs": {
-        "user_message": "Projectile range formula?",
-        "assistant_message": "R = u² sin2θ / g for level ground.",
-        "class_num": 10,
-        "subject_label": "Science",
-        "chapter_no": 10,
-        "chapter_title": "Chapter topic 10"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Projectile range formula??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Projectile range formula??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-011",
-      "variation": "comparison",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "user_message": "What is Ohm's law?",
-        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
-        "class_num": 11,
-        "subject_label": "Physics",
-        "chapter_no": 11,
-        "chapter_title": "Chapter topic 11"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on What is Ohm's law??",
-          "Where is this in NCERT exam?",
-          "Common mistake about What is Ohm's law??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-012",
-      "variation": "metadata",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
-      "inputs": {
-        "user_message": "Explain photosynthesis light reaction.",
-        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
-        "class_num": 12,
-        "subject_label": "Chemistry",
-        "chapter_no": 12,
-        "chapter_title": "Chapter topic 12"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Explain photosynthesis light r?",
-          "Where is this in NCERT exam?",
-          "Common mistake about Explain photosynthesis li?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
       ]
     },
     {
       "id": "tutor_follow_up_questions-013",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_advanced"
-      ],
-      "inputs": {
-        "user_message": "How to balance redox equations?",
-        "assistant_message": "Split into half-reactions; balance atoms then charge.",
-        "class_num": 10,
-        "subject_label": "Biology",
-        "chapter_no": 13,
-        "chapter_title": "Chapter topic 13"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on How to balance redox equations?",
-          "Where is this in NCERT exam?",
-          "Common mistake about How to balance redox equa?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-014",
-      "variation": "handwritten",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "user_message": "Difference mitosis meiosis?",
-        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
-        "class_num": 11,
-        "subject_label": "Mathematics",
-        "chapter_no": 14,
-        "chapter_title": "Chapter topic 14"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Difference mitosis meiosis??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Difference mitosis meiosi?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-015",
-      "variation": "low_quality_scan",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
-      "inputs": {
-        "user_message": "Projectile range formula?",
-        "assistant_message": "R = u² sin2θ / g for level ground.",
-        "class_num": 12,
-        "subject_label": "Science",
-        "chapter_no": 15,
-        "chapter_title": "Chapter topic 15"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Projectile range formula??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Projectile range formula??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-016",
-      "variation": "circuit_diagram",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "user_message": "What is Ohm's law?",
-        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
-        "class_num": 10,
-        "subject_label": "Physics",
-        "chapter_no": 1,
-        "chapter_title": "Chapter topic 16"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on What is Ohm's law??",
-          "Where is this in NCERT exam?",
-          "Common mistake about What is Ohm's law??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-017",
-      "variation": "biology_diagram",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
-      "inputs": {
-        "user_message": "Explain photosynthesis light reaction.",
-        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
-        "class_num": 11,
-        "subject_label": "Chemistry",
-        "chapter_no": 2,
-        "chapter_title": "Chapter topic 17"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Explain photosynthesis light r?",
-          "Where is this in NCERT exam?",
-          "Common mistake about Explain photosynthesis li?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-018",
-      "variation": "flowchart",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_advanced"
-      ],
-      "inputs": {
-        "user_message": "How to balance redox equations?",
-        "assistant_message": "Split into half-reactions; balance atoms then charge.",
-        "class_num": 12,
-        "subject_label": "Biology",
-        "chapter_no": 3,
-        "chapter_title": "Chapter topic 18"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on How to balance redox equations?",
-          "Where is this in NCERT exam?",
-          "Common mistake about How to balance redox equa?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-019",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "user_message": "Difference mitosis meiosis?",
-        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
-        "class_num": 10,
-        "subject_label": "Mathematics",
-        "chapter_no": 4,
-        "chapter_title": "Chapter topic 19"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Difference mitosis meiosis??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Difference mitosis meiosi?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-020",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
-      "inputs": {
-        "user_message": "Projectile range formula?",
-        "assistant_message": "R = u² sin2θ / g for level ground.",
-        "class_num": 11,
-        "subject_label": "Science",
-        "chapter_no": 5,
-        "chapter_title": "Chapter topic 20"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Projectile range formula??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Projectile range formula??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-021",
-      "variation": "typo",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "user_message": "What is Ohm's law?",
-        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
-        "class_num": 12,
-        "subject_label": "Physics",
-        "chapter_no": 6,
-        "chapter_title": "Chapter topic 21"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on What is Ohm's law??",
-          "Where is this in NCERT exam?",
-          "Common mistake about What is Ohm's law??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-022",
       "variation": "conversational",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
       "inputs": {
-        "user_message": "Explain photosynthesis light reaction.",
-        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "user_message": "If contour ploughing reduces erosion on slopes, why might terrace farming be needed on steeper hills?",
+        "assistant_message": "Contour ploughing slows runoff on moderate slopes. Steeper gradients still concentrate water; terraces break slope length and reduce velocity before soil is washed away.",
         "class_num": 10,
-        "subject_label": "Chemistry",
-        "chapter_no": 7,
-        "chapter_title": "Chapter topic 22"
+        "subject_label": "Geography",
+        "chapter_no": 1,
+        "chapter_title": "Resources and Development",
+        "concept": ""
       },
       "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Explain photosynthesis light r?",
-          "Where is this in NCERT exam?",
-          "Common mistake about Explain photosynthesis li?"
-        ]
+        "follow_ups": {
+          "follow_ups": [
+            "How do terraces help with water retention on steep hills?",
+            "Can you explain how contour ploughing works in detail?",
+            "What are the advantages of terrace farming in exam questions?"
+          ]
+        }
       },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-023",
-      "variation": "multi_part",
       "tags": [
         "cbse",
-        "science",
-        "jee_advanced"
+        "geography",
+        "conversational",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "user_message": "How to balance redox equations?",
-        "assistant_message": "Split into half-reactions; balance atoms then charge.",
-        "class_num": 11,
-        "subject_label": "Biology",
-        "chapter_no": 8,
-        "chapter_title": "Chapter topic 23"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on How to balance redox equations?",
-          "Where is this in NCERT exam?",
-          "Common mistake about How to balance redox equa?"
-        ]
-      },
       "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-024",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "user_message": "Difference mitosis meiosis?",
-        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
-        "class_num": 12,
-        "subject_label": "Mathematics",
-        "chapter_no": 9,
-        "chapter_title": "Chapter topic 24"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Difference mitosis meiosis??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Difference mitosis meiosi?"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-025",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
-      "inputs": {
-        "user_message": "Projectile range formula?",
-        "assistant_message": "R = u² sin2θ / g for level ground.",
-        "class_num": 10,
-        "subject_label": "Science",
-        "chapter_no": 10,
-        "chapter_title": "Chapter topic 25"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Projectile range formula??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Projectile range formula??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
-      ]
-    },
-    {
-      "id": "tutor_follow_up_questions-026",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "user_message": "What is Ohm's law?",
-        "assistant_message": "For ohmic conductors, V equals I times R at constant temperature.",
-        "class_num": 11,
-        "subject_label": "Physics",
-        "chapter_no": 11,
-        "chapter_title": "Chapter topic 26"
-      },
-      "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on What is Ohm's law??",
-          "Where is this in NCERT exam?",
-          "Common mistake about What is Ohm's law??"
-        ]
-      },
-      "evaluators": [
-        "json_schema",
-        "three_follow_ups"
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
       ]
     },
     {
       "id": "tutor_follow_up_questions-027",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
+      "variation": "conversational",
       "inputs": {
-        "user_message": "Explain photosynthesis light reaction.",
-        "assistant_message": "Light reaction in thylakoid produces ATP and NADPH.",
+        "user_message": "Why can afforestation reduce soil erosion but not fix salinisation caused by over-irrigation?",
+        "assistant_message": "Tree cover cuts wind and water erosion by binding soil. Salinisation needs drainage and better irrigation scheduling; roots alone cannot leach accumulated salts from the root zone.",
         "class_num": 12,
-        "subject_label": "Chemistry",
-        "chapter_no": 12,
-        "chapter_title": "Chapter topic 27"
+        "subject_label": "Mathematics",
+        "chapter_no": 7,
+        "chapter_title": "Integrals",
+        "concept": ""
       },
       "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Explain photosynthesis light r?",
-          "Where is this in NCERT exam?",
-          "Common mistake about Explain photosynthesis li?"
-        ]
+        "follow_ups": {
+          "follow_ups": [
+            "How does tree cover specifically reduce wind erosion?",
+            "Can you think of a real-life example of afforestation helping soil?",
+            "What are key points on salinisation for exam prep?"
+          ]
+        }
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "conversational",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "three_follow_ups"
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-003",
+      "variation": "diagram",
+      "inputs": {
+        "user_message": "For a convex lens with u = −30 cm and f = +15 cm, why must we use the sign convention before applying 1/f = 1/v − 1/u?",
+        "assistant_message": "Real objects are on the incoming-light side, so u is negative. Using magnitudes without signs gives wrong v and mislabels image as real or virtual.",
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 9,
+        "chapter_title": "Ray Optics and Optical Instruments",
+        "concept": "Lens formula"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does the sign convention change for concave lenses?",
+            "Can you calculate v for u = -30 cm using the lens formula?",
+            "Why is it important to identify real vs virtual images in exams?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "diagram",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-014",
+      "variation": "diagram",
+      "inputs": {
+        "user_message": "In C₄ plants, why is the Calvin cycle still in bundle-sheath cells if initial CO₂ fixation happens in mesophyll?",
+        "assistant_message": "Mesophyll cells fix CO₂ into a 4-carbon acid that shuttles to bundle sheath, where CO₂ is released internally, raising local concentration and cutting photorespiration.",
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 13,
+        "chapter_title": "Photosynthesis in Higher Plants",
+        "concept": "Calvin cycle"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does the CO₂ concentration affect the efficiency of photosynthesis?",
+            "Can you explain how C₄ plants adapt to hot environments using the Calvin cycle?",
+            "What exam questions might ask about the role of bundle-sheath cells in C₄ plants?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "diagram",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
       ]
     },
     {
       "id": "tutor_follow_up_questions-028",
-      "variation": "jee",
+      "variation": "diagram",
+      "inputs": {
+        "user_message": "In hot climates, why do C₄ plants outperform C₃ plants even though both use the Calvin cycle?",
+        "assistant_message": "C₄ concentrates CO₂ before Calvin cycle, keeping RuBisCO on carboxylation and lowering photorespiration when stomata close to reduce water loss in heat.",
+        "class_num": 10,
+        "subject_label": "Geography",
+        "chapter_no": 1,
+        "chapter_title": "Resources and Development",
+        "concept": "Calvin cycle"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain how photorespiration affects plant growth in different climates?",
+            "How would you compare the water use efficiency of C₄ and C₃ plants in agriculture?",
+            "What exam questions might ask about the advantages of C₄ plants in hot climates?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "geography",
+        "diagram",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-004",
+      "variation": "cbse",
+      "inputs": {
+        "user_message": "If a quadratic has D = 0 but coefficients are not proportional to a perfect square, how do we still know roots are equal?",
+        "assistant_message": "D = b² − 4ac = 0 means the quadratic touches the x-axis once. The repeated root is −b/(2a), even if factorisation is not obvious.",
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Quadratic Equations",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain why D = 0 guarantees equal roots?",
+            "Can you find the roots of a quadratic with D = 0?",
+            "How might this concept show up in your exams?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "cbse",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-016",
+      "variation": "cbse",
+      "inputs": {
+        "user_message": "Three identical resistors in parallel share 12 V. Why is branch current I/3 but total power not simply P/3?",
+        "assistant_message": "Each resistor gets full 12 V, so each dissipates V²/R. Three paths triple total current and total power becomes 3V²/R, not one-third of a single resistor's power.",
+        "class_num": 10,
+        "subject_label": "Science",
+        "chapter_no": 12,
+        "chapter_title": "Electricity",
+        "concept": "Ohm's law"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain how total current is calculated in parallel circuits?",
+            "What happens to power if one resistor is removed from the parallel setup?",
+            "How would you solve a problem with different resistor values in parallel?"
+          ]
+        }
+      },
       "tags": [
         "cbse",
         "science",
-        "jee_advanced"
+        "cbse",
+        "production_llm_gold"
       ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-005",
+      "variation": "neet",
       "inputs": {
-        "user_message": "How to balance redox equations?",
-        "assistant_message": "Split into half-reactions; balance atoms then charge.",
-        "class_num": 10,
-        "subject_label": "Biology",
-        "chapter_no": 13,
-        "chapter_title": "Chapter topic 28"
+        "user_message": "Why does NH₃ have pyramidal geometry while BF₃ is trigonal planar despite both having three bonded atoms?",
+        "assistant_message": "NH₃ has one lone pair on nitrogen; four electron domains → tetrahedral electron geometry, pyramidal shape. BF₃ has three domains only → trigonal planar.",
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 4,
+        "chapter_title": "Chemical Bonding and Molecular Structure",
+        "concept": "VSEPR theory"
       },
       "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on How to balance redox equations?",
-          "Where is this in NCERT exam?",
-          "Common mistake about How to balance redox equa?"
-        ]
+        "follow_ups": {
+          "follow_ups": [
+            "How does lone pair repulsion affect molecular shape?",
+            "Can you predict the shape of H₂O using VSEPR?",
+            "What geometry would a molecule with 4 bonded atoms and no lone pairs have?"
+          ]
+        }
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "neet",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "three_follow_ups"
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-017",
+      "variation": "neet",
+      "inputs": {
+        "user_message": "Why does trypsin act in the alkaline duodenum but not in the acidic stomach?",
+        "assistant_message": "Trypsin is secreted as inactive trypsinogen and needs enterokinase and pH ~8. Gastric HCl would denature or fail to activate it, so activity is localised to the small intestine.",
+        "class_num": 11,
+        "subject_label": "Biology",
+        "chapter_no": 16,
+        "chapter_title": "Digestion and Absorption",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "What role does enterokinase play in activating trypsinogen?",
+            "Can you explain why pH affects enzyme activity using other examples?",
+            "How might this knowledge help with exam questions on enzyme functions?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "neet",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-020",
+      "variation": "neet",
+      "inputs": {
+        "user_message": "Why is sp³ hybridisation in methane consistent with four equivalent C−H bonds, not three bonds plus one lone pair?",
+        "assistant_message": "Carbon promotes one 2s electron to 3p, mixes to four sp³ orbitals. Each overlaps with H 1s, giving four identical σ bonds and tetrahedral 109.5° angles.",
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 4,
+        "chapter_title": "Chemical Bonding and Molecular Structure",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does hybridization affect bond angles in other molecules?",
+            "Can you draw the Lewis structure for methane and show hybridization?",
+            "Why is tetrahedral shape important in predicting molecular properties?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "neet",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-006",
+      "variation": "jee",
+      "inputs": {
+        "user_message": "In a Wheatstone bridge, why can't we apply the loop rule to only one branch when finding the unknown resistor?",
+        "assistant_message": "Kirchhoff's loop rule needs a closed path with consistent sign for each IR drop. A single branch is not a closed loop, so ΣΔV = 0 cannot be applied there alone.",
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 3,
+        "chapter_title": "Current Electricity",
+        "concept": "Kirchhoff's laws"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain how to apply the loop rule in a full Wheatstone bridge?",
+            "How would you calculate the unknown resistor using Kirchhoff's laws?",
+            "What exam problems involve Kirchhoff's laws that you find tricky?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "jee",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-018",
+      "variation": "jee",
+      "inputs": {
+        "user_message": "For total internal reflection, why is the critical angle defined only when light goes from denser to rarer medium?",
+        "assistant_message": "TIR needs the refracted ray bent beyond 90°. That happens when n₁ sin i = n₂ sin r cannot be solved for real r with n₁ > n₂ beyond the critical angle.",
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 9,
+        "chapter_title": "Ray Optics and Optical Instruments",
+        "concept": "Lens formula"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain what happens at angles greater than the critical angle?",
+            "How would you calculate the critical angle for water to air?",
+            "Why is TIR important in optical fibers for communication?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "jee",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-025",
+      "variation": "jee",
+      "inputs": {
+        "user_message": "Using Kepler's third law, why do planets farther from the Sun have longer years but not necessarily lower orbital speed?",
+        "assistant_message": "T² ∝ r³ gives longer periods, but v ≈ √(GM/r) decreases only as 1/√r. Outer planets move slower, yet the much longer path increases the year dramatically.",
+        "class_num": 12,
+        "subject_label": "Economics",
+        "chapter_no": 2,
+        "chapter_title": "National Income Accounting",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does the mass of the Sun affect planetary speeds and periods?",
+            "Can you calculate the orbital speed of a planet at a specific distance from the Sun?",
+            "What implications does Kepler's law have for satellite orbits around Earth?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "economics",
+        "jee",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-007",
+      "variation": "multi_part",
+      "inputs": {
+        "user_message": "If we add an inert gas at constant volume to an equilibrium A ⇌ B, does Q change or only total pressure?",
+        "assistant_message": "At constant V, partial pressures of A and B are unchanged, so Q = [B]/[A] stays the same. Equilibrium position does not shift; only total P rises.",
+        "class_num": 11,
+        "subject_label": "Chemistry",
+        "chapter_no": 7,
+        "chapter_title": "Equilibrium",
+        "concept": "Le Chatelier's principle"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does adding a gas at constant pressure affect equilibrium?",
+            "Can you explain how temperature changes influence Q?",
+            "What might be a typical exam question on Le Chatelier's principle?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "multi_part",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-021",
+      "variation": "multi_part",
+      "inputs": {
+        "user_message": "In a balanced Wheatstone bridge, why is the galvanometer current zero even though P and Q carry different currents?",
+        "assistant_message": "At balance, potential at the midpoints of both arms is equal, so no PD across the galvanometer. Current divides in the arms but the junction potentials match.",
+        "class_num": 12,
+        "subject_label": "Physics",
+        "chapter_no": 3,
+        "chapter_title": "Current Electricity",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does changing resistance in one arm affect the balance?",
+            "Can you calculate the current in each arm with specific values?",
+            "What exam questions might involve Wheatstone bridge concepts?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "multi_part",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-008",
+      "variation": "conceptual",
+      "inputs": {
+        "user_message": "During DNA replication, why is the leading strand continuous but the lagging strand made of Okazaki fragments?",
+        "assistant_message": "DNA polymerase moves 5′→3′. At the fork, one template strand runs 3′→5′ relative to synthesis, forcing discontinuous short fragments on the lagging side.",
+        "class_num": 12,
+        "subject_label": "Biology",
+        "chapter_no": 6,
+        "chapter_title": "Molecular Basis of Inheritance",
+        "concept": "DNA replication"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain why DNA polymerase can only add nucleotides in one direction?",
+            "How would you describe the process of joining Okazaki fragments after replication?",
+            "What might happen if Okazaki fragments weren't properly joined during DNA replication?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "conceptual",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-022",
+      "variation": "conceptual",
+      "inputs": {
+        "user_message": "Why is the genetic code called degenerate if each codon still codes for only one amino acid?",
+        "assistant_message": "Degenerate means multiple codons can specify the same amino acid (e.g. leucine has six). It does not mean one codon maps to many amino acids—that would break translation fidelity.",
+        "class_num": 11,
+        "subject_label": "Chemistry",
+        "chapter_no": 7,
+        "chapter_title": "Equilibrium",
+        "concept": "DNA replication"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain why fidelity is crucial in DNA translation?",
+            "How would a mutation in a codon affect protein synthesis?",
+            "What role does degenerate coding play in genetic diversity?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "conceptual",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-009",
+      "variation": "case_study",
+      "inputs": {
+        "user_message": "How can caste-based mobilisation both strengthen democracy and deepen social divisions at the same time?",
+        "assistant_message": "It increases political participation and representation of marginal groups, but can also harden identity voting and reduce cross-community coalitions on policy issues.",
+        "class_num": 10,
+        "subject_label": "Civics",
+        "chapter_no": 3,
+        "chapter_title": "Gender, Religion and Caste",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you give examples of how caste affects voting patterns in elections?",
+            "How might caste-based mobilization impact policy decisions in local governance?",
+            "What are the potential exam questions on caste and democracy you can think of?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "civics-polity",
+        "case_study",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-023",
+      "variation": "case_study",
+      "inputs": {
+        "user_message": "How does Indian secularism differ from Western separation when the state funds religious schools and personal laws coexist?",
+        "assistant_message": "Indian secularism emphasises equal respect and principled distance, not strict church–state separation. The state may reform personal laws and subsidise education without adopting a state religion.",
+        "class_num": 12,
+        "subject_label": "Biology",
+        "chapter_no": 6,
+        "chapter_title": "Molecular Basis of Inheritance",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "What are examples of personal laws in India that reflect this approach?",
+            "How might funding religious schools impact social equality in India?",
+            "Can you compare this to secularism in another country for your exam?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "case_study",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-010",
+      "variation": "ncert_strict",
+      "inputs": {
+        "user_message": "Why is GDP at market prices not the same as national income, and where does depreciation enter?",
+        "assistant_message": "National income (NNP at factor cost) adjusts GDP for net indirect taxes and depreciation. Ignoring depreciation overstates income available for consumption and investment.",
+        "class_num": 12,
+        "subject_label": "Economics",
+        "chapter_no": 2,
+        "chapter_title": "National Income Accounting",
+        "concept": "GDP vs GNP"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does depreciation affect GDP calculations over time?",
+            "Can you give an example of net indirect taxes in GDP?",
+            "Why is understanding NNP important for exam questions on income?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "economics",
+        "ncert_strict",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-024",
+      "variation": "ncert_strict",
+      "inputs": {
+        "user_message": "If NFIA is positive, does GNP exceed GDP or fall below it, and what does that imply about net factor income abroad?",
+        "assistant_message": "GNP = GDP + NFIA. Positive NFIA means residents earn more abroad than foreigners earn domestically, so GNP > GDP.",
+        "class_num": 10,
+        "subject_label": "Civics",
+        "chapter_no": 3,
+        "chapter_title": "Gender, Religion and Caste",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain why NFIA affects GNP and GDP differently?",
+            "How would you calculate GNP if NFIA changes to negative?",
+            "What impact does GNP have on a country's economic health in exams?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "civics-polity",
+        "ncert_strict",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-012",
+      "variation": "proof",
+      "inputs": {
+        "user_message": "For ∫₀¹ x√(1−x²) dx, why is substitution u = 1−x² more natural than integration by parts?",
+        "assistant_message": "The derivative of 1−x² is −2x, matching the x factor outside the root. Parts would couple x with arcsin-type terms and add unnecessary steps.",
+        "class_num": 12,
+        "subject_label": "Mathematics",
+        "chapter_no": 7,
+        "chapter_title": "Integrals",
+        "concept": "Definite integrals"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does the substitution simplify the integral's evaluation?",
+            "Can you try a similar integral using u = 1-x²?",
+            "Why is substitution often preferred in definite integrals on exams?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "proof",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-026",
+      "variation": "proof",
+      "inputs": {
+        "user_message": "To prove ∫ₐᵇ f(x) dx = F(b) − F(a), what must we show about F beyond finding an antiderivative?",
+        "assistant_message": "F must be continuous on [a,b] and differentiable with F′(x)=f(x) almost everywhere on the interval. The FTC links accumulation to net change of that antiderivative.",
+        "class_num": 11,
+        "subject_label": "Physics",
+        "chapter_no": 7,
+        "chapter_title": "Gravitation",
+        "concept": "Definite integrals"
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "How does continuity of F affect the integral's value?",
+            "Can you find an example where F is not continuous?",
+            "What role does this play in exam questions on the FTC?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "proof",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
       ]
     },
     {
       "id": "tutor_follow_up_questions-029",
-      "variation": "security",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
+      "variation": "edge_not_found",
       "inputs": {
-        "user_message": "Difference mitosis meiosis?",
-        "assistant_message": "Mitosis 2n→2n; meiosis reduction division for gametes.",
+        "user_message": "Not found in provided sources for Nernst equation worked example at non-standard concentrations.",
+        "assistant_message": "Not found in provided sources for this question.",
         "class_num": 11,
-        "subject_label": "Mathematics",
-        "chapter_no": 14,
-        "chapter_title": "Chapter topic 29"
+        "subject_label": "Biology",
+        "chapter_no": 13,
+        "chapter_title": "Photosynthesis in Higher Plants",
+        "concept": "Nernst equation"
       },
       "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Difference mitosis meiosis??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Difference mitosis meiosi?"
-        ]
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain how concentration affects the Nernst equation?",
+            "How would you calculate the equilibrium potential at different ion concentrations?",
+            "What role does the Nernst equation play in understanding photosynthesis?"
+          ]
+        }
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "edge_not_found",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "three_follow_ups"
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-015",
+      "variation": "numerical",
+      "inputs": {
+        "user_message": "For a galvanic cell with E°cell = +0.76 V, how do we use the Nernst equation when [Zn²⁺] doubles at 298 K?",
+        "assistant_message": "Write Q from the cell reaction, then E = E° − (0.0591/n) log Q. Changing [Zn²⁺] alters Q and therefore the cell EMF from standard conditions.",
+        "class_num": 12,
+        "subject_label": "Chemistry",
+        "chapter_no": 3,
+        "chapter_title": "Electrochemistry",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "What happens to E when [Zn²⁺] decreases instead of doubling?",
+            "Can you calculate E for [Zn²⁺] = 0.1 M using the Nernst equation?",
+            "How might this concept appear in your upcoming exam questions?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "numerical",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "tutor_follow_up_questions-019",
+      "variation": "numerical",
+      "inputs": {
+        "user_message": "Without solving x² − 5x + 6 = 0, how can sum and product of roots verify the factorisation (x−2)(x−3)?",
+        "assistant_message": "For ax²+bx+c, sum = −b/a = 5 and product = c/a = 6. If roots are 2 and 3, both checks match, confirming the factorisation without expansion errors.",
+        "class_num": 10,
+        "subject_label": "Mathematics",
+        "chapter_no": 4,
+        "chapter_title": "Quadratic Equations",
+        "concept": ""
+      },
+      "reference_outputs": {
+        "follow_ups": {
+          "follow_ups": [
+            "Can you explain why the sum and product formulas work for any quadratic?",
+            "How would you apply these concepts to a different quadratic equation?",
+            "What types of questions about roots might come up on your exam?"
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "numerical",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
       ]
     },
     {
       "id": "tutor_follow_up_questions-030",
-      "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "user_message": "Projectile range formula?",
-        "assistant_message": "R = u² sin2θ / g for level ground.",
+        "user_message": "For a projectile launched at 45° on level ground, why is range maximum at 45° only when air resistance is neglected?",
+        "assistant_message": "R = u²sin2θ/g assumes level ground and no drag. With air resistance, optimal angle shifts below 45° because horizontal speed decays faster than in the vacuum model.",
         "class_num": 12,
-        "subject_label": "Science",
-        "chapter_no": 15,
-        "chapter_title": "Chapter topic 30"
+        "subject_label": "Chemistry",
+        "chapter_no": 3,
+        "chapter_title": "Electrochemistry",
+        "concept": ""
       },
       "reference_outputs": {
-        "follow_ups": [
-          "Numerical practice on Projectile range formula??",
-          "Where is this in NCERT exam?",
-          "Common mistake about Projectile range formula??"
-        ]
+        "follow_ups": {
+          "follow_ups": [
+            "How does air resistance affect the trajectory of a projectile?",
+            "Can you calculate the range for different angles with drag?",
+            "Why is the 45° angle ideal in a vacuum for maximum range?"
+          ]
+        }
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "three_follow_ups"
+        "three_follow_ups",
+        "specificity",
+        "mix_roles",
+        "scope_alignment",
+        "production_llm_gold"
       ]
     }
   ]

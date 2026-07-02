@@ -96,7 +96,12 @@ else:
 
 from apps.api.middleware.tenant import TenantMiddleware
 from apps.api.middleware.request_logging import RequestLoggingMiddleware
-from apps.api.routes import chat, sources, studio, studio_features, notes, notebooks, home, health, metrics, dashboards, alerts, admin, admin_ncert_global, pipeline_traces, tutor, problem_solver
+from apps.api.middleware.security_headers import SecurityHeadersMiddleware
+from apps.api.routes import chat, sources, studio, studio_features, notes, notebooks, home, health, metrics, dashboards, alerts, admin, admin_ncert_global, pipeline_traces, tutor, problem_solver, teacher_auth
+
+# Fail-closed: refuse to start with insecure defaults in production.
+from config.settings import validate_production_security
+validate_production_security()
 
 # ---------------- Lifespan ----------------
 @asynccontextmanager
@@ -129,6 +134,9 @@ if settings.ENVIRONMENT == "production":
 # ---------------- Tenant + Auth Middleware ----------------
 app.add_middleware(TenantMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
+
+# ---------------- Security Headers ----------------
+app.add_middleware(SecurityHeadersMiddleware)
 
 # ---------------- CORS ----------------
 # NOTE: CORS must be the OUTERMOST middleware so preflight (OPTIONS) and error
@@ -186,6 +194,7 @@ app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashbo
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 app.include_router(admin_ncert_global.router, prefix="/api/v1/admin", tags=["admin-ncert-global"])
+app.include_router(teacher_auth.router, prefix="/api/v1/teacher", tags=["teacher-auth"])
 app.include_router(pipeline_traces.router, prefix="/api/v1/pipeline-traces", tags=["pipeline-traces"])
 
 # ---------------- Health ----------------
@@ -233,11 +242,17 @@ async def debug_user(request: Request):
 async def global_exception_handler(request: Request, exc: Exception):
     if hasattr(exc, "status_code"):
         return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
-    print(f"[ERROR] ERROR: {exc}")
-    print(traceback.format_exc())
+    # Log full detail server-side; never leak exception type/message to clients.
+    logging.getLogger("scholarsync.errors").error(
+        "Unhandled error on %s %s: %s\n%s",
+        request.method,
+        request.url.path,
+        exc,
+        traceback.format_exc(),
+    )
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error", "type": type(exc).__name__},
+        content={"detail": "Internal server error"},
     )
 
 # ---------------- Run (for local dev) ----------------

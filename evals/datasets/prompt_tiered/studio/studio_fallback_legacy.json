@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.3.0",
   "dataset_id": "studio_fallback_legacy",
   "agent": {
     "sno": 15,
@@ -7,7 +7,7 @@
     "name": "Studio Fallback Task Prompt (Legacy)",
     "tier": "tier_2",
     "target_examples": 15,
-    "prompt_template": "Generate a {{ task_type }} based on: {% if context and context.strip() %}{{ context }}{% else %}general content{% endif %}"
+    "prompt_template": ""
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -22,272 +22,342 @@
   "items": [
     {
       "id": "studio_fallback_legacy-001",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
-      "inputs": {
-        "task_type": "summary",
-        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2."
-      },
-      "reference_outputs": {
-        "output": "Graceful summary from provided context on Current Electricity."
-      },
-      "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-002",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
+      "variation": "quiz_fallback",
       "inputs": {
         "task_type": "quiz",
-        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi."
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d."
       },
       "reference_outputs": {
-        "output": "Graceful quiz from provided context on Human Digestion."
+        "output": "{\n  \"title\": \"Current Electricity — Fallback Quiz\",\n  \"questions\": [\n    {\n      \"question\": \"According to Ohm's law, if R doubles at constant V, current becomes:\",\n      \"options\": [\n        \"Doubled\",\n        \"Halved\",\n        \"Unchanged\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"Halved\",\n      \"explanation\": \"I=V/R so current halves when R doubles.\"\n    },\n    {\n      \"question\": \"Two resistors 4 Ω and 12 Ω in series give R_eq of:\",\n      \"options\": [\n        \"3 Ω\",\n        \"16 Ω\",\n        \"48 Ω\",\n        \"8 Ω\"\n      ],\n      \"correct_answer\": \"16 Ω\",\n      \"explanation\": \"Series resistances add: 4+12=16 Ω.\"\n    },\n    {\n      \"question\": \"Kirchhoff's junction rule states:\",\n      \"options\": [\n        \"Sum I in equals sum I out\",\n        \"Sum V equals zero\",\n        \"Power is conserved\",\n        \"Charge is created\"\n      ],\n      \"correct_answer\": \"Sum I in equals sum I out\",\n      \"explanation\": \"Current into a node equals current leaving.\"\n    },\n    {\n      \"question\": \"Drift velocity v_d relates to current by:\",\n      \"options\": [\n        \"I=neAv_d\",\n        \"I=v_d/e\",\n        \"I=ρv_d\",\n        \"I=n/v_d\"\n      ],\n      \"correct_answer\": \"I=neAv_d\",\n      \"explanation\": \"Microscopic form I=neAv_d.\"\n    },\n    {\n      \"question\": \"Resistivity ρ depends on:\",\n      \"options\": [\n        \"Material and temperature\",\n        \"Length only\",\n        \"Voltage only\",\n        \"Current direction\"\n      ],\n      \"correct_answer\": \"Material and temperature\",\n      \"explanation\": \"ρ is material property; metals increase ρ with T.\"\n    }\n  ]\n}"
       },
-      "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-003",
-      "variation": "cbse",
       "tags": [
         "legacy",
-        "fallback"
+        "quiz"
       ],
-      "inputs": {
-        "task_type": "flashcards",
-        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature."
-      },
-      "reference_outputs": {
-        "output": "Graceful flashcards from provided context on Photosynthesis."
-      },
       "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-004",
-      "variation": "metadata",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
-      "inputs": {
-        "task_type": "outline",
-        "context": ""
-      },
-      "reference_outputs": {
-        "output": "Graceful outline from thin context on Chemical Bonding."
-      },
-      "evaluators": [
-        "llm_judge"
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
       ]
     },
     {
       "id": "studio_fallback_legacy-005",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
-      "inputs": {
-        "task_type": "glossary",
-        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force."
-      },
-      "reference_outputs": {
-        "output": "Graceful glossary from provided context on Magnetic Effects."
-      },
-      "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-006",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
-      "inputs": {
-        "task_type": "summary",
-        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall."
-      },
-      "reference_outputs": {
-        "output": "Graceful summary from provided context on Cell Structure."
-      },
-      "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-007",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
+      "variation": "quiz_fallback",
       "inputs": {
         "task_type": "quiz",
-        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a."
-      },
-      "reference_outputs": {
-        "output": "Graceful quiz from provided context on Quadratic Equations."
-      },
-      "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-008",
-      "variation": "metadata",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
-      "inputs": {
-        "task_type": "flashcards",
         "context": ""
       },
       "reference_outputs": {
-        "output": "Graceful flashcards from thin context on Human Reproduction."
+        "output": "{\n  \"title\": \"General Science Baseline (No Source)\",\n  \"questions\": [\n    {\n      \"question\": \"SI unit of force is:\",\n      \"options\": [\n        \"Newton\",\n        \"Joule\",\n        \"Watt\",\n        \"Pascal\"\n      ],\n      \"correct_answer\": \"Newton\",\n      \"explanation\": \"Newton is the SI unit of force.\"\n    },\n    {\n      \"question\": \"Water chemical formula:\",\n      \"options\": [\n        \"H2O\",\n        \"CO2\",\n        \"NaCl\",\n        \"O2 only\"\n      ],\n      \"correct_answer\": \"H2O\",\n      \"explanation\": \"Water is dihydrogen monoxide.\"\n    },\n    {\n      \"question\": \"Safe lab practice includes:\",\n      \"options\": [\n        \"Reading labels before use\",\n        \"Tasting chemicals\",\n        \"Skipping goggles\",\n        \"Random mixing\"\n      ],\n      \"correct_answer\": \"Reading labels before use\",\n      \"explanation\": \"Basic laboratory safety.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "legacy",
+        "no_source"
+      ],
       "evaluators": [
-        "llm_judge"
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding",
+        "no_source_general"
       ]
     },
     {
       "id": "studio_fallback_legacy-009",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
+      "variation": "quiz_fallback",
       "inputs": {
-        "task_type": "outline",
-        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h."
+        "task_type": "quiz",
+        "context": "Central metal + ligands. Coordination number = σ-donor atoms on metal. [Fe(CN)6]4- has CN=6. IUPAC: ligands alphabetical; anionic end in -o."
       },
       "reference_outputs": {
-        "output": "Graceful outline from provided context on Thermodynamics."
+        "output": "{\n  \"title\": \"Coordination Compounds — Fallback Quiz\",\n  \"questions\": [\n    {\n      \"question\": \"Coordination number counts:\",\n      \"options\": [\n        \"σ-donor atoms on metal\",\n        \"Total ligand mass\",\n        \"Oxidation state only\",\n        \"Electrons in metal\"\n      ],\n      \"correct_answer\": \"σ-donor atoms on metal\",\n      \"explanation\": \"CN = donor atoms bonded to metal.\"\n    },\n    {\n      \"question\": \"[Fe(CN)6]4− has coordination number:\",\n      \"options\": [\n        \"4\",\n        \"6\",\n        \"8\",\n        \"2\"\n      ],\n      \"correct_answer\": \"6\",\n      \"explanation\": \"Six cyanide ligands → CN = 6.\"\n    },\n    {\n      \"question\": \"IUPAC ligand order is:\",\n      \"options\": [\n        \"Alphabetical\",\n        \"By charge only\",\n        \"Random\",\n        \"By metal symbol\"\n      ],\n      \"correct_answer\": \"Alphabetical\",\n      \"explanation\": \"IUPAC lists ligands alphabetically.\"\n    },\n    {\n      \"question\": \"Anionic ligands in IUPAC end in:\",\n      \"options\": [\n        \"-o suffix\",\n        \"-ide always\",\n        \"-ate only\",\n        \"No suffix\"\n      ],\n      \"correct_answer\": \"-o suffix\",\n      \"explanation\": \"Anionic ligands take -o.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "legacy",
+        "quiz",
+        "source_pdf:lech105"
+      ],
       "evaluators": [
-        "llm_judge"
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
       ]
     },
     {
-      "id": "studio_fallback_legacy-010",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
-      "inputs": {
-        "task_type": "glossary",
-        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals."
-      },
-      "reference_outputs": {
-        "output": "Graceful glossary from provided context on Coordination Compounds."
-      },
-      "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-011",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
-      "inputs": {
-        "task_type": "summary",
-        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle."
-      },
-      "reference_outputs": {
-        "output": "Graceful summary from provided context on Ray Optics."
-      },
-      "evaluators": [
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "studio_fallback_legacy-012",
-      "variation": "metadata",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
+      "id": "studio_fallback_legacy-013",
+      "variation": "quiz_fallback",
       "inputs": {
         "task_type": "quiz",
         "context": ""
       },
       "reference_outputs": {
-        "output": "Graceful quiz from thin context on Ecology."
+        "output": "{\n  \"title\": \"NEET Exam Strategy (No Chapter Source)\",\n  \"questions\": [\n    {\n      \"question\": \"Best use of first 5 minutes in NEET?\",\n      \"options\": [\n        \"Scan paper and mark easy questions\",\n        \"Solve hardest first always\",\n        \"Skip OMR planning\",\n        \"Ignore time sections\"\n      ],\n      \"correct_answer\": \"Scan paper and mark easy questions\",\n      \"explanation\": \"Time management strategy.\"\n    },\n    {\n      \"question\": \"OMR filling should be:\",\n      \"options\": [\n        \"Clear single bubbles without stray marks\",\n        \"Multiple bubbles per question\",\n        \"Done only at home\",\n        \"Ignored until end always\"\n      ],\n      \"correct_answer\": \"Clear single bubbles without stray marks\",\n      \"explanation\": \"OMR discipline.\"\n    },\n    {\n      \"question\": \"Negative marking means:\",\n      \"options\": [\n        \"Wrong answers can reduce score\",\n        \"All guesses are free\",\n        \"Only biology penalized\",\n        \"No effect on total\"\n      ],\n      \"correct_answer\": \"Wrong answers can reduce score\",\n      \"explanation\": \"NEET negative-marking awareness.\"\n    },\n    {\n      \"question\": \"After a tough question you should:\",\n      \"options\": [\n        \"Move on and return if time permits\",\n        \"Stop the entire paper\",\n        \"Erase all answers\",\n        \"Leave exam hall\"\n      ],\n      \"correct_answer\": \"Move on and return if time permits\",\n      \"explanation\": \"Exam pacing tactic.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "legacy",
+        "no_source",
+        "neet"
+      ],
       "evaluators": [
-        "llm_judge"
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding",
+        "no_source_general"
       ]
     },
     {
-      "id": "studio_fallback_legacy-013",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
+      "id": "studio_fallback_legacy-002",
+      "variation": "flashcards_fallback",
       "inputs": {
         "task_type": "flashcards",
-        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B)."
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi."
       },
       "reference_outputs": {
-        "output": "Graceful flashcards from provided context on Probability."
+        "output": "[\n  {\n    \"front\": \"Where does salivary amylase act?\",\n    \"back\": \"Mouth — starts starch digestion.\"\n  },\n  {\n    \"front\": \"Pepsin needs which stomach condition?\",\n    \"back\": \"Acidic HCl medium.\"\n  },\n  {\n    \"front\": \"Trypsin enters duodenum via?\",\n    \"back\": \"Pancreatic juice.\"\n  },\n  {\n    \"front\": \"Lipase digests?\",\n    \"back\": \"Fats.\"\n  },\n  {\n    \"front\": \"Main nutrient absorption site?\",\n    \"back\": \"Small intestine villi.\"\n  }\n]"
       },
+      "tags": [
+        "legacy",
+        "flashcards"
+      ],
       "evaluators": [
-        "llm_judge"
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-006",
+      "variation": "flashcards_fallback",
+      "inputs": {
+        "task_type": "flashcards",
+        "context": ""
+      },
+      "reference_outputs": {
+        "output": "[\n  {\n    \"front\": \"Active recall?\",\n    \"back\": \"Test yourself instead of only re-reading notes.\"\n  },\n  {\n    \"front\": \"Spaced repetition?\",\n    \"back\": \"Review at intervals to strengthen long-term memory.\"\n  },\n  {\n    \"front\": \"Timed practice?\",\n    \"back\": \"Simulate exam conditions to find weak topics.\"\n  }\n]"
+      },
+      "tags": [
+        "legacy",
+        "no_source"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding",
+        "no_source_general"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-010",
+      "variation": "flashcards_fallback",
+      "inputs": {
+        "task_type": "flashcards",
+        "context": "Torque τ=rF sin θ. τ=Iα. Parallel axis: I=I_cm+Md²."
+      },
+      "reference_outputs": {
+        "output": "[\n  {\n    \"front\": \"Torque magnitude?\",\n    \"back\": \"τ = rF sin θ\"\n  },\n  {\n    \"front\": \"Rotational analog of F=ma?\",\n    \"back\": \"τ = Iα\"\n  },\n  {\n    \"front\": \"Parallel axis theorem?\",\n    \"back\": \"I = I_cm + Md²\"\n  },\n  {\n    \"front\": \"Door push near hinges vs handle?\",\n    \"back\": \"Smaller lever arm → less torque for same F\"\n  }\n]"
+      },
+      "tags": [
+        "legacy",
+        "flashcards",
+        "source_pdf:keph106"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
       ]
     },
     {
       "id": "studio_fallback_legacy-014",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
+      "variation": "flashcards_fallback",
       "inputs": {
-        "task_type": "outline",
-        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration."
+        "task_type": "flashcards",
+        "context": "(a+b)^n expansion uses nCr. General term Tr+1=nCr a^(n-r) b^r. Middle term depends on n even/odd."
       },
       "reference_outputs": {
-        "output": "Graceful outline from provided context on Organic Chemistry."
+        "output": "[\n  {\n    \"front\": \"Binomial general term?\",\n    \"back\": \"Tr+1 = nCr a^(n−r) b^r\"\n  },\n  {\n    \"front\": \"nCr in expansion means?\",\n    \"back\": \"Combination count in (a+b)^n.\"\n  }\n]"
       },
+      "tags": [
+        "legacy",
+        "flashcards",
+        "source_pdf:kemh107"
+      ],
       "evaluators": [
-        "llm_judge"
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-003",
+      "variation": "mind_map_fallback",
+      "inputs": {
+        "task_type": "mind_map",
+        "context": "Light reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2."
+      },
+      "reference_outputs": {
+        "output": "# Photosynthesis\n\n## Light Reaction\n- **Location:** grana of chloroplast\n- **Products:** ATP and NADPH\n\n## Calvin Cycle\n- **Location:** stroma\n- **Function:** CO2 fixation using ATP/NADPH\n\n## Gas Exchange\n- **Stomata:** CO2 in, O2 out"
+      },
+      "tags": [
+        "legacy",
+        "mind_map"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-007",
+      "variation": "mind_map_fallback",
+      "inputs": {
+        "task_type": "mind_map",
+        "context": ""
+      },
+      "reference_outputs": {
+        "output": "# Study Skills (No Source Excerpt)\n\n## Planning\n- **Set weekly goals** for each subject\n- **Break chapters** into daily chunks\n\n## Practice\n- **Active recall** after each topic\n- **Timed MCQ drills** before exams\n\n## Review\n- **Spaced repetition** schedule\n- **Error log** for repeated mistakes"
+      },
+      "tags": [
+        "legacy",
+        "no_source"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-011",
+      "variation": "mind_map_fallback",
+      "inputs": {
+        "task_type": "mind_map",
+        "context": "Direction cosines l,m,n; l²+m²+n²=1. Line: (x-x1)/a=(y-y1)/b=(z-z1)/c. Skew lines: shortest distance via cross product."
+      },
+      "reference_outputs": {
+        "output": "# Three-Dimensional Geometry\n\n## Direction Cosines\n- **Constraint:** l² + m² + n² = 1\n\n## Line Equation\n- **Symmetric form:** (x−x₁)/a = (y−y₁)/b = (z−z₁)/c\n\n## Skew Lines\n- **Shortest distance** uses cross product of direction vectors"
+      },
+      "tags": [
+        "legacy",
+        "mind_map",
+        "source_pdf:lemh205"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
       ]
     },
     {
       "id": "studio_fallback_legacy-015",
-      "variation": "cbse",
-      "tags": [
-        "legacy",
-        "fallback"
-      ],
+      "variation": "mind_map_fallback",
       "inputs": {
-        "task_type": "glossary",
-        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g."
+        "task_type": "mind_map",
+        "context": "[Source A — Photosynthesis] Light reaction in grana; Calvin cycle in stroma.\n\n[Source B — Cell division] Mitosis maintains chromosome number; meiosis halves for gametes."
       },
       "reference_outputs": {
-        "output": "Graceful glossary from provided context on Motion in Plane."
+        "output": "# Life Processes — Energy & Reproduction\n\n## Photosynthesis (Source A)\n- **Light reaction** in grana → ATP, NADPH\n- **Calvin cycle** in stroma fixes CO2\n\n## Cell Division (Source B)\n- **Mitosis** maintains 2n for growth/repair\n- **Meiosis** produces n gametes; crossing over in Prophase I\n\n## Integration\n- **Energy capture** supports **cell division cycles** in living systems"
       },
+      "tags": [
+        "legacy",
+        "mind_map"
+      ],
       "evaluators": [
-        "llm_judge"
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-004",
+      "variation": "slide_deck_fallback",
+      "inputs": {
+        "task_type": "slide_deck",
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated."
+      },
+      "reference_outputs": {
+        "output": "# Slide 1: Ray Optics Essentials\n- **Lens formula:** 1/f = 1/v − 1/u\n- **Goal:** connect object/image distances to focal length\n\n# Slide 2: Magnification & Power\n- **m = v/u** gives image size/orientation\n- **P = 1/f** (f in metres)\n\n# Slide 3: Sign Convention\n- **Real object:** u negative in Cartesian convention\n- **Optical centre ray:** passes undeviated\n\n# Slide 4: Problem-Solving Habit\n- **Write u, v, f** before substituting\n- **Check sign** before calculating m or P\n\n# Slide 5: Conclusion — Key Takeaways\n- Master **1/f = 1/v − 1/u**, **m = v/u**, and **sign rules** together"
+      },
+      "tags": [
+        "legacy",
+        "slide_deck"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-008",
+      "variation": "slide_deck_fallback",
+      "inputs": {
+        "task_type": "slide_deck",
+        "context": ""
+      },
+      "reference_outputs": {
+        "output": "# Slide 1: Note-Taking Without Sources\n- **Cornell method:** cues + notes + summary column\n\n# Slide 2: Self-Testing\n- **Close the book** and write key formulas from memory\n\n# Slide 3: Conclusion — Key Takeaways\n- **Plan, practice, review** beats passive reading"
+      },
+      "tags": [
+        "legacy",
+        "no_source"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding",
+        "no_source_general"
+      ]
+    },
+    {
+      "id": "studio_fallback_legacy-012",
+      "variation": "slide_deck_fallback",
+      "inputs": {
+        "task_type": "slide_deck",
+        "context": "DNA: A-T, G-C pairing. Semiconservative replication. mRNA carries code to ribosomes for translation."
+      },
+      "reference_outputs": {
+        "output": "# Slide 1: Molecular Basis of Inheritance\n- **DNA stores** genetic information\n\n# Slide 2: Base Pairing\n- **A–T** and **G–C** pairing rules\n\n# Slide 3: Semiconservative Replication\n- **Each new duplex:** one old + one new strand\n\n# Slide 4: Expression\n- **mRNA** carries code to ribosomes for translation\n\n# Slide 5: Conclusion — Key Takeaways\n- Chain: **pairing → replication → mRNA → translation**"
+      },
+      "tags": [
+        "legacy",
+        "slide_deck",
+        "source_pdf:lebo105"
+      ],
+      "evaluators": [
+        "legacy_path",
+        "graceful_output",
+        "task_type_honored",
+        "schema_valid",
+        "grounding"
       ]
     }
   ]

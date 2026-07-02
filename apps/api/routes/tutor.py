@@ -29,6 +29,7 @@ from packages.core.services.tutor_catalog_service import TutorCatalogService
 from packages.core.services.tutor_notebook_bootstrap_service import TutorNotebookBootstrapService
 from packages.core.services.tutor_notebook_prepare_service import TutorNotebookPrepareService
 from packages.core.storage.s3 import S3Storage
+from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
 
@@ -108,7 +109,7 @@ async def get_ncert_document_file(
     try:
         content = await storage.download_file(doc.storage_key)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load NCERT PDF: {exc}") from exc
+        raise HTTPException(status_code=502, detail=safe_detail(exc, "Could not load NCERT PDF")) from exc
 
     filename = doc.original_filename or f"ncert-{document_id}.pdf"
     return Response(
@@ -142,7 +143,7 @@ async def prepare_tutor_notebook(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Prepare failed: {exc}") from exc
+        raise HTTPException(status_code=500, detail=safe_detail(exc, "Prepare failed")) from exc
 
     timing_raw = result.get("timing") or {}
     return TutorPrepareResponse(
@@ -172,7 +173,7 @@ async def warm_tutor_ncert_context(
     try:
         meta = await service.warm_ncert_context(body.tutor_scope.model_dump())
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Warm failed: {exc}") from exc
+        raise HTTPException(status_code=500, detail=safe_detail(exc, "Warm failed")) from exc
     return TutorNcertWarmResponse(
         ok=True,
         cached=bool(meta.get("cached")),
@@ -202,7 +203,7 @@ async def bootstrap_tutor_notebook(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Bootstrap failed: {exc}") from exc
+        raise HTTPException(status_code=500, detail=safe_detail(exc, "Bootstrap failed")) from exc
 
     return TutorBootstrapResponse(**result)
 

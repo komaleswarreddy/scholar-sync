@@ -1,11 +1,55 @@
-# Model pricing for cost tracking (USD per 1M tokens)
 pricing:
   gpt-4o-mini:
     input_per_1m_usd: 0.15
-    output_per_1m_usd: 0.60
+    output_per_1m_usd: 0.6
   gpt-4o:
-    input_per_1m_usd: 2.50
-    output_per_1m_usd: 10.00
+    input_per_1m_usd: 2.5
+    output_per_1m_usd: 10.0
   gpt-4-turbo:
-    input_per_1m_usd: 10.00
-    output_per_1m_usd: 30.00
+    input_per_1m_usd: 10.0
+    output_per_1m_usd: 30.0
+  gpt-5.4-mini:
+    input_per_1m_usd: 0.75
+    output_per_1m_usd: 4.5
+  gpt-5-mini:
+    input_per_1m_usd: 0.25
+    output_per_1m_usd: 2.0
+  claude-haiku-4-5:
+    input_per_1m_usd: 1.0
+    output_per_1m_usd: 5.0
+  gemini-3.5-flash:
+    input_per_1m_usd: 1.5
+    output_per_1m_usd: 6.0
+  gpt-5.4-nano:
+    input_per_1m_usd: 0.2
+    output_per_1m_usd: 1.0
+  gpt-5.4:
+    input_per_1m_usd: 2.5
+    output_per_1m_usd: 15.0
+  claude-sonnet-4-6:
+    input_per_1m_usd: 3.0
+    output_per_1m_usd: 15.0
+  gemini-3.1-flash-lite:
+    input_per_1m_usd: 0.3
+    output_per_1m_usd: 2.5
+  deepseek-v4-flash:
+    input_per_1m_usd: 0.14
+    output_per_1m_usd: 0.28
+  deepseek-chat:
+    input_per_1m_usd: 0.14
+    output_per_1m_usd: 0.28
+  deepseek-reasoner:
+    input_per_1m_usd: 0.55
+    output_per_1m_usd: 2.19
+  gemini-2.5-flash:
+    input_per_1m_usd: 0.3
+    output_per_1m_usd: 2.5
+  gemini-2.5-flash-lite:
+    input_per_1m_usd: 0.1
+    output_per_1m_usd: 0.4
+  gemini-3.1-pro:
+    input_per_1m_usd: 2.0
+    output_per_1m_usd: 12.0
+  gpt-5-nano:
+    input_per_1m_usd: 0.05
+    output_per_1m_usd: 0.4

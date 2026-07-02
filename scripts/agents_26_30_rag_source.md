@@ -1,0 +1,3914 @@
+## 26. Document Sketch Agent
+
+| Field | Value |
+|-------|-------|
+| Dataset ID | `document_sketch` |
+| Category | RAG Ingestion |
+| Tier | Tier 3 |
+| Target examples | 13 |
+| Actual examples | 13 |
+| Version | 1.4.1 |
+
+**Agent responsibility:** Build a compact JSON document sketch for user-uploaded sources (exam papers, handouts) to contextualize chunks at ingestion. Production: [`rag/document_sketch.j2`](packages/core/prompts/templates/rag/document_sketch.j2).
+
+**Audit finding (baseline v1.0.0):** Baseline PROMPT_TIERED stubs reused generic key_definitions (e.g. Ohm's law on organic chemistry) and thin concept lists. Rebuilt with real upload excerpts from the problem solver bank and production LLM gold validated for subject alignment and ≥10 concepts.
+
+**Fixed Variation Taxonomy (locked)** — examples are grouped under these variation buckets:
+
+| Variation | Failure/behavior tested | Example quota |
+|-----------|-------------------------|---------------|
+| `numerical` | Formula/numeric-heavy source text | 2 |
+| `conversational` | Natural upload headers and mixed prose | 2 |
+| `cbse` | CBSE board exam framing | 2 |
+| `neet` | NEET-oriented biology/chemistry | 1 |
+| `jee` | JEE-style physics/math depth | 1 |
+| `multi_part` | Multi-section documents | 1 |
+| `conceptual` | Theory-first exposition | 1 |
+| `case_study` | Passage-based social science | 1 |
+| `ncert_strict` | Strict NCERT chapter vocabulary | 1 |
+| `proof` | Derivation-heavy maths | 1 |
+| `typo` | Robust to minor OCR/header noise | 1 |
+
+**Quality Check (evaluation layer)** — every example is graded against these dimensions:
+
+* **schema_complete** — chapter_title, main_sections, key_definitions, concepts all present.
+* **concept_coverage** — concepts array has 10–30 subject-relevant terms.
+* **subject_alignment** — key_definitions match document topic; no cross-subject leaks.
+* **compactness** — No long verbatim excerpts; sketch JSON under size cap.
+
+**LangSmith configuration**
+
+* Dataset name prefix: `nbm-prompt`
+* Input keys: `header`, `document_text`
+* Output keys: `sketch_json`
+
+**Prompt template (production):**
+
+```jinja2
+You are helping build a retrieval index for user-uploaded documents.
+
+Given the document text and a small header, produce a compact JSON "document sketch" that can be reused
+for contextualizing many chunks from the same document.
+
+Header:
+{{ header }}
+
+Document (may be truncated):
+{{ document_text }}
+
+Return a single JSON object with these keys:
+- chapter_title: best-effort document title or main topic (empty string if unknown)
+- main_sections: array of short section or topic headings (best-effort)
+- key_definitions: object mapping term -> short definition (keep very short; include only important terms)
+- concepts: array of important terms or entities a user might search for (10–30 items)
+
+Rules:
+- Output JSON only. No markdown fences. No extra keys.
+- Keep it compact: do not quote long excerpts.
+```
+
+*Runtime note:* `generate_upload_document_sketch()` in `document_sketcher.py` during tenant upload ingestion.
+
+### Evaluation examples (13)
+## Variation: `numerical`
+
+
+#### Example 1: `document_sketch-001`
+
+- **Variation:** numerical
+- **Tags:** cbse, biology, source_upload, numerical, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 1
+
+**Document Text:**
+
+CBSE Class XII Biology — Testing Question Bank
+Page 1
+BIOLOGY TESTING QUESTION BANK
+CBSE Class XII — Curated Question Bank from 6 Board Papers
+Includes MCQs, Assertion–Reasoning, VSAQs, SAQs, LAQs and Case Study Questions.
+Diagrams, graphs, tables, sequences and process figures are included wherever relevant.
+Question Type
+Count
+MCQ
+10
+Assertion–Reasoning
+6
+VSAQ
+10
+SAQ
+10
+LAQ
+10
+Case Study
+6
+Total
+52 upload-1
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Class XII Biology - Testing Question Bank",
+  "main_sections": [
+    "Question Type",
+    "Count"
+  ],
+  "key_definitions": {
+    "MCQ": "Multiple Choice Questions",
+    "Assertion–Reasoning": "Questions requiring justification of statements",
+    "VSAQ": "Very Short Answer Questions",
+    "SAQ": "Short Answer Questions",
+    "LAQ": "Long Answer Questions",
+    "Case Study": "Questions based on real-life scenarios"
+  },
+  "concepts": [
+    "Biology",
+    "CBSE",
+    "Class XII",
+    "Question Bank",
+    "MCQs",
+    "Assertion–Reasoning",
+    "VSAQs",
+    "SAQs",
+    "LAQs",
+    "Case Studies",
+    "Diagrams",
+    "Graphs",
+    "Tables",
+    "Sequences",
+    "Process Figures",
+    "Board Papers",
+    "Testing",
+    "Education",
+    "Assessment",
+    "Curriculum"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `document_sketch-002`
+
+- **Variation:** numerical
+- **Tags:** cbse, biology, source_upload, numerical, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 2
+
+**Document Text:**
+
+CBSE Class XII Biology — Testing Question Bank
+Page 2
+SECTION A — MCQs
+Each question carries 1 mark. Select the most appropriate option.
+Q1. Identify the plant in which emasculation is not required for artificial hybridization.
+(A) Rice
+(B) Wheat
+(C) Pea
+(D) Papaya
+Q2. Which of the following is not a functional unit of an ecosystem?
+(A) Energy flow
+(B) Decomposition
+(C) Stratification
+(D) Productivity
+Q3. Identify the statements that correctly describe Darwin’s Theory of Evolution.
+(i) Overprodu upload-2
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Class XII Biology",
+  "main_sections": [
+    "SECTION A — MCQs"
+  ],
+  "key_definitions": {
+    "Emasculation": "Removal of male parts of a flower to prevent self-pollination.",
+    "Artificial Hybridization": "Crossing of two different varieties or species.",
+    "Ecosystem": "A community of living organisms and their environment.",
+    "Darwin’s Theory of Evolution": "Theory explaining the process of natural selection."
+  },
+  "concepts": [
+    "Emasculation",
+    "Artificial Hybridization",
+    "Ecosystem",
+    "Energy Flow",
+    "Decomposition",
+    "Stratification",
+    "Productivity",
+    "Darwin’s Theory of Evolution",
+    "MCQs",
+    "CBSE Biology",
+    "Class XII",
+    "Hybridization",
+    "Natural Selection",
+    "Functional Units",
+    "Plant Biology",
+    "Ecology"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conversational`
+
+
+#### Example 1: `document_sketch-003`
+
+- **Variation:** conversational
+- **Tags:** cbse, chemistry, source_upload, conversational, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Chemistry — cbse_biology page 3
+
+**Document Text:**
+
+CBSE Class XII Biology — Testing Question Bank
+Page 3
+Q5. You know that there are twenty different types of naturally occurring amino acids
+and four different types of bases in the DNA. A combination of 3 such bases codes for a
+specific amino acid. If instead there are 96 different amino acids and 12 different
+bases in the DNA, then the minimum number of combination of bases required to form
+a codon is:
+(A) 6
+(B) 8
+(C) 2
+(D) 4
+Q6. The rate of formation of new organic matter by consumers, and the upload-3
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Class XII Biology",
+  "main_sections": [
+    "Testing Question Bank",
+    "Amino Acids and DNA Bases"
+  ],
+  "key_definitions": {
+    "Amino Acids": "Building blocks of proteins.",
+    "DNA": "Molecule carrying genetic instructions.",
+    "Codon": "Sequence of three bases coding for an amino acid.",
+    "Organic Matter": "Substances produced by living organisms."
+  },
+  "concepts": [
+    "Amino Acids",
+    "DNA Bases",
+    "Codon",
+    "Organic Matter",
+    "Consumers",
+    "Genetic Code",
+    "Biology",
+    "Question Bank",
+    "CBSE",
+    "Class XII",
+    "Natural Amino Acids",
+    "Base Combinations",
+    "Genetic Instructions",
+    "Protein Synthesis",
+    "Molecular Biology"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `document_sketch-004`
+
+- **Variation:** conversational
+- **Tags:** cbse, chemistry, source_upload, conversational, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Chemistry — cbse_biology page 4
+
+**Document Text:**
+
+Q9. Use the given information to select the amino acid attached to the 3′ end of tRNA during the process of translation, if the coding strand of the structural gene being transcribed has the nucleotide sequence TAC.  
+Codons for the amino acids:  
+AUC — Isoleucine  
+AUG — Methionine  
+UAC — Tyrosine  
+GUA — Valine  
+Options:  
+(A) Isoleucine  
+(B) Methionine  
+(C) Tyrosine  
+(D) Valine  
+
+Q10. In a pea plant (Pisum sativum) inflated pod shape is dominant over constricted pod shape. The expected upload-4
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Chemistry",
+  "main_sections": [
+    "Amino Acids",
+    "Genetics"
+  ],
+  "key_definitions": {
+    "tRNA": "Transfer RNA, involved in translation.",
+    "codon": "Three-nucleotide sequence coding for an amino acid.",
+    "dominant": "Trait that masks the effect of a recessive trait."
+  },
+  "concepts": [
+    "amino acid",
+    "translation",
+    "tRNA",
+    "codon",
+    "Isoleucine",
+    "Methionine",
+    "Tyrosine",
+    "Valine",
+    "pea plant",
+    "Pisum sativum",
+    "pod shape",
+    "dominant trait",
+    "constricted pod",
+    "inflated pod"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `cbse`
+
+
+#### Example 1: `document_sketch-007`
+
+- **Variation:** cbse
+- **Tags:** cbse, chemistry, source_upload, cbse, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Chemistry — cbse_biology page 7
+
+**Document Text:**
+
+CBSE Class XII Biology — Testing Question Bank
+Page 7
+5′ GUGGCACUCAGUCCUUAAUGGCG 3′
+How many amino acids will be specified in case (a) and case (b) on translation? Justify
+your answer.
+Q25. The basic scheme of the essential steps involved in the process of recombinant
+DNA technology is summarized below in the form of a flow diagram. Study the given
+flow diagram and answer the questions that follow.
+(a) Name the enzyme used in Step-1 to join the cut plasmid and alien DNA.
+(b) State the technical upload-7
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Class XII Biology",
+  "main_sections": [
+    "Testing Question Bank",
+    "Recombinant DNA Technology"
+  ],
+  "key_definitions": {
+    "Recombinant DNA Technology": "A method to combine DNA from different sources.",
+    "Plasmid": "A small circular DNA molecule used in genetic engineering.",
+    "Enzyme": "A protein that catalyzes biochemical reactions."
+  },
+  "concepts": [
+    "amino acids",
+    "translation",
+    "flow diagram",
+    "Step-1",
+    "cut plasmid",
+    "alien DNA",
+    "enzyme",
+    "biotechnology",
+    "genetic engineering",
+    "molecular biology",
+    "DNA",
+    "RNA",
+    "genetic material",
+    "cloning",
+    "gene expression",
+    "biological processes"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `document_sketch-008`
+
+- **Variation:** cbse
+- **Tags:** cbse, biology, source_upload, cbse, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 8
+
+**Document Text:**
+
+SECTION C — Short Answer Questions (SAQs)  
+Each question carries 3 marks. Answer with the necessary details.  
+
+Q27. Explain the mode of action of contraceptive pills taken by human females. Mention the schedule to be followed for effective outcome.  
+
+Q28. (a) What are transgenic animals?  
+(b) Name the first transgenic cow and state its importance.  
+OR  
+(a) Explain the convention for naming EcoRI.  
+(b) With the help of an illustration only, show the action of EcoRI on a DNA polynucleotide. upload-8
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Biology",
+  "main_sections": [
+    "Short Answer Questions",
+    "Contraceptive Pills",
+    "Transgenic Animals",
+    "EcoRI"
+  ],
+  "key_definitions": {
+    "Contraceptive Pills": "Hormonal medication to prevent pregnancy.",
+    "Transgenic Animals": "Animals genetically modified to express foreign genes.",
+    "EcoRI": "Restriction enzyme that cuts DNA at specific sequences."
+  },
+  "concepts": [
+    "contraceptive pills",
+    "human females",
+    "transgenic animals",
+    "first transgenic cow",
+    "EcoRI",
+    "DNA polynucleotide",
+    "genetic modification",
+    "hormonal regulation",
+    "reproductive health",
+    "biotechnology",
+    "molecular biology",
+    "gene expression",
+    "DNA manipulation",
+    "genetic engineering",
+    "animal genetics",
+    "biological research"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `neet`
+
+
+#### Example 1: `document_sketch-009`
+
+- **Variation:** neet
+- **Tags:** cbse, biology, source_upload, neet, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 9
+
+**Document Text:**
+
+(b) How many purines are present in the given strand?  
+(c) Draw the chemical structure of the given polynucleotide chain of DNA.  
+
+Q35. Given below is a flower with its characteristic features specialised for the most common type of abiotic pollination. Answer the following questions based on the diagram.  
+(a) Name the mode of abiotic pollination that will be adopted by the given plant species in the above picture.  
+(b) State the need of exposed large feathery stigmas for the flower.  
+(c) W upload-9
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Biology",
+  "main_sections": [
+    "Purines in DNA",
+    "Abiotic Pollination",
+    "Flower Features"
+  ],
+  "key_definitions": {
+    "Purines": "A type of nitrogenous base in DNA.",
+    "Polynucleotide": "A polymer consisting of many nucleotide monomers.",
+    "Abiotic Pollination": "Pollination that occurs without the involvement of living organisms.",
+    "Stigmas": "The part of the flower that receives pollen."
+  },
+  "concepts": [
+    "DNA structure",
+    "Purines",
+    "Polynucleotide chain",
+    "Abiotic pollination",
+    "Flower anatomy",
+    "Feathery stigmas",
+    "Pollination mechanisms",
+    "Plant reproduction",
+    "Pollen",
+    "Stigma function",
+    "Flower features",
+    "Pollination types",
+    "Environmental factors",
+    "Plant species",
+    "Diagram analysis"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `jee`
+
+
+#### Example 1: `document_sketch-010`
+
+- **Variation:** jee
+- **Tags:** cbse, biology, source_upload, jee, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 10
+
+**Document Text:**
+
+CBSE Class XII Biology — Testing Question Bank
+Page 10
+SECTION E — Long Answer Questions (LAQs)
+Each question carries 5 marks. Answer with detailed explanation wherever required.
+Q37. Trace the events from fertilization till implantation of blastocyst in human female.
+Also mention the site where fertilization takes place.
+Q38. (a) (i) Watson and Crick’s discovery of double helical structure was based on
+which two findings. Also mention the names of the scientists associated with these
+findings. upload-10
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Class XII Biology",
+  "main_sections": [
+    "SECTION E — Long Answer Questions",
+    "Fertilization and Implantation",
+    "Watson and Crick's Discovery"
+  ],
+  "key_definitions": {
+    "Fertilization": "Union of sperm and egg.",
+    "Blastocyst": "Early stage of embryonic development.",
+    "Implantation": "Attachment of blastocyst to uterine wall.",
+    "Double Helix": "Structure of DNA discovered by Watson and Crick."
+  },
+  "concepts": [
+    "Fertilization",
+    "Implantation",
+    "Blastocyst",
+    "Watson and Crick",
+    "Double Helix",
+    "Human Female Reproductive System",
+    "Embryonic Development",
+    "Genetics",
+    "Cell Division",
+    "DNA Structure",
+    "Reproductive Biology",
+    "Long Answer Questions",
+    "CBSE Biology",
+    "Question Bank",
+    "Marks Allocation"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `multi_part`
+
+
+#### Example 1: `document_sketch-011`
+
+- **Variation:** multi_part
+- **Tags:** cbse, biology, source_upload, multi_part, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 11
+
+**Document Text:**
+
+CBSE Class XII Biology — Testing Question Bank
+Page 11
+OR
+(b) “Early and accurate diagnosis of diseases is vital in medical technology.”
+(i) Name the conventional methods of diagnosis and their disadvantages.
+(ii) Which three diagnostic techniques have been developed through Biotechnology?
+Explain how each one helps in detecting diseases.
+Q42. (a) (i) Explain how double fertilisation takes place in a flowering plant.
+(ii) Write the fate of the products of double fertilization in these plants.
+OR upload-11
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Class XII Biology",
+  "main_sections": [
+    "Testing Question Bank",
+    "Diagnosis Methods",
+    "Biotechnology Techniques",
+    "Double Fertilisation"
+  ],
+  "key_definitions": {
+    "Diagnosis": "Identification of a disease.",
+    "Biotechnology": "Use of biological processes for technological applications.",
+    "Double Fertilisation": "Process in flowering plants where one sperm fertilizes the egg and another fuses with polar nuclei."
+  },
+  "concepts": [
+    "medical technology",
+    "conventional diagnosis",
+    "diagnostic techniques",
+    "disease detection",
+    "double fertilisation",
+    "flowering plants",
+    "biotechnology applications",
+    "fertilization products",
+    "diagnosis disadvantages",
+    "plant reproduction"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conceptual`
+
+
+#### Example 1: `document_sketch-012`
+
+- **Variation:** conceptual
+- **Tags:** cbse, biology, source_upload, conceptual, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 13
+
+**Document Text:**
+
+SECTION D — Case Study Questions  
+Each question carries 4 marks. Read the passage / study the figure carefully and answer the sub-questions.
+
+Q47. The diagram below shows the distribution of two barnacle species, Chthamalus and Balanus on a rocky sea shore. When Balanus is experimentally removed, Chthamalus expands its range in lower intertidal zone.  
+(a) Identify and define the ecological phenomenon demonstrated by this observation.  
+OR  
+(a) State the principle that explains the elimination upload-12
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Biology",
+  "main_sections": [
+    "SECTION D — Case Study Questions"
+  ],
+  "key_definitions": {
+    "Chthamalus": "A barnacle species that expands its range when Balanus is removed.",
+    "Balanus": "A barnacle species that competes with Chthamalus for space.",
+    "intertidal zone": "The area between high and low tide where marine organisms live.",
+    "ecological phenomenon": "A natural occurrence that affects the distribution of species."
+  },
+  "concepts": [
+    "barnacle",
+    "Chthamalus",
+    "Balanus",
+    "rocky shore",
+    "intertidal zone",
+    "ecological competition",
+    "species distribution",
+    "habitat",
+    "marine biology",
+    "case study",
+    "ecosystem dynamics",
+    "principle of competitive exclusion",
+    "environmental factors",
+    "species interaction",
+    "ecology"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `case_study`
+
+
+#### Example 1: `document_sketch-013`
+
+- **Variation:** case_study
+- **Tags:** cbse, biology, source_upload, case_study, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 14
+
+**Document Text:**
+
+Q49. Read the following passage and answer the questions that follow. India’s land area is only a small percentage of the world’s total land area whereas its share of the global species diversity is an impressive 8.1 per cent. However, in these estimates of species, prokaryotes do not figure anywhere. Biologists are always keen on collecting data with respect to species diversity observed in different regions of the world. The data collected based on the survey conducted for species richness of upload-13
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Biology",
+  "main_sections": [
+    "Species Diversity",
+    "Prokaryotes",
+    "Species Richness"
+  ],
+  "key_definitions": {
+    "species diversity": "Variety of species in a given area",
+    "prokaryotes": "Single-celled organisms without a nucleus",
+    "species richness": "Number of different species in a habitat"
+  },
+  "concepts": [
+    "India",
+    "global species diversity",
+    "8.1 percent",
+    "biologists",
+    "data collection",
+    "species",
+    "regions",
+    "surveys",
+    "biodiversity",
+    "ecosystems",
+    "flora",
+    "fauna",
+    "environment",
+    "conservation",
+    "habitat",
+    "taxonomy"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `ncert_strict`
+
+
+#### Example 1: `document_sketch-014`
+
+- **Variation:** ncert_strict
+- **Tags:** cbse, biology, source_upload, ncert_strict, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Biology — cbse_biology page 15
+
+**Document Text:**
+
+Q50. Read the following passage and answer the questions that follow. Gene expresses itself in a cell system as a protein/enzyme. How does expression of gene occur in a cell system and when does it need to occur, and how gene expression is regulated in a prokaryote cell system, was studied by the combined efforts of Jacques Monod, the biochemist, and François Jacob, the geneticist. For their work on lactose metabolism in E. coli and proposing the lac operon concept, they were awarded the Nobel P upload-14
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Gene Expression in Prokaryotes",
+  "main_sections": [
+    "Gene Expression",
+    "Regulation of Gene Expression",
+    "Lactose Metabolism",
+    "Lac Operon Concept"
+  ],
+  "key_definitions": {
+    "Gene": "Unit of heredity that expresses as a protein/enzyme.",
+    "Gene Expression": "Process by which a gene's information is converted into a functional product.",
+    "Prokaryote": "Single-celled organism without a nucleus.",
+    "Lactose Metabolism": "Biochemical process of breaking down lactose.",
+    "Lac Operon": "Genetic system that controls lactose metabolism in E. coli."
+  },
+  "concepts": [
+    "Gene",
+    "Gene Expression",
+    "Prokaryote",
+    "Lactose",
+    "E. coli",
+    "Lac Operon",
+    "Jacques Monod",
+    "François Jacob",
+    "Nobel Prize",
+    "Biochemistry",
+    "Genetics",
+    "Protein",
+    "Enzyme",
+    "Metabolism",
+    "Regulation",
+    "Cell System",
+    "Biochemical Pathways",
+    "Transcription",
+    "Translation",
+    "Operon Model"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `proof`
+
+
+#### Example 1: `document_sketch-015`
+
+- **Variation:** proof
+- **Tags:** cbse, chemistry, source_upload, proof, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+CBSE Chemistry — cbse_biology page 16
+
+**Document Text:**
+
+CBSE Class XII Biology — Testing Question Bank
+Page 16
+questions that follow.
+(a) To which category of evolution — divergent or convergent — do the following
+evolutionary relationships belong to: (i) Humans and Macaque, (ii) Humans and Frog?
+(b) What do the biochemical similarities in haemoglobin suggest about the
+evolutionary relationship between humans, frog and lamprey?
+(c) (i) Which one of the two is closely related to humans and why?
+OR
+(c) (ii) Which one of the two is distantly related to upload-15
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "CBSE Class XII Biology",
+  "main_sections": [
+    "Testing Question Bank",
+    "Evolutionary Relationships"
+  ],
+  "key_definitions": {
+    "Divergent Evolution": "Evolution of different species from a common ancestor.",
+    "Convergent Evolution": "Evolution of similar traits in unrelated species.",
+    "Haemoglobin": "Protein in red blood cells that carries oxygen."
+  },
+  "concepts": [
+    "Humans",
+    "Macaque",
+    "Frog",
+    "Lamprey",
+    "Biochemical Similarities",
+    "Evolutionary Relationships",
+    "Closely Related Species",
+    "Distantly Related Species",
+    "Evolutionary Biology",
+    "CBSE",
+    "Class XII",
+    "Testing Question Bank"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. concept_coverage: pass. subject_alignment: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+
+## 27. NCERT Document Sketch Agent
+
+| Field | Value |
+|-------|-------|
+| Dataset ID | `ncert_document_sketch` |
+| Category | RAG Ingestion |
+| Tier | Tier 3 |
+| Target examples | 13 |
+| Actual examples | 13 |
+| Version | 1.4.1 |
+
+**Agent responsibility:** Build a compact JSON sketch for NCERT chapter PDFs used in global NCERT ingestion. Production: [`rag/ncert_document_sketch.j2`](packages/core/prompts/templates/rag/ncert_document_sketch.j2).
+
+**Audit finding (baseline v1.0.0):** Baseline stubs used placeholder section headings and mismatched definitions. Rebuilt with catalog-locked NCERT chapter excerpts (Classes 9–12) and production LLM gold.
+
+**Fixed Variation Taxonomy (locked)** — examples are grouped under these variation buckets:
+
+| Variation | Failure/behavior tested | Example quota |
+|-----------|-------------------------|---------------|
+| `numerical` | Formula/numeric-heavy source text | 2 |
+| `conversational` | Natural upload headers and mixed prose | 2 |
+| `cbse` | CBSE board exam framing | 2 |
+| `neet` | NEET-oriented biology/chemistry | 1 |
+| `jee` | JEE-style physics/math depth | 1 |
+| `multi_part` | Multi-section documents | 1 |
+| `conceptual` | Theory-first exposition | 1 |
+| `case_study` | Passage-based social science | 1 |
+| `ncert_strict` | Strict NCERT chapter vocabulary | 1 |
+| `proof` | Derivation-heavy maths | 1 |
+| `typo` | Robust to minor OCR/header noise | 1 |
+
+**Quality Check (evaluation layer)** — every example is graded against these dimensions:
+
+* **schema_complete** — All sketch_json keys present and typed correctly.
+* **ncert_vocabulary** — Headings and concepts use NCERT chapter terminology.
+* **concept_coverage** — ≥10 searchable concept terms per chapter.
+* **compactness** — Short definitions only; no long quotes.
+
+**LangSmith configuration**
+
+* Dataset name prefix: `nbm-prompt`
+* Input keys: `header`, `document_text`
+* Output keys: `sketch_json`
+
+**Prompt template (production):**
+
+```jinja2
+You are helping build a retrieval index for NCERT PDFs.
+
+Given the chapter/document text and a small header, produce a compact JSON "document sketch" that can be reused
+for contextualizing many chunks from the same document.
+
+Header:
+{{ header }}
+
+Document (may be truncated):
+{{ document_text }}
+
+Return a single JSON object with these keys:
+- chapter_title: best-effort title (empty string if unknown)
+- main_sections: array of short section headings (best-effort)
+- key_definitions: object mapping term -> short definition (keep very short; include only important terms)
+- concepts: array of important terms/entities a student might search for (10–30 items)
+
+Rules:
+- Output JSON only. No markdown fences. No extra keys.
+- Keep it compact: do not quote long excerpts.
+```
+
+*Runtime note:* `generate_ncert_document_sketch()` in `document_sketcher.py` during NCERT global ingestion.
+
+### Evaluation examples (13)
+## Variation: `numerical`
+
+
+#### Example 1: `ncert_document_sketch-001`
+
+- **Variation:** numerical
+- **Tags:** ncert, physics, numerical, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 12 Physics Ch.3 Current Electricity
+
+**Document Text:**
+
+3.1 Introduction. Electric current is the flow of electric charge through a conductor. 3.2 Electric Current. The current I = dQ/dt; drift velocity and mobility relate microscopic motion to macroscopic current. Ohm's law: V = IR for ohmic conductors at constant temperature. 3.3 Ohm's Law and Resistance. Resistivity ρ = RA/L; temperature dependence of resistance. 3.4 Electrical Energy and Power. P = VI = I²R; heating effect Joule's law. 3.5 Cells in Series and Parallel. EMF, internal resistance, terminal voltage. 3.6 Kirchhoff's Rules. Junction rule ΣI_in = ΣI_out; loop rule ΣΔV = 0. Example 3.1: Finding current in a series circuit. Example 3.2: Wheatstone bridge balance. Exercise 3.1–3.15 on combination of resistors and meter bridge. ncert-1
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Current Electricity",
+  "main_sections": [
+    "Introduction",
+    "Electric Current",
+    "Ohm's Law and Resistance",
+    "Electrical Energy and Power",
+    "Cells in Series and Parallel",
+    "Kirchhoff's Rules",
+    "Examples",
+    "Exercises"
+  ],
+  "key_definitions": {
+    "Electric Current": "Flow of electric charge.",
+    "Ohm's Law": "V = IR; relationship between voltage, current, and resistance.",
+    "Resistivity": "ρ = RA/L; material property affecting resistance.",
+    "Electrical Power": "P = VI = I²R; rate of energy transfer.",
+    "EMF": "Electromotive force; voltage provided by a source.",
+    "Internal Resistance": "Resistance within a cell affecting output voltage.",
+    "Joule's Law": "Heating effect of current in a resistor.",
+    "Drift Velocity": "Average velocity of charge carriers.",
+    "Kirchhoff's Junction Rule": "ΣI_in = ΣI_out; conservation of charge.",
+    "Kirchhoff's Loop Rule": "ΣΔV = 0; conservation of energy in circuits."
+  },
+  "concepts": [
+    "Electric Current",
+    "Ohm's Law",
+    "Resistance",
+    "Resistivity",
+    "Electrical Power",
+    "EMF",
+    "Internal Resistance",
+    "Joule's Law",
+    "Drift Velocity",
+    "Kirchhoff's Rules",
+    "Series Circuit",
+    "Parallel Circuit",
+    "Wheatstone Bridge",
+    "Terminal Voltage",
+    "Heating Effect",
+    "Charge",
+    "Conductor",
+    "Voltage",
+    "Current",
+    "Energy"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `ncert_document_sketch-002`
+
+- **Variation:** numerical
+- **Tags:** ncert, biology, numerical, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 11 Biology Ch.16 Digestion and Absorption
+
+**Document Text:**
+
+16.1 Digestive System. Alimentary canal and associated glands. 16.2 Digestion of Food. Carbohydrates: salivary amylase in mouth; pancreatic amylase. Proteins: pepsin in stomach (HCl activates pepsinogen); trypsin in duodenum. Fats: bile emulsification; lipase action. 16.3 Absorption. Villi and microvilli increase surface area; absorption in small intestine. Table 16.1: Enzymes, site of action, and products. Activity 16.1: Testing action of salivary amylase on starch. Exercise questions on disorders of digestion and enzyme specificity. ncert-2
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Digestion and Absorption",
+  "main_sections": [
+    "Digestive System",
+    "Digestion of Food",
+    "Absorption"
+  ],
+  "key_definitions": {
+    "Alimentary canal": "The whole passage along which food passes through the body.",
+    "Salivary amylase": "Enzyme that breaks down carbohydrates in the mouth.",
+    "Pepsin": "Enzyme that digests proteins in the stomach.",
+    "Trypsin": "Enzyme that continues protein digestion in the duodenum.",
+    "Bile": "Digestive fluid that emulsifies fats.",
+    "Lipase": "Enzyme that breaks down fats.",
+    "Villi": "Small finger-like projections in the small intestine that absorb nutrients.",
+    "Microvilli": "Tiny projections on villi that increase surface area for absorption."
+  },
+  "concepts": [
+    "Digestive System",
+    "Alimentary canal",
+    "Salivary amylase",
+    "Pancreatic amylase",
+    "Pepsin",
+    "HCl",
+    "Pepsinogen",
+    "Trypsin",
+    "Duodenum",
+    "Bile",
+    "Lipase",
+    "Villi",
+    "Microvilli",
+    "Absorption",
+    "Carbohydrates",
+    "Proteins",
+    "Fats",
+    "Enzymes",
+    "Surface area",
+    "Starch",
+    "Digestion disorders"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conversational`
+
+
+#### Example 1: `ncert_document_sketch-003`
+
+- **Variation:** conversational
+- **Tags:** ncert, chemistry, conversational, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 12 Chemistry Ch.4 Chemical Bonding
+
+**Document Text:**
+
+4.1 Kossel-Lewis approach. Octet rule and limitations. 4.2 Ionic Bonding. Lattice enthalpy; Born-Haber cycle. 4.3 Covalent Bonding. VSEPR theory predicts geometry from electron pair repulsion. 4.4 Valence Bond Theory. Hybridisation sp, sp², sp³; sigma and pi bonds. 4.5 Molecular Orbital Theory. Bond order; paramagnetic vs diamagnetic. Example 4.1: NH₃ pyramidal geometry. Example 4.2: O₂ MO configuration. Exercise 4.1–4.12 on polarity, dipole moment, and hydrogen bonding. ncert-3
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Chemical Bonding",
+  "main_sections": [
+    "Kossel-Lewis approach",
+    "Ionic Bonding",
+    "Covalent Bonding",
+    "Valence Bond Theory",
+    "Molecular Orbital Theory",
+    "Examples",
+    "Exercises"
+  ],
+  "key_definitions": {
+    "Octet Rule": "Atoms tend to form bonds to achieve a full outer shell of eight electrons.",
+    "Ionic Bonding": "Electrostatic attraction between oppositely charged ions.",
+    "Lattice Enthalpy": "Energy required to separate one mole of an ionic solid into gaseous ions.",
+    "Covalent Bonding": "Sharing of electron pairs between atoms.",
+    "VSEPR Theory": "Predicts molecular geometry based on electron pair repulsion.",
+    "Hybridisation": "Mixing of atomic orbitals to form new hybrid orbitals.",
+    "Sigma Bond": "Single covalent bond formed by head-on overlap of orbitals.",
+    "Pi Bond": "Bond formed by the side-to-side overlap of p orbitals.",
+    "Bond Order": "Number of bonds between two atoms.",
+    "Paramagnetic": "Substances with unpaired electrons that are attracted to magnetic fields.",
+    "Diamagnetic": "Substances with all electrons paired that are repelled by magnetic fields."
+  },
+  "concepts": [
+    "Kossel-Lewis approach",
+    "Octet rule",
+    "Ionic Bonding",
+    "Lattice enthalpy",
+    "Born-Haber cycle",
+    "Covalent Bonding",
+    "VSEPR theory",
+    "Valence Bond Theory",
+    "Hybridisation",
+    "Sigma bond",
+    "Pi bond",
+    "Molecular Orbital Theory",
+    "Bond order",
+    "Paramagnetic",
+    "Diamagnetic",
+    "NH₃ geometry",
+    "O₂ MO configuration",
+    "Polarity",
+    "Dipole moment",
+    "Hydrogen bonding"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `ncert_document_sketch-004`
+
+- **Variation:** conversational
+- **Tags:** ncert, mathematics, conversational, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 12 Mathematics Ch.7 Integrals
+
+**Document Text:**
+
+7.1 Integration as inverse of differentiation. Indefinite integral ∫f(x)dx = F(x) + C. 7.2 Methods: substitution, partial fractions, integration by parts. 7.3 Definite integrals. Fundamental theorem: ∫ₐᵇ f(x)dx = F(b) − F(a). 7.4 Area under a curve between x = a and x = b. Example 7.1: ∫ x√(1−x²) dx by substitution. Example 7.2: Area bounded by parabola. Theorem 7.1: Properties of definite integrals. Exercise 7.1–7.20. ncert-4
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Integrals",
+  "main_sections": [
+    "Integration as inverse of differentiation",
+    "Methods",
+    "Definite integrals",
+    "Area under a curve",
+    "Examples",
+    "Properties of definite integrals",
+    "Exercises"
+  ],
+  "key_definitions": {
+    "Indefinite integral": "Integral without limits, ∫f(x)dx = F(x) + C.",
+    "Definite integral": "Integral with limits, ∫ₐᵇ f(x)dx = F(b) − F(a).",
+    "Substitution": "Method to simplify integrals by changing variables.",
+    "Partial fractions": "Method to break down rational functions for integration.",
+    "Integration by parts": "Method based on the product rule of differentiation.",
+    "Area under a curve": "The definite integral represents the area between the curve and the x-axis."
+  },
+  "concepts": [
+    "Integration",
+    "Differentiation",
+    "Indefinite integral",
+    "Definite integral",
+    "Substitution",
+    "Partial fractions",
+    "Integration by parts",
+    "Fundamental theorem",
+    "Area under a curve",
+    "Parabola",
+    "Properties of integrals",
+    "Exercises",
+    "Examples",
+    "Functions",
+    "Limits",
+    "Integration techniques"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `cbse`
+
+
+#### Example 1: `ncert_document_sketch-007`
+
+- **Variation:** cbse
+- **Tags:** ncert, chemistry, cbse, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 11 Chemistry Ch.7 Equilibrium
+
+**Document Text:**
+
+7.1 Equilibrium in physical processes. Solid-liquid, liquid-vapour equilibrium. 7.2 Chemical equilibrium. Kc = [products]/[reactants]; homogeneous and heterogeneous. 7.3 Le Chatelier's principle. Effect of concentration, pressure, temperature. 7.4 Ionic equilibrium. Ka, Kb, Kw; pH scale; buffer solutions. Example 7.1: Calculating Kc from equilibrium concentrations. Exercise 7.1–7.18 on Q vs K and degree of dissociation. ncert-7
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Equilibrium",
+  "main_sections": [
+    "Equilibrium in physical processes",
+    "Chemical equilibrium",
+    "Le Chatelier's principle",
+    "Ionic equilibrium",
+    "Example 7.1",
+    "Exercises"
+  ],
+  "key_definitions": {
+    "Kc": "Equilibrium constant for a reaction.",
+    "Le Chatelier's principle": "System adjusts to counteract changes in equilibrium.",
+    "Ka": "Acid dissociation constant.",
+    "Kb": "Base dissociation constant.",
+    "Kw": "Ion product of water.",
+    "pH": "Measure of acidity or basicity.",
+    "Buffer solution": "Resists changes in pH."
+  },
+  "concepts": [
+    "equilibrium",
+    "physical processes",
+    "chemical equilibrium",
+    "homogeneous equilibrium",
+    "heterogeneous equilibrium",
+    "Le Chatelier's principle",
+    "concentration",
+    "pressure",
+    "temperature",
+    "ionic equilibrium",
+    "acid-base reactions",
+    "dissociation",
+    "Kc calculations",
+    "buffer solutions",
+    "pH scale",
+    "degree of dissociation",
+    "exercises",
+    "reaction rates",
+    "dynamic equilibrium",
+    "system changes"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `ncert_document_sketch-008`
+
+- **Variation:** cbse
+- **Tags:** ncert, science, cbse, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 10 Science Ch.12 Electricity
+
+**Document Text:**
+
+12.1 Electric current and circuit. Ammeter, voltmeter, switch. 12.2 Ohm's law V = IR. Resistance R = ρL/A. 12.3 Factors affecting resistance. Series: R = R₁+R₂; parallel: 1/R = 1/R₁+1/R₂. 12.4 Heating effect. H = I²Rt; electric fuse. 12.5 Electric power P = VI. Commercial unit kWh. Activity 12.1: Compare current in series vs parallel. Exercise 12.1–12.10. ncert-8
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Electricity",
+  "main_sections": [
+    "Electric current and circuit",
+    "Ohm's law",
+    "Factors affecting resistance",
+    "Heating effect",
+    "Electric power",
+    "Activities and Exercises"
+  ],
+  "key_definitions": {
+    "Electric current": "Flow of electric charge.",
+    "Circuit": "Closed path for current.",
+    "Ammeter": "Measures current.",
+    "Voltmeter": "Measures voltage.",
+    "Ohm's law": "V = IR, relationship between voltage, current, and resistance.",
+    "Resistance": "Opposition to current flow.",
+    "Heating effect": "Heat produced by current.",
+    "Electric fuse": "Safety device to prevent overload.",
+    "Electric power": "Rate of doing work, P = VI.",
+    "kWh": "Commercial unit of energy."
+  },
+  "concepts": [
+    "Electric current",
+    "Circuit",
+    "Ammeter",
+    "Voltmeter",
+    "Ohm's law",
+    "Resistance",
+    "Heating effect",
+    "Electric fuse",
+    "Electric power",
+    "kWh",
+    "Series circuit",
+    "Parallel circuit",
+    "Factors affecting resistance",
+    "Current",
+    "Voltage",
+    "Electrical energy",
+    "Conductors",
+    "Insulators",
+    "Power calculation",
+    "Electrical safety",
+    "Activity",
+    "Exercise"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `neet`
+
+
+#### Example 1: `ncert_document_sketch-009`
+
+- **Variation:** neet
+- **Tags:** ncert, mathematics, neet, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 10 Mathematics Ch.4 Quadratic Equations
+
+**Document Text:**
+
+4.1 Standard form ax²+bx+c=0. Roots by factorisation and quadratic formula. 4.2 Discriminant D = b²−4ac determines nature of roots. 4.3 Sum and product of roots: −b/a and c/a. 4.4 Word problems on area, speed, and consecutive integers. Example 4.1: Finding roots when D > 0. Example 4.2: No real roots when D < 0. Exercise 4.1–4.4. ncert-9
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Quadratic Equations",
+  "main_sections": [
+    "Standard form",
+    "Discriminant",
+    "Sum and product of roots",
+    "Word problems",
+    "Examples",
+    "Exercises"
+  ],
+  "key_definitions": {
+    "Quadratic Equation": "An equation of the form ax² + bx + c = 0.",
+    "Discriminant": "D = b² - 4ac; determines the nature of roots.",
+    "Roots": "Solutions of the quadratic equation.",
+    "Factorisation": "Method to find roots by expressing the equation as a product.",
+    "Quadratic Formula": "Roots can be found using x = (-b ± √D) / (2a).",
+    "Sum of Roots": "-b/a.",
+    "Product of Roots": "c/a."
+  },
+  "concepts": [
+    "Quadratic Equation",
+    "Roots",
+    "Discriminant",
+    "Factorisation",
+    "Quadratic Formula",
+    "Sum of Roots",
+    "Product of Roots",
+    "Word Problems",
+    "Area",
+    "Speed",
+    "Consecutive Integers",
+    "Examples",
+    "Exercises",
+    "Real Roots",
+    "Complex Roots",
+    "Coefficient",
+    "Polynomial",
+    "Graph of Quadratic",
+    "Vertex",
+    "Axis of Symmetry"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `jee`
+
+
+#### Example 1: `ncert_document_sketch-010`
+
+- **Variation:** jee
+- **Tags:** ncert, biology, jee, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 11 Biology Ch.13 Photosynthesis
+
+**Document Text:**
+
+13.1 Photosynthesis as anabolic process. 6CO₂+6H₂O → C₆H₁₂O₆+6O₂. 13.2 Light reaction in grana: photolysis, ATP, NADPH. 13.3 Calvin cycle in stroma; RuBisCO; C3 pathway. 13.4 C4 pathway in maize and sugarcane; Kranz anatomy. Figure 13.4: Z-scheme of light reaction. Table 13.1: Cyclic vs non-cyclic photophosphorylation. Exercise 13.1–13.8. ncert-10
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Photosynthesis",
+  "main_sections": [
+    "Photosynthesis as anabolic process",
+    "Light reaction in grana",
+    "Calvin cycle in stroma",
+    "C4 pathway in maize and sugarcane"
+  ],
+  "key_definitions": {
+    "Photosynthesis": "Process by which plants convert light energy into chemical energy.",
+    "Photolysis": "Splitting of water molecules during light reactions.",
+    "ATP": "Energy currency of the cell.",
+    "NADPH": "Electron carrier in photosynthesis.",
+    "RuBisCO": "Enzyme that catalyzes the first step of the Calvin cycle.",
+    "C3 pathway": "Main pathway of carbon fixation in plants.",
+    "C4 pathway": "Alternative pathway for carbon fixation in some plants.",
+    "Kranz anatomy": "Leaf structure in C4 plants.",
+    "Z-scheme": "Model of electron transport in light reactions.",
+    "Photophosphorylation": "Process of generating ATP using light energy."
+  },
+  "concepts": [
+    "Photosynthesis",
+    "Anabolic process",
+    "Light reaction",
+    "Calvin cycle",
+    "RuBisCO",
+    "C3 pathway",
+    "C4 pathway",
+    "Photolysis",
+    "ATP",
+    "NADPH",
+    "Kranz anatomy",
+    "Z-scheme",
+    "Cyclic photophosphorylation",
+    "Non-cyclic photophosphorylation",
+    "Maize",
+    "Sugarcane",
+    "Exercise",
+    "NCERT"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `multi_part`
+
+
+#### Example 1: `ncert_document_sketch-011`
+
+- **Variation:** multi_part
+- **Tags:** ncert, physics, multi_part, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 12 Physics Ch.9 Ray Optics
+
+**Document Text:**
+
+9.1 Reflection; mirror formula 1/f = 1/v + 1/u. 9.2 Refraction; Snell's law n₁ sin i = n₂ sin r. 9.3 Total internal reflection; critical angle. 9.4 Lens formula 1/f = 1/v − 1/u; magnification m = v/u. 9.5 Prism deviation; dispersive power. Figure 9.12: Ray diagram for convex lens. Example 9.3: Image position. Exercise 9.1–9.15. ncert-11
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Ray Optics",
+  "main_sections": [
+    "Reflection",
+    "Refraction",
+    "Total Internal Reflection",
+    "Lens Formula",
+    "Prism Deviation",
+    "Exercises"
+  ],
+  "key_definitions": {
+    "Mirror Formula": "1/f = 1/v + 1/u",
+    "Snell's Law": "n₁ sin i = n₂ sin r",
+    "Critical Angle": "Angle for total internal reflection",
+    "Lens Formula": "1/f = 1/v − 1/u",
+    "Magnification": "m = v/u",
+    "Dispersive Power": "Ability of prism to separate colors"
+  },
+  "concepts": [
+    "Reflection",
+    "Refraction",
+    "Total Internal Reflection",
+    "Critical Angle",
+    "Lens",
+    "Convex Lens",
+    "Concave Lens",
+    "Prism",
+    "Ray Diagram",
+    "Image Position",
+    "Magnification",
+    "Exercises",
+    "Optics",
+    "Light",
+    "Snell's Law",
+    "Mirror",
+    "Focal Length",
+    "Deviation",
+    "Dispersion",
+    "Optical Phenomena"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conceptual`
+
+
+#### Example 1: `ncert_document_sketch-012`
+
+- **Variation:** conceptual
+- **Tags:** ncert, chemistry, conceptual, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 12 Chemistry Ch.3 Electrochemistry
+
+**Document Text:**
+
+3.1 Electrochemical cells. Anode oxidation; cathode reduction. 3.2 Standard electrode potential E°. Cell EMF E°cell = E°cathode − E°anode. 3.3 Nernst equation links EMF to concentration. 3.4 Conductance and molar conductivity; Kohlrausch law. 3.5 Batteries and fuel cells. Corrosion as electrochemical process. Example 3.1: Calculate Ecell at non-standard concentrations. Exercise 3.1–3.12. ncert-12
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Electrochemistry",
+  "main_sections": [
+    "Electrochemical cells",
+    "Standard electrode potential",
+    "Nernst equation",
+    "Conductance and molar conductivity",
+    "Batteries and fuel cells",
+    "Corrosion"
+  ],
+  "key_definitions": {
+    "Anode": "Electrode where oxidation occurs.",
+    "Cathode": "Electrode where reduction occurs.",
+    "Standard electrode potential": "Measure of the tendency of a chemical species to be reduced.",
+    "Cell EMF": "Electromotive force of the cell.",
+    "Nernst equation": "Relates EMF to concentration.",
+    "Conductance": "Ability of a solution to conduct electricity.",
+    "Molar conductivity": "Conductivity of a solution divided by its molarity.",
+    "Kohlrausch law": "Relationship between conductivity and concentration.",
+    "Batteries": "Devices that store chemical energy and convert it to electrical energy.",
+    "Fuel cells": "Devices that convert chemical energy directly into electrical energy."
+  },
+  "concepts": [
+    "Electrochemical cells",
+    "Anode",
+    "Cathode",
+    "Standard electrode potential",
+    "Cell EMF",
+    "Nernst equation",
+    "Conductance",
+    "Molar conductivity",
+    "Kohlrausch law",
+    "Batteries",
+    "Fuel cells",
+    "Corrosion",
+    "Oxidation",
+    "Reduction",
+    "Electrolyte",
+    "Redox reactions",
+    "Electrode",
+    "Electrolytic cell",
+    "Galvanic cell",
+    "Half-cell",
+    "Electrochemical series"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `case_study`
+
+
+#### Example 1: `ncert_document_sketch-013`
+
+- **Variation:** case_study
+- **Tags:** ncert, economics, case_study, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 12 Economics Ch.2 National Income
+
+**Document Text:**
+
+2.1 Circular flow of income. Factor payments and expenditure. 2.2 GDP at market prices; GNP = GDP + NFIA. 2.3 NDP and NNP; depreciation. 2.4 Real vs nominal GDP; GDP deflator. 2.5 Methods of measuring national income: product, income, expenditure. Table 2.1: Relationship between macro aggregates. Exercise 2.1–2.8. ncert-13
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "National Income",
+  "main_sections": [
+    "Circular flow of income",
+    "GDP at market prices",
+    "NDP and NNP",
+    "Real vs nominal GDP",
+    "Methods of measuring national income"
+  ],
+  "key_definitions": {
+    "GDP": "Gross Domestic Product",
+    "GNP": "Gross National Product",
+    "NFIA": "Net Factor Income from Abroad",
+    "NDP": "Net Domestic Product",
+    "NNP": "Net National Product",
+    "Depreciation": "Reduction in value of an asset",
+    "Real GDP": "GDP adjusted for inflation",
+    "Nominal GDP": "GDP measured at current prices",
+    "GDP Deflator": "Measure of price inflation",
+    "Macroeconomic aggregates": "Overall economic indicators"
+  },
+  "concepts": [
+    "Circular flow of income",
+    "Factor payments",
+    "Expenditure",
+    "Market prices",
+    "National income",
+    "Economic indicators",
+    "Inflation",
+    "Depreciation",
+    "Income method",
+    "Expenditure method",
+    "Product method",
+    "Macroeconomics",
+    "Aggregate demand",
+    "Aggregate supply",
+    "Economic growth",
+    "Income distribution",
+    "Investment",
+    "Consumption",
+    "Savings",
+    "Government spending"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `ncert_strict`
+
+
+#### Example 1: `ncert_document_sketch-014`
+
+- **Variation:** ncert_strict
+- **Tags:** ncert, civics, ncert_strict, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 10 Civics Ch.3 Gender Religion and Caste
+
+**Document Text:**
+
+3.1 Gender and politics. Public/private division; women's political representation. 3.2 Religion communalism vs secularism in India. 3.3 Caste and politics. Reservation policy; caste-based mobilisation. Case study: Women's reservation bill debate. Exercise: Analyse how social divisions affect electoral outcomes. ncert-14
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Gender, Religion and Caste",
+  "main_sections": [
+    "Gender and Politics",
+    "Religion",
+    "Caste and Politics",
+    "Case Study",
+    "Exercise"
+  ],
+  "key_definitions": {
+    "Gender": "Social roles based on sex.",
+    "Communalism": "Loyalty to a specific religious community.",
+    "Secularism": "Separation of religion from politics.",
+    "Caste": "Social stratification in India.",
+    "Reservation Policy": "Affirmative action for marginalized groups.",
+    "Political Representation": "Participation of groups in governance."
+  },
+  "concepts": [
+    "Gender",
+    "Politics",
+    "Communalism",
+    "Secularism",
+    "Caste",
+    "Reservation",
+    "Women's Representation",
+    "Electoral Outcomes",
+    "Social Divisions",
+    "Caste-based Mobilisation",
+    "Women's Reservation Bill",
+    "Public/Private Division",
+    "Case Study",
+    "Political Participation",
+    "Affirmative Action"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `proof`
+
+
+#### Example 1: `ncert_document_sketch-015`
+
+- **Variation:** proof
+- **Tags:** ncert, mathematics, proof, production_llm_gold
+
+**Inputs**
+
+**Header:**
+
+NCERT Class 11 Mathematics Ch.7 Permutations and Combinations
+
+**Document Text:**
+
+7.1 Fundamental principle of counting. Multiplication rule. 7.2 Permutations nPr = n!/(n−r)!. Circular permutations. 7.3 Combinations nCr = n!/[(n−r)!r!]. 7.4 Applications to binomial coefficients and probability. Example 7.1: Arrangements with repetition. Example 7.2: Selection problems. Exercise 7.1–7.10. ncert-15
+
+**Expected output**
+
+**Sketch Json:**
+
+```json
+{
+  "chapter_title": "Permutations and Combinations",
+  "main_sections": [
+    "Fundamental principle of counting",
+    "Permutations",
+    "Circular permutations",
+    "Combinations",
+    "Applications to binomial coefficients and probability",
+    "Examples",
+    "Exercises"
+  ],
+  "key_definitions": {
+    "Permutations": "Arrangements of objects in a specific order.",
+    "Combinations": "Selections of objects without regard to order.",
+    "nPr": "Number of permutations of n items taken r at a time.",
+    "nCr": "Number of combinations of n items taken r at a time.",
+    "Factorial": "Product of all positive integers up to a given number."
+  },
+  "concepts": [
+    "counting principle",
+    "multiplication rule",
+    "arrangements",
+    "selection problems",
+    "binomial coefficients",
+    "probability",
+    "repetition",
+    "examples",
+    "exercises",
+    "nPr",
+    "nCr",
+    "factorial",
+    "circular permutations",
+    "combinatorial problems",
+    "mathematical reasoning",
+    "discrete mathematics"
+  ]
+}
+```
+
+**Quality Check:** schema_complete: pass. ncert_vocabulary: pass. concept_coverage: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+
+## 28. Chunk Contextualization Agent
+
+| Field | Value |
+|-------|-------|
+| Dataset ID | `chunk_contextualization` |
+| Category | RAG Ingestion |
+| Tier | Tier 3 |
+| Target examples | 13 |
+| Actual examples | 13 |
+| Version | 1.4.1 |
+
+**Agent responsibility:** Situate each ingestion chunk within its parent document: context, summary, type, section, concept hints. Production: [`rag/chunk_contextualization.j2`](packages/core/prompts/templates/rag/chunk_contextualization.j2).
+
+**Audit finding (baseline v1.0.0):** Baseline examples omitted token target inputs and returned generic chunk_type. Rebuilt with paired whole_document + chunk_content from NCERT splits and validated enums.
+
+**Fixed Variation Taxonomy (locked)** — examples are grouped under these variation buckets:
+
+| Variation | Failure/behavior tested | Example quota |
+|-----------|-------------------------|---------------|
+| `numerical` | Formula/numeric-heavy source text | 2 |
+| `conversational` | Natural upload headers and mixed prose | 2 |
+| `cbse` | CBSE board exam framing | 2 |
+| `neet` | NEET-oriented biology/chemistry | 1 |
+| `jee` | JEE-style physics/math depth | 1 |
+| `multi_part` | Multi-section documents | 1 |
+| `conceptual` | Theory-first exposition | 1 |
+| `case_study` | Passage-based social science | 1 |
+| `ncert_strict` | Strict NCERT chapter vocabulary | 1 |
+| `proof` | Derivation-heavy maths | 1 |
+| `typo` | Robust to minor OCR/header noise | 1 |
+
+**Quality Check (evaluation layer)** — every example is graded against these dimensions:
+
+* **input_keys_complete** — whole_document, chunk_content, target_* token fields all populated.
+* **chunk_type_valid** — chunk_type is one of definition|procedure|example|table|figure|argument|formula|qa|other.
+* **grounding** — chunk_context references parent document; no invented syllabus.
+* **compactness** — Context and summary within token targets; concept_hint is comma-separated.
+
+**LangSmith configuration**
+
+* Dataset name prefix: `nbm-prompt`
+* Input keys: `whole_document`, `chunk_content`, `target_context_tokens`, `target_summary_tokens`, `target_concept_terms`
+* Output keys: `contextualization_json`
+
+**Prompt template (production):**
+
+```jinja2
+{{ whole_document }}
+
+Here is the chunk we want to situate within the whole document:
+
+{{ chunk_content }}
+
+Return a single JSON object with these keys:
+- chunk_context: short context that situates the chunk within the whole document (target ~{{ target_context_tokens }} tokens)
+- chunk_summary: succinct summary of the chunk itself (target ~{{ target_summary_tokens }} tokens)
+- chunk_type: one short label like definition|procedure|example|table|figure|argument|formula|qa|other
+- section_title: best-effort section/chapter heading (empty string if unknown)
+- concept_hint: a short comma-separated string of {{ target_concept_terms }} important terms/entities/identifiers a user might search for
+
+Rules:
+- Output JSON only. No markdown fences. No extra keys.
+- Keep all fields compact. Do not quote large excerpts from the document.
+```
+
+*Runtime note:* `ChunkContextualizer.enrich_chunk()` in `contextualizer.py` at ingestion time.
+
+### Evaluation examples (13)
+## Variation: `numerical`
+
+
+#### Example 1: `chunk_contextualization-001`
+
+- **Variation:** numerical
+- **Tags:** ingestion, physics, numerical, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 12 Physics Ch.3 Current Electricity. 3.1 Introduction. Electric current is the flow of electric charge through a conductor. 3.2 Electric Current. The current I = dQ/dt; drift velocity and mobility relate microscopic motion to macroscopic current. Ohm's law: V = IR for ohmic conductors at constant temperature. 3.3 Ohm's Law and Resistance. Resistivity ρ = RA/L; temperature dependence of resistance. 3.4 Electrical Energy and Power. P = VI = I²R; heating effect Joule's law. 3.5 Cells in Series and Parallel. EMF, internal resistance, terminal voltage. 3.6 Kirchhoff's Rules. Junction rule ΣI_in = ΣI_out; loop rule ΣΔV = 0. Example 3.1: Finding current in a series circuit. Example 3.2: Wheatstone bridge balance. Exercise 3.1–3.15 on combination of resistors and meter bridge.
+
+**Chunk Content:**
+
+Ohm's law states that V = IR for metallic conductors when temperature remains constant. Resistivity ρ = RA/L relates material property to geometry.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses Ohm's law and its implications for electric current in conductors, emphasizing the relationship between voltage, current, and resistance under constant temperature conditions.",
+  "chunk_summary": "Ohm's law defines the relationship V = IR for metallic conductors, with resistivity linking material properties to geometry.",
+  "chunk_type": "formula",
+  "section_title": "Ohm's Law and Resistance",
+  "concept_hint": "Ohm's law, resistivity, voltage, current, resistance"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `chunk_contextualization-002`
+
+- **Variation:** numerical
+- **Tags:** ingestion, biology, numerical, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 11 Biology Ch.16 Digestion and Absorption. 16.1 Digestive System. Alimentary canal and associated glands. 16.2 Digestion of Food. Carbohydrates: salivary amylase in mouth; pancreatic amylase. Proteins: pepsin in stomach (HCl activates pepsinogen); trypsin in duodenum. Fats: bile emulsification; lipase action. 16.3 Absorption. Villi and microvilli increase surface area; absorption in small intestine. Table 16.1: Enzymes, site of action, and products. Activity 16.1: Testing action of salivary amylase on starch. Exercise questions on disorders of digestion and enzyme specificity.
+
+**Chunk Content:**
+
+Pepsin is activated in the acidic environment of the stomach; trypsin acts in the alkaline duodenum after pancreatic secretion.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses the digestive enzymes involved in protein digestion, specifically focusing on pepsin and trypsin. It highlights their activation and action in different parts of the digestive system.",
+  "chunk_summary": "Pepsin is activated in the stomach's acidic environment, while trypsin functions in the alkaline duodenum after pancreatic secretion.",
+  "chunk_type": "definition",
+  "section_title": "16.2 Digestion of Food",
+  "concept_hint": "pepsin, trypsin, stomach, duodenum, pancreatic secretion"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conversational`
+
+
+#### Example 1: `chunk_contextualization-003`
+
+- **Variation:** conversational
+- **Tags:** ingestion, chemistry, conversational, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 12 Chemistry Ch.4 Chemical Bonding. 4.1 Kossel-Lewis approach. Octet rule and limitations. 4.2 Ionic Bonding. Lattice enthalpy; Born-Haber cycle. 4.3 Covalent Bonding. VSEPR theory predicts geometry from electron pair repulsion. 4.4 Valence Bond Theory. Hybridisation sp, sp², sp³; sigma and pi bonds. 4.5 Molecular Orbital Theory. Bond order; paramagnetic vs diamagnetic. Example 4.1: NH₃ pyramidal geometry. Example 4.2: O₂ MO configuration. Exercise 4.1–4.12 on polarity, dipole moment, and hydrogen bonding.
+
+**Chunk Content:**
+
+VSEPR theory predicts molecular geometry from repulsion between valence electron pairs; NH₃ has pyramidal shape with a lone pair.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses the VSEPR theory, which is part of covalent bonding in chemical bonding. It explains how molecular geometry is determined by the repulsion between electron pairs, providing examples like NH₃.",
+  "chunk_summary": "VSEPR theory explains that molecular geometry arises from electron pair repulsion, exemplified by NH₃'s pyramidal shape due to a lone pair.",
+  "chunk_type": "definition",
+  "section_title": "4.3 Covalent Bonding",
+  "concept_hint": "VSEPR theory, molecular geometry, electron pairs, NH₃, pyramidal shape"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `chunk_contextualization-004`
+
+- **Variation:** conversational
+- **Tags:** ingestion, mathematics, conversational, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 12 Mathematics Ch.7 Integrals. 7.1 Integration as inverse of differentiation. Indefinite integral ∫f(x)dx = F(x) + C. 7.2 Methods: substitution, partial fractions, integration by parts. 7.3 Definite integrals. Fundamental theorem: ∫ₐᵇ f(x)dx = F(b) − F(a). 7.4 Area under a curve between x = a and x = b. Example 7.1: ∫ x√(1−x²) dx by substitution. Example 7.2: Area bounded by parabola. Theorem 7.1: Properties of definite integrals. Exercise 7.1–7.20.
+
+**Chunk Content:**
+
+The definite integral ∫ₐᵇ f(x)dx equals F(b)−F(a) where F is an antiderivative of f, linking area to accumulation.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses the fundamental theorem of calculus, which connects the concept of definite integrals to the evaluation of antiderivatives. It emphasizes the relationship between area under a curve and accumulation of quantities.",
+  "chunk_summary": "The definite integral ∫ₐᵇ f(x)dx equals F(b)−F(a), linking area to accumulation through antiderivatives.",
+  "chunk_type": "formula",
+  "section_title": "7.3 Definite integrals",
+  "concept_hint": "definite integral, antiderivative, fundamental theorem, area, accumulation"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `cbse`
+
+
+#### Example 1: `chunk_contextualization-007`
+
+- **Variation:** cbse
+- **Tags:** ingestion, chemistry, cbse, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 11 Chemistry Ch.7 Equilibrium. 7.1 Equilibrium in physical processes. Solid-liquid, liquid-vapour equilibrium. 7.2 Chemical equilibrium. Kc = [products]/[reactants]; homogeneous and heterogeneous. 7.3 Le Chatelier's principle. Effect of concentration, pressure, temperature. 7.4 Ionic equilibrium. Ka, Kb, Kw; pH scale; buffer solutions. Example 7.1: Calculating Kc from equilibrium concentrations. Exercise 7.1–7.18 on Q vs K and degree of dissociation.
+
+**Chunk Content:**
+
+Le Chatelier's principle: a system at equilibrium opposes imposed stress by shifting to partially counteract the change in concentration, pressure, or temperature.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses Le Chatelier's principle, which is crucial for understanding how equilibrium systems respond to changes. It is part of the broader topic of chemical equilibrium, which includes the calculation of equilibrium constants and the effects of various stresses on a system.",
+  "chunk_summary": "Le Chatelier's principle states that a system at equilibrium will shift to counteract changes in concentration, pressure, or temperature.",
+  "chunk_type": "definition",
+  "section_title": "7.3 Le Chatelier's principle",
+  "concept_hint": "equilibrium, stress, concentration, pressure, temperature"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `chunk_contextualization-008`
+
+- **Variation:** cbse
+- **Tags:** ingestion, science, cbse, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 10 Science Ch.12 Electricity. 12.1 Electric current and circuit. Ammeter, voltmeter, switch. 12.2 Ohm's law V = IR. Resistance R = ρL/A. 12.3 Factors affecting resistance. Series: R = R₁+R₂; parallel: 1/R = 1/R₁+1/R₂. 12.4 Heating effect. H = I²Rt; electric fuse. 12.5 Electric power P = VI. Commercial unit kWh. Activity 12.1: Compare current in series vs parallel. Exercise 12.1–12.10.
+
+**Chunk Content:**
+
+In a series circuit the same current flows through each resistor; the supply voltage divides as V = V₁ + V₂ across components.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses the behavior of electric current in series circuits, highlighting how current remains constant while voltage divides among components. It is part of the broader exploration of electric circuits and their properties.",
+  "chunk_summary": "In a series circuit, the same current flows through each resistor, and the total voltage divides across components.",
+  "chunk_type": "definition",
+  "section_title": "12.3 Factors affecting resistance",
+  "concept_hint": "series circuit, current, voltage, resistors, electric circuit"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `neet`
+
+
+#### Example 1: `chunk_contextualization-009`
+
+- **Variation:** neet
+- **Tags:** ingestion, mathematics, neet, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 10 Mathematics Ch.4 Quadratic Equations. 4.1 Standard form ax²+bx+c=0. Roots by factorisation and quadratic formula. 4.2 Discriminant D = b²−4ac determines nature of roots. 4.3 Sum and product of roots: −b/a and c/a. 4.4 Word problems on area, speed, and consecutive integers. Example 4.1: Finding roots when D > 0. Example 4.2: No real roots when D < 0. Exercise 4.1–4.4.
+
+**Chunk Content:**
+
+For ax²+bx+c=0, discriminant D=b²−4ac: D>0 two distinct real roots, D=0 equal roots, D<0 no real roots.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses the standard form of quadratic equations and the significance of the discriminant in determining the nature of the roots. It provides foundational knowledge for solving quadratic equations through various methods.",
+  "chunk_summary": "The discriminant D=b²−4ac indicates the nature of roots: D>0 for two distinct real roots, D=0 for equal roots, and D<0 for no real roots.",
+  "chunk_type": "definition",
+  "section_title": "Quadratic Equations",
+  "concept_hint": "quadratic equation, discriminant, roots, real roots, factorization"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `jee`
+
+
+#### Example 1: `chunk_contextualization-010`
+
+- **Variation:** jee
+- **Tags:** ingestion, biology, jee, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 11 Biology Ch.13 Photosynthesis. 13.1 Photosynthesis as anabolic process. 6CO₂+6H₂O → C₆H₁₂O₆+6O₂. 13.2 Light reaction in grana: photolysis, ATP, NADPH. 13.3 Calvin cycle in stroma; RuBisCO; C3 pathway. 13.4 C4 pathway in maize and sugarcane; Kranz anatomy. Figure 13.4: Z-scheme of light reaction. Table 13.1: Cyclic vs non-cyclic photophosphorylation. Exercise 13.1–13.8.
+
+**Chunk Content:**
+
+The Calvin cycle in the stroma fixes CO₂ using ATP and NADPH produced by the light-dependent reactions in the grana.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "The chapter discusses photosynthesis, detailing the light reactions occurring in the grana and the subsequent Calvin cycle in the stroma, where CO₂ is fixed into glucose using energy carriers.",
+  "chunk_summary": "The Calvin cycle utilizes ATP and NADPH from light reactions to fix CO₂ into glucose.",
+  "chunk_type": "procedure",
+  "section_title": "Calvin cycle in stroma",
+  "concept_hint": "Calvin cycle, CO₂ fixation, ATP, NADPH, light reactions"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `multi_part`
+
+
+#### Example 1: `chunk_contextualization-011`
+
+- **Variation:** multi_part
+- **Tags:** ingestion, physics, multi_part, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 12 Physics Ch.9 Ray Optics. 9.1 Reflection; mirror formula 1/f = 1/v + 1/u. 9.2 Refraction; Snell's law n₁ sin i = n₂ sin r. 9.3 Total internal reflection; critical angle. 9.4 Lens formula 1/f = 1/v − 1/u; magnification m = v/u. 9.5 Prism deviation; dispersive power. Figure 9.12: Ray diagram for convex lens. Example 9.3: Image position. Exercise 9.1–9.15.
+
+**Chunk Content:**
+
+For a convex lens with real object, object distance u is negative; image distance v is positive for a real image on the opposite side.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section covers the principles of ray optics, including reflection, refraction, and lens behavior. It discusses the mirror and lens formulas, critical angles, and the behavior of light through prisms, providing foundational knowledge for understanding optical systems.",
+  "chunk_summary": "For a convex lens, the object distance (u) is negative, while the image distance (v) is positive for real images formed on the opposite side.",
+  "chunk_type": "definition",
+  "section_title": "Ray Optics",
+  "concept_hint": "convex lens, object distance, image distance, real image, optics"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conceptual`
+
+
+#### Example 1: `chunk_contextualization-012`
+
+- **Variation:** conceptual
+- **Tags:** ingestion, chemistry, conceptual, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 12 Chemistry Ch.3 Electrochemistry. 3.1 Electrochemical cells. Anode oxidation; cathode reduction. 3.2 Standard electrode potential E°. Cell EMF E°cell = E°cathode − E°anode. 3.3 Nernst equation links EMF to concentration. 3.4 Conductance and molar conductivity; Kohlrausch law. 3.5 Batteries and fuel cells. Corrosion as electrochemical process. Example 3.1: Calculate Ecell at non-standard concentrations. Exercise 3.1–3.12.
+
+**Chunk Content:**
+
+At equilibrium of a galvanic cell, the Nernst equation E = E° − (0.0591/n)log Q relates EMF to ion concentrations at 298 K.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses electrochemical cells, focusing on the relationship between cell EMF and ion concentrations through the Nernst equation, particularly at equilibrium in galvanic cells.",
+  "chunk_summary": "The Nernst equation relates EMF to ion concentrations at equilibrium in a galvanic cell.",
+  "chunk_type": "formula",
+  "section_title": "3.3 Nernst equation links EMF to concentration",
+  "concept_hint": "Nernst equation, EMF, ion concentrations, galvanic cell, equilibrium"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `case_study`
+
+
+#### Example 1: `chunk_contextualization-013`
+
+- **Variation:** case_study
+- **Tags:** ingestion, economics, case_study, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 12 Economics Ch.2 National Income. 2.1 Circular flow of income. Factor payments and expenditure. 2.2 GDP at market prices; GNP = GDP + NFIA. 2.3 NDP and NNP; depreciation. 2.4 Real vs nominal GDP; GDP deflator. 2.5 Methods of measuring national income: product, income, expenditure. Table 2.1: Relationship between macro aggregates. Exercise 2.1–2.8.
+
+**Chunk Content:**
+
+GNP equals GDP plus Net Factor Income from Abroad (NFIA), capturing income earned by residents regardless of geographic production.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses the components of national income, focusing on the relationship between Gross Domestic Product (GDP) and Gross National Product (GNP). It highlights how GNP accounts for income from abroad, providing a broader view of economic activity.",
+  "chunk_summary": "GNP is defined as GDP plus Net Factor Income from Abroad (NFIA), reflecting income earned by residents from foreign sources.",
+  "chunk_type": "definition",
+  "section_title": "2.2 GDP at market prices; GNP = GDP + NFIA",
+  "concept_hint": "GNP, GDP, NFIA, national income, economic activity"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `ncert_strict`
+
+
+#### Example 1: `chunk_contextualization-014`
+
+- **Variation:** ncert_strict
+- **Tags:** ingestion, civics, ncert_strict, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 10 Civics Ch.3 Gender Religion and Caste. 3.1 Gender and politics. Public/private division; women's political representation. 3.2 Religion communalism vs secularism in India. 3.3 Caste and politics. Reservation policy; caste-based mobilisation. Case study: Women's reservation bill debate. Exercise: Analyse how social divisions affect electoral outcomes.
+
+**Chunk Content:**
+
+Indian secularism implies the state has no official religion and treats all religions equally in public policy while allowing religious freedom.
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses the principles of Indian secularism within the broader themes of gender, religion, and caste in politics. It highlights the state's role in ensuring equal treatment of all religions while maintaining religious freedom.",
+  "chunk_summary": "Indian secularism ensures no official religion, treating all religions equally in public policy.",
+  "chunk_type": "definition",
+  "section_title": "Religion communalism vs secularism in India",
+  "concept_hint": "Indian secularism, religious freedom, public policy, equality, state neutrality"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `proof`
+
+
+#### Example 1: `chunk_contextualization-015`
+
+- **Variation:** proof
+- **Tags:** ingestion, mathematics, proof, production_llm_gold
+
+**Inputs**
+
+**Whole Document:**
+
+NCERT Class 11 Mathematics Ch.7 Permutations and Combinations. 7.1 Fundamental principle of counting. Multiplication rule. 7.2 Permutations nPr = n!/(n−r)!. Circular permutations. 7.3 Combinations nCr = n!/[(n−r)!r!]. 7.4 Applications to binomial coefficients and probability. Example 7.1: Arrangements with repetition. Example 7.2: Selection problems. Exercise 7.1–7.10.
+
+**Chunk Content:**
+
+The number of ways to choose r objects from n distinct objects without order is nCr = n!/[(n−r)!r!].
+
+**Target Context Tokens:**
+
+80
+
+**Target Summary Tokens:**
+
+40
+
+**Target Concept Terms:**
+
+5
+
+**Expected output**
+
+**Contextualization Json:**
+
+```json
+{
+  "chunk_context": "This section discusses combinations, specifically focusing on the selection of objects from a larger set. It highlights the formula for calculating combinations, which is essential for understanding how to choose items without regard to order.",
+  "chunk_summary": "The formula for choosing r objects from n distinct objects without order is given as nCr = n!/[(n−r)!r!].",
+  "chunk_type": "formula",
+  "section_title": "7.3 Combinations",
+  "concept_hint": "combinations, nCr, distinct objects, selection, formula"
+}
+```
+
+**Quality Check:** input_keys_complete: pass. chunk_type_valid: pass. grounding: pass. compactness: pass. production_llm_gold: pass.
+
+---
+
+
+## 29. Whole File Map Summarizer Agent
+
+| Field | Value |
+|-------|-------|
+| Dataset ID | `whole_file_map_summarizer` |
+| Category | RAG Retrieval |
+| Tier | Tier 2 |
+| Target examples | 13 |
+| Actual examples | 13 |
+| Version | 1.4.1 |
+
+**Agent responsibility:** MAP step of whole-file map-reduce: one concrete sentence per document part. Production: [`rag/whole_file_map_prompt.j2`](packages/core/prompts/templates/rag/whole_file_map_prompt.j2). Agent 31 (`whole_file_map_template`) was removed as a duplicate of this agent.
+
+**Audit finding (baseline v1.0.0):** Baseline gold used placeholder lines ('Main idea of section N'). Rebuilt with 3–6 real NCERT/bank excerpts per example and production LLM gold.
+
+**Fixed Variation Taxonomy (locked)** — examples are grouped under these variation buckets:
+
+| Variation | Failure/behavior tested | Example quota |
+|-----------|-------------------------|---------------|
+| `numerical` | Formula/numeric-heavy source text | 2 |
+| `conversational` | Natural upload headers and mixed prose | 2 |
+| `cbse` | CBSE board exam framing | 2 |
+| `neet` | NEET-oriented biology/chemistry | 1 |
+| `jee` | JEE-style physics/math depth | 1 |
+| `multi_part` | Multi-section documents | 1 |
+| `conceptual` | Theory-first exposition | 1 |
+| `case_study` | Passage-based social science | 1 |
+| `ncert_strict` | Strict NCERT chapter vocabulary | 1 |
+| `proof` | Derivation-heavy maths | 1 |
+| `typo` | Robust to minor OCR/header noise | 1 |
+
+**Quality Check (evaluation layer)** — every example is graded against these dimensions:
+
+* **one_line_per_part** — Exactly one Part N: sentence per input part.
+* **concrete_content** — Each line captures a specific idea from its excerpt.
+* **ordering** — Part numbers match input order.
+* **no_preamble** — No introduction or conclusion lines.
+
+**LangSmith configuration**
+
+* Dataset name prefix: `nbm-prompt`
+* Input keys: `parts` (rendered as excerpts in prompt)
+* Output keys: `map_summaries`
+
+**Prompt template (production):**
+
+```jinja2
+You are summarizing parts of a document for a later full-document summary.
+For each Part below, write EXACTLY ONE concise sentence capturing its main idea.
+Number your lines Part 1, Part 2, ... matching the order below.
+Do not add an introduction or conclusion.
+
+{{ excerpts }}
+```
+
+*Runtime note:* `_map_batch_summarize()` in `whole_file_map_reduce.py` during whole-document queries.
+
+### Evaluation examples (13)
+## Variation: `numerical`
+
+
+#### Example 1: `whole_file_map_summarizer-001`
+
+- **Variation:** numerical
+- **Tags:** cbse, physics, numerical, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "Electric current is the flow of electric charge through a conductor. 3.2 Electric Current. The current I = dQ/dt; drift velocity and mobility relate microscopic motion to macroscopic current. Ohm's law: V = IR for ohmic conductors at constant temperature. 3.3 Ohm's Law and Resistance. part-0",
+  "Resistivity ρ = RA/L; temperature dependence of resistance. 3.4 Electrical Energy and Power. P = VI = I²R; heating effect Joule's law. 3.5 Cells in Series and Parallel. EMF, internal resistance, terminal voltage. part-1",
+  "3.6 Kirchhoff's Rules. Junction rule ΣI_in = ΣI_out; loop rule ΣΔV = 0. Example 3.1: Finding current in a series circuit. Example 3.2: Wheatstone bridge balance. Exercise 3.1–3.15 on combination of resistors and meter bridge. part-2"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: Electric current is defined as the flow of electric charge, with its relationship to drift velocity and mobility described by Ohm's law.
+Part 2: Resistivity is determined by the formula ρ = RA/L, and electrical power is calculated using P = VI, with considerations for Joule's heating effect and the behavior of cells in series and parallel.
+Part 3: Kirchhoff's rules include the junction rule for current conservation and the loop rule for voltage conservation, illustrated through examples and exercises involving circuits.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `whole_file_map_summarizer-002`
+
+- **Variation:** numerical
+- **Tags:** cbse, biology, numerical, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "16.1 Digestive System. Alimentary canal and associated glands. part-0",
+  "16.2 Digestion of Food. Carbohydrates: salivary amylase in mouth; pancreatic amylase. part-1",
+  "Proteins: pepsin in stomach (HCl activates pepsinogen); trypsin in duodenum. Fats: bile emulsification; lipase action. part-2",
+  "Villi and microvilli increase surface area; absorption in small intestine. Table 16.1: Enzymes, site of action, and products. part-3"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: The digestive system consists of the alimentary canal and associated glands.
+Part 2: Carbohydrate digestion begins in the mouth with salivary amylase and continues in the pancreas with pancreatic amylase.
+Part 3: Protein digestion involves pepsin in the stomach and trypsin in the duodenum, while fats are emulsified by bile and acted upon by lipase.
+Part 4: Villi and microvilli enhance the surface area for absorption in the small intestine, with a table detailing enzymes, their sites of action, and products.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conversational`
+
+
+#### Example 1: `whole_file_map_summarizer-003`
+
+- **Variation:** conversational
+- **Tags:** cbse, chemistry, conversational, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "4.1 Kossel-Lewis approach. Octet rule and limitations. part-0",
+  "Lattice enthalpy; Born-Haber cycle. 4.3 Covalent Bonding. part-1",
+  "VSEPR theory predicts geometry from electron pair repulsion. 4.4 Valence Bond Theory. part-2",
+  "Hybridisation sp, sp², sp³; sigma and pi bonds. 4.5 Molecular Orbital Theory. part-3",
+  "Bond order; paramagnetic vs diamagnetic. Example 4.1: NH₃ pyramidal geometry. part-4"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: The Kossel-Lewis approach discusses the octet rule and its limitations in chemical bonding.
+Part 2: Lattice enthalpy and the Born-Haber cycle are essential concepts in understanding covalent bonding.
+Part 3: VSEPR theory explains molecular geometry based on the repulsion between electron pairs.
+Part 4: Hybridisation involves the mixing of atomic orbitals to form sigma and pi bonds in molecular structures.
+Part 5: Bond order distinguishes between paramagnetic and diamagnetic substances, illustrated by the pyramidal geometry of NH₃.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `whole_file_map_summarizer-004`
+
+- **Variation:** conversational
+- **Tags:** cbse, mathematics, conversational, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "7.1 Integration as inverse of differentiation. Indefinite integral ∫f(x)dx = F(x) + C. 7.2 Methods: substitution, partial fractions, integration by parts. part-0",
+  "7.3 Definite integrals. Fundamental theorem: ∫ₐᵇ f(x)dx = F(b) − F(a). 7.4 Area under a curve between x = a and x = b. part-1",
+  "Example 7.1: ∫ x√(1−x²) dx by substitution. Example 7.2: Area bounded by parabola. Theorem 7.1: Properties of definite integrals. part-2"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: Integration is presented as the inverse of differentiation, with methods including substitution, partial fractions, and integration by parts.
+Part 2: The fundamental theorem of calculus states that the definite integral of a function over an interval equals the difference of its antiderivative evaluated at the endpoints, representing the area under the curve.
+Part 3: Examples illustrate the application of integration techniques and the properties of definite integrals, including finding areas bounded by curves.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `cbse`
+
+
+#### Example 1: `whole_file_map_summarizer-007`
+
+- **Variation:** cbse
+- **Tags:** cbse, chemistry, cbse, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "7.1 Equilibrium in physical processes. Solid-liquid, liquid-vapour equilibrium. 7.2 Chemical equilibrium. part-0",
+  "Kc = [products]/[reactants]; homogeneous and heterogeneous. 7.3 Le Chatelier's principle. Effect of concentration, pressure, temperature. part-1",
+  "7.4 Ionic equilibrium. Ka, Kb, Kw; pH scale; buffer solutions. Example 7.1: Calculating Kc from equilibrium concentrations. part-2"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: This section discusses the concepts of equilibrium in both physical processes, such as solid-liquid and liquid-vapour transitions, and chemical reactions.
+Part 2: It introduces the equilibrium constant expression (Kc) for both homogeneous and heterogeneous systems, along with Le Chatelier's principle regarding the effects of concentration, pressure, and temperature changes.
+Part 3: This part covers ionic equilibrium, including the definitions of Ka, Kb, Kw, the pH scale, and buffer solutions, along with an example of calculating Kc from equilibrium concentrations.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `whole_file_map_summarizer-008`
+
+- **Variation:** cbse
+- **Tags:** cbse, science, cbse, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "12.1 Electric current and circuit. Ammeter, voltmeter, switch. part-0",
+  "12.2 Ohm's law V = IR. 12.3 Factors affecting resistance. part-1",
+  "Series: R = R₁+R₂; parallel: 1/R = 1/R₁+1/R₂. H = I²Rt; electric fuse. part-2",
+  "12.5 Electric power P = VI. Activity 12.1: Compare current in series vs parallel. part-3"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: Part 1 introduces the concepts of electric current, circuits, and essential components like ammeters, voltmeters, and switches.
+Part 2: Part 2 explains Ohm's law and discusses the factors that influence electrical resistance.
+Part 3: Part 3 describes how to calculate total resistance in series and parallel circuits and mentions the formula for heat generated in a conductor and the function of an electric fuse.
+Part 4: Part 4 defines electric power and includes an activity comparing current flow in series and parallel circuits.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `neet`
+
+
+#### Example 1: `whole_file_map_summarizer-009`
+
+- **Variation:** neet
+- **Tags:** cbse, mathematics, neet, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "4.1 Standard form ax²+bx+c=0. part-0",
+  "Roots by factorisation and quadratic formula. part-1",
+  "4.2 Discriminant D = b²−4ac determines nature of roots. part-2",
+  "4.3 Sum and product of roots: −b/a and c/a. part-3",
+  "4.4 Word problems on area, speed, and consecutive integers. part-4"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: The standard form of a quadratic equation is expressed as ax² + bx + c = 0.
+Part 2: Roots of a quadratic equation can be found using factorization or the quadratic formula.
+Part 3: The discriminant D = b² - 4ac indicates the nature of the roots of a quadratic equation.
+Part 4: The sum and product of the roots of a quadratic equation are given by -b/a and c/a, respectively.
+Part 5: The section includes word problems related to area, speed, and consecutive integers.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `jee`
+
+
+#### Example 1: `whole_file_map_summarizer-010`
+
+- **Variation:** jee
+- **Tags:** cbse, biology, jee, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "13.1 Photosynthesis as anabolic process. 6CO₂+6H₂O → C₆H₁₂O₆+6O₂. part-0",
+  "13.2 Light reaction in grana: photolysis, ATP, NADPH. 13.3 Calvin cycle in stroma; RuBisCO; C3 pathway. part-1",
+  "13.4 C4 pathway in maize and sugarcane; Kranz anatomy. Figure 13.4: Z-scheme of light reaction. part-2"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: Photosynthesis is an anabolic process that converts carbon dioxide and water into glucose and oxygen.
+Part 2: The light reaction occurs in the grana, involving photolysis and the production of ATP and NADPH, while the Calvin cycle in the stroma utilizes RuBisCO in the C3 pathway.
+Part 3: The C4 pathway, found in maize and sugarcane, features Kranz anatomy and is illustrated by the Z-scheme of the light reaction.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `multi_part`
+
+
+#### Example 1: `whole_file_map_summarizer-011`
+
+- **Variation:** multi_part
+- **Tags:** cbse, physics, multi_part, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "9.1 Reflection; mirror formula 1/f = 1/v + 1/u. part-0",
+  "9.2 Refraction; Snell's law n₁ sin i = n₂ sin r. part-1",
+  "9.3 Total internal reflection; critical angle. part-2",
+  "9.4 Lens formula 1/f = 1/v − 1/u; magnification m = v/u. part-3"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: The mirror formula relates the focal length, image distance, and object distance in reflection.
+Part 2: Snell's law describes the relationship between the angles of incidence and refraction when light passes between different media.
+Part 3: Total internal reflection occurs when the angle of incidence exceeds the critical angle, preventing light from escaping a medium.
+Part 4: The lens formula connects the focal length, image distance, and object distance in lenses, while magnification is the ratio of image distance to object distance.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conceptual`
+
+
+#### Example 1: `whole_file_map_summarizer-012`
+
+- **Variation:** conceptual
+- **Tags:** cbse, chemistry, conceptual, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "3.1 Electrochemical cells. part-0",
+  "Anode oxidation; cathode reduction. part-1",
+  "3.2 Standard electrode potential E°. part-2",
+  "Cell EMF E°cell = E°cathode − E°anode. part-3",
+  "3.3 Nernst equation links EMF to concentration. part-4"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: Electrochemical cells convert chemical energy into electrical energy through redox reactions.
+Part 2: Oxidation occurs at the anode while reduction takes place at the cathode in electrochemical cells.
+Part 3: The standard electrode potential (E°) is a measure of the tendency of a chemical species to be reduced.
+Part 4: The cell electromotive force (E°cell) is calculated by subtracting the anode potential from the cathode potential.
+Part 5: The Nernst equation relates the electromotive force (EMF) of a cell to the concentrations of the reactants and products.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `case_study`
+
+
+#### Example 1: `whole_file_map_summarizer-013`
+
+- **Variation:** case_study
+- **Tags:** cbse, economics, case_study, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "2.1 Circular flow of income. Factor payments and expenditure. part-0",
+  "2.2 GDP at market prices; GNP = GDP + NFIA. 2.3 NDP and NNP; depreciation. part-1",
+  "2.4 Real vs nominal GDP; GDP deflator. 2.5 Methods of measuring national income: product, income, expenditure. part-2"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: The circular flow of income illustrates the relationship between factor payments and expenditure in an economy.
+Part 2: Gross Domestic Product (GDP) at market prices is defined, along with the relationship between Gross National Product (GNP) and Net Factor Income from Abroad (NFIA), as well as concepts of Net Domestic Product (NDP) and Net National Product (NNP) considering depreciation.
+Part 3: The distinction between real and nominal GDP is explained, along with the GDP deflator and the various methods for measuring national income, including product, income, and expenditure approaches.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `ncert_strict`
+
+
+#### Example 1: `whole_file_map_summarizer-014`
+
+- **Variation:** ncert_strict
+- **Tags:** cbse, civics, ncert_strict, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "3.1 Gender and politics. part-0",
+  "Public/private division; women's political representation. part-1",
+  "3.2 Religion communalism vs secularism in India. part-2",
+  "3.3 Caste and politics. part-3"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: This section discusses the intersection of gender and political dynamics.
+Part 2: It examines the impact of the public/private division on women's political representation.
+Part 3: This part explores the tension between communalism and secularism in India.
+Part 4: It analyzes the influence of caste on political structures and behaviors.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `proof`
+
+
+#### Example 1: `whole_file_map_summarizer-015`
+
+- **Variation:** proof
+- **Tags:** cbse, mathematics, proof, production_llm_gold
+
+**Inputs**
+
+**Parts:**
+
+```json
+[
+  "7.1 Fundamental principle of counting. part-0",
+  "7.2 Permutations nPr = n!/(n−r)!. part-1",
+  "Circular permutations. part-2",
+  "7.3 Combinations nCr = n!/[(n−r)!r!]. part-3",
+  "7.4 Applications to binomial coefficients and probability. part-4"
+]
+```
+
+**Expected output**
+
+**Map Summaries:**
+
+```markdown
+Part 1: The fundamental principle of counting establishes a method for determining the total number of outcomes in a scenario.
+Part 2: Permutations are calculated using the formula nPr = n!/(n−r)!, which counts the arrangements of r items from a set of n distinct items.
+Part 3: Circular permutations refer to arrangements of items in a circle, where the starting point is irrelevant.
+Part 4: Combinations are determined using the formula nCr = n!/[(n−r)!r!], which counts the selections of r items from a set of n distinct items without regard to order.
+Part 5: The applications of binomial coefficients and probability involve using combinations and permutations to solve problems related to likelihood and outcomes.
+```
+
+**Quality Check:** one_line_per_part: pass. concrete_content: pass. ordering: pass. no_preamble: pass. production_llm_gold: pass.
+
+---
+
+
+## 30. Whole File Reduce Agent
+
+| Field | Value |
+|-------|-------|
+| Dataset ID | `whole_file_reduce` |
+| Category | RAG Retrieval |
+| Tier | Tier 2 |
+| Target examples | 13 |
+| Actual examples | 13 |
+| Version | 1.4.1 |
+
+**Agent responsibility:** REDUCE step: synthesize a user-facing Markdown answer from ordered section summaries. Production: [`rag/whole_file_reduce_prompt.j2`](packages/core/prompts/templates/rag/whole_file_reduce_prompt.j2).
+
+**Audit finding (baseline v1.0.0):** Baseline returned generic 'Synthesis of N parts' without addressing user intent. Rebuilt with section_summaries chained from Agent 29 gold on the same document.
+
+**Fixed Variation Taxonomy (locked)** — examples are grouped under these variation buckets:
+
+| Variation | Failure/behavior tested | Example quota |
+|-----------|-------------------------|---------------|
+| `numerical` | Formula/numeric-heavy source text | 2 |
+| `conversational` | Natural upload headers and mixed prose | 2 |
+| `cbse` | CBSE board exam framing | 2 |
+| `neet` | NEET-oriented biology/chemistry | 1 |
+| `jee` | JEE-style physics/math depth | 1 |
+| `multi_part` | Multi-section documents | 1 |
+| `conceptual` | Theory-first exposition | 1 |
+| `case_study` | Passage-based social science | 1 |
+| `ncert_strict` | Strict NCERT chapter vocabulary | 1 |
+| `proof` | Derivation-heavy maths | 1 |
+| `typo` | Robust to minor OCR/header noise | 1 |
+
+**Quality Check (evaluation layer)** — every example is graded against these dimensions:
+
+* **covers_all_parts** — Answer reflects themes from every section summary.
+* **user_intent** — Addresses user_message (summarize, list formulas, revision, etc.).
+* **markdown_structure** — Uses headings or bullets when helpful.
+* **no_citations** — No [1] citation markers or raw excerpt dumps.
+
+**LangSmith configuration**
+
+* Dataset name prefix: `nbm-prompt`
+* Input keys: `user_message`, `section_summaries`
+* Output keys: `final_answer`
+
+**Prompt template (production):**
+
+```jinja2
+You are writing the final answer for the user.
+Below are ordered summaries of every section/part of their document(s).
+Write a clear, well-structured response that answers their request and reflects the ENTIRE document, not just the beginning. Use sections or bullet points if helpful.
+Do not include citation markers like [1]. Do not paste raw excerpt lists.
+
+User request:
+{{ user_message }}
+
+Section summaries (in document order):
+{{ section_summaries }}
+```
+
+*Runtime note:* `_reduce_summaries()` in `whole_file_map_reduce.py` after map step.
+
+### Evaluation examples (13)
+## Variation: `numerical`
+
+
+#### Example 1: `whole_file_reduce-001`
+
+- **Variation:** numerical
+- **Tags:** cbse, physics, numerical, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Summarize the entire document for exam revision.
+
+**Section Summaries:**
+
+Part 1: Electric current is defined as the flow of electric charge, with its relationship to drift velocity and mobility described by Ohm's law.
+Part 2: Resistivity is determined by the formula ρ = RA/L, and electrical power is calculated using P = VI, with considerations for Joule's heating effect and the behavior of cells in series and parallel.
+Part 3: Kirchhoff's rules include the junction rule for current conservation and the loop rule for voltage conservation, illustrated through examples and exercises involving circuits.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+### Summary of Document for Exam Revision
+
+**Part 1: Electric Current**
+- Electric current is characterized as the flow of electric charge.
+- The relationship between current, drift velocity, and mobility is articulated through Ohm's law, which provides a foundational understanding of how electric currents behave in conductive materials.
+
+**Part 2: Resistivity and Power**
+- Resistivity is defined by the formula ρ = RA/L, where ρ represents resistivity, R is resistance, A is the cross-sectional area, and L is the length of the conductor.
+- Electrical power is calculated using the formula P = VI, where P is power, V is voltage, and I is current.
+- The section discusses Joule's heating effect, which describes the heat generated by electric currents in resistive materials.
+- It also covers the behavior of electrical cells when arranged in series and parallel configurations, highlighting how these arrangements affect overall circuit performance.
+
+**Part 3: Kirchhoff's Rules**
+- Kirchhoff's rules are essential for circuit analysis:
+  - The **junction rule** states that the total current entering a junction must equal the total current leaving it, ensuring current conservation.
+  - The **loop rule** states that the sum of the voltage gains and losses around any closed loop in a circuit must equal zero, ensuring voltage conservation.
+- Examples and exercises are provided to illustrate these rules in practical circuit scenarios, reinforcing their application in analyzing complex circuits.
+
+This summary encapsulates the key concepts and formulas related to electric current, resistivity, power, and Kirchhoff's rules, providing a comprehensive overview for exam preparation.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `whole_file_reduce-002`
+
+- **Variation:** numerical
+- **Tags:** cbse, biology, numerical, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+List the key formulas and definitions I should remember.
+
+**Section Summaries:**
+
+Part 1: The digestive system consists of the alimentary canal and associated glands.
+Part 2: Carbohydrate digestion begins in the mouth with salivary amylase and continues in the pancreas with pancreatic amylase.
+Part 3: Protein digestion involves pepsin in the stomach and trypsin in the duodenum, while fats are emulsified by bile and acted upon by lipase.
+Part 4: Villi and microvilli enhance the surface area for absorption in the small intestine, with a table detailing enzymes, their sites of action, and products.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+Here are the key formulas and definitions to remember from your document on the digestive system:
+
+### Key Definitions
+
+- **Alimentary Canal**: The continuous tube that runs from the mouth to the anus, involved in the digestion and absorption of food.
+- **Associated Glands**: Organs such as the salivary glands, pancreas, and liver that secrete digestive enzymes and substances.
+
+### Key Formulas and Processes
+
+1. **Carbohydrate Digestion**:
+   - **Salivary Amylase**: Enzyme in the mouth that begins the breakdown of carbohydrates.
+   - **Pancreatic Amylase**: Enzyme secreted by the pancreas that continues carbohydrate digestion in the small intestine.
+
+2. **Protein Digestion**:
+   - **Pepsin**: Enzyme activated in the stomach that initiates protein digestion.
+   - **Trypsin**: Enzyme released by the pancreas that further digests proteins in the duodenum.
+
+3. **Fat Digestion**:
+   - **Bile**: Substance produced by the liver that emulsifies fats, increasing their surface area for enzyme action.
+   - **Lipase**: Enzyme that breaks down fats into fatty acids and glycerol.
+
+### Absorption Enhancements
+
+- **Villi and Microvilli**: Structures in the small intestine that increase the surface area for nutrient absorption, allowing for more efficient uptake of digested food.
+
+### Summary Table (for reference)
+- **Enzymes**: Salivary Amylase, Pancreatic Amylase, Pepsin, Trypsin, Lipase
+- **Sites of Action**: Mouth, Pancreas, Stomach, Duodenum
+- **Products**: Simple sugars (from carbohydrates), Amino acids (from proteins), Fatty acids and glycerol (from fats)
+
+These key formulas and definitions encapsulate the essential processes and components of the digestive system as outlined in your document.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conversational`
+
+
+#### Example 1: `whole_file_reduce-003`
+
+- **Variation:** conversational
+- **Tags:** cbse, chemistry, conversational, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+What are the main topics covered across all sections?
+
+**Section Summaries:**
+
+Part 1: The Kossel-Lewis approach discusses the octet rule and its limitations in chemical bonding.
+Part 2: Lattice enthalpy and the Born-Haber cycle are essential concepts in understanding covalent bonding.
+Part 3: VSEPR theory explains molecular geometry based on the repulsion between electron pairs.
+Part 4: Hybridisation involves the mixing of atomic orbitals to form sigma and pi bonds in molecular structures.
+Part 5: Bond order distinguishes between paramagnetic and diamagnetic substances, illustrated by the pyramidal geometry of NH₃.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+The document covers several key topics related to chemical bonding and molecular structure. Here is a structured overview of the main topics discussed in each section:
+
+1. **Kossel-Lewis Approach**:
+   - Explores the octet rule and its limitations in explaining chemical bonding.
+
+2. **Lattice Enthalpy and Born-Haber Cycle**:
+   - Introduces essential concepts for understanding covalent bonding, emphasizing the energy changes associated with the formation of ionic compounds.
+
+3. **VSEPR Theory**:
+   - Discusses how molecular geometry is determined by the repulsion between electron pairs, providing insights into the shapes of molecules.
+
+4. **Hybridisation**:
+   - Describes the process of mixing atomic orbitals to create sigma and pi bonds, which are fundamental to the formation of molecular structures.
+
+5. **Bond Order**:
+   - Differentiates between paramagnetic and diamagnetic substances, using the pyramidal geometry of ammonia (NH₃) as a specific illustration.
+
+Overall, the document provides a comprehensive overview of fundamental concepts in chemical bonding, including theoretical frameworks, energy considerations, molecular shapes, and the nature of chemical bonds.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `whole_file_reduce-004`
+
+- **Variation:** conversational
+- **Tags:** cbse, mathematics, conversational, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Give me a structured overview with bullet points for each part.
+
+**Section Summaries:**
+
+Part 1: Integration is presented as the inverse of differentiation, with methods including substitution, partial fractions, and integration by parts.
+Part 2: The fundamental theorem of calculus states that the definite integral of a function over an interval equals the difference of its antiderivative evaluated at the endpoints, representing the area under the curve.
+Part 3: Examples illustrate the application of integration techniques and the properties of definite integrals, including finding areas bounded by curves.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+Here is a structured overview based on the provided document summaries:
+
+### Overview of Integration
+
+- **Part 1: Introduction to Integration**
+  - Integration is defined as the inverse process of differentiation.
+  - Key methods of integration include:
+    - Substitution
+    - Partial fractions
+    - Integration by parts
+
+- **Part 2: Fundamental Theorem of Calculus**
+  - The theorem establishes a crucial relationship between differentiation and integration.
+  - It states that:
+    - The definite integral of a function over a specified interval is equal to the difference of its antiderivative evaluated at the interval's endpoints.
+    - This concept represents the area under the curve of the function.
+
+- **Part 3: Practical Applications of Integration**
+  - Examples are provided to demonstrate the application of various integration techniques.
+  - The section highlights the properties of definite integrals, specifically:
+    - Calculating areas that are bounded by curves.
+
+This overview encapsulates the key concepts and methods of integration, the fundamental theorem, and practical applications as discussed in the document.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `cbse`
+
+
+#### Example 1: `whole_file_reduce-007`
+
+- **Variation:** cbse
+- **Tags:** cbse, chemistry, cbse, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+What should I focus on for board exam questions?
+
+**Section Summaries:**
+
+Part 1: This section discusses the concepts of equilibrium in both physical processes, such as solid-liquid and liquid-vapour transitions, and chemical reactions.
+Part 2: It introduces the equilibrium constant expression (Kc) for both homogeneous and heterogeneous systems, along with Le Chatelier's principle regarding the effects of concentration, pressure, and temperature changes.
+Part 3: This part covers ionic equilibrium, including the definitions of Ka, Kb, Kw, the pH scale, and buffer solutions, along with an example of calculating Kc from equilibrium concentrations.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+To effectively prepare for your board exam questions, focus on the following key areas derived from the entire document:
+
+### 1. Understanding Equilibrium Concepts
+- **Physical Equilibrium**: Familiarize yourself with the principles of equilibrium in physical processes, specifically solid-liquid and liquid-vapour transitions. Be able to explain how these transitions achieve equilibrium.
+- **Chemical Equilibrium**: Understand how chemical reactions reach equilibrium and the factors that influence this state.
+
+### 2. Equilibrium Constant Expressions
+- **Kc Expression**: Learn how to write and interpret the equilibrium constant expression (Kc) for both homogeneous and heterogeneous systems. 
+- **Le Chatelier's Principle**: Study how changes in concentration, pressure, and temperature affect the position of equilibrium. Be prepared to apply this principle to predict the direction of shifts in equilibrium.
+
+### 3. Ionic Equilibrium
+- **Key Definitions**: Master the definitions and relationships between Ka (acid dissociation constant), Kb (base dissociation constant), and Kw (ion product of water).
+- **pH Scale**: Understand the pH scale, how to calculate pH from concentrations, and the significance of pH in chemical reactions.
+- **Buffer Solutions**: Review the concept of buffer solutions, including how they work to maintain pH levels in a solution.
+- **Calculating Kc**: Practice calculating Kc from equilibrium concentrations using provided examples to solidify your understanding.
+
+### Study Tips
+- Create summary notes for each section to reinforce your understanding.
+- Work through practice problems related to equilibrium constants and Le Chatelier's principle.
+- Conduct group discussions or study sessions to clarify complex concepts, especially ionic equilibria and buffer systems.
+
+By focusing on these areas, you will be well-prepared to tackle questions related to equilibrium in your board exams.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+#### Example 2: `whole_file_reduce-008`
+
+- **Variation:** cbse
+- **Tags:** cbse, science, cbse, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Compare the main ideas in each section briefly.
+
+**Section Summaries:**
+
+Part 1: Part 1 introduces the concepts of electric current, circuits, and essential components like ammeters, voltmeters, and switches.
+Part 2: Part 2 explains Ohm's law and discusses the factors that influence electrical resistance.
+Part 3: Part 3 describes how to calculate total resistance in series and parallel circuits and mentions the formula for heat generated in a conductor and the function of an electric fuse.
+Part 4: Part 4 defines electric power and includes an activity comparing current flow in series and parallel circuits.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+The document is structured into four distinct parts, each focusing on fundamental concepts of electricity and circuits:
+
+### Part 1: Introduction to Electric Current and Components
+- Introduces basic concepts such as electric current and circuits.
+- Highlights essential components including ammeters (for measuring current), voltmeters (for measuring voltage), and switches (for controlling the flow of electricity).
+
+### Part 2: Ohm's Law and Electrical Resistance
+- Explains Ohm's law, which relates voltage, current, and resistance.
+- Discusses the various factors that influence electrical resistance, providing a deeper understanding of how materials affect current flow.
+
+### Part 3: Calculating Resistance and Heat Generation
+- Describes methods for calculating total resistance in both series and parallel circuits.
+- Introduces formulas for heat generation in conductors and explains the role of electric fuses in protecting circuits from overloads.
+
+### Part 4: Understanding Electric Power
+- Defines electric power and its significance in circuits.
+- Includes an interactive activity that allows for a practical comparison of current flow in series versus parallel circuits, reinforcing the theoretical concepts discussed earlier.
+
+### Comparison of Main Ideas
+- **Conceptual Foundation**: Parts 1 and 2 lay the groundwork by introducing key concepts and laws governing electricity, while Parts 3 and 4 build on this foundation with practical applications and calculations.
+- **Focus on Resistance**: Part 2 specifically addresses resistance, a crucial aspect that connects to the calculations in Part 3.
+- **Application and Interaction**: Part 4 not only defines electric power but also engages the learner through activities, contrasting with the more theoretical nature of the earlier sections.
+
+Overall, the document progresses from foundational concepts to practical applications, emphasizing the relationship between theory and real-world circuit behavior.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `neet`
+
+
+#### Example 1: `whole_file_reduce-009`
+
+- **Variation:** neet
+- **Tags:** cbse, mathematics, neet, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Summarize for a 5-minute oral recap.
+
+**Section Summaries:**
+
+Part 1: The standard form of a quadratic equation is expressed as ax² + bx + c = 0.
+Part 2: Roots of a quadratic equation can be found using factorization or the quadratic formula.
+Part 3: The discriminant D = b² - 4ac indicates the nature of the roots of a quadratic equation.
+Part 4: The sum and product of the roots of a quadratic equation are given by -b/a and c/a, respectively.
+Part 5: The section includes word problems related to area, speed, and consecutive integers.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+Here’s a concise summary of the document, suitable for a 5-minute oral recap:
+
+---
+
+**Overview of Quadratic Equations**
+
+1. **Standard Form**:  
+   The standard form of a quadratic equation is expressed as \( ax^2 + bx + c = 0 \). Here, \( a \), \( b \), and \( c \) are constants, with \( a \) not equal to zero.
+
+2. **Finding Roots**:  
+   The roots of a quadratic equation can be determined through two primary methods:
+   - **Factorization**: This involves rewriting the equation in a product form and solving for the variable.
+   - **Quadratic Formula**: This is a universal method given by \( x = \frac{-b \pm \sqrt{D}}{2a} \), where \( D \) is the discriminant.
+
+3. **Discriminant**:  
+   The discriminant, denoted as \( D = b^2 - 4ac \), plays a crucial role in determining the nature of the roots:
+   - If \( D > 0 \): There are two distinct real roots.
+   - If \( D = 0 \): There is exactly one real root (a repeated root).
+   - If \( D < 0 \): The roots are complex and not real.
+
+4. **Sum and Product of Roots**:  
+   The relationships between the roots of a quadratic equation can be expressed as:
+   - The sum of the roots is given by \( -\frac{b}{a} \).
+   - The product of the roots is given by \( \frac{c}{a} \).
+
+5. **Application Through Word Problems**:  
+   The document also includes practical applications of quadratic equations through word problems that cover various scenarios such as:
+   - Calculating areas.
+   - Solving problems related to speed.
+   - Working with consecutive integers.
+
+---
+
+This summary encapsulates the essential concepts and applications of quadratic equations as outlined in the document, providing a comprehensive overview for your oral presentation.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `jee`
+
+
+#### Example 1: `whole_file_reduce-010`
+
+- **Variation:** jee
+- **Tags:** cbse, biology, jee, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Highlight definitions, procedures, and examples from all parts.
+
+**Section Summaries:**
+
+Part 1: Photosynthesis is an anabolic process that converts carbon dioxide and water into glucose and oxygen.
+Part 2: The light reaction occurs in the grana, involving photolysis and the production of ATP and NADPH, while the Calvin cycle in the stroma utilizes RuBisCO in the C3 pathway.
+Part 3: The C4 pathway, found in maize and sugarcane, features Kranz anatomy and is illustrated by the Z-scheme of the light reaction.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+Here is a comprehensive overview highlighting the definitions, procedures, and examples from your document on photosynthesis:
+
+### Definitions
+- **Photosynthesis**: An anabolic process that transforms carbon dioxide and water into glucose and oxygen.
+- **Light Reaction**: A phase of photosynthesis that occurs in the grana, where light energy is converted into chemical energy.
+- **Calvin Cycle**: A phase that takes place in the stroma, utilizing RuBisCO in the C3 pathway to fix carbon and produce glucose.
+- **C4 Pathway**: A photosynthetic pathway found in certain plants like maize and sugarcane, characterized by Kranz anatomy.
+
+### Procedures
+1. **Light Reaction Process**:
+   - Occurs in the grana of chloroplasts.
+   - Involves **photolysis**, which is the splitting of water molecules to release oxygen.
+   - Produces **ATP** and **NADPH**, which are essential for the subsequent stages of photosynthesis.
+
+2. **Calvin Cycle Process**:
+   - Takes place in the stroma of chloroplasts.
+   - Utilizes the enzyme **RuBisCO** to fix carbon dioxide into organic molecules through the C3 pathway.
+
+3. **C4 Pathway Process**:
+   - Involves specialized leaf anatomy known as **Kranz anatomy**.
+   - This pathway is designed to efficiently capture carbon dioxide in environments where it is less available.
+
+### Examples
+- **Plants Utilizing C4 Pathway**: Maize and sugarcane are prime examples of plants that employ the C4 pathway, showcasing adaptations that enhance their photosynthetic efficiency.
+- **Z-Scheme Illustration**: The Z-scheme represents the light reaction, depicting the flow of electrons and the conversion of light energy into chemical energy.
+
+This structured response captures the essential definitions, procedures, and examples from your document, providing a clear understanding of the key concepts related to photosynthesis.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `multi_part`
+
+
+#### Example 1: `whole_file_reduce-011`
+
+- **Variation:** multi_part
+- **Tags:** cbse, physics, multi_part, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Make exam-oriented notes covering every section.
+
+**Section Summaries:**
+
+Part 1: The mirror formula relates the focal length, image distance, and object distance in reflection.
+Part 2: Snell's law describes the relationship between the angles of incidence and refraction when light passes between different media.
+Part 3: Total internal reflection occurs when the angle of incidence exceeds the critical angle, preventing light from escaping a medium.
+Part 4: The lens formula connects the focal length, image distance, and object distance in lenses, while magnification is the ratio of image distance to object distance.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+# Exam-Oriented Notes
+
+## Part 1: Mirror Formula
+- **Concept**: The mirror formula is essential for understanding how mirrors form images.
+- **Key Relationship**: The formula relates three important distances:
+  - Focal Length (f)
+  - Image Distance (v)
+  - Object Distance (u)
+- **Formula**: 1/f = 1/v + 1/u
+- **Applications**: Used to calculate the position and characteristics of images formed by concave and convex mirrors.
+
+## Part 2: Snell's Law
+- **Concept**: Snell's Law is fundamental in optics, specifically in the study of refraction.
+- **Key Relationship**: It describes how light bends when it passes from one medium to another.
+- **Formula**: n1 * sin(θ1) = n2 * sin(θ2)
+  - Where n is the refractive index of the media, and θ is the angle of incidence (θ1) and refraction (θ2).
+- **Applications**: Critical for understanding lens behavior and optical devices.
+
+## Part 3: Total Internal Reflection
+- **Concept**: Total internal reflection is a phenomenon that occurs under specific conditions.
+- **Condition**: It happens when the angle of incidence is greater than the critical angle.
+- **Critical Angle**: The minimum angle of incidence at which light cannot pass through the boundary and is instead reflected entirely within the medium.
+- **Applications**: Used in fiber optics and other technologies where light needs to be contained within a medium.
+
+## Part 4: Lens Formula
+- **Concept**: The lens formula is crucial for analyzing how lenses form images.
+- **Key Relationship**: Similar to the mirror formula, it connects:
+  - Focal Length (f)
+  - Image Distance (v)
+  - Object Distance (u)
+- **Formula**: 1/f = 1/v + 1/u
+- **Magnification**: Defined as the ratio of image distance to object distance (v/u).
+- **Applications**: Important for understanding the function of various lenses in optical instruments.
+
+### Summary
+- Mastering the mirror and lens formulas is critical for solving problems related to image formation.
+- Understanding Snell's Law and total internal reflection is essential for applications in optics, including the design of lenses and fiber optics.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `conceptual`
+
+
+#### Example 1: `whole_file_reduce-012`
+
+- **Variation:** conceptual
+- **Tags:** cbse, chemistry, conceptual, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+What are the critical takeaways from each part?
+
+**Section Summaries:**
+
+Part 1: Electrochemical cells convert chemical energy into electrical energy through redox reactions.
+Part 2: Oxidation occurs at the anode while reduction takes place at the cathode in electrochemical cells.
+Part 3: The standard electrode potential (E°) is a measure of the tendency of a chemical species to be reduced.
+Part 4: The cell electromotive force (E°cell) is calculated by subtracting the anode potential from the cathode potential.
+Part 5: The Nernst equation relates the electromotive force (EMF) of a cell to the concentrations of the reactants and products.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+Here are the critical takeaways from each part of your document:
+
+### Part 1: Electrochemical Cells
+- Electrochemical cells are devices that transform chemical energy into electrical energy through redox (reduction-oxidation) reactions.
+
+### Part 2: Oxidation and Reduction
+- In electrochemical cells, oxidation occurs at the anode, where electrons are released, while reduction occurs at the cathode, where electrons are gained.
+
+### Part 3: Standard Electrode Potential
+- The standard electrode potential (E°) quantifies the likelihood of a chemical species to undergo reduction, serving as a key indicator of its reactivity.
+
+### Part 4: Calculating Cell EMF
+- The electromotive force (E°cell) of a cell is determined by the difference in potential between the cathode and anode, calculated by subtracting the anode potential from the cathode potential.
+
+### Part 5: The Nernst Equation
+- The Nernst equation connects the electromotive force (EMF) of an electrochemical cell to the concentrations of the reactants and products, allowing for the calculation of cell potential under non-standard conditions.
+
+These takeaways encapsulate the fundamental principles and calculations involved in understanding electrochemical cells and their operations.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `case_study`
+
+
+#### Example 1: `whole_file_reduce-013`
+
+- **Variation:** case_study
+- **Tags:** cbse, economics, case_study, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Summarize the document without missing any major section.
+
+**Section Summaries:**
+
+Part 1: The circular flow of income illustrates the relationship between factor payments and expenditure in an economy.
+Part 2: Gross Domestic Product (GDP) at market prices is defined, along with the relationship between Gross National Product (GNP) and Net Factor Income from Abroad (NFIA), as well as concepts of Net Domestic Product (NDP) and Net National Product (NNP) considering depreciation.
+Part 3: The distinction between real and nominal GDP is explained, along with the GDP deflator and the various methods for measuring national income, including product, income, and expenditure approaches.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+The document provides a comprehensive overview of key economic concepts related to the circular flow of income and national income accounting. Below is a structured summary of each major section:
+
+### Part 1: Circular Flow of Income
+- This section outlines the circular flow of income model, which illustrates how factor payments (wages, rent, interest, and profits) are linked to expenditure in an economy. It emphasizes the interdependence between households and businesses, highlighting how income generated from factors of production is spent on goods and services.
+
+### Part 2: National Income Definitions
+- The document defines Gross Domestic Product (GDP) at market prices and explains its significance in measuring economic performance. It also clarifies the relationships between various national income concepts:
+  - **Gross National Product (GNP)** and its connection to **Net Factor Income from Abroad (NFIA)**.
+  - The definitions of **Net Domestic Product (NDP)** and **Net National Product (NNP)**, including considerations of depreciation, which affect the overall assessment of economic health.
+
+### Part 3: Measuring National Income
+- This section distinguishes between real and nominal GDP, explaining how inflation affects economic measurements. It introduces the GDP deflator as a tool for adjusting nominal figures to reflect real economic growth. Additionally, it discusses the different methodologies for measuring national income:
+  - **Product Approach**: Focuses on total output.
+  - **Income Approach**: Centers on total income earned.
+  - **Expenditure Approach**: Looks at total spending in the economy.
+
+Overall, the document provides a detailed exploration of the circular flow of income and the various frameworks for understanding and measuring national income, offering insights into the dynamics of economic activity.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `ncert_strict`
+
+
+#### Example 1: `whole_file_reduce-014`
+
+- **Variation:** ncert_strict
+- **Tags:** cbse, civics, ncert_strict, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Give a JEE-style quick recap of all parts.
+
+**Section Summaries:**
+
+Part 1: This section discusses the intersection of gender and political dynamics.
+Part 2: It examines the impact of the public/private division on women's political representation.
+Part 3: This part explores the tension between communalism and secularism in India.
+Part 4: It analyzes the influence of caste on political structures and behaviors.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+Here’s a quick recap of all parts of your document, structured for clarity:
+
+### Part 1: Gender and Political Dynamics
+- This section highlights how gender intersects with political dynamics, emphasizing the unique challenges and opportunities women face in political arenas.
+
+### Part 2: Public/Private Division
+- It examines the implications of the public/private divide on women's political representation, illustrating how societal norms and roles can limit women's participation in politics.
+
+### Part 3: Communalism vs. Secularism
+- This part explores the ongoing tension between communalism and secularism in India, discussing how these forces shape political discourse and impact various communities, particularly women.
+
+### Part 4: Caste and Political Structures
+- It analyzes the role of caste in influencing political structures and behaviors, detailing how caste identities affect political engagement and representation.
+
+This recap encapsulates the key themes and insights from each section, providing a comprehensive overview of the document's content.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+
+## Variation: `proof`
+
+
+#### Example 1: `whole_file_reduce-015`
+
+- **Variation:** proof
+- **Tags:** cbse, mathematics, proof, production_llm_gold
+
+**Inputs**
+
+**User Message:**
+
+Prepare short notes I can paste into my notebook.
+
+**Section Summaries:**
+
+Part 1: The fundamental principle of counting establishes a method for determining the total number of outcomes in a scenario.
+Part 2: Permutations are calculated using the formula nPr = n!/(n−r)!, which counts the arrangements of r items from a set of n distinct items.
+Part 3: Circular permutations refer to arrangements of items in a circle, where the starting point is irrelevant.
+Part 4: Combinations are determined using the formula nCr = n!/[(n−r)!r!], which counts the selections of r items from a set of n distinct items without regard to order.
+Part 5: The applications of binomial coefficients and probability involve using combinations and permutations to solve problems related to likelihood and outcomes.
+
+**Expected output**
+
+**Final Answer:**
+
+```markdown
+### Notes on Counting Principles, Permutations, and Combinations
+
+- **Fundamental Principle of Counting**: This principle provides a systematic way to calculate the total number of possible outcomes in various scenarios.
+
+- **Permutations**: 
+  - Formula: nPr = n! / (n−r)!
+  - Purpose: Counts the number of ways to arrange r items selected from a set of n distinct items.
+
+- **Circular Permutations**: 
+  - Definition: Arrangements of items in a circle where the starting point does not matter, altering the counting method compared to linear arrangements.
+
+- **Combinations**: 
+  - Formula: nCr = n! / [(n−r)!r!]
+  - Purpose: Counts the number of ways to select r items from a set of n distinct items without considering the order of selection.
+
+- **Applications of Binomial Coefficients and Probability**: 
+  - Involves using permutations and combinations to address problems related to likelihood and outcomes, enhancing understanding of statistical scenarios.
+```
+
+**Quality Check:** covers_all_parts: pass. user_intent: pass. markdown_structure: pass. no_citations: pass. production_llm_gold: pass.
+
+---
+

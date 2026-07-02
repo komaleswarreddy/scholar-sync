@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "problem_solver_followup",
   "agent": {
     "sno": 22,
@@ -7,7 +7,7 @@
     "name": "Problem Solver Follow-up Handler",
     "tier": "tier_2",
     "target_examples": 15,
-    "prompt_template": "{# Follow-up action handler #}\nYou are ScholarSync AI Coach continuing a problem-solving session.\n\nAction requested: {{ action }}\n{% if user_follow_up %}Student follow-up: {{ user_follow_up }}{% endif %}\n\nProblem:\n{{ problem_text_normalized }}\n\nPrevious mode: {{ solving_mode }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nUse `\\[ ... \\]` for display equations and `$...$` for inline math inside `bodyMarkdown`.\nPut spaces around multiplication: `72 \\\\times 1000`. Wrap units in `\\\\text{}`.\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Follow-up\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string or null\",\n  \"revealLevel\": \"hint or full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
+    "prompt_template": "You are ScholarSync AI Coach continuing a problem-solving session.\n\nAction requested: {{ action }}\n{% if user_follow_up %}Student follow-up: {{ user_follow_up }}{% endif %}\n\nProblem:\n{{ problem_text_normalized }}\n\nPrevious mode: {{ solving_mode }}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\n{% include 'problem_solver/math_formatting_contract.j2' %}\n\nReturn JSON only:\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Follow-up\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"finalAnswer\": \"string or null\",\n  \"revealLevel\": \"hint or full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"},\n    {\"label\": \"Start Tutor Session\", \"action\": \"START_TUTOR_SESSION\"}\n  ]\n}"
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -25,451 +25,871 @@
     {
       "id": "problem_solver_followup-001",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
       "inputs": {
         "action": "GIVE_SIMILAR_PROBLEM",
-        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
+        "problem_text_normalized": "Q45. (a) (i) Describe the population growth curve applicable in a population of any species in nature that has limited resources at its disposal. (ii) Give the equation of this growth curve. (iii) Name the growth curve and depict a graphical plot for this type of population growth. OR (b) (i) Explain the Species–Area relationship within a natural forest and also predict the nature of graph when species richness is plotted against the area for a wide variety of taxa. (ii) Depict the graphical relationship between species richness and area.",
         "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "title": "Similar Problem on Population Dynamics",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "Consider the following problem related to population dynamics in ecology:\n\n**Problem:** \n(a) (i) Describe the logistic growth curve applicable to a population of a species in an environment with limited resources. \n(ii) Provide the equation for this growth curve. \n(iii) Identify the characteristics of the logistic growth curve and illustrate it with a graphical representation. \n\nOR \n(b) (i) Discuss the concept of habitat fragmentation and its effects on species diversity in a given ecosystem. \n(ii) Illustrate the expected relationship between habitat size and species diversity with a graph."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use first?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Convert units first, then use v = u + at"
+              },
+              {
+                "id": "B",
+                "label": "Use distance formula before finding acceleration"
+              },
+              {
+                "id": "C",
+                "label": "Plug 72 km/h directly into m/s² formulas"
+              },
+              {
+                "id": "D",
+                "label": "Skip setup and guess from the answer choices"
+              }
+            ]
+          }
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-002",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
       "inputs": {
         "action": "REVEAL_SOLUTION",
-        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+        "problem_text_normalized": "Q9. Use the given information to select the amino acid attached to the 3′ end of tRNA during the process of translation, if the coding strand of the structural gene being transcribed has the nucleotide sequence TAC. Codons for the amino acids: AUC — Isoleucine AUG — Methionine UAC — Tyrosine GUA — Valine Options: (A) Isoleucine (B) Methionine (C) Tyrosine (D) Valine\n\n[Diagram: The figure consists of a horizontal line at the top, connecting two circular shapes. The left circle is labeled with a small circle representing a bead, and the right circle is connected to a rectangular shape labeled as a block. Below the horizontal line, there is a vertical line leading down to a square shape on the left, which is also labeled as a block. To the right of this vertical line, there is another square shape, which is connected to a horizontal line that extends to the right, leading to a rectangular shape labeled with a smaller square. The layout is primarily horizontal at the top and vertical below, with connections represented by straight lines. There are no numeric annotations, angles, or arrows indicating motion in the diagram.]",
+        "solving_mode": "EXPLAIN_FROM_BASICS",
+        "user_follow_up": "Student clicked REVEAL_SOLUTION",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: REVEAL_SOLUTION",
+          "title": "Amino Acid Selection in Translation",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "To determine the amino acid attached to the 3′ end of tRNA during translation, we first need to identify the corresponding mRNA codon from the given DNA coding strand sequence. The coding strand has the sequence TAC, which will be transcribed into mRNA as AUG. The mRNA codon AUG codes for Methionine. Therefore, the amino acid attached to the 3′ end of tRNA is Methionine."
             }
           ],
-          "revealLevel": "full"
+          "finalAnswer": "Methionine",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "follow_up",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-003",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
       "inputs": {
         "action": "SHOW_BEST_APPROACH",
-        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+        "problem_text_normalized": "Q6. The rate of formation of new organic matter by consumers, and the biomass available for consumption of herbivores as well as decomposers are referred to as: ((A)) Gross primary productivity and Net primary productivity ((B)) Net primary productivity and Secondary productivity ((C)) Secondary productivity and Net primary productivity ((D)) Secondary productivity and Gross primary productivity",
+        "solving_mode": "SHOW_BEST_APPROACH",
+        "user_follow_up": "Student clicked SHOW_BEST_APPROACH",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "title": "Understanding Productivity in Ecosystems",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "To solve this problem, we need to understand the definitions of the different types of productivity in an ecosystem. \\n\\n1. **Gross Primary Productivity (GPP)**: This is the total amount of organic matter produced by photosynthetic organisms (like plants) in a given area and time. \\n2. **Net Primary Productivity (NPP)**: This is the amount of organic matter that remains after the plants have used some of it for their own respiration. It represents the biomass available for consumption by herbivores. \\n3. **Secondary Productivity**: This refers to the generation of biomass by heterotrophic organisms (consumers) that eat the primary producers. \\n\\nNow, let's analyze the options: \\n- **(A)** GPP and NPP: This does not refer to consumers or decomposers. \\n- **(B)** NPP and Secondary Productivity: This correctly identifies NPP as the biomass for herbivores and secondary productivity as the biomass generated by consumers. \\n- **(C)** Secondary Productivity and NPP: This is similar to option B but does not clarify the roles of consumers and decomposers. \\n- **(D)** Secondary Productivity and GPP: This does not accurately represent the biomass available for herbivores. \\n\\nThus, the best answer is **(B)** Net primary productivity and Secondary productivity."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": "B",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-004",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
       "inputs": {
-        "action": "EXPLAIN_CONCEPT_AGAIN",
-        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+        "action": "SHOW_SHORTER_VERSION",
+        "problem_text_normalized": "Q38. (a) Analyze the microscopic physical source of the mechanical force acting on a moving charge carrier segment passing through a conductor loop placed inside an external magnetic field field zone. (b) Deduce the complete analytical expression for the mechanical force acting per unit length between two infinitely long, straight, parallel current-carrying conductors separated by a distance d in vacuum. Use the derived expression to formally define the standard base SI unit 'ampere'.",
+        "solving_mode": "SHOW_MISSING_IDEA",
+        "user_follow_up": "Student clicked SHOW_SHORTER_VERSION",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "title": "Shortened Problem Analysis and Solution",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "(a) The mechanical force on a moving charge in a magnetic field arises from the interaction between the magnetic field and the charge's velocity, described by the Lorentz force law: \\\\[ \textbf{F} = q (\textbf{v} \\times \textbf{B}) \\\\] where \\\\textbf{F}\\\\ is the force, \\\\$q\\\\ is the charge, \\\\$\\textbf{v}\\\\ is the velocity vector, and \\\\$\\textbf{B}\\\\ is the magnetic field vector.\n\n(b) For two parallel conductors carrying currents \\\\$I_1\\\\ and \\\\$I_2\\\\, the force per unit length \\\\$F/L\\\\ between them is given by: \\\\[ \\frac{F}{L} = \\frac{\\mu_0 I_1 I_2}{2\\pi d} \\\\] where \\\\$\\mu_0\\\\ is the permeability of free space and \\\\$d\\\\ is the distance between the conductors. The ampere is defined as the current that produces a force of \\\\$2 \\times 10^{-7} \\\\$ N/m between two parallel conductors one meter apart."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-005",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
       "inputs": {
-        "action": "COMPARE_BASIC_METHOD",
-        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
+        "action": "EXPLAIN_CONCEPT_AGAIN",
+        "problem_text_normalized": "Q5. You know that there are twenty different types of naturally occurring amino acids and four different types of bases in the DNA. A combination of 3 such bases codes for a specific amino acid. If instead there are 96 different amino acids and 12 different bases in the DNA, then the minimum number of combination of bases required to form a codon is: ((A)) 6 ((B)) 8 ((C)) 2 ((D)) 4",
         "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "title": "Understanding Codon Combinations",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "To determine the minimum number of combinations of bases required to form a codon, we need to understand how many unique combinations can be formed with a given number of bases. A codon is made up of a sequence of bases, and each base can be one of the available types. The formula to find the number of combinations of bases for codons is given by:\n\n\\[ N = B^L \\]\\\n\nwhere:\n- \\( N \\) is the total number of unique combinations (which should equal the number of amino acids),\n- \\( B \\) is the number of different bases available,\n- \\( L \\) is the length of the codon (number of bases in the codon).\n\nIn this case, we have:\n- \\( N = 9[answer hidden] \\) (the number of different amino acids),\n- \\( B = 12 \\) (the number of different bases).\n\nWe need to find the smallest \\( L \\) such that:\n\n\\[ 12^L \\geq 9[answer hidden] \\]\\\n\nNow, let's calculate the values of \\( L \\):\n- For \\( L = 1 \\): \\( 12^1 = 12 \\)\n- For \\( L = 2 \\): \\( 12^2 = 144 \\)\n\nSince \\( 12^1 \\) is less than 9[answer hidden] and \\( 12^2 \\) is greater than 9[answer hidden], the minimum \\( L \\) that satisfies the equation is 2. Therefore, the minimum number of bases required to form a codon in this scenario is 2."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use first?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Convert units first, then use v = u + at"
+              },
+              {
+                "id": "B",
+                "label": "Use distance formula before finding acceleration"
+              },
+              {
+                "id": "C",
+                "label": "Plug 72 km/h directly into m/s² formulas"
+              },
+              {
+                "id": "D",
+                "label": "Skip setup and guess from the answer choices"
+              }
+            ]
+          }
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-006",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
       "inputs": {
-        "action": "GIVE_SIMILAR_PROBLEM",
-        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+        "action": "SHOW_NEXT_HINT",
+        "problem_text_normalized": "Q8. Consider a parallel circuit connection where the top branch contains a 12 V cell with 1 Ω internal resistance, and the bottom branch contains a 6 V cell with 0.5 Ω internal resistance connected with opposing polarities across parallel terminals A and B. The potential difference between points A and B is: ((A)) 6 V ((B)) 8 V ((C)) 9 V ((D)) 12 V Testing Question Bank 2",
+        "solving_mode": "EXPLAIN_FROM_BASICS",
+        "user_follow_up": "Student clicked SHOW_NEXT_HINT",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "title": "Next Hint for Parallel Circuit Problem",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "To find the potential difference between points A and B, consider the effective voltage across each branch. The voltage across a branch in a parallel circuit can be affected by the internal resistance of the cells. Start by calculating the voltage drop across the internal resistances for each cell."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "hint",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-007",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
       "inputs": {
-        "action": "REVEAL_SOLUTION",
-        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+        "action": "START_TUTOR_SESSION",
+        "problem_text_normalized": "Q40. (a) Define the electromagnetic parameter 'mutual inductance' tracking between a closed pair of independent inductor coils, and state its standard SI units. (b) Derive the comprehensive mathematical expression for the mutual inductance coefficient linking two long, coaxial solenoids of identical total length l, given that the inner solenoid has radius r1 and N1 total turns, while the outer surrounding solenoid features radius r2 and N2 total turns.",
+        "solving_mode": "SHOW_BEST_APPROACH",
+        "user_follow_up": "Student clicked START_TUTOR_SESSION",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: REVEAL_SOLUTION",
+          "title": "Understanding Mutual Inductance",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "(a) **Mutual Inductance** is defined as the phenomenon where a change in current in one inductor induces an electromotive force (emf) in another nearby inductor. It quantifies the ability of one coil to induce voltage in another coil due to a changing magnetic field. The standard SI unit of mutual inductance is the **Henry (H)**.\n\n(b) To derive the mathematical expression for the mutual inductance coefficient between two long, coaxial solenoids, we start by considering the magnetic field produced by one solenoid and the induced emf in the other. The mutual inductance $M$ can be expressed as:\n\n\\[ M = \\frac{\\mu_0 N_1 N_2 A}{l} \\cdot \\frac{1}{(1 + k)} \\]\\\n\nwhere:\n- $\\mu_0$ is the permeability of free space,\n- $N_1$ and $N_2$ are the number of turns in the inner and outer solenoids respectively,\n- $A$ is the cross-sectional area of the inner solenoid, given by $A = \\pi r_1^2$,\n- $l$ is the length of the solenoids,\n- $k$ is the coupling coefficient, which depends on the geometry and alignment of the solenoids."
             }
           ],
-          "revealLevel": "full"
+          "finalAnswer": null,
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-008",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
       "inputs": {
-        "action": "SHOW_BEST_APPROACH",
-        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+        "action": "GIVE_SIMILAR_PROBLEM",
+        "problem_text_normalized": "Q10. A charged particle gains a speed of 106 m/s when accelerated from rest through a potential difference of 10 kV. It enters a region of a uniform magnetic field of 0.4 T such that its velocity vector is perpendicular to the magnetic field vector. The radius of the circular path described by it is: ((A)) 2.5 cm ((B)) 5 cm ((C)) 8 cm ((D)) 10 cm",
+        "solving_mode": "SHOW_MISSING_IDEA",
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM",
+        "ncert_context": "NCERT Class 11 Physics Ch.6: Work W=F·s cosθ. Kinetic energy K=½mv². Power P=W/t."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "title": "Similar Problem on Charged Particle in Magnetic Field",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "Consider a charged particle that is accelerated from rest through a potential difference of [answer hidden] kV. After gaining a speed of 7.[answer hidden] \\times 10^[answer hidden] \\text{ m/s}, it enters a uniform magnetic field of 0.3 T, with its velocity vector perpendicular to the magnetic field vector. Calculate the radius of the circular path described by the particle."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "hint",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-009",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
       "inputs": {
-        "action": "EXPLAIN_CONCEPT_AGAIN",
-        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
+        "action": "REVEAL_SOLUTION",
+        "problem_text_normalized": "Q44. (a) State the working electrical principle of a standard potentiometer measurement circuit layout. (b) A parallel electrical combination composed of two independent cells of electromotive forces E and 3E, with matching internal resistances R each, is wired across an external load resistance branch of magnitude 2R. Derive the expression for, and calculate the steady electric current that passes through the external load resistor branch.",
         "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+        "user_follow_up": "Student clicked REVEAL_SOLUTION",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "title": "Potentiometer and Parallel Circuit Analysis",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "(a) The working electrical principle of a standard potentiometer measurement circuit layout is based on the principle of balancing a voltage drop across a known resistance with the voltage drop across an unknown resistance. This is achieved by adjusting a sliding contact along a uniform wire of known resistance per unit length until the potential difference across the unknown resistance is equal to the potential difference across the known resistance, allowing for precise voltage measurements without drawing current from the circuit.\n\n(b) To derive the expression for the steady electric current through the external load resistor branch, we start by analyzing the circuit with the two cells in parallel. The total electromotive force (EMF) of the combination can be calculated as follows:\n\n1. The total EMF of the parallel combination is given by the formula:\n   \n   \begin{align*}\n   \frac{1}{E_{\text{total}}} &= \frac{1}{E} + \frac{1}{3E} \\ \n   &= \frac{3 + 1}{3E} \\ \n   &= \frac{4}{3E} \\ \n   E_{\text{total}} &= \frac{3E}{4} \\\n   \text{(Total EMF of the parallel combination)}\n   \\end{align*}\n\n2. The total internal resistance of the parallel combination is:\n   \n   \begin{align*}\n   R_{\text{total}} &= \frac{R}{2} \\\n   \text{(since both internal resistances are equal)}\n   \\\n   \text{(Total resistance in the circuit)}\n   \\\n   R_{\text{total circuit}} &= R_{\text{total}} + R_{\text{load}} \\ \n   &= \frac{R}{2} + 2R \\ \n   &= \frac{R}{2} + \frac{4R}{2} \\ \n   &= \frac{5R}{2} \\\n   \text{(Total resistance in the circuit)}\n   \\\n   \text{(Using Ohm's law, } I = \frac{V}{R}\text{)}\n   \\\n   I &= \frac{E_{\text{total}}}{R_{\text{total circuit}}} \\ \n   &= \frac{\frac{3E}{4}}{\frac{5R}{2}} \\ \n   &= \frac{3E}{4} \times \frac{2}{5R} \\ \n   &= \frac{3E}{10R} \\\n   \text{(Steady electric current through the external load resistor branch)}\n   \\\n   \text{Therefore, the current } I = \frac{3E}{10R}.\n   \\\n   \text{(Final expression for current)}\n   \\\n   \text{To calculate the current, substitute the values of } E \text{ and } R.\n   \\\n   \text{(For example, if } E = 12V \text{ and } R = 2Ω, \text{ then:)}\n   \\\n   I &= \frac{3 \times 12}{10 \times 2} = \frac{36}{20} = 1.8A.\n   \\\n   \text{(Final current value)}"
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": "I = \\frac{3E}{10R}",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use first?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Convert units first, then use v = u + at"
+              },
+              {
+                "id": "B",
+                "label": "Use distance formula before finding acceleration"
+              },
+              {
+                "id": "C",
+                "label": "Plug 72 km/h directly into m/s² formulas"
+              },
+              {
+                "id": "D",
+                "label": "Skip setup and guess from the answer choices"
+              }
+            ]
+          }
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-010",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
       "inputs": {
-        "action": "COMPARE_BASIC_METHOD",
-        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+        "action": "SHOW_BEST_APPROACH",
+        "problem_text_normalized": "Q10. In a pea plant (Pisum sativum) inflated pod shape is dominant over constricted pod shape. The expected ratio of phenotypes of the offspring in a cross between both the parents with heterozygous inflated pod shape will be: (A) 1 : 0 (B) 1 : 1 (C) 2 : 1 (D) 3 : 1\n\n[Diagram: The figure consists of a horizontal line at the top, connecting two circular shapes. The left circle is labeled with a small circle representing a bead, and the right circle is connected to a rectangular shape labeled as a block. Below the horizontal line, there is a vertical line leading down to a square shape on the left, which is also labeled as a block. To the right of this vertical line, there is another square shape, which is connected to a horizontal line that extends to the right, leading to a rectangular shape labeled with a smaller square. The layout is primarily horizontal at the top and vertical below, with connections represented by straight lines. There are no numeric annotations, angles, or arrows indicating motion in the diagram.]",
+        "solving_mode": "EXPLAIN_FROM_BASICS",
+        "user_follow_up": "Student clicked SHOW_BEST_APPROACH",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "title": "Understanding Pod Shape Inheritance in Pea Plants",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "To determine the expected ratio of phenotypes in the offspring from a cross between two heterozygous pea plants for pod shape, we can use a Punnett square. The alleles for inflated pod shape (dominant) can be represented as 'I' and for constricted pod shape (recessive) as 'i'. Therefore, the genotypes of the parents will be 'Ii' (heterozygous) for both.\n\n1. Set up the Punnett square:\n   - Parent 1 alleles: I, i\n   - Parent 2 alleles: I, i\n\n2. Fill in the Punnett square:\n   - The combinations will be:\n     - II (homozygous dominant)\n     - Ii (heterozygous)\n     - iI (heterozygous)\n     - ii (homozygous recessive)\n\n3. The resulting genotypes will be:\n   - 1 II : 2 Ii : 1 ii\n\n4. Phenotypes:\n   - Both 'II' and 'Ii' will show the inflated pod shape (dominant), while 'ii' will show the constricted pod shape (recessive).\n\n5. Therefore, the phenotypic ratio will be:\n   - 3 inflated : 1 constricted\n\nThus, the expected ratio of phenotypes in the offspring is 3:1, which corresponds to option (D)."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": "3 : 1",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "follow_up",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-011",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
       "inputs": {
-        "action": "GIVE_SIMILAR_PROBLEM",
-        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM"
+        "action": "SHOW_SHORTER_VERSION",
+        "problem_text_normalized": "Q2. In an unbiased p-n junction, at equilibrium, which of the following statements is true? ((A)) Diffusion current is zero but drift current exists. ((B)) Diffusion current exists but drift current is zero. ((C)) Diffusion and drift currents are equal and opposite. ((D)) Both the diffusion and drift currents exist but are unequal.",
+        "solving_mode": "SHOW_BEST_APPROACH",
+        "user_follow_up": "Student clicked SHOW_SHORTER_VERSION",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: GIVE_SIMILAR_PROBLEM",
+          "title": "Understanding p-n Junctions",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "In an unbiased p-n junction at equilibrium, the diffusion and drift currents are equal and opposite, resulting in a net current of zero. Therefore, the correct answer is (C)."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": "C",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-012",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
       "inputs": {
-        "action": "REVEAL_SOLUTION",
-        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked REVEAL_SOLUTION"
+        "action": "EXPLAIN_CONCEPT_AGAIN",
+        "problem_text_normalized": "Q39. (a) State Huygens' core geometric principle of wavefront propagation and secondary wavelets tracking over time. (b) A plane wavefront is incident at a non-zero angle i on a perfectly smooth reflecting plane interface. Construct a clean geometrical layout showing the generation of the corresponding reflected wavefront using Huygens' construction method. Utilizing the drawn layout, prove the fundamental law of reflection.",
+        "solving_mode": "SHOW_MISSING_IDEA",
+        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN",
+        "ncert_context": "NCERT Class 12 Physics: Use SI units, free-body diagrams, and sign conventions from the relevant chapter."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: REVEAL_SOLUTION",
+          "title": "Understanding Huygens' Principle and Reflection",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "Huygens' principle states that every point on a wavefront can be considered a source of secondary wavelets that spread out in all directions at the speed of the wave. The new wavefront at a later time can be constructed by drawing a tangent to these secondary wavelets. This principle helps in understanding how waves propagate and interact with surfaces.\n\nIn the case of reflection, when a plane wavefront strikes a smooth reflecting surface at an angle, we can apply Huygens' principle to visualize the reflected wavefront. The angle of incidence (i) is equal to the angle of reflection (r), which can be demonstrated through a geometrical layout."
             }
           ],
-          "revealLevel": "full"
+          "finalAnswer": null,
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-013",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
       "inputs": {
-        "action": "SHOW_BEST_APPROACH",
-        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
+        "action": "SHOW_NEXT_HINT",
+        "problem_text_normalized": "Q21. A plane circular conducting coil is rotated about its vertical diameter layout with a constant angular speed ω inside a uniform horizontal magnetic field. Initially, the plane of the coil is parallel to the field vector. Draw dual synchronous plots showing the variation of: (a) the magnetic flux linked with the coil, and (b) the emf induced in the coil, as functions of the phase parameter (ωt). Testing Question Bank 4",
         "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked SHOW_BEST_APPROACH"
+        "user_follow_up": "Student clicked SHOW_NEXT_HINT",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: SHOW_BEST_APPROACH",
+          "title": "Next Hint for Problem Q21",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "To analyze the variation of magnetic flux linked with the coil, recall that the magnetic flux \\( \\Phi \\) through the coil is given by \\( \\Phi = B \\cdot A \\cdot \\cos(\\theta) \\), where \\( B \\) is the magnetic field strength, \\( A \\) is the area of the coil, and \\( \\theta \\) is the angle between the magnetic field and the normal to the coil's surface. As the coil rotates, \\( \\theta \\) changes with time, specifically \\( \\theta = \\omega t \\). Therefore, you can express the magnetic flux as \\( \\Phi(t) = B \\cdot A \\cdot \\cos(\\omega t) \\)."
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "hint",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use first?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Convert units first, then use v = u + at"
+              },
+              {
+                "id": "B",
+                "label": "Use distance formula before finding acceleration"
+              },
+              {
+                "id": "C",
+                "label": "Plug 72 km/h directly into m/s² formulas"
+              },
+              {
+                "id": "D",
+                "label": "Skip setup and guess from the answer choices"
+              }
+            ]
+          }
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-014",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
       "inputs": {
-        "action": "EXPLAIN_CONCEPT_AGAIN",
-        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked EXPLAIN_CONCEPT_AGAIN"
+        "action": "START_TUTOR_SESSION",
+        "problem_text_normalized": "Q22. The allele for brown eyes ((B)) is dominant over blue eyes (b). In a population, 36% of individuals have blue eyes. Assuming Hardy–Weinberg equilibrium, calculate: (i) Frequency of allele B (ii) Percentage of heterozygous individuals (iii) Percentage of individuals that are homozygous dominant (Working to be shown)",
+        "solving_mode": "EXPLAIN_FROM_BASICS",
+        "user_follow_up": "Student clicked START_TUTOR_SESSION",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: EXPLAIN_CONCEPT_AGAIN",
+          "title": "Understanding Hardy-Weinberg Equilibrium",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "To solve the problem, we will use the Hardy-Weinberg principle, which states that the frequencies of alleles and genotypes in a population will remain constant from generation to generation in the absence of other evolutionary influences. The equations we will use are:\n\n1. The frequency of the recessive phenotype (blue eyes, bb) is given as 36%, or 0.36. \n2. The frequency of the recessive genotype (q^2) is equal to 0.36.\n\nFrom this, we can find the frequency of allele b (q) and then use it to find the frequency of allele B (p) and the other genotype frequencies. Let's go step by step:\n\n1. Calculate q (frequency of allele b):\n   \n   \\[ q = \\sqrt{q^2} = \\sqrt{0.36} = [answer hidden] \\]\n\n2. Calculate p (frequency of allele B):\n   \n   \\[ p = 1 - q = 1 - [answer hidden] = 0.4 \\]\n\n3. Calculate the percentage of heterozygous individuals (Bb):\n   \n   \\[ 2pq = 2 \\times p \\times q = 2 \\times 0.4 \\times [answer hidden] = 0.48 \\text{ or } 48\\% \\]\n\n4. Calculate the percentage of homozygous dominant individuals (BB):\n   \n   \\[ p^2 = (0.4)^2 = 0.16 \\text{ or } 16\\% \\]\n\nNow we have all the required frequencies and percentages!"
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     },
     {
       "id": "problem_solver_followup-015",
       "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
       "inputs": {
-        "action": "COMPARE_BASIC_METHOD",
-        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
-        "solving_mode": "HELP_ME_SOLVE_IT",
-        "user_follow_up": "Student clicked COMPARE_BASIC_METHOD"
+        "action": "GIVE_SIMILAR_PROBLEM",
+        "problem_text_normalized": "Q6. A conducting wire connects two charged metallic spheres A and B of radii r1 and r2 respectively. The distance between the spheres is very large compared to their radii. The ratio of electric fields, (EA / EB) at the surfaces of spheres A and B will be: ((A)) r1 / r2 ((B)) r2 / r1 ((C)) r1 2 / r2 2 ((D)) r2 2 / r1 2",
+        "solving_mode": "SHOW_BEST_APPROACH",
+        "user_follow_up": "Student clicked GIVE_SIMILAR_PROBLEM",
+        "ncert_context": "NCERT Class 12 Physics Ch.1: Gauss's law relates net flux through a closed surface to enclosed charge. Conductor electrostatics: field inside conductor is zero in electrostatic equilibrium."
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Follow-up: COMPARE_BASIC_METHOD",
+          "title": "Similar Problem on Electric Fields",
           "sections": [
             {
               "heading": "Follow-up",
-              "bodyMarkdown": "Continuation without losing context."
+              "bodyMarkdown": "Consider two charged metallic spheres C and D with radii \\( r_3 \\) and \\( r_4 \\) respectively, connected by a conducting wire. If the total charge is conserved and the distance between the spheres is very large compared to their radii, what is the ratio of electric fields at the surfaces of spheres C and D, \\( (E_C / E_D) \\)? Choose from the following options: \\( (A) \\frac{r_3}{r_4} \\) \\( (B) \\frac{r_4}{r_3} \\) \\( (C) \\frac{r_3^2}{r_4^2} \\) \\( (D) \\frac{r_4^2}{r_3^2} \\)"
             }
           ],
-          "revealLevel": "hint"
+          "finalAnswer": null,
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            },
+            {
+              "label": "Start Tutor Session",
+              "action": "START_TUTOR_SESSION"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "follow_up",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "context_retention"
+        "action_compliance",
+        "context_retention",
+        "reveal_level",
+        "production_llm_gold"
       ]
     }
   ]

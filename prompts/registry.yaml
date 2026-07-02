@@ -5,202 +5,129 @@ agents:
       system: agents/intent_classifier_system.j2
       user: agents/intent_classifier_user.j2
     default: v1
-    v2:
-      system: agents/intent_classifier_system_v2.j2
-      user: agents/intent_classifier_user_v2.j2
   query_rewriter:
     v1:
       system: agents/query_rewriter_system.j2
       user: agents/query_rewriter_user.j2
     default: v1
-    v2:
-      system: agents/query_rewriter_system_v2.j2
-      user: agents/query_rewriter_user_v2.j2
   scope_narrower:
     v1:
       system: agents/scope_narrower_system.j2
       user: agents/scope_narrower_user.j2
     default: v1
-    v2:
-      system: agents/scope_narrower_system_v2.j2
-      user: agents/scope_narrower_user_v2.j2
   direct_chat:
     v1:
       template: chat/direct_chat.j2
     default: v1
-    v2:
-      template: chat/direct_chat_v2.j2
   chat_summarizer:
     v1:
       template: chat/chat_summarizer_prompt.j2
     default: v1
-    v2:
-      template: chat/chat_summarizer_prompt_v2.j2
   studio_system_json:
     v1:
       template: studio/system_educational_json_markdown.j2
     default: v1
-    v2:
-      template: studio/system_educational_json_markdown_v2.j2
   studio_quiz:
     v1:
       template: studio/quiz_prompt.j2
     default: v1
-    v2:
-      template: studio/quiz_prompt_v2.j2
   studio_flashcards:
     v1:
       template: studio/flashcards_prompt.j2
     default: v1
-    v2:
-      template: studio/flashcards_prompt_v2.j2
   studio_mind_map:
     v1:
       template: studio/mind_map_prompt.j2
     default: v1
-    v2:
-      template: studio/mind_map_prompt_v2.j2
   studio_slide_deck:
     v1:
       template: studio/slide_deck_prompt.j2
     default: v1
-    v2:
-      template: studio/slide_deck_prompt_v2.j2
   studio_fallback_legacy:
     v1:
       template: studio/fallback_task_prompt.j2
     default: v1
-    v2:
-      template: studio/fallback_task_prompt_v2.j2
   problem_dna_analyzer:
     v1:
       template: problem_solver/dna.j2
     default: v1
-    v2:
-      template: problem_solver/dna_v2.j2
   explain_from_basics:
     v1:
       template: problem_solver/explain_from_basics.j2
     default: v1
-    v2:
-      template: problem_solver/explain_from_basics_v2.j2
   show_best_approach:
     v1:
       template: problem_solver/show_best_approach.j2
     default: v1
-    v2:
-      template: problem_solver/show_best_approach_v2.j2
   show_missing_idea:
     v1:
       template: problem_solver/show_missing_idea.j2
     default: v1
-    v2:
-      template: problem_solver/show_missing_idea_v2.j2
   help_me_solve_it:
     v1:
       template: problem_solver/help_me_solve_it.j2
     default: v1
-    v2:
-      template: problem_solver/help_me_solve_it_v2.j2
   problem_solver_followup:
     v1:
       template: problem_solver/follow_up.j2
     default: v1
-    v2:
-      template: problem_solver/follow_up_v2.j2
   tutor_notebook_bootstrap:
     v1:
       template: tutor/notebook_bootstrap.j2
     default: v1
-    v2:
-      template: tutor/notebook_bootstrap_v2.j2
   tutor_follow_up_questions:
     v1:
       template: tutor/follow_up_questions.j2
     default: v1
-    v2:
-      template: tutor/follow_up_questions_v2.j2
   source_question_extraction:
     v1:
       template: source_questions/extract.j2
     default: v1
-    v2:
-      template: source_questions/extract_v2.j2
   document_sketch:
     v1:
       template: rag/document_sketch.j2
     default: v1
-    v2:
-      template: rag/document_sketch_v2.j2
   ncert_document_sketch:
     v1:
       template: rag/ncert_document_sketch.j2
     default: v1
-    v2:
-      template: rag/ncert_document_sketch_v2.j2
   chunk_contextualization:
     v1:
       template: rag/chunk_contextualization.j2
     default: v1
-    v2:
-      template: rag/chunk_contextualization_v2.j2
   whole_file_map_summarizer:
     v1:
       template: rag/whole_file_map_prompt.j2
     default: v1
-    v2:
-      template: rag/whole_file_map_prompt_v2.j2
   whole_file_reduce:
     v1:
       template: rag/whole_file_reduce_prompt.j2
     default: v1
-    v2:
-      template: rag/whole_file_reduce_prompt_v2.j2
   query_decomposer:
     v1:
       template: eval/query_decomposer_v1.j2
-    v2:
-      template: eval/query_decomposer_v2.j2
     default: v1
   chat_policy_block:
     v1:
       template: eval/chat_policy_block_v1.j2
-    v2:
-      template: eval/chat_policy_block_v2.j2
     default: v1
   hallucination_guard_retry:
     v1:
       template: eval/hallucination_guard_retry_v1.j2
-    v2:
-      template: eval/hallucination_guard_retry_v2.j2
     default: v1
   studio_context_embedding_query:
     v1:
       template: eval/studio_context_embedding_query_v1.j2
-    v2:
-      template: eval/studio_context_embedding_query_v2.j2
-    default: v1
-  whole_file_map_template:
-    v1:
-      template: eval/whole_file_map_template_v1.j2
-    v2:
-      template: eval/whole_file_map_template_v2.j2
     default: v1
   image_ocr:
     v1:
       template: eval/image_ocr_v1.j2
-    v2:
-      template: eval/image_ocr_v2.j2
     default: v1
   diagram_label_ocr:
     v1:
       template: eval/diagram_label_ocr_v1.j2
-    v2:
-      template: eval/diagram_label_ocr_v2.j2
     default: v1
   refusal_templates:
     v1:
       template: eval/refusal_templates_v1.j2
-    v2:
-      template: eval/refusal_templates_v2.j2
     default: v1

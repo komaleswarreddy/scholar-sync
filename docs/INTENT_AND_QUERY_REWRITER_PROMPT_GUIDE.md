@@ -900,7 +900,6 @@ Open `prompts/registry.yaml` and find your `agent_id`. There are **only two patt
 | 28 | `chunk_contextualization` | B single | `rag/chunk_contextualization.j2` |
 | 29 | `whole_file_map_summarizer` | B single | `rag/whole_file_map_prompt.j2` |
 | 30 | `whole_file_reduce` | B single | `rag/whole_file_reduce_prompt.j2` |
-| 31 | `whole_file_map_template` | B single | `eval/whole_file_map_template_v1.j2` |
 | 32 | `image_ocr` | B single | `eval/image_ocr_v1.j2` |
 | 33 | `diagram_label_ocr` | B single | `eval/diagram_label_ocr_v1.j2` |
 | 34 | `refusal_templates` | B single | `eval/refusal_templates_v1.j2` |

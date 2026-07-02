@@ -9,6 +9,7 @@ from fastapi import Request, HTTPException
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Scope, Receive, Send
 from sqlalchemy import select
+import logging
 import re
 import traceback
 import time
@@ -21,9 +22,20 @@ from apps.api.middleware.auth import (
     extract_user_id_from_token,
     extract_email_from_token,
     extract_admin_portal_user_id,
+    extract_teacher_portal_user_id,
 )
 from apps.api.middleware.common import add_cors_headers
 from config.settings import settings
+
+logger = logging.getLogger("scholarsync.tenant")
+
+
+def _redact(user_id) -> str:
+    """Redact a user id for logs: keep a short non-reversible hint only."""
+    if not user_id:
+        return "<none>"
+    s = str(user_id)
+    return f"{s[:4]}…{s[-2:]}" if len(s) > 8 else "<redacted>"
 
 # Configuration for Development
 DEV_TENANT_ID = "eeff7c1c-fe22-4573-ad93-a36f19ad4dc5"
@@ -50,8 +62,8 @@ _synced_user_ids: dict[str, float] = {}
 # These paths can work with just tenant_id from subdomain, no JWT required
 TENANT_ONLY_PATHS = {"/api/v1/metrics", "/api/v1/dashboards", "/api/v1/alerts", "/debug"}
 
-# Admin portal login — tenant required, Bearer token not required
-PUBLIC_AUTH_PATHS = {"/api/v1/admin/auth/login"}
+# Portal logins — tenant required, Bearer token not required
+PUBLIC_AUTH_PATHS = {"/api/v1/admin/auth/login", "/api/v1/teacher/auth/login"}
 
 
 class TenantMiddleware:
@@ -191,15 +203,17 @@ class TenantMiddleware:
             
             # For tenant-only paths in development, try to extract user_id but don't require it
             if is_tenant_only_path:
-                print(f"[INFO] [MIDDLEWARE] Tenant-only path '{current_path}' - attempting to extract user_id for filtering")
+                logger.debug("Tenant-only path %s — best-effort user extraction", current_path)
                 # Try to extract user_id if token is provided, but don't fail if it's missing
                 if auth_header and auth_header.startswith("Bearer "):
                     token = auth_header.replace("Bearer ", "").strip()
                     if token:
                         admin_user_id = extract_admin_portal_user_id(token)
+                        teacher_user_id = None if admin_user_id else extract_teacher_portal_user_id(token)
                         if admin_user_id:
                             user_id = admin_user_id
-                            print(f"[INFO] [MIDDLEWARE] Admin portal user for tenant-only path: {user_id}")
+                        elif teacher_user_id:
+                            user_id = teacher_user_id
                         else:
                             try:
                                 is_production = settings.ENVIRONMENT == "production"
@@ -207,9 +221,8 @@ class TenantMiddleware:
                                     token,
                                     require_verification=is_production
                                 )
-                                print(f"[INFO] [MIDDLEWARE] Extracted user_id for tenant-only path: {user_id}")
-                            except Exception as e:
-                                print(f"[INFO] [MIDDLEWARE] Could not extract user_id from token (non-fatal for tenant-only path): {e}")
+                            except Exception:
+                                logger.debug("Could not extract user_id for tenant-only path (non-fatal)")
                                 user_id = None
                 
                 # Set user_id (may be None) and continue
@@ -244,31 +257,34 @@ class TenantMiddleware:
             
             try:
                 admin_user_id = extract_admin_portal_user_id(token)
+                teacher_user_id = None if admin_user_id else extract_teacher_portal_user_id(token)
                 if admin_user_id:
                     user_id = admin_user_id
-                    print(f"[SUCCESS] Authenticated admin portal user: {user_id}")
+                    logger.info("Authenticated admin portal user: %s", _redact(user_id))
+                elif teacher_user_id:
+                    user_id = teacher_user_id
+                    logger.info("Authenticated teacher portal user: %s", _redact(user_id))
                 else:
                     is_production = settings.ENVIRONMENT == "production"
                     user_id = extract_user_id_from_token(
                         token,
                         require_verification=is_production
                     )
-                    print(f"[SUCCESS] Authenticated user: {user_id}")
-            except HTTPException as e:
-                print(f"[WARNING] Token verification failed: {e.detail}")
+                    logger.info("Authenticated user: %s", _redact(user_id))
+            except HTTPException:
+                logger.info("Token verification failed for %s %s", method, current_path)
                 resp = JSONResponse(
                     status_code=401,
                     content={
-                        "detail": f"Invalid or expired authentication token: {e.detail}",
+                        "detail": "Invalid or expired authentication token.",
                         "error_code": "INVALID_TOKEN"
                     }
                 )
                 resp = add_cors_headers(resp, origin)
                 await resp(scope, receive, send)
                 return
-            except Exception as e:
-                print(f"[WARNING] Error extracting user from token: {str(e)}")
-                traceback.print_exc()
+            except Exception:
+                logger.exception("Error extracting user from token")
                 resp = JSONResponse(
                     status_code=401,
                     content={
@@ -297,7 +313,8 @@ class TenantMiddleware:
 
             # Best-effort user sync: ensure Clerk-authenticated users are present in DB
             # so admin role checks and analytics user tables can work from local data.
-            if user_id == settings.ADMIN_PORTAL_USER_ID:
+            # Portal (admin/teacher) users are not Clerk DB users — skip the sync.
+            if user_id in (settings.ADMIN_PORTAL_USER_ID, settings.TEACHER_PORTAL_USER_ID):
                 await self.app(scope, receive, send)
                 return
 
@@ -325,18 +342,18 @@ class TenantMiddleware:
                             db.add(db_user)
                             await db.commit()
                     _synced_user_ids[user_id] = now + _SYNCED_USERS_TTL_SEC
-            except Exception as sync_err:
-                print(f"[WARNING] [MIDDLEWARE] Could not sync user row: {sync_err}")
+            except Exception:
+                logger.warning("Could not sync user row for %s", _redact(user_id))
 
             # Hand over to the next middleware/endpoint
             await self.app(scope, receive, send)
 
-        except Exception as e:
-            traceback.print_exc()
+        except Exception:
+            logger.exception("Unhandled error in TenantMiddleware")
             origin = request.headers.get("Origin", "") if 'request' in locals() else None
             resp = JSONResponse(
-                status_code=500, 
-                content={"detail": "Internal Server Error", "error": str(e)}
+                status_code=500,
+                content={"detail": "Internal Server Error"}
             )
             resp = add_cors_headers(resp, origin)
             await resp(scope, receive, send)

@@ -41,6 +41,10 @@ class ChatGraphState(TypedDict, total=False):
     # Intent / whole-document map-reduce
     classified_intent: str
     intent_classification_confidence: float
+    # Retrieval scope hint from IntentClassifier: whole_document | section | fact | unspecified
+    scope: str
+    requires_retrieval: bool
+    requires_attachment: bool
     whole_file_summary: bool
     map_reduce_ok: bool
     precomputed_answer: str

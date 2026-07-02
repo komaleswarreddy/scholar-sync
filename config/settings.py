@@ -94,15 +94,37 @@ class Settings(BaseSettings):
     # Authentication
     CLERK_SECRET_KEY: str = ""
     CLERK_ISSUER: str = ""
-    CLERK_JWT_PUBLIC_KEY: str = ""  # JWT verification key
-    CLERK_JWT_AUDIENCE: str = ""    # <-- added to avoid extra_forbidden error
+    CLERK_JWT_PUBLIC_KEY: str = ""  # PEM RS256 verification key (optional if JWKS configured)
+    CLERK_JWKS_URL: str = ""        # Clerk JWKS endpoint — preferred (handles key rotation)
+    CLERK_JWT_AUDIENCE: str = ""    # Verified only when set
 
-    # Admin portal (standalone email/password login for ops dashboard; v1 demo credentials)
+    # Admin portal (standalone email/password login for ops dashboard)
+    # SECURITY: the defaults below are DEV-ONLY. validate_production_security() rejects
+    # these default values at startup when ENVIRONMENT=production. Prefer setting
+    # ADMIN_PORTAL_PASSWORD_HASH (a bcrypt hash) over a plaintext ADMIN_PORTAL_PASSWORD.
     ADMIN_PORTAL_EMAIL: str = "sync@gmail.com"
     ADMIN_PORTAL_PASSWORD: str = "admin123"
+    ADMIN_PORTAL_PASSWORD_HASH: str = ""  # bcrypt hash; takes precedence over ADMIN_PORTAL_PASSWORD
     ADMIN_PORTAL_JWT_SECRET: str = "dev-admin-portal-secret-change-in-production"
     ADMIN_PORTAL_USER_ID: str = "admin-portal-sync"
     ADMIN_PORTAL_TOKEN_TTL_HOURS: int = 24
+
+    # Teacher portal (standalone email/password login; same security model as admin portal)
+    TEACHER_PORTAL_EMAIL: str = "teacher@gmail.com"
+    TEACHER_PORTAL_PASSWORD: str = "admin123"
+    TEACHER_PORTAL_PASSWORD_HASH: str = ""  # bcrypt hash; takes precedence over TEACHER_PORTAL_PASSWORD
+    TEACHER_PORTAL_JWT_SECRET: str = "dev-teacher-portal-secret-change-in-production"
+    TEACHER_PORTAL_USER_ID: str = "teacher-portal-demo"
+    TEACHER_PORTAL_TOKEN_TTL_HOURS: int = 12
+
+    # Security headers / hardening
+    ENABLE_SECURITY_HEADERS: bool = True
+    HSTS_MAX_AGE: int = 31536000  # 1 year (production HTTPS only)
+
+    # Brute-force protection for portal logins (per IP + email)
+    LOGIN_RATE_LIMIT_MAX_ATTEMPTS: int = 7
+    LOGIN_RATE_LIMIT_WINDOW_SECONDS: int = 300
+    LOGIN_RATE_LIMIT_LOCKOUT_SECONDS: int = 900
 
     # Chunking Configuration
     CHUNK_SIZE: int = 1000
@@ -402,5 +424,63 @@ class Settings(BaseSettings):
 
 # Singleton instance of settings
 settings = Settings()
+
+
+# Values that must never be used in production (shipped as dev defaults only).
+INSECURE_DEFAULT_VALUES = {
+    "admin123",
+    "dev-admin-portal-secret-change-in-production",
+    "dev-teacher-portal-secret-change-in-production",
+}
+
+
+def validate_production_security(s: "Settings" = settings) -> None:
+    """
+    Fail-closed security validation for production.
+
+    Raises RuntimeError listing every misconfiguration so the API refuses to
+    start with insecure defaults. No-op outside production.
+    """
+    if s.ENVIRONMENT != "production":
+        return
+
+    errors: list[str] = []
+
+    # 1) Clerk token verification material is mandatory in production.
+    if not (s.CLERK_JWT_PUBLIC_KEY or s.CLERK_JWKS_URL):
+        errors.append(
+            "CLERK_JWT_PUBLIC_KEY or CLERK_JWKS_URL must be set so student tokens are verified."
+        )
+
+    # 2) Admin portal secrets must be strong and non-default.
+    if s.ADMIN_PORTAL_JWT_SECRET in INSECURE_DEFAULT_VALUES or len(s.ADMIN_PORTAL_JWT_SECRET) < 32:
+        errors.append("ADMIN_PORTAL_JWT_SECRET must be a strong, non-default value (>= 32 chars).")
+    if not s.ADMIN_PORTAL_PASSWORD_HASH and (
+        s.ADMIN_PORTAL_PASSWORD in INSECURE_DEFAULT_VALUES or len(s.ADMIN_PORTAL_PASSWORD) < 10
+    ):
+        errors.append(
+            "Set ADMIN_PORTAL_PASSWORD_HASH (bcrypt) or a strong ADMIN_PORTAL_PASSWORD (>= 10 chars)."
+        )
+
+    # 3) Teacher portal secrets must be strong and non-default.
+    if s.TEACHER_PORTAL_JWT_SECRET in INSECURE_DEFAULT_VALUES or len(s.TEACHER_PORTAL_JWT_SECRET) < 32:
+        errors.append("TEACHER_PORTAL_JWT_SECRET must be a strong, non-default value (>= 32 chars).")
+    if not s.TEACHER_PORTAL_PASSWORD_HASH and (
+        s.TEACHER_PORTAL_PASSWORD in INSECURE_DEFAULT_VALUES or len(s.TEACHER_PORTAL_PASSWORD) < 10
+    ):
+        errors.append(
+            "Set TEACHER_PORTAL_PASSWORD_HASH (bcrypt) or a strong TEACHER_PORTAL_PASSWORD (>= 10 chars)."
+        )
+
+    # 4) CORS must be an explicit allowlist (no wildcard).
+    origins = [o.strip() for o in s.CORS_ORIGINS.split(",") if o.strip()]
+    if not origins or "*" in origins:
+        errors.append("CORS_ORIGINS must be an explicit comma-separated list (no '*').")
+
+    if errors:
+        raise RuntimeError(
+            "Insecure production configuration detected. Fix these before launch:\n  - "
+            + "\n  - ".join(errors)
+        )
 
 

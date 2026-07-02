@@ -1,0 +1,378 @@
+{
+  "generated_at": "2026-06-30T02:43:00.278019+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "agents": [
+    "studio_flashcards",
+    "studio_mind_map",
+    "studio_slide_deck",
+    "studio_fallback_legacy"
+  ],
+  "prompt_versions": [
+    "v1",
+    "v2",
+    "v3"
+  ],
+  "experiments": [
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v1-openai-gpt-5-4-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v1-gemini-gemini-2-5-flash",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v1-gemini-gemini-3-1-flash-lite",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v2-openai-gpt-5-4-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v2-gemini-gemini-2-5-flash",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v2-gemini-gemini-3-1-flash-lite",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v3-openai-gpt-5-4-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v3-gemini-gemini-2-5-flash",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "experiment_prefix": "ae-studio_flashcards-v3-gemini-gemini-3-1-flash-lite",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v1-openai-gpt-5-4-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v1-anthropic-claude-haiku-4-5",
+      "prompt_version": "v1",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v1-gemini-gemini-2-5-flash",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v2-openai-gpt-5-4-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v2-anthropic-claude-haiku-4-5",
+      "prompt_version": "v2",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v2-gemini-gemini-2-5-flash",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v3-openai-gpt-5-4-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v3-anthropic-claude-haiku-4-5",
+      "prompt_version": "v3",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "experiment_prefix": "ae-studio_mind_map-v3-gemini-gemini-2-5-flash",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v1-openai-gpt-5-4",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v1-openai-gpt-5-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v1-gemini-gemini-2-5-flash",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v2-openai-gpt-5-4",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v2-openai-gpt-5-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v2-gemini-gemini-2-5-flash",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v3-openai-gpt-5-4",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v3-openai-gpt-5-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "experiment_prefix": "ae-studio_slide_deck-v3-gemini-gemini-2-5-flash",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v1-openai-gpt-5-4-nano",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4-nano",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v1-gemini-gemini-3-1-flash-lite",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v1-gemini-gemini-2-5-flash-lite",
+      "prompt_version": "v1",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v2-openai-gpt-5-4-nano",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4-nano",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v2-gemini-gemini-3-1-flash-lite",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v2-gemini-gemini-2-5-flash-lite",
+      "prompt_version": "v2",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v3-openai-gpt-5-4-nano",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4-nano",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v3-gemini-gemini-3-1-flash-lite",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    },
+    {
+      "agent_id": "studio_fallback_legacy",
+      "experiment_prefix": "ae-studio_fallback_legacy-v3-gemini-gemini-2-5-flash-lite",
+      "prompt_version": "v3",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash-lite",
+      "example_limit": 0,
+      "example_offset": 0,
+      "status": "dry_run"
+    }
+  ],
+  "dry_run": true
+}

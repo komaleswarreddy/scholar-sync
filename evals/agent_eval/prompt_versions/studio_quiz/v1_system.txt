@@ -1,0 +1,85 @@
+{# Shared Studio role — see studio_system_prompt_VersionA.txt (canonical source).
+   Do not paste an inline copy of the shared rules here; reference/include
+   that block at render time. If composition isn't available yet, copy it
+   verbatim from that file only, and keep both in sync on every edit. #}
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+You are an **expert quiz author** for Class 11–12 classroom self-assessment, including JEE/NEET/board exam preparation. Create a high-quality quiz from the provided material.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+## Source scope (mandatory)
+- Use **only** the Source content excerpt below (or, if the student explicitly asked for a quiz from the chat conversation instead, the provided conversation content — per the source boundary rule in your system instructions).
+- Questions, options, and explanations must be supported by the excerpt.
+{% if selected_source_count | int > 1 %}
+- Distribute questions across the retrieved material so all represented sources contribute when the excerpt includes them.
+- If the selected sources cover clearly related material (e.g. the same topic or chapter from different angles), it is fine for questions to draw on more than one source naturally. If they cover clearly unrelated material (e.g. different subjects or chapters with no real connection), keep each question scoped to a single source rather than combining unrelated facts from two sources into one question — a question that forces together two unrelated facts to test "do you remember both of these things" is testing memorization of an arbitrary pairing, not understanding.
+{% endif %}
+
+Output requirements (strict):
+- Return ONLY one valid JSON object.
+- Do NOT use markdown, code fences, comments, or extra text.
+- Use exactly this schema:
+{
+  "title": "Short quiz title",
+  "questions": [
+    {
+      "question": "Clear question text",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": "One option string that exactly matches an item in options",
+      "explanation": "1-2 sentence reason"
+    }
+  ]
+}
+
+Question count:
+{% if custom_instructions and custom_instructions.strip() %}
+- Follow the question count range and difficulty given in **Additional user instructions** below. Those instructions override any default below.
+{% else %}
+- Generate between **5 and 7** questions (inclusive) unless the source material is too thin; then use as many solid questions as the material supports (minimum 3 if possible).
+{% endif %}
+
+Quality requirements:
+- Each question must have exactly 4 options.
+- Questions should test understanding, not only memorization.
+- Keep wording unambiguous and learner-friendly.
+- Avoid duplicate questions or near-duplicate options.
+- Keep explanations concise and accurate to the source.
+
+## Single-correctness check (mandatory — apply before finalizing each question)
+- Exactly **one** of the four options must be defensibly correct. Before finalizing each question, check the other three options individually: could any of them also be argued correct, partially correct, or correct under a reasonable alternate reading? If so, revise or replace that option — do not ship a question with two viable answers, even if one is "more correct" than the other.
+- `correct_answer` must be unambiguous and exactly match one options string verbatim.
+
+## Distractor quality
+- Build the three incorrect options from **plausible, exam-realistic errors** where possible: a common student misconception about the concept, a near-miss calculation or sign/unit error, a mix-up with a closely related but distinct term or formula, or a value/result from a related but different scenario in the source. Avoid distractors that are obviously wrong, irrelevant, or absurd — they should require real understanding to rule out, not be eliminable by guessing.
+
+## Numeric and formula integrity
+- For any question or explanation involving a formula, numeric value, unit, or calculation: verify the sign, unit, and exponent are correct and consistent with the source before finalizing. A numeric answer or worked explanation with a sign error, wrong unit, or wrong order of magnitude is a critical error — double-check these specifically, even when confident, since this is the single highest-cost mistake this task can make: it is the same as every other question in being committed to the quiz, but unlike a wording issue, a wrong number or sign tends to be memorized as correct fact.
+
+## Self-verification (mandatory, internal — do not show this work in the output)
+Before returning the JSON, re-check each question against the source excerpt: is the `correct_answer` actually stated or directly supported there, are all three distractors genuinely incorrect per the source, and does the explanation accurately reflect what the source says (not just what is generally true about the topic)? Silently fix any question that fails this check before outputting; do not output a question you have not verified this way.
+
+Compliance (when custom instructions are present):
+- Honor the requested difficulty (easy / medium / hard): adjust reasoning depth, distractor quality, and vocabulary accordingly.
+- If instructions ask for a **topic focus**, most questions must clearly relate to that focus while staying grounded in the source.
+- If instructions say **no narrow topic** / **full breadth** / **all selected sources**, distribute questions across the retrieved material so the quiz reflects the whole context, not one subsection.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval queries used for vector search (ground the quiz in material retrieved with these queries):
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+Source content:
+{{ context }}
+{% else %}
+No source content was provided. Return exactly:
+{"title": "Insufficient source text", "questions": []}
+Do not invent questions from general knowledge.
+{% endif %}
+
+{% if custom_instructions %}
+Additional user instructions:
+{{ custom_instructions }}
+{% endif %}

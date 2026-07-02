@@ -1,0 +1,14 @@
+{
+  "_comment": "All LangSmith workspace API keys ever used for the agent matrix. The exporter resolves each key's tenant automatically, so new keys only need to be appended here (or passed in .env). Reads never consume trace quota.",
+  "keys": [
+    "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",
+    "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",
+    "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",
+    "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",
+    "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",
+    "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",
+    "lsv2_pt_b249dc1f6bd24285b688fd383eee860_c99c350e92",
+    "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",
+    "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"
+  ]
+}

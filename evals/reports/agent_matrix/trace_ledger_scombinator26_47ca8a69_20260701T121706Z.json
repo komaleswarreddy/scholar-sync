@@ -1,0 +1,21 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 176,
+  "experiments": [
+    {
+      "agent_id": "studio_quiz",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_quiz-v1-gemini-gemini-2-5-flash-791e093f",
+      "measured_traces": 176,
+      "estimated_traces": 176,
+      "charged_traces": 176,
+      "at": "2026-07-01T12:16:49.224468+00:00"
+    }
+  ],
+  "workspace_tenant": "emaildam3_aafff4b5",
+  "note": "Fresh ledger after switching workspace (emaildam3_aafff4b5)",
+  "updated_at": "2026-07-01T12:16:49.225460+00:00"
+}

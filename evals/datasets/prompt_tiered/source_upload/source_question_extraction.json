@@ -1,12 +1,12 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "source_question_extraction",
   "agent": {
     "sno": 25,
     "category": "Source Upload",
     "name": "Source Question Extraction Agent",
     "tier": "tier_1",
-    "target_examples": 30,
+    "target_examples": 28,
     "prompt_template": "You are an expert at parsing exam and homework question papers.\n\nGiven the raw text extracted from a PDF or image, identify every distinct question the student is expected to solve.\n\nReturn **only** valid JSON with this shape:\n{\n  \"sections\": [\n    {\n      \"label\": \"Section A\",\n      \"questions\": [\n        {\n          \"number\": 1,\n          \"preview\": \"Short 1-2 line preview (max 120 chars)\",\n          \"fullText\": \"Complete question text including sub-parts\",\n          \"pageHint\": null,\n          \"confidence\": \"high\"\n        }\n      ]\n    }\n  ]\n}\n\nRules:\n- Include every numbered question you can find; do not invent questions.\n- `preview` must be at most 120 characters.\n- `fullText` must contain the full wording needed to solve the problem.\n- Use `confidence: \"low\"` when numbering or boundaries are uncertain.\n- If there are no section headers, use a single section with `\"label\": null`.\n- Ignore answer keys, instructions-only pages, and headers/footers.\n- Preserve math notation as plain text or LaTeX when present.\n\nDocument text:\n{{ document_text }}"
   },
   "langsmith": {
@@ -22,24 +22,33 @@
     {
       "id": "source_question_extraction-001",
       "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
       "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n"
+        "document_text": "Mathematics Board Testing Question Bank\n3\nQ18. Find the vector equation of a line passing through the origin and perpendicular to both the\nlines r = 2i - j + 2k + λ(3i + 4j + 2k) and r = μ(i - j + k).\nQ19. Vectors a = 3i - 2j + 2k and b = i + 2k represent the two adjacent sides of a\nparallelogram. Find the vectors representing its diagonals and hence find their lengths.\nQ20. The area of the circle is increasing at a uniform rate of 2 cm²/sec. How fast is the\ncircumference of the circle increasin"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 18,
+                  "preview": "Find the vector equation of a line through the origin.",
+                  "fullText": "Find the vector equation of a line passing through the origin and perpendicular to both the lines r = 2i - j + 2k + λ(3i + 4j + 2k) and r = μ(i - j + k).",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 19,
+                  "preview": "Find vectors representing diagonals of a parallelogram.",
+                  "fullText": "Vectors a = 3i - 2j + 2k and b = i + 2k represent the two adjacent sides of a parallelogram. Find the vectors representing its diagonals and hence find their lengths.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 20,
+                  "preview": "How fast is the circumference of the circle increasing?",
+                  "fullText": "The area of the circle is increasing at a uniform rate of 2 cm²/sec. How fast is the circumference of the circle increasing?",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -48,508 +57,140 @@
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "mcq_section",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-002",
       "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
       "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n"
+        "document_text": "Mathematics Board Testing Question Bank\n2\nQ8. The common region determined by all the constraints of a linear programming problem is\ncalled:\n(A) an unbounded region\n(B) an optimal region\n(C) a bounded region\n(D) a feasible region\nQ9. If A = [ -1 0 0 ; 0 1 0 ; 0 0 1 ], then A⁻¹ is:\n(A) [ -1 0 0 ; 0 -1 0 ; 0 0 -1 ]\n(B) [ 1 0 0 ; 0 -1 0 ; 0 0 -1 ]\n(C) [ -1 0 0 ; 0 -1 0 ; 0 0 1 ]\n(D) [ -1 0 0 ; 0 1 0 ; 0 0 1 ]\nQ10. If d/dx (f(x)) = log x, then f(x) equals:\n(A) -1/x + C\n(B) x(log x - 1) + C\n(C) x(log"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 8,
+                  "preview": "Identify the common region in linear programming.",
+                  "fullText": "The common region determined by all the constraints of a linear programming problem is called:\n(A) an unbounded region\n(B) an optimal region\n(C) a bounded region\n(D) a feasible region",
                   "pageHint": null,
                   "confidence": "high"
+                },
+                {
+                  "number": 9,
+                  "preview": "Find the inverse of matrix A.",
+                  "fullText": "If A = [ -1 0 0 ; 0 1 0 ; 0 0 1 ], then A⁻¹ is:\n(A) [ -1 0 0 ; 0 -1 0 ; 0 0 -1 ]\n(B) [ 1 0 0 ; 0 -1 0 ; 0 0 -1 ]\n(C) [ -1 0 0 ; 0 -1 0 ; 0 0 1 ]\n(D) [ -1 0 0 ; 0 1 0 ; 0 0 1 ]",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 10,
+                  "preview": "Determine the function f(x) given its derivative.",
+                  "fullText": "If d/dx (f(x)) = log x, then f(x) equals:\n(A) -1/x + C\n(B) x(log x - 1) + C\n(C) x(log",
+                  "pageHint": null,
+                  "confidence": "low"
                 }
               ]
             }
           ]
         }
       },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-003",
-      "variation": "numerical",
       "tags": [
         "cbse",
-        "science",
-        "jee"
+        "source_upload",
+        "mcq_section",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n"
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-004",
       "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
       "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 3."
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 6\nSECTION B — Very Short Answer Questions (VSAQs)\nEach question carries 2 marks. Answer briefly.\nQ17. (a) Define humoral immune response.\n(b) Name any two types of antibodies found to give humoral immune response in\nhumans.\nQ18. (a) (i) How does a farmer use dormancy of seed to his advantage?\n(ii) Differentiate between pea seed and castor seed.\nOR\n(b) Identify the stage of follicle where primary oocyte undergoes first meiotic division.\nAlso men"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": "Section B",
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 17,
+                  "preview": "Define humoral immune response and name two types of antibodies.",
+                  "fullText": "(a) Define humoral immune response.\n(b) Name any two types of antibodies found to give humoral immune response in humans.",
                   "pageHint": null,
                   "confidence": "high"
+                },
+                {
+                  "number": 18,
+                  "preview": "Discuss seed dormancy and differentiate between two seed types.",
+                  "fullText": "(a) (i) How does a farmer use dormancy of seed to his advantage?\n(ii) Differentiate between pea seed and castor seed.\nOR\n(b) Identify the stage of follicle where primary oocyte undergoes first meiotic division.",
+                  "pageHint": null,
+                  "confidence": "low"
                 }
               ]
             }
           ]
         }
       },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-005",
-      "variation": "mcq_section",
       "tags": [
         "cbse",
-        "science",
-        "neet"
+        "source_upload",
+        "mcq_section",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 4."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
       "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-006",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "jee"
-      ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 5."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-007",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 6."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-008",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 7."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-009",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "jee"
-      ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 8."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-010",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 9."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-011",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 10."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-012",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "jee"
-      ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 11."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-013",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 12."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-014",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 13."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-015",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "jee"
-      ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 14."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-016",
       "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
       "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 15."
+        "document_text": "Q35.\nTwo closed vessels of same volume are joined through a narrow tube and both vessels are filled with air of pressure\n kPa and temperature \n K. Keeping the temperature of one vessel constant at \n K the second vessel\ntemperature is raised to \n K. The final pressure in the vessels is _______ kPa.\n(1)\n(2)\n(3)\n(4)\nQ36.\nIn interference experiment the path difference between two interfering waves at a point  on the screen is \n,\nwhere  is the wavelength of these waves, and at another point  the path"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 63,
+                  "preview": "Determine the oxidation state of chromium in a reaction.",
+                  "fullText": "The oxidation state of chromium in the final product formed in the reaction between KI and acidified K2Cr2O7 solution is: 1. +3 2. +6 3. +2 4. +4",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 64,
+                  "preview": "Identify the correct statement for generating a positive cell potential.",
+                  "fullText": "Consider the above electrochemical cell where a metal electrode (M) is undergoing redox reaction by forming M^+ (M → M^+ + e^−). The cation M^+ is present in two different concentrations c1 and c2 as shown above. Which of the following statement is correct for generating a positive cell potential?",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -558,32 +199,36 @@
           ]
         }
       },
+      "tags": [
+        "jee",
+        "source_upload",
+        "mcq_section",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-017",
       "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
       "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 16."
+        "document_text": "Q48.\nThe energy released when \n kg of \n is converted into \n by proton bombardment is \n eV. The value\nof  is _______. (Nearest integer) (Mass of \n u, mass of \n u, mass of proton \n u and\n u \n MeV/c  and Avogadro number \n)\nQ49.\nA three coulomb charge moves from the point \n to the point \n in an electric field expressed as\n N/C. The work done in moving the charge is _______ J.\nQ50.\nA certain gas is isothermally compressed to \n of its initial volume (\n litre) by applying required\npressure. If the bulk"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 51,
+                  "preview": "Evaluate the truth of two chemical synthesis statements.",
+                  "fullText": "Given below are two statements: Statement I: NH₂ CH₃ Cl C₂H₅ can be synthesized from using simpler reagents in the order i) Acidic KMnO₄, ii) Ammonia, iii) Bromine and alkali. Statement II: C₆H₅ Br can be converted into using reagents in the order i) Bromine-H₂O ii) NaNO₂/HCl (0 - 5 °C) iii) Aq. H₃PO₂. In the light of the above statements, choose the correct answer from the options given below 1. Statement I is false but Statement II is true 2. Both Statement I",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -592,66 +237,36 @@
           ]
         }
       },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-018",
-      "variation": "numerical",
       "tags": [
-        "cbse",
-        "science",
-        "jee"
+        "jee",
+        "source_upload",
+        "mcq_section",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 17."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-019",
       "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
       "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 18."
+        "document_text": "Q8.\nWhich micronutrient is required for splitting of water molecule during photosynthesis?\na. copper\nb. manganese\nc. molybdenum\nd. magnesium\nQ9.\nA pink flowered Snapdragon plant was crossed with a red flowered Snapdragon plant. What type of\nphenotype/s is/are expected in the progeny?\n(1) Only pink flowered plants\n(2) Red, Pink as well as white flowered plants\n(3) Only red flowered plants\n(4) Red flowered as well as pink flowered plants\nQ10.\nThe process of appearance of recombination nodules occu"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 80,
+                  "preview": "Evaluate the correctness of two statements about cleistogamous flowers.",
+                  "fullText": "Given below are two statements: Statement I: Cleistogamous flowers are invariably autogamous. Statement II: Cleistogamy is disadvantageous as there is no chance for cross pollination. In the light of the above statements, choose the correct answer from the options given below. A. Statement I is incorrect but Statement II is correct B. Both Statement I and Statement II are correct C. Both Statement I and Statement II are incorrect D. Statement I is correct but Statement II is incorrect",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -660,32 +275,192 @@
           ]
         }
       },
+      "tags": [
+        "neet",
+        "source_upload",
+        "mcq_section",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-003",
+      "variation": "numerical",
+      "inputs": {
+        "document_text": "Mathematics Board Testing Question Bank\n4\nEach question carries 5 marks. Comprehensive working, equations, diagrams and derivations may be\nrequired.\nQ37. If x = 3 sin t - sin 3t, y = 3 cos t - cos 3t, find dy/dx and prove that d²y/dx² = -(cosec³ 2t ·\ncosec t)/3.\nQ38. Prove that the line through points A(0, -1, -1) and B(4, 5, 1) intersects the line through\npoints C(3, 9, 4) and D(-4, 4, 4). Hence, write the equation of line passing through the point of\nintersection of lines AB and CD as well as"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 37,
+                  "preview": "Find dy/dx and prove d²y/dx² = -(cosec³ 2t · cosec t)/3.",
+                  "fullText": "If x = 3 sin t - sin 3t, y = 3 cos t - cos 3t, find dy/dx and prove that d²y/dx² = -(cosec³ 2t · cosec t)/3.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 38,
+                  "preview": "Prove intersection of lines through points A and B with C and D.",
+                  "fullText": "Prove that the line through points A(0, -1, -1) and B(4, 5, 1) intersects the line through points C(3, 9, 4) and D(-4, 4, 4). Hence, write the equation of line passing through the point of intersection of lines AB and CD.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "numerical",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-005",
+      "variation": "numerical",
+      "inputs": {
+        "document_text": "SECTION C — Short Answer Questions (SAQs)  \nEach question carries 3 marks. Answer with the necessary details.  \n\nQ27. Explain the mode of action of contraceptive pills taken by human females. Mention the schedule to be followed for effective outcome.  \n\nQ28. (a) What are transgenic animals?  \n(b) Name the first transgenic cow and state its importance.  \nOR  \n(a) Explain the convention for naming EcoRI.  \n(b) With the help of an illustration only, show the action of EcoRI on a DNA polynucleotide."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section C",
+              "questions": [
+                {
+                  "number": 27,
+                  "preview": "Explain the mode of action of contraceptive pills.",
+                  "fullText": "Explain the mode of action of contraceptive pills taken by human females. Mention the schedule to be followed for effective outcome.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 28,
+                  "preview": "What are transgenic animals? Name the first transgenic cow.",
+                  "fullText": "(a) What are transgenic animals? (b) Name the first transgenic cow and state its importance. OR (a) Explain the convention for naming EcoRI. (b) With the help of an illustration only, show the action of EcoRI on a DNA polynucleotide.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "numerical",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-018",
+      "variation": "numerical",
+      "inputs": {
+        "document_text": "Q1.\nRead the following statements and choose the set\nof correct statements.\nIn the members of Phaeophyceae.\nA. Asexual reproduction occurs usually by\nbiflagellate zoospores.\nB. Sexual reproduction is by oogamous method\nonly.\nC. Stored food is in the form of carbohydrates\nwhich is either mannitol or laminarin\nD. The major pigments found are chlorophyll a,\nc and carotenoids and xanthophyll.\nE.\nVegetative cells have a cellulosic wall, usually covered on the outside by gelatinous coating of algin.\nC"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 69,
+                  "preview": "Identify the CORRECT set of details from the following.",
+                  "fullText": "Identify the CORRECT set of details from the following: A. [Co(NH₃)₆]³⁺ : Inner orbital complex; d²sp³ hybridized B. [MnCl₆]³⁻ : Outer orbital complex; sp³d² hybridized C. [CoF₆]³⁻ : Outer orbital complex; d²sp³ hybridized D. [FeF₆]³⁻ : Outer orbital complex; sp³d² hybridized E. [Ni(CN)₄]²⁻ : Inner orbital complex; sp³ hybridized Choose the correct answer from the options given below: 1. A, B, C, D & E 2. C & D Only 3. A, B & D Only 4. A, C & E Only",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 70,
+                  "preview": "Given below",
+                  "fullText": "Given below",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "neet",
+        "source_upload",
+        "numerical",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-020",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 19."
+        "document_text": "Q13.\nThe DNA present in chloroplast is:\n(1) Linear, single stranded\n(2) Circular, single stranded\n(3) Linear, double stranded\n(4) Circular, double stranded\nQ14.\nWhich of the following are required for the dark reaction of photosynthesis?\nA. Light\nB. Chlorophyll\nC. CO2\nD. ATP\nE. NADPH\nChoose the correct answer from the options given\nbelow:\n(1) C, D and E only\n(2) D and E only\n(3) A, B and C only\n(4) B, C and D only\nQ15.\nIdentify the incorrect statement related to Pollination:\nA. Moths and butterf"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
                   "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "preview": "Name conventional diagnosis methods and their disadvantages.",
+                  "fullText": "(b) “Early and accurate diagnosis of diseases is vital in medical technology.” (i) Name the conventional methods of diagnosis and their disadvantages.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 2,
+                  "preview": "Identify three diagnostic techniques from Biotechnology.",
+                  "fullText": "(ii) Which three diagnostic techniques have been developed through Biotechnology? Explain how each one helps in detecting diseases.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 3,
+                  "preview": "Explain the process of double fertilisation in flowering plants.",
+                  "fullText": "Q42. (a) (i) Explain how double fertilisation takes place in a flowering plant.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 4,
+                  "preview": "Discuss the fate of products of double fertilisation.",
+                  "fullText": "(ii) Write the fate of the products of double fertilization in these plants.",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -694,32 +469,43 @@
           ]
         }
       },
+      "tags": [
+        "neet",
+        "source_upload",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
-      "id": "source_question_extraction-021",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "jee"
-      ],
+      "id": "source_question_extraction-006",
+      "variation": "assertion_reason",
       "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 20."
+        "document_text": "Q14.\nAssertion (A): Ideal plane and convex mirror systems cannot produce real focus images under any practical\ncircumscribed experimental setup conditions.\nReason (R): A virtual image structure generated by a primary optics component can never serve as a valid\nvirtual object to produce a real image output from a secondary boundary element.\nQ15.\nAssertion (A): When a structural bar made of pure copper is placed inside an external magnetic field region,\nthe field flux lines get strongly concentrat"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 14,
+                  "preview": "Discuss the validity of ideal mirrors producing real focus images.",
+                  "fullText": "Assertion (A): Ideal plane and convex mirror systems cannot produce real focus images under any practical circumscribed experimental setup conditions. Reason (R): A virtual image structure generated by a primary optics component can never serve as a valid virtual object to produce a real image output from a secondary boundary element.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 15,
+                  "preview": "Explain the effect of magnetic fields on copper structural bars.",
+                  "fullText": "Assertion (A): When a structural bar made of pure copper is placed inside an external magnetic field region, the field flux lines get strongly concentrated.",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -728,32 +514,102 @@
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "assertion_reason",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-022",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_section",
       "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 21."
+        "document_text": "Q63.\nInhibition of Succinic dehydrogenase enzyme by malonate is a classical example of:\n(1) Competitive inhibition\n(2) Enzyme activation\n(3) Cofactor inhibition\n(4) Feedback inhibition\nQ64.\nAuxin is used by gardeners to prepare weed free lawns. But no damage is caused to grass as auxin;\n(1) does not affect mature monocotyledonous\nplants.\n(2) can help in cell division in grasses, to produce\ngrowth.\n(3) promotes apical dominance.\n(4) promotes abscission of mature leaves only.\nQ65.\nIdentify the set"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 21,
+                  "preview": "Let satisfy for some. Then is equal to _______",
+                  "fullText": "Let satisfy for some. Then is equal to _______",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 22,
+                  "preview": "Let the centre of the circle be in the first quadrant and lie on the line.",
+                  "fullText": "Let the centre of the circle be in the first quadrant and lie on the line. Let the area of an equilateral triangle inscribed in the circle be. Then the square of the length of the chord of the circle on the line is _______.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 23,
+                  "preview": "If , and be three vectors such that and, then is equal to _______.",
+                  "fullText": "If , and be three vectors such that and, then is equal to _______.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 24,
+                  "preview": "For the functions , and , let. If the first term of a G.P. is ,",
+                  "fullText": "For the functions , and , let. If the first term of a G.P. is , its common ratio is and the sum of its first",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "neet",
+        "source_upload",
+        "multi_section",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-007",
+      "variation": "footer_noise",
+      "inputs": {
+        "document_text": "Q22. The ground state energy of a hydrogen atom is given as -13.6 eV. Calculate the precise potential energy\nvalue and kinetic energy value of the bound electron when the atom is excited to its third excited state\nconfiguration.\nQ23. A conducting wire of fixed total length L is bent sequentially into: (i) a square coil containing N total\nturns, and (ii) a circular coil containing N total turns. The coil structure in both experimental cases is free to\npivot about a vertical axis coinciding with i\nFooter scan artifact line — ignore — page 7"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 22,
+                  "preview": "Calculate potential and kinetic energy of a hydrogen atom's electron.",
+                  "fullText": "The ground state energy of a hydrogen atom is given as -13.6 eV. Calculate the precise potential energy value and kinetic energy value of the bound electron when the atom is excited to its third excited state configuration.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 23,
+                  "preview": "Analyze a conducting wire bent into square and circular coils.",
+                  "fullText": "A conducting wire of fixed total length L is bent sequentially into: (i) a square coil containing N total turns, and (ii) a circular coil containing N total turns. The coil structure in both experimental cases is free to pivot about a vertical axis coinciding with i.",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -762,191 +618,416 @@
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "footer_noise",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-008",
+      "variation": "footer_noise",
+      "inputs": {
+        "document_text": "Mathematics Board Testing Question Bank\n1\nMATHEMATICS TESTING QUESTION BANK\nClass XII - Question Compendium\nSECTION A: MULTIPLE CHOICE QUESTIONS (MCQS)\nEach question carries 1 mark. Select the most appropriate option from the choices given below.\nQ1. If |a| = 8, |b| = 3 and |a × b| = 12, then the value of |a · b| is:\n(A) 6√3\n(B) 8√3\n(C) 12√3\n(D) 3√12\nQ2. If a square matrix A is such that A² = A and (I - A)³ = xA + I, then value of x must be:\n(A) 7\n(B) 5\n(C) -7\n(D) -1\nQ3. The Cartesian equation o"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section E",
+              "questions": [
+                {
+                  "number": 47,
+                  "preview": "Describe the electric field in a parallel plate capacitor.",
+                  "fullText": "Q47. Passage: A parallel plate capacitor has two parallel plates which are separated by an insulating medium like air, mica, etc. When the plates are connected to the terminals of a battery, they get equal and opposite charges and an electric field is set up in between them. This electric field between the two plates depends upon the potential.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "footer_noise",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-014",
+      "variation": "footer_noise",
+      "inputs": {
+        "document_text": "Q9. A galvanometer of resistance G is converted into an ammeter of range 0 to I A. If the current through the\ngalvanometer is 0.1% of I A, the total combined resistance of the ammeter circuit configuration is:\n(A) G / 999 Ω\n(B) G / 1000 Ω\n(C) G / 1001 Ω\n(D) G / 100.1 Ω\nQ10. A charged particle gains a speed of 106 m/s when accelerated from rest through a potential difference of\n10 kV. It enters a region of a uniform magnetic field of 0.4 T such that its velocity vector is perpendicular to the\nmag\nFooter scan artifact line — ignore — page 14"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section A",
+              "questions": [
+                {
+                  "number": 11,
+                  "preview": "Assertion about melanized moths and industrial areas.",
+                  "fullText": "Assertion (A): The population of melanized moths increased in industrial areas after Industrial Revolution. Reason (R): In industrial environments...",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "footer_noise",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-021",
+      "variation": "footer_noise",
+      "inputs": {
+        "document_text": "D. Bark refers to periderm and secondary phloem.\nE. Phellogen is single-layered in thickness. Choose the\ncorrect answer from the options given below:\na. B and C only\nb. B. C and E only\nc. A and D only\nd. A, B and D only\nQ43.\nGiven below are two Statements:\nStatement I : Chromosomes become gradually visible\nunder light microscope during leptotene stage.\nStatement II: The beginning of diplotene stage is\nrecognized by dissolution of synaptonemal complex.\nIn the light of the above statements, choose\nFooter scan artifact line — ignore — page 21"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 9,
+                  "preview": "Find the total combined resistance of an ammeter circuit configuration.",
+                  "fullText": "A galvanometer of resistance G is converted into an ammeter of range 0 to I A. If the current through the galvanometer is 0.1% of I A, the total combined resistance of the ammeter circuit configuration is:",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 10,
+                  "preview": "Determine the behavior of a charged particle in a magnetic field.",
+                  "fullText": "A charged particle gains a speed of 10^6 m/s when accelerated from rest through a potential difference of 10 kV. It enters a region of a uniform magnetic field of 0.4 T such that its velocity vector is perpendicular to the mag",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "neet",
+        "source_upload",
+        "footer_noise",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-023",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
+      "variation": "footer_noise",
       "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 22."
+        "document_text": "d. bat pollinated plants\nQ86.\nGiven below are two statements:\nStatement I: Gause’s ‘Competitive Exclusive Principle’\nstates that two closely related species competing for the same related species competing for the same\nresources cannot co-exist indefinitely and competitively inferior one will be eliminated eventually.\nStatement II: In general, carnivores are more adversely\naffected by competition than herbivores.\nIn the light of the above statements, choose the correct answer from the options gi"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 48,
+                  "preview": "Calculate the value of mass from energy released by proton bombardment.",
+                  "fullText": "The energy released when kg of is converted into by proton bombardment is eV. The value of is _______. (Nearest integer) (Mass of u, mass of u, mass of proton u and u MeV/c and Avogadro number)",
                   "pageHint": null,
                   "confidence": "high"
+                },
+                {
+                  "number": 49,
+                  "preview": "Determine the work done in moving a charge in an electric field.",
+                  "fullText": "A three coulomb charge moves from the point to the point in an electric field expressed as N/C. The work done in moving the charge is _______ J.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 50,
+                  "preview": "Find the pressure needed to compress a gas isothermally.",
+                  "fullText": "A certain gas is isothermally compressed to of its initial volume ( litre) by applying required pressure. If the bulk",
+                  "pageHint": null,
+                  "confidence": "low"
                 }
               ]
             }
           ]
         }
       },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-024",
-      "variation": "numerical",
       "tags": [
-        "cbse",
-        "science",
-        "jee"
+        "neet",
+        "source_upload",
+        "footer_noise",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 23."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
       "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-025",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
-      "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 24."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-026",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
-      "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 25."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
-      ]
-    },
-    {
-      "id": "source_question_extraction-027",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "jee"
-      ],
-      "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 26."
-      },
-      "reference_outputs": {
-        "sections_json": {
-          "sections": [
-            {
-              "label": "Section A",
-              "questions": [
-                {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
-                  "pageHint": null,
-                  "confidence": "high"
-                }
-              ]
-            }
-          ]
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-028",
-      "variation": "mcq_section",
+      "variation": "footer_noise",
+      "inputs": {
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 2\nSECTION A — MCQs\nEach question carries 1 mark. Select the most appropriate option.\nQ1. Identify the plant in which emasculation is not required for artificial hybridization.\n(A) Rice\n(B) Wheat\n(C) Pea\n(D) Papaya\nQ2. Which of the following is not a functional unit of an ecosystem?\n(A) Energy flow\n(B) Decomposition\n(C) Stratification\n(D) Productivity\nQ3. Identify the statements that correctly describe Darwin’s Theory of Evolution.\n(i) Overprodu\nFooter scan artifact line — ignore — page 28"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 63,
+                  "preview": "Inhibition of Succinic dehydrogenase enzyme by malonate.",
+                  "fullText": "Inhibition of Succinic dehydrogenase enzyme by malonate is a classical example of: (1) Competitive inhibition (2) Enzyme activation (3) Cofactor inhibition (4) Feedback inhibition",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 64,
+                  "preview": "Auxin is used by gardeners to prepare weed free lawns.",
+                  "fullText": "Auxin is used by gardeners to prepare weed free lawns. But no damage is caused to grass as auxin; (1) does not affect mature monocotyledonous plants. (2) can help in cell division in grasses, to produce growth. (3) promotes apical dominance. (4) promotes abscission of mature leaves only.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 65,
+                  "preview": "Identify the set.",
+                  "fullText": "Identify the set",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
       "tags": [
         "cbse",
-        "science",
-        "cbse"
+        "source_upload",
+        "footer_noise",
+        "production_llm_gold"
       ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-009",
+      "variation": "neet",
       "inputs": {
-        "document_text": "CBSE Class 10 Science\nSection A (1 mark each)\n1. Define Ohm's law.\n2. Name the enzyme in saliva.\nSection B\n3. (a) Draw ray diagram for convex lens.\n\nFooter scan line 27."
+        "document_text": "Q30. An alternating voltage source represented by V = V0 sin ωt is applied across an ideal inductor possessing\nself-inductance L. Derive the mathematical expression for the instantaneous current flowing through the circuit.\nProve analytically that the current wave lags behind the voltage wave by a phase angle of π / 2 radians, and\nconstruct the corresponding vector phasor diagram layout.\nQ31. Define the terms 'work function' and 'stopping potential' within the context of photoelectric emission\np"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 49,
+                  "preview": "Explain the photoelectric effect based on Planck's theory.",
+                  "fullText": "Passage: Einstein explained the photoelectric effect on the basis of Planck's quantum theory, where light travels in the form of small bundles of energy called photons. The energy of each photon is given by hν, where ν is the frequency of incident light and h is Planck's constant. The number of photons in a beam of light determines the intensity of the incident light. A photon incident on a metal surface transfers its total energy to a free electron in the metal. A part of this energy is u",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "neet",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-024",
+      "variation": "neet",
+      "inputs": {
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 10\nSECTION E — Long Answer Questions (LAQs)\nEach question carries 5 marks. Answer with detailed explanation wherever required.\nQ37. Trace the events from fertilization till implantation of blastocyst in human female.\nAlso mention the site where fertilization takes place.\nQ38. (a) (i) Watson and Crick’s discovery of double helical structure was based on\nwhich two findings. Also mention the names of the scientists associated with these\nfindings."
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 1,
+                  "preview": "Choose the correct statements about Phaeophyceae.",
+                  "fullText": "Read the following statements and choose the set of correct statements. In the members of Phaeophyceae. A. Asexual reproduction occurs usually by biflagellate zoospores. B. Sexual reproduction is by oogamous method only. C. Stored food is in the form of carbohydrates which is either mannitol or laminarin D. The major pigments found are chlorophyll a, c and carotenoids and xanthophyll. E. Vegetative cells have a cellulosic wall, usually covered on the outside by gelatinous coating of algin.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "neet",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-010",
+      "variation": "jee",
+      "inputs": {
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 5\nSECTION A — Assertion–Reasoning\nEach question carries 1 mark. For each question choose the correct option: (A) Both A and R\nare true and R is the correct explanation of A. (B) Both A and R are true but R is not the\ncorrect explanation of A. (C) A is true but R is false. (D) A is false but R is true.\nQ11. Assertion (A): The population of melanized moths increased in industrial areas\nafter Industrial Revolution.\nReason (R): In industrial enviro"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 51,
+                  "preview": "Explain how a galvanometer works and its components.",
+                  "fullText": "Passage: A galvanometer is an instrument used to show the direction and strength of the current passing through it. It essentially works on the fact that a current-carrying coil experiences a deflecting torque when placed in a magnetic field. A spring attached to the coil provides a counter torque. In equilibrium, the deflecting torque is balanced by the restoring torque of the spring: NBAI = kφ. A small resistance, called a shunt, of a suitable value is connected in parallel with the galvanometer.",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "jee",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-025",
+      "variation": "jee",
+      "inputs": {
+        "document_text": "b. M phase\nc. S phase\nd. G1 phase\nQ34.\nHow many molecules of ATP and NADPH are required for every molecule of CO2 fixed in the Calvin cycle?\n(1) 3 molecules of ATP and 3 molecules of\nNADPH\n(2) 3 molecules of ATP and 2 molecules of\nNADPH\n(3) 2 molecules of ATP and 3 molecules of\nNADPH\n(4) 2 molecules of ATP and 2 molecules of\nNADPH\nQ35.\nWhat is the function of tassels in the corn cob?\na. To protect seeds\nb. To attract insects\nc. To trap pollen grains\nd. To disperse pollen grains\nQ36.\nThe lactose"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 8,
+                  "preview": "Which micronutrient is needed for water splitting in photosynthesis?",
+                  "fullText": "Which micronutrient is required for splitting of water molecule during photosynthesis? a. copper b. manganese c. molybdenum d. magnesium",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 9,
+                  "preview": "What phenotypes are expected from crossing pink and red Snapdragon plants?",
+                  "fullText": "A pink flowered Snapdragon plant was crossed with a red flowered Snapdragon plant. What type of phenotype/s is/are expected in the progeny? (1) Only pink flowered plants (2) Red, Pink as well as white flowered plants (3) Only red flowered plants (4) Red flowered as well as pink flowered plants",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 10,
+                  "preview": "Describe the process of appearance of recombination nodules.",
+                  "fullText": "The process of appearance of recombination nodules occurs...",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "neet",
+        "source_upload",
+        "jee",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-011",
+      "variation": "cbse",
+      "inputs": {
+        "document_text": "SECTION D: LONG ANSWER QUESTIONS (LAQS)\nEach question carries 5 marks. Comprehensive solutions detailing equations, schematic diagrams, and thorough\nderivations are required.\nQ37. (a)  Generalize  the  mathematical  relation  for  refraction  across  a  single  curved  spherical  interface\nseparating two media of distinct refractive indices. Utilizing this, derive the step-by-step expression for the\nLens Maker's Formula for a thin biconvex lens element.\n(b) Define the optical power parameters of"
       },
       "reference_outputs": {
         "sections_json": {
@@ -956,8 +1037,126 @@
               "questions": [
                 {
                   "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "preview": "If |a| = 8, |b| = 3 and |a × b| = 12, then find |a · b|.",
+                  "fullText": "If |a| = 8, |b| = 3 and |a × b| = 12, then the value of |a · b| is: (A) 6√3 (B) 8√3 (C) 12√3 (D) 3√12",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 2,
+                  "preview": "Find the value of x if A² = A and (I - A)³ = xA + I.",
+                  "fullText": "If a square matrix A is such that A² = A and (I - A)³ = xA + I, then value of x must be: (A) 7 (B) 5 (C) -7 (D) -1",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 3,
+                  "preview": "The Cartesian equation of a line is given.",
+                  "fullText": "The Cartesian equation of a line is given.",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "cbse",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-026",
+      "variation": "cbse",
+      "inputs": {
+        "document_text": "B. Co-extinction\nC. Mutation\nD. Habitat loss and fragmentation\nE.\nMigration\nChoose the correct option:\n(1) A, B and E only\n(2) A, B and D only\n(3) A, C and D only\n(4) A, B, C and D only\nQ68.\nWhich of the following combinations is required for chemiosmosis?\na. proton pump, electron gradient, NADP synthase\nb. membrane, proton pump, proton gradient. ATP synthase\nc. membrane, proton pump, proton gradient, NADP synthase\nd. proton pump, electron gradient, ATP synthase\nQ69.\nA transcription unit in DNA"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 13,
+                  "preview": "The DNA present in chloroplast is: (1) Linear, single stranded...",
+                  "fullText": "The DNA present in chloroplast is: (1) Linear, single stranded (2) Circular, single stranded (3) Linear, double stranded (4) Circular, double stranded",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 14,
+                  "preview": "Which of the following are required for the dark reaction of photosynthesis?",
+                  "fullText": "Which of the following are required for the dark reaction of photosynthesis? A. Light B. Chlorophyll C. CO2 D. ATP E. NADPH Choose the correct answer from the options given below: (1) C, D and E only (2) D and E only (3) A, B and C only (4) B, C and D only",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 15,
+                  "preview": "Identify the incorrect statement related to Pollination:",
+                  "fullText": "Identify the incorrect statement related to Pollination: A. Moths and butterf",
+                  "pageHint": null,
+                  "confidence": "low"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "neet",
+        "source_upload",
+        "cbse",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-013",
+      "variation": "case_study",
+      "inputs": {
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 11\nOR\n(b) “Early and accurate diagnosis of diseases is vital in medical technology.”\n(i) Name the conventional methods of diagnosis and their disadvantages.\n(ii) Which three diagnostic techniques have been developed through Biotechnology?\nExplain how each one helps in detecting diseases.\nQ42. (a) (i) Explain how double fertilisation takes place in a flowering plant.\n(ii) Write the fate of the products of double fertilization in these plants.\nOR"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": null,
+              "questions": [
+                {
+                  "number": 5,
+                  "preview": "Find the sum of all real solutions of a logarithmic equation.",
+                  "fullText": "The sum of all the real solutions of the equation log(x+3)(6x² + 28x + 30) = 5 - 2 log(6x + 10)(x² + 6x + 9) is equal to",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 6,
+                  "preview": "Determine the least value of a trigonometric expression.",
+                  "fullText": "The least value of (cos² θ - 6 sin θ cos θ + 3 sin² θ + 2) is",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 7,
+                  "preview": "Analyze a relation defined on set A with two statements.",
+                  "fullText": "Let A = {0, 1, 2, ..., 9}. Let R be a relation on A defined by (x, y) ∈ R if and only if |x - y| is a multiple of 3. Given below are two statements: Statement I: n(R) = 36. Statement II: R is an equivalence relation.",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -966,32 +1165,36 @@
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "case_study",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-029",
-      "variation": "mcq_section",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
+      "variation": "multi_part",
       "inputs": {
-        "document_text": "NEET Biology Sample\nQ1. Pepsin works at pH (1) 2 (2) 7 (3) 9 (4) 11\nQ2. Villi increase surface area for absorption. True/False?\n\nFooter scan line 28."
+        "document_text": "CBSE Class XII Biology — Testing Question Bank\nPage 3\nQ5. You know that there are twenty different types of naturally occurring amino acids\nand four different types of bases in the DNA. A combination of 3 such bases codes for a\nspecific amino acid. If instead there are 96 different amino acids and 12 different\nbases in the DNA, then the minimum number of combination of bases required to form\na codon is:\n(A) 6\n(B) 8\n(C) 2\n(D) 4\nQ6. The rate of formation of new organic matter by consumers, and the"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": null,
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 86,
+                  "preview": "Evaluate two statements about species competition.",
+                  "fullText": "Given below are two statements: Statement I: Gause’s ‘Competitive Exclusive Principle’ states that two closely related species competing for the same related species competing for the same resources cannot co-exist indefinitely and competitively inferior one will be eliminated eventually. Statement II: In general, carnivores are more adversely affected by competition than herbivores. In the light of the above statements, choose the correct answer from the options given.",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -1000,32 +1203,81 @@
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "multi_part",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "source_question_extraction-015",
+      "variation": "low_confidence",
+      "inputs": {
+        "document_text": "Q21.\nLet \n satisfy \n for some\n. Then \n is equal to _______\nQ22.\nLet the centre of the circle \n be in the first quadrant and lie on the line \n.\nLet the area of an equilateral triangle inscribed in the circle be \n. Then the square of the length of the chord of\nthe circle on the line \n is _______.\nQ23.\nIf \n, \n and  be three vectors such that \n and \n, then \n is equal to\n_______.\nQ24.\nFor the functions \n, and \n, \n, let\n. If the first term of a G.P. is \n, its common ratio is \n and the sum of\nits first"
+      },
+      "reference_outputs": {
+        "sections_json": {
+          "sections": [
+            {
+              "label": "Section D",
+              "questions": [
+                {
+                  "number": 37,
+                  "preview": "Generalize the mathematical relation for refraction across a curved interface.",
+                  "fullText": "(a) Generalize the mathematical relation for refraction across a single curved spherical interface separating two media of distinct refractive indices. Utilizing this, derive the step-by-step expression for the Lens Maker's Formula for a thin biconvex lens element.\n(b) Define the optical power parameters of",
+                  "pageHint": null,
+                  "confidence": "high"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "tags": [
+        "jee",
+        "source_upload",
+        "low_confidence",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     },
     {
       "id": "source_question_extraction-030",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "jee"
-      ],
+      "variation": "low_confidence",
       "inputs": {
-        "document_text": "JEE Main Physics\n1. A wire 2m, R=4Ω, find I if V=12V.\n2. Derive v²=u²+2as.\n\nFooter scan line 29."
+        "document_text": "PHYSICS TESTING QUESTION BANK\nClass XII — Question Compendium\nSECTION A: MULTIPLE CHOICE QUESTIONS (MCQS)\nEach question carries 1 mark. Select the most appropriate option from the choices given below.\nQ1. In a region, the electric field is given by E = 4xî N/C. The potential difference between points A (x = 1 m)\nand B (x = 3 m), (VA - VB), is:\n(A) -16 V\n(B) 16 V\n(C) -8 V\n(D) 8 V\nQ2. In an unbiased p-n junction, at equilibrium, which of the following statements is true?\n(A) Diffusion current is z"
       },
       "reference_outputs": {
         "sections_json": {
           "sections": [
             {
-              "label": "Section A",
+              "label": "Section E",
               "questions": [
                 {
-                  "number": 1,
-                  "preview": "Define Ohm's law",
-                  "fullText": "Define Ohm's law.",
+                  "number": 37,
+                  "preview": "Trace events from fertilization to implantation in humans.",
+                  "fullText": "Trace the events from fertilization till implantation of blastocyst in human female. Also mention the site where fertilization takes place.",
+                  "pageHint": null,
+                  "confidence": "high"
+                },
+                {
+                  "number": 38,
+                  "preview": "Discuss Watson and Crick’s findings on DNA structure.",
+                  "fullText": "(a) (i) Watson and Crick’s discovery of double helical structure was based on which two findings. Also mention the names of the scientists associated with these findings.",
                   "pageHint": null,
                   "confidence": "high"
                 }
@@ -1034,9 +1286,18 @@
           ]
         }
       },
+      "tags": [
+        "cbse",
+        "source_upload",
+        "low_confidence",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "question_count"
+        "question_count",
+        "full_text_complete",
+        "no_hallucination",
+        "confidence_calibration",
+        "production_llm_gold"
       ]
     }
   ]

@@ -1,0 +1,142 @@
+{# Shared Studio role — see studio_system_prompt_VersionA.txt (canonical source).
+   Do not paste an inline copy of the shared rules here; reference/include
+   that block at render time. If composition isn't available yet, copy it
+   verbatim from that file only, and keep both in sync on every edit. #}
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+{# Slide deck: Markdown outline, RAG-grounded, story + show-don't-tell + hierarchy. #}
+
+You are an **expert instructional designer and presentation strategist**. Produce a **slide deck outline in Markdown** that **takes the audience on a journey**: concrete, visual-in-language, properly **hierarchical**, and **not** a Word document pasted into slides.
+
+**Selected sources:** {{ selected_source_count }} document(s).
+
+---
+
+## Output contract (non-negotiable)
+
+- Return **ONLY** valid Markdown. **No** code fences, **no** preamble, **no** postscript, **no** JSON.
+- **One slide = one top-level heading**, numbered, e.g. `# Slide 1: …`, `# Slide 2: …`.
+- Under each heading: **bullet list** for the slide body.
+- If the user requested a **language** in Additional instructions, write the **entire** deck in that language.
+
+### Slide count
+
+- **If the user specified a slide count or range** in Additional instructions, follow it exactly — those instructions override the default below.
+- **Otherwise, target 8–15 slides** (including the required conclusion slide): fewer if the source material is genuinely thin and a shorter deck tells the story without padding; more only if the source is rich and complex enough that fewer slides would force-cram unrelated ideas together. Do not pad toward 15 just to hit a round number, and do not compress a genuinely rich source into too few slides.
+
+### Bullet count per slide (important)
+
+- **Per slide: between 1 and 7 bullet lines** (inclusive). **Never more than 7.**
+- **Do not** use the same count on every slide (e.g. do **not** pad to 4 bullets everywhere). Use **fewer** bullets when one strong idea is enough; use **more** (up to 6–7) only when the slide truly needs that many distinct beats.
+- A **single bullet** may carry a **two-line** thought: either one line ending with `→` or `—` and a short continuation on the next line **indented** as part of the same bullet, **or** a sub-bullet under it. Do not exceed **7 top-level bullet markers** (`-`) per slide.
+
+### Emphasis and hierarchy (Markdown)
+
+- Each slide **title** (heading text) = **short, punchy headline**—the **one** takeaway for that slide, not a chapter label.
+- Inside bullets, wrap **the most important term, number, or contrast** in `**bold**` so hierarchy is obvious (e.g. `**Before:** … / **After:** …`, or `**Insulin** → lowers blood glucose …`).
+- Prefer **breathing room**: shorter bullets, fewer words per line when possible; avoid dense paragraphs disguised as bullets.
+
+---
+
+{% if selected_source_count | int > 1 %}
+## Multi-source synthesis (required)
+The excerpt may combine passages from **{{ selected_source_count }}** different documents. Build **one integrated narrative arc**, not a deck that covers source 1 then separately covers source 2 with no connection.
+- Where the sources relate to the same theme or topic from different angles, weave them together within the same story arc — let one source's content inform the "show with examples" or "contrast" stages even when the core explanation came from another.
+- Where the sources are on genuinely unrelated subjects, do not force an artificial connection between them — instead, treat the deck as covering distinct sections (each still following its own mini version of the story arc), and use one bridging slide or bullet when transitioning between them so the deck doesn't feel like two random topics stapled together.
+- Do not build the entire deck from one source while ignoring another that the excerpt clearly includes; if one source dominates the excerpt length, still give the secondary source's content at least one substantive slide.
+{% endif %}
+
+## A. Story and flow (CRITICAL)
+
+The deck must feel like it **goes somewhere**, not random topics.
+
+Plan **internally** (do not output the plan), then write slides in roughly this **arc** (adapt to source):
+
+1. **Hook / problem / question** — why this matters or what puzzle you are solving (from the source).
+2. **Orient** — minimal framing (avoid a useless "agenda" slide unless it lists **named** sections from **this** material).
+3. **Explain step by step** — core ideas in **sequence** learners can follow.
+4. **Show with examples** — scenarios, "what it looks like", mini case moments grounded in the excerpt.
+5. **Contrast or mechanism** — before/after, how it works, A vs B where the source supports it.
+6. **Conclusion slide (required)** — final slide must be **`# Slide N: …`** with a **conclusion** title and **3–6 bullets** that state **main takeaways**, "so what", and **what to remember** (specific to the source, not generic "thanks").
+
+**Forbidden:** slides that feel **disconnected** with no logical link to the previous slide—when you change topic, **one bridging bullet or title phrase** should signal why.
+
+---
+
+## B. Show, don't tell (CRITICAL)
+
+**Weak (do not write):** "This is important", "There are many types", "This affects performance", "Key concepts include…", empty "Overview" with no substance.
+
+**Strong (prefer):**
+
+- **What it looks like** — observable behavior, structure, or outcome.
+- **How it works** — mechanism in plain steps or cause → effect.
+- **Before vs after** or **X vs Y** when the material allows.
+- **Real examples or scenarios** from the excerpt (or realistic illustrations tied to the text).
+
+People remember **examples** more than definitions—**prioritize** at least several bullets across the deck that are **scenario- or example-forward**.
+
+---
+
+## C. Grounding and evidence
+
+1. **Source content** is the authority (or, if the student explicitly asked for a deck from the chat conversation instead, the provided conversation content — per the source boundary rule in your system instructions). Do not invent statistics or claims not supported by it.
+2. **Retrieval queries** (if listed) describe retrieval intent—stay aligned; do not paste them as slide titles.
+3. If the excerpt is thin, say so briefly on one slide rather than hallucinating.
+4. **Numeric and formula integrity:** for any slide involving a formula, numeric value, unit, or calculation, verify the sign, unit, and exponent are correct and consistent with the source before finalizing — a numeric error on a slide is shown to the whole audience and is as costly as a wrong fact anywhere else in this system.
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+### Retrieval queries used for vector search
+{{ retrieval_queries_note }}
+
+{% endif %}
+{% if context and context.strip() %}
+### Source content (retrieved excerpts)
+{{ context }}
+{% else %}
+### Source content
+No source excerpt was provided. Output a single slide stating this: `# Slide 1: Insufficient source text` with 1–2 bullets noting that no indexed excerpt was retrieved for the selected sources, and that the student should re-index or reselect sources and try again. Do not produce a generic outline on an invented topic — there is no general-knowledge fallback for this task.
+{% endif %}
+
+---
+
+## D. Engagement
+
+Include **at least two** moments across the deck (as bullets or a short slide), grounded in the source:
+
+- A **"why" or prediction question** ("Why does …?", "What would happen if …?")
+- A **comparison** or **what-if** tied to the material
+
+---
+
+## E. Slides vs Word documents
+
+**Rule:** If a slide is only long prose that could live unchanged in a Word doc with no structure, **rewrite** it into **headline + scannable bullets** with **bold** anchors and **concrete** show-don't-tell content. Slides help people **see** relationships and priorities, not read walls of text.
+
+---
+
+## Additional user instructions
+
+Apply **all** of the following; they override defaults where they conflict.
+
+{% if custom_instructions %}
+{{ custom_instructions }}
+{% else %}
+(No additional user instructions.)
+{% endif %}
+
+---
+
+## Pre-output checklist (silent)
+
+- Slide count: follows user-specified range if given; otherwise within the 8–15 default (or a single status slide if no source excerpt was provided).
+- **Every** slide: **1–7** bullets, **not** a fixed count per slide.
+- **Last slide** = **conclusion** with substantive takeaways (skip this check only for the no-source single-slide case).
+- Story arc: problem/topic → steps → examples → synthesis.
+- **Show-don't-tell**; **bold** key terms/numbers; headlines short and teaching-focused.
+- If multiple sources were selected: integrated narrative, not source-1-then-source-2 with no connection; no source ignored if the excerpt clearly includes it.
+- Any formula, number, or unit checked against the source for sign/unit/exponent correctness.
+- Output **nothing** except the Markdown deck.
+
+Begin the deck now (Markdown only).

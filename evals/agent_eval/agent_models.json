@@ -1,0 +1,603 @@
+{
+  "source": "config/models.yaml (red Shortlist; DeepSeek replaced per user)",
+  "sheet": "All Different LLM Responses",
+  "row_filter": "Shortlist row (source of truth)",
+  "agents": {
+    "query_rewriter": [
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "query_decomposer": [
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "scope_narrower": [
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "chat_policy_block": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "direct_chat": [
+      {
+        "model": "gpt-5.4-nano",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "rag_chat_response_generator": [
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "chat_summarizer": [
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "hallucination_guard_retry": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "studio_system_json": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "studio_quiz": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "studio_flashcards": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "studio_mind_map": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "studio_slide_deck": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "studio_fallback_legacy": [
+      {
+        "model": "gpt-5.4-nano",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "problem_dna_analyzer": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": true,
+        "skip_reason": "Anthropic monthly usage limit hit — resets 2026-08-01. Set skip_runtime=false after reset.",
+        "configured": true
+      }
+    ],
+    "explain_from_basics": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "show_best_approach": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "show_missing_idea": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "document_sketch": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "ncert_document_sketch": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "chunk_contextualization": [
+      {
+        "model": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-nano",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "whole_file_map_summarizer": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-nano",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "whole_file_reduce": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "help_me_solve_it": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.1-pro",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "problem_solver_followup": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-3.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "tutor_notebook_bootstrap": [
+      {
+        "model": "gpt-5.4",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "claude-sonnet-4-6",
+        "provider": "anthropic",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "tutor_follow_up_questions": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "source_question_extraction": [
+      {
+        "model": "gpt-5.4-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "image_ocr": [
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ],
+    "diagram_label_ocr": [
+      {
+        "model": "gemini-2.5-flash",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gpt-5-mini",
+        "provider": "openai",
+        "skip_runtime": false,
+        "configured": true
+      },
+      {
+        "model": "gemini-2.5-flash-lite",
+        "provider": "gemini",
+        "skip_runtime": false,
+        "configured": true
+      }
+    ]
+  },
+  "runtime_skip": "gemini attempted with fast-skip health check; skipped only if health check fails at runtime"
+}

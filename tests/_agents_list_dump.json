@@ -330,17 +330,6 @@
     "Dataset Link": ""
   },
   {
-    "S.no": "31",
-    "Category": "Source Upload",
-    "Agent": "Whole File Map Template (Unused file)",
-    "Functionality": "Map phase template file",
-    "Simple Description (What is the purpose)": "Jinja template mirroring map prompt; live code uses inline string.",
-    "System Prompt": "You are summarizing parts of a document for a later full-document summary.\nFor each Part below, write EXACTLY ONE concise sentence capturing its main idea.\nNumber your lines Part 1, Part 2, ... matching the order below.\nDo not add an introduction or conclusion.\n\n{{ excerpts }}",
-    "Tier": "Tier 3",
-    "Dataset Details": "5 examples. Unused map template regression only. Use same data type as Whole File Map Summarizer but smaller. Expected: map-style summary consistency if this template becomes active later.",
-    "Dataset Link": ""
-  },
-  {
     "S.no": "32",
     "Category": "Source Upload",
     "Agent": "Image OCR Agent",

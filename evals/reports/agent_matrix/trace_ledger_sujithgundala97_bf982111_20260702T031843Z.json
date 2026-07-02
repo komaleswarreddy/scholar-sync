@@ -1,0 +1,21 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 211,
+  "experiments": [
+    {
+      "agent_id": "explain_from_basics",
+      "prompt_version": "v2",
+      "model": "gemini-3.5-flash",
+      "experiment_name": "ae-explain_from_basics-v2-gemini-gemini-3-5-flash-9edbf78f",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T01:33:25.843101+00:00"
+    }
+  ],
+  "workspace_tenant": "sujithgundala97_bf982111",
+  "note": "Fresh ledger after switching workspace (sujithgundala97_bf982111)",
+  "updated_at": "2026-07-02T01:33:25.844128+00:00"
+}

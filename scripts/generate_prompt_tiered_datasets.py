@@ -22,7 +22,7 @@ AGENTS_DUMP = ROOT / "tests" / "_agents_list_dump.json"
 OUTPUT_DIR = ROOT / "evals" / "datasets" / "prompt_tiered"
 VERSION = "1.0.0"
 LANGSMITH_PREFIX = "nbm-prompt"
-SKIP_SNOS = {7}
+SKIP_SNOS = {7, 31}
 
 # slug -> (category_folder, tier_override or None, count_override or None)
 AGENT_REGISTRY: dict[str, dict[str, Any]] = {
@@ -55,7 +55,6 @@ AGENT_REGISTRY: dict[str, dict[str, Any]] = {
     "chunk_contextualization": {"folder": "source_upload", "tier": "tier_3", "count": 5},
     "whole_file_map_summarizer": {"folder": "source_upload", "tier": "tier_2", "count": 15},
     "whole_file_reduce": {"folder": "source_upload", "tier": "tier_2", "count": 15},
-    "whole_file_map_template": {"folder": "source_upload", "tier": "tier_3", "count": 5},
     "image_ocr": {"folder": "source_upload", "tier": "tier_2", "count": 15},
     "diagram_label_ocr": {"folder": "source_upload", "tier": "tier_2", "count": 15},
     "refusal_templates": {"folder": "safety", "tier": "tier_3", "count": 5},
@@ -92,7 +91,6 @@ NAME_TO_SLUG: dict[str, str] = {
     "Chunk Contextualization Agent": "chunk_contextualization",
     "Whole File Map Summarizer": "whole_file_map_summarizer",
     "Whole File Reduce Agent": "whole_file_reduce",
-    "Whole File Map Template (Unused file)": "whole_file_map_template",
     "Image OCR Agent": "image_ocr",
     "Diagram Label OCR Agent": "diagram_label_ocr",
     "Refusal Templates (Guardrails)": "refusal_templates",
@@ -128,7 +126,6 @@ LANGSMITH_KEYS: dict[str, dict[str, list[str]]] = {
     "chunk_contextualization": {"input_keys": ["whole_document", "chunk_content", "target_context_tokens", "target_summary_tokens", "target_concept_terms"], "output_keys": ["contextualization_json"]},
     "whole_file_map_summarizer": {"input_keys": ["parts"], "output_keys": ["map_summaries"]},
     "whole_file_reduce": {"input_keys": ["user_message", "section_summaries"], "output_keys": ["final_answer"]},
-    "whole_file_map_template": {"input_keys": ["excerpts"], "output_keys": ["map_summaries"]},
     "image_ocr": {"input_keys": ["image_fixture_note"], "output_keys": ["extracted_text"]},
     "diagram_label_ocr": {"input_keys": ["image_fixture_note"], "output_keys": ["labels_text"]},
     "refusal_templates": {"input_keys": ["user_message", "scenario"], "output_keys": ["refusal_reason", "user_facing_message"]},
@@ -1048,20 +1045,6 @@ def build_whole_file_reduce_items(count: int) -> list[dict[str, Any]]:
     return items
 
 
-def build_whole_file_map_template_items(count: int) -> list[dict[str, Any]]:
-    items = []
-    for i in range(count):
-        excerpts = f"Part 1 excerpt on {SUBJECTS[i % len(SUBJECTS)]}.\nPart 2 excerpt continued."
-        items.append(_item(
-            "whole_file_map_template", i + 1, "metadata",
-            ["template", "regression"],
-            {"excerpts": excerpts},
-            {"map_summaries": "Part 1: First main idea.\nPart 2: Second main idea."},
-            ["map_format"],
-        ))
-    return items
-
-
 def build_image_ocr_items(count: int) -> list[dict[str, Any]]:
     fixtures = [
         ("Printed CBSE question paper page: 'Section A Q1 Define photosynthesis (2 marks)'", "Section A\nQ1 Define photosynthesis (2 marks)"),
@@ -1157,7 +1140,6 @@ BUILDERS: dict[str, Callable[[int], list[dict[str, Any]]]] = {
     "chunk_contextualization": build_chunk_contextualization_items,
     "whole_file_map_summarizer": build_whole_file_map_items,
     "whole_file_reduce": build_whole_file_reduce_items,
-    "whole_file_map_template": build_whole_file_map_template_items,
     "image_ocr": build_image_ocr_items,
     "diagram_label_ocr": build_diagram_label_ocr_items,
     "refusal_templates": build_refusal_templates_items,

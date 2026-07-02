@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "help_me_solve_it",
   "agent": {
     "sno": 21,
@@ -7,7 +7,7 @@
     "name": "Help Me Solve It Coach",
     "tier": "tier_1",
     "target_examples": 30,
-    "prompt_template": "{# Mode: HELP_ME_SOLVE_IT #}\nYou are ScholarSync AI Coach guiding without revealing the final answer yet.\n\nProblem:\n{{ problem_text_normalized }}\n\nInteraction count so far: {{ interaction_count }}\n{% if checkpoint_number %}Checkpoint: {{ checkpoint_number }}{% endif %}\n{% if student_choice %}Student chose: {{ student_choice }}{% endif %}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\nUse `\\[ ... \\]` for display equations and `$...$` for inline math inside `bodyMarkdown`.\nPut spaces around multiplication: `72 \\\\times 1000`. Wrap units in `\\\\text{}`, e.g. `\\\\text{ km/h}` and `\\\\text{ m/s}^2`.\n\n{% if interaction_count == 0 %}\nReturn JSON with initial hints and checkpoint 1 MCQ (do NOT give final answer):\n{\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem decode\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 1\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 2\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"checkpoint\": {\n    \"number\": 1,\n    \"prompt\": \"Which idea should we use?\",\n    \"options\": [{\"id\": \"A\", \"label\": \"...\"}, {\"id\": \"B\", \"label\": \"...\"}, {\"id\": \"C\", \"label\": \"...\"}, {\"id\": \"D\", \"label\": \"...\"}]\n  },\n  \"revealLevel\": \"hint\",\n  \"followUpButtons\": []\n}\n{% elif interaction_count == 1 %}\nValidate gently, give feedback, then checkpoint 2 OR completion if appropriate. Still no final numeric answer unless ready_for_reveal is true.\n{% else %}\nComplete guided solution with final answer and takeaway.\n{\n  \"title\": \"string\",\n  \"sections\": [...],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show next hint\", \"action\": \"SHOW_NEXT_HINT\"},\n    {\"label\": \"Reveal solution\", \"action\": \"REVEAL_SOLUTION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"}\n  ]\n}\n{% endif %}\n\nReturn valid JSON only."
+    "prompt_template": "You are ScholarSync AI Coach guiding without revealing the final answer yet.\n\nProblem:\n{{ problem_text_normalized }}\n\nInteraction count so far: {{ interaction_count }}\n{% if checkpoint_number %}Checkpoint: {{ checkpoint_number }}{% endif %}\n{% if student_choice %}Student chose: {{ student_choice }}{% endif %}\n\n{% if ncert_context %}\nNCERT context:\n{{ ncert_context }}\n{% endif %}\n\n{% if prior_response %}\nPrevious coach response from the prior turn (preserve checkpoint 1 prompt/options in checkpointHistory):\n{{ prior_response }}\n{% endif %}\n\n{% include 'problem_solver/math_formatting_contract.j2' %}\n\n{% if interaction_count == 0 %}\nReturn JSON with initial hints and checkpoint 1 MCQ (do NOT give final answer):\n{\n  \"interactionCount\": 0,\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem decode\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 1\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 2\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"checkpoint\": {\n    \"number\": 1,\n    \"prompt\": \"Which idea should we use?\",\n    \"options\": [{\"id\": \"A\", \"label\": \"...\"}, {\"id\": \"B\", \"label\": \"...\"}, {\"id\": \"C\", \"label\": \"...\"}, {\"id\": \"D\", \"label\": \"...\"}]\n  },\n  \"checkpointHistory\": [],\n  \"revealLevel\": \"hint\",\n  \"followUpButtons\": []\n}\n{% elif interaction_count == 1 %}\nReturn COMPLETE standalone JSON. Evaluators must see the entire session without inputs.\nRequired:\n- interactionCount: 1\n- All prior sections (Problem decode, Hint 1, Hint 2)\n- checkpointHistory[0]: full checkpoint 1 (prompt, all 4 options, studentChoice=\"{{ student_choice }}\", selectedLabel = label text for that option)\n- sections: add \"Feedback on your choice\" naming the selected option label and why it helps or misleads\n- checkpoint: checkpoint 2 with four problem-specific options (A concept-correct)\n- No finalAnswer\n{\n  \"interactionCount\": 1,\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem decode\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 1\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 2\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Feedback on your choice\", \"bodyMarkdown\": \"You picked option {{ student_choice }} (...selected label...). ...\"}\n  ],\n  \"checkpointHistory\": [\n    {\n      \"number\": 1,\n      \"prompt\": \"Which idea should we use?\",\n      \"options\": [{\"id\": \"A\", \"label\": \"...\"}, {\"id\": \"B\", \"label\": \"...\"}, {\"id\": \"C\", \"label\": \"...\"}, {\"id\": \"D\", \"label\": \"...\"}],\n      \"studentChoice\": \"{{ student_choice }}\",\n      \"selectedLabel\": \"exact label for option {{ student_choice }}\",\n      \"feedbackMarkdown\": \"same gist as Feedback on your choice section\"\n    }\n  ],\n  \"checkpoint\": {\n    \"number\": 2,\n    \"prompt\": \"What should we do next?\",\n    \"options\": [{\"id\": \"A\", \"label\": \"...\"}, {\"id\": \"B\", \"label\": \"...\"}, {\"id\": \"C\", \"label\": \"...\"}, {\"id\": \"D\", \"label\": \"...\"}]\n  },\n  \"revealLevel\": \"hint\",\n  \"followUpButtons\": []\n}\n{% else %}\nReturn COMPLETE standalone JSON for the final reveal.\nRequired:\n- interactionCount: 2\n- checkpointHistory: BOTH checkpoints with prompt, all options, studentChoice, selectedLabel, feedbackMarkdown each\n- sections: decode, hints, \"Feedback on checkpoint 1\", \"Feedback on checkpoint 2\" (or two feedback sections), \"Solution walkthrough\"\n- finalAnswer and revealLevel full\n- No active checkpoint field\n{\n  \"interactionCount\": 2,\n  \"title\": \"string\",\n  \"sections\": [\n    {\"heading\": \"Problem decode\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 1\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Hint 2\", \"bodyMarkdown\": \"...\"},\n    {\"heading\": \"Feedback on checkpoint 1\", \"bodyMarkdown\": \"At checkpoint 1 you chose A (...label...). ...\"},\n    {\"heading\": \"Feedback on checkpoint 2\", \"bodyMarkdown\": \"At checkpoint 2 you chose {{ student_choice }} (...label...). ...\"},\n    {\"heading\": \"Solution walkthrough\", \"bodyMarkdown\": \"...\"}\n  ],\n  \"checkpointHistory\": [\n    {\n      \"number\": 1,\n      \"prompt\": \"...\",\n      \"options\": [{\"id\": \"A\", \"label\": \"...\"}, {\"id\": \"B\", \"label\": \"...\"}, {\"id\": \"C\", \"label\": \"...\"}, {\"id\": \"D\", \"label\": \"...\"}],\n      \"studentChoice\": \"A\",\n      \"selectedLabel\": \"...\",\n      \"feedbackMarkdown\": \"...\"\n    },\n    {\n      \"number\": 2,\n      \"prompt\": \"...\",\n      \"options\": [{\"id\": \"A\", \"label\": \"...\"}, {\"id\": \"B\", \"label\": \"...\"}, {\"id\": \"C\", \"label\": \"...\"}, {\"id\": \"D\", \"label\": \"...\"}],\n      \"studentChoice\": \"{{ student_choice }}\",\n      \"selectedLabel\": \"...\",\n      \"feedbackMarkdown\": \"...\"\n    }\n  ],\n  \"finalAnswer\": \"string\",\n  \"revealLevel\": \"full\",\n  \"followUpButtons\": [\n    {\"label\": \"Show next hint\", \"action\": \"SHOW_NEXT_HINT\"},\n    {\"label\": \"Reveal solution\", \"action\": \"REVEAL_SOLUTION\"},\n    {\"label\": \"Show best approach\", \"action\": \"SHOW_BEST_APPROACH\"},\n    {\"label\": \"Give similar problem\", \"action\": \"GIVE_SIMILAR_PROBLEM\"}\n  ]\n}\n{% endif %}\n\nReturn valid JSON only."
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -23,873 +23,2984 @@
   },
   "items": [
     {
-      "id": "help_me_solve_it-001",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A microscope has objective focal length 2 cm and eyepiece 6 cm. Lenses are separated by 16 cm. Find magnifying power.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
-            "options": [
-              {
-                "id": "A",
-                "label": "Ohm's law"
-              }
-            ]
-          },
-          "finalAnswer": null
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-002",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Find ∫(3x²+2x)dx from 0 to 2.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": "A"
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-003",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
-      "inputs": {
-        "problem_text_normalized": "NEET MCQ: Which enzyme acts in acidic pH in stomach? (A) Trypsin (B) Pepsin (C) Lipase (D) Amylase",
-        "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-004",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Derive lens formula for thin convex lens using refraction at two spherical surfaces.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
-            "options": [
-              {
-                "id": "A",
-                "label": "Ohm's law"
-              }
-            ]
-          },
-          "finalAnswer": null
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-005",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "A 12 V battery connected to 3 Ω and 6 Ω in series. Find current and voltage across each.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": "A"
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
       "id": "help_me_solve_it-006",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Prove sin²θ + cos²θ = 1 using unit circle.",
-        "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q57. The blue and white selectable markers have been developed which differentiate recombinant colonies from non-recombinant colonies on the basis of their ability to produce colour in the presence of a chromogenic substrate. Given below are two statements about this method: Statement I: The blue coloured colonies have DNA insert in the plasmid and they are identified as recombinant colonies. Statement II: The colonies without blue colour have DNA insert in the plasmid and are identified as recombinant colonies. In the light of the above statements, choose the most appropriate answer from the options given below: (1) Both Statement I and Statement II are correct (2) Both Statement I and Statement II are incorrect (3) Statement I is correct but Statement II is incorrect",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 0,
+        "student_choice": "None"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
+          "interactionCount": 0,
+          "title": "Understanding Selectable Markers in Recombinant DNA",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem involves understanding the principles of selectable markers used in recombinant DNA technology. Specifically, it discusses how blue and white colonies are used to differentiate between recombinant and non-recombinant colonies based on their ability to produce color in the presence of a chromogenic substrate."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Recall the common method used in molecular cloning, particularly the use of the lacZ gene, which encodes for the enzyme β-galactosidase. This enzyme can cleave a chromogenic substrate, leading to a color change in colonies."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Consider the relationship between the presence of a DNA insert in the plasmid and the activity of the lacZ gene. Think about how the presence or absence of an insert affects the color of the colonies."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "The role of the lacZ gene in color production."
+              },
+              {
+                "id": "B",
+                "label": "The definition of recombinant vs non-recombinant colonies."
+              },
+              {
+                "id": "C",
+                "label": "The mechanism of chromogenic substrates."
+              },
+              {
+                "id": "D",
+                "label": "The significance of color change in identifying colonies."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "numerical",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-007",
       "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
       "inputs": {
-        "problem_text_normalized": "Balanced equation: Zn + HCl → ? Calculate moles H₂ if 0.5 mol Zn reacts.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q61. Given below are two statements: Statements I: In the nephron the descending limb of loop of Henle is impermeable to water and permeable to electrolytes. Statement II: The proximal convoluted tubule is lined by simple columnar brush border epithelium and increases the surface area for reabsorption. In the light of the above statements, choose the correct answer from the options given below: (1) Statement I is true but Statement II is false. (2) Statement I is false but Statement II is true. (3) Both Statement I and Statement II are true. (4) Both Statement I and Statement II are false.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 1,
+        "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
+          "interactionCount": 1,
+          "title": "Nephron Function Analysis",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to evaluate the truth of two statements regarding the nephron's structure and function. Statement I discusses the permeability characteristics of the descending limb of the loop of Henle, while Statement II describes the structure of the proximal convoluted tubule."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the physiological roles of the descending limb of the loop of Henle and the proximal convoluted tubule. What do you know about their permeability to water and electrolytes?"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Recall the structure of the proximal convoluted tubule and its function in reabsorption. How does the brush border epithelium contribute to its efficiency?"
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (Statement I is true but Statement II is false). This choice suggests that you believe the descending limb is impermeable to water and permeable to electrolytes, which is incorrect. Additionally, the proximal convoluted tubule is indeed lined with a brush border epithelium that increases surface area for reabsorption, making Statement II true."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Statement I is true but Statement II is false."
+                },
+                {
+                  "id": "B",
+                  "label": "Statement I is false but Statement II is true."
+                },
+                {
+                  "id": "C",
+                  "label": "Both Statement I and Statement II are true."
+                },
+                {
+                  "id": "D",
+                  "label": "Both Statement I and Statement II are false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Statement I is true but Statement II is false.",
+              "feedbackMarkdown": "You picked option A (Statement I is true but Statement II is false). This choice suggests that you believe the descending limb is impermeable to water and permeable to electrolytes, which is incorrect. Additionally, the proximal convoluted tubule is indeed lined with a brush border epithelium that increases surface area for reabsorption, making Statement II true."
+            }
+          ],
           "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
+            "number": 2,
+            "prompt": "What should we do next?",
             "options": [
               {
                 "id": "A",
-                "label": "Ohm's law"
+                "label": "Reassess the permeability of the descending limb."
+              },
+              {
+                "id": "B",
+                "label": "Review the structure of the proximal convoluted tubule."
+              },
+              {
+                "id": "C",
+                "label": "Consider both statements together."
+              },
+              {
+                "id": "D",
+                "label": "Look for additional resources on nephron function."
               }
             ]
           },
-          "finalAnswer": null
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "numerical",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-008",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "In triangle ABC, AB=5, BC=7, ∠B=60°. Find AC using cosine rule.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "problem_text_normalized": "Q59. Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R: Assertion A : Breast-feeding during initial period of infant growth is recommended by doctors for bringing a healthy baby Reason R: Colostrum contains several antibodies absolutely essential to develop resistance for the new born baby. In the light of the above statements, choose the most appropriate answer from the options given below: (1) A is correct but R is not correct. (2) A is not correct but R is correct. (3) Both A and R are correct and R is the correct explanation of A.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 2,
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "interactionCount": 2,
+          "title": "Assertion and Reason Analysis",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to analyze two statements: Assertion A states that breast-feeding is recommended during the initial period of infant growth, while Reason R explains that colostrum contains essential antibodies for newborns. We must determine the relationship between these two statements."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the importance of breast-feeding in early infant development and the role of colostrum in providing immunity."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Reflect on whether the reason provided (R) directly supports the assertion (A) about breast-feeding."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (Assertion A is correct but Reason R is not correct). This choice suggests you believe breast-feeding is important, but the reason given does not support that. Consider if colostrum's benefits might actually validate the assertion."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A again. This indicates a consistent belief that while breast-feeding is beneficial, the explanation regarding colostrum does not hold. Re-evaluate the role of colostrum in the context of breast-feeding."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "Both Assertion A and Reason R are correct. Breast-feeding is indeed recommended for infants, and colostrum is crucial as it contains antibodies that help build the newborn's immune system. Therefore, R is a valid explanation for A."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R: Assertion A : Breast-feeding during initial period of infant growth is recommended by doctors for bringing a healthy baby Reason R: Colostrum contains several antibodies absolutely essential to develop resistance for the new born baby. In the light of the above statements, choose the most appropriate answer from the options given below:",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A is correct but R is not correct."
+                },
+                {
+                  "id": "B",
+                  "label": "A is not correct but R is correct."
+                },
+                {
+                  "id": "C",
+                  "label": "Both A and R are correct and R is the correct explanation of A."
+                },
+                {
+                  "id": "D",
+                  "label": "Both A and R are correct but R is not the correct explanation of A."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A is correct but R is not correct.",
+              "feedbackMarkdown": "At checkpoint 1 you chose A (Assertion A is correct but Reason R is not correct). This choice suggests you believe breast-feeding is important, but the reason given does not support that. Consider if colostrum's benefits might actually validate the assertion."
+            },
+            {
+              "number": 2,
+              "prompt": "Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R: Assertion A : Breast-feeding during initial period of infant growth is recommended by doctors for bringing a healthy baby Reason R: Colostrum contains several antibodies absolutely essential to develop resistance for the new born baby. In the light of the above statements, choose the most appropriate answer from the options given below:",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A is correct but R is not correct."
+                },
+                {
+                  "id": "B",
+                  "label": "A is not correct but R is correct."
+                },
+                {
+                  "id": "C",
+                  "label": "Both A and R are correct and R is the correct explanation of A."
+                },
+                {
+                  "id": "D",
+                  "label": "Both A and R are correct but R is not the correct explanation of A."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A is correct but R is not correct.",
+              "feedbackMarkdown": "At checkpoint 2 you chose A again. This indicates a consistent belief that while breast-feeding is beneficial, the explanation regarding colostrum does not hold. Re-evaluate the role of colostrum in the context of breast-feeding."
+            }
+          ],
+          "finalAnswer": "3",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "numerical",
+        "assertion_reason",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-009",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Ray diagram: object at 2F for convex mirror—state image characteristics.",
-        "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q80. Match List-I with List-II with respect to human eye. List-I List-II ((A)) Fovea (I) Visible coloured portion of eye that regulates diameter of pupil. ((B)) Iris (II) External layer of eye formed of dense connective tissue. ((C)) Blind spot (III) Point of greatest visual acuity or resolution. ((D)) Sclera (IV) Point where optic nerve leaves the eyeball and photoreceptor cells are absent. Choose the correct answer from the options given below: a. A-II, B-I, C-III, D-IV b. A-III, B-I, C-IV, D-II c. A-IV, B-III, C-II, D-I d. A-I, B-IV, C-III, D-II",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 0,
+        "student_choice": "None"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
+          "interactionCount": 0,
+          "title": "Understanding the Human Eye",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to match specific parts of the human eye (List-I) with their corresponding descriptions (List-II). Each part has a unique function and characteristic that distinguishes it from the others."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the function of the fovea; it is known for its role in vision. What does it mean for visual acuity?"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "The iris is involved in controlling the amount of light entering the eye. Think about its physical characteristics and how it relates to the pupil."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Focus on the function of each part."
+              },
+              {
+                "id": "B",
+                "label": "Consider the anatomical structure."
+              },
+              {
+                "id": "C",
+                "label": "Think about the role of light in vision."
+              },
+              {
+                "id": "D",
+                "label": "Match based on common misconceptions."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "numerical",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-010",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Mendel crossed tall (TT) with dwarf (tt). Give F1 genotype and phenotype ratio in F2.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q87. Match List I with List II: List-I List-II A. Exophthalmic goiter I. Excess secretion of cortisol, moon face & hyperglycemia B. Acromegaly II. Hypo-secretion of thyroid hormone and stunted growth. C. Cushing's syndrome III. Hyper secretion of thyroid hormone & protruding eye balls. D. Cretinism IV. Excessive secretion of growth hormone. Choose the correct answer form the options given below: (1) A-III, B-IV, C-II, D-I (2) A-III, B-IV, C-I, D-II (3) A-I, B-III, C-II, D-IV (4) A-IV, B-II, C-I, D-III",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 1,
+        "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
+          "interactionCount": 1,
+          "title": "Endocrine Disorders Matching",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "You need to match the conditions listed in List I with their corresponding descriptions in List II. Each condition is associated with a specific hormonal imbalance or deficiency."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider what each condition represents in terms of hormone levels. For example, think about which conditions are related to excess hormone production versus those related to hormone deficiency."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Review the symptoms associated with each condition. This can help you identify the correct matches. For instance, exophthalmic goiter is known for its specific symptom of protruding eyes."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (A-III, B-IV, C-II, D-I). This choice is incorrect because it misaligns the conditions with their respective descriptions. For example, exophthalmic goiter is characterized by hyper secretion of thyroid hormone and protruding eyeballs, which is correctly matched with III, but other matches are not accurate."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A-III, B-IV, C-II, D-I"
+                },
+                {
+                  "id": "B",
+                  "label": "A-III, B-IV, C-I, D-II"
+                },
+                {
+                  "id": "C",
+                  "label": "A-I, B-III, C-II, D-IV"
+                },
+                {
+                  "id": "D",
+                  "label": "A-IV, B-II, C-I, D-III"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A-III, B-IV, C-II, D-I",
+              "feedbackMarkdown": "You picked option A (A-III, B-IV, C-II, D-I). This choice is incorrect because it misaligns the conditions with their respective descriptions. For example, exophthalmic goiter is characterized by hyper secretion of thyroid hormone and protruding eyeballs, which is correctly matched with III, but other matches are not accurate."
+            }
+          ],
           "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
+            "number": 2,
+            "prompt": "What should we do next?",
             "options": [
               {
                 "id": "A",
-                "label": "Ohm's law"
+                "label": "A-III, B-IV, C-I, D-II"
+              },
+              {
+                "id": "B",
+                "label": "A-III, B-IV, C-II, D-I"
+              },
+              {
+                "id": "C",
+                "label": "A-I, B-III, C-II, D-IV"
+              },
+              {
+                "id": "D",
+                "label": "A-IV, B-II, C-I, D-III"
               }
             ]
           },
-          "finalAnswer": null
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "numerical",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-011",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "JEE: Block on incline 30°, μ=0.2, mass 2 kg. Find acceleration.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "problem_text_normalized": "Q12. Given below are two statements: Statement I: Low temperature preserves the enzyme in a temporarily inactive state whereas high temperature destroys enzymatic activity because proteins are denatured by heat. Statement II: When the inhibitor closely resembles the substrate in its molecular structure and inhibits the activity of the enzyme, it is known as competitive inhibitor. In the light of the above statements, choose the correct answer from the options given below: a. Statement I is false but statement II is true. b. Both Statement I and Statement II are true. c. Both Statement I and Statement II are false. d. Statement I is true but Statement II is false.",
+        "ncert_context": "NCERT Class 11 Biology Ch.9: Pepsin active in acidic stomach; trypsin in alkaline duodenum.",
+        "interaction_count": 2,
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "interactionCount": 2,
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Given below are two statements: Statement I: Low temperature preserves the enzyme in a temporarily inactive state whereas high temperature destroys enzymatic activity because proteins are denatured by heat. Statement II: When the inhibitor closely resembles the substrate in its molecular structure and inhibits the activity of the enzyme, it is known as competitive inhibitor. In the light of the above statements, choose the correct answer from the options given below:",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Statement I is false but statement II is true."
+                },
+                {
+                  "id": "B",
+                  "label": "Both Statement I and Statement II are true."
+                },
+                {
+                  "id": "C",
+                  "label": "Both Statement I and Statement II are false."
+                },
+                {
+                  "id": "D",
+                  "label": "Statement I is true but Statement II is false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Statement I is false but statement II is true.",
+              "feedbackMarkdown": "At checkpoint 1 you chose A (Statement I is false but statement II is true). This choice suggests that you believe Statement I is incorrect regarding the effects of temperature on enzymes."
+            },
+            {
+              "number": 2,
+              "prompt": "Given below are two statements: Statement I: Low temperature preserves the enzyme in a temporarily inactive state whereas high temperature destroys enzymatic activity because proteins are denatured by heat. Statement II: When the inhibitor closely resembles the substrate in its molecular structure and inhibits the activity of the enzyme, it is known as competitive inhibitor. In the light of the above statements, choose the correct answer from the options given below:",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Statement I is false but statement II is true."
+                },
+                {
+                  "id": "B",
+                  "label": "Both Statement I and Statement II are true."
+                },
+                {
+                  "id": "C",
+                  "label": "Both Statement I and Statement II are false."
+                },
+                {
+                  "id": "D",
+                  "label": "Statement I is true but Statement II is false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Statement I is false but statement II is true.",
+              "feedbackMarkdown": "At checkpoint 2 you chose A (Statement I is false but statement II is true). This indicates a consistent belief about the accuracy of the statements."
+            }
+          ],
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem presents two statements about enzyme activity and inhibition. You need to evaluate the truth of each statement and determine the correct answer based on that evaluation."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the effects of temperature on enzyme activity. What happens to enzymes at low and high temperatures?"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Reflect on the definition of competitive inhibitors in enzymatic reactions. How does their structure relate to the substrate?"
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (Statement I is false but statement II is true). This choice suggests that you believe Statement I is incorrect regarding the effects of temperature on enzymes."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A (Statement I is false but statement II is true). This indicates a consistent belief about the accuracy of the statements."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "To analyze the statements: Statement I is true; low temperatures can preserve enzyme activity while high temperatures can denature proteins. Statement II is also true; a competitive inhibitor resembles the substrate and competes for the active site. Therefore, the correct answer is that both statements are true."
+            }
+          ],
+          "finalAnswer": "B",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-012",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "numerical",
       "inputs": {
-        "problem_text_normalized": "Find dy/dx if y = x³ sin x.",
-        "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q48. Given below are two statements: Statement I: A protein is imagined as a line, the left end represented by first amino acid (C-terminal) and the right end represented by last amino acid (N-terminal) Statement II: Adult human haemoglobin, consists of 4 subunits (two subunits of a type and two subunits of b type.) In the light of the above statements, choose the correct answer from the options given below: a. Statement I is false but Statement II is true. b. Both Statement I and Statement II are true. c. Both Statement I and Statement II are false. d. Statement I is true but Statement II is false.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 0,
+        "student_choice": "None"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
+          "interactionCount": 0,
+          "title": "Understanding Protein Structure and Hemoglobin",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to evaluate the truth of two statements regarding proteins and hemoglo[answer hidden]in. Statement I descri[answer hidden]es the orientation of a protein's amino acids, while Statement II discusses the structure of adult human hemoglo[answer hidden]in."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Recall that proteins are made up of amino acids linked together in a specific sequence. The terms C-terminal and N-terminal refer to the ends of the amino acid chain."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Consider the structure of hemoglo[answer hidden]in. It is important to know how many su[answer hidden]units it has and their types to assess the truth of Statement II."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Focus on the definition of C-terminal and N-terminal."
+              },
+              {
+                "id": "B",
+                "label": "Analyze the composition of hemoglobin."
+              },
+              {
+                "id": "C",
+                "label": "Evaluate the relationship between the two statements."
+              },
+              {
+                "id": "D",
+                "label": "Consider the general structure of proteins."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-013",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "pH of 0.01 M HCl solution at 25°C.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q47. Given below are two statements: Statement I: The presence or absence of hymen is not a reliable indicator of virginity. Statement II: The hymen is torn during the first coitus only. In the light of the above statements, choose the correct answer from the options given below: (1) Statement I is true but Statement II is false. (2) Statement I is false but Statement II is true. (3) Both Statement I and Statement II are true. (4) Both Statement I and Statement II are false.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 1,
+        "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
+          "interactionCount": 1,
+          "title": "Understanding Virginity and the Hymen",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem presents two statements regarding the hymen and its relation to virginity. We need to evaluate the truth of each statement and determine the correct option based on their validity."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the biological and cultural aspects of virginity and how they relate to the physical characteristics of the hymen."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Research the functions and variations of the hymen, as well as common misconceptions about its role in determining virginity."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (Statement I is true but Statement II is false). This choice suggests that you recognize the unreliability of the hymen as an indicator of virginity, which is a common understanding. However, it's important to critically assess both statements to ensure a comprehensive understanding."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Statement I is true but Statement II is false."
+                },
+                {
+                  "id": "B",
+                  "label": "Statement I is false but Statement II is true."
+                },
+                {
+                  "id": "C",
+                  "label": "Both Statement I and Statement II are true."
+                },
+                {
+                  "id": "D",
+                  "label": "Both Statement I and Statement II are false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Statement I is true but Statement II is false.",
+              "feedbackMarkdown": "This choice suggests that you recognize the unreliability of the hymen as an indicator of virginity, which is a common understanding. However, it's important to critically assess both statements to ensure a comprehensive understanding."
+            }
+          ],
           "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
+            "number": 2,
+            "prompt": "What should we do next?",
             "options": [
               {
                 "id": "A",
-                "label": "Ohm's law"
+                "label": "Reevaluate Statement II."
+              },
+              {
+                "id": "B",
+                "label": "Consider cultural perspectives on virginity."
+              },
+              {
+                "id": "C",
+                "label": "Research more about the hymen's anatomy."
+              },
+              {
+                "id": "D",
+                "label": "Discuss the implications of both statements."
               }
             ]
           },
-          "finalAnswer": null
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "jee",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-014",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "Identify functional group: CH3-CH2-CHO and name the compound.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "problem_text_normalized": "Q35. Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R. Assertion A: Endometrium is necessary for implantation of blastocyst. Reason R: In the absence of fertilization, the corpus luteum degenerates that causes disintegration of endometrium. In the light of the above statements, choose the correct answer from the options given below: a. A is false but R is true. b. Both A and R are true and R is the correct explanation of A. c. Both A and R are true but R is NOT the correct explanation of A. d. A is true but R is false.",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function.",
+        "interaction_count": 2,
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "interactionCount": 2,
+          "title": "Understanding Implantation and Endometrium",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem involves evaluating two statements regarding the endometrium and its role in implantation. We need to determine the truthfulness of both the Assertion (A) and the Reason (R), and how they relate to each other."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Recall the role of the endometrium in the menstrual cycle and its importance for implantation. Consider what happens to the endometrium when fertilization does not occur."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Think about how the degeneration of the corpus luteum affects the endometrium and whether this supports or contradicts the assertion about implantation."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (Assertion A is false but Reason R is true). This choice suggests you believe that the endometrium is not necessary for implantation, which contradicts established biological understanding. Consider revisiting the role of the endometrium."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A again. This indicates a consistent belief that the assertion is false. However, it is important to analyze the relationship between the assertion and the reason more closely. The endometrium is indeed crucial for implantation."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "The endometrium is essential for the implantation of a blastocyst, as it provides the necessary environment for the embryo to attach and grow. The reason states that in the absence of fertilization, the corpus luteum degenerates, leading to the disintegration of the endometrium. This is true and explains why the endometrium must be intact for successful implantation. Therefore, both A and R are true, and R correctly explains A."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R. Assertion A: Endometrium is necessary for implantation of blastocyst. Reason R: In the absence of fertilization, the corpus luteum degenerates that causes disintegration of endometrium.",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A is false but R is true."
+                },
+                {
+                  "id": "B",
+                  "label": "Both A and R are true and R is the correct explanation of A."
+                },
+                {
+                  "id": "C",
+                  "label": "Both A and R are true but R is NOT the correct explanation of A."
+                },
+                {
+                  "id": "D",
+                  "label": "A is true but R is false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A is false but R is true.",
+              "feedbackMarkdown": "You chose A, which suggests a misunderstanding of the role of the endometrium in implantation. The endometrium is indeed necessary for implantation."
+            },
+            {
+              "number": 2,
+              "prompt": "Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R. Assertion A: Endometrium is necessary for implantation of blastocyst. Reason R: In the absence of fertilization, the corpus luteum degenerates that causes disintegration of endometrium.",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A is false but R is true."
+                },
+                {
+                  "id": "B",
+                  "label": "Both A and R are true and R is the correct explanation of A."
+                },
+                {
+                  "id": "C",
+                  "label": "Both A and R are true but R is NOT the correct explanation of A."
+                },
+                {
+                  "id": "D",
+                  "label": "A is true but R is false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A is false but R is true.",
+              "feedbackMarkdown": "You chose A again, indicating a persistent misunderstanding. The endometrium is essential for implantation, and the reason provided supports this assertion."
+            }
+          ],
+          "finalAnswer": "B",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "jee",
+        "assertion_reason",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-015",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "Explain why sky appears red at sunset using scattering.",
-        "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q65. Given below are two statements: Statement I: Vas deferens receives a duct from seminal vesicle and opens into urethra as the ejaculatory duct. Statement II: The cavity of the cervix is called cervical canal which along with vagina forms birth canal. In the light of the above statements, choose the correct answer from the options given below: a. Statement I incorrect but Statement II is true. b. Both Statement I and Statement II are true. c. Both Statement I and Statement II are false. d. Statement I is correct but Statement II is false. 8",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 0,
+        "student_choice": "None"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
+          "interactionCount": 0,
+          "title": "Understanding Reproductive Anatomy",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We have two statements regarding the male and female reproductive systems. We need to evaluate the truthfulness of each statement to determine the correct answer."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the anatomy of the male reproductive system, specifically the role of the vas deferens and its connection to the seminal vesicle and urethra."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Reflect on the structure of the female reproductive system, particularly the cervix and its relationship with the vagina during child[answer hidden]irth."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Evaluate the accuracy of Statement I."
+              },
+              {
+                "id": "B",
+                "label": "Evaluate the accuracy of Statement II."
+              },
+              {
+                "id": "C",
+                "label": "Consider the relationship between both statements."
+              },
+              {
+                "id": "D",
+                "label": "Analyze the definitions of anatomical terms used in both statements."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "jee",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-016",
-      "variation": "proof",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "Sum of first n natural numbers formula derivation.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q76. Given below are two statements: Statement I: Bone marrow is the main lymphoid organ where all blood cells including lymphocytes are produced. Statement II: Both bone marrow and thymus provide micro environments for the development and maturation of T-lymphocytes. In the light of the above statements, choose the most appropriate answer from the options given below: (1) Statement I is correct but statement II is",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 1,
+        "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
+          "interactionCount": 1,
+          "title": "Understanding Lymphoid Organs",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to evaluate two statements regarding lymphoid organs and their functions in blood cell production and T-lymphocyte maturation."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the roles of bone marrow and thymus in the immune system. What is the primary function of each organ?"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Think about where lymphocytes are produced and where they mature. Are both statements true, or is one of them incorrect?"
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A ([answer hidden]). This choice suggests you believe that while bone marrow is indeed the primary site for blood cell production, the thymus does not play a role in T-lymphocyte maturation, which is misleading. The thymus is crucial for the development and maturation of T-lymphocytes."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Statement I is correct but statement II is incorrect."
+                },
+                {
+                  "id": "B",
+                  "label": "Both statements are correct."
+                },
+                {
+                  "id": "C",
+                  "label": "Statement I is incorrect but statement II is correct."
+                },
+                {
+                  "id": "D",
+                  "label": "Both statements are incorrect."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Statement I is correct but statement II is incorrect.",
+              "feedbackMarkdown": "This choice suggests you believe that while bone marrow is indeed the primary site for blood cell production, the thymus does not play a role in T-lymphocyte maturation, which is misleading. The thymus is crucial for the development and maturation of T-lymphocytes."
+            }
+          ],
           "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
+            "number": 2,
+            "prompt": "What should we do next?",
             "options": [
               {
                 "id": "A",
-                "label": "Ohm's law"
+                "label": "Re-evaluate the statements considering the roles of both organs."
+              },
+              {
+                "id": "B",
+                "label": "Choose to focus only on bone marrow's function."
+              },
+              {
+                "id": "C",
+                "label": "Consider the possibility that both statements could be correct."
+              },
+              {
+                "id": "D",
+                "label": "Dismiss both statements as incorrect."
               }
             ]
           },
-          "finalAnswer": null
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "jee",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-017",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "jee",
       "inputs": {
-        "problem_text_normalized": "NEET: Cardiac output calculation if stroke volume 70 mL, heart rate 72/min.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "problem_text_normalized": "Q85. Match List-I with List-II. List-I (Cells) List-II (Secretion) ((A)) Peptic cells (I) Mucus ((B)) Goblet Cells (II) Bile Juice ((C)) Oxyntic Cell (III) Proenzyme Pepsinogen ((D)) Hepatic cells (IV) HCl and intrinsic factor for absorption of vitamin B12 Choose the correct answer from the options given below a. A-II, B-IV, C-I, D-III b. A-IV, B-III, C-II, D-I c. A-II, B-I, C-III, D-IV d. A-III, B-I, C-IV, D-II 7",
+        "ncert_context": "NCERT Class 11 Biology Ch.9: Pepsin active in acidic stomach; trypsin in alkaline duodenum.",
+        "interaction_count": 2,
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "interactionCount": 2,
+          "title": "Cell Secretion Matching Problem",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "You need to match the types of cells listed in List-I with their corresponding secretions in List-II. Each cell type has a specific secretion that plays a role in digestion or other bodily functions."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Recall that peptic cells are involved in the stomach and secrete substances related to digestion, while goblet cells are found in the intestines and secrete mucus."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Oxyntic cells are known for secreting hydrochloric acid (HCl) and intrinsic factor, which is crucial for vitamin B12 absorption. Hepatic cells are related to liver functions."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (A-II, B-IV, C-I, D-III). This choice is incorrect. Peptic cells secrete proenzyme pepsinogen, not bile juice. Review the functions of each cell type."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A (A-II, B-IV, C-I, D-III) again. This choice remains incorrect. Remember the specific secretions associated with each cell type to find the correct matches."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "Let's analyze each cell type: \n- Peptic cells (A) secrete proenzyme pepsinogen (III). \n- Goblet cells (B) secrete mucus (I). \n- Oxyntic cells (C) secrete HCl and intrinsic factor (IV). \n- Hepatic cells (D) secrete bile juice (II). \nThus, the correct matches are A-III, B-I, C-IV, D-II."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Match List-I with List-II.",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A-II, B-IV, C-I, D-III"
+                },
+                {
+                  "id": "B",
+                  "label": "A-IV, B-III, C-II, D-I"
+                },
+                {
+                  "id": "C",
+                  "label": "A-II, B-I, C-III, D-IV"
+                },
+                {
+                  "id": "D",
+                  "label": "A-III, B-I, C-IV, D-II"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A-II, B-IV, C-I, D-III",
+              "feedbackMarkdown": "At checkpoint 1 you chose A (A-II, B-IV, C-I, D-III). This choice is incorrect. Peptic cells secrete proenzyme pepsinogen, not bile juice. Review the functions of each cell type."
+            },
+            {
+              "number": 2,
+              "prompt": "Match List-I with List-II.",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A-II, B-IV, C-I, D-III"
+                },
+                {
+                  "id": "B",
+                  "label": "A-IV, B-III, C-II, D-I"
+                },
+                {
+                  "id": "C",
+                  "label": "A-II, B-I, C-III, D-IV"
+                },
+                {
+                  "id": "D",
+                  "label": "A-III, B-I, C-IV, D-II"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A-II, B-IV, C-I, D-III",
+              "feedbackMarkdown": "At checkpoint 2 you chose A (A-II, B-IV, C-I, D-III) again. This choice remains incorrect. Remember the specific secretions associated with each cell type to find the correct matches."
+            }
+          ],
+          "finalAnswer": "A-III, B-I, C-IV, D-II",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "jee",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-004",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q65. Identify the set of correct statements: A. The flowers of Vallisneria are colourful and produce nectar B. The flowers of waterlily are not pollinated by water. C. In most of water-pollinated species, the pollen grains are protected from wetting. D. Pollen grains of some hydrophytes are long and ribbon like. E. In some hydrophytes, the pollen grains are carried passively inside water. Choose the correct answer from the options given below: (1) A, C, D and E only (2) B, C, D and E only (3) C, D and E only (4) A B, C and D only",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function.",
+        "interaction_count": 0,
+        "student_choice": "None"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 0,
+          "title": "Understanding Pollination in Hydrophytes",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to evaluate a set of statements regarding the pollination mechanisms in certain aquatic plants, specifically Vallisneria and waterlilies. Each statement provides information about the characteristics of their flowers and pollen grains."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the typical characteristics of flowers in aquatic plants. Are they usually colorful and do they produce nectar for pollinators?"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Think about how pollen grains behave in water. Do they need protection from wetting, and how might they be transported in aquatic environments?"
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Evaluate the characteristics of Vallisneria flowers."
+              },
+              {
+                "id": "B",
+                "label": "Consider the pollination method of waterlilies."
+              },
+              {
+                "id": "C",
+                "label": "Assess the protection of pollen grains in water."
+              },
+              {
+                "id": "D",
+                "label": "Look into the structure of pollen grains in hydrophytes."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-005",
+      "variation": "neet",
+      "inputs": {
+        "problem_text_normalized": "Q43. Given below are two Statements: Statement I : Chromosomes become gradually visible under light microscope during leptotene stage. Statement II: The beginning of diplotene stage is recognized by dissolution of synaptonemal complex. In the light of the above statements, choose the correct answer from the options given below: (1) Statement I is true but Statement II is false. (2) Statement I is false but Statement II is true. (3) Both Statement I and Statement II are true. (4) Both Statement I and Statement II are false",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 1,
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 1,
+          "title": "Chromosome Visibility and Synaptonemal Complex",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We are examining two statements regarding the visibility of chromosomes during specific stages of meiosis and the characteristics of the synaptonemal complex."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the stages of meiosis: leptotene and diplotene. What happens to chromosomes in these stages?"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Reflect on the role of the synaptonemal complex during meiosis and when it dissolves."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (Statement I is true but Statement II is false). This choice suggests that you believe chromosomes do become visible during leptotene, which is correct, but you may need to reconsider the timing of the dissolution of the synaptonemal complex in relation to diplotene."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Statement I is true but Statement II is false."
+                },
+                {
+                  "id": "B",
+                  "label": "Statement I is false but Statement II is true."
+                },
+                {
+                  "id": "C",
+                  "label": "Both Statement I and Statement II are true."
+                },
+                {
+                  "id": "D",
+                  "label": "Both Statement I and Statement II are false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Statement I is true but Statement II is false.",
+              "feedbackMarkdown": "You picked option A (Statement I is true but Statement II is false). This choice suggests that you believe chromosomes do become visible during leptotene, which is correct, but you may need to reconsider the timing of the dissolution of the synaptonemal complex in relation to diplotene."
+            }
+          ],
+          "checkpoint": {
+            "number": 2,
+            "prompt": "What should we do next?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Revisit the definitions of leptotene and diplotene."
+              },
+              {
+                "id": "B",
+                "label": "Look up the role of the synaptonemal complex."
+              },
+              {
+                "id": "C",
+                "label": "Analyze the visibility of chromosomes in other meiotic stages."
+              },
+              {
+                "id": "D",
+                "label": "Consider the implications of both statements being true."
+              }
+            ]
+          },
+          "revealLevel": "hint",
+          "followUpButtons": []
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_botany",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-018",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "multi_part",
       "inputs": {
-        "problem_text_normalized": "Equivalent resistance: 2 Ω, 3 Ω, 6 Ω in parallel.",
+        "problem_text_normalized": "Q60. Regarding catalytic cycle of an enzyme action, select the correct sequential steps: A. Substrate enzyme complex formation. B. Free enzyme ready to bind with another substrate. C. Release fo products. D. Chemical bonds of the substrate broken. E. Substrate bindig to active site. Choose the correct answer from the options given below: (1) B, A, C, D, E (2) E, D, C, B, A (3) E, A, D, C, B (4) A, E, B, D, C",
+        "ncert_context": "NCERT Class 11 Biology Ch.9: Pepsin active in acidic stomach; trypsin in alkaline duodenum.",
         "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-019",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Solve: log₂(x+3) = 4.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
-            "options": [
-              {
-                "id": "A",
-                "label": "Ohm's law"
-              }
-            ]
-          },
-          "finalAnswer": null
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-020",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Which lens is used to correct myopia? Explain with ray diagram.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "interactionCount": 2,
+          "title": "Enzyme Catalytic Cycle",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem asks for the correct sequence of steps in the catalytic cycle of enzyme action. The steps involve substrate binding, product formation, and enzyme regeneration."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the order in which an enzyme interacts with a substrate. What happens first when a substrate approaches an enzyme?"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "After the substrate binds to the enzyme and undergoes a reaction, think about what happens to the enzyme and the products formed."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (Substrate enzyme complex formation). This is a crucial first step in the catalytic cycle. However, consider the entire sequence of events that follow this step."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A (Substrate enzyme complex formation) again. Remember to think about the subsequent steps after substrate binding and how they lead to product release."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "The correct sequence of steps in the catalytic cycle is: 1) E: Substrate binding to the active site, 2) A: Substrate-enzyme complex formation, 3) D: Chemical bonds of the substrate broken, 4) C: Release of products, 5) B: Free enzyme ready to bind with another substrate. Therefore, the correct answer is option (3) E, A, D, C, B."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Regarding catalytic cycle of an enzyme action, select the correct sequential steps:",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Substrate enzyme complex formation."
+                },
+                {
+                  "id": "B",
+                  "label": "Free enzyme ready to bind with another substrate."
+                },
+                {
+                  "id": "C",
+                  "label": "Release of products."
+                },
+                {
+                  "id": "D",
+                  "label": "Chemical bonds of the substrate broken."
+                },
+                {
+                  "id": "E",
+                  "label": "Substrate binding to active site."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Substrate enzyme complex formation.",
+              "feedbackMarkdown": "At checkpoint 1 you chose A (Substrate enzyme complex formation). This is a crucial first step in the catalytic cycle. However, consider the entire sequence of events that follow this step."
+            },
+            {
+              "number": 2,
+              "prompt": "Regarding catalytic cycle of an enzyme action, select the correct sequential steps:",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Substrate enzyme complex formation."
+                },
+                {
+                  "id": "B",
+                  "label": "Free enzyme ready to bind with another substrate."
+                },
+                {
+                  "id": "C",
+                  "label": "Release of products."
+                },
+                {
+                  "id": "D",
+                  "label": "Chemical bonds of the substrate broken."
+                },
+                {
+                  "id": "E",
+                  "label": "Substrate binding to active site."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Substrate enzyme complex formation.",
+              "feedbackMarkdown": "At checkpoint 2 you chose A (Substrate enzyme complex formation) again. Remember to think about the subsequent steps after substrate binding and how they lead to product release."
+            }
+          ],
+          "finalAnswer": "E, A, D, C, B",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "multi_part",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-001",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q30. An alternating voltage source represented by V = V0 sin ωt is applied across an ideal inductor possessing self-inductance L. Derive the mathematical expression for the instantaneous current flowing through the circuit. Prove analytically that the current wave lags behind the voltage wave by a phase angle of π / 2 radians, and construct the corresponding vector phasor diagram layout.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add.",
+        "interaction_count": 0,
+        "student_choice": "None"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 0,
+          "title": "Alternating Current in an Inductor",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We have an alternating voltage source described by the equation $V = V_[answer hidden] \\sin(\\omega t)$ applied to an ideal inductor with self-inductance $L$. Our goal is to find the instantaneous current $I(t)$ flowing through the circuit and demonstrate that this current lags the voltage by a phase angle of $\\frac{\\pi}{2}$ radians."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Recall that the voltage across an inductor is related to the rate of change of current through it. The relationship is given by $V = L \\frac{dI}{dt}$."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "To find the current, you will need to integrate the voltage equation with respect to time. Don't forget to consider the phase difference that arises from the integration process."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Use Ohm's law directly."
+              },
+              {
+                "id": "B",
+                "label": "Apply the relationship between voltage and current in an inductor."
+              },
+              {
+                "id": "C",
+                "label": "Consider the energy stored in the inductor."
+              },
+              {
+                "id": "D",
+                "label": "Use Kirchhoff's laws for circuit analysis."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
+        }
+      },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-019",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q30. Given below are two statements: Statement I: During Go phase of cell cycle the cell is metabolically inactive Statement II: The centrosome undergoes duplication during S phase of interphase. In the light of the above statements, choose the most appropriate answer from the option below: a. Statement I is incorrect but Statement II is correct b. Both Statement I and Statement II are correct c. Both Statement I and Statement II are incorrect. d. Statement I is correct but Statement II is incorrect.",
+        "ncert_context": "NCERT Class 11–12 Biology: Recall NCERT terminology; link structure to function.",
+        "interaction_count": 1,
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 1,
+          "title": "Cell Cycle Statements Evaluation",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to evaluate two statements regarding the cell cycle: Statement I claims that during the Go phase, the cell is meta[answer hidden]olically inactive, while Statement II states that the centrosome undergoes duplication during the S phase of interphase."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the characteristics of the Go phase in the cell cycle and how it relates to cellular activity."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Recall the stages of interphase and what occurs during the S phase, particularly concerning centrosome duplication."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (Statement I is incorrect [answer hidden]ut Statement II is correct). This choice may mislead you [answer hidden]ecause while Statement I is indeed incorrect, Statement II is also correct. The centrosome does duplicate during the S phase, which is a key event in the cell cycle."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Statement I is incorrect but Statement II is correct"
+                },
+                {
+                  "id": "B",
+                  "label": "Both Statement I and Statement II are correct"
+                },
+                {
+                  "id": "C",
+                  "label": "Both Statement I and Statement II are incorrect"
+                },
+                {
+                  "id": "D",
+                  "label": "Statement I is correct but Statement II is incorrect"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Statement I is incorrect but Statement II is correct",
+              "feedbackMarkdown": "You picked option A (Statement I is incorrect but Statement II is correct). This choice may mislead you because while Statement I is indeed incorrect, Statement II is also correct. The centrosome does duplicate during the S phase, which is a key event in the cell cycle."
+            }
+          ],
+          "checkpoint": {
+            "number": 2,
+            "prompt": "What should we do next?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Re-evaluate Statement I and its implications"
+              },
+              {
+                "id": "B",
+                "label": "Focus on the significance of the S phase"
+              },
+              {
+                "id": "C",
+                "label": "Consider both statements together"
+              },
+              {
+                "id": "D",
+                "label": "Review the entire cell cycle process"
+              }
+            ]
+          },
+          "revealLevel": "hint",
+          "followUpButtons": []
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "cbse",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-020",
+      "variation": "cbse",
+      "inputs": {
+        "problem_text_normalized": "Q58. Match List-I with List-II. List-I List-II ((A)) Mast cells (I) Ciliated epithelium ((B)) Inner surface of bronchiole (II) Areolar connective tissue ((C)) Blood (III) Cuboidal epithelium ((D)) Tubular parts of nephron (IV) specialised connective tissue Choose the correct answer from the options a. A-III, B-IV, C-II, D-I b. A-I, B-II, C-IV, D-III c. A-II, B-III, C-I, D-IV d. A-II, B-I, C-IV, D-III",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 2,
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 2,
+          "title": "Matching Biological Structures",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "You need to match the biological structures in List-I with their corresponding descriptions in List-II. Each option consists of a pairing of structures and their characteristics."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the functions of each structure. For example, mast cells are involved in immune responses, while the inner surface of bronchioles is related to respiratory functions."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Think about the types of tissues: areolar connective tissue is loose connective tissue, while specialized connective tissues have specific functions. This might help you match them correctly."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (Mast cells - Ciliated epithelium, Inner surface of bronchiole - Specialized connective tissue, Blood - Areolar connective tissue, Tubular parts of nephron - Cuboidal epithelium). This choice contains some inaccuracies. Consider the specific functions of mast cells and the types of epithelium found in bronchioles."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you again chose A (Mast cells - Ciliated epithelium, Inner surface of bronchiole - Specialized connective tissue, Blood - Areolar connective tissue, Tubular parts of nephron - Cuboidal epithelium). This indicates a misunderstanding of the tissue types. Review the characteristics of each structure to improve your matching."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "To solve the matching problem, let's analyze each item in List-I:\n\n- **Mast cells** are found in areolar connective tissue and play a role in the immune system.\n- The **inner surface of bronchioles** is lined with ciliated epithelium to help move mucus.\n- **Blood** is considered a specialized connective tissue due to its unique functions and composition.\n- The **tubular parts of the nephron** are lined with cuboidal epithelium, which is involved in absorption and secretion.\n\nThus, the correct matches are:\n- A - II (Mast cells - Areolar connective tissue)\n- B - I (Inner surface of bronchiole - Ciliated epithelium)\n- C - IV (Blood - Specialized connective tissue)\n- D - III (Tubular parts of nephron - Cuboidal epithelium)"
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Match List-I with List-II.",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A-III, B-IV, C-II, D-I"
+                },
+                {
+                  "id": "B",
+                  "label": "A-I, B-II, C-IV, D-III"
+                },
+                {
+                  "id": "C",
+                  "label": "A-II, B-III, C-I, D-IV"
+                },
+                {
+                  "id": "D",
+                  "label": "A-II, B-I, C-IV, D-III"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A-III, B-IV, C-II, D-I",
+              "feedbackMarkdown": "Your choice contains inaccuracies. Review the functions of mast cells and the types of epithelium."
+            },
+            {
+              "number": 2,
+              "prompt": "Match List-I with List-II.",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A-III, B-IV, C-II, D-I"
+                },
+                {
+                  "id": "B",
+                  "label": "A-I, B-II, C-IV, D-III"
+                },
+                {
+                  "id": "C",
+                  "label": "A-II, B-III, C-I, D-IV"
+                },
+                {
+                  "id": "D",
+                  "label": "A-II, B-I, C-IV, D-III"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A-III, B-IV, C-II, D-I",
+              "feedbackMarkdown": "Your choice remains the same, indicating a misunderstanding. Review the characteristics of each structure."
+            }
+          ],
+          "finalAnswer": "D",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "cbse",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-021",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "cbse",
       "inputs": {
-        "problem_text_normalized": "Rate law: rate = k[A]²[B]. If [A] doubles, how does rate change?",
-        "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q51. Match List-I with List-II. List-I List-II ((A)) Heroin (I) Effect on cardiovascular system ((B)) Marijuana (II) Slow down body function ((C)) Cocaine (III) Painkiller ((D)) Morphine (IV) Interfere with transport dopamine Choose the correct answer from the options given below: a. A-III, B-IV, C-I, D-II b. A-II, B-I, C-IV, D-III c. A-I. B-II, C-III, D-IV d. A-IV, B-III, C-II, D-I Q52.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 0,
+        "student_choice": "None"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
+          "interactionCount": 0,
+          "title": "Drug Effects Matching",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to match the drugs listed in List-I with their corresponding effects or characteristics in List-II. Each drug has a specific effect that can be identified based on its known pharmacological properties."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the primary effects of each drug: Heroin is known for its pain-relieving properties, while Cocaine is known to affect dopamine transport. Marijuana has different effects compared to the others, and Morphine is also a well-known painkiller."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Think about how each drug interacts with the body. For instance, Cocaine's impact on the cardiovascular system is significant, while Marijuana tends to slow down body functions. This knowledge can help you match the drugs correctly."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Focus on pain-relieving properties of drugs."
+              },
+              {
+                "id": "B",
+                "label": "Consider the effects on the cardiovascular system."
+              },
+              {
+                "id": "C",
+                "label": "Look at how drugs interfere with neurotransmitter transport."
+              },
+              {
+                "id": "D",
+                "label": "Evaluate the overall slowing down of body functions."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "cbse",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-022",
       "variation": "cbse",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
       "inputs": {
-        "problem_text_normalized": "Find area under y=x from 0 to 3.",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q5. Given below are two statements: one is labelled as Assertion A and the other is labelled as Reason R. Assertion A: Amniocentesis for sex determination is one of the strategies of Reproductive and Child Health Care Programme. Reason R: Ban on amniocentesis checks increasing menace of female foeticide. In the light of the above statements. Choose the correct answer from the options given below: a. A is false but R is true. b. Both A and R are true and R is the correct explanation of",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 1,
+        "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
+          "interactionCount": 1,
+          "title": "Understanding Amniocentesis and Female Foeticide",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The pro[answer hidden]lem presents two statements regarding amniocentesis and its implications in the context of reproductive health and female foeticide. The assertion discusses the role of amniocentesis in reproductive health, while the reason addresses the [answer hidden]an on the procedure as a measure against female foeticide."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider the purpose of amniocentesis and the implications of its [answer hidden]an. Reflect on how these relate to reproductive health strategies."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Evaluate whether the reason provided effectively supports the assertion. Think a[answer hidden]out the [answer hidden]roader context of reproductive health policies and their intended outcomes."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (A is false [answer hidden]ut R is true). This choice suggests that you [answer hidden]elieve amniocentesis is not a strategy in reproductive health care, while acknowledging that the [answer hidden]an on it does address female foeticide. However, consider the role of amniocentesis in prenatal care and how it is viewed within health programs."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "A is false but R is true."
+                },
+                {
+                  "id": "B",
+                  "label": "Both A and R are true and R is the correct explanation of A."
+                },
+                {
+                  "id": "C",
+                  "label": "A is true but R is false."
+                },
+                {
+                  "id": "D",
+                  "label": "Both A and R are false."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "A is false but R is true.",
+              "feedbackMarkdown": "You picked option A (A is false but R is true). This choice suggests that you believe amniocentesis is not a strategy in reproductive health care, while acknowledging that the ban on it does address female foeticide. However, consider the role of amniocentesis in prenatal care and how it is viewed within health programs."
+            }
+          ],
           "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
+            "number": 2,
+            "prompt": "What should we do next?",
             "options": [
               {
                 "id": "A",
-                "label": "Ohm's law"
+                "label": "Both A and R are true and R is the correct explanation of A."
+              },
+              {
+                "id": "B",
+                "label": "A is true but R is false."
+              },
+              {
+                "id": "C",
+                "label": "Both A and R are false."
+              },
+              {
+                "id": "D",
+                "label": "A is false but R is true."
               }
             ]
           },
-          "finalAnswer": null
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "neet",
+        "source_pdf_neet_zoology",
+        "cbse",
+        "assertion_reason",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-023",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "proof",
       "inputs": {
-        "problem_text_normalized": "DNA replication is semi-conservative. Outline Meselson-Stahl idea.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
+        "problem_text_normalized": "Q26. A steady current of 5 A passes along the +X coordinate direction through a long straight wire lying coincident with the X-axis. Find the vector magnetic field B generated at a spatial coordinate point located at position vector r = (3î + 4î) m due to a 1 cm segment element of the wire centered symmetrically at the origin. SHORT ANSWER QUESTIONS (SAQS) Each question carries 3 marks. Provide clear analytical explanations, derivations, or step-wise calculations.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add.",
+        "interaction_count": 2,
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "interactionCount": 2,
+          "title": "Magnetic Field Calculation",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to calculate the magnetic field \\\\( \textbf{B} \\\\) at a point given by the position vector \\\\( \textbf{r} = (3\\hat{i} + 4\\hat{j}) \\\\text{ m} \\\\) due to a segment of a long straight wire carrying a current of 5 A. The wire lies along the X-axis, and we will use the Biot-Savart law to find the magnetic field generated by a small segment of the wire."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Recall the Biot-Savart law, which states that the magnetic field \\\\( \textbf{B} \\\\) at a point due to a current-carrying segment is given by: \\\\[ d\\textbf{B} = \\frac{\\mu_0}{4\\pi} \\frac{I d\\textbf{l} \\times \\hat{r}}{r^2} \\\\] where \\\\( I \\\\) is the current, \\\\( d\\textbf{l} \\\\) is the length vector of the segment, \\\\( \\hat{r} \\\\) is the unit vector from the segment to the point, and \\\\( r \\\\) is the distance from the segment to the point."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "To apply the Biot-Savart law, identify the length vector \\\\( d\\textbf{l} \\\\) for the segment, which is along the X-axis. Also, calculate the distance \\\\( r \\\\) from the segment to the point \\\\( \textbf{r} \\\\) and find the unit vector \\\\( \\hat{r} \\\\) accordingly."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (the option label). This choice indicates your initial understanding of the problem. Make sure to carefully consider the application of the Biot-Savart law and the geometry involved in the setup."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A (the option label). This suggests you are still considering the same approach. Review the calculations for the magnetic field and ensure you are applying the right components for the cross product in the Biot-Savart law."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "1. **Identify the segment**: Let the segment of the wire be from \\\\(-0.005 \\\\text{ m} \\\\) to \\\\(+0.005 \\\\text{ m} \\\\) along the X-axis. Thus, \\\\( d\\textbf{l} = dx \\hat{i} \\\\). \\\\n2. **Position vector**: The point of interest is \\\\( \textbf{r} = (3\\hat{i} + 4\\hat{j}) \\\\text{ m} \\\\). The distance from the wire to this point is \\\\( r = \\sqrt{(3)^2 + (4)^2} = 5 \\\\text{ m} \\\\). \\\\n3. **Unit vector**: The unit vector \\\\( \\hat{r} = \\frac{(3\\hat{i} + 4\\hat{j})}{5} \\\\). \\\\n4. **Cross product**: Calculate \\\\( d\\textbf{l} \\times \\hat{r} \\\\) which will give the direction of the magnetic field. \\\\n5. **Integrate**: Integrate over the length of the segment to find the total magnetic field \\\\( \textbf{B} \\\\)."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "What is the first step in calculating the magnetic field?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Use Biot-Savart law"
+                },
+                {
+                  "id": "B",
+                  "label": "Calculate resistance"
+                },
+                {
+                  "id": "C",
+                  "label": "Use Ampere's law"
+                },
+                {
+                  "id": "D",
+                  "label": "Find current density"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Use Biot-Savart law",
+              "feedbackMarkdown": "Correct! The Biot-Savart law is the right approach to find the magnetic field due to a current-carrying wire."
+            },
+            {
+              "number": 2,
+              "prompt": "What is the next step after identifying the segment?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Calculate the magnetic field"
+                },
+                {
+                  "id": "B",
+                  "label": "Determine the distance and unit vector"
+                },
+                {
+                  "id": "C",
+                  "label": "Find the total current"
+                },
+                {
+                  "id": "D",
+                  "label": "Draw the magnetic field lines"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Calculate the magnetic field",
+              "feedbackMarkdown": "Not quite. You need to first determine the distance and unit vector before calculating the magnetic field."
+            }
+          ],
+          "finalAnswer": "The magnetic field \\\\textbf{B} at the point (3\\hat{i} + 4\\hat{j}) m due to the 1 cm segment of the wire is calculated to be \\( \\textbf{B} = \\frac{\\mu_0 I}{4\\pi r^2} \\cdot \\hat{r} \\times d\\textbf{l} \\). After evaluating, we find \\( \\textbf{B} = (0, 0, B_z) \\text{ T} \\).",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "proof",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-024",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
+      "variation": "proof",
       "inputs": {
-        "problem_text_normalized": "Capacitor 10 μF charged to 100 V. Energy stored?",
-        "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "problem_text_normalized": "Q17. The threshold voltage of a silicon diode is 0.7 V. It is operated by connecting the diode in series with a battery of V volts and a resistor of 1000 Ω. Find the required value of V when the active current drawn through the circuit is 15 mA.",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add.",
+        "interaction_count": 0,
+        "student_choice": "None"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
+          "interactionCount": 0,
+          "title": "Diode Circuit Analysis",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We have a silicon diode with a threshold voltage of 0.7 V, connected in series with a battery of unknown voltage \\( V \\) and a resistor of \\( 1000 \\, \\Omega \\). The current flowing through the circuit is \\( [answer hidden] \\, \\text{mA} \\). We need to find the value of \\( V \\) that allows this current to flow."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Recall that the total voltage in a series circuit is equal to the sum of the voltage drops across each component. In this case, the voltage drop across the resistor can be calculated using Ohm's law: \\( V_R = I \\times R \\)."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "The total voltage supplied by the battery \\( V \\) must equal the sum of the voltage drop across the resistor and the threshold voltage of the diode: \\( V = V_R + V_{diode} \\)."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Use Ohm's law to find the voltage drop across the resistor."
+              },
+              {
+                "id": "B",
+                "label": "Calculate the power dissipated in the resistor."
+              },
+              {
+                "id": "C",
+                "label": "Use Kirchhoff's voltage law for the entire circuit."
+              },
+              {
+                "id": "D",
+                "label": "Determine the current through the diode only."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "proof",
+        "numerical",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-002",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q39. The maximum rated power of the LED is 2 mW and it is used in the circuit with input voltage of 5 V as shown in the figure below. The current through resistance R_S is 0.5 mA. The minimum value of the resistance of R_S, to ensure that the LED is not damaged is ______ kΩ.\n\n[Diagram: The circuit diagram features a 5 V power supply represented by a long horizontal line with a positive terminal at the top and a negative terminal at the bottom. To the right of the power supply, there is a resistor labeled \\( R_S \\) connected in series. Following this resistor, there is a second resistor labeled \\( R = 1 \\, k\\Omega \\). Below this resistor, there are two diodes represented by triangular shapes pointing towards the right, indicating the direction of current flow. The first diode is connected to the resistor \\( R \\), and the second diode is connected to the LED, which is labeled as \"2 mW LED\" and depicted as a triangle with a flat base. The LED is oriented to allow current to flow from left to right. The entire circuit is laid out horizontally, with all components aligned in a single row. There are no arrows indicating motion or forces, and no graph axes or scales are present in the diagram.]\n\n(1) 6  (2) 2  (3) 4  (4) 5",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add.",
+        "interaction_count": 1,
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 1,
+          "title": "LED Circuit Analysis",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We need to determine the minimum resistance value of resistor \\( R_S \\) in a circuit with a 5 V power supply and a current of 0.5 mA flowing through it, ensuring that the LED rated at 2 mW is not damaged."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "First, calculate the maximum current that the LED can handle using its power rating. The formula for power is given by \\( P = V \\times I \\). Rearranging this gives us the current as \\( I = \\frac{P}{V} \\)."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Next, apply Ohm's law to find the minimum resistance \\( R_S \\) that would allow a current of 0.5 mA to flow without exceeding the LED's maximum rated power."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (6 kΩ). This choice may not be correct because it does not take into account the calculations needed to ensure the LED's power rating is not exceeded. Understanding the relationship between power, voltage, and current is crucial here."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Use the power formula to find current."
+                },
+                {
+                  "id": "B",
+                  "label": "Use Ohm's law to find resistance."
+                },
+                {
+                  "id": "C",
+                  "label": "Calculate total resistance in the circuit."
+                },
+                {
+                  "id": "D",
+                  "label": "Determine voltage drop across the LED."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Use the power formula to find current.",
+              "feedbackMarkdown": "You picked option A (Use the power formula to find current). This choice may not be correct because it does not take into account the calculations needed to ensure the LED's power rating is not exceeded. Understanding the relationship between power, voltage, and current is crucial here."
+            }
+          ],
+          "checkpoint": {
+            "number": 2,
+            "prompt": "What should we do next?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Calculate the maximum current for the LED."
+              },
+              {
+                "id": "B",
+                "label": "Determine the voltage across \\( R_S \\) using Ohm's law."
+              },
+              {
+                "id": "C",
+                "label": "Find the total resistance needed for the circuit."
+              },
+              {
+                "id": "D",
+                "label": "Recalculate the power rating of the LED."
+              }
+            ]
+          },
+          "revealLevel": "hint",
+          "followUpButtons": []
+        }
+      },
+      "tags": [
+        "physics",
+        "jee",
+        "source_pdf_jee_april_2026",
+        "diagram",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-003",
+      "variation": "diagram",
+      "inputs": {
+        "problem_text_normalized": "Q49. A constant voltage of 50 V is maintained between the points A and B of the circuit shown in the figure. The current through the branch CD of the circuit is:\n\n[Diagram: The circuit diagram shows a closed loop with points labeled A and B at the top left and top right, respectively. A voltage source of 50 V is connected between these points. Below the voltage source, there are four resistors arranged in a combination of series and parallel. The resistors are labeled with their resistances: a 1Ω resistor is connected between points A and C, a 2Ω resistor is connected between points C and B, a 3Ω resistor is connected between points C and D, and a 4Ω resistor is connected between points D and B. The resistors are represented by zigzag lines. The layout is primarily horizontal, with the voltage source at the bottom center. There are no arrows indicating motion or forces in the diagram. The resistors are connected by straight lines representing wires. The overall structure is a simple circuit with clear labeling of components and values. No additional numeric annotations or angles are present.]\n\n(1) 1.5 A  \n(2) 2.0 A  \n(3) 2.5 A  \n(4) 3.0 A",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add.",
+        "interaction_count": 2,
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 2,
+          "title": "Current Calculation in a Circuit",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "We have a circuit with a constant voltage of 50 V between points A and B, and we need to find the current through the branch CD. The resistors are arranged in a combination of series and parallel, which will affect the total resistance and thus the current."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "First, calculate the total resistance of the circuit. Remember that resistors in series simply add up, while resistors in parallel require the reciprocal formula: \\[ \\frac{1}{R_{total}} = \\frac{1}{R_1} + \\frac{1}{R_2} + ... \\]"
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Once you find the total resistance, use Ohm's law to find the total current from the voltage source: \\[ I = \\frac{V}{R_{total}} \\]. Then, apply the current division rule to find the current through branch CD."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (1.5 A). This choice might not reflect the correct understanding of the total resistance in the circuit. Ensure you consider both series and parallel combinations properly."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A (1.5 A) again. It's important to re-evaluate your calculations for total resistance and the application of Ohm's law to ensure the current through branch CD is accurately determined."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "1. Identify the resistances: 1Ω (A to C), 2Ω (C to B), 3Ω (C to D), and 4Ω (D to B).  \n2. Calculate the equivalent resistance of the resistors in parallel (3Ω and 4Ω) first:  \n   \\[ R_{CD} = \\frac{1}{\\frac{1}{3} + \\frac{1}{4}} = \\frac{12}{7} \\, \\Omega \\]  \n3. Now, find the total resistance in the circuit:  \n   \\[ R_{total} = 1 + 2 + R_{CD} = 1 + 2 + \\frac{12}{7} = \\frac{26}{7} \\, \\Omega \\]  \n4. Apply Ohm's law to find the total current:  \n   \\[ I_{total} = \\frac{50}{\\frac{26}{7}} = \\frac{50 \\times 7}{26} = \\frac{350}{26} \\approx 13.46 \\, A \\]  \n5. Use the current division rule to find the current through branch CD:  \n   \\[ I_{CD} = I_{total} \\times \\frac{R_{other}}{R_{CD} + R_{other}} \\]  \n6. Finally, calculate the current through CD to get the answer."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "What is the current through branch CD?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "1.5 A"
+                },
+                {
+                  "id": "B",
+                  "label": "2.0 A"
+                },
+                {
+                  "id": "C",
+                  "label": "2.5 A"
+                },
+                {
+                  "id": "D",
+                  "label": "3.0 A"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "1.5 A",
+              "feedbackMarkdown": "You chose 1.5 A. This may not be the correct current through branch CD. Consider recalculating the total resistance."
+            },
+            {
+              "number": 2,
+              "prompt": "What is the current through branch CD?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "1.5 A"
+                },
+                {
+                  "id": "B",
+                  "label": "2.0 A"
+                },
+                {
+                  "id": "C",
+                  "label": "2.5 A"
+                },
+                {
+                  "id": "D",
+                  "label": "3.0 A"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "1.5 A",
+              "feedbackMarkdown": "You again chose 1.5 A. It's essential to check your calculations for the total resistance and the current division to find the correct answer."
+            }
+          ],
+          "finalAnswer": "2.0 A",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
+        }
+      },
+      "tags": [
+        "physics",
+        "neet",
+        "source_pdf_neet_physics",
+        "diagram",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-025",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
+      "variation": "ncert_strict",
       "inputs": {
-        "problem_text_normalized": "Solve simultaneous: 2x+3y=7, x-y=1.",
+        "problem_text_normalized": "Q8. In the given pedigree chart, a cross between a normal couple resulted in a son who was haemophilic and a normal daughter. In course of time, when the daughter was married to a normal man, to their surprise the grandson was also haemophilic. Choose the option that indicates the correct inheritance of trait in the above pedigree chart. ((A)) Autosome linked dominant trait ((B)) Sex-linked dominant trait ((C)) Autosomal recessive trait ((D)) Sex-linked recessive trait",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
         "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "student_choice": "None"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
+          "interactionCount": 0,
+          "title": "Understanding Inheritance Patterns",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "In this problem, we are analyzing a pe[answer hidden]igree chart to [answer hidden]etermine the inheritance pattern of hemophilia, a bloo[answer hidden] [answer hidden]isor[answer hidden]er. The key points to note are that a normal couple has a son who is hemophilic an[answer hidden] a normal [answer hidden]aughter. The [answer hidden]aughter later marries a normal man, an[answer hidden] they have a gran[answer hidden]son who is also hemophilic. This information will help us [answer hidden]e[answer hidden]uce the mo[answer hidden]e of inheritance."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consi[answer hidden]er the fact that hemophilia is a con[answer hidden]ition that primarily affects males an[answer hidden] is often passe[answer hidden] [answer hidden]own through generations. Think about how the trait coul[answer hidden] be inherite[answer hidden] from the parents to the son an[answer hidden] then to the gran[answer hidden]son."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Since the [answer hidden]aughter is normal but has a hemophilic son, this suggests that she carries a recessive allele for hemophilia. This coul[answer hidden] in[answer hidden]icate that hemophilia is linke[answer hidden] to the sex chromosomes, particularly the X chromosome."
+            }
+          ],
           "checkpoint": {
             "number": 1,
-            "prompt": "Which concept applies?",
+            "prompt": "Which idea should we use?",
             "options": [
               {
                 "id": "A",
-                "label": "Ohm's law"
+                "label": "Autosome linked dominant trait"
+              },
+              {
+                "id": "B",
+                "label": "Sex-linked dominant trait"
+              },
+              {
+                "id": "C",
+                "label": "Autosomal recessive trait"
+              },
+              {
+                "id": "D",
+                "label": "Sex-linked recessive trait"
               }
             ]
           },
-          "finalAnswer": null
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "ncert_strict",
+        "mcq",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-026",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "IUPAC name: CH3-CH(CH3)-CH2-OH.",
+        "problem_text_normalized": "Q48. The graph below shows the concentration of nicotine in blood of a smoker taking 10 puffs per minute. (a) (i) With reference to the above graph, explain the concentration of nicotine in the blood at 10 minutes? OR (a) (ii) How will this affect the concentration of carbon monoxide and haem-bound oxygen at 10 minutes? (b) How does cigarette smoking result in high blood pressure and increase in heart rate? (c) To which class of compounds does nicotine belong? Name one other drug from the same class.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
         "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
+          "interactionCount": 1,
+          "title": "Nicotine and Its Effects",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem involves analyzing the effects of nicotine concentration in the blood of a smoker over time, its impact on other substances like carbon monoxide and oxygen, the physiological effects of smoking, and the classification of nicotine."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider how nicotine affects the cardiovascular system and how it might influence the levels of carbon monoxide and oxygen in the blood."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Think about the chemical classification of nicotine and compare it with other similar substances."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (exact label for option A). This option is relevant as it addresses the concentration of nicotine in the blood at 10 minutes, which is crucial for understanding its immediate effects on the body."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "The concentration of nicotine will peak and then decline."
+                },
+                {
+                  "id": "B",
+                  "label": "Nicotine will have no effect on blood concentration."
+                },
+                {
+                  "id": "C",
+                  "label": "The concentration will remain constant throughout."
+                },
+                {
+                  "id": "D",
+                  "label": "Nicotine concentration will gradually increase."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "The concentration of nicotine will peak and then decline.",
+              "feedbackMarkdown": "You picked option A (The concentration of nicotine will peak and then decline). This option is relevant as it addresses the concentration of nicotine in the blood at 10 minutes, which is crucial for understanding its immediate effects on the body."
+            }
+          ],
+          "checkpoint": {
+            "number": 2,
+            "prompt": "What should we do next?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Discuss the impact of nicotine on carbon monoxide levels."
+              },
+              {
+                "id": "B",
+                "label": "Explain how smoking increases heart rate."
+              },
+              {
+                "id": "C",
+                "label": "Identify the class of compounds nicotine belongs to."
+              },
+              {
+                "id": "D",
+                "label": "Analyze the long-term effects of smoking on health."
+              }
+            ]
+          },
           "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "followUpButtons": []
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-027",
-      "variation": "case_study",
-      "tags": [
-        "cbse",
-        "biology"
-      ],
+      "variation": "conceptual",
       "inputs": {
-        "problem_text_normalized": "Food chain: grass→rabbit→fox. Energy at fox if 10% rule and grass has 5000 J.",
+        "problem_text_normalized": "Q51. Study the diagram that shows the steps involved in the procedure of selecting transformed bacteria and answer the questions that follow. (a) Identify the colony that has got transformed. Justify your answer. (b) What are the sites in a plasmid called where ampicillin and tetracycline resistance genes are inserted? State their role in genetic engineering. (c) Name two enzymes playing an important role in genetic engineering. OR (c) State the role of β-galactosidase in insertional inactivation.\n\n[Diagram: The figure consists of four labeled sections (i, ii, iii, iv) arranged vertically. In section (i), there is a circular shape labeled \"Plasmid\" at the top left, with a smaller circular shape labeled \"Gene for ampicillin resistance\" above it and another labeled \"Gene for tetracycline resistance\" to the right. Section (ii) shows a circular shape labeled \"Recombinant DNA\" below the plasmid. Section (iii) depicts a circular plate labeled \"Plate M\" containing five circular colonies numbered 1 to 5, arranged in a semi-circular pattern. Below this plate, there is an arrow pointing to the right labeled \"Replica plating.\" Section (iv) shows another circular plate labeled \"Plate N,\" which contains three circular colonies and one oval shape in the center. The overall layout is top to bottom, with clear connections between the sections through arrows indicating the process of replica plating.]",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
         "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-028",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "physics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Projectile: u=20 m/s, θ=45°. Find range (g=10).",
-        "interaction_count": 0,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
-      },
-      "reference_outputs": {
-        "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": {
-            "number": 1,
-            "prompt": "Which concept applies?",
-            "options": [
-              {
-                "id": "A",
-                "label": "Ohm's law"
-              }
-            ]
-          },
-          "finalAnswer": null
-        }
-      },
-      "evaluators": [
-        "json_schema",
-        "no_premature_answer"
-      ]
-    },
-    {
-      "id": "help_me_solve_it-029",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "mathematics"
-      ],
-      "inputs": {
-        "problem_text_normalized": "Evaluate ∫₀^π sin x dx.",
-        "interaction_count": 1,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
         "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
-          "revealLevel": "hint",
-          "checkpoint": null,
-          "finalAnswer": null
+          "interactionCount": 2,
+          "title": "Genetic Engineering and Bacterial Transformation",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem involves understanding the process of selecting transformed bacteria using a diagram that illustrates the steps involved in genetic engineering. You need to identify the transformed colony, understand the role of specific genes in plasmids, and recognize key enzymes involved in the process."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Look closely at the colonies on Plate M and Plate N. Consider which colonies might have survived the antibiotic selection based on the resistance genes present in the plasmid."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Remember that the sites in a plasmid where resistance genes are inserted are crucial for the selection of transformed bacteria. Think about the role of β-galactosidase in the context of insertional inactivation."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (the colony labeled '1'). This choice may not be correct if that colony does not exhibit the expected characteristics of transformed bacteria. Consider the resistance genes and how they would affect the growth of the colonies on the antibiotic plates."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A again. Reflect on the specific roles of the genes inserted into the plasmid and how they relate to the transformation process. The correct identification of the transformed colony should align with the antibiotic resistance observed."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "To solve the problem, first identify the transformed colony by checking which colonies on Plate N survived the antibiotic treatment. The colonies that grow on the selective media indicate successful transformation. Next, the sites in the plasmid where the resistance genes are inserted are called 'multiple cloning sites' (MCS), which allow for the insertion of foreign DNA. Two important enzymes in genetic engineering are restriction enzymes and DNA ligase. If focusing on β-galactosidase, its role in insertional inactivation is to help determine whether the insertion of foreign DNA has occurred by disrupting the gene that encodes for it, thus preventing the breakdown of a substrate that would otherwise produce a color change."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Identify the transformed colony.",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Colony 1"
+                },
+                {
+                  "id": "B",
+                  "label": "Colony 2"
+                },
+                {
+                  "id": "C",
+                  "label": "Colony 3"
+                },
+                {
+                  "id": "D",
+                  "label": "Colony 4"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Colony 1",
+              "feedbackMarkdown": "Your choice of Colony 1 may not be correct. Consider the characteristics of the colonies in relation to the antibiotic resistance."
+            },
+            {
+              "number": 2,
+              "prompt": "What are the sites in a plasmid called where ampicillin and tetracycline resistance genes are inserted?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Multiple Cloning Sites"
+                },
+                {
+                  "id": "B",
+                  "label": "Origin of Replication"
+                },
+                {
+                  "id": "C",
+                  "label": "Promoter Regions"
+                },
+                {
+                  "id": "D",
+                  "label": "Terminator Sequences"
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Multiple Cloning Sites",
+              "feedbackMarkdown": "Correct! The sites where resistance genes are inserted are called Multiple Cloning Sites, which facilitate the insertion of foreign DNA."
+            }
+          ],
+          "finalAnswer": "The transformed colony is Colony 3, as it is the only one that grew on the selective media. The sites in a plasmid where resistance genes are inserted are called Multiple Cloning Sites (MCS), which play a crucial role in genetic engineering by allowing for the insertion of foreign DNA. Two important enzymes in genetic engineering are restriction enzymes and DNA ligase. β-galactosidase plays a role in insertional inactivation by indicating whether a foreign DNA has been successfully inserted into the plasmid.",
+          "revealLevel": "full",
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "conceptual",
+        "mcq",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-028",
+      "variation": "conceptual",
+      "inputs": {
+        "problem_text_normalized": "Q40. (a) (i) Describe the series of experiments conducted by Frederick Griffith. Comment on the significance of the result obtained. (ii) State the contribution of Avery, MacLeod and McCarty. OR (b) The following questions are based on haemophilia. (i) Work out the crosses between: (I) Normal female and haemophilic male, (II) Carrier female and normal male, (III) Carrier female and haemophilic male. (ii) Write the conclusions you draw from these crosses. Comment on the type of inheritance of the disease. Use: X — Normal, Xʰ — Haemophilic.",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 0,
+        "student_choice": "None"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 0,
+          "title": "Understanding Griffith's Experiments and Haemophilia Genetics",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The problem consists of two parts: (a) focuses on the experiments by Frederick Griffith and the contributions of Avery, MacLeod, and McCarty regarding genetic material, while (b) deals with genetic crosses related to haemophilia, a sex-linked recessive disorder."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "For part (a), consider the key components of Griffith's experiments, including the types of bacteria used and the transformation observed. Think about how these findings contributed to the understanding of DNA as the genetic material."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "In part (b), remember that haemophilia is an X-linked recessive condition. You will need to set up Punnett squares for the crosses and analyze the offspring ratios to draw conclusions about inheritance patterns."
+            }
+          ],
+          "checkpoint": {
+            "number": 1,
+            "prompt": "Which idea should we use?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Focus on Griffith's transformation experiment."
+              },
+              {
+                "id": "B",
+                "label": "Discuss the genetic crosses for haemophilia."
+              },
+              {
+                "id": "C",
+                "label": "Explain the significance of Avery, MacLeod, and McCarty's work."
+              },
+              {
+                "id": "D",
+                "label": "Analyze the inheritance pattern of X-linked traits."
+              }
+            ]
+          },
+          "checkpointHistory": [],
+          "revealLevel": "hint",
+          "followUpButtons": []
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "conceptual",
+        "mcq",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "production_llm_gold"
+      ]
+    },
+    {
+      "id": "help_me_solve_it-029",
+      "variation": "case_study",
+      "inputs": {
+        "problem_text_normalized": "Q52. Read the following passage and answer the questions that follow. The most convincing evidence to trace evolutionary relationships between humans and different groups of animals comes from the basic similarities seen at the molecular level. Study the table below that depicts the number of amino acid differences between the haemoglobin polypeptide of a few animals with that of humans and answer the",
+        "ncert_context": "NCERT Class 12 Biology Ch.6: DNA A–T, G–C base pairing. Semiconservative replication. Central dogma DNA→RNA→protein.",
+        "interaction_count": 1,
+        "student_choice": "A"
+      },
+      "reference_outputs": {
+        "coach_json": {
+          "interactionCount": 1,
+          "title": "Evolutionary Relationships in Molecular Biology",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "The passage discusses how evolutionary relationships between humans and other animals can be traced through molecular similarities, specifically focusing on amino acid differences in haemoglobin polypeptides."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider how amino acid sequences can indicate evolutionary relationships. The fewer the differences, the closer the evolutionary relationship."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Look at the specific amino acid differences listed in the table and think about how they relate to the evolutionary lineage of the species compared to humans."
+            },
+            {
+              "heading": "Feedback on your choice",
+              "bodyMarkdown": "You picked option A (exact label for option A). This choice may help you understand the molecular basis of evolution, but ensure you analyze the data carefully to see if it truly supports your conclusion."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "Which idea should we use?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "Molecular similarities are key to understanding evolution."
+                },
+                {
+                  "id": "B",
+                  "label": "Morphological features are more important than molecular data."
+                },
+                {
+                  "id": "C",
+                  "label": "Evolutionary relationships cannot be traced through molecular data."
+                },
+                {
+                  "id": "D",
+                  "label": "Only genetic data can provide insights into evolution."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "Molecular similarities are key to understanding evolution.",
+              "feedbackMarkdown": "You picked option A (Molecular similarities are key to understanding evolution.). This choice aligns well with the passage's emphasis on molecular evidence in tracing evolutionary relationships."
+            }
+          ],
+          "checkpoint": {
+            "number": 2,
+            "prompt": "What should we do next?",
+            "options": [
+              {
+                "id": "A",
+                "label": "Analyze the amino acid differences in detail."
+              },
+              {
+                "id": "B",
+                "label": "Focus on morphological traits instead."
+              },
+              {
+                "id": "C",
+                "label": "Ignore the molecular data and rely on other evidence."
+              },
+              {
+                "id": "D",
+                "label": "Consider the implications of these differences on evolution."
+              }
+            ]
+          },
+          "revealLevel": "hint",
+          "followUpButtons": []
+        }
+      },
+      "tags": [
+        "biology",
+        "cbse",
+        "source_pdf_cbse_biology",
+        "case_study",
+        "production_llm_gold",
+        "vision_enriched_extraction"
+      ],
+      "evaluators": [
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     },
     {
       "id": "help_me_solve_it-030",
-      "variation": "conceptual",
-      "tags": [
-        "cbse",
-        "chemistry"
-      ],
+      "variation": "case_study",
       "inputs": {
-        "problem_text_normalized": "Buffer solution definition with Henderson-Hasselbalch equation.",
+        "problem_text_normalized": "Q47. Passage: A parallel plate capacitor has two parallel plates which are separated by an insulating medium like air, mica, etc. When the plates are connected to the terminals of a battery, they get equal and opposite charges and an electric field is set up in between them. This electric field between the two plates depends upon the potential difference applied, the separation of the plates and nature of the medium between the plates. Sub-questions:",
+        "ncert_context": "NCERT Class 12 Physics Ch.3: Ohm's law V=IR at constant temperature. Resistivity ρ=RA/L. Series resistances add; parallel reciprocals add.",
         "interaction_count": 2,
-        "ncert_context": "NCERT Class 10 Maths Ch.4: Roots of ax²+bx+c=0 given by quadratic formula.",
-        "student_choice": null
+        "student_choice": "A"
       },
       "reference_outputs": {
         "coach_json": {
-          "title": "Guided solve",
+          "interactionCount": 2,
+          "title": "Understanding Parallel Plate Capacitors",
+          "sections": [
+            {
+              "heading": "Problem decode",
+              "bodyMarkdown": "A parallel plate capacitor consists of two parallel plates separated by an insulating medium. When connected to a battery, the plates acquire equal and opposite charges, creating an electric field between them. The electric field is influenced by the potential difference, the distance between the plates, and the properties of the insulating medium."
+            },
+            {
+              "heading": "Hint 1",
+              "bodyMarkdown": "Consider how the electric field (\text{E}) is related to the potential difference (\text{V}) and the distance between the plates (\text{d}). The formula you might want to recall is \text{E} = \frac{V}{d}."
+            },
+            {
+              "heading": "Hint 2",
+              "bodyMarkdown": "Think about how the nature of the insulating medium (dielectric) affects the capacitance and the electric field. The dielectric constant plays a crucial role in this relationship."
+            },
+            {
+              "heading": "Feedback on checkpoint 1",
+              "bodyMarkdown": "At checkpoint 1 you chose A (the label for option A). This option may not fully capture the relationship between the electric field and the factors influencing it. Consider revisiting the definitions and relationships discussed in the passage."
+            },
+            {
+              "heading": "Feedback on checkpoint 2",
+              "bodyMarkdown": "At checkpoint 2 you chose A (the label for option A). It's important to ensure that your choice reflects an understanding of how the electric field is affected by the potential difference, plate separation, and the medium. Review the concepts again to strengthen your understanding."
+            },
+            {
+              "heading": "Solution walkthrough",
+              "bodyMarkdown": "To find the electric field (\text{E}) between the plates of a parallel plate capacitor, you can use the formula \text{E} = \frac{V}{d}, where \text{V} is the potential difference and \text{d} is the separation between the plates. The electric field is directly proportional to the potential difference and inversely proportional to the distance between the plates. Additionally, the presence of a dielectric medium can modify the effective electric field, depending on its dielectric constant."
+            }
+          ],
+          "checkpointHistory": [
+            {
+              "number": 1,
+              "prompt": "What is the relationship between electric field and potential difference in a parallel plate capacitor?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "The electric field is independent of potential difference."
+                },
+                {
+                  "id": "B",
+                  "label": "The electric field is directly proportional to potential difference."
+                },
+                {
+                  "id": "C",
+                  "label": "The electric field is inversely proportional to potential difference."
+                },
+                {
+                  "id": "D",
+                  "label": "The electric field is constant regardless of potential difference."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "The electric field is independent of potential difference.",
+              "feedbackMarkdown": "This choice does not accurately reflect the relationship. The electric field is indeed affected by the potential difference."
+            },
+            {
+              "number": 2,
+              "prompt": "How does the dielectric medium affect the electric field in a capacitor?",
+              "options": [
+                {
+                  "id": "A",
+                  "label": "It has no effect on the electric field."
+                },
+                {
+                  "id": "B",
+                  "label": "It increases the electric field."
+                },
+                {
+                  "id": "C",
+                  "label": "It decreases the electric field."
+                },
+                {
+                  "id": "D",
+                  "label": "It only affects capacitance, not the electric field."
+                }
+              ],
+              "studentChoice": "A",
+              "selectedLabel": "It has no effect on the electric field.",
+              "feedbackMarkdown": "This choice is incorrect. The dielectric medium does affect the electric field by altering the capacitance and the effective electric field strength."
+            }
+          ],
+          "finalAnswer": "The electric field between the plates of a parallel plate capacitor is directly proportional to the potential difference and inversely proportional to the separation of the plates.",
           "revealLevel": "full",
-          "checkpoint": null,
-          "finalAnswer": "Completed answer"
+          "followUpButtons": [
+            {
+              "label": "Show next hint",
+              "action": "SHOW_NEXT_HINT"
+            },
+            {
+              "label": "Reveal solution",
+              "action": "REVEAL_SOLUTION"
+            },
+            {
+              "label": "Show best approach",
+              "action": "SHOW_BEST_APPROACH"
+            },
+            {
+              "label": "Give similar problem",
+              "action": "GIVE_SIMILAR_PROBLEM"
+            }
+          ]
         }
       },
+      "tags": [
+        "physics",
+        "cbse",
+        "source_pdf_cbse_physics",
+        "case_study",
+        "production_llm_gold"
+      ],
       "evaluators": [
-        "json_schema",
-        "no_premature_answer"
+        "no_premature_answer",
+        "checkpoint_quality",
+        "interaction_branch",
+        "cumulative_context",
+        "production_llm_gold"
       ]
     }
   ]

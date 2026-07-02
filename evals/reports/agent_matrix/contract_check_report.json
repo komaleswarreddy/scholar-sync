@@ -1,0 +1,160 @@
+{
+  "mismatches": [
+    {
+      "agent_id": "query_decomposer",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "confidence",
+        "primary_concept",
+        "reasoning",
+        "sub_queries"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "reasoning",
+        "confidence"
+      ]
+    },
+    {
+      "agent_id": "chat_policy_block",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "corrected_answer",
+        "passes_policy",
+        "violations"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "corrected_answer",
+        "violations",
+        "passes_policy"
+      ]
+    },
+    {
+      "agent_id": "direct_chat",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "response"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "response"
+      ]
+    },
+    {
+      "agent_id": "rag_chat_response_generator",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "answer_type",
+        "final_answer",
+        "must_include",
+        "must_not_include",
+        "required_citations"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "must_include",
+        "required_citations",
+        "final_answer",
+        "must_not_include",
+        "answer_type"
+      ]
+    },
+    {
+      "agent_id": "chat_summarizer",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "summary_markdown"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "summary_markdown"
+      ]
+    },
+    {
+      "agent_id": "hallucination_guard_retry",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "corrected_answer"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "corrected_answer"
+      ]
+    },
+    {
+      "agent_id": "studio_system_json",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "json_output",
+        "markdown_output"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "markdown_output",
+        "json_output"
+      ]
+    },
+    {
+      "agent_id": "studio_quiz",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "quiz_json"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "quiz_json"
+      ]
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "flashcards_json"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "flashcards_json"
+      ]
+    },
+    {
+      "agent_id": "studio_mind_map",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "mind_map_markdown"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "mind_map_markdown"
+      ]
+    },
+    {
+      "agent_id": "studio_slide_deck",
+      "eval_wins": true,
+      "action": "keep evaluator+dataset; xlsx prompt may not list all output keys",
+      "dataset_output_keys": [
+        "slide_deck_markdown"
+      ],
+      "keys_not_obvious_in_xlsx_prompt": [
+        "slide_deck_markdown"
+      ]
+    }
+  ],
+  "ok": [
+    {
+      "agent_id": "query_rewriter"
+    },
+    {
+      "agent_id": "scope_narrower"
+    },
+    {
+      "agent_id": "studio_fallback_legacy"
+    }
+  ],
+  "skipped": [
+    {
+      "agent_id": "intent_classifier",
+      "reason": "unchanged \u2014 uses evals/intent_classifier_eval with 6-field contract"
+    }
+  ]
+}

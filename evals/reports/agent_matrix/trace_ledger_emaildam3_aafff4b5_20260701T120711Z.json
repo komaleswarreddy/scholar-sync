@@ -1,0 +1,21 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 151,
+  "experiments": [
+    {
+      "agent_id": "scope_narrower",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-scope_narrower-v3-openai-gpt-5-mini-5b74c1cd",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-07-01T12:06:58.167900+00:00"
+    }
+  ],
+  "workspace_tenant": "scombinator26_47ca8a69",
+  "note": "Fresh ledger after switching workspace (scombinator26_47ca8a69)",
+  "updated_at": "2026-07-01T12:06:58.168895+00:00"
+}

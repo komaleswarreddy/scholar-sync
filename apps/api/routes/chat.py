@@ -36,6 +36,7 @@ from packages.core.database.models.source import Source
 from packages.core.database.models.ncert_global import NcertGlobalDocument
 from packages.core.langgraph.chat_graph import LangGraphChatPipeline
 from packages.core.services.ncert_global_service import load_ncert_subjects_by_class
+from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
 
@@ -290,13 +291,9 @@ async def stream_chat(
     try:
         service = LangGraphChatPipeline(tenant_id=tenant_id, user_id=user_id, db=None)
     except Exception as e:
-        import traceback
-        error_msg = f"Failed to initialize RAG service: {str(e)}"
-        print(f"[ERROR] {error_msg}")
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail=error_msg + ". Please check API key configuration (Gemini, Pinecone)."
+            detail=safe_detail(e, "Failed to initialize chat service"),
         )
 
     async def generate_stream():
@@ -336,13 +333,11 @@ async def stream_chat(
                     yield f"data: {error_data}\n\n"
                     break
         except Exception as e:
-            import traceback
             from packages.core.guardrails.exceptions import BudgetExceededError
 
-            print(f"[ERROR] SSE stream error: {type(e).__name__}: {str(e)}")
-            print(traceback.format_exc())
             try:
                 if isinstance(e, BudgetExceededError):
+                    # Budget messages are intentionally user-facing.
                     error_data = json.dumps(
                         {"error": str(e), "budget_exceeded": True},
                         ensure_ascii=False,
@@ -350,7 +345,10 @@ async def stream_chat(
                     yield f"event: error\n"
                     yield f"data: {error_data}\n\n"
                     return
-                error_data = json.dumps({"error": str(e)}, ensure_ascii=False)
+                error_data = json.dumps(
+                    {"error": safe_detail(e, "An error occurred during streaming")},
+                    ensure_ascii=False,
+                )
                 yield f"event: error\n"
                 yield f"data: {error_data}\n\n"
             except Exception as json_error:
@@ -366,12 +364,9 @@ async def stream_chat(
             headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
         )
     except Exception as e:
-        import traceback
-        print(f"[ERROR] Failed to create streaming response: {type(e).__name__}: {str(e)}")
-        print(traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to start streaming: {str(e)}"
+            detail=safe_detail(e, "Failed to start streaming"),
         )
 
 
@@ -550,25 +545,11 @@ async def get_chat(
     except HTTPException:
         raise
     except ValueError as e:
-        # Handle database schema errors (e.g., missing feedback column)
-        error_msg = str(e)
-        if 'database schema' in error_msg.lower() or 'feedback' in error_msg.lower():
-            raise HTTPException(
-                status_code=500,
-                detail=error_msg
-            )
-        raise HTTPException(status_code=400, detail=str(e))
+        # Validation errors are safe to surface (dev gets detail, prod stays generic).
+        raise HTTPException(status_code=400, detail=safe_detail(e, "Invalid request"))
     except Exception as e:
-        import traceback
-        error_msg = f"Failed to get chat {chat_id}: {type(e).__name__}: {str(e)}"
-        print(f"[ERROR] {error_msg}")
-        print(traceback.format_exc())
-        # Provide more helpful error message if it's a database column issue
-        if 'feedback' in str(e).lower() or 'column' in str(e).lower() or 'does not exist' in str(e).lower():
-            error_detail = f"Database schema issue: The 'feedback' column is missing from the messages table. Please run: ALTER TABLE messages ADD COLUMN IF NOT EXISTS feedback VARCHAR;"
-        else:
-            error_detail = str(e)
-        raise HTTPException(status_code=500, detail=f"Failed to get chat: {error_detail}")
+        # Never leak DB schema/SQL to clients.
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to get chat"))
 
 
 @router.patch("/{chat_id}", response_model=ChatResponse)
@@ -643,10 +624,7 @@ async def delete_chat(
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        print(f"[ERROR] Failed to delete chat {chat_id}: {type(e).__name__}: {str(e)}")
-        print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Failed to delete chat: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to delete chat"))
 
 
 @router.post("/{chat_id}/messages", response_model=MessageResponse)
@@ -730,10 +708,7 @@ async def delete_all_messages(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        import traceback
-        print(f"[ERROR] Failed to delete messages for chat {chat_id}: {type(e).__name__}: {str(e)}")
-        print(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=f"Failed to delete messages: {str(e)}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to delete messages"))
 
 
 @router.post("/{chat_id}/summarize", response_model=MessageResponse)
@@ -789,7 +764,7 @@ async def summarize_chat_so_far(
         )
         summary = (resp.content or "").strip()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to summarize chat: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to summarize chat"))
 
     if not summary:
         raise HTTPException(status_code=500, detail="Failed to summarize chat: empty summary")
@@ -812,7 +787,7 @@ async def summarize_chat_so_far(
             created_at=saved.created_at,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to save summary message: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to save summary message"))
 
 
 @router.patch("/messages/{message_id}/feedback", response_model=MessageResponse)

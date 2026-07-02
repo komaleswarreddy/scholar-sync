@@ -1,0 +1,228 @@
+{
+  "overall_status": "NEEDS_ATTENTION",
+  "langsmith_project": "ScholarSync",
+  "dashboard_panels": [
+    {
+      "panel": "Traces",
+      "metrics": [
+        "Trace Count",
+        "Trace Latency",
+        "Trace Error Rate"
+      ],
+      "requires": "Root runs per dataset example via client.evaluate()",
+      "status": "configured",
+      "detail": "run_eval.py uses langsmith.Client().evaluate() \u2014 each example = one trace root run"
+    },
+    {
+      "panel": "LLM Calls",
+      "metrics": [
+        "LLM Count",
+        "LLM Latency"
+      ],
+      "requires": "Child runs with run_type=llm and ls_model_name metadata",
+      "status": "configured",
+      "detail": "langsmith_tracing.traced_llm_call() wraps target + judge calls with @traceable(run_type='llm')"
+    },
+    {
+      "panel": "Cost & Tokens",
+      "metrics": [
+        "Total Cost",
+        "Cost per Trace",
+        "Input/Output Tokens"
+      ],
+      "requires": "usage_metadata (input_tokens, output_tokens, total_cost) on LLM child runs",
+      "status": "configured",
+      "detail": "providers.py extracts token counts from API responses; langsmith_tracing posts usage_metadata + model_pricing.yaml costs"
+    },
+    {
+      "panel": "Tools",
+      "metrics": [
+        "Run Count by Tool",
+        "Median Latency by Tool",
+        "Error Rate by Tool"
+      ],
+      "requires": "run_type=tool child runs",
+      "status": "n/a",
+      "detail": "Intent classifier has no tool calls \u2014 panel will stay empty (expected)"
+    },
+    {
+      "panel": "Run Types",
+      "metrics": [
+        "Run Count by Name",
+        "Median Latency",
+        "Error Rate"
+      ],
+      "requires": "Named runs at depth=1 (llm, chain, evaluator)",
+      "status": "configured",
+      "detail": "Target traces (chain), LLM inference (llm), evaluators (evaluator) \u2014 visible under Experiments + Monitoring"
+    },
+    {
+      "panel": "Feedback Scores",
+      "metrics": [
+        "Per-evaluator scores over time"
+      ],
+      "requires": "client.evaluate() evaluators returning {key, score, comment}",
+      "status": "configured",
+      "detail": "6 per-example feedback keys: schema_validity, intent_match, routing_metadata_match, routing_consistency, confidence_calibration, llm_routing_judge + severity_tier_summary summary"
+    },
+    {
+      "panel": "Experiments (Datasets & Experiments tab)",
+      "metrics": [
+        "Experiment comparison, per-example results"
+      ],
+      "requires": "Dataset uploaded + evaluate() per prompt\u00d7model",
+      "status": "configured",
+      "detail": "Dataset nbm-prompt-intent_classifier (63 examples); 3 prompts \u00d7 3 models = 9 experiments"
+    }
+  ],
+  "env_checks": [
+    {
+      "key": "LANGSMITH_API_KEY",
+      "present": true,
+      "required": true,
+      "ok": true,
+      "value_hint": "lsv2_pt_..."
+    },
+    {
+      "key": "LANGSMITH_PROJECT",
+      "present": true,
+      "required": true,
+      "ok": true,
+      "value_hint": "ScholarS..."
+    },
+    {
+      "key": "LANGSMITH_TRACING_ENABLED",
+      "present": true,
+      "required": false,
+      "ok": true,
+      "value_hint": "true..."
+    },
+    {
+      "key": "OPENAI_API_KEY",
+      "present": true,
+      "required": true,
+      "ok": true,
+      "value_hint": "sk-proj-..."
+    },
+    {
+      "key": "ANTHROPIC_API_KEY",
+      "present": true,
+      "required": false,
+      "ok": true,
+      "value_hint": "sk-ant-a..."
+    },
+    {
+      "key": "GEMINI_API_KEY",
+      "present": true,
+      "required": false,
+      "ok": true,
+      "value_hint": "AQ.Ab8RN..."
+    },
+    {
+      "key": "LANGSMITH_PROJECT value",
+      "present": true,
+      "required": true,
+      "ok": true,
+      "value_hint": "ScholarSync"
+    }
+  ],
+  "file_checks": {
+    "all_ok": true,
+    "missing": []
+  },
+  "evaluators": {
+    "per_example_count": 5,
+    "judge_evaluator_wired": true,
+    "summary_count": 1,
+    "feedback_keys": [
+      "schema_validity",
+      "intent_match",
+      "routing_metadata_match",
+      "routing_consistency",
+      "confidence_calibration",
+      "llm_routing_judge"
+    ],
+    "wrapper_langsmith_safe": true,
+    "expected_feedback_keys": [
+      "schema_validity",
+      "intent_match",
+      "routing_metadata_match",
+      "routing_consistency",
+      "confidence_calibration",
+      "llm_routing_judge"
+    ],
+    "summary_key": "severity_tier_summary"
+  },
+  "tracing_wiring": {
+    "traced_llm_call_exists": true,
+    "traceable_run_type_llm": true,
+    "usage_metadata_posted": true,
+    "run_eval_uses_traced_llm_call": true,
+    "judge_uses_traced_llm_call": false,
+    "providers_return_usage": true,
+    "evaluate_used": true
+  },
+  "pricing": {
+    "models_in_matrix": [
+      "gpt-5.4-mini",
+      "claude-haiku-4-5",
+      "gemini-3.5-flash"
+    ],
+    "judge_model": "gpt-4o",
+    "pricing_entries": [
+      "gpt-4o-mini",
+      "gpt-4o",
+      "gpt-4-turbo",
+      "gpt-5.4-mini",
+      "claude-haiku-4-5",
+      "gemini-3.5-flash"
+    ],
+    "missing_pricing": [],
+    "ok": true
+  },
+  "dataset": {
+    "example_count": 63,
+    "expected": 63,
+    "ok": true,
+    "variation_count": 14,
+    "has_content_type_in_gold": false,
+    "gold_6_field_ok": true,
+    "prompt_template_present": true
+  },
+  "prompt_versions": {
+    "v1": {
+      "ok": true,
+      "system_chars": 8039,
+      "user_renders": true,
+      "mentions_content_type": false,
+      "six_field_contract": true
+    },
+    "v2": {
+      "ok": true,
+      "system_chars": 5496,
+      "user_renders": true,
+      "mentions_content_type": false,
+      "six_field_contract": true
+    },
+    "v3": {
+      "ok": true,
+      "system_chars": 3924,
+      "user_renders": true,
+      "mentions_content_type": false,
+      "six_field_contract": true
+    }
+  },
+  "how_to_run": {
+    "smoke_test": "python -m evals.intent_classifier_eval.smoke_test",
+    "single_experiment": "python -m evals.intent_classifier_eval.run_eval --prompt v1 --provider openai",
+    "full_matrix": "python -m evals.intent_classifier_eval.run_eval",
+    "dry_run": "python -m evals.intent_classifier_eval.run_eval --dry-run"
+  },
+  "where_to_look_in_langsmith": {
+    "experiments": "ScholarSync \u2192 Datasets & Experiments \u2192 nbm-prompt-intent_classifier",
+    "monitoring_traces": "ScholarSync \u2192 Monitoring \u2192 Traces (after evaluate runs)",
+    "monitoring_llm_cost": "ScholarSync \u2192 Monitoring \u2192 LLM Calls / Cost & Tokens (after evaluate runs)",
+    "monitoring_feedback": "ScholarSync \u2192 Monitoring \u2192 Feedback Scores (after evaluate runs)",
+    "tools_panel": "Will remain empty \u2014 no tools in intent classifier (expected)"
+  }
+}

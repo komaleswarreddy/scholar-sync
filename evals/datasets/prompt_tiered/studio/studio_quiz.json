@@ -1,13 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "dataset_id": "studio_quiz",
   "agent": {
     "sno": 11,
     "category": "Studio",
     "name": "Studio Quiz Generator",
     "tier": "tier_2",
-    "target_examples": 15,
-    "prompt_template": "SYSTEM:\nYou are an expert educational content generator.\n\nRules:\n- Follow the requested output format exactly.\n- If JSON is requested, return valid JSON only (no markdown fences, no extra text).\n- If Markdown is requested, return clean, readable Markdown only.\n- Keep outputs accurate, concise, and learner-friendly.\n\nUSER/TASK TEMPLATE:\nCreate a high-quality educational quiz from the provided material.\n\nOutput requirements (strict):\n- Return ONLY one valid JSON object.\n- Do NOT use markdown, code fences, comments, or extra text.\n- Use exactly this schema:\n{\n  \"title\": \"Short quiz title\",\n  \"questions\": [\n    {\n      \"question\": \"Clear question text\",\n      \"options\": [\"Option A\", \"Option B\", \"Option C\", \"Option D\"],\n      \"correct_answer\": \"One option string that exactly matches an item in options\",\n      \"explanation\": \"1-2 sentence reason\"\n    }\n  ]\n}\n\nQuestion count:\n{% if custom_instructions and custom_instructions.strip() %}\n- Follow the question count range and difficulty given in **Additional user instructions** below. Those instructions override any default below.\n{% else %}\n- Generate between **5 and 7** questions (inclusive) unless the source material is too thin; then use as many solid questions as the material supports (minimum 3 if possible).\n{% endif %}\n\nQuality requirements:\n- Each question must have exactly 4 options.\n- Questions should test understanding, not only memorization.\n- Keep wording unambiguous and learner-friendly.\n- Avoid duplicate questions or near-duplicate options.\n- Keep explanations concise and accurate to the source.\n\nCompliance (when custom instructions are present):\n- Honor the requested difficulty (easy / medium / hard): adjust reasoning depth, distractor quality, and vocabulary accordingly.\n- If instructions ask for a **topic focus**, most questions must clearly relate to that focus while staying grounded in the source.\n- If instructions say **no narrow topic** / **full breadth** / **all selected sources**, distribute questions across the retrieved material so the quiz reflects the whole context, not one subsection.\n\n{% if retrieval_queries_note and retrieval_queries_note.strip() %}\nRetrieval queries used for vector search (ground the quiz in material retrieved with these queries):\n{{ retrieval_queries_note }}\n\n{% endif %}\n{% if context and context.strip() %}\nSource content:\n{{ context }}\n{% else %}\nNo source content was provided. Create a general educational quiz on a coherent topic.\n{% endif %}\n\n{% if custom_instructions %}\nAdditional user instructions:\n{{ custom_instructions }}\n{% endif %}\n\nFinal reminder: output ONLY the JSON object."
+    "target_examples": 25,
+    "prompt_template": ""
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
@@ -22,564 +22,569 @@
   "items": [
     {
       "id": "studio_quiz-001",
-      "variation": "numerical",
+      "variation": "per_concept",
+      "inputs": {
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "custom_instructions": "5 MCQs, medium difficulty, focus Ohm's law and series circuits"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Current Electricity — Ohm & Series\",\n  \"questions\": [\n    {\n      \"question\": \"According to Ohm's law, if R doubles at constant V, current becomes:\",\n      \"options\": [\n        \"Doubled\",\n        \"Halved\",\n        \"Unchanged\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"Halved\",\n      \"explanation\": \"I=V/R so current halves when R doubles.\"\n    },\n    {\n      \"question\": \"Two resistors 4 Ω and 12 Ω in series give R_eq of:\",\n      \"options\": [\n        \"3 Ω\",\n        \"16 Ω\",\n        \"48 Ω\",\n        \"8 Ω\"\n      ],\n      \"correct_answer\": \"16 Ω\",\n      \"explanation\": \"Series resistances add: 4+12=16 Ω.\"\n    },\n    {\n      \"question\": \"Kirchhoff's junction rule states:\",\n      \"options\": [\n        \"Sum I in equals sum I out\",\n        \"Sum V equals zero\",\n        \"Power is conserved\",\n        \"Charge is created\"\n      ],\n      \"correct_answer\": \"Sum I in equals sum I out\",\n      \"explanation\": \"Current into a node equals current leaving.\"\n    },\n    {\n      \"question\": \"Drift velocity v_d relates to current by:\",\n      \"options\": [\n        \"I=neAv_d\",\n        \"I=v_d/e\",\n        \"I=ρv_d\",\n        \"I=n/v_d\"\n      ],\n      \"correct_answer\": \"I=neAv_d\",\n      \"explanation\": \"Microscopic form I=neAv_d.\"\n    },\n    {\n      \"question\": \"Resistivity ρ depends on:\",\n      \"options\": [\n        \"Material and temperature\",\n        \"Length only\",\n        \"Voltage only\",\n        \"Current direction\"\n      ],\n      \"correct_answer\": \"Material and temperature\",\n      \"explanation\": \"ρ is material property; metals increase ρ with T.\"\n    }\n  ]\n}"
+      },
       "tags": [
         "cbse",
         "physics",
-        "ohms_law"
+        "scope_mode:per_concept",
+        "source_pdf:leph103"
       ],
-      "inputs": {
-        "context": "A steady current I flows when potential difference V is applied across conductor of resistance R. Ohm's law: V = IR. Resistivity ρ depends on material. Series: R_eq = R1+R2. Parallel: 1/R_eq = 1/R1+1/R2.",
-        "custom_instructions": "5 MCQs, medium difficulty, Current Electricity"
-      },
-      "reference_outputs": {
-        "quiz_json": {
-          "title": "Current Electricity Quiz",
-          "questions": [
-            {
-              "question": "According to Ohm's law, if resistance is doubled while voltage stays constant, what happens to current?",
-              "options": [
-                "Current doubles",
-                "Current halves",
-                "Current stays the same",
-                "Current becomes zero"
-              ],
-              "correct_answer": "Current halves",
-              "explanation": "V = IR implies I = V/R, so current is inversely proportional to R."
-            },
-            {
-              "question": "Two resistors 3 Ω and 6 Ω are connected in series. What is the equivalent resistance?",
-              "options": [
-                "2 Ω",
-                "9 Ω",
-                "18 Ω",
-                "3 Ω"
-              ],
-              "correct_answer": "9 Ω",
-              "explanation": "Series resistances add: R_eq = R1 + R2 = 9 Ω."
-            }
-          ]
-        }
-      },
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "grounding_check"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-002",
-      "variation": "biology_diagram",
+      "variation": "per_concept",
+      "inputs": {
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.",
+        "custom_instructions": "4 MCQs, hard NEET-style, digestive enzymes only"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Digestive Enzymes NEET Drill\",\n  \"questions\": [\n    {\n      \"question\": \"Carbohydrate digestion begins in mouth with:\",\n      \"options\": [\n        \"Pepsin\",\n        \"Salivary amylase\",\n        \"Trypsin\",\n        \"Lipase\"\n      ],\n      \"correct_answer\": \"Salivary amylase\",\n      \"explanation\": \"Salivary amylase acts on starch in mouth.\"\n    },\n    {\n      \"question\": \"Pepsin requires which stomach condition?\",\n      \"options\": [\n        \"Alkaline pH\",\n        \"Acidic HCl medium\",\n        \"Neutral pH\",\n        \"No enzymes\"\n      ],\n      \"correct_answer\": \"Acidic HCl medium\",\n      \"explanation\": \"Pepsin works in acidic stomach environment.\"\n    },\n    {\n      \"question\": \"Trypsin is activated in:\",\n      \"options\": [\n        \"Stomach\",\n        \"Mouth\",\n        \"Duodenum via pancreatic juice\",\n        \"Large intestine\"\n      ],\n      \"correct_answer\": \"Duodenum via pancreatic juice\",\n      \"explanation\": \"Pancreatic trypsin enters duodenum.\"\n    },\n    {\n      \"question\": \"Most nutrient absorption occurs in:\",\n      \"options\": [\n        \"Stomach\",\n        \"Oesophagus\",\n        \"Small intestine villi\",\n        \"Mouth\"\n      ],\n      \"correct_answer\": \"Small intestine villi\",\n      \"explanation\": \"Villi absorb digested nutrients.\"\n    }\n  ]\n}"
+      },
       "tags": [
         "neet",
         "biology",
-        "digestion"
+        "scope_mode:per_concept",
+        "source_pdf:kebo107"
       ],
-      "inputs": {
-        "context": "Digestion begins in mouth with salivary amylase. Stomach secretes HCl and pepsin. Pancreatic juice contains trypsin, lipase, amylase. Absorption mainly in small intestine villi.",
-        "custom_instructions": "5 MCQs, NEET-style, digestive enzymes"
-      },
-      "reference_outputs": {
-        "quiz_json": {
-          "title": "Human Digestion Quiz",
-          "questions": [
-            {
-              "question": "Which enzyme begins carbohydrate digestion in the mouth?",
-              "options": [
-                "Pepsin",
-                "Salivary amylase",
-                "Trypsin",
-                "Lipase"
-              ],
-              "correct_answer": "Salivary amylase",
-              "explanation": "Salivary amylase acts on starch in the mouth."
-            },
-            {
-              "question": "Where does most nutrient absorption occur?",
-              "options": [
-                "Stomach",
-                "Large intestine",
-                "Small intestine",
-                "Oesophagus"
-              ],
-              "correct_answer": "Small intestine",
-              "explanation": "Villi in the small intestine absorb digested food."
-            }
-          ]
-        }
-      },
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "grounding_check"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-003",
-      "variation": "multi_part",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_advanced"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Light reaction produces ATP and NADPH in thylakoid. Calvin cycle fixes CO2 in stroma. Factors: light intensity, CO2 concentration, temperature.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Photosynthesis"
+        "context": "Central metal + ligands. Coordination number = σ-donor atoms on metal. [Fe(CN)6]4- has CN=6. IUPAC: ligands alphabetical; anionic end in -o.",
+        "custom_instructions": "3 MCQs, easy, coordination number only"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Photosynthesis Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Photosynthesis (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Coordination Number Basics\",\n  \"questions\": [\n    {\n      \"question\": \"Coordination number counts:\",\n      \"options\": [\n        \"Electrons in metal\",\n        \"σ-donor atoms bonded to metal\",\n        \"Ligand mass\",\n        \"Oxidation state only\"\n      ],\n      \"correct_answer\": \"σ-donor atoms bonded to metal\",\n      \"explanation\": \"CN = donor atoms directly bonded.\"\n    },\n    {\n      \"question\": \"[Fe(CN)6]4- has coordination number:\",\n      \"options\": [\n        \"4\",\n        \"6\",\n        \"8\",\n        \"2\"\n      ],\n      \"correct_answer\": \"6\",\n      \"explanation\": \"Six cyanide ligands → CN=6.\"\n    },\n    {\n      \"question\": \"Coordination entity contains:\",\n      \"options\": [\n        \"Central metal ion + ligands\",\n        \"Only anions\",\n        \"Only cations\",\n        \"Free solvent\"\n      ],\n      \"correct_answer\": \"Central metal ion + ligands\",\n      \"explanation\": \"Complex = metal + attached ligands.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_concept",
+        "source_pdf:lech105"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-004",
-      "variation": "diagram",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Ionic bonds form between metals and non-metals. Covalent bonds share electron pairs. VSEPR predicts molecular geometry.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Chemical Bonding"
+        "context": "P(E)=favourable/total. P(A∪B)=P(A)+P(B)-P(A∩B). Independent: P(A∩B)=P(A)P(B). Bayes links prior and likelihood.",
+        "custom_instructions": "5 MCQs, medium, independent events focus"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Chemical Bonding Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Chemical Bonding (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Independent Events Quiz\",\n  \"questions\": [\n    {\n      \"question\": \"For independent A and B, P(A∩B) equals:\",\n      \"options\": [\n        \"P(A)+P(B)\",\n        \"P(A)P(B)\",\n        \"P(A)/P(B)\",\n        \"1\"\n      ],\n      \"correct_answer\": \"P(A)P(B)\",\n      \"explanation\": \"Independence: multiply probabilities.\"\n    },\n    {\n      \"question\": \"Classical P(E) equals:\",\n      \"options\": [\n        \"favourable/total outcomes\",\n        \"total/favourable\",\n        \"P(A)+P(B)\",\n        \"Always 1/2\"\n      ],\n      \"correct_answer\": \"favourable/total outcomes\",\n      \"explanation\": \"Laplace definition.\"\n    },\n    {\n      \"question\": \"P(A∪B) general addition rule:\",\n      \"options\": [\n        \"P(A)+P(B)-P(A∩B)\",\n        \"P(A)P(B)\",\n        \"P(A)-P(B)\",\n        \"P(A)/P(B)\"\n      ],\n      \"correct_answer\": \"P(A)+P(B)-P(A∩B)\",\n      \"explanation\": \"Inclusion-exclusion.\"\n    },\n    {\n      \"question\": \"If A and B independent, knowing B occurred:\",\n      \"options\": [\n        \"Changes P(A)\",\n        \"Does not change P(A)\",\n        \"Makes P(A)=0\",\n        \"Makes P(A)=1\"\n      ],\n      \"correct_answer\": \"Does not change P(A)\",\n      \"explanation\": \"Independence means no influence.\"\n    },\n    {\n      \"question\": \"Bayes theorem relates:\",\n      \"options\": [\n        \"Prior and likelihood to posterior\",\n        \"Only means\",\n        \"Only variances\",\n        \"Matrix rank\"\n      ],\n      \"correct_answer\": \"Prior and likelihood to posterior\",\n      \"explanation\": \"Bayes updates beliefs with evidence.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_concept",
+        "source_pdf:lemh207"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-005",
-      "variation": "numerical",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
+      "variation": "per_concept",
       "inputs": {
-        "context": "Moving charge creates magnetic field. Force F = BIL sin θ. Fleming's left-hand rule relates field, current, force.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Magnetic Effects"
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.",
+        "custom_instructions": "4 MCQs, medium, lens formula and magnification"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Magnetic Effects Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Magnetic Effects (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Lens Formula Focus\",\n  \"questions\": [\n    {\n      \"question\": \"Lens formula is:\",\n      \"options\": [\n        \"1/f=1/v+1/u\",\n        \"1/f=1/v-1/u\",\n        \"f=uv\",\n        \"f=u+v\"\n      ],\n      \"correct_answer\": \"1/f=1/v-1/u\",\n      \"explanation\": \"Standard Cartesian lens formula.\"\n    },\n    {\n      \"question\": \"Magnification m equals:\",\n      \"options\": [\n        \"v/u\",\n        \"u/v\",\n        \"f/v\",\n        \"v-f\"\n      ],\n      \"correct_answer\": \"v/u\",\n      \"explanation\": \"m = v/u.\"\n    },\n    {\n      \"question\": \"Real object distance u is:\",\n      \"options\": [\n        \"Negative in Cartesian convention\",\n        \"Always positive\",\n        \"Zero\",\n        \"Equal to f always\"\n      ],\n      \"correct_answer\": \"Negative in Cartesian convention\",\n      \"explanation\": \"Sign convention for real object.\"\n    },\n    {\n      \"question\": \"Lens power P in dioptre when f in metres:\",\n      \"options\": [\n        \"P=f\",\n        \"P=1/f\",\n        \"P=f²\",\n        \"P=2f\"\n      ],\n      \"correct_answer\": \"P=1/f\",\n      \"explanation\": \"Power reciprocal of focal length.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_concept",
+        "source_pdf:leph201"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-006",
-      "variation": "cbse",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Prokaryotes lack membrane-bound nucleus. Eukaryotes have nucleus, mitochondria, ER, Golgi. Plant cells have chloroplasts and cell wall.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Cell Structure"
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "custom_instructions": "6 MCQs, medium, full chapter breadth — no narrow topic"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Cell Structure Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Cell Structure (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Current Electricity Full Breadth\",\n  \"questions\": [\n    {\n      \"question\": \"According to Ohm's law, if R doubles at constant V, current becomes:\",\n      \"options\": [\n        \"Doubled\",\n        \"Halved\",\n        \"Unchanged\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"Halved\",\n      \"explanation\": \"I=V/R so current halves when R doubles.\"\n    },\n    {\n      \"question\": \"Two resistors 4 Ω and 12 Ω in series give R_eq of:\",\n      \"options\": [\n        \"3 Ω\",\n        \"16 Ω\",\n        \"48 Ω\",\n        \"8 Ω\"\n      ],\n      \"correct_answer\": \"16 Ω\",\n      \"explanation\": \"Series resistances add: 4+12=16 Ω.\"\n    },\n    {\n      \"question\": \"Kirchhoff's junction rule states:\",\n      \"options\": [\n        \"Sum I in equals sum I out\",\n        \"Sum V equals zero\",\n        \"Power is conserved\",\n        \"Charge is created\"\n      ],\n      \"correct_answer\": \"Sum I in equals sum I out\",\n      \"explanation\": \"Current into a node equals current leaving.\"\n    },\n    {\n      \"question\": \"Drift velocity v_d relates to current by:\",\n      \"options\": [\n        \"I=neAv_d\",\n        \"I=v_d/e\",\n        \"I=ρv_d\",\n        \"I=n/v_d\"\n      ],\n      \"correct_answer\": \"I=neAv_d\",\n      \"explanation\": \"Microscopic form I=neAv_d.\"\n    },\n    {\n      \"question\": \"Resistivity ρ depends on:\",\n      \"options\": [\n        \"Material and temperature\",\n        \"Length only\",\n        \"Voltage only\",\n        \"Current direction\"\n      ],\n      \"correct_answer\": \"Material and temperature\",\n      \"explanation\": \"ρ is material property; metals increase ρ with T.\"\n    },\n    {\n      \"question\": \"Parallel resistors 6 Ω and 3 Ω give R_eq:\",\n      \"options\": [\n        \"2 Ω\",\n        \"9 Ω\",\n        \"18 Ω\",\n        \"1 Ω\"\n      ],\n      \"correct_answer\": \"2 Ω\",\n      \"explanation\": \"1/R_eq=1/6+1/3=1/2 → R_eq=2 Ω.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_concept",
+        "source_pdf:leph103"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-007",
-      "variation": "neet",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Discriminant D = b²-4ac determines nature of roots. Sum of roots = -b/a, product = c/a.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Quadratic Equations"
+        "context": "Light reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2. Mitosis: growth/repair, same chromosome number. Meiosis: gametes, halves chromosomes. Prophase I: crossing over.",
+        "custom_instructions": "5 MCQs, medium, cover all topics in context"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Quadratic Equations Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Quadratic Equations (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Photosynthesis & Cell Division Mix\",\n  \"questions\": [\n    {\n      \"question\": \"Light reaction products include:\",\n      \"options\": [\n        \"ATP and NADPH\",\n        \"Only CO2\",\n        \"Only glucose\",\n        \"Only O2 absorbed\"\n      ],\n      \"correct_answer\": \"ATP and NADPH\",\n      \"explanation\": \"Light reaction outputs ATP, NADPH.\"\n    },\n    {\n      \"question\": \"Calvin cycle location:\",\n      \"options\": [\n        \"Grana\",\n        \"Stroma\",\n        \"Mitochondria\",\n        \"Nucleus\"\n      ],\n      \"correct_answer\": \"Stroma\",\n      \"explanation\": \"CO2 fixation in stroma.\"\n    },\n    {\n      \"question\": \"Mitosis purpose:\",\n      \"options\": [\n        \"Gamete formation\",\n        \"Growth and repair with same chromosome number\",\n        \"Halving chromosomes\",\n        \"Crossing over\"\n      ],\n      \"correct_answer\": \"Growth and repair with same chromosome number\",\n      \"explanation\": \"Mitosis maintains 2n.\"\n    },\n    {\n      \"question\": \"Meiosis produces:\",\n      \"options\": [\n        \"Identical somatic cells\",\n        \"Gametes with halved chromosomes\",\n        \"Only proteins\",\n        \"Chlorophyll\"\n      ],\n      \"correct_answer\": \"Gametes with halved chromosomes\",\n      \"explanation\": \"Meiosis → n for gametes.\"\n    },\n    {\n      \"question\": \"Crossing over occurs in:\",\n      \"options\": [\n        \"Prophase I of meiosis\",\n        \"Mitotic prophase always\",\n        \"Cytokinesis\",\n        \"G1 only\"\n      ],\n      \"correct_answer\": \"Prophase I of meiosis\",\n      \"explanation\": \"Prophase I exchanges segments.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_concept",
+        "source_pdf:kebo110"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-008",
-      "variation": "jee",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_advanced"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "Spermatogenesis in seminiferous tubules. Oogenesis produces one ovum and polar bodies. Fertilization in fallopian tube.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Human Reproduction"
+        "context": "Kc=[products]/[reactants] at equilibrium. Le Chatelier: stress shifts to oppose change. Catalyst speeds approach, not K. Galvanic cell: anode oxidation, cathode reduction. E°cell=E°cathode-E°anode. Nernst equation links EMF to concentration.",
+        "custom_instructions": "5 MCQs, hard, all selected sources"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Human Reproduction Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Human Reproduction (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Equilibrium & Electrochemistry Combined\",\n  \"questions\": [\n    {\n      \"question\": \"Kc uses:\",\n      \"options\": [\n        \"Equilibrium molar concentrations\",\n        \"Only solids\",\n        \"Initial concentrations\",\n        \"Temperature only\"\n      ],\n      \"correct_answer\": \"Equilibrium molar concentrations\",\n      \"explanation\": \"Kc defined at equilibrium.\"\n    },\n    {\n      \"question\": \"Catalyst effect on K:\",\n      \"options\": [\n        \"No change to K\",\n        \"Doubles K\",\n        \"Halves K\",\n        \"Eliminates K\"\n      ],\n      \"correct_answer\": \"No change to K\",\n      \"explanation\": \"Catalyst affects rate not K.\"\n    },\n    {\n      \"question\": \"Galvanic cell anode undergoes:\",\n      \"options\": [\n        \"Reduction\",\n        \"Oxidation\",\n        \"No reaction\",\n        \"Hydrolysis\"\n      ],\n      \"correct_answer\": \"Oxidation\",\n      \"explanation\": \"Anode = oxidation site.\"\n    },\n    {\n      \"question\": \"E°cell equals:\",\n      \"options\": [\n        \"E°cathode-E°anode\",\n        \"E°anode-E°cathode\",\n        \"Zero always\",\n        \"Sum of resistances\"\n      ],\n      \"correct_answer\": \"E°cathode-E°anode\",\n      \"explanation\": \"Standard cell EMF formula.\"\n    },\n    {\n      \"question\": \"Le Chatelier: increase pressure on gas reaction with fewer product moles shifts:\",\n      \"options\": [\n        \"Toward fewer moles side\",\n        \"Toward more moles side\",\n        \"No shift\",\n        \"Stops reaction\"\n      ],\n      \"correct_answer\": \"Toward fewer moles side\",\n      \"explanation\": \"System opposes pressure increase.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:multi_concept",
+        "source_pdf:kech106"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-009",
-      "variation": "security",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
+      "variation": "multi_concept",
       "inputs": {
-        "context": "First law: ΔU = Q - W. Isothermal process for ideal gas: PV = constant. Carnot engine efficiency η = 1 - T_c/T_h.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Thermodynamics"
+        "context": "(a+b)^n expansion uses nCr. General term Tr+1=nCr a^(n-r) b^r. Middle term depends on n even/odd. P(E)=favourable/total. P(A∪B)=P(A)+P(B)-P(A∩B). Independent: P(A∩B)=P(A)P(B). Bayes links prior and likelihood.",
+        "custom_instructions": "4 MCQs, medium, full breadth binomial and probability"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Thermodynamics Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Thermodynamics (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Binomial & Probability Breadth\",\n  \"questions\": [\n    {\n      \"question\": \"General term in (a+b)^n:\",\n      \"options\": [\n        \"Tr+1=nCr a^(n-r) b^r\",\n        \"n!\",\n        \"a+b\",\n        \"n^r\"\n      ],\n      \"correct_answer\": \"Tr+1=nCr a^(n-r) b^r\",\n      \"explanation\": \"Binomial theorem term.\"\n    },\n    {\n      \"question\": \"nCr counts:\",\n      \"options\": [\n        \"Combinations\",\n        \"Permutations only\",\n        \"Integrals\",\n        \"Derivatives\"\n      ],\n      \"correct_answer\": \"Combinations\",\n      \"explanation\": \"Binomial coefficients are combinations.\"\n    },\n    {\n      \"question\": \"P(A∪B) equals:\",\n      \"options\": [\n        \"P(A)+P(B)-P(A∩B)\",\n        \"P(A)P(B)\",\n        \"1\",\n        \"P(A)-P(B)\"\n      ],\n      \"correct_answer\": \"P(A)+P(B)-P(A∩B)\",\n      \"explanation\": \"Addition theorem.\"\n    },\n    {\n      \"question\": \"Independent events satisfy:\",\n      \"options\": [\n        \"P(A∩B)=P(A)P(B)\",\n        \"P(A)=P(B)\",\n        \"P(A)=0\",\n        \"P(A)=1\"\n      ],\n      \"correct_answer\": \"P(A∩B)=P(A)P(B)\",\n      \"explanation\": \"Definition of independence.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_concept",
+        "source_pdf:kemh107"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-010",
-      "variation": "follow_up",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Central metal ion bonded to ligands. IUPAC naming: ligands alphabetically, then metal, oxidation state in Roman numerals.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Coordination Compounds"
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "custom_instructions": "5 MCQs, easy, CBSE board style"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Coordination Compounds Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Coordination Compounds (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"CBSE Current Electricity Easy\",\n  \"questions\": [\n    {\n      \"question\": \"According to Ohm's law, if R doubles at constant V, current becomes:\",\n      \"options\": [\n        \"Doubled\",\n        \"Halved\",\n        \"Unchanged\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"Halved\",\n      \"explanation\": \"I=V/R so current halves when R doubles.\"\n    },\n    {\n      \"question\": \"Two resistors 4 Ω and 12 Ω in series give R_eq of:\",\n      \"options\": [\n        \"3 Ω\",\n        \"16 Ω\",\n        \"48 Ω\",\n        \"8 Ω\"\n      ],\n      \"correct_answer\": \"16 Ω\",\n      \"explanation\": \"Series resistances add: 4+12=16 Ω.\"\n    },\n    {\n      \"question\": \"Kirchhoff's junction rule states:\",\n      \"options\": [\n        \"Sum I in equals sum I out\",\n        \"Sum V equals zero\",\n        \"Power is conserved\",\n        \"Charge is created\"\n      ],\n      \"correct_answer\": \"Sum I in equals sum I out\",\n      \"explanation\": \"Current into a node equals current leaving.\"\n    },\n    {\n      \"question\": \"Drift velocity v_d relates to current by:\",\n      \"options\": [\n        \"I=neAv_d\",\n        \"I=v_d/e\",\n        \"I=ρv_d\",\n        \"I=n/v_d\"\n      ],\n      \"correct_answer\": \"I=neAv_d\",\n      \"explanation\": \"Microscopic form I=neAv_d.\"\n    },\n    {\n      \"question\": \"Resistivity ρ depends on:\",\n      \"options\": [\n        \"Material and temperature\",\n        \"Length only\",\n        \"Voltage only\",\n        \"Current direction\"\n      ],\n      \"correct_answer\": \"Material and temperature\",\n      \"explanation\": \"ρ is material property; metals increase ρ with T.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_source",
+        "source_pdf:leph103"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-011",
-      "variation": "comparison",
-      "tags": [
-        "cbse",
-        "science",
-        "cbse"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Mirror formula 1/f = 1/v + 1/u. Lens maker's equation. Total internal reflection when θ > critical angle.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Ray Optics"
+        "context": "DNA: A-T, G-C pairing. Semiconservative replication. mRNA carries code to ribosomes for translation.",
+        "custom_instructions": "5 MCQs, medium, molecular inheritance"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Ray Optics Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Ray Optics (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"DNA & Inheritance Quiz\",\n  \"questions\": [\n    {\n      \"question\": \"Adenine pairs with:\",\n      \"options\": [\n        \"Guanine\",\n        \"Thymine\",\n        \"Cytosine only\",\n        \"Uracil always\"\n      ],\n      \"correct_answer\": \"Thymine\",\n      \"explanation\": \"A-T pairing in DNA.\"\n    },\n    {\n      \"question\": \"DNA replication is:\",\n      \"options\": [\n        \"Conservative\",\n        \"Semiconservative\",\n        \"Dispersive only\",\n        \"Random\"\n      ],\n      \"correct_answer\": \"Semiconservative\",\n      \"explanation\": \"One old + one new strand.\"\n    },\n    {\n      \"question\": \"mRNA function:\",\n      \"options\": [\n        \"Carries genetic code to ribosomes\",\n        \"Stores lipid\",\n        \"Catalyses pepsin\",\n        \"Absorbs light\"\n      ],\n      \"correct_answer\": \"Carries genetic code to ribosomes\",\n      \"explanation\": \"mRNA template for translation.\"\n    },\n    {\n      \"question\": \"Guanine pairs with:\",\n      \"options\": [\n        \"Adenine\",\n        \"Thymine\",\n        \"Cytosine\",\n        \"Glucose\"\n      ],\n      \"correct_answer\": \"Cytosine\",\n      \"explanation\": \"G-C base pair.\"\n    },\n    {\n      \"question\": \"Translation occurs at:\",\n      \"options\": [\n        \"Ribosomes\",\n        \"Grana only\",\n        \"Stomata\",\n        \"Casparian strip\"\n      ],\n      \"correct_answer\": \"Ribosomes\",\n      \"explanation\": \"Protein synthesis on ribosomes.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:per_source",
+        "source_pdf:lebo105"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-012",
-      "variation": "metadata",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_main"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "Food chain: producers → consumers. 10% energy transfer rule. Biomagnification of toxins.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Ecology"
+        "context": "Tollens' test: silver mirror with aldehydes, not ketones. C=O undergoes nucleophilic addition.",
+        "custom_instructions": "4 MCQs, medium, carbonyl tests"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Ecology Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Ecology (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Aldehydes & Ketones Tests\",\n  \"questions\": [\n    {\n      \"question\": \"Tollens' test positive for:\",\n      \"options\": [\n        \"Aldehydes\",\n        \"Ketones only\",\n        \"Alkanes\",\n        \"Ethers\"\n      ],\n      \"correct_answer\": \"Aldehydes\",\n      \"explanation\": \"Aldehydes reduce Ag+ to silver mirror.\"\n    },\n    {\n      \"question\": \"Ketones with Tollens' reagent:\",\n      \"options\": [\n        \"No silver mirror\",\n        \"Always positive\",\n        \"Explode\",\n        \"Form gas only\"\n      ],\n      \"correct_answer\": \"No silver mirror\",\n      \"explanation\": \"Ketones don't reduce Tollens' reagent.\"\n    },\n    {\n      \"question\": \"C=O group undergoes:\",\n      \"options\": [\n        \"Nucleophilic addition\",\n        \"Only free radical substitution\",\n        \"No reactions\",\n        \"Only elimination always\"\n      ],\n      \"correct_answer\": \"Nucleophilic addition\",\n      \"explanation\": \"Polarized carbonyl carbon attacked by nucleophile.\"\n    },\n    {\n      \"question\": \"Tollens' produces:\",\n      \"options\": [\n        \"Silver mirror on aldehyde oxidation\",\n        \"Blue copper solution\",\n        \"White precipitate always\",\n        \"No visible change always\"\n      ],\n      \"correct_answer\": \"Silver mirror on aldehyde oxidation\",\n      \"explanation\": \"Characteristic silver mirror test.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:per_source",
+        "source_pdf:lech203"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-013",
-      "variation": "ncert_strict",
-      "tags": [
-        "cbse",
-        "science",
-        "jee_advanced"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "P(A∪B) = P(A)+P(B)-P(A∩B). Conditional probability P(A|B) = P(A∩B)/P(B).",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Probability"
+        "context": "Direction cosines l,m,n; l²+m²+n²=1. Line: (x-x1)/a=(y-y1)/b=(z-z1)/c. Skew lines: shortest distance via cross product.",
+        "custom_instructions": "5 MCQs, hard, 3D geometry"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Probability Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Probability (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Three Dimensional Geometry\",\n  \"questions\": [\n    {\n      \"question\": \"Direction cosines satisfy:\",\n      \"options\": [\n        \"l²+m²+n²=1\",\n        \"l+m+n=0\",\n        \"l=m=n=0\",\n        \"l²+m²=n\"\n      ],\n      \"correct_answer\": \"l²+m²+n²=1\",\n      \"explanation\": \"Unit direction vector constraint.\"\n    },\n    {\n      \"question\": \"Line through (x1,y1,z1) with direction a,b,c:\",\n      \"options\": [\n        \"(x-x1)/a=(y-y1)/b=(z-z1)/c\",\n        \"x+y+z=0\",\n        \"y=mx+c\",\n        \"x²+y²=1\"\n      ],\n      \"correct_answer\": \"(x-x1)/a=(y-y1)/b=(z-z1)/c\",\n      \"explanation\": \"Symmetric form of 3D line.\"\n    },\n    {\n      \"question\": \"Skew lines distance uses:\",\n      \"options\": [\n        \"Cross product of direction vectors\",\n        \"Only dot product\",\n        \"Determinant zero\",\n        \"Single point only\"\n      ],\n      \"correct_answer\": \"Cross product of direction vectors\",\n      \"explanation\": \"Shortest distance formula uses cross product.\"\n    },\n    {\n      \"question\": \"Direction cosines are cosines of angles with:\",\n      \"options\": [\n        \"Coordinate axes\",\n        \"Only x-axis\",\n        \"Random lines\",\n        \"Normal only\"\n      ],\n      \"correct_answer\": \"Coordinate axes\",\n      \"explanation\": \"Angles with x, y, z axes.\"\n    },\n    {\n      \"question\": \"A line in 3D requires:\",\n      \"options\": [\n        \"Point and direction ratios\",\n        \"Only one point\",\n        \"Only slope\",\n        \"Area\"\n      ],\n      \"correct_answer\": \"Point and direction ratios\",\n      \"explanation\": \"Point-direction form.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:per_source",
+        "source_pdf:lemh205"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-014",
-      "variation": "handwritten",
-      "tags": [
-        "cbse",
-        "science",
-        "neet"
-      ],
+      "variation": "per_source",
       "inputs": {
-        "context": "SN1 unimolecular, carbocation intermediate. SN2 bimolecular, inversion of configuration.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Organic Chemistry"
+        "context": "Torque τ=rF sin θ. τ=Iα. Parallel axis: I=I_cm+Md².",
+        "custom_instructions": "3 MCQs, easy, rotational dynamics thin source"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Organic Chemistry Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Organic Chemistry (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Rotational Dynamics Quick\",\n  \"questions\": [\n    {\n      \"question\": \"Torque magnitude equals:\",\n      \"options\": [\n        \"rF sin θ\",\n        \"r/F\",\n        \"F only\",\n        \"r+F\"\n      ],\n      \"correct_answer\": \"rF sin θ\",\n      \"explanation\": \"τ = rF sin θ.\"\n    },\n    {\n      \"question\": \"Rotational analog τ=Iα corresponds to:\",\n      \"options\": [\n        \"F=ma\",\n        \"P=IV\",\n        \"V=IR\",\n        \"E=mc²\"\n      ],\n      \"correct_answer\": \"F=ma\",\n      \"explanation\": \"I is rotational inertia.\"\n    },\n    {\n      \"question\": \"Parallel axis theorem:\",\n      \"options\": [\n        \"I=I_cm+Md²\",\n        \"I=M/d\",\n        \"I=0\",\n        \"I=I_cm-Md²\"\n      ],\n      \"correct_answer\": \"I=I_cm+Md²\",\n      \"explanation\": \"Shift parallel axis from CM.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:per_source",
+        "source_pdf:keph106"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     },
     {
       "id": "studio_quiz-015",
-      "variation": "low_quality_scan",
-      "tags": [
-        "cbse",
-        "science",
-        "board_exam"
-      ],
+      "variation": "multi_source",
       "inputs": {
-        "context": "Projectile: horizontal v_x constant, vertical v_y changes. Range R = u²sin2θ/g.",
-        "custom_instructions": "5 MCQs, medium difficulty, focus Motion in Plane"
+        "context": "[Source A — Current Electricity] Ohm's law V=IR; resistivity ρ=RA/l.\n\n[Source B — Electrochemistry] Galvanic cell: anode oxidation; E°cell=E°cathode-E°anode.",
+        "custom_instructions": "5 MCQs, medium, integrate both sources"
       },
       "reference_outputs": {
-        "quiz_json": {
-          "title": "Motion in Plane Quiz",
-          "questions": [
-            {
-              "question": "Grounded MCQ on Motion in Plane (LLM-judge: must cite excerpt)",
-              "options": [
-                "Option grounded in text A",
-                "Plausible distractor B",
-                "Plausible distractor C",
-                "Plausible distractor D"
-              ],
-              "correct_answer": "Option grounded in text A",
-              "explanation": "Must be supported by the provided context excerpt."
-            }
-          ]
-        }
+        "quiz_json": "{\n  \"title\": \"Electricity & Electrochemistry Integrated\",\n  \"questions\": [\n    {\n      \"question\": \"Ohm's law states:\",\n      \"options\": [\n        \"V=IR\",\n        \"V=I/R always\",\n        \"I=0 always\",\n        \"R=0 required\"\n      ],\n      \"correct_answer\": \"V=IR\",\n      \"explanation\": \"Per electricity excerpt.\"\n    },\n    {\n      \"question\": \"Resistivity ρ relates to:\",\n      \"options\": [\n        \"R, A, l by ρ=RA/l\",\n        \"Only voltage\",\n        \"Only current direction\",\n        \"Cell EMF\"\n      ],\n      \"correct_answer\": \"R, A, l by ρ=RA/l\",\n      \"explanation\": \"Material geometry relation.\"\n    },\n    {\n      \"question\": \"Galvanic cell anode:\",\n      \"options\": [\n        \"Oxidation\",\n        \"Reduction\",\n        \"Salt bridge only\",\n        \"Insulator\"\n      ],\n      \"correct_answer\": \"Oxidation\",\n      \"explanation\": \"Per electrochemistry excerpt.\"\n    },\n    {\n      \"question\": \"Standard E°cell:\",\n      \"options\": [\n        \"E°cathode-E°anode\",\n        \"E°anode only\",\n        \"Sum of ρ\",\n        \"1/R_eq\"\n      ],\n      \"correct_answer\": \"E°cathode-E°anode\",\n      \"explanation\": \"Cell EMF definition.\"\n    },\n    {\n      \"question\": \"Both topics link through:\",\n      \"options\": [\n        \"Charge flow and energy conversion\",\n        \"Only optics\",\n        \"Only digestion\",\n        \"Random guess\"\n      ],\n      \"correct_answer\": \"Charge flow and energy conversion\",\n      \"explanation\": \"Integrated concept bridge.\"\n    }\n  ]\n}"
       },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_source",
+        "source_pdf:leph103"
+      ],
       "evaluators": [
-        "valid_json",
-        "quiz_schema",
-        "llm_judge_grounding"
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-016",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "[Source A — Photosynthesis] Light reaction in grana; Calvin cycle in stroma.\n\n[Source B — Cell division] Mitosis maintains chromosome number; meiosis halves for gametes.",
+        "custom_instructions": "5 MCQs, medium, both biology sources"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Photosynthesis & Meiosis Synthesis\",\n  \"questions\": [\n    {\n      \"question\": \"Calvin cycle fixes:\",\n      \"options\": [\n        \"CO2 in stroma\",\n        \"O2 in grana only\",\n        \"N2 in nucleus\",\n        \"Glucose in mouth\"\n      ],\n      \"correct_answer\": \"CO2 in stroma\",\n      \"explanation\": \"Photosynthesis excerpt.\"\n    },\n    {\n      \"question\": \"Light reaction location:\",\n      \"options\": [\n        \"Grana\",\n        \"Stroma only\",\n        \"Villi\",\n        \"Casparian strip\"\n      ],\n      \"correct_answer\": \"Grana\",\n      \"explanation\": \"Thylakoid membranes in grana.\"\n    },\n    {\n      \"question\": \"Meiosis reduces:\",\n      \"options\": [\n        \"Chromosome number for gametes\",\n        \"ATP only\",\n        \"CO2\",\n        \"Resistivity\"\n      ],\n      \"correct_answer\": \"Chromosome number for gametes\",\n      \"explanation\": \"Cell division excerpt.\"\n    },\n    {\n      \"question\": \"Mitosis used for:\",\n      \"options\": [\n        \"Growth and repair\",\n        \"Gamete formation only\",\n        \"Silver mirror test\",\n        \"Lens formula\"\n      ],\n      \"correct_answer\": \"Growth and repair\",\n      \"explanation\": \"Maintains 2n.\"\n    },\n    {\n      \"question\": \"Both processes involve:\",\n      \"options\": [\n        \"Energy/transformations in living cells\",\n        \"Only metal ions\",\n        \"Only optics\",\n        \"None\"\n      ],\n      \"correct_answer\": \"Energy/transformations in living cells\",\n      \"explanation\": \"Integrated biology theme.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-017",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "[Source A — Probability] P(E)=favourable/total; P(A∩B)=P(A)P(B) if independent.\n\n[Source B — Binomial] Tr+1=nCr a^(n-r) b^r in (a+b)^n expansion.",
+        "custom_instructions": "4 MCQs, hard, probability and binomial"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Probability-Binomial Integration\",\n  \"questions\": [\n    {\n      \"question\": \"Tr+1 in binomial expansion:\",\n      \"options\": [\n        \"nCr a^(n-r) b^r\",\n        \"P(A)+P(B)\",\n        \"l²+m²+n²=1\",\n        \"V=IR\"\n      ],\n      \"correct_answer\": \"nCr a^(n-r) b^r\",\n      \"explanation\": \"Binomial term.\"\n    },\n    {\n      \"question\": \"Classical probability:\",\n      \"options\": [\n        \"favourable/total\",\n        \"nCr only\",\n        \"f only\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"favourable/total\",\n      \"explanation\": \"Probability definition.\"\n    },\n    {\n      \"question\": \"Independent events:\",\n      \"options\": [\n        \"P(A∩B)=P(A)P(B)\",\n        \"P(A)=1 always\",\n        \"P(A)=0 always\",\n        \"No formula\"\n      ],\n      \"correct_answer\": \"P(A∩B)=P(A)P(B)\",\n      \"explanation\": \"Independence rule.\"\n    },\n    {\n      \"question\": \"Binomial coefficients count:\",\n      \"options\": [\n        \"Combinations in expansion\",\n        \"Only permutations\",\n        \"Only angles\",\n        \"Resistances\"\n      ],\n      \"correct_answer\": \"Combinations in expansion\",\n      \"explanation\": \"nCr in expansion.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-018",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "[Source A — Current Electricity] Ohm's law V=IR; resistivity ρ=RA/l.\n\n[Source B — Electrochemistry] Galvanic cell: anode oxidation; E°cell=E°cathode-E°anode.",
+        "custom_instructions": "5 MCQs, medium, cross-domain chemistry-physics"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Material Properties Cross-Source\",\n  \"questions\": [\n    {\n      \"question\": \"According to Ohm's law, if R doubles at constant V, current becomes:\",\n      \"options\": [\n        \"Doubled\",\n        \"Halved\",\n        \"Unchanged\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"Halved\",\n      \"explanation\": \"I=V/R so current halves when R doubles.\"\n    },\n    {\n      \"question\": \"Two resistors 4 Ω and 12 Ω in series give R_eq of:\",\n      \"options\": [\n        \"3 Ω\",\n        \"16 Ω\",\n        \"48 Ω\",\n        \"8 Ω\"\n      ],\n      \"correct_answer\": \"16 Ω\",\n      \"explanation\": \"Series resistances add: 4+12=16 Ω.\"\n    },\n    {\n      \"question\": \"Kirchhoff's junction rule states:\",\n      \"options\": [\n        \"Sum I in equals sum I out\",\n        \"Sum V equals zero\",\n        \"Power is conserved\",\n        \"Charge is created\"\n      ],\n      \"correct_answer\": \"Sum I in equals sum I out\",\n      \"explanation\": \"Current into a node equals current leaving.\"\n    },\n    {\n      \"question\": \"E°cell definition uses:\",\n      \"options\": [\n        \"Standard electrode potentials\",\n        \"Only ρ\",\n        \"Only m\",\n        \"Lens formula\"\n      ],\n      \"correct_answer\": \"Standard electrode potentials\",\n      \"explanation\": \"Electrochemistry source.\"\n    },\n    {\n      \"question\": \"Anode in galvanic cell:\",\n      \"options\": [\n        \"Oxidation site\",\n        \"Reduction only\",\n        \"Salt only\",\n        \"Mirror test\"\n      ],\n      \"correct_answer\": \"Oxidation site\",\n      \"explanation\": \"Electrode role.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "chemistry",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-019",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "Lens formula 1/f=1/v-1/u. Magnification m=v/u. Power P=1/f (f in metres). Sign: real object u negative. Ray through optical centre undeviated.\n\nOhm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "custom_instructions": "6 MCQs, medium, optics and electricity selected"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Optics & Electricity Multi-Source\",\n  \"questions\": [\n    {\n      \"question\": \"According to Ohm's law, if R doubles at constant V, current becomes:\",\n      \"options\": [\n        \"Doubled\",\n        \"Halved\",\n        \"Unchanged\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"Halved\",\n      \"explanation\": \"I=V/R so current halves when R doubles.\"\n    },\n    {\n      \"question\": \"Two resistors 4 Ω and 12 Ω in series give R_eq of:\",\n      \"options\": [\n        \"3 Ω\",\n        \"16 Ω\",\n        \"48 Ω\",\n        \"8 Ω\"\n      ],\n      \"correct_answer\": \"16 Ω\",\n      \"explanation\": \"Series resistances add: 4+12=16 Ω.\"\n    },\n    {\n      \"question\": \"Kirchhoff's junction rule states:\",\n      \"options\": [\n        \"Sum I in equals sum I out\",\n        \"Sum V equals zero\",\n        \"Power is conserved\",\n        \"Charge is created\"\n      ],\n      \"correct_answer\": \"Sum I in equals sum I out\",\n      \"explanation\": \"Current into a node equals current leaving.\"\n    },\n    {\n      \"question\": \"Lens power P:\",\n      \"options\": [\n        \"1/f with f in metres\",\n        \"V=IR\",\n        \"I=neAv_d\",\n        \"ρ=0\"\n      ],\n      \"correct_answer\": \"1/f with f in metres\",\n      \"explanation\": \"Optics source.\"\n    },\n    {\n      \"question\": \"Real object u sign:\",\n      \"options\": [\n        \"Negative\",\n        \"Always positive\",\n        \"Zero\",\n        \"Complex\"\n      ],\n      \"correct_answer\": \"Negative\",\n      \"explanation\": \"Sign convention.\"\n    },\n    {\n      \"question\": \"Magnification:\",\n      \"options\": [\n        \"v/u\",\n        \"R_eq\",\n        \"P(A∩B)\",\n        \"nCr\"\n      ],\n      \"correct_answer\": \"v/u\",\n      \"explanation\": \"Lens magnification.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "scope_mode:multi_source",
+        "source_pdf:leph201"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-020",
+      "variation": "multi_source",
+      "inputs": {
+        "context": "Salivary amylase in mouth. Stomach: HCl + pepsin. Pancreatic juice: trypsin, lipase, amylase. Absorption in small intestine villi.\n\nLight reaction in grana: ATP, NADPH. Calvin cycle in stroma fixes CO2. Chlorophyll absorbs light. Stomata exchange CO2 and O2.",
+        "custom_instructions": "5 MCQs, hard NEET, both sources"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"NEET Digestion-Photosynthesis Deck\",\n  \"questions\": [\n    {\n      \"question\": \"Salivary amylase acts in:\",\n      \"options\": [\n        \"Mouth\",\n        \"Stomach\",\n        \"Grana\",\n        \"Stroma\"\n      ],\n      \"correct_answer\": \"Mouth\",\n      \"explanation\": \"Digestion source.\"\n    },\n    {\n      \"question\": \"Calvin cycle:\",\n      \"options\": [\n        \"CO2 fixation in stroma\",\n        \"Light in grana only\",\n        \"Pepsin activation\",\n        \"Tollens test\"\n      ],\n      \"correct_answer\": \"CO2 fixation in stroma\",\n      \"explanation\": \"Photosynthesis source.\"\n    },\n    {\n      \"question\": \"Pepsin needs:\",\n      \"options\": [\n        \"Acidic stomach\",\n        \"Alkaline duodenum only\",\n        \"No pH\",\n        \"Only light\"\n      ],\n      \"correct_answer\": \"Acidic stomach\",\n      \"explanation\": \"Enzyme environment.\"\n    },\n    {\n      \"question\": \"ATP from light reaction used for:\",\n      \"options\": [\n        \"Calvin cycle\",\n        \"Only digestion\",\n        \"Only optics\",\n        \"None\"\n      ],\n      \"correct_answer\": \"Calvin cycle\",\n      \"explanation\": \"Cross-process link.\"\n    },\n    {\n      \"question\": \"Absorption mainly in:\",\n      \"options\": [\n        \"Small intestine\",\n        \"Grana\",\n        \"Lens\",\n        \"Anode\"\n      ],\n      \"correct_answer\": \"Small intestine\",\n      \"explanation\": \"Digestion source.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "neet",
+        "biology",
+        "scope_mode:multi_source"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-021",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
+        "custom_instructions": "5 MCQs, easy, general science — no source provided"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"General Science Baseline\",\n  \"questions\": [\n    {\n      \"question\": \"SI unit of force is:\",\n      \"options\": [\n        \"Newton\",\n        \"Joule\",\n        \"Watt\",\n        \"Pascal\"\n      ],\n      \"correct_answer\": \"Newton\",\n      \"explanation\": \"Coherent general science item.\"\n    },\n    {\n      \"question\": \"Water chemical formula:\",\n      \"options\": [\n        \"H2O\",\n        \"CO2\",\n        \"NaCl\",\n        \"O2 only\"\n      ],\n      \"correct_answer\": \"H2O\",\n      \"explanation\": \"Basic chemistry literacy.\"\n    },\n    {\n      \"question\": \"Plants need for photosynthesis:\",\n      \"options\": [\n        \"Light\",\n        \"Only darkness\",\n        \"Only metal\",\n        \"Vacuum\"\n      ],\n      \"correct_answer\": \"Light\",\n      \"explanation\": \"General biology.\"\n    },\n    {\n      \"question\": \"Sum of angles in triangle:\",\n      \"options\": [\n        \"180°\",\n        \"90°\",\n        \"360°\",\n        \"0°\"\n      ],\n      \"correct_answer\": \"180°\",\n      \"explanation\": \"Euclidean geometry.\"\n    },\n    {\n      \"question\": \"Speed unit in SI:\",\n      \"options\": [\n        \"m/s\",\n        \"km only\",\n        \"mph\",\n        \"Light-year\"\n      ],\n      \"correct_answer\": \"m/s\",\n      \"explanation\": \"Units knowledge.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-022",
+      "variation": "no_source",
+      "inputs": {
+        "context": "",
+        "custom_instructions": "3 MCQs, medium, coherent topic without indexed source"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Study Skills Mini Quiz\",\n  \"questions\": [\n    {\n      \"question\": \"Active recall means:\",\n      \"options\": [\n        \"Testing yourself on material\",\n        \"Only re-reading\",\n        \"Skipping revision\",\n        \"Ignoring errors\"\n      ],\n      \"correct_answer\": \"Testing yourself on material\",\n      \"explanation\": \"Metacognition item.\"\n    },\n    {\n      \"question\": \"Spaced repetition helps:\",\n      \"options\": [\n        \"Long-term retention\",\n        \"Only cramming\",\n        \"Avoiding sleep\",\n        \"Deleting notes\"\n      ],\n      \"correct_answer\": \"Long-term retention\",\n      \"explanation\": \"Learning strategy.\"\n    },\n    {\n      \"question\": \"Before exams, prioritise:\",\n      \"options\": [\n        \"Weak topics with timed practice\",\n        \"Only easy topics\",\n        \"Zero practice\",\n        \"Random guessing\"\n      ],\n      \"correct_answer\": \"Weak topics with timed practice\",\n      \"explanation\": \"Exam strategy.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "edge_case",
+        "scope_mode:no_source"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-023",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Ohm's law V=IR. Resistivity ρ=RA/l. Series R_eq=R1+R2. Parallel 1/R_eq=1/R1+1/R2. Kirchhoff junction: sum I_in = sum I_out. Drift velocity v_d; I=neAv_d.",
+        "custom_instructions": "7 MCQs, hard difficulty, numerical reasoning emphasis"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Hard Numerical Electricity\",\n  \"questions\": [\n    {\n      \"question\": \"According to Ohm's law, if R doubles at constant V, current becomes:\",\n      \"options\": [\n        \"Doubled\",\n        \"Halved\",\n        \"Unchanged\",\n        \"Zero\"\n      ],\n      \"correct_answer\": \"Halved\",\n      \"explanation\": \"I=V/R so current halves when R doubles.\"\n    },\n    {\n      \"question\": \"Two resistors 4 Ω and 12 Ω in series give R_eq of:\",\n      \"options\": [\n        \"3 Ω\",\n        \"16 Ω\",\n        \"48 Ω\",\n        \"8 Ω\"\n      ],\n      \"correct_answer\": \"16 Ω\",\n      \"explanation\": \"Series resistances add: 4+12=16 Ω.\"\n    },\n    {\n      \"question\": \"Kirchhoff's junction rule states:\",\n      \"options\": [\n        \"Sum I in equals sum I out\",\n        \"Sum V equals zero\",\n        \"Power is conserved\",\n        \"Charge is created\"\n      ],\n      \"correct_answer\": \"Sum I in equals sum I out\",\n      \"explanation\": \"Current into a node equals current leaving.\"\n    },\n    {\n      \"question\": \"Drift velocity v_d relates to current by:\",\n      \"options\": [\n        \"I=neAv_d\",\n        \"I=v_d/e\",\n        \"I=ρv_d\",\n        \"I=n/v_d\"\n      ],\n      \"correct_answer\": \"I=neAv_d\",\n      \"explanation\": \"Microscopic form I=neAv_d.\"\n    },\n    {\n      \"question\": \"Resistivity ρ depends on:\",\n      \"options\": [\n        \"Material and temperature\",\n        \"Length only\",\n        \"Voltage only\",\n        \"Current direction\"\n      ],\n      \"correct_answer\": \"Material and temperature\",\n      \"explanation\": \"ρ is material property; metals increase ρ with T.\"\n    },\n    {\n      \"question\": \"Parallel resistors 6 Ω and 3 Ω give R_eq:\",\n      \"options\": [\n        \"2 Ω\",\n        \"9 Ω\",\n        \"18 Ω\",\n        \"1 Ω\"\n      ],\n      \"correct_answer\": \"2 Ω\",\n      \"explanation\": \"1/R_eq=1/6+1/3=1/2 → R_eq=2 Ω.\"\n    },\n    {\n      \"question\": \"Ohm's law applies best to:\",\n      \"options\": [\n        \"Ohmic conductors at constant T\",\n        \"All materials at any T\",\n        \"Only superconductors\",\n        \"Only insulators\"\n      ],\n      \"correct_answer\": \"Ohmic conductors at constant T\",\n      \"explanation\": \"V=IR holds for ohmic conductors at fixed temperature.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "physics",
+        "custom_instructions",
+        "scope_mode:per_concepthard"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-024",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Dicot root: radial vascular bundle. Monocot: polyarch xylem. Casparian strip in endodermis controls flow.",
+        "custom_instructions": "3 MCQs, easy, Casparian strip only"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Casparian Strip Easy\",\n  \"questions\": [\n    {\n      \"question\": \"Casparian strip located in:\",\n      \"options\": [\n        \"Endodermis\",\n        \"Epidermis only\",\n        \"Stomata\",\n        \"Grana\"\n      ],\n      \"correct_answer\": \"Endodermis\",\n      \"explanation\": \"Endodermal barrier.\"\n    },\n    {\n      \"question\": \"Casparian strip made of:\",\n      \"options\": [\n        \"Suberin\",\n        \"Only chlorophyll\",\n        \"Silver\",\n        \"Only lipase\"\n      ],\n      \"correct_answer\": \"Suberin\",\n      \"explanation\": \"Waxy suberin band.\"\n    },\n    {\n      \"question\": \"Its function:\",\n      \"options\": [\n        \"Controls apoplastic flow into stele\",\n        \"Produces ATP\",\n        \"Fixes CO2\",\n        \"Forms images\"\n      ],\n      \"correct_answer\": \"Controls apoplastic flow into stele\",\n      \"explanation\": \"Forces selective uptake.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "biology",
+        "custom_instructions",
+        "scope_mode:per_concepteasy"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
+      ]
+    },
+    {
+      "id": "studio_quiz-025",
+      "variation": "custom_override",
+      "inputs": {
+        "context": "Parabola: focus-directrix equidistance. y²=4ax focus (a,0). e=1 for parabola.",
+        "custom_instructions": "5 MCQs, medium, focus parabola only — Hindi technical terms allowed in explanations"
+      },
+      "reference_outputs": {
+        "quiz_json": "{\n  \"title\": \"Parabola Focus Drill\",\n  \"questions\": [\n    {\n      \"question\": \"Parabola locus definition:\",\n      \"options\": [\n        \"Equidistant from focus and directrix\",\n        \"Circle centre\",\n        \"Hyperbola asymptote\",\n        \"Ellipse sum\"\n      ],\n      \"correct_answer\": \"Equidistant from focus and directrix\",\n      \"explanation\": \"Geometric definition.\"\n    },\n    {\n      \"question\": \"y²=4ax focus at:\",\n      \"options\": [\n        \"(a,0)\",\n        \"(0,a)\",\n        \"(-a,0)\",\n        \"(0,-a)\"\n      ],\n      \"correct_answer\": \"(a,0)\",\n      \"explanation\": \"Standard parabola focus.\"\n    },\n    {\n      \"question\": \"Parabola eccentricity:\",\n      \"options\": [\n        \"1\",\n        \"0\",\n        \"2\",\n        \"<1\"\n      ],\n      \"correct_answer\": \"1\",\n      \"explanation\": \"e=1 always for parabola.\"\n    },\n    {\n      \"question\": \"Directrix of y²=4ax:\",\n      \"options\": [\n        \"x=-a\",\n        \"x=a\",\n        \"y=0\",\n        \"y=a\"\n      ],\n      \"correct_answer\": \"x=-a\",\n      \"explanation\": \"Directrix line.\"\n    },\n    {\n      \"question\": \"Axis of parabola y²=4ax:\",\n      \"options\": [\n        \"x-axis\",\n        \"y-axis only\",\n        \"z-axis\",\n        \"None\"\n      ],\n      \"correct_answer\": \"x-axis\",\n      \"explanation\": \"Opens along x-axis.\"\n    }\n  ]\n}"
+      },
+      "tags": [
+        "cbse",
+        "mathematics",
+        "custom_instructions",
+        "scope_mode:per_conceptlanguage"
+      ],
+      "evaluators": [
+        "question_count",
+        "schema_valid",
+        "options_quality",
+        "grounding"
       ]
     }
   ]

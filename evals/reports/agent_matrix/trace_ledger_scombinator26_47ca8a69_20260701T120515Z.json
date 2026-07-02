@@ -1,0 +1,21 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 151,
+  "experiments": [
+    {
+      "agent_id": "scope_narrower",
+      "prompt_version": "v3",
+      "model": "gemini-2.5-flash-lite",
+      "experiment_name": "ae-scope_narrower-v3-gemini-gemini-2-5-flash-lite-7e2715aa",
+      "measured_traces": 151,
+      "estimated_traces": 151,
+      "charged_traces": 151,
+      "at": "2026-07-01T12:04:55.915324+00:00"
+    }
+  ],
+  "workspace_tenant": "scombinator26_47ca8a69",
+  "note": "Fresh ledger after switching workspace (scombinator26_47ca8a69)",
+  "updated_at": "2026-07-01T12:04:55.916320+00:00"
+}

@@ -1,0 +1,151 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 2954,
+  "experiments": [
+    {
+      "agent_id": "problem_dna_analyzer",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_dna_analyzer-v1-anthropic-claude-sonnet-4-6-069ded2c",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:20:36.532972+00:00"
+    },
+    {
+      "agent_id": "explain_from_basics",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-explain_from_basics-v1-anthropic-claude-sonnet-4-6-9da945dc",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:24:10.315973+00:00"
+    },
+    {
+      "agent_id": "problem_dna_analyzer",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_dna_analyzer-v2-anthropic-claude-sonnet-4-6-5fd838d8",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:25:47.735149+00:00"
+    },
+    {
+      "agent_id": "problem_dna_analyzer",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-problem_dna_analyzer-v3-openai-gpt-5-4-mini-9fcaf362",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:28:02.468328+00:00"
+    },
+    {
+      "agent_id": "problem_dna_analyzer",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-problem_dna_analyzer-v3-openai-gpt-5-4-025d4eef",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:30:57.517528+00:00"
+    },
+    {
+      "agent_id": "explain_from_basics",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-explain_from_basics-v2-anthropic-claude-sonnet-4-6-7ee17f1f",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:32:19.703286+00:00"
+    },
+    {
+      "agent_id": "explain_from_basics",
+      "prompt_version": "v2",
+      "model": "gemini-3.5-flash",
+      "experiment_name": "ae-explain_from_basics-v2-gemini-gemini-3-5-flash-d309e3fe",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:34:53.851429+00:00"
+    },
+    {
+      "agent_id": "problem_dna_analyzer",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_dna_analyzer-v3-anthropic-claude-sonnet-4-6-16e48cc2",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:36:10.512124+00:00"
+    },
+    {
+      "agent_id": "explain_from_basics",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-explain_from_basics-v3-openai-gpt-5-4-05caa06a",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:38:37.422422+00:00"
+    },
+    {
+      "agent_id": "explain_from_basics",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-explain_from_basics-v3-anthropic-claude-sonnet-4-6-583d9c97",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:46:34.952923+00:00"
+    },
+    {
+      "agent_id": "explain_from_basics",
+      "prompt_version": "v3",
+      "model": "gemini-3.5-flash",
+      "experiment_name": "ae-explain_from_basics-v3-gemini-gemini-3-5-flash-4f6de756",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T08:49:25.581211+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_best_approach-v1-openai-gpt-5-4-87a122cf",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T09:09:29.589765+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v1-anthropic-claude-sonnet-4-6-6c8f98e1",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T09:18:10.945974+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_best_approach-v2-openai-gpt-5-4-0e259e6f",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T09:23:49.056462+00:00"
+    }
+  ],
+  "workspace_tenant": "shivaprapulsp",
+  "note": "Fresh ledger for shivaprapulsp (shivaprapul.sp@gmail.com)",
+  "updated_at": "2026-07-02T09:23:49.061468+00:00"
+}

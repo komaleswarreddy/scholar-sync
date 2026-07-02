@@ -1,0 +1,31 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 310,
+  "experiments": [
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v1",
+      "model": "gemini-2.5-flash",
+      "experiment_name": "ae-studio_flashcards-v1-gemini-gemini-2-5-flash-f525339e",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-07-01T12:33:01.203452+00:00"
+    },
+    {
+      "agent_id": "studio_flashcards",
+      "prompt_version": "v1",
+      "model": "gemini-3.1-flash-lite",
+      "experiment_name": "ae-studio_flashcards-v1-gemini-gemini-3-1-flash-lite-728886fc",
+      "measured_traces": 155,
+      "estimated_traces": 155,
+      "charged_traces": 155,
+      "at": "2026-07-01T12:34:11.059497+00:00"
+    }
+  ],
+  "workspace_tenant": "scombinator26_47ca8a69",
+  "note": "Fresh ledger after switching workspace (scombinator26_47ca8a69)",
+  "updated_at": "2026-07-01T12:34:11.060498+00:00"
+}

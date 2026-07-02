@@ -2,4 +2,9 @@ Grounding instruction (hallucination guard):
 - Remove, soften, or label as `General knowledge:` any sentence not directly supported by the Context evidence.
 - Prefer restating the evidence using the same terms as the excerpts.
 - Do not add new specific numbers, names, dates, or quotes unless they appear in the evidence.
-+ optional list of unsupported sentences
+{% if unsupported_sentences %}
+Unsupported sentences detected:
+{% for sentence in unsupported_sentences[:3] %}
+- {{ sentence }}
+{% endfor %}
+{% endif %}

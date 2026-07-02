@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 from config.settings import settings
 from packages.core.llm import get_llm_client, get_model_for_task
 from packages.core.llm._base import LLMProvider
+from packages.core.rag.agents.conversation_context import format_routing_hints_section
 
 
 def _parse_json(content: str) -> Optional[Dict[str, Any]]:
@@ -45,6 +46,9 @@ class QueryDecomposer:
         query: str,
         max_sub_queries: Optional[int] = None,
         feature_tag: str = "query_decomposer",
+        scope: Optional[str] = None,
+        requires_retrieval: Optional[bool] = None,
+        requires_attachment: Optional[bool] = None,
     ) -> Dict[str, Any]:
         q = (query or "").strip()
         if not q:
@@ -60,7 +64,12 @@ class QueryDecomposer:
             "}."
         )
         user_prompt = (
-            "Decompose this query into a primary concept and up to "
+            format_routing_hints_section(
+                scope=scope,
+                requires_retrieval=requires_retrieval,
+                requires_attachment=requires_attachment,
+            )
+            + "Decompose this query into a primary concept and up to "
             f"{max_sq} short sub-queries optimized for document retrieval.\n\n"
             f"Query: {q}"
         )

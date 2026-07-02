@@ -1,0 +1,9 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 0,
+  "experiments": [],
+  "workspace_tenant": "gra7399_67272628",
+  "note": "Fresh ledger after switching workspace (gra7399_67272628)"
+}

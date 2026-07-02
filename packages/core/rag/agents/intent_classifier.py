@@ -87,12 +87,39 @@ def _parse_intent_json(content: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+_VALID_SCOPES = {"whole_document", "section", "fact", "unspecified"}
+
+
+def _normalize_scope(value: Any) -> str:
+    """Coerce model-provided scope into one of the allowed slugs."""
+    s = str(value or "").strip().lower()
+    return s if s in _VALID_SCOPES else "unspecified"
+
+
+def _normalize_bool(value: Any, *, default: bool = False) -> bool:
+    """Coerce model-provided boolean flags."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)) and value in (0, 1):
+        return bool(value)
+    if isinstance(value, str):
+        s = value.strip().lower()
+        if s in {"true", "1", "yes"}:
+            return True
+        if s in {"false", "0", "no"}:
+            return False
+    return default
+
+
 def _llm_failure_return(reason: str) -> Dict[str, Any]:
     """Safe default when LLM fails or output is unparseable (still structured for downstream)."""
     return {
         "intent": UserIntent.GENERAL,
         "confidence": 0.35,
         "reasoning": reason,
+        "scope": "unspecified",
+        "requires_retrieval": True,
+        "requires_attachment": False,
     }
 
 
@@ -137,13 +164,17 @@ class IntentClassifier:
         Classify user intent via the routing LLM.
 
         Returns:
-            Dict with keys: intent (UserIntent), confidence (float), reasoning (str).
+            Dict with keys: intent (UserIntent), confidence (float), reasoning (str),
+            scope (str), requires_retrieval (bool), requires_attachment (bool).
         """
         if not query:
             return {
                 "intent": UserIntent.GENERAL,
                 "confidence": 0.5,
                 "reasoning": "Empty query",
+                "scope": "unspecified",
+                "requires_retrieval": False,
+                "requires_attachment": False,
             }
 
         t0 = time.perf_counter()
@@ -239,8 +270,19 @@ class IntentClassifier:
 
         _record_intent_path(self.tenant_id, "llm_ok", extra_ms=elapsed_ms)
 
+        requires_retrieval = _normalize_bool(parsed.get("requires_retrieval"), default=True)
+        requires_attachment = _normalize_bool(parsed.get("requires_attachment"), default=False)
+        if requires_attachment:
+            requires_retrieval = True
+        if intent in (UserIntent.CONVERSATIONAL, UserIntent.SECURITY_BLOCK):
+            requires_retrieval = False
+            requires_attachment = False
+
         return {
             "intent": intent,
             "confidence": conf,
             "reasoning": str(parsed.get("reasoning", "") or "").strip(),
+            "scope": _normalize_scope(parsed.get("scope")),
+            "requires_retrieval": requires_retrieval,
+            "requires_attachment": requires_attachment,
         }

@@ -14,7 +14,10 @@ from config.settings import settings
 from packages.core.llm import get_llm_client, get_model_for_task
 from packages.core.llm._base import LLMProvider
 from packages.core.prompts import load_prompt
-from packages.core.rag.agents.conversation_context import format_conversation_transcript
+from packages.core.rag.agents.conversation_context import (
+    format_conversation_transcript,
+    format_routing_hints_section,
+)
 
 
 def _parse_rewrite_json(content: str) -> Optional[Dict[str, Any]]:
@@ -55,6 +58,9 @@ class QueryRewriter:
         max_rewrites: int = 3,
         confidence_threshold: float = 0.7,  # reserved for metrics / downstream; rewrites always applied on success
         feature_tag: str = "query_rewriter",
+        scope: Optional[str] = None,
+        requires_retrieval: Optional[bool] = None,
+        requires_attachment: Optional[bool] = None,
     ) -> Dict[str, Any]:
         """
         Rewrite query to improve retrieval recall while preserving semantic intent.
@@ -99,6 +105,11 @@ class QueryRewriter:
             rewrite_prompt = load_prompt(
                 "agents/query_rewriter_user.j2",
                 transcript_section=transcript_section,
+                routing_hints_section=format_routing_hints_section(
+                    scope=scope,
+                    requires_retrieval=requires_retrieval,
+                    requires_attachment=requires_attachment,
+                ),
                 query=query,
                 max_rewrites=max_rewrites,
             )

@@ -527,6 +527,9 @@ class Retriever:
         conversation_history: Optional[List[Dict]] = None,
         classified_intent: Optional[str] = None,
         classified_intent_confidence: Optional[float] = None,
+        scope: Optional[str] = None,
+        requires_retrieval: Optional[bool] = None,
+        requires_attachment: Optional[bool] = None,
         include_ncert_global: bool = False,
         ncert_class: Optional[int] = None,
         ncert_subject: Optional[str] = None,
@@ -547,6 +550,10 @@ class Retriever:
             conversation_history: Optional conversation history for context
             classified_intent: Optional pre-classified intent slug (e.g. from LangGraph)
             classified_intent_confidence: Confidence for pre-classified intent (enables routing gate)
+            scope: Optional retrieval-scope hint from IntentClassifier
+                (whole_document | section | fact | unspecified); passed to ScopeNarrower.
+            requires_retrieval: Optional advisory flag from IntentClassifier.
+            requires_attachment: Optional advisory flag from IntentClassifier.
 
         Returns:
             Query results with matches and metadata (intent, etc.)
@@ -742,6 +749,7 @@ class Retriever:
                 scope_result = await self.scope_narrower.narrow_scope(
                     query=query,
                     conversation_history=conversation_history,
+                    scope=scope,
                 )
                 scope_focused_query = str(scope_result.get("focused_query") or query).strip() or query
                 scope_key_terms = list(scope_result.get("key_terms") or [])
@@ -829,6 +837,9 @@ class Retriever:
                     conversation_history=conversation_history,
                     max_rewrites=2,
                     confidence_threshold=settings.QUERY_REWRITE_CONFIDENCE_THRESHOLD,
+                    scope=scope,
+                    requires_retrieval=requires_retrieval,
+                    requires_attachment=requires_attachment,
                 ),
                 input_summary={"raw_query": trace_snippet(rewrite_input, 240)},
                 output_fn=lambda r: {
@@ -896,6 +907,9 @@ class Retriever:
                 self.query_decomposer.decompose(
                     query=primary_query,
                     max_sub_queries=getattr(settings, "QUERY_DECOMPOSITION_MAX_SUB_QUERIES", 4),
+                    scope=scope,
+                    requires_retrieval=requires_retrieval,
+                    requires_attachment=requires_attachment,
                 ),
                 input_summary={"query": trace_snippet(primary_query, 240)},
                 output_fn=lambda r: {

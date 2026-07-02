@@ -1,18 +1,23 @@
 {
-  "version": "1.0.0",
+  "version": "1.4.0",
   "dataset_id": "diagram_label_ocr",
   "agent": {
     "sno": 33,
     "category": "Source Upload",
     "name": "Diagram Label OCR Agent",
     "tier": "tier_2",
-    "target_examples": 15,
-    "prompt_template": "You are reading a textbook diagram or circuit figure. Extract short English-only labels, variable names, and directional flow hints. Ignore Hindi/non-English text. Return plain text only."
+    "target_examples": 13,
+    "prompt_template": "Extract only the labels and text that are explicitly visible in the figure. If no labels or text are present, return exactly: No visible labels. Do not identify components or infer meanings. Ignore Hindi/non-English text. Return plain text only."
   },
   "langsmith": {
     "dataset_name_prefix": "nbm-prompt",
     "input_keys": [
-      "image_fixture_note"
+      "pdf_source",
+      "page_number",
+      "crop_mode",
+      "figure_index",
+      "source_key",
+      "figure_crop"
     ],
     "output_keys": [
       "labels_text"
@@ -21,272 +26,392 @@
   "items": [
     {
       "id": "diagram_label_ocr-001",
-      "variation": "circuit_diagram",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
+      "variation": "circuit_labels",
       "inputs": {
-        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Biology_Testing_Question_Bank_Updated.pdf",
+        "page_number": 4,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "cbse_biology",
+        "figure_crop": "- Input\n- Output\n- Process\n- Flow\n- Control\n- Decision\n- Yes\n- No"
       },
       "reference_outputs": {
-        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
+        "labels_text": "- Input\n- Output\n- Process\n- Flow\n- Control\n- Decision\n- Yes\n- No"
       },
-      "evaluators": [
-        "label_extraction",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "diagram_label_ocr-002",
-      "variation": "biology_diagram",
       "tags": [
-        "diagram",
-        "ocr"
+        "diagram_ocr",
+        "cbse",
+        "biology",
+        "circuit_labels",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
-      },
-      "reference_outputs": {
-        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
-      },
       "evaluators": [
         "label_extraction",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "diagram_label_ocr-003",
-      "variation": "flowchart",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
-      "inputs": {
-        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
-      },
-      "reference_outputs": {
-        "labels_text": "Flowchart: food ingestion → digestion → absorption → assimilation → egestion"
-      },
-      "evaluators": [
-        "label_extraction",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "diagram_label_ocr-004",
-      "variation": "ray_diagram",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
-      "inputs": {
-        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
-      },
-      "reference_outputs": {
-        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
-      },
-      "evaluators": [
-        "label_extraction",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "diagram_label_ocr-005",
-      "variation": "chemistry_apparatus",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
-      "inputs": {
-        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
-      },
-      "reference_outputs": {
-        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
-      },
-      "evaluators": [
-        "label_extraction",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "diagram_label_ocr-006",
-      "variation": "circuit_diagram",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
-      "inputs": {
-        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
-      },
-      "reference_outputs": {
-        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
-      },
-      "evaluators": [
-        "label_extraction",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "diagram_label_ocr-007",
-      "variation": "biology_diagram",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
-      "inputs": {
-        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
-      },
-      "reference_outputs": {
-        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
-      },
-      "evaluators": [
-        "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     },
     {
       "id": "diagram_label_ocr-008",
-      "variation": "flowchart",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
+      "variation": "circuit_labels",
       "inputs": {
-        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
+        "pdf_source": "Problem solver_Questions/JEE Mains/Mains 2026 April.pdf",
+        "page_number": 11,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "jee_april_2026",
+        "figure_crop": "5 V  \nR_S  \nR = 1 kΩ  \n2 mW  \nLED"
       },
       "reference_outputs": {
-        "labels_text": "Flowchart: food ingestion → digestion → absorption → assimilation → egestion"
+        "labels_text": "5 V  \nR_S  \nR = 1 kΩ  \n2 mW  \nLED"
       },
+      "tags": [
+        "diagram_ocr",
+        "jee",
+        "mixed",
+        "circuit_labels",
+        "production_llm_gold"
+      ],
       "evaluators": [
         "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     },
     {
       "id": "diagram_label_ocr-009",
-      "variation": "ray_diagram",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
+      "variation": "circuit_labels",
       "inputs": {
-        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
+        "pdf_source": "Problem solver_Questions/JEE Mains/Mains 2026 April.pdf",
+        "page_number": 12,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "jee_april_2026",
+        "figure_crop": "No visible labels"
       },
       "reference_outputs": {
-        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
+        "labels_text": "No visible labels"
       },
+      "tags": [
+        "diagram_ocr",
+        "jee",
+        "mixed",
+        "circuit_labels",
+        "production_llm_gold"
+      ],
       "evaluators": [
         "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     },
     {
-      "id": "diagram_label_ocr-010",
-      "variation": "chemistry_apparatus",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
+      "id": "diagram_label_ocr-002",
+      "variation": "biology_figure",
       "inputs": {
-        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Biology_Testing_Question_Bank_Updated.pdf",
+        "page_number": 9,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "cbse_biology",
+        "figure_crop": "A  \nT  \nG  \nP  \nOH  \n3'  \n5'  \n(a)  \n(b)"
       },
       "reference_outputs": {
-        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
+        "labels_text": "A  \nT  \nG  \nP  \nOH  \n3'  \n5'  \n(a)  \n(b)"
       },
+      "tags": [
+        "diagram_ocr",
+        "cbse",
+        "biology",
+        "biology_figure",
+        "production_llm_gold"
+      ],
       "evaluators": [
         "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     },
     {
-      "id": "diagram_label_ocr-011",
-      "variation": "circuit_diagram",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
+      "id": "diagram_label_ocr-003",
+      "variation": "biology_figure",
       "inputs": {
-        "image_fixture_note": "NCERT textbook circuit diagram figure; English labels only."
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Biology_Testing_Question_Bank_Updated.pdf",
+        "page_number": 13,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "cbse_biology",
+        "figure_crop": "- Balanus balanoides\n- Chthamalus stellatus\n- Highest tides\n- Upper intertidal zone\n- Middle intertidal zone\n- Lower intertidal zone\n- Lowest tides\n- Desiccation\n- Outcompetes\n- Predation"
       },
       "reference_outputs": {
-        "labels_text": "Series circuit: Battery +, R1, R2, ammeter A, switch S; current flows clockwise"
+        "labels_text": "- Balanus balanoides\n- Chthamalus stellatus\n- Highest tides\n- Upper intertidal zone\n- Middle intertidal zone\n- Lower intertidal zone\n- Lowest tides\n- Desiccation\n- Outcompetes\n- Predation"
       },
-      "evaluators": [
-        "label_extraction",
-        "llm_judge"
-      ]
-    },
-    {
-      "id": "diagram_label_ocr-012",
-      "variation": "biology_diagram",
       "tags": [
-        "diagram",
-        "ocr"
+        "diagram_ocr",
+        "cbse",
+        "biology",
+        "biology_figure",
+        "production_llm_gold"
       ],
-      "inputs": {
-        "image_fixture_note": "NCERT textbook biology diagram figure; English labels only."
-      },
-      "reference_outputs": {
-        "labels_text": "Human heart diagram: RA, RV, LA, LV labels; aorta ascending; pulmonary artery"
-      },
       "evaluators": [
         "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     },
     {
       "id": "diagram_label_ocr-013",
+      "variation": "biology_figure",
+      "inputs": {
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Biology_Testing_Question_Bank_Updated.pdf",
+        "page_number": 15,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "cbse_biology",
+        "figure_crop": "- Gene for ampicillin resistance\n- Plasmid\n- Gene for tetracycline resistance\n- Recombinant DNA\n- Plate M\n- Replica plating\n- Plate N\n- Agar with tetracycline and ampicillin"
+      },
+      "reference_outputs": {
+        "labels_text": "- Gene for ampicillin resistance\n- Plasmid\n- Gene for tetracycline resistance\n- Recombinant DNA\n- Plate M\n- Replica plating\n- Plate N\n- Agar with tetracycline and ampicillin"
+      },
+      "tags": [
+        "diagram_ocr",
+        "cbse",
+        "biology",
+        "biology_figure",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "label_extraction",
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-004",
+      "variation": "graph_axes",
+      "inputs": {
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Biology_Testing_Question_Bank_Updated.pdf",
+        "page_number": 14,
+        "crop_mode": "embedded_figure",
+        "figure_index": 1,
+        "source_key": "cbse_biology",
+        "figure_crop": "Taxonomic Richness  \nRegion I  \nRegion II  \nRegion III"
+      },
+      "reference_outputs": {
+        "labels_text": "Taxonomic Richness  \nRegion I  \nRegion II  \nRegion III"
+      },
+      "tags": [
+        "diagram_ocr",
+        "cbse",
+        "biology",
+        "graph_axes",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "label_extraction",
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-005",
+      "variation": "geometry_labels",
+      "inputs": {
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Mathematics_Testing_Question_Bank.pdf",
+        "page_number": 5,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "cbse_mathematics",
+        "figure_crop": "A  \nB  \nC  \nD  \nR  \nl1  \nl2  \n20 m  \nx"
+      },
+      "reference_outputs": {
+        "labels_text": "A  \nB  \nC  \nD  \nR  \nl1  \nl2  \n20 m  \nx"
+      },
+      "tags": [
+        "diagram_ocr",
+        "cbse",
+        "mathematics",
+        "geometry_labels",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "label_extraction",
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-006",
       "variation": "flowchart",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
       "inputs": {
-        "image_fixture_note": "NCERT textbook flowchart figure; English labels only."
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Mathematics_Testing_Question_Bank.pdf",
+        "page_number": 6,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "cbse_mathematics",
+        "figure_crop": "```"
       },
       "reference_outputs": {
-        "labels_text": "Flowchart: food ingestion → digestion → absorption → assimilation → egestion"
+        "labels_text": "```"
       },
+      "tags": [
+        "diagram_ocr",
+        "cbse",
+        "mathematics",
+        "flowchart",
+        "production_llm_gold"
+      ],
       "evaluators": [
         "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     },
     {
-      "id": "diagram_label_ocr-014",
-      "variation": "ray_diagram",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
+      "id": "diagram_label_ocr-007",
+      "variation": "venn_labels",
       "inputs": {
-        "image_fixture_note": "NCERT textbook ray diagram figure; English labels only."
+        "pdf_source": "Problem solver_Questions/CBSE Boards Class 12/Mathematics_Testing_Question_Bank.pdf",
+        "page_number": 7,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "cbse_mathematics",
+        "figure_crop": "A  \nB  \nC  \n0.32  \n0.09  \ny  \nx  \n0.21  \n0.11"
       },
       "reference_outputs": {
-        "labels_text": "Convex lens ray diagram: F, 2F, object O, image I; arrows on principal axis"
+        "labels_text": "A  \nB  \nC  \n0.32  \n0.09  \ny  \nx  \n0.21  \n0.11"
       },
+      "tags": [
+        "diagram_ocr",
+        "cbse",
+        "mathematics",
+        "venn_labels",
+        "production_llm_gold"
+      ],
       "evaluators": [
         "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     },
     {
-      "id": "diagram_label_ocr-015",
-      "variation": "chemistry_apparatus",
-      "tags": [
-        "diagram",
-        "ocr"
-      ],
+      "id": "diagram_label_ocr-010",
+      "variation": "mechanics_figure",
       "inputs": {
-        "image_fixture_note": "NCERT textbook chemistry apparatus figure; English labels only."
+        "pdf_source": "Problem solver_Questions/JEE Mains/Mains 2026 Jan.pdf",
+        "page_number": 15,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "jee_jan_2026",
+        "figure_crop": "A\nB\nC\nP\nQ\nS\n45°"
       },
       "reference_outputs": {
-        "labels_text": "Distillation setup: round flask, thermometer, condenser, water in/out arrows"
+        "labels_text": "A\nB\nC\nP\nQ\nS\n45°"
       },
+      "tags": [
+        "diagram_ocr",
+        "jee",
+        "mixed",
+        "mechanics_figure",
+        "production_llm_gold"
+      ],
       "evaluators": [
         "label_extraction",
-        "llm_judge"
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-011",
+      "variation": "mechanics_figure",
+      "inputs": {
+        "pdf_source": "Problem solver_Questions/JEE Mains/Mains 2026 Jan.pdf",
+        "page_number": 20,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "jee_jan_2026",
+        "figure_crop": "A\nr\nM\nx\n135°\nr/4\n3r/4"
+      },
+      "reference_outputs": {
+        "labels_text": "A\nr\nM\nx\n135°\nr/4\n3r/4"
+      },
+      "tags": [
+        "diagram_ocr",
+        "jee",
+        "mixed",
+        "mechanics_figure",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "label_extraction",
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
+      ]
+    },
+    {
+      "id": "diagram_label_ocr-012",
+      "variation": "ray_optics",
+      "inputs": {
+        "pdf_source": "Problem solver_Questions/NEET Dataset/Physics.pdf",
+        "page_number": 12,
+        "crop_mode": "embedded_figure",
+        "figure_index": 0,
+        "source_key": "neet_physics",
+        "figure_crop": "- \\( \\omega(t) \\)\n- \\( A(t) \\)\n- \\( t \\)"
+      },
+      "reference_outputs": {
+        "labels_text": "- \\( \\omega(t) \\)\n- \\( A(t) \\)\n- \\( t \\)"
+      },
+      "tags": [
+        "diagram_ocr",
+        "neet",
+        "physics",
+        "ray_optics",
+        "production_llm_gold"
+      ],
+      "evaluators": [
+        "label_extraction",
+        "visible_only",
+        "not_full_ocr",
+        "english_only",
+        "figure_grounding",
+        "production_llm"
       ]
     }
   ]

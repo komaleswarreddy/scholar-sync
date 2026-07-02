@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-07-01T10:14:45.079772+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "dataset": "nbm-prompt-intent_classifier",
+  "prompt_versions": [
+    "v2",
+    "v3"
+  ],
+  "example_limit": 0,
+  "example_offset": 0,
+  "experiments": [
+    {
+      "experiment_prefix": "ic-v2-openai-gpt-5-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 334.37,
+      "experiment_name": "ic-v2-openai-gpt-5-mini-da0abe42",
+      "langsmith_url": "https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/25a26198-362b-4f9c-a2c9-727e3e1a4620/compare?selectedSessions=6774c129-7a52-4200-b3ec-a50b2d09e7f3",
+      "compare_url": "https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/25a26198-362b-4f9c-a2c9-727e3e1a4620/compare?selectedSessions=6774c129-7a52-4200-b3ec-a50b2d09e7f3"
+    },
+    {
+      "experiment_prefix": "ic-v3-openai-gpt-5-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 261.02,
+      "experiment_name": "ic-v3-openai-gpt-5-mini-75e23956",
+      "langsmith_url": "https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/25a26198-362b-4f9c-a2c9-727e3e1a4620/compare?selectedSessions=e53130d3-481f-4dc0-9dc2-5794ab321ac8",
+      "compare_url": "https://smith.langchain.com/o/47ca8a69-43eb-4f05-812b-c7778fe6987d/datasets/25a26198-362b-4f9c-a2c9-727e3e1a4620/compare?selectedSessions=e53130d3-481f-4dc0-9dc2-5794ab321ac8"
+    }
+  ],
+  "skipped_providers": [],
+  "dry_run": false,
+  "summary": {
+    "total_experiments": 2,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 4746,
+  "experiments": [
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6-9f6719af",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-01T00:57:32.932329+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_missing_idea-v1-openai-gpt-5-4-9aafa69b",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-01T01:00:21.799557+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v1-anthropic-claude-sonnet-4-6-e84da9f6",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-01T01:06:09.529854+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_missing_idea-v2-openai-gpt-5-4-c7e72f76",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-01T01:08:19.292963+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v2-anthropic-claude-sonnet-4-6-234707d0",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-01T01:13:41.903691+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_missing_idea-v3-openai-gpt-5-4-32e50bcd",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-01T01:16:14.546123+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v3-anthropic-claude-sonnet-4-6-f3d86d8a",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-01T01:21:21.220921+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-ncert_document_sketch-v1-openai-gpt-5-4-mini-619d7fa0",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:21:53.677148+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v1",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-ncert_document_sketch-v1-anthropic-claude-haiku-4-5-e58e37d7",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:22:29.310940+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v1",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-ncert_document_sketch-v1-openai-gpt-5-mini-5e0ea95d",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:24:30.350175+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-ncert_document_sketch-v2-openai-gpt-5-4-mini-b1eb16d9",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:25:03.121488+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v2",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-ncert_document_sketch-v2-anthropic-claude-haiku-4-5-c91b1998",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:25:40.393110+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-ncert_document_sketch-v2-openai-gpt-5-mini-e34e4bf3",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:27:50.544098+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-ncert_document_sketch-v3-openai-gpt-5-4-mini-cecec4cc",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:28:26.562377+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v3",
+      "model": "claude-haiku-4-5",
+      "experiment_name": "ae-ncert_document_sketch-v3-anthropic-claude-haiku-4-5-2f61d8a6",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:29:05.333320+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-ncert_document_sketch-v3-openai-gpt-5-mini-03e7bca7",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-01T01:31:04.698474+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v1-openai-gpt-5-4-97d984ff",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T01:59:10.317048+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v1-anthropic-claude-sonnet-4-6-7149725f",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T02:05:39.878645+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v2-openai-gpt-5-4-f6db45c0",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T02:10:47.964016+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v2-anthropic-claude-sonnet-4-6-7c525078",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T02:17:28.386740+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v3-openai-gpt-5-4-70849379",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T02:19:47.307962+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v3-anthropic-claude-sonnet-4-6-89133fc7",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-01T02:25:01.018924+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-problem_solver_followup-v1-openai-gpt-5-4-mini-16ae3cd2",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-01T02:25:40.850089+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_solver_followup-v1-anthropic-claude-sonnet-4-6-504dc7a9",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-01T02:27:58.394318+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-problem_solver_followup-v2-openai-gpt-5-4-mini-5a08c85c",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-01T02:28:38.021724+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_solver_followup-v2-anthropic-claude-sonnet-4-6-26c453d6",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-01T02:30:42.411551+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-problem_solver_followup-v3-openai-gpt-5-4-mini-a4b7defa",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-01T02:31:20.440585+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_solver_followup-v3-anthropic-claude-sonnet-4-6-298ea982",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-01T02:33:29.116662+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v1-openai-gpt-5-4-ccd89fea",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-01T02:34:04.802757+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v1-anthropic-claude-sonnet-4-6-a6781129",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-01T02:37:08.020725+00:00"
+    }
+  ],
+  "updated_at": "2026-07-01T02:37:08.020725+00:00"
+}

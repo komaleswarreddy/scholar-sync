@@ -1,0 +1,186 @@
+{
+  "workspace": "ScholarSync-v2",
+  "datasets": [
+    {
+      "dataset_name": "nbm-prompt-query_rewriter",
+      "dataset_id": "84a1c3ca-4fee-4806-8e29-0eca58633d1f",
+      "created": 56,
+      "skipped": 0,
+      "total": 56,
+      "evaluator": "query_rewriter",
+      "models": [
+        "claude-haiku-4-5",
+        "gemini-2.5-flash-lite",
+        "gpt-5-nano"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-query_decomposer",
+      "dataset_id": "c3328aa5-c137-4e01-a6e8-02054d4ce5ed",
+      "created": 48,
+      "skipped": 0,
+      "total": 48,
+      "evaluator": "query_rewriter",
+      "models": [
+        "claude-haiku-4-5",
+        "gemini-2.5-flash",
+        "gpt-5-mini"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-scope_narrower",
+      "dataset_id": "02275774-755e-45fa-aa0f-3f64c1cfc0b1",
+      "created": 25,
+      "skipped": 0,
+      "total": 25,
+      "evaluator": "query_rewriter",
+      "models": [
+        "claude-haiku-4-5",
+        "gemini-2.5-flash-lite",
+        "gpt-5-nano"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-chat_policy_block",
+      "dataset_id": "6d4e5a69-d0c7-4237-bb14-a08333f3e403",
+      "created": 25,
+      "skipped": 0,
+      "total": 25,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4-mini",
+        "claude-haiku-4-5"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-direct_chat",
+      "dataset_id": "fd51efa1-0f88-47e0-b2ea-4a5be835c6b0",
+      "created": 25,
+      "skipped": 0,
+      "total": 25,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4-nano",
+        "gemini-3.1-flash-lite",
+        "gemini-2.5-flash-lite"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-rag_chat_response_generator",
+      "dataset_id": "9770c9e3-c29e-42a2-8a8b-87cb75c9582b",
+      "created": 25,
+      "skipped": 0,
+      "total": 25,
+      "evaluator": "formatter",
+      "models": [
+        "claude-sonnet-4-6",
+        "gpt-5.4",
+        "gemini-2.5-flash"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-chat_summarizer",
+      "dataset_id": "2e324af8-c0f9-4732-ab7d-62e9b7f0e93a",
+      "created": 20,
+      "skipped": 0,
+      "total": 20,
+      "evaluator": "formatter",
+      "models": [
+        "claude-haiku-4-5",
+        "gemini-2.5-flash-lite",
+        "gemini-3.1-flash-lite"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-hallucination_guard_retry",
+      "dataset_id": "6e40961c-7084-4501-8e7a-118ceddb95ba",
+      "created": 15,
+      "skipped": 0,
+      "total": 15,
+      "evaluator": "verifier",
+      "models": [
+        "gpt-5.4",
+        "claude-sonnet-4-6",
+        "gemini-2.5-flash"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-studio_system_json",
+      "dataset_id": "7f214df9-ea72-46b4-83fe-e1a02f228934",
+      "created": 15,
+      "skipped": 0,
+      "total": 15,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4-mini",
+        "gemini-2.5-flash",
+        "gpt-5-mini"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-studio_quiz",
+      "dataset_id": "d77e9d5d-a8ef-4a88-ac85-64051cb02bdb",
+      "created": 25,
+      "skipped": 0,
+      "total": 25,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4-mini",
+        "gemini-2.5-flash",
+        "gpt-5-mini"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-studio_flashcards",
+      "dataset_id": "ee34264b-91f5-492e-96fa-a9646c75ecd9",
+      "created": 22,
+      "skipped": 0,
+      "total": 22,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4-mini",
+        "gemini-2.5-flash",
+        "gemini-3.1-flash-lite"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-studio_mind_map",
+      "dataset_id": "0aa13b72-3d82-4fb8-b345-af1853949ad8",
+      "created": 24,
+      "skipped": 0,
+      "total": 24,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4-mini",
+        "claude-haiku-4-5",
+        "gemini-2.5-flash"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-studio_slide_deck",
+      "dataset_id": "9d4f863c-730f-4feb-8c6b-76743e629658",
+      "created": 22,
+      "skipped": 0,
+      "total": 22,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4",
+        "gpt-5-mini",
+        "gemini-2.5-flash"
+      ]
+    },
+    {
+      "dataset_name": "nbm-prompt-studio_fallback_legacy",
+      "dataset_id": "21bd20f9-0fe1-4025-b1aa-01e6c7f03e82",
+      "created": 15,
+      "skipped": 0,
+      "total": 15,
+      "evaluator": "formatter",
+      "models": [
+        "gpt-5.4-nano",
+        "gemini-3.1-flash-lite",
+        "gemini-2.5-flash-lite"
+      ]
+    }
+  ]
+}

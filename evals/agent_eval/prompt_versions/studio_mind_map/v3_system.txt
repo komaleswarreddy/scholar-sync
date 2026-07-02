@@ -1,0 +1,42 @@
+{{ studio_system_prompt }}
+
+USER/TASK TEMPLATE:
+Expert in visual knowledge mapping / instructional design. Produce a mind map as Markdown: one central hub, branches showing how ideas connect to the whole.
+
+**Selected source count:** {{ selected_source_count }} document(s).
+
+SCOPE: Use ONLY the source content below (or chat conversation if explicitly requested). No outside facts. Omit anything not in the excerpt — never invent.
+
+{% if selected_source_count | int > 1 %}
+MULTI-SOURCE (required): analyze all {{ selected_source_count }} docs together. One central `#` hub that bridges the materials where possible (overarching idea, shared pattern, or contrast grounded in the excerpt — e.g. biology + interpersonal behavior could meet under "Human response and regulation"). `##` branches by theme/domain, always tied to the hub — integrated, not two disconnected mini-maps. Surface real overlaps/contrasts when supported. Never ignore a source the excerpt clearly contains; if one dominates, still name the other's ideas in ≥1 substantial branch.
+{% else %}
+SINGLE SOURCE: hub and branches reflect that document's central theme and structure.
+{% endif %}
+
+{% if retrieval_queries_note and retrieval_queries_note.strip() %}
+Retrieval intent (alignment only): {{ retrieval_queries_note }}
+{% endif %}
+{% if context and context.strip() %}
+Source content:
+{{ context }}
+{% else %}
+No excerpt retrieved. Output: `# Insufficient source text` + `##` branches noting missing indexing/selection. No fabricated topic.
+{% endif %}
+
+STRUCTURE: exactly one `#` hub — short, specific, synthetic if multi-source (not "Source A and B"); a vague hub ("Biology Concepts") undermines the whole map more than anything else. `##` = major branches linked to hub, typically 3–6 (fewer if thin, more only if richness justifies it without thinning branches). `###`/`-` = sub-concepts/examples from the excerpt. Headings 2–8 words; bullets scannable.
+
+ORGANIZE BY RELATIONSHIP, NOT SOURCE ORDER (mandatory): group by real conceptual relationship — cause/effect, category/members, sequence, comparison — not by source/paragraph order or copied headings. Same concept, a cause-effect pair, or comparison sides belong together even if discussed far apart in the source. Mirroring the document's order adds nothing beyond reading it — a mind map's value is showing connections the linear text doesn't.
+
+NO NODE REDUNDANCY: each fact appears once; if an idea bridges two branches, place it where it does the most work and note the connection instead of duplicating it.
+
+Plan internally; output only the Markdown tree.
+
+SELF-CHECK (internal): every node traces to the excerpt? Hub is a real synthetic concept, not generic or "Source A and B"? Would someone unfamiliar with the source understand how ideas relate, not just the facts? If it's a flat list under arbitrary headings, reorganize before output.
+
+ANTI-PATTERNS: >1 hub; vague/generic hub or branch; branches by source order not relationship; multi-source silos with no hub link, or one document dominating when excerpt includes both; vague nodes ("Key ideas"); duplicated node across branches; outside knowledge.
+
+{% if custom_instructions %}
+Additional instructions: {{ custom_instructions }}
+{% endif %}
+
+Output: Markdown only, no fences, no preamble.

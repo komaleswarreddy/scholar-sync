@@ -4,6 +4,8 @@ Safe Refusal Templates
 Provides safe refusal responses without policy explanation leaks.
 """
 
+import hashlib
+import random
 from typing import Dict, Optional
 from enum import Enum
 
@@ -23,10 +25,10 @@ class RefusalReason(Enum):
 class RefusalTemplates:
     """
     Safe refusal templates that don't leak policy details.
-    
+
     Provides child-appropriate refusal messages.
     """
-    
+
     def __init__(self):
         """Initialize refusal templates."""
         self.templates = {
@@ -51,15 +53,14 @@ class RefusalTemplates:
                 "Let's stay focused on learning. I can't respond to that, but I can help with material from your selected sources.",
             ],
             RefusalReason.PROMPT_INJECTION: [
-                "Your request contains instructions that are not allowed because they attempt to bypass "
-                "the system's safety or source restrictions.",
-                "Could you ask that differently? I'm here to help with your studies.",
-                "Let's focus on your academic questions. What would you like to learn?",
+                "I can't follow instructions embedded in messages or documents—only help with your actual studies. What would you like to learn?",
+                "I'll stick to being your study helper here. What subject or topic can I help you with?",
+                "Let's keep things focused on your coursework. What would you like to work on?",
             ],
             RefusalReason.PII_DETECTED: [
-                "I noticed some personal information. For your privacy, please rephrase your question without personal details.",
-                "To keep your information safe, please ask your question without including personal details.",
-                "Let's keep your information private. Can you rephrase your question?",
+                "I noticed some personal information in your message. To help keep that safe, could you rephrase your question without those details?",
+                "For your privacy, I try not to handle personal details like names, numbers, or addresses. Could you ask your question without them?",
+                "Let's keep your personal information private. Can you rephrase that without those details?",
             ],
             RefusalReason.ACADEMIC_INTEGRITY: [
                 "I can't help with copying exam or assignment answers—that would violate academic integrity. "
@@ -77,43 +78,66 @@ class RefusalTemplates:
                 "I'm here to help with your education. What would you like to learn about?",
             ],
         }
-    
+
     def get_refusal(
         self,
         reason: RefusalReason,
-        custom_message: Optional[str] = None
+        custom_message: Optional[str] = None,
+        variation_key: Optional[str] = None,
     ) -> str:
         """
         Get a safe refusal message.
-        
+
         Args:
             reason: Reason for refusal
             custom_message: Optional custom message (if None, uses template)
-            
+            variation_key: Optional stable key (e.g. user id, session id) used to
+                pick a consistent-but-varied template for that key, so the same
+                student doesn't always see the exact same wording, while a single
+                call site without a key still gets natural variety via randomness.
+
         Returns:
             Safe refusal message
         """
         if custom_message:
             return custom_message
-        
+
         templates = self.templates.get(reason, self.templates[RefusalReason.GENERAL])
-        # Return first template (could randomize in production)
-        return templates[0]
-    
+
+        if variation_key:
+            # Deterministic-but-varied: same key consistently maps to the same
+            # template (stable across process restarts, unlike Python's built-in
+            # hash() which is randomized per-process), without needing external
+            # state to be threaded through this class.
+            digest = hashlib.md5(f"{variation_key}:{reason.value}".encode()).hexdigest()
+            index = int(digest, 16) % len(templates)
+            return templates[index]
+
+        return random.choice(templates)
+
     def refuse_with_redirect(
         self,
         reason: RefusalReason,
-        redirect_to: str = "academic questions"
+        redirect_to: str = "academic questions",
+        variation_key: Optional[str] = None,
     ) -> str:
         """
         Get refusal message that redirects to appropriate topic.
-        
+
         Args:
             reason: Reason for refusal
             redirect_to: Topic to redirect to
-            
+            variation_key: See get_refusal()
+
         Returns:
-            Refusal message with redirect
+            Refusal message with redirect. If the base message already ends in
+            a question, the redirect is not appended as a second question on
+            top of it (avoids a stacked "...? What ... can I help with?" reading
+            as two separate questions).
         """
-        base_message = self.get_refusal(reason)
+        base_message = self.get_refusal(reason, variation_key=variation_key)
+
+        if base_message.rstrip().endswith("?"):
+            return base_message
+
         return f"{base_message} What {redirect_to} can I help you with?"

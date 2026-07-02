@@ -18,8 +18,7 @@ Previous coach response from the prior turn (preserve checkpoint 1 prompt/option
 {{ prior_response }}
 {% endif %}
 
-Use `\[ ... \]` for display equations and `$...$` for inline math inside `bodyMarkdown`.
-Put spaces around multiplication: `72 \\times 1000`. Wrap units in `\\text{}`, e.g. `\\text{ km/h}` and `\\text{ m/s}^2`.
+{% include 'problem_solver/math_formatting_contract.j2' %}
 
 {% if interaction_count == 0 %}
 Return JSON with initial hints and checkpoint 1 MCQ (do NOT give final answer):
@@ -100,7 +99,7 @@ Required:
       "number": 1,
       "prompt": "...",
       "options": [{"id": "A", "label": "..."}, {"id": "B", "label": "..."}, {"id": "C", "label": "..."}, {"id": "D", "label": "..."}],
-      "studentChoice": "A",
+      "studentChoice": "<checkpoint 1 choice (A-D) taken from prior_response history>",
       "selectedLabel": "...",
       "feedbackMarkdown": "..."
     },

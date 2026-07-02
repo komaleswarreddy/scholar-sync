@@ -4,23 +4,35 @@ Health Check Endpoint
 Simple health check endpoint for monitoring and load balancers.
 """
 
-from fastapi import APIRouter, Request
+import logging
+
+from fastapi import APIRouter, HTTPException, Request
 
 from config.settings import settings
 from packages.core.monitoring.langsmith_bootstrap import configure_langsmith_tracing
 
 router = APIRouter()
+logger = logging.getLogger("scholarsync.health")
 
 
 @router.get("/health")
 async def health():
-    """Health check endpoint."""
+    """Shallow health check for load balancers (no internal details)."""
     return {"status": "ok"}
 
 
 @router.get("/health/langsmith")
 async def health_langsmith(request: Request):
-    """LangSmith tracing configuration and API connectivity."""
+    """
+    LangSmith tracing diagnostics.
+
+    This exposes internal project/endpoint configuration and connectivity, so it
+    is restricted to development. In production it returns 404 to avoid
+    information disclosure to unauthenticated callers.
+    """
+    if settings.ENVIRONMENT == "production":
+        raise HTTPException(status_code=404, detail="Not found")
+
     status = getattr(request.app.state, "langsmith", None) or configure_langsmith_tracing()
     payload = {
         "tracing_enabled": bool(status.get("enabled")),
@@ -53,8 +65,10 @@ async def health_langsmith(request: Request):
                 "name": runs[0].name,
                 "status": runs[0].status,
             }
-    except Exception as exc:
-        payload["api_error"] = str(exc)[:240]
+    except Exception:
+        # Log internally; do not leak the raw error to the caller.
+        logger.warning("LangSmith health probe failed", exc_info=True)
+        payload["api_error"] = "unavailable"
 
     return payload
 
