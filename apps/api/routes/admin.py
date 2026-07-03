@@ -47,6 +47,16 @@ _admin_role_cache: Dict[str, tuple[bool, float]] = {}
 # This is safe because role changes are rare; if roles are edited, a short delay is acceptable.
 _ADMIN_ROLE_CACHE_TTL_S = 10 * 60.0
 
+_users_list_cache: Dict[str, tuple[dict, float]] = {}
+_USERS_LIST_CACHE_TTL_S = 45.0
+
+
+def invalidate_users_list_cache(tenant_id: str | None = None) -> None:
+    if tenant_id:
+        _users_list_cache.pop(str(tenant_id), None)
+    else:
+        _users_list_cache.clear()
+
 
 def _is_db_unavailable_error(exc: Exception) -> bool:
     if isinstance(exc, (OperationalError, DBAPIError, OSError, TimeoutError)):
@@ -129,38 +139,47 @@ async def check_admin_role(
     db_timeout_s: float = 3.0,
 ) -> bool:
     """
-    Check if the current user has admin role.
-    
-    Returns:
-        True if user is admin, False otherwise
+    Check if the current user has schooladmin role (or bootstrap admin).
     """
     user_id = getattr(request.state, "user_id", None)
     if not user_id:
         return False
 
+    # Bootstrap admin from env credentials
     if user_id == settings.ADMIN_PORTAL_USER_ID:
         _admin_role_cache[user_id] = (True, time.monotonic() + _ADMIN_ROLE_CACHE_TTL_S)
         return True
 
     now = time.monotonic()
+
+    # JWT role claim (platform token)
+    jwt_role = getattr(request.state, "user_role", None)
+    if jwt_role == "schooladmin":
+        _admin_role_cache[user_id] = (True, now + _ADMIN_ROLE_CACHE_TTL_S)
+        return True
+    if jwt_role and jwt_role != "schooladmin":
+        _admin_role_cache[user_id] = (False, now + _ADMIN_ROLE_CACHE_TTL_S)
+        return False
+
     cached = _admin_role_cache.get(user_id)
     if cached and cached[1] > now:
         return bool(cached[0])
-    
-    # Look up user by clerk_user_id
+
+    # Look up user by UUID id
+    try:
+        uid = uuid.UUID(str(user_id))
+    except ValueError:
+        _admin_role_cache[user_id] = (False, now + _ADMIN_ROLE_CACHE_TTL_S)
+        return False
+
     try:
         result = await asyncio.wait_for(
-            db.execute(select(User).where(User.clerk_user_id == user_id)),
+            db.execute(select(User).where(User.id == uid)),
             timeout=db_timeout_s,
         )
         user = result.scalar_one_or_none()
     except Exception as e:
         if _is_db_unavailable_error(e):
-            print(
-                f"[ADMIN] DB unavailable while checking admin role by clerk_user_id: "
-                f"{type(e).__name__}: {e}"
-            )
-            # Prefer cached decision during DB incidents (even if slightly stale).
             if cached:
                 return bool(cached[0])
             if raise_on_db_unavailable:
@@ -170,83 +189,10 @@ async def check_admin_role(
                 )
             return False
         raise
-    
-    if user:
-        is_admin = user.role == "admin"
-        _admin_role_cache[user_id] = (is_admin, now + _ADMIN_ROLE_CACHE_TTL_S)
-        return is_admin
-    
-    # If not found by clerk_user_id, try to get email from token and check by email
-    try:
-        auth_header = request.headers.get("Authorization", "")
-        token = auth_header.replace("Bearer ", "").strip() if auth_header.startswith("Bearer ") else ""
 
-        # Prefer the shared extractor (handles more Clerk claim shapes).
-        email: Optional[str] = None
-        if token:
-            try:
-                email = extract_email_from_token(token, require_verification=(settings.ENVIRONMENT == "production"))
-            except Exception:
-                email = None
-
-        # If token doesn't carry an email (common for some session JWTs), fall back to Clerk API.
-        if not email and settings.CLERK_SECRET_KEY and user_id:
-            try:
-                async with httpx.AsyncClient() as client:
-                    resp = await client.get(
-                        f"https://api.clerk.com/v1/users/{user_id}",
-                        headers={
-                            "Authorization": f"Bearer {settings.CLERK_SECRET_KEY}",
-                            "Content-Type": "application/json",
-                        },
-                        timeout=15.0,
-                    )
-                    if resp.status_code == 200:
-                        email = _extract_primary_email(resp.json())
-            except Exception:
-                email = email  # keep whatever we had (likely None)
-
-        if email:
-            email = email.lower().strip()
-            try:
-                result = await asyncio.wait_for(
-                    db.execute(select(User).where(User.email == email)),
-                    timeout=db_timeout_s,
-                )
-                user = result.scalar_one_or_none()
-            except Exception as e:
-                if _is_db_unavailable_error(e):
-                    print(
-                        f"[ADMIN] DB unavailable while checking admin role by email: "
-                        f"{type(e).__name__}: {e}"
-                    )
-                    # Prefer cached decision during DB incidents (even if slightly stale).
-                    if cached:
-                        return bool(cached[0])
-                    if raise_on_db_unavailable:
-                        raise HTTPException(
-                            status_code=503,
-                            detail="Database unavailable. Please check DATABASE_URL and try again.",
-                        )
-                    return False
-                raise
-
-            if user:
-                # If user found and clerk_user_id is not set, update it so future checks are fast.
-                if user_id and not user.clerk_user_id:
-                    try:
-                        user.clerk_user_id = user_id
-                        await db.commit()
-                    except Exception:
-                        await db.rollback()
-
-                is_admin = user.role == "admin"
-                _admin_role_cache[user_id] = (is_admin, now + _ADMIN_ROLE_CACHE_TTL_S)
-                return is_admin
-    except Exception:
-        pass
-    
-    return False
+    is_admin = bool(user and user.role == "schooladmin" and user.is_active)
+    _admin_role_cache[user_id] = (is_admin, now + _ADMIN_ROLE_CACHE_TTL_S)
+    return is_admin
 
 
 @router.post("/auth/login")
@@ -288,26 +234,72 @@ async def list_all_users(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    List all users from Clerk (admin only).
-    
-    Fetches all users from Clerk API and merges with local database roles.
+    List users for the admin dashboard.
+
+    Platform auth (default): tenant-scoped rows from PostgreSQL — no Clerk round-trip.
+    Legacy Clerk merge only when CLERK_LEGACY_USER_SYNC=true and CLERK_SECRET_KEY is set.
     """
-    # Check admin role
     is_admin = await check_admin_role(request, db, raise_on_db_unavailable=True)
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
-    
-    # Fetch all users from Clerk
+
+    tenant_id = getattr(request.state, "tenant_id", None)
+    cache_key = str(tenant_id) if tenant_id else "all"
+    now = time.monotonic()
+    cached_payload = _users_list_cache.get(cache_key)
+    if cached_payload and cached_payload[1] > now:
+        return cached_payload[0]
+
+    query = select(User)
+    if tenant_id:
+        try:
+            query = query.where(User.tenant_id == uuid.UUID(str(tenant_id)))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid tenant")
+
+    # Fast path: platform users only (no external Clerk API — was causing 5–30s delays)
+    if not (settings.CLERK_LEGACY_USER_SYNC and settings.CLERK_SECRET_KEY):
+        try:
+            result = await asyncio.wait_for(db.execute(query.order_by(User.created_at.desc())), timeout=8.0)
+        except Exception as e:
+            if _is_db_unavailable_error(e):
+                raise HTTPException(
+                    status_code=503,
+                    detail="Database unavailable while listing users. Please check DATABASE_URL and try again.",
+                )
+            raise
+        db_users = result.scalars().all()
+        payload = {
+            "users": [
+                {
+                    "id": str(user.id),
+                    "clerk_user_id": user.clerk_user_id or str(user.id),
+                    "email": user.email,
+                    "username": user.username,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "role": user.role or "student",
+                    "is_active": bool(user.is_active),
+                    "created_at": user.created_at.isoformat() if user.created_at else None,
+                    "last_sign_in_at": None,
+                }
+                for user in db_users
+            ],
+            "total": len(db_users),
+        }
+        _users_list_cache[cache_key] = (payload, now + _USERS_LIST_CACHE_TTL_S)
+        return payload
+
+    # Legacy Clerk merge (opt-in only)
     clerk_users: List[Dict[str, Any]] = []
     try:
         clerk_users = await _fetch_all_clerk_users()
     except Exception:
         pass
-    
-    # If no Clerk users were fetched, fallback to database users
+
     if not clerk_users:
         try:
-            result = await asyncio.wait_for(db.execute(select(User)), timeout=5.0)
+            result = await asyncio.wait_for(db.execute(query), timeout=8.0)
         except Exception as e:
             if _is_db_unavailable_error(e):
                 raise HTTPException(
@@ -329,10 +321,9 @@ async def list_all_users(
             ],
             "total": len(db_users),
         }
-    
-    # Get users from database to merge roles
+
     try:
-        result = await asyncio.wait_for(db.execute(select(User)), timeout=5.0)
+        result = await asyncio.wait_for(db.execute(query), timeout=8.0)
     except Exception as e:
         if _is_db_unavailable_error(e):
             raise HTTPException(
@@ -341,24 +332,21 @@ async def list_all_users(
             )
         raise
     db_users = result.scalars().all()
-    
-    # Create a map of clerk_user_id -> role
+
     clerk_id_to_role = {user.clerk_user_id: user.role for user in db_users if user.clerk_user_id}
-    email_to_role = {user.email.lower(): user.role for user in db_users}
-    
-    # Merge Clerk users with database roles
+    email_to_role = {user.email.lower(): user.role for user in db_users if user.email}
+
     merged_users = []
     for clerk_user in clerk_users:
         clerk_user_id = clerk_user.get("id")
         primary_email = _extract_primary_email(clerk_user)
 
-        # Get role from database (by clerk_user_id or email)
         role = "user"
         if clerk_user_id and clerk_user_id in clerk_id_to_role:
             role = clerk_id_to_role[clerk_user_id]
         elif primary_email and primary_email.lower() in email_to_role:
             role = email_to_role[primary_email.lower()]
-        
+
         merged_users.append({
             "id": clerk_user_id,
             "clerk_user_id": clerk_user_id,
@@ -370,7 +358,7 @@ async def list_all_users(
             "created_at": clerk_user.get("created_at"),
             "last_sign_in_at": clerk_user.get("last_sign_in_at"),
         })
-    
+
     return {
         "users": merged_users,
         "total": len(merged_users),

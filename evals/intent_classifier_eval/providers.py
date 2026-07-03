@@ -19,7 +19,12 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-_TIMEOUT = 120
+_TIMEOUT = int(os.environ.get("INTENT_EVAL_TIMEOUT", "120"))
+
+
+def _request_timeout(max_tokens: int) -> int:
+    """Scale HTTP read timeout for long coach_json generations."""
+    return max(_TIMEOUT, 120 + max_tokens // 25)
 _EMPTY_USAGE: Dict[str, int] = {
     "prompt_tokens": 0,
     "completion_tokens": 0,
@@ -305,6 +310,33 @@ def _call_openai_non_streaming(
                 allow_length_retry=False,
             )
 
+    if (
+        allow_length_retry
+        and not text
+        and not meta.get("refusal")
+        and _is_gpt5_family(model)
+    ):
+        retry_tokens = min(max(max_tokens * 2, 2000), 8192)
+        if retry_tokens > max_tokens:
+            logger.warning(
+                "OpenAI empty content (model=%s finish_reason=%s); "
+                "retrying with max_completion_tokens=%d",
+                model,
+                meta.get("finish_reason"),
+                retry_tokens,
+            )
+            return _call_openai_non_streaming(
+                url,
+                headers,
+                model,
+                system,
+                user,
+                temperature,
+                retry_tokens,
+                json_mode,
+                allow_length_retry=False,
+            )
+
     return text, usage, meta
 
 
@@ -428,11 +460,13 @@ def _call_anthropic(
 
     if on_first_token is not None:
         try:
-            return _stream_anthropic(url, headers, body, on_first_token)
+            return _stream_anthropic(url, headers, body, on_first_token, max_tokens)
         except Exception as exc:
             logger.warning("Anthropic stream failed, falling back: %s", exc)
 
-    resp = requests.post(url, headers=headers, json=body, timeout=_TIMEOUT)
+    resp = requests.post(
+        url, headers=headers, json=body, timeout=_request_timeout(max_tokens)
+    )
     if resp.status_code >= 400:
         logger.warning("Anthropic error %s: %s", resp.status_code, resp.text[:300])
         return "", dict(_EMPTY_USAGE)
@@ -453,12 +487,19 @@ def _stream_anthropic(
     headers: Dict[str, str],
     body: Dict[str, Any],
     on_first_token: Callable[[], None],
+    max_tokens: int = 400,
 ) -> tuple[str, Dict[str, int]]:
     body = {**body, "stream": True}
     fired: Dict[str, bool] = {}
     parts: list[str] = []
     pt = ct = 0
-    with requests.post(url, headers=headers, json=body, timeout=_TIMEOUT, stream=True) as resp:
+    with requests.post(
+        url,
+        headers=headers,
+        json=body,
+        timeout=_request_timeout(max_tokens),
+        stream=True,
+    ) as resp:
         if resp.status_code >= 400:
             raise RuntimeError(f"Anthropic stream HTTP {resp.status_code}: {resp.text[:200]}")
         for data in _iter_sse(resp):

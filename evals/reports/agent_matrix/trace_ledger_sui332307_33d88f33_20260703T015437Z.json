@@ -1,0 +1,171 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 2716,
+  "experiments": [
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v1-openai-gpt-5-4-f963f7a7",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:17:29.110395+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v2-anthropic-claude-sonnet-4-6-ddf86419",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T01:17:56.700298+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6-b85d6c7d",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T01:19:20.682373+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v1-anthropic-claude-sonnet-4-6-a00a0f1e",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:20:29.667742+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v1",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v1-openai-gpt-5-mini-1048af04",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:22:49.796185+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v2-openai-gpt-5-4-5e43661c",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:24:08.247210+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v2-anthropic-claude-sonnet-4-6-91bddd8d",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:26:53.632177+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v2-openai-gpt-5-mini-9fcca66d",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:28:50.226045+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v3-openai-gpt-5-4-7880a700",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:30:19.306675+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v1-anthropic-claude-sonnet-4-6-4828b0aa",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T01:32:47.557511+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v2-anthropic-claude-sonnet-4-6-57b91d8e",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T01:33:12.483834+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v3-anthropic-claude-sonnet-4-6-cc4f45de",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T01:33:39.824217+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v3-anthropic-claude-sonnet-4-6-8fccbc05",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:33:49.900104+00:00"
+    },
+    {
+      "agent_id": "tutor_notebook_bootstrap",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-tutor_notebook_bootstrap-v3-openai-gpt-5-mini-2086eace",
+      "measured_traces": 121,
+      "estimated_traces": 121,
+      "charged_traces": 121,
+      "at": "2026-07-03T01:35:58.750778+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v3-anthropic-claude-sonnet-4-6-faac62da",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T01:41:32.597017+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v1-openai-gpt-5-4-66019b50",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T01:52:10.648144+00:00"
+    }
+  ],
+  "workspace_tenant": "kocart48_042ea775",
+  "note": "Fresh ledger after switching workspace (kocart48_042ea775)",
+  "updated_at": "2026-07-03T01:52:10.652146+00:00"
+}

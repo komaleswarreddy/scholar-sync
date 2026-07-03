@@ -2,23 +2,27 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { hasPlatformSession, isSchoolAdmin, getStoredPlatformUser, getPlatformToken } from '@/lib/platform-auth';
 
 export default function HomePage() {
   const router = useRouter();
-  const { isSignedIn, isLoaded } = useUser();
   const [redirected, setRedirected] = useState(false);
 
   useEffect(() => {
-    if (!isLoaded) return;
-
-    if (isSignedIn && !redirected) {
-      setRedirected(true);
-      router.replace('/home');
-    } else if (isLoaded && !isSignedIn) {
+    if (redirected) return;
+    if (!hasPlatformSession()) {
       router.push('/sign-in');
+      return;
     }
-  }, [isLoaded, isSignedIn, router, redirected]);
+    const user = getStoredPlatformUser();
+    const token = getPlatformToken();
+    setRedirected(true);
+    if (isSchoolAdmin(user, token)) {
+      router.replace('/admin/users');
+    } else {
+      router.replace('/home');
+    }
+  }, [router, redirected]);
 
   return <p>Redirecting...</p>;
 }

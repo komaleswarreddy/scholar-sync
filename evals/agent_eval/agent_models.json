@@ -294,7 +294,7 @@
         "model": "claude-sonnet-4-6",
         "provider": "anthropic",
         "skip_runtime": true,
-        "skip_reason": "Anthropic monthly usage limit hit — resets 2026-08-01. Set skip_runtime=false after reset.",
+        "skip_reason": "Anthropic monthly usage limit hit \u00e2\u20ac\u201d resets 2026-08-01. Set skip_runtime=false after reset.",
         "configured": true
       }
     ],

@@ -83,13 +83,13 @@ MAX_TOKENS_BY_AGENT: Dict[str, int] = {
     # problem_dna_analyzer outputs a deeply nested DNA JSON (subject/chapter/conceptTags/
     # expert_solution_internal with key_steps[]) that routinely needs 1500-3000 tokens.
     "problem_dna_analyzer": 3000,
-    "explain_from_basics": 8000,
-    "show_best_approach": 8000,
-    "show_missing_idea": 2000,
-    "ncert_document_sketch": 1500,
-    "help_me_solve_it": 2000,
+    "explain_from_basics": 16000,  # v3 prompt includes math_formatting_contract.j2 (long) + 8-section LaTeX-heavy JSON; 8000 caused truncation → empty outputs
+    "show_best_approach": 16000,  # prompt includes math_formatting_contract.j2 + 7-section LaTeX-heavy JSON; 8000 caused truncation → empty outputs
+    "show_missing_idea": 4000,  # all 3 prompts include math_formatting_contract.j2; LaTeX-heavy partial-reveal JSON needs headroom
+    "ncert_document_sketch": 3000,  # gpt-5-mini reasoning can consume budget; 1500 caused intermittent empty outputs
+    "help_me_solve_it": 16000,  # interaction_count=2 emits full checkpointHistory + solution JSON; 2000 caused truncation → empty (esp. v3)
     "problem_solver_followup": 2000,
-    "tutor_notebook_bootstrap": 2000,
+    "tutor_notebook_bootstrap": 3000,  # opening_summary 180-280 words + full JSON; 2000 risks truncation on verbose models
     "tutor_follow_up_questions": 800,
     "source_question_extraction": 2000,
     "image_ocr": 2000,

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUserContext } from '@/contexts/UserContext';
 import { ProfileShell, ProfileSectionContent } from '@/components/profile';
 import {
   DEFAULT_PROFILE_SECTION,
@@ -13,7 +13,7 @@ import {
 export default function ProfileSectionPage() {
   const params = useParams();
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
+  const { loading, isSignedIn, refreshUser } = useUserContext();
 
   const raw = typeof params.section === 'string' ? params.section : '';
   const sectionId: ProfileSectionId = isValidProfileSection(raw)
@@ -27,10 +27,14 @@ export default function ProfileSectionPage() {
   }, [raw, router]);
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!loading && !isSignedIn) {
       router.replace('/sign-in');
+      return;
     }
-  }, [isLoaded, isSignedIn, router]);
+    if (isSignedIn) {
+      void refreshUser();
+    }
+  }, [loading, isSignedIn, router, refreshUser]);
 
   return (
     <ProfileShell sectionId={sectionId}>

@@ -13,14 +13,12 @@ import logging
 import re
 import traceback
 import time
-import uuid
 
 from packages.core.database.connection import AsyncSessionLocal
 from packages.core.database.models.tenant import Tenant
-from packages.core.database.models.user import User
 from apps.api.middleware.auth import (
-    extract_user_id_from_token,
-    extract_email_from_token,
+    extract_platform_user_id,
+    extract_platform_role,
     extract_admin_portal_user_id,
     extract_teacher_portal_user_id,
 )
@@ -55,15 +53,65 @@ EXCLUDED_PATHS = {
 # Cache subdomain -> tenant_id to avoid a DB round-trip on every API request (dashboard fires many in parallel)
 _TENANT_CACHE_TTL_SEC = 300.0
 _tenant_id_by_subdomain: dict[str, tuple[str, float]] = {}
-_SYNCED_USERS_TTL_SEC = 600.0
-_synced_user_ids: dict[str, float] = {}
+
+
+async def warm_tenant_cache() -> None:
+    """Preload default tenant so first login/API call avoids a cold DB lookup."""
+    now = time.monotonic()
+    if "default" in _tenant_id_by_subdomain:
+        return
+    if settings.ENVIRONMENT == "development":
+        _tenant_id_by_subdomain["default"] = (DEV_TENANT_ID, now + _TENANT_CACHE_TTL_SEC)
+        logger.info("Tenant cache warmed (dev default -> %s)", DEV_TENANT_ID)
+        return
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(select(Tenant).where(Tenant.subdomain == "default"))
+            tenant = result.scalar_one_or_none()
+            if tenant:
+                _tenant_id_by_subdomain["default"] = (str(tenant.id), now + _TENANT_CACHE_TTL_SEC)
+                logger.info("Tenant cache warmed (default -> %s)", tenant.id)
+    except Exception:
+        logger.exception("Tenant cache warm-up failed")
+
+
+def _resolve_dev_default_tenant(now: float) -> str | None:
+    """Skip DB round-trip for localhost default tenant in development."""
+    if settings.ENVIRONMENT != "development":
+        return None
+    _tenant_id_by_subdomain["default"] = (DEV_TENANT_ID, now + _TENANT_CACHE_TTL_SEC)
+    return DEV_TENANT_ID
+
+
+def _extract_auth_from_token(token: str) -> tuple[str | None, str | None]:
+    """Resolve user_id and role from Bearer token (platform preferred)."""
+    if not token:
+        return None, None
+
+    platform_user_id = extract_platform_user_id(token)
+    if platform_user_id:
+        return platform_user_id, extract_platform_role(token)
+
+    admin_user_id = extract_admin_portal_user_id(token)
+    if admin_user_id:
+        return admin_user_id, "schooladmin"
+
+    teacher_user_id = extract_teacher_portal_user_id(token)
+    if teacher_user_id:
+        return teacher_user_id, "teacher"
+
+    return None, None
 
 # Paths that require tenant but not user authentication (development only)
 # These paths can work with just tenant_id from subdomain, no JWT required
 TENANT_ONLY_PATHS = {"/api/v1/metrics", "/api/v1/dashboards", "/api/v1/alerts", "/debug"}
 
 # Portal logins — tenant required, Bearer token not required
-PUBLIC_AUTH_PATHS = {"/api/v1/admin/auth/login", "/api/v1/teacher/auth/login"}
+PUBLIC_AUTH_PATHS = {
+    "/api/v1/admin/auth/login",
+    "/api/v1/teacher/auth/login",
+    "/api/v1/auth/login",
+}
 
 
 class TenantMiddleware:
@@ -93,11 +141,13 @@ class TenantMiddleware:
             # Initialize request state
             request.state.tenant_id = None
             request.state.user_id = None
+            request.state.user_role = None
 
             # Step 1: Check if path is excluded OR if it's a CORS preflight request
             current_path = request.url.path
             method = request.method
-            print(f"[MIDDLEWARE] {method} {current_path}")
+            if settings.ENVIRONMENT != "development":
+                logger.debug("%s %s", method, current_path)
             
             is_excluded = (
                 current_path == "/" or 
@@ -106,12 +156,10 @@ class TenantMiddleware:
             
             # Skip middleware for OPTIONS requests
             if request.method == "OPTIONS":
-                print(f"[SKIP] [MIDDLEWARE] Skipping OPTIONS request")
                 await self.app(scope, receive, send)
                 return
 
             if is_excluded:
-                print(f"[SKIP] [MIDDLEWARE] Path excluded: {current_path}")
                 await self.app(scope, receive, send)
                 return
 
@@ -127,15 +175,17 @@ class TenantMiddleware:
                 else:
                     raise HTTPException(status_code=403, detail="Invalid Host Header")
 
-            # Step 3: Database lookup for tenant (cached by subdomain)
+            # Step 3: Resolve tenant (cached; dev default skips DB)
             tenant_id = None
             now = time.monotonic()
+            if subdomain == "default":
+                tenant_id = _resolve_dev_default_tenant(now)
+
             cached = _tenant_id_by_subdomain.get(subdomain)
-            if cached is not None:
+            if tenant_id is None and cached is not None:
                 tid, exp = cached
                 if exp > now:
                     tenant_id = tid
-                    print(f"[MIDDLEWARE] Tenant cache hit: {subdomain} -> {tenant_id}")
 
             if tenant_id is None:
                 try:
@@ -146,10 +196,14 @@ class TenantMiddleware:
                         if tenant:
                             tenant_id = str(tenant.id)
                             _tenant_id_by_subdomain[subdomain] = (tenant_id, now + _TENANT_CACHE_TTL_SEC)
-                            print(f"[SUCCESS] Tenant found: {subdomain} -> {tenant_id}")
+                            logger.info("Tenant found: %s -> %s", subdomain, tenant_id)
                         else:
                             if settings.ENVIRONMENT == "development":
-                                print(f"[WARNING] Tenant '{subdomain}' not found in DB, using fallback: {DEV_TENANT_ID}")
+                                logger.warning(
+                                    "Tenant '%s' not found in DB, using fallback: %s",
+                                    subdomain,
+                                    DEV_TENANT_ID,
+                                )
                                 tenant_id = DEV_TENANT_ID
                                 _tenant_id_by_subdomain[subdomain] = (tenant_id, now + _TENANT_CACHE_TTL_SEC)
                             else:
@@ -187,12 +241,14 @@ class TenantMiddleware:
 
             if current_path in PUBLIC_AUTH_PATHS:
                 request.state.user_id = None
+                request.state.user_role = None
                 await self.app(scope, receive, send)
                 return
 
             # Step 4: Extract user_id from Authorization header
             auth_header = request.headers.get("Authorization", "")
             user_id = None
+            user_role = None
             
             # Check if this is a tenant-only path (metrics/dashboards in development)
             # BUT we still want to extract user_id if available for proper filtering
@@ -208,25 +264,10 @@ class TenantMiddleware:
                 if auth_header and auth_header.startswith("Bearer "):
                     token = auth_header.replace("Bearer ", "").strip()
                     if token:
-                        admin_user_id = extract_admin_portal_user_id(token)
-                        teacher_user_id = None if admin_user_id else extract_teacher_portal_user_id(token)
-                        if admin_user_id:
-                            user_id = admin_user_id
-                        elif teacher_user_id:
-                            user_id = teacher_user_id
-                        else:
-                            try:
-                                is_production = settings.ENVIRONMENT == "production"
-                                user_id = extract_user_id_from_token(
-                                    token,
-                                    require_verification=is_production
-                                )
-                            except Exception:
-                                logger.debug("Could not extract user_id for tenant-only path (non-fatal)")
-                                user_id = None
-                
-                # Set user_id (may be None) and continue
+                        user_id, user_role = _extract_auth_from_token(token)
+
                 request.state.user_id = user_id
+                request.state.user_role = user_role
                 await self.app(scope, receive, send)
                 return
             
@@ -256,21 +297,11 @@ class TenantMiddleware:
                 return
             
             try:
-                admin_user_id = extract_admin_portal_user_id(token)
-                teacher_user_id = None if admin_user_id else extract_teacher_portal_user_id(token)
-                if admin_user_id:
-                    user_id = admin_user_id
-                    logger.info("Authenticated admin portal user: %s", _redact(user_id))
-                elif teacher_user_id:
-                    user_id = teacher_user_id
-                    logger.info("Authenticated teacher portal user: %s", _redact(user_id))
+                user_id, user_role = _extract_auth_from_token(token)
+                if user_id:
+                    logger.info("Authenticated user: %s role=%s", _redact(user_id), user_role)
                 else:
-                    is_production = settings.ENVIRONMENT == "production"
-                    user_id = extract_user_id_from_token(
-                        token,
-                        require_verification=is_production
-                    )
-                    logger.info("Authenticated user: %s", _redact(user_id))
+                    raise HTTPException(status_code=401, detail="Invalid token")
             except HTTPException:
                 logger.info("Token verification failed for %s %s", method, current_path)
                 resp = JSONResponse(
@@ -310,42 +341,8 @@ class TenantMiddleware:
                 return
             
             request.state.user_id = user_id
+            request.state.user_role = user_role
 
-            # Best-effort user sync: ensure Clerk-authenticated users are present in DB
-            # so admin role checks and analytics user tables can work from local data.
-            # Portal (admin/teacher) users are not Clerk DB users — skip the sync.
-            if user_id in (settings.ADMIN_PORTAL_USER_ID, settings.TEACHER_PORTAL_USER_ID):
-                await self.app(scope, receive, send)
-                return
-
-            try:
-                now = time.monotonic()
-                cache_exp = _synced_user_ids.get(user_id)
-                if cache_exp is None or cache_exp <= now:
-                    email = extract_email_from_token(token, require_verification=is_production)
-                    async with AsyncSessionLocal() as db:
-                        result = await db.execute(select(User).where(User.clerk_user_id == user_id))
-                        db_user = result.scalar_one_or_none()
-                        if db_user is None and email:
-                            result_email = await db.execute(select(User).where(User.email == email))
-                            db_user = result_email.scalar_one_or_none()
-                            if db_user and not db_user.clerk_user_id:
-                                db_user.clerk_user_id = user_id
-                                await db.commit()
-                        if db_user is None and email:
-                            db_user = User(
-                                id=uuid.uuid4(),
-                                email=email,
-                                clerk_user_id=user_id,
-                                role="user",
-                            )
-                            db.add(db_user)
-                            await db.commit()
-                    _synced_user_ids[user_id] = now + _SYNCED_USERS_TTL_SEC
-            except Exception:
-                logger.warning("Could not sync user row for %s", _redact(user_id))
-
-            # Hand over to the next middleware/endpoint
             await self.app(scope, receive, send)
 
         except Exception:

@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ClerkProvider } from '@clerk/nextjs';
 import { Providers } from './providers';
 import './globals.css';
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
   display: 'swap',
@@ -21,26 +20,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  const isClerkConfigured = clerkKey && !clerkKey.includes('...');
-  
-  // Only wrap with ClerkProvider if Clerk is properly configured
-  const content = (
+  return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>
   );
-  
-  if (isClerkConfigured) {
-    return (
-      <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
-        {content}
-      </ClerkProvider>
-    );
-  }
-  
-  return content;
 }
-

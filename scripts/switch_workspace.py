@@ -81,6 +81,21 @@ WORKSPACES = {
         "key": "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",
         "gmail": "komaleswarreddy@gmail.com",
     },
+    "rguktn": {
+        "tenant": "b1a9c405-21ec-4718-8de0-455c45cfcb26",
+        "key": "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",
+        "gmail": "n210038@rguktn.ac.in",
+    },
+    "royalrowdy13": {
+        "tenant": "UNKNOWN",
+        "key": "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",
+        "gmail": "royalrowdy13@gmail.com",
+    },
+    "kocart48": {
+        "tenant": "042ea775-257a-4b33-8141-003071ef5ef2",
+        "key": "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",
+        "gmail": "kocart48@gmail.com",
+    },
 }
 
 

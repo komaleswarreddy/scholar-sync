@@ -1,0 +1,31 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 1145,
+  "experiments": [
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v2-anthropic-claude-sonnet-4-6-a997f7aa",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T17:07:34.673094+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6-c9b72598",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T17:19:39.644772+00:00"
+    }
+  ],
+  "workspace_tenant": "92d693f3-4706-4814-bf2d-dacb2cbb69b6",
+  "note": "Synced to current workspace (agent 21 runs); room for agent 18 claude v2/v3 re-run",
+  "updated_at": "2026-07-02T17:19:39.645773+00:00"
+}

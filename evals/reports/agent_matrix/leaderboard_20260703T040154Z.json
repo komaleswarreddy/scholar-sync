@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-07-03T04:01:54.431784+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "mode": "stepwise",
+  "harness": "agent_eval",
+  "note": "intent_classifier uses evals.intent_classifier_eval (unchanged)",
+  "experiments": [
+    {
+      "agent_id": "show_missing_idea",
+      "experiment_prefix": "ae-show_missing_idea-v1-anthropic-claude-sonnet-4-6",
+      "prompt_version": "v1",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "elapsed_seconds": 347.2,
+      "experiment_name": "ae-show_missing_idea-v1-anthropic-claude-sonnet-4-6-088e5c9a",
+      "langsmith_url": "https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 2730,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 2020
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "experiment_prefix": "ae-show_missing_idea-v2-anthropic-claude-sonnet-4-6",
+      "prompt_version": "v2",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "elapsed_seconds": 323.58,
+      "experiment_name": "ae-show_missing_idea-v2-anthropic-claude-sonnet-4-6-2b09ff20",
+      "langsmith_url": "https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 2941,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 1809
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "experiment_prefix": "ae-show_missing_idea-v3-anthropic-claude-sonnet-4-6",
+      "prompt_version": "v3",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "elapsed_seconds": 311.36,
+      "experiment_name": "ae-show_missing_idea-v3-anthropic-claude-sonnet-4-6-0ec09cdc",
+      "langsmith_url": "https://smith.langchain.com/o/33d88f33-0349-4117-89c6-5d0d56252773/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 3152,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 1598
+    }
+  ],
+  "winners_by_agent": {
+    "show_missing_idea": {
+      "prompt_version": "v3",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "ship_recommendation": null,
+      "severity_score": null,
+      "experiment_name": "ae-show_missing_idea-v3-anthropic-claude-sonnet-4-6-0ec09cdc"
+    }
+  },
+  "summary": {
+    "total_experiments": 3,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

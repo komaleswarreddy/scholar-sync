@@ -1,10 +1,12 @@
 'use client';
 
 import { ChevronRight, Eye } from 'lucide-react';
-import { PROFILE_COMPLETION_PERCENT } from '@/lib/profile-mock-data';
+import { useUserContext } from '@/contexts/UserContext';
+import { computeProfileCompletion } from '@/lib/profile-utils';
 
 export function ProfileCompletionSidebar() {
-  const pct = PROFILE_COMPLETION_PERCENT;
+  const { user } = useUserContext();
+  const pct = computeProfileCompletion(user);
   const r = 22;
   const circumference = 2 * Math.PI * r;
   const offset = circumference - (pct / 100) * circumference;
@@ -33,10 +35,10 @@ export function ProfileCompletionSidebar() {
         </div>
         <div className="min-w-0">
           <p className="text-[14px] font-bold text-[var(--color-home-text)] leading-snug">
-            Almost there!
+            {pct >= 100 ? 'Profile complete!' : pct >= 70 ? 'Almost there!' : 'Complete your profile'}
           </p>
           <p className="text-[12px] text-[var(--color-home-text-muted)] mt-1 leading-relaxed">
-            Complete your profile to get better AI recommendations.
+            Fill in details from your admin account or update them in Student Info.
           </p>
         </div>
       </div>

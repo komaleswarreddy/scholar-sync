@@ -1,12 +1,13 @@
 'use client';
 
-import { PROFILE_ACADEMIC } from '@/lib/profile-mock-data';
+import { useUserContext } from '@/contexts/UserContext';
+import { emptyProfileLabel } from '@/lib/profile-utils';
 import { ProfileField } from '../ProfileField';
 import { ProfileFormFooter } from '../ProfileFormFooter';
 import { ProfileSummaryHeader } from '../ProfileSummaryHeader';
 
 export function AcademicProfileSection() {
-  const d = PROFILE_ACADEMIC;
+  const { user } = useUserContext();
 
   return (
     <div className="profile-main-card">
@@ -17,21 +18,26 @@ export function AcademicProfileSection() {
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <ProfileField label="Class" value={d.classLevel} type="select" />
-        <ProfileField label="Board" value={d.board} type="select" />
-        <ProfileField label="Stream" value={d.stream} type="select" />
-        <ProfileField label="Academic year" value={d.academicYear} type="select" />
-        <div className="sm:col-span-2 lg:col-span-3">
-          <label className="profile-field-label">Subjects</label>
-          <div className="flex flex-wrap gap-2 mt-1">
-            {d.subjects.map((s) => (
-              <span key={s} className="profile-subject-tag">
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
+        <ProfileField
+          label="Class"
+          value={emptyProfileLabel(user?.class_level)}
+          readOnly
+        />
+        <ProfileField label="Board" value="Not set" readOnly />
+        <ProfileField label="Stream" value="Not set" readOnly />
+        <ProfileField label="Academic year" value="Not set" readOnly />
+        <ProfileField
+          label="Institute"
+          value={emptyProfileLabel(user?.institute)}
+          colSpan={2}
+          readOnly
+        />
       </div>
+
+      <p className="text-[13px] text-[var(--color-home-text-muted)] mt-4">
+        Class and institute come from your admin-created account. Board, stream, and subjects will
+        be available in a future update.
+      </p>
 
       <ProfileFormFooter />
     </div>

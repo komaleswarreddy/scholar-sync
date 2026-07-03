@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 from sqlalchemy.orm import declarative_base
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import NullPool, QueuePool
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
@@ -79,12 +79,14 @@ if "supabase.com" in database_url or "pooler.supabase.com" in database_url:
     # Transaction pool (port 6543) + PgBouncer:
     # - asyncpg statement cache must be disabled
     # - SQLAlchemy asyncpg prepared statement cache must be disabled
-    # - use NullPool because Supabase/PgBouncer already pools connections
-    # - use dynamic prepared statement names to avoid clashes across pooled backends
+    # - small QueuePool on the client — avoids per-request TLS handshake latency
+    # - dynamic prepared statement names to avoid clashes across pooled backends
     if ":6543" in database_url:
         connect_args["statement_cache_size"] = 0
         connect_args["prepared_statement_name_func"] = lambda: f"__asyncpg_{uuid4()}__"
-        engine_kwargs["poolclass"] = NullPool
+        engine_kwargs["poolclass"] = QueuePool
+        engine_kwargs["pool_size"] = int(os.getenv("DB_POOL_SIZE", "4"))
+        engine_kwargs["max_overflow"] = int(os.getenv("DB_MAX_OVERFLOW", "2"))
         parsed = urlparse(database_url)
         query_params = parse_qs(parsed.query)
         query_params["prepared_statement_cache_size"] = ["0"]
@@ -108,7 +110,10 @@ _create_engine_kwargs = dict(
     connect_args=connect_args,
 )
 
-if engine_kwargs.get("poolclass") is NullPool:
+if engine_kwargs.get("poolclass") is QueuePool:
+    _create_engine_kwargs.update(engine_kwargs)
+    _create_engine_kwargs["pool_timeout"] = 15
+elif engine_kwargs.get("poolclass") is NullPool:
     _create_engine_kwargs.update(engine_kwargs)
 else:
     _create_engine_kwargs.update(
@@ -131,7 +136,10 @@ def warn_if_session_pooler_in_production() -> None:
     """Log guidance when Supabase session pooler (5432) is used under load."""
     env = getattr(settings, "ENVIRONMENT", "development")
     if USING_TRANSACTION_POOLER:
-        print("[DATABASE] Using Supabase transaction pooler (port 6543) with NullPool.")
+        print(
+            f"[DATABASE] Using Supabase transaction pooler (port 6543) with "
+            f"QueuePool(size={getattr(settings, 'DB_POOL_SIZE', 4)})."
+        )
         return
     if USING_SESSION_POOLER_5432 and env != "development":
         print(
@@ -168,5 +176,16 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
     """Short-lived session for DB work outside request-scoped dependencies (e.g. SSE)."""
     async with AsyncSessionLocal() as session:
         yield session
+
+
+async def warm_db_pool(connections: int = 2) -> None:
+    """Open pooled connections at startup so first user request is not cold."""
+    from sqlalchemy import text
+
+    n = max(1, min(connections, 4))
+    for _ in range(n):
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+    print(f"[DATABASE] Warmed connection pool ({n} connection(s))")
 
 

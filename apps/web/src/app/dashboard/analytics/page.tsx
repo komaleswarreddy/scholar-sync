@@ -30,7 +30,7 @@ import {
   RefreshCw 
 } from 'lucide-react';
 import { MetricCard } from '@/components/analytics/MetricCard';
-import { useAuth } from '@clerk/nextjs';
+import { getPlatformToken } from '@/lib/platform-auth';
 import axios from 'axios';
 
 // Register Chart.js components
@@ -75,7 +75,6 @@ interface DashboardData {
 const REFRESH_INTERVAL = 10000; // 10 seconds
 
 export default function AnalyticsDashboardPage() {
-  const { getToken } = useAuth();
   const [data, setData] = useState<DashboardData>({});
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
@@ -98,7 +97,7 @@ export default function AnalyticsDashboardPage() {
       };
 
       // Get auth token from Clerk
-      const token = await getToken();
+      const token = getPlatformToken();
       const tenantId = getTenantId();
       
       const headers: Record<string, string> = {

@@ -9,19 +9,32 @@ type ProfileFieldProps = {
   type?: 'input' | 'select';
   colSpan?: 1 | 2 | 3;
   prefix?: ReactNode;
+  onChange?: (value: string) => void;
+  readOnly?: boolean;
 };
 
 export function ProfileField({
   label,
-  value,
+  value = '',
   type = 'input',
   colSpan = 1,
   prefix,
+  onChange,
+  readOnly = false,
 }: ProfileFieldProps) {
   const spanClass =
     colSpan === 3 ? 'sm:col-span-3' : colSpan === 2 ? 'sm:col-span-2' : '';
 
-  const valueEl = (
+  const editable = Boolean(onChange) && !readOnly;
+
+  const valueEl = editable ? (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange?.(e.target.value)}
+      className="profile-field-value w-full outline-none bg-transparent"
+    />
+  ) : (
     <div
       className={`profile-field-value ${type === 'select' ? 'profile-field-value--select' : ''}`}
     >

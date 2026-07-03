@@ -9,6 +9,7 @@ import { ProblemDNACards } from '../ProblemDNACards';
 import { SolvingModeSelector } from '../SolvingModeSelector';
 import { CheckpointMCQ } from '../CheckpointMCQ';
 import { FollowUpActionBar } from '../FollowUpActionBar';
+import { MessageFeedbackBar } from '@/components/feedback/MessageFeedbackBar';
 import { ProblemSolverComposer } from './ProblemSolverComposer';
 import styles from '@/components/tutor/tutor-mode.module.css';
 
@@ -177,6 +178,19 @@ export function ProblemSolverChatInterface() {
                 <RichMarkdown
                   content={session.last_response.finalAnswer}
                   variant="problem-solver"
+                />
+              </div>
+            ) : null}
+            {(session?.assistant_message_id ||
+              session?.last_response?.assistant_message_id) ? (
+              <div className="mt-3 pt-2 border-t border-border-default">
+                <MessageFeedbackBar
+                  messageId={
+                    session.assistant_message_id ||
+                    session.last_response?.assistant_message_id ||
+                    ''
+                  }
+                  compact
                 />
               </div>
             ) : null}

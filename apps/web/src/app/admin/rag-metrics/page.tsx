@@ -117,7 +117,7 @@ export default function RAGMetricsPage() {
     }),
     datasets: [
       {
-        label: 'Thumbs Up',
+        label: 'Helpful',
         data: dailyBreakdown.map((item: any) => item.thumbs_up || 0),
         borderColor: '#10B981',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -125,7 +125,7 @@ export default function RAGMetricsPage() {
         tension: 0.4,
       },
       {
-        label: 'Thumbs Down',
+        label: 'Negative signals',
         data: dailyBreakdown.map((item: any) => item.thumbs_down || 0),
         borderColor: '#EF4444',
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -197,7 +197,7 @@ export default function RAGMetricsPage() {
               <CheckCircle2 className="w-5 h-5 text-green-500" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-text-secondary">Thumbs Up</h3>
+              <h3 className="text-sm font-medium text-text-secondary">Helpful</h3>
             </div>
           </div>
           <p className="text-3xl font-bold text-text-primary">{formatNumber(thumbsUp)}</p>
@@ -212,7 +212,7 @@ export default function RAGMetricsPage() {
               <AlertTriangle className="w-5 h-5 text-red-500" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-text-secondary">Thumbs Down</h3>
+              <h3 className="text-sm font-medium text-text-secondary">Negative signals</h3>
             </div>
           </div>
           <p className="text-3xl font-bold text-text-primary">{formatNumber(thumbsDown)}</p>
@@ -232,7 +232,7 @@ export default function RAGMetricsPage() {
           </div>
           <p className="text-3xl font-bold text-text-primary">{formatPercentage(hallucinationRate)}</p>
           <p className="text-xs text-text-tertiary mt-1">
-            {totalFeedback > 0 ? 'Based on thumbs down' : 'No feedback yet'}
+            {totalFeedback > 0 ? 'Based on not_helpful + inaccurate' : 'No feedback yet'}
           </p>
         </div>
 
@@ -247,7 +247,7 @@ export default function RAGMetricsPage() {
           </div>
           <p className="text-3xl font-bold text-text-primary">{formatPercentage(positiveRate)}</p>
           <p className="text-xs text-text-tertiary mt-1">
-            {totalFeedback > 0 ? 'Based on thumbs up' : 'No feedback yet'}
+            {totalFeedback > 0 ? 'Based on helpful + expert_validated' : 'No feedback yet'}
           </p>
         </div>
       </div>
@@ -270,8 +270,8 @@ export default function RAGMetricsPage() {
             <thead className="bg-surface-hover border-b border-border-default">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">Date</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">Thumbs Up</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">Thumbs Down</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">Helpful</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">Negative</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">Total</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary">Hallucination Rate</th>
               </tr>

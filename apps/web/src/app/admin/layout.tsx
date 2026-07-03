@@ -1,5 +1,5 @@
 /**
- * Admin ops dashboard layout — standalone admin portal (not Clerk).
+ * Admin ops dashboard layout — requires schooladmin platform session.
  */
 
 'use client';
@@ -10,7 +10,12 @@ import { AdminHeader } from '@/components/layout/AdminHeader';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { apiClient } from '@/lib/api-client';
-import { hasAdminSession } from '@/lib/admin-auth';
+import {
+  getPlatformToken,
+  getStoredPlatformUser,
+  hasPlatformSession,
+  isSchoolAdmin,
+} from '@/lib/platform-auth';
 import { AdminTableSkeleton } from '@/components/skeleton';
 import { Menu, X } from 'lucide-react';
 
@@ -25,64 +30,74 @@ export default function AdminLayout({
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [sessionReady, setSessionReady] = useState(false);
+  const [sessionReady, setSessionReady] = useState(() =>
+    typeof window !== 'undefined' && hasPlatformSession()
+  );
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted || isLoginRoute) return;
+    if (!mounted) return;
 
-    if (!hasAdminSession()) {
-      router.replace('/admin/login');
+    if (isLoginRoute) {
+      router.replace('/sign-in');
       return;
     }
 
-    apiClient.setAdminPortalMode(true);
+    if (!hasPlatformSession()) {
+      router.replace('/sign-in');
+      return;
+    }
+
+    const user = getStoredPlatformUser();
+    const token = getPlatformToken();
+    if (!isSchoolAdmin(user, token)) {
+      router.replace('/home');
+      return;
+    }
+
+    apiClient.setTokenGetter(async () => getPlatformToken());
     setSessionReady(true);
   }, [mounted, isLoginRoute, router]);
 
   if (isLoginRoute) {
-    return <>{children}</>;
+    return null;
   }
 
   return (
     <ThemeProvider>
-      <div className="h-screen w-screen flex flex-col overflow-hidden bg-background">
-        <AdminHeader />
+      <div className="flex h-screen bg-background overflow-hidden">
+        <div
+          className={`fixed inset-0 z-40 bg-black/50 lg:hidden transition-opacity ${
+            sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setSidebarOpen(false)}
+        />
+        <div
+          className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform lg:relative lg:translate-x-0 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <AdminSidebar onNavigate={() => setSidebarOpen(false)} />
+        </div>
 
-        <div className="flex-1 flex overflow-hidden">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden fixed top-16 left-4 z-50 p-2 rounded-lg bg-surface border border-border-default text-text-primary hover:bg-surface-hover transition-colors shadow-md"
-            aria-label="Toggle sidebar"
-            aria-expanded={sidebarOpen}
-          >
-            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-
-          {sidebarOpen && (
-            <div
-              className="lg:hidden fixed inset-0 bg-black/50 z-40"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
-
-          <div
-            className={`
-              fixed lg:static inset-y-0 left-0 z-40 lg:z-auto
-              transform transition-transform duration-300 ease-in-out
-              ${sidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full lg:translate-x-0'}
-            `}
-          >
-            <AdminSidebar onNavigate={() => setSidebarOpen(false)} />
-          </div>
-
-          <main className="flex-1 overflow-y-auto p-4 lg:p-6 min-w-0">
-            {!mounted || !sessionReady ? <AdminTableSkeleton /> : children}
+        <div className="flex-1 flex flex-col min-w-0">
+          <AdminHeader />
+          <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+            {!sessionReady ? <AdminTableSkeleton rows={8} /> : children}
           </main>
         </div>
+
+        <button
+          type="button"
+          className="fixed bottom-4 right-4 z-50 lg:hidden p-3 rounded-full bg-accent-blue text-white shadow-lg"
+          onClick={() => setSidebarOpen((o) => !o)}
+          aria-label="Toggle menu"
+        >
+          {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
     </ThemeProvider>
   );

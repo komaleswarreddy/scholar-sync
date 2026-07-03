@@ -18,6 +18,7 @@ from packages.core.processing.help_me_solve_cumulative import enrich_help_me_sol
 from packages.core.prompts import load_prompt
 from packages.core.rag.whole_file_map_reduce import fetch_all_chunks_for_sources, _chunk_text
 from packages.core.security.answer_leak_guard import answer_leak_guard
+from packages.core.services.problem_solver_chat_bridge import persist_ps_assistant_turn
 from packages.core.services.problem_subject_inference import (
     infer_problem_subject,
     normalize_dna_subject,
@@ -218,6 +219,11 @@ def _session_to_public(session: ProblemSolverSession) -> Dict[str, Any]:
         "solving_mode": session.solving_mode,
         "interaction_count": session.interaction_count,
         "last_response": session.last_response,
+        "assistant_message_id": (
+            (session.last_response or {}).get("assistant_message_id")
+            if isinstance(session.last_response, dict)
+            else None
+        ),
         "created_at": session.created_at.isoformat() if session.created_at else None,
         "updated_at": session.updated_at.isoformat() if session.updated_at else None,
     }
@@ -275,6 +281,22 @@ class ProblemSolverService:
             step_metadata=metadata or {},
         )
         self.db.add(step)
+
+    async def _persist_assistant_message(
+        self,
+        session: ProblemSolverSession,
+        response: Dict[str, Any],
+    ) -> None:
+        try:
+            await persist_ps_assistant_turn(
+                self.db,
+                session,
+                response,
+                tenant_id=self.tenant_id,
+                user_id=self.user_id,
+            )
+        except Exception as exc:
+            print(f"[PS_CHAT_BRIDGE] persist failed: {exc}")
 
     def _transition(self, session: ProblemSolverSession, new_state: str) -> None:
         allowed = VALID_TRANSITIONS.get(session.state, frozenset())
@@ -479,6 +501,7 @@ class ProblemSolverService:
         response = await self._build_mode_response(session)
         session.last_response = response
         self._transition(session, _response_end_state(session, response))
+        await self._persist_assistant_message(session, response)
         await self._append_step(session, "mode_response", metadata=response)
         await self.db.commit()
         await self.db.refresh(session)
@@ -492,6 +515,7 @@ class ProblemSolverService:
         response = await self._build_mode_response(session)
         session.last_response = response
         self._transition(session, _response_end_state(session, response))
+        await self._persist_assistant_message(session, response)
         await self._append_step(session, "mode_response", metadata=response)
         await self.db.commit()
 
@@ -506,6 +530,7 @@ class ProblemSolverService:
                 "checkpoint": response.get("checkpoint"),
                 "finalAnswer": response.get("finalAnswer"),
                 "session_id": str(session.id),
+                "assistant_message_id": response.get("assistant_message_id"),
             },
         }
 
@@ -567,6 +592,7 @@ class ProblemSolverService:
         response["mode"] = session.solving_mode
         session.last_response = response
         session.state = _response_end_state(session, response)
+        await self._persist_assistant_message(session, response)
         await self._append_step(session, "mode_response", metadata=response)
         await self.db.commit()
         await self.db.refresh(session)
@@ -637,6 +663,7 @@ class ProblemSolverService:
         response["interactionCount"] = session.interaction_count
         session.last_response = response
         session.state = "follow_up"
+        await self._persist_assistant_message(session, response)
         await self._append_step(session, "follow_up_action", metadata={"action": action, "response": response})
         await self.db.commit()
         await self.db.refresh(session)

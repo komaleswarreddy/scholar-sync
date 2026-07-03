@@ -448,21 +448,9 @@ def _expert_solution_text(inputs: dict) -> str:
 
 
 def _json_from_text(text: str) -> Optional[dict]:
-    if not isinstance(text, str):
-        return None
-    raw = text.strip()
-    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw, re.DOTALL)
-    if fence:
-        raw = fence.group(1)
-    else:
-        obj = re.search(r"\{.*\}", raw, re.DOTALL)
-        if obj:
-            raw = obj.group(0)
-    try:
-        parsed = json.loads(raw)
-    except Exception:
-        return None
-    return parsed if isinstance(parsed, dict) else None
+    from evals.agent_eval.coach_json_parse import json_dict_from_text
+
+    return json_dict_from_text(text)
 
 
 def _coerce_score(value: Any) -> float:

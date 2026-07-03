@@ -1,112 +1,141 @@
 'use client';
 
-import { createContext, useContext, ReactNode, useCallback, useState, useEffect } from 'react';
-import { useUser, useAuth } from '@clerk/nextjs';
+import { createContext, useContext, ReactNode, useCallback, useState, useEffect, useRef } from 'react';
 import { apiClient } from '@/lib/api-client';
+import {
+  clearPlatformSession,
+  getPlatformToken,
+  getStoredPlatformUser,
+  hasPlatformSession,
+  PLATFORM_SESSION_CHANGED,
+  PlatformUser,
+  signOutAndRedirect,
+  setStoredPlatformUser,
+} from '@/lib/platform-auth';
+import { profileDisplayName } from '@/lib/profile-utils';
 
 interface UserContextType {
   userId: string | null;
+  username: string | null;
   fullName: string | null;
   email: string | null;
+  role: string | null;
   avatarUrl: string | null;
+  user: PlatformUser | null;
   isSignedIn: boolean;
   getToken: () => Promise<string | null>;
   signOut: () => Promise<void>;
   loading: boolean;
-  /** Clerk loaded and token getter wired (safe to prefetch API). */
   authReady: boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+function buildFullName(user: PlatformUser | null): string | null {
+  if (!user) return null;
+  const name = profileDisplayName(user);
+  return name === 'Student' ? user.username ?? null : name;
+}
+
 export function UserProvider({ children }: { children: ReactNode }) {
-  // Must match server and client (never gate on `window` — that breaks hydration).
-  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  const isClerkConfigured = Boolean(
-    clerkKey && !clerkKey.includes('...')
-  );
-  
-  // Use Clerk hooks - must be called unconditionally
-  // If ClerkProvider isn't present, hooks will still work but return defaults
-  const { user, isSignedIn, isLoaded: userLoaded } = useUser();
-  const { signOut: clerkSignOut, getToken: clerkGetToken, isLoaded: authLoaded } = useAuth();
-  
+  const [user, setUser] = useState<PlatformUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const hydratingRef = useRef(false);
 
-  // Safe wrapper for getToken — always ask Clerk; do not close over isSignedIn (stale after navigation).
-  const getToken = useCallback(async () => {
-    try {
-      if (!clerkGetToken || !isClerkConfigured) {
-        return null;
-      }
-      if (!userLoaded || !authLoaded) {
-        return null;
-      }
-      const token = await clerkGetToken();
-      return token ?? null;
-    } catch (err) {
-      console.error('[AUTH] Error fetching token:', err);
-      return null;
-    }
-  }, [authLoaded, clerkGetToken, isClerkConfigured, userLoaded]);
+  const getToken = useCallback(async () => getPlatformToken(), []);
 
-  // Logout handler for ApiClient
-  const handleLogout = useCallback(async () => {
+  const signOut = useCallback(async () => {
     apiClient.clearAuthSession();
-    if (clerkSignOut) {
-      await clerkSignOut();
-    }
-  }, [clerkSignOut]);
+    signOutAndRedirect();
+  }, []);
 
-  // Wait for Clerk to finish loading before setting loading to false
-  useEffect(() => {
-    const isClerkLoaded = userLoaded && authLoaded;
-    
-    if (!isClerkConfigured) {
-      setLoading(false);
+  const refreshUser = useCallback(async () => {
+    const token = getPlatformToken();
+    if (!token) {
+      setUser(null);
       return;
     }
-    
-    if (isClerkLoaded) {
-      if (isSignedIn) {
-        apiClient.setTokenGetter(getToken);
-        void apiClient.refreshToken(true);
-      } else {
-        apiClient.clearAuthSession();
-        apiClient.setTokenGetter(async () => null);
-      }
-      apiClient.setLogoutHandler(handleLogout);
-      setLoading(false);
-    } else {
-      // Set a timeout to prevent infinite loading if Clerk never loads
-      const timeout = setTimeout(() => {
-        if (isSignedIn) {
-          apiClient.setTokenGetter(getToken);
-        } else {
-          apiClient.clearAuthSession();
-          apiClient.setTokenGetter(async () => null);
-        }
-        apiClient.setLogoutHandler(handleLogout);
-        setLoading(false);
-      }, 10000);
-      
-      return () => clearTimeout(timeout);
+    try {
+      const me = await apiClient.getMyProfile();
+      setUser(me);
+      setStoredPlatformUser(me);
+    } catch {
+      clearPlatformSession();
+      setUser(null);
     }
-  }, [getToken, handleLogout, userLoaded, authLoaded, isSignedIn, isClerkConfigured]);
+  }, []);
 
-  const isClerkLoaded = userLoaded && authLoaded;
-  const authReady = isClerkConfigured ? isClerkLoaded && !!isSignedIn && !loading : false;
+  const hydrateUser = useCallback(async () => {
+    if (hydratingRef.current) return;
+    hydratingRef.current = true;
+
+    const token = getPlatformToken();
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      hydratingRef.current = false;
+      return;
+    }
+
+    apiClient.setTokenGetter(getToken);
+    apiClient.setLogoutHandler(signOut);
+    void apiClient.refreshToken(true);
+
+    const cached = getStoredPlatformUser();
+    if (cached) {
+      setUser(cached);
+      setLoading(false);
+    }
+
+    try {
+      const me = await apiClient.getMyProfile();
+      setUser(me);
+      setStoredPlatformUser(me);
+    } catch {
+      if (!cached) {
+        clearPlatformSession();
+        setUser(null);
+      }
+    } finally {
+      setLoading(false);
+      hydratingRef.current = false;
+    }
+  }, [getToken, signOut]);
+
+  useEffect(() => {
+    if (!hasPlatformSession()) {
+      setUser(null);
+      setLoading(false);
+      apiClient.setTokenGetter(async () => null);
+      return;
+    }
+
+    void hydrateUser();
+
+    const onSessionChanged = () => {
+      void hydrateUser();
+    };
+    window.addEventListener(PLATFORM_SESSION_CHANGED, onSessionChanged);
+    return () => window.removeEventListener(PLATFORM_SESSION_CHANGED, onSessionChanged);
+  }, [hydrateUser]);
+
+  const signedIn = hasPlatformSession();
 
   const value: UserContextType = {
     userId: user?.id ?? null,
-    fullName: user?.fullName ?? null,
-    email: user?.primaryEmailAddress?.emailAddress ?? null,
-    avatarUrl: user?.imageUrl ?? null,
-    isSignedIn: !!isSignedIn,
+    username: user?.username ?? null,
+    fullName: buildFullName(user),
+    email: user?.email ?? null,
+    role: user?.role ?? null,
+    avatarUrl: null,
+    user,
+    isSignedIn: signedIn,
     getToken,
-    signOut: handleLogout,
-    loading,
-    authReady,
+    signOut,
+    loading: signedIn && loading && !user,
+    authReady: !signedIn || Boolean(user),
+    refreshUser,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

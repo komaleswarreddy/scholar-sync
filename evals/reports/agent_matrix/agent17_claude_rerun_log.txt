@@ -1,0 +1,9 @@
+[GEMINI] fast-skip gemini-3.5-flash: HTTPSConnectionPool(host='generativelanguage.googleapis.com', port=443): Read timed out. (read timeout=12)
+========================================================================
+[4/6] agent=explain_from_basics prompt=v1 model=claude-sonnet-4-6 (anthropic) | 30 examples
+========================================================================
+[GUARD] month=2026-07 used=3993/5000 margin=250 remaining=757 | this run ~211 traces (30 agent + 181 evaluator [30x6+1]) | workspace_in_reject_set=False
+View the evaluation results for experiment: 'ae-explain_from_basics-v1-anthropic-claude-sonnet-4-6-3ef92373' at:
+https://smith.langchain.com/o/d28c3c60-acaf-4c17-af45-a056921cdb06/datasets/5a1ef3eb-c70a-40f3-867c-40b28d5a869f/compare?selectedSessions=cfcbbe02-e89f-4314-9a66-46529a041053
+
+

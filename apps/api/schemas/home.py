@@ -16,6 +16,7 @@ class FocusConcept(BaseModel):
     subject: str
     topic: str
     decay_label: str
+    starter_prompts: List[str] = []
 
 
 class ContinueLearningItem(BaseModel):

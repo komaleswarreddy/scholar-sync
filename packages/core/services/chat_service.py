@@ -291,41 +291,4 @@ class ChatService:
         
         return result.rowcount
 
-    async def update_message_feedback(
-        self,
-        message_id: str,
-        feedback: Optional[str],
-        feedback_reason: Optional[str] = None,
-    ) -> Optional[Message]:
-        """Update feedback for a message."""
-        message_uuid = uuid.UUID(message_id) if isinstance(message_id, str) else message_id
-        
-        # Verify message exists and belongs to user's chat
-        result = await self.db.execute(
-            select(Message)
-            .join(Chat)
-            .where(Message.id == message_uuid)
-            .where(Chat.tenant_id == self.tenant_id)
-            .where(Chat.user_id == self.user_id)
-        )
-        message = result.scalar_one_or_none()
-        
-        if message:
-            # Validate feedback value
-            if feedback not in [None, 'thumbs_up', 'thumbs_down']:
-                raise ValueError("Feedback must be 'thumbs_up', 'thumbs_down', or None")
-
-            reason = (feedback_reason or "").strip() or None
-            if feedback == 'thumbs_down' and not reason:
-                raise ValueError("A reason is required when feedback is thumbs_down")
-            if feedback in (None, 'thumbs_up'):
-                reason = None
-            
-            message.feedback = feedback
-            message.feedback_reason = reason
-            await self.db.commit()
-            await self.db.refresh(message)
-        
-        return message
-
 

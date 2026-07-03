@@ -1,15 +1,16 @@
 'use client';
 
 import { LogOut } from 'lucide-react';
-import { PROFILE_ACCOUNT } from '@/lib/profile-mock-data';
 import { useAppSignOut } from '@/hooks/useAppSignOut';
+import { useUserContext } from '@/contexts/UserContext';
+import { emptyProfileLabel } from '@/lib/profile-utils';
 import { DraftSaveModal } from '@/components/notes/DraftSaveModal';
 import { ProfileField } from '../ProfileField';
 import { ProfileFormFooter } from '../ProfileFormFooter';
 import { ProfileSummaryHeader } from '../ProfileSummaryHeader';
 
 export function AccountSecuritySection() {
-  const d = PROFILE_ACCOUNT;
+  const { user } = useUserContext();
   const {
     signOutWithDraftCheck,
     showDraftModal,
@@ -18,6 +19,8 @@ export function AccountSecuritySection() {
     handleDraftDiscard,
     handleDraftCancel,
   } = useAppSignOut();
+
+  const loginId = user?.email || user?.username || '—';
 
   return (
     <div className="profile-main-card">
@@ -28,23 +31,20 @@ export function AccountSecuritySection() {
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <ProfileField label="Login email" value={d.loginEmail} colSpan={2} />
-        <ProfileField label="Password" value="••••••••••" />
-        <ProfileField label="Last changed" value={d.lastPasswordChange} />
-        <ProfileField label="Devices" value={d.devices} colSpan={2} />
-        <ProfileField label="Data controls" value={d.dataControls} colSpan={2} />
+        <ProfileField label="Username" value={emptyProfileLabel(user?.username)} readOnly />
+        <ProfileField label="Login email" value={emptyProfileLabel(user?.email, '—')} readOnly />
+        <ProfileField label="Sign-in ID" value={loginId} colSpan={2} readOnly />
+        <ProfileField label="Password" value="••••••••••" readOnly />
+        <ProfileField label="Role" value={emptyProfileLabel(user?.role)} readOnly />
       </div>
 
       <div className="flex flex-wrap gap-3 mt-4">
-        <button type="button" className="profile-btn-secondary text-[13px] py-2 px-4">
+        <button type="button" className="profile-btn-secondary text-[13px] py-2 px-4" disabled>
           Change password
         </button>
-        <button type="button" className="profile-btn-secondary text-[13px] py-2 px-4">
-          Manage devices
-        </button>
-        <button type="button" className="profile-btn-secondary text-[13px] py-2 px-4 text-[#DC2626] border-[#FECACA] hover:bg-[#FEF2F2]">
-          Export my data
-        </button>
+        <p className="text-[12px] text-[var(--color-home-text-muted)] self-center">
+          Password changes are managed by your school admin.
+        </p>
       </div>
 
       <div className="profile-sign-out-panel mt-8">

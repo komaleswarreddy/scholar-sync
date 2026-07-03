@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-07-02T16:51:51.908502+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "mode": "stepwise",
+  "harness": "agent_eval",
+  "note": "intent_classifier uses evals.intent_classifier_eval (unchanged)",
+  "experiments": [],
+  "winners_by_agent": {},
+  "summary": {
+    "total_experiments": 0,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUserContext } from '@/contexts/UserContext';
 import { HomeMobileNav } from '@/components/home/HomeMobileNav';
 import {
   LibraryBottomBanner,
@@ -17,7 +17,7 @@ import type { LibraryNotebook } from '@/lib/library-mock-data';
 
 export default function LibraryPage() {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
+  const { loading, isSignedIn } = useUserContext();
   const { data, isLoading, isError } = useListNotebooks();
   const sourceNotebooks = useMemo(
     () => (data?.notebooks ?? []).map(mapApiNotebookToLibrary),
@@ -30,10 +30,10 @@ export default function LibraryPage() {
   }, []);
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!loading && !isSignedIn) {
       router.replace('/sign-in');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [loading, isSignedIn, router]);
 
   return (
     <div className="library-page max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-10">

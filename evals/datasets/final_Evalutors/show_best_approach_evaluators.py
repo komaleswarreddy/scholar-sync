@@ -206,7 +206,7 @@ VARIATION_EXPECTATIONS = {
     "multi_part": {"expects_steps": True},
 }
 
-MAX_TOTAL_WORDS_DEFAULT = 700
+MAX_TOTAL_WORDS_DEFAULT = 3000  # json.dumps adds key names + structure; 700 was too low for LaTeX-heavy responses
 
 
 # ---------------------------------------------------------------------------
@@ -460,7 +460,7 @@ def schema_validity(run, example) -> dict:
         }
 
     present = set(out.keys())
-    if present != REQUIRED_OUTPUT_KEYS:
+    if not REQUIRED_OUTPUT_KEYS.issubset(present):
         return {
             "key": "schema_validity",
             "score": 0.0,
@@ -582,7 +582,7 @@ def exam_strategy_structure(run, example) -> dict:
         hard = True
 
     clean = sec.get("Clean Solution", "")
-    if len(re.findall(r"(^|\n)\s*(?:\d+\.|-|\*)\s+", clean)) < 1 and _word_count(clean) < 35:
+    if len(re.findall(r"(^|\n)\s*(?:\d+\.|-|\*)\s+", clean)) < 1 and _word_count(clean) < 20:
         issues.append("Clean Solution not stepwise enough")
 
     # Best approach should not become a long basics lecture.

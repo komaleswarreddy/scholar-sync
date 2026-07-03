@@ -9,6 +9,7 @@ type FocusConcept = {
   subject: string;
   topic: string;
   decay_label: string;
+  starter_prompts?: string[];
 };
 
 function ProgressBar({
@@ -80,6 +81,24 @@ export function FocusThisWeekCard({ focus }: { focus?: FocusConcept | null }) {
         <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
         <span>Based on your most recent notebook activity</span>
       </div>
+
+      {focus.starter_prompts && focus.starter_prompts.length > 0 ? (
+        <div className="mb-3 space-y-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--color-home-text-muted)]">
+            Suggested explorations
+          </p>
+          {focus.starter_prompts.map((prompt) => (
+            <button
+              key={prompt}
+              type="button"
+              onClick={() => router.push(`/chat?q=${encodeURIComponent(prompt)}`)}
+              className="block w-full text-left text-[11px] px-2 py-1.5 rounded-lg border border-border-default hover:bg-surface-subtle text-[var(--color-home-text)]"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <div className="space-y-2 mb-3">
         <ProgressBar

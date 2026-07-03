@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/api-client';
-import { hasAdminSession } from '@/lib/admin-auth';
+import { getPlatformToken, hasPlatformSession } from '@/lib/platform-auth';
 
-/** Ensures apiClient uses the admin portal JWT on ops dashboard pages. */
+/** Ensures apiClient uses the platform JWT on ops dashboard pages. */
 export function useAdminPortalApi() {
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(() =>
+    typeof window !== 'undefined' && hasPlatformSession()
+  );
 
   useEffect(() => {
-    if (hasAdminSession()) {
-      apiClient.setAdminPortalMode(true);
+    if (hasPlatformSession()) {
+      apiClient.setTokenGetter(async () => getPlatformToken());
       setReady(true);
     }
   }, []);

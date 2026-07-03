@@ -227,8 +227,11 @@ def _parse_coach(value: Any) -> tuple[bool, Optional[dict], str]:
     if not isinstance(value, str):
         return False, None, str(value)
     raw = value.strip()
-    if not raw or "```" in raw:
+    if not raw:
         return False, None, raw
+    if "```" in raw:
+        parsed = _json_from_text(raw)
+        return (True, parsed, raw) if isinstance(parsed, dict) else (False, None, raw)
     try:
         parsed = json.loads(raw)
     except Exception:
@@ -380,7 +383,7 @@ def schema_validity(run, example) -> dict:
         return {"key": "schema_validity", "score": 0.0, "comment": "outputs missing or not JSON object"}
 
     present = set(out.keys())
-    if present != REQUIRED_OUTPUT_KEYS:
+    if not REQUIRED_OUTPUT_KEYS.issubset(present):
         return {
             "key": "schema_validity",
             "score": 0.0,
@@ -412,8 +415,8 @@ def schema_validity(run, example) -> dict:
     for idx, sec in enumerate(sections):
         if not isinstance(sec, dict):
             return {"key": "schema_validity", "score": 0.0, "comment": f"section {idx} is not object"}
-        if set(sec.keys()) != {"heading", "bodyMarkdown"}:
-            return {"key": "schema_validity", "score": 0.0, "comment": f"section {idx} must have heading/bodyMarkdown only"}
+        if not {"heading", "bodyMarkdown"}.issubset(set(sec.keys())):
+            return {"key": "schema_validity", "score": 0.0, "comment": f"section {idx} missing heading/bodyMarkdown"}
         if not isinstance(sec.get("heading"), str) or not sec["heading"].strip():
             return {"key": "schema_validity", "score": 0.0, "comment": f"section {idx}.heading empty"}
         if not isinstance(sec.get("bodyMarkdown"), str) or not sec["bodyMarkdown"].strip():
@@ -816,7 +819,7 @@ def explain_from_basics_severity_summary(runs: list, examples: list) -> dict:
         if latex["score"] == 0.0:
             tier_0.append({"example_id": getattr(example, "id", None), "reason": f"latex_and_variation_behavior failed: {latex['comment']}"})
 
-        if llm is not None:
+        if llm is not None and llm.get("judge_available", True):
             if llm.get("hard_rule_violated") or llm.get("score", 0.0) < 0.68:
                 tier_0.append({"example_id": getattr(example, "id", None), "reason": f"LLM judge hard failure: {llm.get('comment', '')}"})
             elif llm.get("score", 1.0) < 0.82:

@@ -54,8 +54,7 @@ interface Message {
   timestamp?: string;
   isSummary?: boolean;
   citations?: Citation[];
-  feedback?: 'thumbs_up' | 'thumbs_down' | null;
-  messageId?: string; // Backend message ID for feedback
+  messageId?: string;
   question?: string; // The question that was asked (for assistant messages)
   followUps?: string[];
 }
@@ -579,7 +578,6 @@ export function ChatInterface({
               content: msg.content,
               citations: msg.citations || [],
               messageId: msg.id,
-              feedback: msg.feedback || null,
               timestamp: new Date(msg.created_at).toLocaleTimeString(),
               isSummary: isSummary,
             };
@@ -773,7 +771,7 @@ export function ChatInterface({
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === userMessage.id
-                  ? { ...msg, id: savedMessage.id, messageId: savedMessage.id, feedback: savedMessage.feedback || null }
+                  ? { ...msg, id: savedMessage.id, messageId: savedMessage.id }
                   : msg
               )
             );
@@ -1016,7 +1014,6 @@ export function ChatInterface({
                               ...msg,
                               id: savedId,
                               messageId: savedId,
-                              feedback: savedMessage.feedback || null,
                             }
                           : msg,
                       ),
@@ -1107,7 +1104,7 @@ export function ChatInterface({
                     setMessages((prev) =>
                       prev.map((msg) =>
                         msg.id === partialMessage.id
-                          ? { ...msg, id: savedPartial.id, messageId: savedPartial.id, feedback: savedPartial.feedback || null }
+                          ? { ...msg, id: savedPartial.id, messageId: savedPartial.id }
                           : msg
                       )
                     );
@@ -1245,7 +1242,6 @@ export function ChatInterface({
         timestamp: new Date(savedSummary.created_at).toLocaleTimeString(),
         isSummary: true,
         messageId: savedSummary.id,
-        feedback: savedSummary.feedback || null,
       };
 
       // Append summary into the same thread (do not delete existing messages)
@@ -1385,7 +1381,6 @@ export function ChatInterface({
                 citations={message.citations}
                 timestamp={message.timestamp}
                 messageId={message.messageId || message.id}
-                feedback={message.feedback}
                 question={message.question}
                 followUps={
                   isLockedNotebookTutor &&
@@ -1406,15 +1401,6 @@ export function ChatInterface({
                     : undefined
                 }
                 appearance={appearance}
-                onFeedbackUpdate={(messageId, feedback) => {
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === messageId || msg.messageId === messageId
-                        ? { ...msg, feedback }
-                        : msg
-                    )
-                  );
-                }}
               />
             ))}
             

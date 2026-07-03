@@ -2,24 +2,25 @@
 
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
 import { HomeTopNav } from '@/components/home/HomeTopNav';
 import { usePrefetchStudentData } from '@/hooks/usePrefetchStudentData';
+import { useUserContext } from '@/contexts/UserContext';
+import { hasPlatformSession } from '@/lib/platform-auth';
 
 const UNDERLINE_ROUTES = ['/library', '/assets', '/analytics', '/study-planner'];
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? '';
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
+  const { loading, isSignedIn } = useUserContext();
 
   usePrefetchStudentData();
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!loading && !isSignedIn && !hasPlatformSession()) {
       router.replace('/sign-in');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [loading, isSignedIn, router]);
 
   const isProfile = pathname.startsWith('/profile');
   const navStyle = UNDERLINE_ROUTES.some((r) => pathname.startsWith(r)) ? 'underline' : 'pill';

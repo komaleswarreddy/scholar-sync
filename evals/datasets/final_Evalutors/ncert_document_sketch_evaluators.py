@@ -16,14 +16,12 @@ Production dependencies:
 - Output:
     sketch_json: dict
 
-Recommended sketch_json contract used by this evaluator:
+Recommended sketch_json contract (matches production ncert_document_sketch.j2):
     {
-      "title": str,                  # short NCERT chapter/source title
-      "document_type": str,          # textbook_excerpt | notes | mixed | unknown
-      "summary": str,                # compact grounded chapter/source summary
-      "key_topics": list[str],       # 3-10 NCERT-grounded topics
-      "keywords": list[str],         # 5-18 retrieval-friendly NCERT terms
-      "structure_notes": str         # compact notes about NCERT organization
+      "chapter_title": str,           # best-effort NCERT chapter title ("" if unknown)
+      "main_sections": list[str],     # short section headings from the text
+      "key_definitions": dict,      # term -> short definition (central NCERT terms only)
+      "concepts": list[str],          # 10-30 exam-relevant search terms when text allows
     }
 
 Why code-first:
@@ -68,32 +66,19 @@ REQUIRED_INPUT_KEYS = {"header", "document_text"}
 REQUIRED_OUTPUT_KEYS = {"sketch_json"}
 
 CORE_SKETCH_KEYS = {
-    "title",
-    "document_type",
-    "summary",
-    "key_topics",
-    "keywords",
-    "structure_notes",
+    "chapter_title",
+    "main_sections",
+    "key_definitions",
+    "concepts",
 }
 
-VALID_DOCUMENT_TYPES = {
-    "textbook_excerpt",
-    "notes",
-    "mixed",
-    "unknown",
-}
-
-SUMMARY_MIN_WORDS = 28
-SUMMARY_MAX_WORDS = 150
-
-KEY_TOPICS_MIN = 3
-KEY_TOPICS_MAX = 10
-
-KEYWORDS_MIN = 5
-KEYWORDS_MAX = 18
-
-TITLE_MAX_WORDS = 18
-STRUCTURE_NOTES_MAX_WORDS = 90
+CHAPTER_TITLE_MAX_WORDS = 18
+MAIN_SECTIONS_MAX = 24
+CONCEPTS_MIN = 10
+CONCEPTS_MAX = 30
+KEY_DEFINITIONS_MAX = 20
+DEFINITION_MAX_WORDS = 40
+THIN_SOURCE_WORDS = 45
 
 BANNED_PATTERNS = {
     "as an ai language model",
@@ -328,13 +313,15 @@ def _parse_sketch(value: Any) -> tuple[bool, Optional[dict], str]:
         return False, None, str(value)
 
     raw = value.strip()
-    if not raw or "```" in raw:
+    if not raw:
         return False, None, raw
 
     try:
         parsed = json.loads(raw)
     except Exception:
-        return False, None, raw
+        parsed = _json_from_text(raw)
+        if parsed is None:
+            return False, None, raw
 
     return (True, parsed, raw) if isinstance(parsed, dict) else (False, None, raw)
 
@@ -384,21 +371,15 @@ def _is_ncert_like(text: str) -> bool:
 
 
 def _json_from_text(text: str) -> Optional[dict]:
-    if not isinstance(text, str):
-        return None
-    raw = text.strip()
-    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw, re.DOTALL)
-    if fence:
-        raw = fence.group(1)
-    else:
-        obj = re.search(r"\{.*\}", raw, re.DOTALL)
-        if obj:
-            raw = obj.group(0)
-    try:
-        parsed = json.loads(raw)
-    except Exception:
-        return None
-    return parsed if isinstance(parsed, dict) else None
+    from evals.agent_eval.coach_json_parse import json_dict_from_text
+
+    return json_dict_from_text(text)
+
+
+def _dict_of_strings(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return all(isinstance(k, str) and isinstance(v, str) and v.strip() for k, v in value.items())
 
 
 def parse_model_response_to_outputs(raw_text: str) -> dict:
@@ -470,67 +451,65 @@ def schema_validity(run, example) -> dict:
 
     extra = set(sketch.keys()) - CORE_SKETCH_KEYS
     if extra:
-        # Allow no extras for stable downstream Agent 28 consumption.
         return {
             "key": "schema_validity",
             "score": 0.5,
             "comment": f"unexpected optional key(s): {sorted(extra)}",
         }
 
-    if not isinstance(sketch.get("title"), str) or not sketch["title"].strip():
-        return {"key": "schema_validity", "score": 0.0, "comment": "title must be non-empty string"}
-    if _word_count(sketch["title"]) > TITLE_MAX_WORDS:
-        return {"key": "schema_validity", "score": 0.5, "comment": f"title too long: {_word_count(sketch['title'])} words"}
+    chapter_title = sketch.get("chapter_title")
+    if not isinstance(chapter_title, str):
+        return {"key": "schema_validity", "score": 0.0, "comment": "chapter_title must be a string"}
+    if chapter_title.strip() and _word_count(chapter_title) > CHAPTER_TITLE_MAX_WORDS:
+        return {
+            "key": "schema_validity",
+            "score": 0.5,
+            "comment": f"chapter_title too long: {_word_count(chapter_title)} words",
+        }
 
-    if sketch.get("document_type") not in VALID_DOCUMENT_TYPES:
+    main_sections = sketch.get("main_sections")
+    if not isinstance(main_sections, list) or not all(isinstance(x, str) for x in main_sections):
+        return {"key": "schema_validity", "score": 0.0, "comment": "main_sections must be array of strings"}
+    if len(main_sections) > MAIN_SECTIONS_MAX:
+        return {
+            "key": "schema_validity",
+            "score": 0.5,
+            "comment": f"main_sections count too high: {len(main_sections)}",
+        }
+
+    key_definitions = sketch.get("key_definitions")
+    if not _dict_of_strings(key_definitions):
         return {
             "key": "schema_validity",
             "score": 0.0,
-            "comment": f"invalid document_type={sketch.get('document_type')!r}",
+            "comment": "key_definitions must be object mapping term -> non-empty string",
         }
-
-    summary = sketch.get("summary")
-    if not isinstance(summary, str) or not summary.strip():
-        return {"key": "schema_validity", "score": 0.0, "comment": "summary must be non-empty string"}
-
-    summary_words = _word_count(summary)
-    if summary_words < SUMMARY_MIN_WORDS or summary_words > SUMMARY_MAX_WORDS:
+    if len(key_definitions) > KEY_DEFINITIONS_MAX:
         return {
             "key": "schema_validity",
             "score": 0.5,
-            "comment": f"summary length outside preferred band: {summary_words} words",
+            "comment": f"key_definitions too many entries: {len(key_definitions)}",
         }
+    for term, definition in key_definitions.items():
+        if _word_count(definition) > DEFINITION_MAX_WORDS:
+            return {
+                "key": "schema_validity",
+                "score": 0.5,
+                "comment": f"definition too long for term={term!r}",
+            }
 
-    if not _list_of_strings(sketch.get("key_topics")):
-        return {"key": "schema_validity", "score": 0.0, "comment": "key_topics must be non-empty list of strings"}
+    concepts = sketch.get("concepts")
+    if not _list_of_strings(concepts):
+        return {"key": "schema_validity", "score": 0.0, "comment": "concepts must be non-empty list of strings"}
 
-    if not (KEY_TOPICS_MIN <= len(sketch["key_topics"]) <= KEY_TOPICS_MAX):
-        return {
-            "key": "schema_validity",
-            "score": 0.5,
-            "comment": f"key_topics count outside preferred range: {len(sketch['key_topics'])}",
-        }
-
-    if not _list_of_strings(sketch.get("keywords")):
-        return {"key": "schema_validity", "score": 0.0, "comment": "keywords must be non-empty list of strings"}
-
-    if not (KEYWORDS_MIN <= len(sketch["keywords"]) <= KEYWORDS_MAX):
-        return {
-            "key": "schema_validity",
-            "score": 0.5,
-            "comment": f"keywords count outside preferred range: {len(sketch['keywords'])}",
-        }
-
-    structure_notes = sketch.get("structure_notes")
-    if not isinstance(structure_notes, str) or not structure_notes.strip():
-        return {"key": "schema_validity", "score": 0.0, "comment": "structure_notes must be non-empty string"}
-
-    if _word_count(structure_notes) > STRUCTURE_NOTES_MAX_WORDS:
-        return {
-            "key": "schema_validity",
-            "score": 0.5,
-            "comment": f"structure_notes too long: {_word_count(structure_notes)} words",
-        }
+    doc_words = _word_count(str(inputs.get("document_text", "")))
+    if doc_words >= THIN_SOURCE_WORDS:
+        if not (CONCEPTS_MIN <= len(concepts) <= CONCEPTS_MAX):
+            return {
+                "key": "schema_validity",
+                "score": 0.5,
+                "comment": f"concepts count outside preferred range: {len(concepts)} (expected {CONCEPTS_MIN}-{CONCEPTS_MAX})",
+            }
 
     text = _flatten_sketch_text(sketch)
     if _contains_any(text, BANNED_PATTERNS):
@@ -562,23 +541,21 @@ def ncert_source_contract(run, example) -> dict:
     issues = []
     hard = False
 
-    # NCERT sketch should look like a textbook/chapter sketch, not an exam-paper sketch.
-    if _is_exam_paper_like(source_text) and sketch.get("document_type") == "textbook_excerpt":
-        issues.append("exam-paper-like source incorrectly labeled textbook_excerpt")
+    chapter_title = str(sketch.get("chapter_title", ""))
+    if _word_count(doc) >= THIN_SOURCE_WORDS and not chapter_title.strip():
+        issues.append("substantive source missing chapter_title")
+
+    if _is_exam_paper_like(source_text) and _contains_any(sketch_text, {"textbook", "ncert chapter"}):
+        issues.append("exam-paper-like source described as textbook chapter sketch")
         hard = True
 
-    if _is_ncert_like(source_text) and sketch.get("document_type") not in {"textbook_excerpt", "notes", "mixed"}:
-        issues.append(f"NCERT-like source has weak document_type={sketch.get('document_type')!r}")
-
-    # Sketch should preserve NCERT/chapter identity when visible.
-    if _contains_any(source_text, {"ncert", "class 11", "class 12", "class xi", "class xii", "cbse"}):
+    if _is_ncert_like(source_text):
         if not _contains_any(sketch_text, {"ncert", "class", "chapter", "textbook", "cbse"}):
-            issues.append("NCERT/class/chapter identity not reflected")
+            if chapter_title.strip():
+                issues.append("NCERT/class/chapter identity weak in sketch metadata")
 
-    # Title should not be generic.
-    title = str(sketch.get("title", ""))
-    if _norm(title) in GENERIC_TOPICS or _word_count(title) <= 1:
-        issues.append(f"generic_title:{title!r}")
+    if chapter_title.strip() and (_norm(chapter_title) in GENERIC_TOPICS or _word_count(chapter_title) <= 1):
+        issues.append(f"generic_chapter_title:{chapter_title!r}")
 
     if hard:
         return {
@@ -599,7 +576,7 @@ def ncert_source_contract(run, example) -> dict:
     return {
         "key": "ncert_source_contract",
         "score": 1.0,
-        "comment": "NCERT source identity and document_type checks passed",
+        "comment": "NCERT source identity checks passed",
         "hard_rule_violated": False,
     }
 
@@ -630,7 +607,11 @@ def grounded_ncert_sketch(run, example) -> dict:
     issues = []
     hard = False
 
-    overlap = max(_jaccard(sketch_text, allowed), _jaccard(str(sketch.get("summary", "")), allowed))
+    overlap = max(
+        _jaccard(sketch_text, allowed),
+        _jaccard(" ".join(sketch.get("concepts", [])), allowed),
+        _jaccard(" ".join(sketch.get("key_definitions", {}).keys()), allowed),
+    )
 
     if _word_count(doc) >= 20 and overlap < 0.08:
         issues.append(f"weak_source_overlap={overlap:.2f}")
@@ -705,54 +686,68 @@ def syllabus_retrieval_utility(run, example) -> dict:
 
     doc = str(inputs.get("document_text", ""))
     header = str(inputs.get("header", ""))
-    keywords = sketch.get("keywords", [])
-    topics = sketch.get("key_topics", [])
-    summary = str(sketch.get("summary", ""))
-    structure_notes = str(sketch.get("structure_notes", ""))
+    concepts = sketch.get("concepts", [])
+    main_sections = sketch.get("main_sections", [])
+    key_definitions = sketch.get("key_definitions", {})
 
     issues = []
     hard = False
 
-    if not keywords or not topics:
+    if not concepts:
+        if _word_count(doc) >= THIN_SOURCE_WORDS:
+            return {
+                "key": "syllabus_retrieval_utility",
+                "score": 0.0,
+                "comment": "concepts missing on substantive source",
+                "hard_rule_violated": True,
+            }
         return {
             "key": "syllabus_retrieval_utility",
-            "score": 0.0,
-            "comment": "keywords/key_topics missing",
-            "hard_rule_violated": True,
+            "score": 1.0,
+            "comment": "thin/empty source — empty concepts acceptable",
+            "hard_rule_violated": False,
         }
 
-    generic_keywords = [kw for kw in keywords if _norm(kw) in GENERIC_TOPICS or _norm(kw) in GENERIC_WORDS]
-    if len(generic_keywords) >= max(2, len(keywords) // 2):
-        issues.append(f"too_many_generic_keywords:{generic_keywords[:6]}")
+    generic_concepts = [c for c in concepts if _norm(c) in GENERIC_TOPICS or _norm(c) in GENERIC_WORDS]
+    if len(generic_concepts) >= max(2, len(concepts) // 2):
+        issues.append(f"too_many_generic_concepts:{generic_concepts[:6]}")
         hard = True
 
-    unique_keyword_norms = {_norm(k) for k in keywords}
-    if len(unique_keyword_norms) != len(keywords):
-        issues.append("duplicate_keywords")
+    unique_concept_norms = {_norm(c) for c in concepts}
+    if len(unique_concept_norms) != len(concepts):
+        issues.append("duplicate_concepts")
 
-    unique_topic_norms = {_norm(t) for t in topics}
-    if len(unique_topic_norms) != len(topics):
-        issues.append("duplicate_key_topics")
+    unique_section_norms = {_norm(s) for s in main_sections}
+    if len(unique_section_norms) != len(main_sections):
+        issues.append("duplicate_main_sections")
 
     source_scope = header + " " + doc
-    topic_hits = sum(1 for topic in topics if _jaccard(topic, source_scope) >= 0.05 or _norm(topic) in _norm(source_scope))
-    keyword_hits = sum(1 for kw in keywords if _jaccard(kw, source_scope) >= 0.05 or _norm(kw) in _norm(source_scope))
+    concept_hits = sum(
+        1 for concept in concepts
+        if _jaccard(concept, source_scope) >= 0.05 or _norm(concept) in _norm(source_scope)
+    )
+    section_hits = sum(
+        1 for section in main_sections
+        if _jaccard(section, source_scope) >= 0.05 or _norm(section) in _norm(source_scope)
+    )
 
-    if topic_hits < max(2, min(4, len(topics) // 2)):
-        issues.append(f"few_key_topics_trace_to_source:{topic_hits}/{len(topics)}")
+    if concept_hits < max(3, min(7, len(concepts) // 2)):
+        issues.append(f"few_concepts_trace_to_source:{concept_hits}/{len(concepts)}")
 
-    if keyword_hits < max(3, min(7, len(keywords) // 2)):
-        issues.append(f"few_keywords_trace_to_source:{keyword_hits}/{len(keywords)}")
+    if main_sections and section_hits < max(1, min(3, len(main_sections) // 2)):
+        issues.append(f"few_main_sections_trace_to_source:{section_hits}/{len(main_sections)}")
 
     inferred_subject = _infer_subject_text(header, doc)
     if inferred_subject != "unknown":
-        subject_term_hits = sum(1 for term in keywords + topics if _contains_any(term, SUBJECT_HINTS[inferred_subject]))
+        subject_term_hits = sum(
+            1 for term in concepts + list(key_definitions.keys())
+            if _contains_any(term, SUBJECT_HINTS[inferred_subject])
+        )
         if subject_term_hits < 2:
             issues.append(f"retrieval_metadata_not_subject_specific:{inferred_subject}")
 
-    # Sketch should be compact enough to prepend/contextualize chunks.
-    total_words = _word_count(summary) + _word_count(structure_notes) + sum(_word_count(x) for x in topics + keywords)
-    if total_words > 260:
+    total_words = sum(_word_count(x) for x in concepts + main_sections + list(key_definitions.values()))
+    if total_words > 320:
         issues.append(f"sketch_too_verbose_for_contextualization:{total_words}_words")
 
     if hard:
@@ -774,7 +769,7 @@ def syllabus_retrieval_utility(run, example) -> dict:
     return {
         "key": "syllabus_retrieval_utility",
         "score": 1.0,
-        "comment": "NCERT topics/keywords are compact and retrieval-useful",
+        "comment": "NCERT concepts/sections are compact and retrieval-useful",
         "hard_rule_violated": False,
     }
 
@@ -792,26 +787,26 @@ def textbook_structure_alignment(run, example) -> dict:
 
     doc = str(inputs.get("document_text", ""))
     sketch_text = _flatten_sketch_text(sketch)
-    structure = str(sketch.get("structure_notes", ""))
+    main_sections = sketch.get("main_sections", [])
+    sections_text = " ".join(main_sections) if isinstance(main_sections, list) else ""
 
     issues = []
 
     if _contains_any(doc, {"example", "exercise", "activity", "figure", "table", "derivation"}):
-        if not _contains_any(structure, TEXTBOOK_STRUCTURE_CUES):
-            issues.append("source_has_textbook_structure_but_structure_notes_do_not_reflect_it")
+        if not _contains_any(sections_text + " " + sketch_text, TEXTBOOK_STRUCTURE_CUES):
+            issues.append("source_has_textbook_structure_but_main_sections_do_not_reflect_it")
 
     if _contains_any(doc, {"definition", "formula", "theorem", "law", "principle"}):
-        if not _contains_any(sketch_text, {"definition", "formula", "theorem", "law", "principle", "relation"}):
+        defs = sketch.get("key_definitions", {})
+        if not defs and not _contains_any(sketch_text, {"definition", "formula", "theorem", "law", "principle", "relation"}):
             issues.append("conceptual/formula structure missing from sketch")
 
     if _is_exam_paper_like(doc):
-        if sketch.get("document_type") == "textbook_excerpt":
-            issues.append("exam-like source should not be labeled textbook_excerpt")
-        if _contains_any(structure, {"example", "activity", "textbook", "chapter"}):
+        if _contains_any(sections_text, {"example", "activity", "textbook", "chapter"}):
             issues.append("exam-like source structure is described as textbook content")
 
     if issues:
-        hard = any("should not be labeled" in x for x in issues)
+        hard = any("exam-like" in x for x in issues)
         return {
             "key": "textbook_structure_alignment",
             "score": 0.0 if hard else 0.5,
@@ -847,24 +842,32 @@ def no_noise_or_exam_leakage(run, example) -> dict:
     issues = []
     hard = False
 
-    keyword_topic_text = " ".join(sketch.get("keywords", []) + sketch.get("key_topics", [])) if isinstance(sketch.get("keywords"), list) and isinstance(sketch.get("key_topics"), list) else sketch_text
+    key_definitions = sketch.get("key_definitions", {})
+    concept_topic_text = " ".join(
+        (sketch.get("concepts", []) if isinstance(sketch.get("concepts"), list) else [])
+        + list(key_definitions.keys())
+    )
 
-    if _contains_any(keyword_topic_text, FOOTER_NOISE):
+    if _contains_any(concept_topic_text, FOOTER_NOISE):
         issues.append("footer/web/noise token included in retrieval metadata")
         hard = True
 
     doc_is_key = _contains_any(doc, ANSWER_KEY_NOISE)
-    if not doc_is_key and _contains_any(keyword_topic_text, ANSWER_KEY_NOISE):
+    if not doc_is_key and _contains_any(concept_topic_text, ANSWER_KEY_NOISE):
         issues.append("answer-key wording leaked into NCERT retrieval metadata")
         hard = True
 
     # NCERT sketch should not become a generated exam paper sketch unless source is exam-like.
-    if not _is_exam_paper_like(doc) and _contains_any(keyword_topic_text, EXAM_PAPER_CUES):
+    if not _is_exam_paper_like(doc) and _contains_any(concept_topic_text, EXAM_PAPER_CUES):
         issues.append("exam-paper cues leaked into NCERT textbook metadata")
 
-    longest_topic_or_keyword = max([_word_count(x) for x in (sketch.get("key_topics", []) + sketch.get("keywords", []))], default=0)
-    if longest_topic_or_keyword > 12:
-        issues.append(f"topic_or_keyword_too_sentence_like:{longest_topic_or_keyword}_words")
+    concepts = sketch.get("concepts", [])
+    longest = max(
+        [_word_count(x) for x in concepts + list(key_definitions.keys())],
+        default=0,
+    )
+    if longest > 12:
+        issues.append(f"concept_or_term_too_sentence_like:{longest}_words")
 
     if hard:
         return {
@@ -902,24 +905,23 @@ def thin_or_noisy_ncert_behavior(run, example) -> dict:
         return {"key": "thin_or_noisy_ncert_behavior", "score": 0.0, "comment": "sketch_json missing/malformed"}
 
     doc = str(inputs.get("document_text", ""))
-    summary = str(sketch.get("summary", ""))
-    topics = sketch.get("key_topics", [])
-    keywords = sketch.get("keywords", [])
+    concepts = sketch.get("concepts", [])
+    main_sections = sketch.get("main_sections", [])
+    key_definitions = sketch.get("key_definitions", {})
 
     issues = []
 
-    if _word_count(doc) < 45:
-        if _word_count(summary) > 75:
-            issues.append(f"thin_source_summary_too_expansive:{_word_count(summary)}_words")
-        if len(topics) > 5:
-            issues.append(f"thin_source_too_many_topics:{len(topics)}")
-        if len(keywords) > 10:
-            issues.append(f"thin_source_too_many_keywords:{len(keywords)}")
-        if not _contains_any(summary, {"brief", "limited", "available text", "excerpt", "appears"}):
-            issues.append("thin_source_not_marked_as_limited_or_excerpt")
+    if _word_count(doc) < THIN_SOURCE_WORDS:
+        if len(concepts) > 8:
+            issues.append(f"thin_source_too_many_concepts:{len(concepts)}")
+        if len(main_sections) > 6:
+            issues.append(f"thin_source_too_many_sections:{len(main_sections)}")
+        if len(key_definitions) > 6:
+            issues.append(f"thin_source_too_many_definitions:{len(key_definitions)}")
 
     if _contains_any(doc, {"ocr", "unclear", "illegible", "garbled", "scan artifact"}):
-        if not _contains_any(str(sketch.get("structure_notes", "")) + " " + summary, {"ocr", "unclear", "scan", "garbled", "limited"}):
+        sketch_meta = _flatten_sketch_text(sketch)
+        if not _contains_any(sketch_meta, {"ocr", "unclear", "scan", "garbled", "limited", "excerpt"}):
             issues.append("noisy_ocr_source_not_acknowledged")
 
     if issues:

@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUserContext } from '@/contexts/UserContext';
 import { HomeMobileNav } from '@/components/home/HomeMobileNav';
 import {
   AssetsPageHeader,
@@ -19,7 +19,7 @@ import { StudioPreviewProvider } from '@/contexts/StudioPreviewContext';
 function AssetsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isLoaded, isSignedIn } = useUser();
+  const { loading, isSignedIn } = useUserContext();
   const [activeTab, setActiveTab] = useState<AssetsTab>('study-assets');
   const [assetSearch, setAssetSearch] = useState('');
   const [noteSearch, setNoteSearch] = useState('');
@@ -51,10 +51,10 @@ function AssetsPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!loading && !isSignedIn) {
       router.replace('/sign-in');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [loading, isSignedIn, router]);
 
   return (
     <div className="assets-page library-page max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-10">

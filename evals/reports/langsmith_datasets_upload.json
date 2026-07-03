@@ -3,8 +3,8 @@
   "datasets_uploaded": 1,
   "details": [
     {
-      "dataset_name": "nbm-prompt-show_best_approach",
-      "dataset_id": "8dbb9006-8d61-4188-a5d8-2049f04cfaf3",
+      "dataset_name": "nbm-prompt-show_missing_idea",
+      "dataset_id": "e3279f84-2cb5-440f-9526-688e6f941fa3",
       "created": 30,
       "skipped": 0,
       "total": 30,
@@ -12,7 +12,7 @@
       "models": [
         "gpt-5.4",
         "claude-sonnet-4-6",
-        "gemini-3.1-pro"
+        "gemini-3.5-flash"
       ]
     }
   ]

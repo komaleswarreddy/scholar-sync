@@ -14,6 +14,7 @@ export interface HomeSummary {
     subject: string;
     topic: string;
     decay_label: string;
+    starter_prompts?: string[];
   } | null;
   continue_learning: Array<{
     id: string;

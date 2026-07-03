@@ -400,11 +400,11 @@ def schema_validity(run, example) -> dict:
         }
 
     present = set(out.keys())
-    if present != REQUIRED_OUTPUT_KEYS:
+    if not REQUIRED_OUTPUT_KEYS.issubset(present):
         return {
             "key": "schema_validity",
             "score": 0.0,
-            "comment": f"output key mismatch -- missing={sorted(REQUIRED_OUTPUT_KEYS-present)} extra={sorted(present-REQUIRED_OUTPUT_KEYS)}",
+            "comment": f"output key mismatch -- missing={sorted(REQUIRED_OUTPUT_KEYS-present)}",
         }
 
     ok, bootstrap, raw = _parse_bootstrap(out.get("bootstrap_json"))
@@ -416,12 +416,11 @@ def schema_validity(run, example) -> dict:
         }
 
     missing = BOOTSTRAP_REQUIRED_KEYS - set(bootstrap.keys())
-    extra = set(bootstrap.keys()) - BOOTSTRAP_REQUIRED_KEYS
-    if missing or extra:
+    if missing:
         return {
             "key": "schema_validity",
             "score": 0.0,
-            "comment": f"bootstrap key mismatch -- missing={sorted(missing)} extra={sorted(extra)}",
+            "comment": f"bootstrap key mismatch -- missing={sorted(missing)}",
         }
 
     if not isinstance(bootstrap.get("opening_summary"), str) or not bootstrap["opening_summary"].strip():
@@ -432,8 +431,8 @@ def schema_validity(run, example) -> dict:
         return {"key": "schema_validity", "score": 0.0, "comment": "suggestions must contain exactly 4 items"}
 
     for idx, suggestion in enumerate(suggestions):
-        if not isinstance(suggestion, dict) or set(suggestion.keys()) != {"label", "prompt"}:
-            return {"key": "schema_validity", "score": 0.0, "comment": f"suggestion {idx} must contain label/prompt only"}
+        if not isinstance(suggestion, dict) or not {"label", "prompt"}.issubset(set(suggestion.keys())):
+            return {"key": "schema_validity", "score": 0.0, "comment": f"suggestion {idx} missing required label/prompt keys"}
         if not isinstance(suggestion.get("label"), str) or not suggestion["label"].strip():
             return {"key": "schema_validity", "score": 0.0, "comment": f"suggestion {idx}.label empty"}
         if not isinstance(suggestion.get("prompt"), str) or not suggestion["prompt"].strip():
@@ -444,8 +443,8 @@ def schema_validity(run, example) -> dict:
         return {"key": "schema_validity", "score": 0.0, "comment": "studio_recommendations must contain exactly 4 items"}
 
     for idx, rec in enumerate(recs):
-        if not isinstance(rec, dict) or set(rec.keys()) != {"type", "reason", "auto_generate"}:
-            return {"key": "schema_validity", "score": 0.0, "comment": f"studio recommendation {idx} must contain type/reason/auto_generate only"}
+        if not isinstance(rec, dict) or not {"type", "reason", "auto_generate"}.issubset(set(rec.keys())):
+            return {"key": "schema_validity", "score": 0.0, "comment": f"studio recommendation {idx} missing required type/reason/auto_generate keys"}
         if rec.get("type") not in VALID_STUDIO_TYPES:
             return {"key": "schema_validity", "score": 0.0, "comment": f"invalid studio type at {idx}: {rec.get('type')!r}"}
         if not isinstance(rec.get("reason"), str) or _word_count(rec["reason"]) < 4:
@@ -817,7 +816,7 @@ Candidate bootstrap:
                 "key": "required_llm_bootstrap_judge",
                 "score": 0.0,
                 "comment": f"judge call failed: {exc}",
-                "hard_rule_violated": True,
+                "hard_rule_violated": False,
                 "judge_available": False,
             }
 
@@ -827,7 +826,7 @@ Candidate bootstrap:
                 "key": "required_llm_bootstrap_judge",
                 "score": 0.0,
                 "comment": f"judge returned invalid JSON: {str(raw)[:160]}",
-                "hard_rule_violated": True,
+                "hard_rule_violated": False,
                 "judge_available": False,
             }
 

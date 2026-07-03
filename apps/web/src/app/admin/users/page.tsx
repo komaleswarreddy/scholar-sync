@@ -768,19 +768,17 @@ export default function UsersPage() {
       setError(null);
       
       try {
-        
-        // Fetch all users
-        const usersResponse = await apiClient.listAllUsers();
+        const [usersResponse, tokenData, costData, cacheData, latencyData, alertsData] =
+          await Promise.all([
+            apiClient.listAllUsers(),
+            apiClient.getTokenConsumption(30, 'user').catch(() => null),
+            apiClient.getCostTracking(30, true).catch(() => null),
+            apiClient.getCacheEfficiency(30).catch(() => null),
+            apiClient.getLatencyDashboard(30).catch(() => null),
+            apiClient.getAlertsStatus().catch(() => null),
+          ]);
         const usersList = usersResponse.users || [];
         setUsers(usersList);
-
-        const [tokenData, costData, cacheData, latencyData, alertsData] = await Promise.all([
-          apiClient.getTokenConsumption(30, 'user').catch(() => null),
-          apiClient.getCostTracking(30, true).catch(() => null),
-          apiClient.getCacheEfficiency(30).catch(() => null),
-          apiClient.getLatencyDashboard(30).catch(() => null),
-          apiClient.getAlertsStatus().catch(() => null),
-        ]);
         
         // Build analytics for each user
         const analytics: UserAnalytics[] = usersList.map((user: UserData) => {

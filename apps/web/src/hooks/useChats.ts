@@ -25,7 +25,6 @@ export interface ChatMessage {
   content: string;
   citations?: any[];
   created_at: string;
-  feedback?: 'thumbs_up' | 'thumbs_down' | null;
 }
 
 export interface Chat {
@@ -268,78 +267,6 @@ export function useAddMessageToChat() {
     onSuccess: (data, variables) => {
       // Invalidate the chat to refetch with new message
       queryClient.invalidateQueries({ queryKey: chatKeys.detail(variables.chatId) });
-    },
-  });
-}
-
-/**
- * Hook to update message feedback
- */
-export function useUpdateMessageFeedback() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      messageId,
-      feedback,
-    }: {
-      messageId: string;
-      feedback: 'thumbs_up' | 'thumbs_down' | null;
-    }) => {
-      try {
-        const result = await apiClient.updateMessageFeedback(messageId, feedback);
-        return result;
-      } catch (error: any) {
-        const apiError = error.apiError || handleApiError(error);
-        throw new Error(getUserFriendlyMessage(apiError));
-      }
-    },
-    // Optimistic update: update feedback in cache immediately
-    onMutate: async ({ messageId, feedback }) => {
-      // Find all chat queries that might contain this message
-      const queryCache = queryClient.getQueryCache();
-      const chatQueries = queryCache.findAll({ queryKey: chatKeys.details() });
-
-      // Cancel any outgoing refetches
-      await Promise.all(
-        chatQueries.map((query) =>
-          queryClient.cancelQueries({ queryKey: query.queryKey })
-        )
-      );
-
-      // Snapshot previous values
-      const previousChats = chatQueries.map((query) => ({
-        queryKey: query.queryKey,
-        data: query.state.data,
-      }));
-
-      // Optimistically update feedback in all chats
-      chatQueries.forEach((query) => {
-        const chat = query.state.data as Chat | undefined;
-        if (chat?.messages) {
-          const updatedChat: Chat = {
-            ...chat,
-            messages: chat.messages.map((msg) =>
-              msg.id === messageId ? { ...msg, feedback } : msg
-            ),
-          };
-          queryClient.setQueryData(query.queryKey, updatedChat);
-        }
-      });
-
-      return { previousChats };
-    },
-    // If the mutation fails, roll back
-    onError: (err, variables, context) => {
-      if (context?.previousChats) {
-        context.previousChats.forEach(({ queryKey, data }) => {
-          queryClient.setQueryData(queryKey, data);
-        });
-      }
-    },
-    // Always refetch after error or success
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: chatKeys.details() });
     },
   });
 }

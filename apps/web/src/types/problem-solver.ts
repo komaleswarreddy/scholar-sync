@@ -39,6 +39,7 @@ export type ProblemSolverModeResponse = {
   followUpButtons?: ProblemSolverFollowUpButton[];
   finalAnswer?: string | null;
   interactionCount?: number;
+  assistant_message_id?: string;
 };
 
 export type ProblemSolverDna = {
@@ -65,6 +66,7 @@ export type ProblemSolverSession = {
   solving_mode?: SolvingMode | null;
   interaction_count: number;
   last_response?: ProblemSolverModeResponse | null;
+  assistant_message_id?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 };

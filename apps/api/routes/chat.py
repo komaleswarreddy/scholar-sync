@@ -26,11 +26,12 @@ from apps.api.schemas.chat import (
     ChatListResponse,
     MessageResponse,
     MessageCreateRequest,
-    MessageFeedbackRequest,
 )
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from packages.core.services.chat_service import ChatService
+from packages.core.iil.pipeline_hook import schedule_interaction_log
+from packages.core.iil.trace_payload import PipelineTracePayload
 from packages.core.database.models.chat import Chat
 from packages.core.database.models.source import Source
 from packages.core.database.models.ncert_global import NcertGlobalDocument
@@ -39,6 +40,16 @@ from packages.core.services.ncert_global_service import load_ncert_subjects_by_c
 from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
+
+
+def _msg_response(msg) -> MessageResponse:
+    return MessageResponse(
+        id=str(msg.id),
+        role=msg.role,
+        content=msg.content,
+        citations=msg.citations or [],
+        created_at=msg.created_at,
+    )
 
 from packages.core.memory.chat_summary_button import (
     CHAT_SUMMARY_PREFIX as _CHAT_SUMMARY_PREFIX,
@@ -504,31 +515,7 @@ async def get_chat(
         if chat.messages:
             for msg in sorted(chat.messages, key=lambda m: m.created_at):
                 try:
-                    # Safely get feedback - handle case where column might not exist yet
-                    feedback_value = None
-                    try:
-                        feedback_value = getattr(msg, 'feedback', None)
-                    except (AttributeError, KeyError):
-                        # Column doesn't exist in database yet
-                        feedback_value = None
-                    
-                    feedback_reason_value = None
-                    try:
-                        feedback_reason_value = getattr(msg, 'feedback_reason', None)
-                    except (AttributeError, KeyError):
-                        feedback_reason_value = None
-                    
-                    messages.append(
-                        MessageResponse(
-                            id=str(msg.id),
-                            role=msg.role,
-                            content=msg.content,
-                            citations=msg.citations or [],
-                            feedback=feedback_value,
-                            feedback_reason=feedback_reason_value,
-                            created_at=msg.created_at,
-                        )
-                    )
+                    messages.append(_msg_response(msg))
                 except Exception as e:
                     import traceback
                     print(f"[ERROR] Failed to convert message {msg.id if hasattr(msg, 'id') else 'unknown'}: {type(e).__name__}: {str(e)}")
@@ -579,18 +566,7 @@ async def update_chat(
     chat_with_messages = await service.get_chat(chat_id)
     messages = []
     for msg in sorted(chat_with_messages.messages, key=lambda m: m.created_at):
-        feedback_value = getattr(msg, 'feedback', None)
-        messages.append(
-            MessageResponse(
-                id=str(msg.id),
-                role=msg.role,
-                content=msg.content,
-                citations=msg.citations or [],
-                feedback=feedback_value,
-                feedback_reason=getattr(msg, 'feedback_reason', None),
-                created_at=msg.created_at,
-            )
-        )
+        messages.append(_msg_response(msg))
     
     return ChatResponse(
         id=str(chat.id),
@@ -669,16 +645,22 @@ async def add_message(
             ),
             timeout=30.0,
         )
-        
-        return MessageResponse(
-            id=str(message.id),
-            role=message.role,
-            content=message.content,
-            citations=message.citations or [],
-            feedback=message.feedback,
-            feedback_reason=getattr(message, 'feedback_reason', None),
-            created_at=message.created_at,
-        )
+
+        if request_body.role == "assistant":
+            chat_row = await service.get_chat(chat_id)
+            nb_id = str(chat_row.notebook_id) if chat_row and chat_row.notebook_id else None
+            schedule_interaction_log(
+                str(message.id),
+                str(tenant_id),
+                str(user_id),
+                trace=PipelineTracePayload(
+                    query_text="",
+                    citations_count=len(citations_dict),
+                    notebook_id=nb_id,
+                ),
+            )
+
+        return _msg_response(message)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except (OperationalError, DBAPIError, TimeoutError, asyncio.TimeoutError):
@@ -777,52 +759,12 @@ async def summarize_chat_so_far(
             content=summary_content,
             citations=[],
         )
-        return MessageResponse(
-            id=str(saved.id),
-            role=saved.role,
-            content=saved.content,
-            citations=saved.citations or [],
-            feedback=saved.feedback,
-            feedback_reason=getattr(saved, 'feedback_reason', None),
-            created_at=saved.created_at,
+        schedule_interaction_log(
+            str(saved.id),
+            str(tenant_id),
+            str(user_id),
+            trace=PipelineTracePayload(query_text="[summary]", citations_count=0),
         )
+        return _msg_response(saved)
     except Exception as e:
         raise HTTPException(status_code=500, detail=safe_detail(e, "Failed to save summary message"))
-
-
-@router.patch("/messages/{message_id}/feedback", response_model=MessageResponse)
-async def update_message_feedback(
-    message_id: str,
-    request_body: MessageFeedbackRequest,
-    request: Request = None,
-    db: AsyncSession = Depends(get_db),
-):
-    """Update feedback for a message."""
-    tenant_id = request.state.tenant_id
-    user_id = getattr(request.state, "user_id", None)
-    
-    if not user_id:
-        raise HTTPException(status_code=401, detail="User ID required")
-    
-    service = ChatService(db, tenant_id, user_id)
-    try:
-        message = await service.update_message_feedback(
-            message_id=message_id,
-            feedback=request_body.feedback,
-            feedback_reason=request_body.feedback_reason,
-        )
-        
-        if not message:
-            raise HTTPException(status_code=404, detail="Message not found or access denied")
-        
-        return MessageResponse(
-            id=str(message.id),
-            role=message.role,
-            content=message.content,
-            citations=message.citations or [],
-            feedback=message.feedback,
-            feedback_reason=getattr(message, 'feedback_reason', None),
-            created_at=message.created_at,
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))

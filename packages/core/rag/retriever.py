@@ -517,6 +517,26 @@ class Retriever:
         merged = self._merge_scored_matches(hybrid_matches, global_hybrid)
         print(f"[TUTOR_MERGE_COMPLETE] Merged {len(hybrid_matches)} primary + {len(global_hybrid)} NCERT = {len(merged)} total matches")
         return merged
+
+    async def _maybe_blend_derived(
+        self,
+        matches: List[Dict[str, Any]],
+        query: Optional[str],
+        *,
+        concept_node_id: Optional[str] = None,
+    ) -> tuple[List[Dict[str, Any]], bool]:
+        """Blend curated derived artifacts into KB matches when IIL is enabled."""
+        if not getattr(settings, "IIL_ENABLED", False) or not (query or "").strip():
+            return matches, False
+        derived = await retrieve_derived_knowledge(
+            self.tenant_id,
+            query,
+            concept_node_id=concept_node_id,
+            top_k=max(2, round(len(matches) * settings.IIL_BLENDING_DERIVED_WEIGHT)) if matches else 4,
+        )
+        if not derived:
+            return matches, False
+        return blend_retrieval_results(matches, derived), True
     
     async def retrieve(
         self,
@@ -679,6 +699,12 @@ class Retriever:
                 "count": len(matches),
                 "ids": [m.get("id") for m in matches]
             }
+            blended, derived_hit = await self._maybe_blend_derived(matches, query)
+            if derived_hit:
+                matches = blended
+                results["matches"] = matches
+                results["derived_hit"] = True
+                debug_trace["guardrails_applied"].append("derived_knowledge_blended")
             if settings.RAG_DEBUG:
                 results["debug_trace"] = debug_trace
             # Metadata for downstream (e.g. chat generator prompt) — simple path has no scope/rewrite
@@ -1576,6 +1602,15 @@ class Retriever:
             text_preview = (chunk_meta.get("text", "")[:100] + "...") if chunk_meta.get("text") else "NO TEXT"
             print(f"  [{i}] source_id={source_id} | chunk_id={chunk_id} | text={text_preview}")
         
+        blended, derived_hit = await self._maybe_blend_derived(
+            selected_matches,
+            query or focused_query,
+            concept_node_id=ncert_concept,
+        )
+        if derived_hit:
+            selected_matches = blended
+            debug_trace["guardrails_applied"].append("derived_knowledge_blended")
+
         # Return results in expected format
         result = {
             "matches": selected_matches,
@@ -1584,11 +1619,13 @@ class Retriever:
             "key_terms": key_terms,
             "focused_query": focused_query,
             "rewritten_queries": rewritten_queries,
+            "derived_hit": derived_hit,
             "metadata": {
                 "total_retrieved": len(hybrid_matches),
                 "after_mmr": len(diverse_matches),
                 "after_reranking": len(reranked_matches),
                 "final_selected": len(selected_matches),
+                "derived_hit": derived_hit,
             }
         }
         
@@ -1597,3 +1634,61 @@ class Retriever:
             result["debug_trace"] = debug_trace
         
         return result
+
+
+async def retrieve_derived_knowledge(
+    tenant_id: str,
+    query: str,
+    *,
+    concept_node_id: Optional[str] = None,
+    top_k: int = 4,
+) -> List[Dict[str, Any]]:
+    """Retrieve curated derived artifacts from tenant derived Pinecone namespace."""
+    if not settings.PINECONE_API_KEY or not query.strip():
+        return []
+    try:
+        from packages.core.iil.derived_embedder import derived_namespace_for_tenant
+
+        embedder = Embedder(tenant_id)
+        vector = await embedder.generate_embedding(query[:2000])
+        if not vector:
+            return []
+        store = PineconeVectorStore(
+            tenant_id,
+            namespace_override=derived_namespace_for_tenant(tenant_id),
+        )
+        filt: Dict[str, Any] = {"source_type": "derived"}
+        if concept_node_id:
+            filt["concept_node_id"] = concept_node_id
+        results = await store.query_vectors(vector=vector, top_k=top_k, filter=filt)
+        matches = []
+        for m in results.get("matches", []):
+            meta = m.get("metadata") or {}
+            matches.append({
+                "id": m.get("id"),
+                "score": m.get("score", 0),
+                "metadata": {**meta, "source_type": "derived"},
+                "text": meta.get("text") or meta.get("content") or "",
+            })
+        return matches
+    except Exception as exc:
+        print(f"[IIL] derived retrieval failed: {exc}")
+        return []
+
+
+def blend_retrieval_results(
+    kb_matches: List[Dict[str, Any]],
+    derived_matches: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """Weighted merge: default 70% KB slots, 30% derived (spec §4.7)."""
+    if not derived_matches:
+        return kb_matches
+    if not kb_matches:
+        return derived_matches
+    kb_w = settings.IIL_BLENDING_KB_WEIGHT
+    derived_w = settings.IIL_BLENDING_DERIVED_WEIGHT
+    total = max(kb_w + derived_w, 0.01)
+    kb_slots = min(len(kb_matches), max(1, round(len(kb_matches) * kb_w / total)))
+    derived_slots = min(len(derived_matches), max(1, round(len(derived_matches) * derived_w / total)))
+    merged = list(kb_matches[:kb_slots]) + list(derived_matches[:derived_slots])
+    return merged

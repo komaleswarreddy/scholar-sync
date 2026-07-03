@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUserContext } from '@/contexts/UserContext';
 import {
   HomeHero,
   QuickActionCard,
@@ -15,12 +15,13 @@ import {
 import { CreateNotebookPopover } from '@/components/home/CreateNotebookPopover';
 import { HomeOverviewSkeleton } from '@/components/skeleton';
 import { useHomeSummary } from '@/hooks/useHomeSummary';
+import { profileGreetingName } from '@/lib/profile-utils';
 import { mapHomeOverviewMetrics } from '@/lib/home-mapper';
 import { track } from '@/lib/telemetry';
 
 export default function HomeLandingPage() {
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useUserContext();
   const [createPopoverOpen, setCreatePopoverOpen] = useState(false);
   const { data: homeSummary, isLoading: homeLoading } = useHomeSummary();
 
@@ -28,14 +29,7 @@ export default function HomeLandingPage() {
     track('home.viewed');
   }, []);
 
-  const firstName = useMemo(() => {
-    return (
-      user?.firstName ||
-      user?.fullName?.split(' ')[0] ||
-      user?.primaryEmailAddress?.emailAddress?.split('@')[0] ||
-      'there'
-    );
-  }, [user]);
+  const firstName = useMemo(() => profileGreetingName(user), [user]);
 
   const overviewMetrics = useMemo(
     () => (homeSummary ? mapHomeOverviewMetrics(homeSummary) : []),

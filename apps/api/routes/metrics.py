@@ -20,8 +20,12 @@ from packages.core.monitoring.metrics import get_metrics_collector
 from packages.core.monitoring.alerts import get_alert_manager
 from packages.core.guardrails.cost_manager import get_cost_manager
 from packages.core.database.models.chat import Message, Chat
+from packages.core.database.models.iil import CurationCandidate, DerivedKnowledgeArtifact, InteractionFeedback, InteractionLog
 
 router = APIRouter()
+
+_IIL_POSITIVE_SIGNALS = frozenset({"helpful", "expert_validated"})
+_IIL_NEGATIVE_SIGNALS = frozenset({"not_helpful", "inaccurate"})
 
 _AGENT_CATALOG: Dict[str, Dict[str, str]] = {
     # Generation agents: use llm_client.generate() to produce user-facing or intermediate text.
@@ -351,7 +355,7 @@ async def debug_rag_quality(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
-    """Debug endpoint to check if feedback is being saved correctly."""
+    """Debug endpoint to check if IIL feedback is being saved correctly."""
     tenant_id = request.state.tenant_id
     
     if not tenant_id:
@@ -359,46 +363,36 @@ async def debug_rag_quality(
     
     tenant_uuid = uuid.UUID(tenant_id)
     
-    # Get all messages with feedback (no date filter)
     result = await db.execute(
         select(
-            Message.id,
-            Message.feedback,
-            Message.role,
-            Message.created_at,
-            Chat.tenant_id,
+            InteractionFeedback.id,
+            InteractionFeedback.signal_type,
+            InteractionFeedback.user_tier,
+            InteractionFeedback.created_at,
         )
-        .join(Chat)
-        .where(
-            and_(
-                Chat.tenant_id == tenant_uuid,
-                Message.feedback.isnot(None),
-            )
-        )
-        .order_by(Message.created_at.desc())
+        .where(InteractionFeedback.tenant_id == tenant_uuid)
+        .order_by(InteractionFeedback.created_at.desc())
         .limit(20)
     )
     
-    messages = result.all()
+    rows = result.all()
     
-    # Count by feedback type
-    feedback_counts = {}
-    for msg in messages:
-        feedback = msg.feedback
-        feedback_counts[feedback] = feedback_counts.get(feedback, 0) + 1
+    feedback_counts: Dict[str, int] = {}
+    for row in rows:
+        feedback_counts[row.signal_type] = feedback_counts.get(row.signal_type, 0) + 1
     
     return {
         "tenant_id": tenant_id,
-        "total_messages_with_feedback": len(messages),
+        "total_feedback_rows": len(rows),
         "feedback_counts": feedback_counts,
-        "recent_messages": [
+        "recent_feedback": [
             {
-                "id": str(msg.id),
-                "feedback": msg.feedback,
-                "role": msg.role,
-                "created_at": msg.created_at.isoformat() if msg.created_at else None,
+                "id": str(row.id),
+                "signal_type": row.signal_type,
+                "user_tier": row.user_tier,
+                "created_at": row.created_at.isoformat() if row.created_at else None,
             }
-            for msg in messages
+            for row in rows
         ]
     }
 
@@ -410,195 +404,158 @@ async def get_rag_quality_dashboard(
     days: int = Query(7, description="Number of days to analyze"),
 ):
     """
-    RAG Quality Dashboard - Shows hallucination rate and quality metrics.
+    RAG Quality Dashboard — aggregates IIL InteractionFeedback signals.
     
     Calculates:
-    - Hallucination rate (thumbs_down / total feedback)
-    - Positive feedback rate (thumbs_up / total feedback)
-    - Total messages with feedback
+    - Hallucination rate (not_helpful + inaccurate / total)
+    - Positive feedback rate (helpful + expert_validated / total)
+    - Total feedback signals
     - Quality trends over time
     """
     tenant_id = request.state.tenant_id
     user_id = getattr(request.state, "user_id", None)
+    
+    empty_summary = {
+        "total_feedback": 0,
+        "helpful": 0,
+        "not_helpful": 0,
+        "inaccurate": 0,
+        "thumbs_up": 0,
+        "thumbs_down": 0,
+        "hallucination_rate": 0.0,
+        "positive_rate": 0.0,
+    }
     
     if not tenant_id:
         return {
             "tenant_id": None,
             "user_id": user_id,
             "period_days": days,
-            "summary": {
-                "total_feedback": 0,
-                "thumbs_up": 0,
-                "thumbs_down": 0,
-                "hallucination_rate": 0.0,
-                "positive_rate": 0.0,
-            },
+            "summary": empty_summary,
             "daily_breakdown": [],
             "error": "Tenant ID not found"
         }
     
     tenant_uuid = uuid.UUID(tenant_id)
-    
-    # Calculate date range - use timezone-aware datetime
-    # Add a small buffer to ensure we catch messages created "today"
-    end_date = datetime.utcnow() + timedelta(hours=1)  # Add 1 hour buffer
+    end_date = datetime.utcnow() + timedelta(hours=1)
     start_date = end_date - timedelta(days=days)
     
-    # Query messages with feedback
-    # First, let's also get a count of all messages to debug
-    query_conditions = [
-        Chat.tenant_id == tenant_uuid,
-        Message.role == 'assistant',
-    ]
+    base_conditions = [InteractionFeedback.tenant_id == tenant_uuid]
     if user_id:
-        query_conditions.append(Chat.user_id == user_id)
+        base_conditions.append(InteractionFeedback.user_id == str(user_id))
     
     try:
-        debug_result = await db.execute(
-            select(func.count(Message.id))
-            .join(Chat)
-            .where(and_(*query_conditions))
-        )
-        total_assistant_messages = debug_result.scalar() or 0
-        
-        feedback_count_result = await db.execute(
-            select(func.count(Message.id))
-            .join(Chat)
-            .where(
-                and_(
-                    *query_conditions,
-                    Message.feedback.isnot(None),
-                )
+        total_feedback = int(
+            await db.scalar(
+                select(func.count(InteractionFeedback.id)).where(and_(*base_conditions))
             )
+            or 0
         )
-        total_with_feedback = feedback_count_result.scalar() or 0
     except Exception as e:
         if _is_db_unavailable_error(e):
-            print(f"[RAG_QUALITY] DB unavailable; returning empty fallback: {e}")
             return {
                 "tenant_id": tenant_id,
                 "user_id": user_id,
                 "period_days": days,
-                "summary": {
-                    "total_feedback": 0,
-                    "thumbs_up": 0,
-                    "thumbs_down": 0,
-                    "hallucination_rate": 0.0,
-                    "positive_rate": 0.0,
-                },
+                "summary": empty_summary,
                 "daily_breakdown": [],
             }
         raise
     
-    print(f"[RAG_QUALITY] Tenant: {tenant_id}, User: {user_id}, Total assistant messages: {total_assistant_messages}, Messages with feedback: {total_with_feedback}")
-    
-    # Query with date filter - use CAST to date for timezone-safe date extraction
-    date_query_conditions = [
-        Chat.tenant_id == tenant_uuid,
-        Message.role == 'assistant',
-        Message.feedback.isnot(None),
-        Message.created_at >= start_date,
-        Message.created_at <= end_date
+    date_conditions = [
+        *base_conditions,
+        InteractionFeedback.created_at >= start_date,
+        InteractionFeedback.created_at <= end_date,
     ]
-    if user_id:
-        date_query_conditions.append(Chat.user_id == user_id)
     
     try:
         result = await db.execute(
             select(
-                Message.feedback,
-                func.count(Message.id).label('count'),
-                func.date(Message.created_at).label('date')
+                InteractionFeedback.signal_type,
+                func.count(InteractionFeedback.id).label("count"),
+                func.date(InteractionFeedback.created_at).label("date"),
             )
-            .join(Chat)
-            .where(and_(*date_query_conditions))
-            .group_by(Message.feedback, func.date(Message.created_at))
+            .where(and_(*date_conditions))
+            .group_by(InteractionFeedback.signal_type, func.date(InteractionFeedback.created_at))
         )
-        
         feedback_data = result.all()
     except Exception as e:
         if _is_db_unavailable_error(e):
-            print(f"[RAG_QUALITY] DB unavailable during date-range query; returning empty fallback: {e}")
             return {
                 "tenant_id": tenant_id,
                 "user_id": user_id,
                 "period_days": days,
-                "summary": {
-                    "total_feedback": 0,
-                    "thumbs_up": 0,
-                    "thumbs_down": 0,
-                    "hallucination_rate": 0.0,
-                    "positive_rate": 0.0,
-                },
+                "summary": empty_summary,
                 "daily_breakdown": [],
             }
         raise
-    print(f"[RAG_QUALITY] Found {len(feedback_data)} feedback rows in date range ({start_date} to {end_date})")
     
-    # If no data in date range, try without date filter to see if there's any feedback at all
-    if len(feedback_data) == 0 and total_with_feedback > 0:
-        print(f"[RAG_QUALITY] WARNING: No feedback in date range, but {total_with_feedback} messages have feedback. Date range might be too restrictive.")
-        # Try querying without date filter to get all feedback
-        no_date_query_conditions = [
-            Chat.tenant_id == tenant_uuid,
-            Message.role == 'assistant',
-            Message.feedback.isnot(None),
-        ]
-        if user_id:
-            no_date_query_conditions.append(Chat.user_id == user_id)
-        
+    if len(feedback_data) == 0 and total_feedback > 0:
         result_all = await db.execute(
             select(
-                Message.feedback,
-                func.count(Message.id).label('count'),
-                func.date(Message.created_at).label('date')
+                InteractionFeedback.signal_type,
+                func.count(InteractionFeedback.id).label("count"),
+                func.date(InteractionFeedback.created_at).label("date"),
             )
-            .join(Chat)
-            .where(and_(*no_date_query_conditions))
-            .group_by(Message.feedback, func.date(Message.created_at))
+            .where(and_(*base_conditions))
+            .group_by(InteractionFeedback.signal_type, func.date(InteractionFeedback.created_at))
         )
         feedback_data = result_all.all()
-        print(f"[RAG_QUALITY] Found {len(feedback_data)} feedback rows without date filter")
     
-    # Calculate totals
-    total_feedback = 0
-    thumbs_up = 0
-    thumbs_down = 0
-    
-    # Daily breakdown
-    daily_stats = {}
+    helpful = 0
+    not_helpful = 0
+    inaccurate = 0
+    total_in_period = 0
+    daily_stats: Dict[str, Dict[str, int]] = {}
     
     for row in feedback_data:
-        feedback_type = row.feedback
-        count = row.count
+        signal = row.signal_type
+        count = int(row.count or 0)
         date = row.date.isoformat() if row.date else None
+        total_in_period += count
         
-        total_feedback += count
+        if signal in _IIL_POSITIVE_SIGNALS:
+            helpful += count
+        elif signal == "not_helpful":
+            not_helpful += count
+        elif signal == "inaccurate":
+            inaccurate += count
         
-        if feedback_type == 'thumbs_up':
-            thumbs_up += count
-        elif feedback_type == 'thumbs_down':
-            thumbs_down += count
-        
-        # Daily stats
         if date:
             if date not in daily_stats:
-                daily_stats[date] = {'thumbs_up': 0, 'thumbs_down': 0, 'total': 0}
-            daily_stats[date][feedback_type] = count
-            daily_stats[date]['total'] += count
+                daily_stats[date] = {
+                    "helpful": 0,
+                    "not_helpful": 0,
+                    "inaccurate": 0,
+                    "total": 0,
+                    "thumbs_up": 0,
+                    "thumbs_down": 0,
+                }
+            daily_stats[date]["total"] += count
+            if signal in _IIL_POSITIVE_SIGNALS:
+                daily_stats[date]["helpful"] += count
+                daily_stats[date]["thumbs_up"] += count
+            elif signal in _IIL_NEGATIVE_SIGNALS:
+                if signal == "not_helpful":
+                    daily_stats[date]["not_helpful"] += count
+                else:
+                    daily_stats[date]["inaccurate"] += count
+                daily_stats[date]["thumbs_down"] += count
     
-    # Calculate rates
-    hallucination_rate = thumbs_down / total_feedback if total_feedback > 0 else 0.0
-    positive_rate = thumbs_up / total_feedback if total_feedback > 0 else 0.0
+    negative_total = not_helpful + inaccurate
+    hallucination_rate = negative_total / total_in_period if total_in_period > 0 else 0.0
+    positive_rate = helpful / total_in_period if total_in_period > 0 else 0.0
     
-    # Convert daily stats to list
     daily_breakdown = [
         {
-            'date': date,
-            'thumbs_up': stats['thumbs_up'],
-            'thumbs_down': stats['thumbs_down'],
-            'total': stats['total'],
-            'hallucination_rate': stats['thumbs_down'] / stats['total'] if stats['total'] > 0 else 0.0
+            "date": date,
+            "helpful": stats["helpful"],
+            "not_helpful": stats["not_helpful"],
+            "inaccurate": stats["inaccurate"],
+            "thumbs_up": stats["thumbs_up"],
+            "thumbs_down": stats["thumbs_down"],
+            "total": stats["total"],
+            "hallucination_rate": stats["thumbs_down"] / stats["total"] if stats["total"] > 0 else 0.0,
         }
         for date, stats in sorted(daily_stats.items())
     ]
@@ -608,9 +565,12 @@ async def get_rag_quality_dashboard(
         "user_id": user_id,
         "period_days": days,
         "summary": {
-            "total_feedback": total_feedback,
-            "thumbs_up": thumbs_up,
-            "thumbs_down": thumbs_down,
+            "total_feedback": total_in_period,
+            "helpful": helpful,
+            "not_helpful": not_helpful,
+            "inaccurate": inaccurate,
+            "thumbs_up": helpful,
+            "thumbs_down": negative_total,
             "hallucination_rate": round(hallucination_rate, 4),
             "positive_rate": round(positive_rate, 4),
         },
@@ -1709,4 +1669,108 @@ async def reset_all_metrics(
         "metrics": metrics_result,
         "alerts": alerts_result,
         "message": "All metrics and alerts have been reset"
+    }
+
+
+@router.get("/iil-dashboard")
+async def get_iil_dashboard(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    days: int = Query(7, description="Lookback window in days"),
+):
+    """IIL flywheel observability: logs, feedback, curation, derived retrieval."""
+    from config.settings import settings
+
+    tenant_id = request.state.tenant_id
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID not found")
+
+    tenant_uuid = uuid.UUID(tenant_id)
+    end_date = datetime.utcnow() + timedelta(hours=1)
+    start_date = end_date - timedelta(days=days)
+
+    log_count = int(
+        await db.scalar(
+            select(func.count(InteractionLog.id)).where(
+                InteractionLog.tenant_id == tenant_uuid,
+                InteractionLog.created_at >= start_date,
+            )
+        )
+        or 0
+    )
+    derived_hits = int(
+        await db.scalar(
+            select(func.count(InteractionLog.id)).where(
+                InteractionLog.tenant_id == tenant_uuid,
+                InteractionLog.derived_hit.is_(True),
+                InteractionLog.created_at >= start_date,
+            )
+        )
+        or 0
+    )
+    feedback_count = int(
+        await db.scalar(
+            select(func.count(InteractionFeedback.id)).where(
+                InteractionFeedback.tenant_id == tenant_uuid,
+                InteractionFeedback.created_at >= start_date,
+            )
+        )
+        or 0
+    )
+    pending_candidates = int(
+        await db.scalar(
+            select(func.count(CurationCandidate.id)).where(
+                CurationCandidate.tenant_id == tenant_uuid,
+                CurationCandidate.status == "pending",
+            )
+        )
+        or 0
+    )
+    active_artifacts = int(
+        await db.scalar(
+            select(func.count(DerivedKnowledgeArtifact.id)).where(
+                DerivedKnowledgeArtifact.tenant_id == tenant_uuid,
+                DerivedKnowledgeArtifact.is_active.is_(True),
+            )
+        )
+        or 0
+    )
+
+    derived_hit_rate = derived_hits / log_count if log_count > 0 else 0.0
+    alerts: List[Dict[str, Any]] = []
+    if pending_candidates > 50:
+        alerts.append(
+            {
+                "level": "warning",
+                "key": "curation_backlog",
+                "message": f"{pending_candidates} curation candidates pending review",
+            }
+        )
+    if log_count > 0 and derived_hit_rate < 0.02 and active_artifacts > 0:
+        alerts.append(
+            {
+                "level": "info",
+                "key": "low_derived_utilization",
+                "message": "Derived artifacts exist but derived_hit rate is below 2%",
+            }
+        )
+    if not settings.IIL_ENABLED:
+        alerts.append(
+            {
+                "level": "warning",
+                "key": "iil_disabled",
+                "message": "IIL_ENABLED is false — flywheel is paused",
+            }
+        )
+
+    return {
+        "tenant_id": tenant_id,
+        "period_days": days,
+        "interaction_logs": log_count,
+        "derived_hits": derived_hits,
+        "derived_hit_rate": round(derived_hit_rate, 4),
+        "feedback_signals": feedback_count,
+        "pending_curation_candidates": pending_candidates,
+        "active_derived_artifacts": active_artifacts,
+        "alerts": alerts,
     }

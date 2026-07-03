@@ -6,12 +6,12 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MessageCircle, User, Copy, Check, Bookmark, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useState } from 'react';
+import { MessageCircle, User, Copy, Check, Bookmark } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { RichMarkdown } from '@/components/common/RichMarkdown';
-import { NotebookDislikeReasonModal } from './NotebookDislikeReasonModal';
+import { MessageFeedbackBar } from '@/components/feedback/MessageFeedbackBar';
 
 /** Remove citation UI noise and trailing suggested-question sections from model text. */
 export function displayAssistantText(raw: string): string {
@@ -43,12 +43,7 @@ interface ChatMessageProps {
   citations?: Citation[];
   timestamp?: string;
   messageId?: string;
-  feedback?: 'thumbs_up' | 'thumbs_down' | null;
-  onFeedbackUpdate?: (
-    messageId: string,
-    feedback: 'thumbs_up' | 'thumbs_down' | null,
-    feedbackReason?: string | null
-  ) => void;
+  onFeedbackUpdate?: (messageId: string) => void;
   question?: string;
   followUps?: string[];
   followUpsLoading?: boolean;
@@ -64,7 +59,6 @@ export function ChatMessage({
   citations: _citations = [],
   timestamp,
   messageId,
-  feedback: initialFeedback,
   onFeedbackUpdate,
   question: _question,
   followUps = [],
@@ -77,12 +71,6 @@ export function ChatMessage({
   const [copySuccess, setCopySuccess] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [feedback, setFeedback] = useState<'thumbs_up' | 'thumbs_down' | null>(initialFeedback || null);
-  const [dislikeModalOpen, setDislikeModalOpen] = useState(false);
-
-  useEffect(() => {
-    setFeedback(initialFeedback || null);
-  }, [initialFeedback, messageId]);
 
   const textForUser = role === 'assistant' ? displayAssistantText(content) : content;
 
@@ -121,77 +109,6 @@ export function ChatMessage({
       alert(errorMessage);
     } finally {
       setIsSavingNote(false);
-    }
-  };
-
-  // Thumbs Up/Down feedback functionality
-  const handleFeedback = async (newFeedback: 'thumbs_up' | 'thumbs_down') => {
-    if (!messageId) {
-      console.error('Cannot update feedback: messageId is required');
-      return;
-    }
-
-    // Toggle feedback: if clicking the same button, remove feedback
-    const updatedFeedback = feedback === newFeedback ? null : newFeedback;
-    
-    try {
-      setFeedback(updatedFeedback);
-      
-      // Call backend to update feedback
-      await apiClient.updateMessageFeedback(messageId, updatedFeedback);
-      
-      // Notify parent component if callback provided
-      if (onFeedbackUpdate) {
-        onFeedbackUpdate(messageId, updatedFeedback, null);
-      }
-    } catch (error: any) {
-      console.error('Failed to update feedback:', error);
-      // Revert on error
-      setFeedback(feedback);
-      // Use standardized error handling
-      const apiError = error.apiError || handleApiError(error);
-      const errorMessage = getUserFriendlyMessage(apiError);
-      // Show error in a user-friendly way (could be improved with toast notification)
-      alert(errorMessage);
-    }
-  };
-
-  const handleNotebookThumbsUp = async () => {
-    if (!messageId) return;
-    const updatedFeedback = feedback === 'thumbs_up' ? null : 'thumbs_up';
-    const previous = feedback;
-    try {
-      setFeedback(updatedFeedback);
-      await apiClient.updateMessageFeedback(messageId, updatedFeedback);
-      onFeedbackUpdate?.(messageId, updatedFeedback, null);
-    } catch (error: unknown) {
-      setFeedback(previous);
-      const apiError = (error as { apiError?: ReturnType<typeof handleApiError> }).apiError || handleApiError(error);
-      alert(getUserFriendlyMessage(apiError));
-    }
-  };
-
-  const handleNotebookThumbsDownClick = () => {
-    if (!messageId) return;
-    if (feedback === 'thumbs_down') {
-      void handleNotebookDislikeSubmit(null);
-      return;
-    }
-    setDislikeModalOpen(true);
-  };
-
-  const handleNotebookDislikeSubmit = async (reason: string | null) => {
-    if (!messageId) return;
-    const updatedFeedback = reason ? 'thumbs_down' : null;
-    const previous = feedback;
-    try {
-      setFeedback(updatedFeedback);
-      await apiClient.updateMessageFeedback(messageId, updatedFeedback, reason ?? undefined);
-      onFeedbackUpdate?.(messageId, updatedFeedback, reason);
-    } catch (error: unknown) {
-      setFeedback(previous);
-      const apiError = (error as { apiError?: ReturnType<typeof handleApiError> }).apiError || handleApiError(error);
-      throw new Error(getUserFriendlyMessage(apiError));
     }
   };
 
@@ -292,41 +209,10 @@ export function ChatMessage({
                 >
                   {copySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => void handleNotebookThumbsUp()}
-                  disabled={!messageId}
-                  className={`notebook-message-action-btn ${
-                    feedback === 'thumbs_up' ? 'notebook-message-action-btn--active' : ''
-                  }`}
-                  title={feedback === 'thumbs_up' ? 'Remove like' : 'Like'}
-                  aria-label={feedback === 'thumbs_up' ? 'Remove like' : 'Like response'}
-                  aria-pressed={feedback === 'thumbs_up'}
-                >
-                  <ThumbsUp
-                    className="w-4 h-4 notebook-feedback-icon"
-                    fill={feedback === 'thumbs_up' ? 'currentColor' : 'none'}
-                    strokeWidth={feedback === 'thumbs_up' ? 0 : 2}
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNotebookThumbsDownClick}
-                  disabled={!messageId}
-                  className={`notebook-message-action-btn ${
-                    feedback === 'thumbs_down' ? 'notebook-message-action-btn--active' : ''
-                  }`}
-                  title={feedback === 'thumbs_down' ? 'Remove dislike' : 'Dislike'}
-                  aria-label={feedback === 'thumbs_down' ? 'Remove dislike' : 'Dislike response'}
-                  aria-pressed={feedback === 'thumbs_down'}
-                >
-                  <ThumbsDown
-                    className="w-4 h-4 notebook-feedback-icon"
-                    fill={feedback === 'thumbs_down' ? 'currentColor' : 'none'}
-                    strokeWidth={feedback === 'thumbs_down' ? 0 : 2}
-                  />
-                </button>
               </div>
+            )}
+            {showActions && messageId && (
+              <MessageFeedbackBar messageId={messageId} compact />
             )}
             {showActions && followUpsLoading && onFollowUpClick && (
               <div className="notebook-follow-up-chips" aria-busy="true" aria-label="Loading follow-up suggestions">
@@ -351,13 +237,6 @@ export function ChatMessage({
             )}
           </div>
         </div>
-        <NotebookDislikeReasonModal
-          open={dislikeModalOpen}
-          onClose={() => setDislikeModalOpen(false)}
-          onSubmit={async (reason) => {
-            await handleNotebookDislikeSubmit(reason);
-          }}
-        />
       </>
     );
   }
@@ -411,41 +290,13 @@ export function ChatMessage({
               </>
             )}
           </button>
-          {/* Thumbs Up/Down Feedback - Show for all assistant messages */}
-          {role === 'assistant' && (
-            <>
-              <button
-                onClick={() => handleFeedback('thumbs_up')}
-                className={`p-1.5 rounded-full transition-colors ${
-                  feedback === 'thumbs_up'
-                    ? 'bg-accent-blue/20 text-accent-blue'
-                    : 'hover:bg-surface-hover text-text-secondary'
-                }`}
-                title={feedback === 'thumbs_up' ? 'Remove thumbs up' : 'Thumbs up'}
-                aria-label={feedback === 'thumbs_up' ? 'Remove thumbs up feedback' : 'Give thumbs up feedback'}
-                disabled={!messageId}
-              >
-                <ThumbsUp className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleFeedback('thumbs_down')}
-                className={`p-1.5 rounded-full transition-colors ${
-                  feedback === 'thumbs_down'
-                    ? 'bg-red-500/20 text-red-500'
-                    : 'hover:bg-surface-hover text-text-secondary'
-                }`}
-                title={feedback === 'thumbs_down' ? 'Remove thumbs down' : 'Thumbs down'}
-                aria-label={feedback === 'thumbs_down' ? 'Remove thumbs down feedback' : 'Give thumbs down feedback'}
-                disabled={!messageId}
-              >
-                <ThumbsDown className="w-4 h-4" />
-              </button>
-            </>
-          )}
           {timestamp && (
             <p className="text-xs text-text-tertiary">{timestamp}</p>
           )}
         </div>
+        {messageId && showActions && (
+          <MessageFeedbackBar messageId={messageId} />
+        )}
       </div>
     </div>
   );

@@ -99,23 +99,12 @@ class ChatUpdateRequest(BaseModel):
     title: Optional[str] = Field(None, description="Chat title")
 
 
-class MessageFeedbackRequest(BaseModel):
-    """Request to update message feedback."""
-    feedback: Optional[str] = Field(None, description="Feedback: 'thumbs_up', 'thumbs_down', or None")
-    feedback_reason: Optional[str] = Field(
-        None,
-        description="Required when feedback is thumbs_down; cleared otherwise.",
-    )
-
-
 class MessageResponse(BaseModel):
     """Response schema for a message."""
     id: str
     role: str
     content: str
     citations: List[Citation] = Field(default=[])
-    feedback: Optional[str] = Field(None, description="User feedback: 'thumbs_up', 'thumbs_down', or None")
-    feedback_reason: Optional[str] = Field(None, description="Reason when feedback is thumbs_down")
     created_at: datetime
 
     class Config:

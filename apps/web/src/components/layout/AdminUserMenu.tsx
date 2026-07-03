@@ -1,15 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { LogOut, ChevronDown, Shield } from 'lucide-react';
-import { apiClient } from '@/lib/api-client';
-import { clearAdminSession } from '@/lib/admin-auth';
+import { useUserContext } from '@/contexts/UserContext';
+import { getStoredPlatformUser } from '@/lib/platform-auth';
 
 export function AdminUserMenu() {
-  const router = useRouter();
+  const { signOut } = useUserContext();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const displayLabel =
+    getStoredPlatformUser()?.username ||
+    getStoredPlatformUser()?.email ||
+    'School admin';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -21,11 +24,9 @@ export function AdminUserMenu() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  const handleExitAdmin = () => {
+  const handleSignOut = () => {
     setIsOpen(false);
-    clearAdminSession();
-    apiClient.clearAuthSession();
-    router.push('/admin/login');
+    void signOut();
   };
 
   return (
@@ -39,7 +40,7 @@ export function AdminUserMenu() {
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent-blue/10 text-accent-blue">
           <Shield className="h-4 w-4" />
         </span>
-        <span className="hidden sm:inline max-w-[140px] truncate">sync@gmail.com</span>
+        <span className="hidden sm:inline max-w-[140px] truncate">{displayLabel}</span>
         <ChevronDown className="h-4 w-4 text-text-secondary" />
       </button>
 
@@ -47,11 +48,11 @@ export function AdminUserMenu() {
         <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-border-default bg-surface py-1 shadow-lg">
           <button
             type="button"
-            onClick={handleExitAdmin}
+            onClick={handleSignOut}
             className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-surface-hover"
           >
             <LogOut className="h-4 w-4" />
-            Exit admin
+            Sign out
           </button>
         </div>
       )}

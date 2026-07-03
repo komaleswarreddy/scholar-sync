@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUserContext } from '@/contexts/UserContext';
 import { HomeTopNav } from '@/components/home/HomeTopNav';
 import { AiDisclaimerFooter } from '@/components/common/AiDisclaimerFooter';
 import {
@@ -15,17 +15,17 @@ import { useNotebookBySlug } from '@/hooks/useNotebooks';
 export default function NotebookWorkspacePage() {
   const router = useRouter();
   const params = useParams();
-  const { isLoaded, isSignedIn } = useUser();
+  const { loading, isSignedIn } = useUserContext();
   const slug = typeof params.slug === 'string' ? params.slug : '';
   const { data: notebook, isLoading, isError, error } = useNotebookBySlug(slug);
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
+    if (!loading && !isSignedIn) {
       router.replace('/sign-in');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [loading, isSignedIn, router]);
 
-  if (!isLoaded || isLoading) {
+  if (loading || isLoading) {
     return (
       <div className="min-h-screen home-page flex items-center justify-center">
         <p className="text-[var(--color-home-text-muted)]">Loading notebook...</p>

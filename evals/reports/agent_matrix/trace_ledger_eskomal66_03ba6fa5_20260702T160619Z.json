@@ -1,0 +1,81 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 1159,
+  "experiments": [
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v1-anthropic-claude-sonnet-4-6-03965b7f",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T15:46:08.256858+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_missing_idea-v2-openai-gpt-5-4-de1234b9",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T15:48:44.072739+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v1",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-ncert_document_sketch-v1-openai-gpt-5-mini-0d8b3e77",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-02T15:51:53.466882+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v2",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-ncert_document_sketch-v2-openai-gpt-5-mini-2ef65510",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-02T15:53:19.073880+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v2-anthropic-claude-sonnet-4-6-8e7b6487",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T15:54:18.241419+00:00"
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "prompt_version": "v3",
+      "model": "gpt-5-mini",
+      "experiment_name": "ae-ncert_document_sketch-v3-openai-gpt-5-mini-b22f0eac",
+      "measured_traces": 105,
+      "estimated_traces": 105,
+      "charged_traces": 105,
+      "at": "2026-07-02T15:54:46.473406+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_missing_idea-v3-openai-gpt-5-4-779d7bad",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T15:57:34.389262+00:00"
+    }
+  ],
+  "workspace_tenant": "rguktn_b1a9c405",
+  "note": "Fresh ledger after switching workspace (rguktn_b1a9c405)",
+  "updated_at": "2026-07-02T15:57:34.390290+00:00"
+}

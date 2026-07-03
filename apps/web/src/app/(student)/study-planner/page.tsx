@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUserContext } from '@/contexts/UserContext';
 import {
   CustomPlanModal,
   GlobalStudyPlanCalendarModal,
@@ -16,14 +16,14 @@ import { useStudyPlans } from '@/lib/study-planner-storage';
 
 export default function StudyPlannerPage() {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
+  const { loading, isSignedIn } = useUserContext();
   const { plans, hydrated, addPlan } = useStudyPlans();
   const [modalOpen, setModalOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) router.push('/sign-in');
-  }, [isLoaded, isSignedIn, router]);
+    if (!loading && !isSignedIn) router.push('/sign-in');
+  }, [loading, isSignedIn, router]);
 
   return (
     <StudyPlanPageShell>

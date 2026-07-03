@@ -297,19 +297,27 @@ The datasets (`nbm-prompt-{agent_id}`) must already exist in that workspace. The
 | 14 | problem_dna_analyzer | shivaprapul550 + shivaprapulsp | ✅ DONE — 9/9 combos complete. gpt-5.4-mini + gpt-5.4 × v1/v2/v3 on shivaprapul550 (dataset `6b934edf`); claude-sonnet-4-6 × v1/v2/v3 + gpt-5.4-mini/gpt-5.4 × v3 rerun on shivaprapulsp (dataset `0ec56467`) after Anthropic limit fixed. All outputs OK. |
 | 15 | whole_file_reduce | shivaprapul550 | ✅ DONE — 9/9 combos complete (gpt-5.4, gemini-2.5-flash, gpt-5-mini × v1/v2/v3). All outputs OK. Dataset `4c9ac445`. |
 | 16 | whole_file_map_summarizer | shivaprapul550 | ✅ DONE — 9/9 combos complete (gpt-5.4-mini, gemini-3.1-flash-lite, gpt-5-nano × v1/v2/v3). All outputs OK. Dataset `3f5e8566`. |
-| 17 | explain_from_basics | shivaprapul550 + shivaprapulsp | ✅ DONE — 9/9 combos complete. v1/gpt-5.4 + v1/gemini + v2/gpt-5.4 on shivaprapul550 (dataset `991db143`); claude reruns (v1+v2) + v2/gemini + all v3 on shivaprapulsp (dataset `9268ee47`). Gemini healthy. All outputs OK. |
-| 18 | show_best_approach | cursemes9 | ⏳ Not started |
-| 19 | show_missing_idea | cursemes9 | ⏳ Not started |
-| 20 | ncert_document_sketch | cursemes9 | ⏳ Not started |
-| 21 | help_me_solve_it | cursemes9 | ⏳ Not started |
-| 22 | problem_solver_followup | cursemes9 | ⏳ Not started |
-| 23 | tutor_notebook_bootstrap | cursemes9 | ⏳ Not started |
+| 17 | explain_from_basics | royalrowdy13 | ✅ DONE (partials accepted) — royalrowdy13 dataset `40d1f4b0`. FULL 30/30: v1/v2/v3 gpt-5.4, v1/claude, v2/gemini. PARTIAL accepted: v2/claude 29/30, v3/claude 28/30, v1/gemini 28/30, v3/gemini 29/30. SDK-verified 2026-07-03. |
+| 18 | show_best_approach | komaleswarreddy + sui332307 | ✅ DONE (accepted partials) — v1/v2/v3 gpt-5.4 30/30 each (komaleswarreddy, dataset `8dbb9006`). v1/claude 27/30, v2/claude 30/30, v3/claude 29/30 (sui332307, dataset `4ade4874`). Gemini skipped. Partial drops accepted. |
+| 19 | show_missing_idea | citizena45 + sui332307 | ✅ DONE (partials accepted) — gpt DONE: v1/v2 30/30 (citizena45, dataset `a77d7163`), v3 30/30 (sui332307, dataset `e3279f84`). Claude (sui332307, dataset `e3279f84`): v1 27/30, v2 27/30, v3 28/30 (partial drops accepted). Gemini skipped. SDK-verified 2026-07-03. |
+| 20 | ncert_document_sketch | rguktn | ✅ DONE — rguktn dataset `e68d93ad`. gpt-5-mini v1/v2/v3 all 13/13 filled (re-run 2026-07-02 after evaluator fixes). gpt-5.4-mini + claude-haiku 13/13 each on old cursemes9 runs (accepted). SDK-verified. |
+| 21 | help_me_solve_it | kocart48 | ✅ DONE (partials accepted) — kocart48 dataset `f4bbf4dc`. FULL 30/30: v2/v3 gpt-5.4, v2/v3 claude-sonnet-4-6. PARTIAL accepted: v1/gpt 27/30, v1/claude 29/30. Gemini skipped. SDK-verified 2026-07-03. |
+| 22 | problem_solver_followup | cursemes9 + sui332307 | ⚠️ PARTIAL — v1/claude 15/15 ✅ (cursemes9, dataset `81e2d202`). v1/v2/v3 gpt-5.4-mini 15/15 ✅ each (sui332307, dataset `c46c7781`). v2/claude 13/15, v3/claude 14/15 accepted partial (Anthropic mid-run drops). Gemini skipped. Evaluator bugs fixed (3 fixes). |
+| 23 | tutor_notebook_bootstrap | kocart48 | ✅ DONE — 9/9 combos complete. gpt-5.4 + claude-sonnet-4-6 + gpt-5-mini × v1/v2/v3 on kocart48 (dataset `96a2ffe6`). SDK-verified 15/15 filled per combo. 7 evaluator bugs fixed before run. |
 | 24 | tutor_follow_up_questions | cursemes9 | ⏳ Not started |
 | 25 | source_question_extraction | cursemes9 | ⏳ Not started |
 | 26 | image_ocr | cursemes9 | ⏳ Not started |
 | 27 | diagram_label_ocr | cursemes9 | ⏳ Not started |
 
-**Gemini status across all agents:** All Gemini models are configured with `skip_runtime=false` in `agent_models.json` — harness runs a health check at runtime and auto-skips if 503/UNAVAILABLE. Agents 15 and 16 confirmed Gemini healthy and ran successfully. Always attempt Gemini; the harness decides at runtime.
+**Gemini status across all agents:** All Gemini models are configured with `skip_runtime=false` in `agent_models.json` — harness runs a health check at runtime and auto-skips if 503/UNAVAILABLE. Agents 15 and 16 confirmed Gemini healthy and ran successfully. Always attempt Gemini; the harness decides at runtime. As of 2026-07-02, Gemini is consistently timing out (12s read timeout to `generativelanguage.googleapis.com`) from this machine — suspected firewall/ISP block.
+
+**How to skip providers at runtime (env vars — the ONLY way that works):**
+- Skip Anthropic: `$env:AGENT_EVAL_SKIP_ANTHROPIC="1"` (PowerShell) before running
+- Skip Gemini: `$env:AGENT_EVAL_SKIP_GEMINI="1"`
+- Skip OpenAI: `$env:AGENT_EVAL_SKIP_OPENAI="1"`
+- `skip_runtime` in `agent_models.json` does NOT skip Anthropic or OpenAI — it only controls Gemini health-check behavior. Use env vars exclusively.
+
+**Anthropic credit status:** Exhausted as of 2026-07-02 (HTTP 400 "credit balance too low"). Resets 2026-08-01. All claude-sonnet-4-6 combos for agents 17 and 18 must wait for the reset. To re-run only claude combos: `$env:AGENT_EVAL_SKIP_GEMINI="1"; $env:AGENT_EVAL_SKIP_OPENAI="1"; python -m evals.agent_eval.run_matrix --all --agent {agent_id}`
 
 ### Evaluator Structure
 
@@ -373,6 +381,7 @@ python scripts/check_api_credits.py --agent {agent_id}
 - Exit 1 = hard failure (quota/auth) → STOP, notify user, do NOT run eval
 - Gemini WARN (503/unavailable) = soft fail → harness auto-skips at runtime, proceed
 - Anthropic monthly limit resets 2026-08-01; OpenAI and Gemini unaffected
+- **To skip a provider that has quota/credit issues:** set env var before running — `$env:AGENT_EVAL_SKIP_ANTHROPIC="1"` for Anthropic, `$env:AGENT_EVAL_SKIP_GEMINI="1"` for Gemini. Do NOT use `skip_runtime=True` in agent_models.json — that flag does not skip Anthropic/OpenAI.
 
 **STEP 4 — Prepare fresh workspace**
 - Assign the agent to its fresh workspace (see table above)
@@ -439,6 +448,38 @@ python -m evals.agent_eval.run_matrix --all --agent {agent_id}
 > Uploading with --force or overwriting an existing dataset destroys all experiment comparison data permanently.
 > Agents 14/15/16 lost all LangSmith dataset experiment data due to this mistake.
 > Before any upload: check LangSmith UI first. If experiments exist → skip upload, reuse dataset.
+
+### Rule: Status updates must always use this table format — and ONLY from verified LangSmith output counts
+> Whenever the user asks for a status update on any agent eval, always respond with a per-combo table in this exact format — one row per combo, never prose:
+>
+> | Combo | Outputs Filled | Status |
+> |-------|---------------|--------|
+> | v1 / gpt-5.4 | 30/30 | ✅ Complete |
+> | v2 / claude-sonnet-4-6 | 12/30 | 🔄 Running now |
+> | v3 / gemini-3.5-flash | 0/30 | ❌ Not run |
+>
+> Status values: ✅ Complete | 🔄 Running now | ⏳ Queued | ❌ Not run | ⚠️ Partial/unverified
+> Show a separate table for each agent being asked about. Check `trace_ledger.json` and `step_checkpoint.json` for current data before responding.
+>
+> **CRITICAL — DO NOT DECLARE A COMBO COMPLETE BASED ON TRACE COUNT ALONE:**
+> - The harness logs "30it" (30 traces recorded) even when outputs are empty or unparseable.
+> - A trace = LLM was called. It does NOT mean the output cell in LangSmith is filled.
+> - Before marking any combo ✅ Complete, the "Outputs Filled" count MUST come from one of:
+>   (a) The user confirming they saw non-empty Outputs in LangSmith UI, OR
+>   (b) Explicitly asking the user to verify in LangSmith — never assume from trace count.
+> - If not yet verified by LangSmith, always mark as ⚠️ Unverified (trace count only).
+> - Past mistake: declared agent 17 explain_from_basics "30/30 ✅" from trace logs — v3/gemini had ~20/30 empty outputs due to token truncation. Never repeat this.
+>
+> **HOW TO VERIFY (run this Python snippet per agent after every eval completes):**
+> ```python
+> from langsmith import Client; client = Client()
+> projects = list(client.list_projects(reference_dataset_id=DATASET_ID))
+> for p in projects:
+>     runs = list(client.list_runs(project_id=str(p.id), run_type='chain', is_root=True))
+>     filled = sum(1 for r in runs if r.outputs and r.outputs.get('coach_json') is not None)
+>     print(f'{p.name}: {filled}/{len(runs)} filled')
+> ```
+> Run this automatically after every background eval — do NOT wait for user to open LangSmith UI.
 
 ---
 

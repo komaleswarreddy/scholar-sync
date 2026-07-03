@@ -126,7 +126,58 @@ def extract_teacher_portal_user_id(token: str) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------- #
-# Clerk JWT verification (RS256)
+# Platform tokens (HS256) — unified username/password auth
+# --------------------------------------------------------------------------- #
+def create_platform_token(user_id: str, role: str) -> tuple[str, int]:
+    """Issue HS256 JWT for platform login."""
+    ttl_hours = max(1, int(settings.PLATFORM_TOKEN_TTL_HOURS))
+    expires_in = ttl_hours * 3600
+    exp = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+    payload = {"sub": user_id, "role": role, "platform": True, "exp": exp}
+    token = jwt.encode(payload, settings.PLATFORM_JWT_SECRET, algorithm="HS256")
+    return token, expires_in
+
+
+def extract_platform_token_payload(token: str) -> Optional[dict]:
+    """Decode and verify a platform JWT. Returns payload or None."""
+    if not token or not settings.PLATFORM_JWT_SECRET:
+        return None
+    try:
+        payload = jwt.decode(token, settings.PLATFORM_JWT_SECRET, algorithms=["HS256"])
+        if payload.get("platform") and payload.get("sub"):
+            return payload
+    except JWTError:
+        return None
+    return None
+
+
+def extract_platform_user_id(token: str) -> Optional[str]:
+    """Return user id from a valid platform JWT."""
+    payload = extract_platform_token_payload(token)
+    if payload:
+        return str(payload["sub"])
+    return None
+
+
+def extract_platform_role(token: str) -> Optional[str]:
+    """Return role from a valid platform JWT."""
+    payload = extract_platform_token_payload(token)
+    if payload:
+        return str(payload.get("role") or "student")
+    return None
+
+
+def verify_bootstrap_admin_password(plain: str) -> bool:
+    """Verify bootstrap admin credentials from env."""
+    return verify_portal_password(
+        plain,
+        settings.BOOTSTRAP_ADMIN_PASSWORD,
+        settings.BOOTSTRAP_ADMIN_PASSWORD_HASH,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Clerk JWT verification (RS256) — deprecated, kept for transition
 # --------------------------------------------------------------------------- #
 def _get_clerk_jwks() -> Optional[list]:
     """Fetch and cache Clerk's JWKS key set. Returns None when no JWKS URL configured."""

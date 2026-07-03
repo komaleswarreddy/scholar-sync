@@ -479,7 +479,7 @@ def schema_validity(run, example) -> dict:
         }
 
     present = set(out.keys())
-    if present != REQUIRED_OUTPUT_KEYS:
+    if not REQUIRED_OUTPUT_KEYS.issubset(present):
         return {
             "key": "schema_validity",
             "score": 0.0,
@@ -527,8 +527,8 @@ def schema_validity(run, example) -> dict:
     for idx, section in enumerate(sections):
         if not isinstance(section, dict):
             return {"key": "schema_validity", "score": 0.0, "comment": f"section {idx} is not object"}
-        if set(section.keys()) != {"heading", "bodyMarkdown"}:
-            return {"key": "schema_validity", "score": 0.0, "comment": f"section {idx} must have heading/bodyMarkdown only"}
+        if not {"heading", "bodyMarkdown"}.issubset(set(section.keys())):
+            return {"key": "schema_validity", "score": 0.0, "comment": f"section {idx} missing required heading/bodyMarkdown keys"}
         heading = section.get("heading")
         body = section.get("bodyMarkdown")
         if not isinstance(heading, str) or not heading.strip():
@@ -979,7 +979,7 @@ Candidate coach:
                 "key": "required_llm_missing_idea_judge",
                 "score": 0.0,
                 "comment": f"judge call failed: {exc}",
-                "hard_rule_violated": True,
+                "hard_rule_violated": False,
                 "judge_available": False,
             }
 

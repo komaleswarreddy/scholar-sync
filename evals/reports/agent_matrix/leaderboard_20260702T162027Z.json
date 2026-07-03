@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-07-02T16:20:27.114249+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "mode": "stepwise",
+  "harness": "agent_eval",
+  "note": "intent_classifier uses evals.intent_classifier_eval (unchanged)",
+  "experiments": [
+    {
+      "agent_id": "show_missing_idea",
+      "experiment_prefix": "ae-show_missing_idea-v1-openai-gpt-5-4",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "elapsed_seconds": 211.46,
+      "experiment_name": "ae-show_missing_idea-v1-openai-gpt-5-4-b9ea27a0",
+      "langsmith_url": "https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 211,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4539
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "experiment_prefix": "ae-show_missing_idea-v2-openai-gpt-5-4",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "elapsed_seconds": 187.05,
+      "experiment_name": "ae-show_missing_idea-v2-openai-gpt-5-4-95b535c6",
+      "langsmith_url": "https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 422,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4328
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "experiment_prefix": "ae-show_missing_idea-v3-openai-gpt-5-4",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "elapsed_seconds": 135.14,
+      "experiment_name": "ae-show_missing_idea-v3-openai-gpt-5-4-8a6c9df2",
+      "langsmith_url": "https://smith.langchain.com/o/fd0bc6a5-5f75-4225-9c2e-1b10708f0b8c/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 874,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 3876
+    }
+  ],
+  "winners_by_agent": {
+    "show_missing_idea": {
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5.4",
+      "ship_recommendation": null,
+      "severity_score": null,
+      "experiment_name": "ae-show_missing_idea-v3-openai-gpt-5-4-8a6c9df2"
+    }
+  },
+  "summary": {
+    "total_experiments": 3,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

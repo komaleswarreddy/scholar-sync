@@ -1,0 +1,41 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 723,
+  "experiments": [
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v1",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v1-openai-gpt-5-4-dc709c97",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-02T16:29:55.237460+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v2-openai-gpt-5-4-c399ab98",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-02T16:30:46.991808+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v3-openai-gpt-5-4-c1658be8",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-02T16:31:45.693079+00:00"
+    }
+  ],
+  "workspace_tenant": "agent21_fresh",
+  "note": "Fresh ledger for agent 21 help_me_solve_it",
+  "updated_at": "2026-07-02T16:31:45.694073+00:00"
+}

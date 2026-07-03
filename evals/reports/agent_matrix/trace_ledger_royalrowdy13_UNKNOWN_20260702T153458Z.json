@@ -1,0 +1,41 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 633,
+  "experiments": [
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v1-anthropic-claude-sonnet-4-6-1c9d2df7",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T15:16:35.043122+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v2-anthropic-claude-sonnet-4-6-23ee261f",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T15:18:16.430016+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6-d8b7b82e",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-02T15:19:44.054540+00:00"
+    }
+  ],
+  "workspace_tenant": "komaleswarreddy_d28c3c60",
+  "note": "Fresh ledger after switching workspace (komaleswarreddy_d28c3c60)",
+  "updated_at": "2026-07-02T15:19:44.056215+00:00"
+}

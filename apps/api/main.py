@@ -97,7 +97,7 @@ else:
 from apps.api.middleware.tenant import TenantMiddleware
 from apps.api.middleware.request_logging import RequestLoggingMiddleware
 from apps.api.middleware.security_headers import SecurityHeadersMiddleware
-from apps.api.routes import chat, sources, studio, studio_features, notes, notebooks, home, health, metrics, dashboards, alerts, admin, admin_ncert_global, pipeline_traces, tutor, problem_solver, teacher_auth
+from apps.api.routes import chat, sources, studio, studio_features, notes, notebooks, home, health, metrics, dashboards, alerts, admin, admin_ncert_global, admin_accounts, admin_curation, message_feedback, pipeline_traces, tutor, problem_solver, teacher_auth, auth, users
 
 # Fail-closed: refuse to start with insecure defaults in production.
 from config.settings import validate_production_security
@@ -106,12 +106,21 @@ validate_production_security()
 # ---------------- Lifespan ----------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from packages.core.database.connection import warn_if_session_pooler_in_production
+    from packages.core.database.connection import warm_db_pool, warn_if_session_pooler_in_production
+    from apps.api.middleware.tenant import warm_tenant_cache
 
     app.state.langsmith = _LANGSMITH_STATUS
     warn_if_session_pooler_in_production()
+    try:
+        await warm_db_pool()
+        await warm_tenant_cache()
+        from packages.core.iil.scheduler import start_iil_scheduler
+        start_iil_scheduler()
+    except Exception as exc:
+        log_msg(f"[STARTUP] DB warm-up skipped: {exc}")
     yield
-    # Shutdown logic here if needed
+    from packages.core.iil.scheduler import stop_iil_scheduler
+    await stop_iil_scheduler()
 
 # ---------------- App ----------------
 app = FastAPI(
@@ -178,6 +187,8 @@ app.add_middleware(
 )
 
 # ---------------- Routes ----------------
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["chat"])
 app.include_router(sources.router, prefix="/api/v1/ingest", tags=["sources"])
 app.include_router(studio.router, prefix="/api/v1/studio", tags=["studio"])
@@ -193,7 +204,10 @@ app.include_router(metrics.router, prefix="/api/v1/metrics", tags=["metrics"])
 app.include_router(dashboards.router, prefix="/api/v1/dashboards", tags=["dashboards"])
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(admin_accounts.router, prefix="/api/v1/admin", tags=["admin-accounts"])
+app.include_router(admin_curation.router, prefix="/api/v1/admin", tags=["admin-curation"])
 app.include_router(admin_ncert_global.router, prefix="/api/v1/admin", tags=["admin-ncert-global"])
+app.include_router(message_feedback.router, prefix="/api/v1", tags=["message-feedback"])
 app.include_router(teacher_auth.router, prefix="/api/v1/teacher", tags=["teacher-auth"])
 app.include_router(pipeline_traces.router, prefix="/api/v1/pipeline-traces", tags=["pipeline-traces"])
 

@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-07-02T17:19:41.278209+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "mode": "stepwise",
+  "harness": "agent_eval",
+  "note": "intent_classifier uses evals.intent_classifier_eval (unchanged)",
+  "experiments": [
+    {
+      "agent_id": "show_best_approach",
+      "experiment_prefix": "ae-show_best_approach-v2-anthropic-claude-sonnet-4-6",
+      "prompt_version": "v2",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "elapsed_seconds": 726.84,
+      "experiment_name": "ae-show_best_approach-v2-anthropic-claude-sonnet-4-6-a997f7aa",
+      "langsmith_url": "https://smith.langchain.com/o/92d693f3-4706-4814-bf2d-dacb2cbb69b6/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 934,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 3816
+    },
+    {
+      "agent_id": "show_best_approach",
+      "experiment_prefix": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6",
+      "prompt_version": "v3",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "elapsed_seconds": 719.53,
+      "experiment_name": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6-c9b72598",
+      "langsmith_url": "https://smith.langchain.com/o/92d693f3-4706-4814-bf2d-dacb2cbb69b6/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 211,
+      "traces_agent": 30,
+      "traces_evaluator": 181,
+      "traces_estimated": 211,
+      "traces_used_month": 1145,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 3605
+    }
+  ],
+  "winners_by_agent": {
+    "show_best_approach": {
+      "prompt_version": "v3",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "ship_recommendation": null,
+      "severity_score": null,
+      "experiment_name": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6-c9b72598"
+    }
+  },
+  "summary": {
+    "total_experiments": 2,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}

@@ -1,12 +1,12 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useUserContext } from '@/contexts/UserContext';
 import { apiClient } from '@/lib/api-client';
 import { checkForNoteDrafts, removeDraft } from '@/lib/note-draft-utils';
 
 export function useAppSignOut() {
-  const { signOut } = useAuth();
+  const { signOut } = useUserContext();
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [draftInfo, setDraftInfo] = useState<{
     draftKey: string;

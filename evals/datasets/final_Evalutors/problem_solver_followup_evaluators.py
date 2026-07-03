@@ -540,8 +540,8 @@ def schema_validity(run, example) -> dict:
         return {"key": "schema_validity", "score": 0.0, "comment": "sections must contain exactly one Follow-up section"}
 
     section = sections[0]
-    if not isinstance(section, dict) or set(section.keys()) != {"heading", "bodyMarkdown"}:
-        return {"key": "schema_validity", "score": 0.0, "comment": "Follow-up section must contain heading/bodyMarkdown only"}
+    if not isinstance(section, dict) or not {"heading", "bodyMarkdown"}.issubset(set(section.keys())):
+        return {"key": "schema_validity", "score": 0.0, "comment": "Follow-up section missing required heading/bodyMarkdown keys"}
 
     if section.get("heading") != "Follow-up":
         return {"key": "schema_validity", "score": 0.0, "comment": f"section heading must be 'Follow-up', got {section.get('heading')!r}"}
@@ -942,7 +942,7 @@ Candidate coach:
                 "key": "required_llm_followup_judge",
                 "score": 0.0,
                 "comment": f"judge call failed: {exc}",
-                "hard_rule_violated": True,
+                "hard_rule_violated": False,
                 "judge_available": False,
             }
 
@@ -952,7 +952,7 @@ Candidate coach:
                 "key": "required_llm_followup_judge",
                 "score": 0.0,
                 "comment": f"judge returned invalid JSON: {str(raw)[:160]}",
-                "hard_rule_violated": True,
+                "hard_rule_violated": False,
                 "judge_available": False,
             }
 

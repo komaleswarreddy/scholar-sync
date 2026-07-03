@@ -4,7 +4,14 @@ import axios, {
   InternalAxiosRequestConfig, 
 } from 'axios';
 import { handleApiError, redirectToLogin, getUserFriendlyMessage, ApiError, ErrorType } from './error-handler';
-import { clearAdminSession, getAdminToken, redirectToAdminLogin, setAdminToken } from './admin-auth';
+import {
+  clearPlatformSession,
+  establishPlatformSession,
+  getPlatformToken,
+  PlatformUser,
+  redirectToSignIn,
+  setPlatformToken,
+} from './platform-auth';
 
 type TokenGetter = () => Promise<string | null>;
 type LogoutFunc = () => Promise<void>;
@@ -70,7 +77,6 @@ class ApiClient {
   private authFailureCount: number = 0; // Track consecutive auth failures
   private maxAuthFailures: number = 3; // Stop trying after 3 failures
   private circuitBreakerOpen: boolean = false; // Circuit breaker state
-  private adminPortalMode: boolean = false;
 
   constructor(
     baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -80,6 +86,7 @@ class ApiClient {
       timeout: 12000, // Default; uploads/streams/studio use longer per-request timeouts
       // Don't set default Content-Type - let axios set it based on data type
     });
+    this.getTokenFunc = async () => getPlatformToken();
 
     // ------------------------
     // Request Interceptor
@@ -155,15 +162,8 @@ class ApiClient {
                 console.error('Logout failed', err);
               }
             }
-            
-            // Redirect to login page
-            if (this.adminPortalMode) {
-              clearAdminSession();
-              this.clearAuthSession();
-              redirectToAdminLogin();
-            } else {
-              redirectToLogin();
-            }
+            clearPlatformSession();
+            redirectToSignIn();
             
             // Create standardized error
             const apiError = handleApiError(error);
@@ -200,13 +200,8 @@ class ApiClient {
                 console.error('Logout failed', err);
               }
             }
-            if (this.adminPortalMode) {
-              clearAdminSession();
-              this.clearAuthSession();
-              redirectToAdminLogin();
-            } else {
-              redirectToLogin();
-            }
+            clearPlatformSession();
+            redirectToSignIn();
             const apiError = handleApiError(error);
             return Promise.reject(apiError);
           }
@@ -247,22 +242,8 @@ class ApiClient {
   }
 
   setTokenGetter(getTokenFunc: TokenGetter) {
-    if (this.adminPortalMode) return;
     this.getTokenFunc = getTokenFunc;
-    this.refreshToken();
-  }
-
-  /** Use admin portal JWT from sessionStorage for API calls (ops dashboard). */
-  setAdminPortalMode(enabled: boolean) {
-    this.adminPortalMode = enabled;
-    if (enabled) {
-      this.getTokenFunc = async () => getAdminToken();
-      const token = getAdminToken();
-      if (token) {
-        this.latestToken = token;
-        this.tokenExpiry = this.getTokenExpiry(token);
-      }
-    }
+    void this.refreshToken();
   }
 
   setLogoutHandler(logoutFunc: LogoutFunc) {
@@ -276,11 +257,92 @@ class ApiClient {
     this.authFailureCount = 0;
     this.circuitBreakerOpen = false;
     this.refreshPromise = null;
-    if (this.adminPortalMode) {
-      this.adminPortalMode = false;
-    }
   }
 
+  async login(username: string, password: string): Promise<PlatformUser> {
+    const tenantId = getTenantIdFromCookie();
+    const res = await this.client.post(
+      '/api/v1/auth/login',
+      { username, password },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-id': tenantId,
+        },
+      }
+    );
+    const accessToken = res.data?.access_token as string | undefined;
+    const user = res.data?.user as PlatformUser | undefined;
+    if (!accessToken || !user) {
+      throw new Error('Login succeeded but no access token was returned');
+    }
+    establishPlatformSession(accessToken, user);
+    this.setTokenGetter(async () => accessToken);
+    this.latestToken = accessToken;
+    this.tokenExpiry = this.getTokenExpiry(accessToken);
+    this.authFailureCount = 0;
+    this.circuitBreakerOpen = false;
+    return user;
+  }
+
+  async getCurrentUser(): Promise<PlatformUser> {
+    const res = await this.client.get('/api/v1/auth/me');
+    return res.data as PlatformUser;
+  }
+
+  async getMyProfile(): Promise<PlatformUser> {
+    const res = await this.client.get('/api/v1/users/me/profile');
+    return res.data as PlatformUser;
+  }
+
+  async updateMyProfile(data: Partial<PlatformUser>): Promise<PlatformUser> {
+    const res = await this.client.patch('/api/v1/users/me/profile', data);
+    return res.data as PlatformUser;
+  }
+
+  async listAccounts(params?: { role?: string; search?: string }): Promise<{ items: PlatformUser[]; total: number }> {
+    const res = await this.client.get('/api/v1/admin/accounts', { params });
+    return res.data;
+  }
+
+  async createAccount(data: {
+    username: string;
+    password: string;
+    role?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    mobile?: string;
+    institute?: string;
+    class_level?: string;
+  }): Promise<PlatformUser> {
+    const res = await this.client.post('/api/v1/admin/accounts', data);
+    return res.data as PlatformUser;
+  }
+
+  async updateAccount(
+    accountId: string,
+    data: Partial<{
+      role: string;
+      password: string;
+      first_name: string;
+      last_name: string;
+      email: string;
+      mobile: string;
+      institute: string;
+      class_level: string;
+      is_active: boolean;
+    }>
+  ): Promise<PlatformUser> {
+    const res = await this.client.patch(`/api/v1/admin/accounts/${accountId}`, data);
+    return res.data as PlatformUser;
+  }
+
+  async deleteAccount(accountId: string): Promise<void> {
+    await this.client.delete(`/api/v1/admin/accounts/${accountId}`);
+  }
+
+  /** @deprecated Use login() — kept for legacy admin login page */
   async adminLogin(email: string, password: string): Promise<void> {
     const tenantId = getTenantIdFromCookie();
     const res = await this.client.post(
@@ -297,8 +359,8 @@ class ApiClient {
     if (!accessToken) {
       throw new Error('Login succeeded but no access token was returned');
     }
-    setAdminToken(accessToken);
-    this.setAdminPortalMode(true);
+    setPlatformToken(accessToken);
+    this.setTokenGetter(async () => accessToken);
     this.latestToken = accessToken;
     this.tokenExpiry = this.getTokenExpiry(accessToken);
     this.authFailureCount = 0;
@@ -1378,15 +1440,62 @@ class ApiClient {
     return res.data;
   }
 
-  async updateMessageFeedback(
+  async submitMessageFeedback(
     messageId: string,
-    feedback: 'thumbs_up' | 'thumbs_down' | null,
-    feedbackReason?: string | null
+    body: { signal_type: string; dimension_tag?: string; free_text?: string }
   ) {
-    const res = await this.client.patch(`/api/v1/chat/messages/${messageId}/feedback`, {
-      feedback,
-      feedback_reason: feedbackReason ?? null,
-    });
+    const res = await this.client.post(`/api/v1/messages/${messageId}/feedback`, body);
+    return res.data as {
+      id: string;
+      signal_type: string;
+      user_tier: string;
+      dimension_tag?: string | null;
+      free_text?: string | null;
+    };
+  }
+
+  async listMessageFeedback(messageId: string) {
+    const res = await this.client.get(`/api/v1/messages/${messageId}/feedback`);
+    return res.data as Array<{ id: string; signal_type: string; user_tier: string }>;
+  }
+
+  async deleteMessageFeedback(messageId: string, feedbackId: string) {
+    await this.client.delete(`/api/v1/messages/${messageId}/feedback/${feedbackId}`);
+  }
+
+  async listCurationCandidates(params?: Record<string, string | number | undefined>) {
+    const res = await this.client.get('/api/v1/admin/curation/candidates', { params });
+    return res.data;
+  }
+
+  async getCurationCandidate(id: string) {
+    const res = await this.client.get(`/api/v1/admin/curation/candidates/${id}`);
+    return res.data;
+  }
+
+  async reviewCurationCandidate(
+    id: string,
+    body: { decision: 'approved' | 'rejected'; review_notes?: string; confidence_score?: number }
+  ) {
+    const res = await this.client.post(`/api/v1/admin/curation/candidates/${id}/review`, body);
+    return res.data;
+  }
+
+  async getCoverageMap(params?: { board?: string; class_num?: number; subject_key?: string }) {
+    const res = await this.client.get('/api/v1/admin/curation/coverage-map', { params });
+    return res.data;
+  }
+
+  async listCurationArtifacts(params?: Record<string, string | number | boolean | undefined>) {
+    const res = await this.client.get('/api/v1/admin/curation/artifacts', { params });
+    return res.data;
+  }
+
+  async patchCurationArtifact(
+    id: string,
+    body: { is_active?: boolean; content?: string; dimension_tags?: string[] }
+  ) {
+    const res = await this.client.patch(`/api/v1/admin/curation/artifacts/${id}`, body);
     return res.data;
   }
 

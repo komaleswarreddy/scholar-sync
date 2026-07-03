@@ -97,8 +97,7 @@ class Settings(BaseSettings):
     CLERK_JWT_PUBLIC_KEY: str = ""  # PEM RS256 verification key (optional if JWKS configured)
     CLERK_JWKS_URL: str = ""        # Clerk JWKS endpoint — preferred (handles key rotation)
     CLERK_JWT_AUDIENCE: str = ""    # Verified only when set
-
-    # Admin portal (standalone email/password login for ops dashboard)
+    CLERK_LEGACY_USER_SYNC: bool = False  # When false, admin user list uses platform DB only
     # SECURITY: the defaults below are DEV-ONLY. validate_production_security() rejects
     # these default values at startup when ENVIRONMENT=production. Prefer setting
     # ADMIN_PORTAL_PASSWORD_HASH (a bcrypt hash) over a plaintext ADMIN_PORTAL_PASSWORD.
@@ -117,7 +116,23 @@ class Settings(BaseSettings):
     TEACHER_PORTAL_USER_ID: str = "teacher-portal-demo"
     TEACHER_PORTAL_TOKEN_TTL_HOURS: int = 12
 
-    # Security headers / hardening
+    # Platform auth (unified username/password for all users)
+    PLATFORM_JWT_SECRET: str = "dev-platform-jwt-secret-change-in-production"
+    PLATFORM_TOKEN_TTL_HOURS: int = 24
+    BOOTSTRAP_ADMIN_USERNAME: str = "scombinator"
+    BOOTSTRAP_ADMIN_PASSWORD: str = "notebook123"
+    BOOTSTRAP_ADMIN_PASSWORD_HASH: str = ""  # bcrypt hash; takes precedence over BOOTSTRAP_ADMIN_PASSWORD
+
+    # IIL — Interaction Intelligence Layer (spec §9.3)
+    IIL_BLENDING_KB_WEIGHT: float = 0.7
+    IIL_BLENDING_DERIVED_WEIGHT: float = 0.3
+    IIL_CURATION_CANDIDATE_THRESHOLD: int = 5
+    IIL_CURATION_SCORING_INTERVAL_MINUTES: int = 15
+    IIL_ENRICHMENT_MAX_DIMENSIONS: int = 2
+    IIL_LOGGING_ASYNC_TIMEOUT_MS: int = 5000
+    IIL_DERIVED_NAMESPACE_SUFFIX: str = "derived"
+    IIL_ENABLED: bool = True
+
     ENABLE_SECURITY_HEADERS: bool = True
     HSTS_MAX_AGE: int = 31536000  # 1 year (production HTTPS only)
 
@@ -429,8 +444,10 @@ settings = Settings()
 # Values that must never be used in production (shipped as dev defaults only).
 INSECURE_DEFAULT_VALUES = {
     "admin123",
+    "notebook123",
     "dev-admin-portal-secret-change-in-production",
     "dev-teacher-portal-secret-change-in-production",
+    "dev-platform-jwt-secret-change-in-production",
 }
 
 
@@ -446,10 +463,15 @@ def validate_production_security(s: "Settings" = settings) -> None:
 
     errors: list[str] = []
 
-    # 1) Clerk token verification material is mandatory in production.
-    if not (s.CLERK_JWT_PUBLIC_KEY or s.CLERK_JWKS_URL):
+    # 1) Platform JWT secret must be strong and non-default.
+    if s.PLATFORM_JWT_SECRET in INSECURE_DEFAULT_VALUES or len(s.PLATFORM_JWT_SECRET) < 32:
+        errors.append("PLATFORM_JWT_SECRET must be a strong, non-default value (>= 32 chars).")
+    if not s.BOOTSTRAP_ADMIN_PASSWORD_HASH and (
+        s.BOOTSTRAP_ADMIN_PASSWORD in INSECURE_DEFAULT_VALUES
+        or len(s.BOOTSTRAP_ADMIN_PASSWORD) < 10
+    ):
         errors.append(
-            "CLERK_JWT_PUBLIC_KEY or CLERK_JWKS_URL must be set so student tokens are verified."
+            "Set BOOTSTRAP_ADMIN_PASSWORD_HASH (bcrypt) or a strong BOOTSTRAP_ADMIN_PASSWORD (>= 10 chars)."
         )
 
     # 2) Admin portal secrets must be strong and non-default.

@@ -1154,6 +1154,7 @@ class LangGraphChatPipeline:
         )
 
         state["matches"] = list(results.get("matches") or [])
+        state["derived_hit"] = bool(results.get("derived_hit"))
 
         # Attach compact retrieval artifacts for admin trace explain view (no full prompt).
         try:
@@ -1805,6 +1806,20 @@ class LangGraphChatPipeline:
             chat_policy_block = build_chat_policy_block()
         except Exception:
             chat_policy_block = ""
+        enrichment_block = ""
+        if settings.IIL_ENABLED and self.db is not None:
+            try:
+                from packages.core.iil.enrichment import build_enrichment_block
+                from packages.core.iil.concept_mapper import map_concept_from_query
+
+                concept_id = await map_concept_from_query(self.db, message)
+                enrichment_block = await build_enrichment_block(
+                    self.db,
+                    tenant_id=uuid.UUID(self.tenant_id),
+                    concept_node_id=concept_id,
+                )
+            except Exception as exc:
+                print(f"[IIL] enrichment skipped: {exc}")
         full_prompt = load_prompt(
             "chat/rag_prompt.j2",
             context=context,
@@ -1827,6 +1842,8 @@ class LangGraphChatPipeline:
             chat_global_fallback=chat_global_fallback,
             chat_policy_block=chat_policy_block,
         )
+        if enrichment_block:
+            full_prompt = f"{full_prompt}\n\n{enrichment_block}"
         if getattr(settings, "ENABLE_PROMPT_INTEGRITY_CHECK", True):
             policy_injected = bool((chat_policy_block or "").strip())
             has_ctx = len((context or "").strip()) > 80

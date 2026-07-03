@@ -13,7 +13,16 @@ from .guardrail_user_block import GuardrailUserBlock
 from .ncert_global import NcertGlobalDocument, NcertGlobalIngestionRun
 from .ncert_catalog import NcertCatalogChapter
 from .studio_feature import StudioFeature
+from .concept import Concept
+from .iil import (
+    CurationCandidate,
+    DerivedKnowledgeArtifact,
+    ExplorationTemplate,
+    InteractionFeedback,
+    InteractionLog,
+)
 from .problem_solver import ProblemSolverSession, ProblemSolverStep
+from .problem_solver_chat import ProblemSolverSessionChat
 
 __all__ = [
     "Tenant",
@@ -30,8 +39,15 @@ __all__ = [
     "NcertGlobalIngestionRun",
     "NcertCatalogChapter",
     "StudioFeature",
+    "Concept",
+    "InteractionLog",
+    "InteractionFeedback",
+    "CurationCandidate",
+    "DerivedKnowledgeArtifact",
+    "ExplorationTemplate",
     "ProblemSolverSession",
     "ProblemSolverStep",
+    "ProblemSolverSessionChat",
 ]
 
 

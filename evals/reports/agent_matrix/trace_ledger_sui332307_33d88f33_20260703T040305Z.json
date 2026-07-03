@@ -1,0 +1,181 @@
+{
+  "month": "2026-07",
+  "limit": 5000,
+  "safety_margin": 250,
+  "used": 3152,
+  "experiments": [
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v2",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v2-openai-gpt-5-4-d799be05",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T01:56:40.104196+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v1",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-problem_solver_followup-v1-openai-gpt-5-4-mini-8eafe4e4",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-03T02:01:34.174069+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v2",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-problem_solver_followup-v2-openai-gpt-5-4-mini-e2963642",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-03T02:02:29.011469+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_solver_followup-v2-anthropic-claude-sonnet-4-6-765cd214",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-03T02:04:56.974051+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-help_me_solve_it-v2-anthropic-claude-sonnet-4-6-27960cc8",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T02:05:04.837653+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v3",
+      "model": "gpt-5.4-mini",
+      "experiment_name": "ae-problem_solver_followup-v3-openai-gpt-5-4-mini-b00a8ebc",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-03T02:05:44.502129+00:00"
+    },
+    {
+      "agent_id": "problem_solver_followup",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-problem_solver_followup-v3-anthropic-claude-sonnet-4-6-acd19f60",
+      "measured_traces": 106,
+      "estimated_traces": 106,
+      "charged_traces": 106,
+      "at": "2026-07-03T02:08:09.237942+00:00"
+    },
+    {
+      "agent_id": "help_me_solve_it",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-help_me_solve_it-v3-openai-gpt-5-4-a62d28fd",
+      "measured_traces": 241,
+      "estimated_traces": 241,
+      "charged_traces": 241,
+      "at": "2026-07-03T02:08:28.325315+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v2-anthropic-claude-sonnet-4-6-4830118f",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T02:24:10.610215+00:00"
+    },
+    {
+      "agent_id": "show_best_approach",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_best_approach-v3-anthropic-claude-sonnet-4-6-f79bcc1b",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T02:35:57.941913+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v1-anthropic-claude-sonnet-4-6-bb0d2b83",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T03:07:16.709404+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v2-anthropic-claude-sonnet-4-6-0ed5912e",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T03:08:06.405042+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v3",
+      "model": "gpt-5.4",
+      "experiment_name": "ae-show_missing_idea-v3-openai-gpt-5-4-489266a8",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T03:10:24.316303+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v3-anthropic-claude-sonnet-4-6-9e47ca6b",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T03:11:11.453351+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v1",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v1-anthropic-claude-sonnet-4-6-088e5c9a",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T03:51:03.147083+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v2",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v2-anthropic-claude-sonnet-4-6-2b09ff20",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T03:56:36.766068+00:00"
+    },
+    {
+      "agent_id": "show_missing_idea",
+      "prompt_version": "v3",
+      "model": "claude-sonnet-4-6",
+      "experiment_name": "ae-show_missing_idea-v3-anthropic-claude-sonnet-4-6-0ec09cdc",
+      "measured_traces": 211,
+      "estimated_traces": 211,
+      "charged_traces": 211,
+      "at": "2026-07-03T04:01:52.726217+00:00"
+    }
+  ],
+  "workspace_tenant": "sui332307_33d88f33",
+  "note": "Fresh ledger after switching workspace (sui332307_33d88f33)",
+  "updated_at": "2026-07-03T04:01:52.727241+00:00"
+}

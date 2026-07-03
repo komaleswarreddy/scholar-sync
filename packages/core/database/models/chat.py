@@ -49,8 +49,6 @@ class Message(Base):
         role: Message role ('user' or 'assistant')
         content: Message text content
         citations: JSON array of citation references [{"source_id": "...", "chunk_id": "...", "text": "..."}]
-        feedback: User feedback ('thumbs_up', 'thumbs_down', or None)
-        feedback_reason: Optional free-text reason when feedback is thumbs_down
         created_at: Timestamp of creation
     """
     __tablename__ = "messages"
@@ -60,8 +58,6 @@ class Message(Base):
     role = Column(String, nullable=False)  # 'user' or 'assistant'
     content = Column(Text, nullable=False)
     citations = Column(JSON, default=[])  # Array of citation objects
-    feedback = Column(String, nullable=True)  # 'thumbs_up', 'thumbs_down', or None
-    feedback_reason = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships

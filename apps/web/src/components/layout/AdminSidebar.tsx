@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -16,6 +16,7 @@ import {
   FileSearch,
   GitBranch,
   GraduationCap,
+  UserCog,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -27,10 +28,13 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { label: 'Overview', path: '/admin/users', icon: LayoutDashboard },
   { label: 'Users', path: '/admin/users', icon: Users },
+  { label: 'Roles & Permissions', path: '/admin/roles-permissions', icon: UserCog },
   { label: 'Documents', path: '/admin/documents', icon: FileText },
   { label: 'NCERT Global', path: '/admin/ncert-global', icon: GraduationCap },
   { label: 'Queries', path: '/admin/queries', icon: Search },
   { label: 'RAG Metrics', path: '/admin/rag-metrics', icon: BarChart3 },
+  { label: 'Curation', path: '/admin/curation/candidates', icon: BarChart3 },
+  { label: 'Coverage Map', path: '/admin/curation/coverage', icon: BarChart3 },
   { label: 'Agents', path: '/admin/agents', icon: Bot },
   { label: 'Guardrails', path: '/admin/guardrails', icon: Shield },
   { label: 'Endpoints', path: '/admin/endpoints', icon: Network },
@@ -46,20 +50,6 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (onNavigate && window.innerWidth < 1024) {
-      onNavigate();
-    }
-  }, [pathname, onNavigate]);
-
-  const handleNavigation = (path: string) => {
-    router.push(path);
-    if (window.innerWidth < 1024 && onNavigate) {
-      onNavigate();
-    }
-  };
 
   return (
     <aside className="w-64 bg-surface border-r border-border-default flex flex-col h-full overflow-y-auto">
@@ -77,9 +67,13 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
             (!isOverview && item.path !== '/admin/users' && pathname?.startsWith(item.path));
 
           return (
-            <button
+            <Link
               key={`${item.label}-${item.path}`}
-              onClick={() => handleNavigation(item.path)}
+              href={item.path}
+              prefetch
+              onClick={() => {
+                if (window.innerWidth < 1024 && onNavigate) onNavigate();
+              }}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                 transition-all duration-150
@@ -93,7 +87,7 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
             >
               <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-accent-blue' : ''}`} />
               <span className="truncate">{item.label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>

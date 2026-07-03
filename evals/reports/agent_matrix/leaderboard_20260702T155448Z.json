@@ -1,0 +1,75 @@
+{
+  "generated_at": "2026-07-02T15:54:48.289436+00:00",
+  "langsmith_project": "ScholarSync-v2",
+  "mode": "stepwise",
+  "harness": "agent_eval",
+  "note": "intent_classifier uses evals.intent_classifier_eval (unchanged)",
+  "experiments": [
+    {
+      "agent_id": "ncert_document_sketch",
+      "experiment_prefix": "ae-ncert_document_sketch-v1-openai-gpt-5-mini",
+      "prompt_version": "v1",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 96.28,
+      "experiment_name": "ae-ncert_document_sketch-v1-openai-gpt-5-mini-0d8b3e77",
+      "langsmith_url": "https://smith.langchain.com/o/b1a9c405-21ec-4718-8de0-455c45cfcb26/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 105,
+      "traces_agent": 13,
+      "traces_evaluator": 92,
+      "traces_estimated": 105,
+      "traces_used_month": 527,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4223
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "experiment_prefix": "ae-ncert_document_sketch-v2-openai-gpt-5-mini",
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 80.84,
+      "experiment_name": "ae-ncert_document_sketch-v2-openai-gpt-5-mini-2ef65510",
+      "langsmith_url": "https://smith.langchain.com/o/b1a9c405-21ec-4718-8de0-455c45cfcb26/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 105,
+      "traces_agent": 13,
+      "traces_evaluator": 92,
+      "traces_estimated": 105,
+      "traces_used_month": 632,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 4118
+    },
+    {
+      "agent_id": "ncert_document_sketch",
+      "experiment_prefix": "ae-ncert_document_sketch-v3-openai-gpt-5-mini",
+      "prompt_version": "v3",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "elapsed_seconds": 82.81,
+      "experiment_name": "ae-ncert_document_sketch-v3-openai-gpt-5-mini-b22f0eac",
+      "langsmith_url": "https://smith.langchain.com/o/b1a9c405-21ec-4718-8de0-455c45cfcb26/projects/p/ScholarSync-v2",
+      "traces_this_experiment": 105,
+      "traces_agent": 13,
+      "traces_evaluator": 92,
+      "traces_estimated": 105,
+      "traces_used_month": 948,
+      "traces_limit": 5000,
+      "traces_usable_remaining": 3802
+    }
+  ],
+  "winners_by_agent": {
+    "ncert_document_sketch": {
+      "prompt_version": "v2",
+      "provider": "openai",
+      "model": "gpt-5-mini",
+      "ship_recommendation": null,
+      "severity_score": null,
+      "experiment_name": "ae-ncert_document_sketch-v2-openai-gpt-5-mini-2ef65510"
+    }
+  },
+  "summary": {
+    "total_experiments": 3,
+    "ship_ok_count": 0,
+    "pass_rate": 0.0
+  }
+}
