@@ -1125,7 +1125,14 @@ export function ChatInterface({
         ncertChapterNoOpt,
         ncertChapterNameOpt,
         options?.forceWholeFileMapReduce === true,
-        ncertConceptOpt
+        ncertConceptOpt,
+        // onReplace — the primary answer was streamed live, but a retry / hallucination
+        // guard fix / output formatting / moderation step changed the final text.
+        // Reset the displayed text instead of appending to it.
+        (text: string) => {
+          responseAccumulatorRef.current = text;
+          setCurrentResponse(text);
+        }
       );
     } catch (error: any) {
       // Task A.b & A.e

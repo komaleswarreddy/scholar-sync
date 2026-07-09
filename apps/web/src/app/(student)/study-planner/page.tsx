@@ -13,6 +13,7 @@ import {
 } from '@/components/study-planner';
 import { HomeOverviewSkeleton } from '@/components/skeleton';
 import { useStudyPlans } from '@/lib/study-planner-storage';
+import { usePortalTabGuard } from '@/hooks/usePortalTabGuard';
 
 export default function StudyPlannerPage() {
   const router = useRouter();
@@ -20,10 +21,13 @@ export default function StudyPlannerPage() {
   const { plans, hydrated, addPlan } = useStudyPlans();
   const [modalOpen, setModalOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const enabled = usePortalTabGuard('study_planner');
 
   useEffect(() => {
     if (!loading && !isSignedIn) router.push('/sign-in');
   }, [loading, isSignedIn, router]);
+
+  if (!enabled) return null;
 
   return (
     <StudyPlanPageShell>

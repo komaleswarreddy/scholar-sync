@@ -5,7 +5,8 @@ import { handleApiError, getUserFriendlyMessage } from '@/lib/error-handler';
 import { homeSummaryKeys } from '@/hooks/useHomeSummary';
 import { notebookKeys } from '@/hooks/useNotebooks';
 import { noteKeys } from '@/hooks/useNotes';
-import { useClerkQueryEnabled } from '@/hooks/useClerkQueryEnabled';
+import { tutorCatalogKeys, TUTOR_DEFAULT_CLASS } from '@/hooks/useTutorCatalog';
+import { useSessionQueryEnabled } from '@/hooks/usePlatformSession';
 
 async function fetchHomeSummary() {
   try {
@@ -40,24 +41,50 @@ async function fetchNotesList() {
   }
 }
 
-/** Prefetch student portal queries when Clerk auth is ready. */
+async function fetchTutorSubjects() {
+  try {
+    const data = await apiClient.getTutorCatalog({ class_num: TUTOR_DEFAULT_CLASS });
+    return data.subjects ?? [];
+  } catch (error: unknown) {
+    const apiError =
+      (error as { apiError?: ReturnType<typeof handleApiError> }).apiError ||
+      handleApiError(error);
+    throw new Error(getUserFriendlyMessage(apiError));
+  }
+}
+
+/** Prefetch all student portal queries (call after login or layout mount). */
+export function prefetchStudentPortalData(queryClient: ReturnType<typeof useQueryClient>) {
+  void queryClient.prefetchQuery({
+    queryKey: homeSummaryKeys.all,
+    queryFn: fetchHomeSummary,
+    staleTime: 60 * 1000,
+  });
+  void queryClient.prefetchQuery({
+    queryKey: notebookKeys.lists(),
+    queryFn: fetchNotebooks,
+    staleTime: 5 * 60 * 1000,
+  });
+  void queryClient.prefetchQuery({
+    queryKey: noteKeys.lists(),
+    queryFn: fetchNotesList,
+    staleTime: 60 * 1000,
+  });
+  void queryClient.prefetchQuery({
+    queryKey: tutorCatalogKeys.subjects(TUTOR_DEFAULT_CLASS),
+    queryFn: fetchTutorSubjects,
+    staleTime: 60 * 1000,
+  });
+}
+
+/** Prefetch student portal queries when session token is available. */
 export function usePrefetchStudentData() {
   const queryClient = useQueryClient();
-  const queryEnabled = useClerkQueryEnabled();
+  const queryEnabled = useSessionQueryEnabled();
 
   useEffect(() => {
     if (!queryEnabled) return;
-
-    void queryClient.prefetchQuery({
-      queryKey: homeSummaryKeys.all,
-      queryFn: fetchHomeSummary,
-      staleTime: 60 * 1000,
-    });
-    void queryClient.prefetchQuery({
-      queryKey: notebookKeys.lists(),
-      queryFn: fetchNotebooks,
-      staleTime: 5 * 60 * 1000,
-    });
+    prefetchStudentPortalData(queryClient);
   }, [queryClient, queryEnabled]);
 }
 

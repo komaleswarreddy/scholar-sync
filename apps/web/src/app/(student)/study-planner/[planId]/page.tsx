@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { StudyPlanPageShell } from '@/components/study-planner/StudyPlanPageShell';
+import { StudyPlanDetailSkeleton } from '@/components/skeleton';
 import { PlanDetailHeader } from '@/components/study-planner/detail/PlanDetailHeader';
 import { PlanProgressSummaryCard } from '@/components/study-planner/detail/PlanProgressSummaryCard';
 import { PlanScheduleSection } from '@/components/study-planner/detail/PlanScheduleSection';
@@ -120,7 +121,7 @@ export default function StudyPlanDetailPage() {
   if (!hydrated || !plan) {
     return (
       <StudyPlanPageShell>
-        <div className="study-plan-detail-loading">Loading plan…</div>
+        <StudyPlanDetailSkeleton />
       </StudyPlanPageShell>
     );
   }

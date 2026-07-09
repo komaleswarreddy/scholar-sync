@@ -14,6 +14,7 @@ import { NOTEBOOK_STUDIO_TONE_STYLES } from '@/lib/notebook-ui-tokens';
 import { buildAppendedNoteContent } from '@/components/notes/NoteCreateOrAppendMenu';
 import { notePreviewTitle } from '@/lib/note-content';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
+import { useOptionalTutorNoteEditor } from '@/contexts/TutorNoteEditorContext';
 import {
   EXPLORATORY_STUDIO_SELECTION_BLOCKED_MESSAGE,
   notebookModeRequiresUploadedSources,

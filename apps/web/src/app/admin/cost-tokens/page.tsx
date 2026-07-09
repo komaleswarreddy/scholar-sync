@@ -6,8 +6,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 import { apiClient } from '@/lib/api-client';
 import { Loader2, DollarSign, TrendingUp, Database, Users, Zap } from 'lucide-react';
 import {
@@ -39,35 +40,29 @@ ChartJS.register(
 
 export default function CostTokensPage() {
   const { ready } = useAdminPortalApi();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [costData, setCostData] = useState<any>(null);
-  const [tokenData, setTokenData] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const [cost, tokens] = await Promise.all([
-          apiClient.getCostTracking(30, true),
-          apiClient.getTokenConsumption(30, 'feature'),
-        ]);
-        setCostData(cost);
-        setTokenData(tokens);
-      } catch (err: any) {
-        console.error('[Cost] Failed to fetch data:', err);
-        setError(err?.message || 'Failed to load cost data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const costQuery = useQuery({
+    queryKey: adminQueryKeys.costTracking(30, true),
+    queryFn: () => apiClient.getCostTracking(30, true),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const tokenQuery = useQuery({
+    queryKey: adminQueryKeys.tokenConsumption(30, 'feature'),
+    queryFn: () => apiClient.getTokenConsumption(30, 'feature'),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
 
-    fetchData();
-  }, [ready]);
+  const costData = costQuery.data;
+  const tokenData = tokenQuery.data;
+  const loading = (costQuery.isPending || tokenQuery.isPending) && !costData && !tokenData;
+  const queryError = costQuery.error || tokenQuery.error;
+  const error = queryError ? ((queryError as any)?.message || 'Failed to load cost data') : null;
+
+  if (queryError) {
+    console.error('[Cost] Failed to fetch data:', queryError);
+  }
 
   const formatNumber = (num: number | null | undefined) => {
     if (num === null || num === undefined) return '—';
@@ -84,7 +79,7 @@ export default function CostTokensPage() {
     }).format(num);
   };
 
-  if (loading) return <AdminTableSkeleton />;
+  if (loading && !costData && !tokenData) return <AdminTableSkeleton />;
 
   if (error) {
     return (

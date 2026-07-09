@@ -198,7 +198,7 @@ export default function RolesPermissionsPage() {
     }
   };
 
-  if (!ready || listQuery.isLoading) {
+  if (!ready || (listQuery.isPending && !listQuery.data)) {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-semibold text-text-primary">Roles & Permissions</h1>

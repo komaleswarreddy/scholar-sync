@@ -17,6 +17,8 @@ _scheduler_task: Optional[asyncio.Task] = None
 
 async def _scoring_loop() -> None:
     interval = max(60, settings.IIL_CURATION_SCORING_INTERVAL_MINUTES * 60)
+    # Defer first batch so API startup / login is not competing for DB connections.
+    await asyncio.sleep(120)
     while True:
         try:
             if settings.IIL_ENABLED:
@@ -79,17 +81,40 @@ async def _extract_exploration_templates() -> None:
         await db.commit()
 
 
-async def trigger_scoring_on_feedback(feedback_id: str) -> None:
-    """Event-driven scoring for expert notes."""
+async def _run_feedback_scoring(feedback_id: str) -> None:
     from uuid import UUID
 
-    from packages.core.iil.curation_scorer import score_expert_note_feedback
+    from packages.core.iil.curation_scorer import score_feedback_event
 
     try:
         async with AsyncSessionLocal() as db:
-            await score_expert_note_feedback(db, UUID(feedback_id))
+            cand = await score_feedback_event(db, UUID(feedback_id))
+            if cand:
+                logger.info(
+                    "IIL feedback scoring: candidate %s created for feedback %s",
+                    cand.id,
+                    feedback_id,
+                )
     except Exception as exc:
-        logger.error("IIL feedback scoring failed: %s", exc)
+        logger.error("IIL feedback scoring failed for %s: %s", feedback_id, exc)
+
+
+def schedule_scoring_on_feedback(feedback_id: str) -> None:
+    """Fire-and-forget scoring so the feedback API never blocks on curation."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(_run_feedback_scoring(feedback_id))
+    except RuntimeError:
+        # No running loop (e.g. sync tests) — run inline.
+        try:
+            asyncio.run(_run_feedback_scoring(feedback_id))
+        except Exception as exc:
+            logger.error("IIL feedback scoring failed for %s: %s", feedback_id, exc)
+
+
+async def trigger_scoring_on_feedback(feedback_id: str) -> None:
+    """Awaitable scoring (tests / scripts). Prefer schedule_scoring_on_feedback in routes."""
+    await _run_feedback_scoring(feedback_id)
 
 
 def start_iil_scheduler() -> None:

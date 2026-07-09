@@ -17,6 +17,7 @@ import {
   Check
 } from 'lucide-react';
 import { StudioCard } from './StudioCard';
+import { NotebookSectionHeader } from '@/components/notebook/NotebookSectionHeader';
 import { Button } from '../ui/Button';
 import { useValidSelectedSourceIds } from '@/hooks/useValidSelectedSourceIds';
 import { useStudioChatBridge } from '@/contexts/StudioChatBridgeContext';

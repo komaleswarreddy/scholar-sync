@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.core.database.connection import AsyncSessionLocal
@@ -46,6 +46,7 @@ async def _load_existing_keys(db: AsyncSession) -> Set[ConceptKey]:
 
 
 async def seed_concepts(db: AsyncSession, *, dry_run: bool = False) -> int:
+    await db.execute(text("SET statement_timeout = '180s'"))
     chapters_result = await db.execute(select(NcertCatalogChapter))
     chapters = chapters_result.scalars().all()
     existing = await _load_existing_keys(db)
@@ -87,10 +88,8 @@ async def seed_concepts(db: AsyncSession, *, dry_run: bool = False) -> int:
             )
 
     if not dry_run and pending:
-        batch_size = 50
-        for i in range(0, len(pending), batch_size):
-            chunk = pending[i : i + batch_size]
-            db.add_all(chunk)
+        for concept in pending:
+            db.add(concept)
             await db.commit()
             db.expunge_all()
 

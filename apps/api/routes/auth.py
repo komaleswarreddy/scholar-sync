@@ -112,7 +112,7 @@ async def platform_login(body: LoginRequest, request: Request, db: AsyncSession 
     check_login_allowed("platform", request, username)
 
     # Bootstrap admin (env credentials)
-    if username == settings.BOOTSTRAP_ADMIN_USERNAME and verify_bootstrap_admin_password(password):
+    if username == settings.BOOTSTRAP_ADMIN_USERNAME and await verify_bootstrap_admin_password(password):
         record_success("platform", request, username)
         token, expires_in = create_platform_token(settings.ADMIN_PORTAL_USER_ID, "schooladmin")
         return LoginResponse(
@@ -140,7 +140,7 @@ async def platform_login(body: LoginRequest, request: Request, db: AsyncSession 
     )
     user = result.scalar_one_or_none()
 
-    if not user or not user.password_hash or not verify_password(password, user.password_hash):
+    if not user or not user.password_hash or not await verify_password(password, user.password_hash):
         record_failure("platform", request, username)
         raise HTTPException(status_code=401, detail="Invalid username or password")
 

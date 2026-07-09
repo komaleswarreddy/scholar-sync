@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 from typing import Any, Dict, List, Optional
@@ -73,6 +74,44 @@ async def _user_query_for_message(db: AsyncSession, message: Message) -> str:
     return (user_msg.content if user_msg else "") or ""
 
 
+async def _safe_concept_id(
+    db: AsyncSession,
+    *,
+    notebook_id: Optional[str],
+    query_text: str,
+    explicit: Optional[str],
+) -> Optional[uuid.UUID]:
+    """Best-effort concept mapping — never blocks log creation for long."""
+    if explicit:
+        try:
+            return uuid.UUID(explicit)
+        except ValueError:
+            pass
+    try:
+        if notebook_id:
+            cid = await asyncio.wait_for(map_concept_from_notebook(db, notebook_id), timeout=2.0)
+            if cid:
+                return cid
+    except Exception as exc:
+        logger.warning("IIL: notebook concept map skipped: %s", exc)
+    try:
+        return await asyncio.wait_for(map_concept_from_query(db, query_text), timeout=3.0)
+    except Exception as exc:
+        logger.warning("IIL: query concept map skipped: %s", exc)
+        return None
+
+
+async def _safe_intent(query_text: str, explicit: Optional[str]) -> Optional[str]:
+    """Best-effort intent — LLM can be slow; skip rather than drop the log."""
+    if explicit:
+        return explicit
+    try:
+        return await asyncio.wait_for(classify_query_intent(query_text), timeout=2.5)
+    except Exception as exc:
+        logger.warning("IIL: intent classify skipped: %s", exc)
+        return None
+
+
 async def create_interaction_log(
     db: AsyncSession,
     *,
@@ -81,7 +120,7 @@ async def create_interaction_log(
     user_id: str,
     trace: PipelineTracePayload,
 ) -> Optional[InteractionLog]:
-    """Create InteractionLog for an assistant message."""
+    """Create InteractionLog for an assistant message (fail-soft on enrichment)."""
     try:
         msg_uuid = uuid.UUID(message_id)
         tenant_uuid = uuid.UUID(tenant_id)
@@ -100,11 +139,13 @@ async def create_interaction_log(
     )
     message = result.scalar_one_or_none()
     if not message:
+        logger.warning("IIL: assistant message %s not found", message_id)
         return None
 
     chat_result = await db.execute(select(Chat).where(Chat.id == message.chat_id))
     chat = chat_result.scalar_one_or_none()
     if not chat:
+        logger.warning("IIL: chat missing for message %s", message_id)
         return None
 
     pos_result = await db.execute(
@@ -119,27 +160,20 @@ async def create_interaction_log(
             conversation_position = i
             break
 
-    query_text = trace.query_text or await _user_query_for_message(db, message)
+    query_text = (trace.query_text or "").strip() or await _user_query_for_message(db, message)
     notebook_id = trace.notebook_id or (str(chat.notebook_id) if chat.notebook_id else None)
 
-    concept_id = None
-    if trace.concept_node_id:
-        try:
-            concept_id = uuid.UUID(trace.concept_node_id)
-        except ValueError:
-            concept_id = None
-    if concept_id is None:
-        concept_id = await map_concept_from_notebook(db, notebook_id)
-    if concept_id is None:
-        concept_id = await map_concept_from_query(db, query_text)
-
+    # Enrichment is optional — always persist the log even if these fail/timeout.
+    concept_id = await _safe_concept_id(
+        db,
+        notebook_id=notebook_id,
+        query_text=query_text,
+        explicit=trace.concept_node_id,
+    )
     prev = await _previous_log_in_chat(db, message.chat_id, conversation_position)
     is_followup, chain_depth = _compute_chain(concept_id, prev)
-
     user_tier = await _resolve_user_tier(db, user_id)
-    query_intent = trace.classified_intent
-    if not query_intent:
-        query_intent = await classify_query_intent(query_text)
+    query_intent = await _safe_intent(query_text, trace.classified_intent)
 
     nb_uuid = None
     if notebook_id:
@@ -155,7 +189,7 @@ async def create_interaction_log(
         user_id=user_id,
         user_tier=user_tier,
         tenant_id=tenant_uuid,
-        query_text=query_text,
+        query_text=query_text or "",
         query_intent=query_intent,
         concept_node_id=concept_id,
         conversation_position=conversation_position,
@@ -168,14 +202,70 @@ async def create_interaction_log(
         fallback_triggered=trace.fallback_triggered,
         response_token_count=trace.response_token_count,
         citations_count=trace.citations_count,
-        grounding_mode=trace.grounding_mode,
+        grounding_mode=trace.grounding_mode or "strict",
         out_of_kb_indicator=trace.out_of_kb_indicator,
         latency_ms=trace.latency_ms,
     )
     db.add(log)
     await db.commit()
     await db.refresh(log)
+    logger.info(
+        "IIL: InteractionLog created id=%s message_id=%s tier=%s concept=%s",
+        log.id,
+        message_id,
+        user_tier,
+        concept_id,
+    )
     return log
+
+
+async def backfill_logs_for_assistant_messages(
+    db: AsyncSession,
+    *,
+    limit: int = 100,
+) -> int:
+    """Create InteractionLogs for assistant messages that have none yet."""
+    from packages.core.database.models.iil import InteractionFeedback
+
+    subq = select(InteractionLog.message_id).where(InteractionLog.message_id.isnot(None))
+    # Prefer messages that already have feedback (curation-relevant).
+    fb_msg_ids = select(InteractionFeedback.message_id).where(
+        InteractionFeedback.message_id.isnot(None)
+    )
+    result = await db.execute(
+        select(Message, Chat)
+        .join(Chat, Chat.id == Message.chat_id)
+        .where(Message.role == "assistant")
+        .where(Message.id.notin_(subq))
+        .where(Message.id.in_(fb_msg_ids))
+        .order_by(Message.created_at.desc())
+        .limit(limit)
+    )
+    rows = result.all()
+    created = 0
+    for message, chat in rows:
+        try:
+            log = await create_interaction_log(
+                db,
+                message_id=str(message.id),
+                tenant_id=str(chat.tenant_id),
+                user_id=str(chat.user_id),
+                trace=PipelineTracePayload(
+                    query_text="",
+                    citations_count=(
+                        len(message.citations)
+                        if isinstance(message.citations, list)
+                        else 0
+                    ),
+                    notebook_id=str(chat.notebook_id) if chat.notebook_id else None,
+                ),
+            )
+            if log:
+                created += 1
+        except Exception as exc:
+            logger.error("IIL backfill failed for message %s: %s", message.id, exc)
+            await db.rollback()
+    return created
 
 
 def trace_from_debug(debug_trace: Optional[Dict[str, Any]], **kwargs: Any) -> PipelineTracePayload:

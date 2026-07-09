@@ -85,8 +85,8 @@ if "supabase.com" in database_url or "pooler.supabase.com" in database_url:
         connect_args["statement_cache_size"] = 0
         connect_args["prepared_statement_name_func"] = lambda: f"__asyncpg_{uuid4()}__"
         engine_kwargs["poolclass"] = QueuePool
-        engine_kwargs["pool_size"] = int(os.getenv("DB_POOL_SIZE", "4"))
-        engine_kwargs["max_overflow"] = int(os.getenv("DB_MAX_OVERFLOW", "2"))
+        engine_kwargs["pool_size"] = int(os.getenv("DB_POOL_SIZE", str(settings.DB_POOL_SIZE)))
+        engine_kwargs["max_overflow"] = int(os.getenv("DB_MAX_OVERFLOW", str(settings.DB_MAX_OVERFLOW)))
         parsed = urlparse(database_url)
         query_params = parse_qs(parsed.query)
         query_params["prepared_statement_cache_size"] = ["0"]
@@ -178,11 +178,11 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def warm_db_pool(connections: int = 2) -> None:
+async def warm_db_pool(connections: int = 4) -> None:
     """Open pooled connections at startup so first user request is not cold."""
     from sqlalchemy import text
 
-    n = max(1, min(connections, 4))
+    n = max(2, min(connections, int(os.getenv("DB_POOL_SIZE", str(settings.DB_POOL_SIZE)))))
     for _ in range(n):
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))

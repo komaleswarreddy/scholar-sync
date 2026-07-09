@@ -17,6 +17,7 @@ Security model
   hashes.
 """
 
+import asyncio
 from datetime import datetime, timedelta, timezone
 import hmac
 import json
@@ -45,29 +46,30 @@ _jwks_cache: dict[str, object] = {"keys": None, "exp": 0.0}
 # --------------------------------------------------------------------------- #
 # Password helpers
 # --------------------------------------------------------------------------- #
-def hash_password(plain: str) -> str:
+async def hash_password(plain: str) -> str:
     """Return a bcrypt hash for a plaintext password (use to generate *_HASH env vars)."""
     pw = (plain or "").encode("utf-8")[:_BCRYPT_MAX_BYTES]
-    return bcrypt.hashpw(pw, bcrypt.gensalt()).decode("utf-8")
+    hashed = await asyncio.to_thread(bcrypt.hashpw, pw, bcrypt.gensalt())
+    return hashed.decode("utf-8")
 
 
-def verify_password(plain: str, hashed: str) -> bool:
+async def verify_password(plain: str, hashed: str) -> bool:
     """Constant-time bcrypt verification (bcrypt.checkpw). Returns False on any error."""
     try:
         pw = (plain or "").encode("utf-8")[:_BCRYPT_MAX_BYTES]
-        return bcrypt.checkpw(pw, (hashed or "").encode("utf-8"))
+        return await asyncio.to_thread(bcrypt.checkpw, pw, (hashed or "").encode("utf-8"))
     except Exception:
         return False
 
 
-def verify_portal_password(plain: str, configured_password: str, configured_hash: str) -> bool:
+async def verify_portal_password(plain: str, configured_password: str, configured_hash: str) -> bool:
     """
     Verify a portal password against either a bcrypt hash (preferred) or a
     plaintext value (dev fallback). Both paths are constant-time to avoid
     timing oracles.
     """
     if configured_hash:
-        return verify_password(plain, configured_hash)
+        return await verify_password(plain, configured_hash)
     return hmac.compare_digest((plain or "").encode("utf-8"), (configured_password or "").encode("utf-8"))
 
 
@@ -167,9 +169,9 @@ def extract_platform_role(token: str) -> Optional[str]:
     return None
 
 
-def verify_bootstrap_admin_password(plain: str) -> bool:
+async def verify_bootstrap_admin_password(plain: str) -> bool:
     """Verify bootstrap admin credentials from env."""
-    return verify_portal_password(
+    return await verify_portal_password(
         plain,
         settings.BOOTSTRAP_ADMIN_PASSWORD,
         settings.BOOTSTRAP_ADMIN_PASSWORD_HASH,

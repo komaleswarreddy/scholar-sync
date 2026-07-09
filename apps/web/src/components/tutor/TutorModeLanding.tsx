@@ -115,7 +115,7 @@ export function TutorModeLanding() {
   }, [prepareScopePayload, step]);
 
   const handlePrepareReady = useCallback(
-    async ({
+    ({
       slug,
       partialFailure,
       timedOut,
@@ -124,19 +124,26 @@ export function TutorModeLanding() {
       partialFailure: boolean;
       timedOut: boolean;
     }) => {
+      // Navigate first — the notebook workspace page shows its own skeleton
+      // while its detail query resolves. Everything below (toast text,
+      // list/summary cache invalidation) is cosmetic/background bookkeeping
+      // that must never block the transition: awaiting them here previously
+      // kept the "Preparing your notebook" overlay's parent screen showing
+      // for an extra 700ms+ (toast minVisibleMs) plus two network round
+      // trips before the user ever left this page.
+      router.push(`/notebook/${slug}`);
+      setIsPreparing(false);
+      setPrepareScope(null);
+      void queryClient.invalidateQueries({ queryKey: notebookKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: homeSummaryKeys.all });
       if (partialFailure || timedOut) {
-        await showToast(
+        void showToast(
           'Some study assets are still generating — retry from Recent Assets if needed.',
           { minVisibleMs: TOAST_MIN_VISIBLE_MS },
         );
       } else {
-        await showToast('Notebook ready', { minVisibleMs: TOAST_MIN_VISIBLE_MS });
+        void showToast('Notebook ready', { minVisibleMs: TOAST_MIN_VISIBLE_MS });
       }
-      setIsPreparing(false);
-      setPrepareScope(null);
-      await queryClient.invalidateQueries({ queryKey: notebookKeys.lists() });
-      await queryClient.invalidateQueries({ queryKey: homeSummaryKeys.all });
-      router.push(`/notebook/${slug}`);
     },
     [queryClient, router, showToast],
   );

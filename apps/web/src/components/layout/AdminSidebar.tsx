@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -17,6 +17,7 @@ import {
   GitBranch,
   GraduationCap,
   UserCog,
+  ToggleLeft,
 } from 'lucide-react';
 
 interface MenuItem {
@@ -37,6 +38,7 @@ const menuItems: MenuItem[] = [
   { label: 'Coverage Map', path: '/admin/curation/coverage', icon: BarChart3 },
   { label: 'Agents', path: '/admin/agents', icon: Bot },
   { label: 'Guardrails', path: '/admin/guardrails', icon: Shield },
+  { label: 'Portal Settings', path: '/admin/portal-settings', icon: ToggleLeft },
   { label: 'Endpoints', path: '/admin/endpoints', icon: Network },
   { label: 'Cost & Tokens', path: '/admin/cost-tokens', icon: DollarSign },
   { label: 'Alerts', path: '/admin/alerts', icon: Bell },
@@ -50,6 +52,11 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handlePrefetch = (path: string) => {
+    router.prefetch(path);
+  };
 
   return (
     <aside className="w-64 bg-surface border-r border-border-default flex flex-col h-full overflow-y-auto">
@@ -71,12 +78,14 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
               key={`${item.label}-${item.path}`}
               href={item.path}
               prefetch
+              onMouseEnter={() => handlePrefetch(item.path)}
+              onFocus={() => handlePrefetch(item.path)}
               onClick={() => {
                 if (window.innerWidth < 1024 && onNavigate) onNavigate();
               }}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                transition-all duration-150
+                transition-colors duration-100
                 ${
                   isActive
                     ? 'bg-accent-blue/10 text-accent-blue border border-accent-blue/20 shadow-sm'

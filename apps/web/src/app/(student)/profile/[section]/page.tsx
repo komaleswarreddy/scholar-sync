@@ -32,7 +32,7 @@ export default function ProfileSectionPage() {
       return;
     }
     if (isSignedIn) {
-      void refreshUser();
+      void refreshUser({ force: true });
     }
   }, [loading, isSignedIn, router, refreshUser]);
 

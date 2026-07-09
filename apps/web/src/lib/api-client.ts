@@ -77,13 +77,14 @@ class ApiClient {
   private authFailureCount: number = 0; // Track consecutive auth failures
   private maxAuthFailures: number = 3; // Stop trying after 3 failures
   private circuitBreakerOpen: boolean = false; // Circuit breaker state
+  private forceLogoutInFlight: boolean = false; // Dedupe concurrent forced logouts
 
   constructor(
     baseURL: string = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
   ) {
     this.client = axios.create({
       baseURL,
-      timeout: 12000, // Default; uploads/streams/studio use longer per-request timeouts
+      timeout: 25000, // Default; auth uses explicit timeout; uploads/streams/studio use longer
       // Don't set default Content-Type - let axios set it based on data type
     });
     this.getTokenFunc = async () => getPlatformToken();
@@ -113,21 +114,34 @@ class ApiClient {
         if (!this.circuitBreakerOpen && this.getTokenFunc && (!this.latestToken || this.isTokenExpired())) {
           try {
             await this.refreshToken(true);
-          } catch (e) {
+          } catch {
             // Ignore token refresh errors
+          }
+        }
+
+        let bearer = this.latestToken;
+        if (!bearer && this.getTokenFunc && !this.circuitBreakerOpen) {
+          try {
+            bearer = await this.getTokenFunc();
+            if (bearer) {
+              this.latestToken = bearer;
+              this.tokenExpiry = this.getTokenExpiry(bearer);
+            }
+          } catch {
+            // Ignore
           }
         }
 
         if (this.circuitBreakerOpen) {
           delete headers['Authorization'];
-        } else if (this.latestToken) {
-          headers['Authorization'] = `Bearer ${this.latestToken}`;
+        } else if (bearer) {
+          headers['Authorization'] = `Bearer ${bearer}`;
         }
 
         const tenantId = getTenantIdFromCookie();
         headers['x-tenant-id'] = tenantId;
 
-        const userId = extractUserIdFromToken(this.latestToken);
+        const userId = extractUserIdFromToken(bearer);
         if (userId) {
           headers['x-user-id'] = userId;
         }
@@ -153,18 +167,9 @@ class ApiClient {
           if (this.authFailureCount >= this.maxAuthFailures) {
             this.circuitBreakerOpen = true;
             console.error(`Circuit breaker opened after ${this.authFailureCount} auth failures. Redirecting to login.`);
-            
-            // Redirect to login if logout handler is available
-            if (this.logoutFunc) {
-              try {
-                await this.logoutFunc();
-              } catch (err) {
-                console.error('Logout failed', err);
-              }
-            }
-            clearPlatformSession();
-            redirectToSignIn();
-            
+
+            await this.forceLogout();
+
             // Create standardized error
             const apiError = handleApiError(error);
             return Promise.reject(apiError);
@@ -193,15 +198,7 @@ class ApiClient {
 
           // If token refresh failed and circuit breaker is open, redirect to login
           if (this.circuitBreakerOpen) {
-            if (this.logoutFunc) {
-              try {
-                await this.logoutFunc();
-              } catch (err) {
-                console.error('Logout failed', err);
-              }
-            }
-            clearPlatformSession();
-            redirectToSignIn();
+            await this.forceLogout();
             const apiError = handleApiError(error);
             return Promise.reject(apiError);
           }
@@ -250,6 +247,15 @@ class ApiClient {
     this.logoutFunc = logoutFunc;
   }
 
+  /** Set token synchronously after login — avoids race before first authenticated API call. */
+  primeAuthToken(token: string): void {
+    this.latestToken = token;
+    this.tokenExpiry = this.getTokenExpiry(token);
+    this.authFailureCount = 0;
+    this.circuitBreakerOpen = false;
+    this.forceLogoutInFlight = false;
+  }
+
   /** Drop cached JWT and auth failure state (e.g. after sign-out). */
   clearAuthSession() {
     this.latestToken = null;
@@ -257,6 +263,24 @@ class ApiClient {
     this.authFailureCount = 0;
     this.circuitBreakerOpen = false;
     this.refreshPromise = null;
+    this.forceLogoutInFlight = false;
+  }
+
+  /** Forced logout on unrecoverable auth failure — deduped so concurrent
+   * failing requests don't each trigger their own navigation/redirect. */
+  private async forceLogout(): Promise<void> {
+    if (this.forceLogoutInFlight) return;
+    this.forceLogoutInFlight = true;
+    if (this.logoutFunc) {
+      try {
+        await this.logoutFunc();
+        return;
+      } catch (err) {
+        console.error('Logout failed', err);
+      }
+    }
+    clearPlatformSession();
+    redirectToSignIn();
   }
 
   async login(username: string, password: string): Promise<PlatformUser> {
@@ -265,6 +289,7 @@ class ApiClient {
       '/api/v1/auth/login',
       { username, password },
       {
+        timeout: 30000,
         headers: {
           'Content-Type': 'application/json',
           'x-tenant-id': tenantId,
@@ -278,20 +303,18 @@ class ApiClient {
     }
     establishPlatformSession(accessToken, user);
     this.setTokenGetter(async () => accessToken);
-    this.latestToken = accessToken;
-    this.tokenExpiry = this.getTokenExpiry(accessToken);
-    this.authFailureCount = 0;
-    this.circuitBreakerOpen = false;
+    this.primeAuthToken(accessToken);
+    // Warm student data while navigating — non-blocking.
     return user;
   }
 
   async getCurrentUser(): Promise<PlatformUser> {
-    const res = await this.client.get('/api/v1/auth/me');
+    const res = await this.client.get('/api/v1/auth/me', { timeout: 15000 });
     return res.data as PlatformUser;
   }
 
   async getMyProfile(): Promise<PlatformUser> {
-    const res = await this.client.get('/api/v1/users/me/profile');
+    const res = await this.client.get('/api/v1/users/me/profile', { timeout: 15000 });
     return res.data as PlatformUser;
   }
 
@@ -614,7 +637,14 @@ class ApiClient {
     ncertChapterNo?: number,
     ncertChapterName?: string,
     forceWholeFileMapReduce?: boolean,
-    ncertConcept?: string
+    ncertConcept?: string,
+    // Backend now streams the primary answer live as it generates. If a
+    // post-generation step (retry, hallucination-guard fix, output
+    // formatting/limiting, or output moderation) changes the answer after tokens
+    // were already sent, the server cannot un-send them — it emits a `replace`
+    // event with the corrected full text instead. Callers should reset their
+    // displayed/accumulated text to this value rather than appending it.
+    onReplace?: (text: string) => void
   ) {
     const tenantId = getTenantIdFromCookie();
     let retryCount = 0;
@@ -633,7 +663,7 @@ class ApiClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
           controller.abort();
-        }, 120000); // 2 minute timeout for streaming
+        }, 300000); // 5 minute timeout for streaming (longer for detailed responses)
 
         // Task B.b: Get user ID from token for X-User-ID header
         const userId = extractUserIdFromToken(this.latestToken);
@@ -790,6 +820,9 @@ class ApiClient {
 
         const decoder = new TextDecoder();
         let buffer = '';
+        // Must survive across TCP/read chunks — SSE "event:" and "data:" often arrive separately.
+        let currentEventType: string | null = null;
+        let streamErrorHandled = false;
 
         while (true) {
           let readResult;
@@ -845,8 +878,6 @@ class ApiClient {
           const lines = buffer.split('\n');
           buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
-          let currentEventType: string | null = null;
-
           for (const line of lines) {
             // Handle SSE format: "event: type\ndata: payload\n\n"
             if (line.startsWith('event: ')) {
@@ -885,6 +916,8 @@ class ApiClient {
                 // Handle error events from server
                 if (currentEventType === 'error') {
                   const errorMsg = eventData.error || eventData.data?.error || 'An error occurred during streaming';
+                  streamErrorHandled = true;
+                  currentEventType = null;
                   if (onError) {
                     onError(errorMsg);
                   } else {
@@ -911,6 +944,21 @@ class ApiClient {
                   const citation = eventData.data || eventData;
                   if (citation) {
                     onCitation(citation);
+                  }
+                }
+
+                // Handle replace events: the server already streamed the primary
+                // answer live, then a retry/guardrail/formatting step produced a
+                // different final answer. Replace (do not append) the accumulated
+                // text so the UI shows the authoritative version.
+                if (currentEventType === 'replace') {
+                  const text = eventData.text || eventData.data?.text;
+                  if (typeof text === 'string') {
+                    accumulatedText = text;
+                    hasReceivedText = true;
+                    if (onReplace) {
+                      onReplace(text);
+                    }
                   }
                 }
 
@@ -974,12 +1022,17 @@ class ApiClient {
           // After processing all lines, if stream is done, check if we received text
           if (done) {
             // Handle empty response edge case (no text received)
-            // Only check if we haven't already received a 'done' event (which would have returned)
+            // Only check if we haven't already received a 'done' or 'error' event
+            if (streamErrorHandled) {
+              return;
+            }
             if (!hasReceivedText || accumulatedText.trim() === '') {
               if (onError) {
-                onError('Received empty text response from server. The model may have been blocked or encountered an error. Please try again.');
+                onError(
+                  'No answer was returned for this question. Try again, or check that this notebook has sources or NCERT curriculum content for the selected chapter.',
+                );
               } else {
-                throw new Error('Received empty text response from server. Please try again.');
+                throw new Error('No answer was returned for this question. Please try again.');
               }
               return;
             }
@@ -1378,6 +1431,21 @@ class ApiClient {
     return res.data;
   }
 
+  async getPortalConfig() {
+    const res = await this.client.get('/api/v1/portal-config');
+    return res.data as { enabled_tabs: Record<string, boolean> };
+  }
+
+  async getAdminPortalConfig() {
+    const res = await this.client.get('/api/v1/admin/portal-config');
+    return res.data as { enabled_tabs: Record<string, boolean> };
+  }
+
+  async updateAdminPortalConfig(body: { tab: string; enabled: boolean }) {
+    const res = await this.client.patch('/api/v1/admin/portal-config', body);
+    return res.data as { enabled_tabs: Record<string, boolean> };
+  }
+
   async getChat(chatId: string) {
     const res = await this.client.get(`/api/v1/chat/${chatId}`, {
       timeout: 60000,
@@ -1456,7 +1524,13 @@ class ApiClient {
 
   async listMessageFeedback(messageId: string) {
     const res = await this.client.get(`/api/v1/messages/${messageId}/feedback`);
-    return res.data as Array<{ id: string; signal_type: string; user_tier: string }>;
+    return res.data as Array<{
+      id: string;
+      signal_type: string;
+      user_tier: string;
+      dimension_tag?: string | null;
+      free_text?: string | null;
+    }>;
   }
 
   async deleteMessageFeedback(messageId: string, feedbackId: string) {
@@ -1477,7 +1551,10 @@ class ApiClient {
     id: string,
     body: { decision: 'approved' | 'rejected'; review_notes?: string; confidence_score?: number }
   ) {
-    const res = await this.client.post(`/api/v1/admin/curation/candidates/${id}/review`, body);
+    // Approve runs LLM artifact extraction + embed — allow longer than default 25s.
+    const res = await this.client.post(`/api/v1/admin/curation/candidates/${id}/review`, body, {
+      timeout: 120000,
+    });
     return res.data;
   }
 
@@ -1752,9 +1829,17 @@ class ApiClient {
     return res.data;
   }
 
-  async streamProblemSolverResponse(
-    sessionId: string,
+  /**
+   * Shared SSE consumer for the Problem Solver streaming endpoints
+   * (`respond/stream` and `checkpoint/stream`). Both endpoints emit the same
+   * event shapes: `status` (live "still working" heartbeat while the single
+   * blocking LLM call is in flight), `start`, `section`, `done`, `error`.
+   */
+  private async _consumeProblemSolverSSE(
+    path: string,
+    body: Record<string, unknown> | undefined,
     handlers: {
+      onStatus?: (data: { stage?: string; message?: string; elapsed_ms?: number }) => void;
       onStart?: (data: { title?: string; mode?: string }) => void;
       onSection?: (data: { index: number; heading?: string; bodyMarkdown?: string }) => void;
       onDone?: (data: Record<string, unknown>) => void;
@@ -1774,10 +1859,11 @@ class ApiClient {
       headers['x-user-id'] = userId;
     }
 
-    const response = await fetch(
-      `${this.client.defaults.baseURL}/api/v1/problem-solver/sessions/${sessionId}/respond/stream`,
-      { method: 'POST', headers },
-    );
+    const response = await fetch(`${this.client.defaults.baseURL}${path}`, {
+      method: 'POST',
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
 
     if (!response.ok) {
       const errText = await response.text().catch(() => 'Stream failed');
@@ -1815,7 +1901,8 @@ class ApiClient {
         if (!dataStr) continue;
         try {
           const data = JSON.parse(dataStr);
-          if (eventType === 'start') handlers.onStart?.(data);
+          if (eventType === 'status') handlers.onStatus?.(data);
+          else if (eventType === 'start') handlers.onStart?.(data);
           else if (eventType === 'section') handlers.onSection?.(data);
           else if (eventType === 'done') handlers.onDone?.(data);
           else if (eventType === 'error') handlers.onError?.(data.error || 'Stream error');
@@ -1824,6 +1911,42 @@ class ApiClient {
         }
       }
     }
+  }
+
+  async streamProblemSolverResponse(
+    sessionId: string,
+    handlers: {
+      onStatus?: (data: { stage?: string; message?: string; elapsed_ms?: number }) => void;
+      onStart?: (data: { title?: string; mode?: string }) => void;
+      onSection?: (data: { index: number; heading?: string; bodyMarkdown?: string }) => void;
+      onDone?: (data: Record<string, unknown>) => void;
+      onError?: (message: string) => void;
+    },
+  ) {
+    return this._consumeProblemSolverSSE(
+      `/api/v1/problem-solver/sessions/${sessionId}/respond/stream`,
+      undefined,
+      handlers,
+    );
+  }
+
+  async streamProblemSolverCheckpoint(
+    sessionId: string,
+    checkpointNumber: number,
+    selectedOption: string,
+    handlers: {
+      onStatus?: (data: { stage?: string; message?: string; elapsed_ms?: number }) => void;
+      onStart?: (data: { title?: string; mode?: string }) => void;
+      onSection?: (data: { index: number; heading?: string; bodyMarkdown?: string }) => void;
+      onDone?: (data: Record<string, unknown>) => void;
+      onError?: (message: string) => void;
+    },
+  ) {
+    return this._consumeProblemSolverSSE(
+      `/api/v1/problem-solver/sessions/${sessionId}/checkpoint/stream`,
+      { checkpoint_number: checkpointNumber, selected_option: selectedOption },
+      handlers,
+    );
   }
 }
 

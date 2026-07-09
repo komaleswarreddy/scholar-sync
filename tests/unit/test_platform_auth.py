@@ -27,18 +27,20 @@ def test_create_and_extract_platform_token():
     assert extract_platform_role(token) == "student"
 
 
-def test_bootstrap_admin_password_verification():
+@pytest.mark.asyncio
+async def test_bootstrap_admin_password_verification():
     with patch("apps.api.middleware.auth.settings") as mock_settings:
         mock_settings.BOOTSTRAP_ADMIN_PASSWORD_HASH = ""
         mock_settings.BOOTSTRAP_ADMIN_PASSWORD = "notebook123"
-        assert verify_bootstrap_admin_password("notebook123") is True
-        assert verify_bootstrap_admin_password("wrong") is False
+        assert await verify_bootstrap_admin_password("notebook123") is True
+        assert await verify_bootstrap_admin_password("wrong") is False
 
 
-def test_password_hash_roundtrip():
-    hashed = hash_password("testpassword123")
-    assert verify_password("testpassword123", hashed) is True
-    assert verify_password("wrong", hashed) is False
+@pytest.mark.asyncio
+async def test_password_hash_roundtrip():
+    hashed = await hash_password("testpassword123")
+    assert await verify_password("testpassword123", hashed) is True
+    assert await verify_password("wrong", hashed) is False
 
 
 def test_normalize_role_valid():

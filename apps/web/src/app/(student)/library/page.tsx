@@ -18,7 +18,7 @@ import type { LibraryNotebook } from '@/lib/library-mock-data';
 export default function LibraryPage() {
   const router = useRouter();
   const { loading, isSignedIn } = useUserContext();
-  const { data, isLoading, isError } = useListNotebooks();
+  const { data, isPending, isError } = useListNotebooks();
   const sourceNotebooks = useMemo(
     () => (data?.notebooks ?? []).map(mapApiNotebookToLibrary),
     [data?.notebooks],
@@ -43,7 +43,7 @@ export default function LibraryPage() {
         activeThisWeek={data?.active_this_week ?? 0}
         onNewNotebook={() => router.push('/dashboard')}
       />
-      {isLoading && !data ? (
+      {isPending && !data ? (
         <LibraryGridSkeleton />
       ) : isError ? (
         <p className="text-[var(--color-home-text-muted)] py-8 text-center">

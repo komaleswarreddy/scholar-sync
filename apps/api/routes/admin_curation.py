@@ -64,6 +64,15 @@ async def list_curation_candidates(
                 "source_type": c.source_type,
                 "concept_node_id": str(c.concept_node_id) if c.concept_node_id else None,
                 "scoring_signals": c.scoring_signals,
+                "query_text": (
+                    (c.interaction_log.query_text if c.interaction_log else None)
+                    or (c.feedback.free_text[:200] if c.feedback and c.feedback.free_text else None)
+                ),
+                "user_tier": (
+                    (c.interaction_log.user_tier if c.interaction_log else None)
+                    or (c.feedback.user_tier if c.feedback else None)
+                ),
+                "feedback_signal": c.feedback.signal_type if c.feedback else None,
                 "created_at": c.created_at.isoformat() if c.created_at else None,
             }
             for c in items
@@ -98,8 +107,15 @@ async def get_curation_candidate(
         "feedback": {
             "id": str(cand.feedback.id),
             "signal_type": cand.feedback.signal_type,
+            "dimension_tag": cand.feedback.dimension_tag,
             "free_text": cand.feedback.free_text,
+            "user_tier": cand.feedback.user_tier,
         } if cand.feedback else None,
+        "source_type": cand.source_type,
+        "review_notes": cand.review_notes,
+        "reviewed_by": cand.reviewed_by,
+        "reviewed_at": cand.reviewed_at.isoformat() if cand.reviewed_at else None,
+        "created_at": cand.created_at.isoformat() if cand.created_at else None,
         "artifact_preview": cand.artifact.content[:500] if cand.artifact else None,
     }
 

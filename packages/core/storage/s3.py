@@ -6,6 +6,7 @@ All files are stored in tenant-scoped paths.
 """
 
 import asyncio
+import time
 from fastapi import UploadFile
 from typing import Optional
 from supabase import create_client, Client
@@ -16,6 +17,25 @@ from packages.core.storage.base import BaseStorage
 
 # Initialize Supabase client (lazy)
 _supabase_client: Optional[Client] = None
+
+# Module-level presigned URL cache: {(bucket_name, file_path): (url, expires_at_monotonic)}
+# Without this, every list_sources() call re-signs a fresh URL for every source in the
+# notebook — including sources that finished indexing long ago — which is expensive when the
+# frontend fast-polls (every 2s) while any single source is still processing. Cache with a
+# safety margin under the real presign expiration so a served URL always has time left before
+# it actually expires.
+_presigned_url_cache: dict[tuple[str, str], tuple[str, float]] = {}
+_PRESIGN_CACHE_SAFETY_MARGIN_SECONDS = 300  # keep 5 min of validity in reserve
+_PRESIGN_CACHE_MAX_ENTRIES = 5000
+
+
+def _prune_presigned_url_cache(now: float) -> None:
+    """Evict expired entries once the cache grows large, to bound memory use."""
+    if len(_presigned_url_cache) <= _PRESIGN_CACHE_MAX_ENTRIES:
+        return
+    expired_keys = [key for key, (_, expires_at) in _presigned_url_cache.items() if expires_at <= now]
+    for key in expired_keys:
+        _presigned_url_cache.pop(key, None)
 
 def get_supabase_client() -> Client:
     """Get or create Supabase client."""
@@ -102,16 +122,28 @@ class S3Storage(BaseStorage):
     async def get_presigned_url(self, file_path: str, expiration: int = 3600) -> str:
         """
         Generate presigned URL for file access.
-        
+
+        Cached in-process with a TTL slightly under `expiration` (see
+        _presigned_url_cache) so repeated calls for the same file within that window
+        (e.g. frontend fast-polling while a sibling source is still processing) reuse
+        the existing URL instead of hitting Supabase Storage again.
+
         Args:
             file_path: Storage path
             expiration: URL expiration time in seconds
-            
+
         Returns:
             Presigned URL
         """
+        cache_key = (self.bucket_name, file_path)
+        now = time.monotonic()
+        cached = _presigned_url_cache.get(cache_key)
+        if cached and cached[1] > now:
+            return cached[0]
+
         supabase = get_supabase_client()
-        
+
+        url = None
         try:
             # Try to create signed URL (for private buckets)
             response = supabase.storage.from_(self.bucket_name).create_signed_url(
@@ -119,22 +151,26 @@ class S3Storage(BaseStorage):
                 expires_in=expiration
             )
             if isinstance(response, dict) and "signedURL" in response:
-                return response["signedURL"]
+                url = response["signedURL"]
             elif isinstance(response, str):
-                return response
+                url = response
             else:
                 # Fallback: try to get public URL
-                public_url = supabase.storage.from_(self.bucket_name).get_public_url(file_path)
-                return public_url
+                url = supabase.storage.from_(self.bucket_name).get_public_url(file_path)
         except Exception as e:
             # Fallback: try to get public URL
             try:
-                public_url = supabase.storage.from_(self.bucket_name).get_public_url(file_path)
-                return public_url
+                url = supabase.storage.from_(self.bucket_name).get_public_url(file_path)
             except Exception as e2:
                 # If all fails, return None (will be handled by caller)
                 print(f"Warning: Could not generate URL for {file_path}: {e2}")
                 return None
+
+        if url:
+            _prune_presigned_url_cache(now)
+            ttl = max(expiration - _PRESIGN_CACHE_SAFETY_MARGIN_SECONDS, 0)
+            _presigned_url_cache[cache_key] = (url, now + ttl)
+        return url
     
     async def download_file(self, file_path: str) -> bytes:
         """

@@ -1,21 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { apiClient } from '@/lib/api-client';
-import { getPlatformToken, hasPlatformSession } from '@/lib/platform-auth';
+import { getPlatformToken } from '@/lib/platform-auth';
+import { useSessionQueryEnabled } from '@/hooks/usePlatformSession';
 
-/** Ensures apiClient uses the platform JWT on ops dashboard pages. */
+/** Ensures apiClient uses the platform JWT — ready as soon as session token exists. */
 export function useAdminPortalApi() {
-  const [ready, setReady] = useState(() =>
-    typeof window !== 'undefined' && hasPlatformSession()
-  );
+  const ready = useSessionQueryEnabled();
 
   useEffect(() => {
-    if (hasPlatformSession()) {
-      apiClient.setTokenGetter(async () => getPlatformToken());
-      setReady(true);
-    }
-  }, []);
+    if (!ready) return;
+    const token = getPlatformToken();
+    if (!token) return;
+    apiClient.setTokenGetter(async () => getPlatformToken());
+    apiClient.primeAuthToken(token);
+  }, [ready]);
 
   return { ready };
 }

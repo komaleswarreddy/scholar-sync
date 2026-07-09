@@ -22,10 +22,10 @@ async def _run_log_task(
 ) -> None:
     if not settings.IIL_ENABLED:
         return
-    timeout = settings.IIL_LOGGING_ASYNC_TIMEOUT_MS / 1000.0
+    timeout = max(5.0, settings.IIL_LOGGING_ASYNC_TIMEOUT_MS / 1000.0)
     try:
         async with AsyncSessionLocal() as db:
-            await asyncio.wait_for(
+            log = await asyncio.wait_for(
                 create_interaction_log(
                     db,
                     message_id=message_id,
@@ -35,6 +35,10 @@ async def _run_log_task(
                 ),
                 timeout=timeout,
             )
+            if log:
+                logger.info("IIL: log task ok message_id=%s log_id=%s", message_id, log.id)
+            else:
+                logger.warning("IIL: log task returned None for message_id=%s", message_id)
     except asyncio.TimeoutError:
         logger.error("IIL: InteractionLog creation timed out for message %s", message_id)
     except Exception as exc:

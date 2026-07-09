@@ -159,8 +159,12 @@ async def respond_stream(
 
     return StreamingResponse(
         generate(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+        media_type="text/event-stream; charset=utf-8",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 
@@ -179,6 +183,45 @@ async def submit_checkpoint(
         body.selected_option,
     )
     return ProblemSolverSessionResponse(**data)
+
+
+@router.post("/sessions/{session_id}/checkpoint/stream")
+async def submit_checkpoint_stream(
+    session_id: str,
+    body: ProblemSolverCheckpointRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    tenant_id, user_id = _get_context(request)
+    service = ProblemSolverService(db, str(tenant_id), user_id)
+
+    async def generate():
+        try:
+            async for event in service.stream_submit_checkpoint(
+                session_id,
+                body.checkpoint_number,
+                body.selected_option,
+            ):
+                event_data = json.dumps(event["data"], ensure_ascii=False)
+                yield f"event: {event['event']}\n"
+                yield f"data: {event_data}\n\n"
+        except Exception as e:
+            error_data = json.dumps(
+                {"error": safe_detail(e, "An error occurred during streaming")},
+                ensure_ascii=False,
+            )
+            yield f"event: error\n"
+            yield f"data: {error_data}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream; charset=utf-8",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.post("/sessions/{session_id}/follow-up")

@@ -74,16 +74,17 @@ async def map_concept_from_notebook(
 
 async def map_concept_from_query(db: AsyncSession, query: str) -> Optional[UUID]:
     """Exploratory mode: best-effort match query tokens against concept names."""
+    from sqlalchemy import desc, func, literal
+
     q = (query or "").strip().lower()
     if len(q) < 4:
         return None
-    result = await db.execute(select(Concept).limit(500))
-    concepts = result.scalars().all()
-    best: Optional[Concept] = None
-    best_len = 0
-    for c in concepts:
-        name = (c.name or "").lower()
-        if len(name) >= 4 and name in q and len(name) > best_len:
-            best = c
-            best_len = len(name)
-    return best.id if best else None
+    result = await db.execute(
+        select(Concept.id)
+        .where(func.length(Concept.name) >= 4)
+        .where(func.strpos(literal(q), func.lower(Concept.name)) > 0)
+        .order_by(desc(func.length(Concept.name)))
+        .limit(1)
+    )
+    row = result.scalar_one_or_none()
+    return row if row else None

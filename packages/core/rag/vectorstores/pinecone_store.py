@@ -6,6 +6,7 @@ All operations are tenant-scoped using namespaces.
 """
 
 from typing import List, Dict, Any, Optional
+import asyncio
 import time
 
 try:
@@ -129,7 +130,8 @@ class PineconeVectorStore(BaseVectorStore):
         embedding_dimensions = self._embedding_dimensions()
         print(f"[RAG] Generating embedding: Provider=OpenAI, Model={embedding_model}, TextLength={len(text)} chars")
         t0 = time.perf_counter()
-        response = self.openai_client.embeddings.create(
+        response = await asyncio.to_thread(
+            self.openai_client.embeddings.create,
             model=embedding_model,
             input=text,
             dimensions=embedding_dimensions,
@@ -180,7 +182,8 @@ class PineconeVectorStore(BaseVectorStore):
         
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]
-            response = self.openai_client.embeddings.create(
+            response = await asyncio.to_thread(
+                self.openai_client.embeddings.create,
                 model=self._embedding_model(),
                 input=batch,
                 dimensions=self._embedding_dimensions(),

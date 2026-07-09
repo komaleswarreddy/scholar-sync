@@ -1,11 +1,10 @@
 'use client';
 
-import { useUserContext } from '@/contexts/UserContext';
+import { useSessionQueryEnabled } from '@/hooks/usePlatformSession';
 
-/** True when platform auth has finished loading and the user is signed in. */
+/** True when platform JWT is available — enables authenticated API queries. */
 export function useAuthQueryEnabled(): boolean {
-  const { authReady } = useUserContext();
-  return authReady;
+  return useSessionQueryEnabled();
 }
 
 /** @deprecated Use useAuthQueryEnabled */

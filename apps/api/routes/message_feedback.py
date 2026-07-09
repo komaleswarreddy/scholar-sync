@@ -12,7 +12,7 @@ from apps.api.routes.admin import check_admin_role
 from config.settings import settings
 from packages.core.database.connection import get_db
 from packages.core.iil.feedback_service import delete_feedback, list_feedback_for_message, submit_feedback
-from packages.core.iil.scheduler import trigger_scoring_on_feedback
+from packages.core.iil.scheduler import schedule_scoring_on_feedback
 
 router = APIRouter()
 
@@ -73,8 +73,9 @@ async def create_message_feedback(
         dimension_tag=body.dimension_tag,
         free_text=body.free_text,
     )
-    if body.signal_type in ("expert_note", "expert_validated"):
-        trigger_scoring_on_feedback(str(fb.id))
+    # Immediate curation queue for expert signals (async task — does not block response).
+    if body.signal_type in ("expert_note", "expert_validated", "missing_dimension"):
+        schedule_scoring_on_feedback(str(fb.id))
     return _to_response(fb)
 
 

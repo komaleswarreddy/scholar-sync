@@ -10,9 +10,6 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from packages.core.services.tutor_ncert_context_cache import TutorNcertContextCache
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.settings import settings
@@ -23,6 +20,7 @@ from packages.core.services.chat_service import ChatService
 from packages.core.services.ncert_catalog_helpers import subject_display_label
 from packages.core.services.notebook_service import NotebookService
 from packages.core.services.tutor_catalog_service import TutorCatalogService
+from packages.core.services.tutor_ncert_context_cache import TutorNcertContextCache
 
 BOOTSTRAP_RETRIEVAL_QUERY = (
     "Summarize main topics, key definitions, and relationships in this chapter"
@@ -161,6 +159,7 @@ class TutorNotebookBootstrapService:
         self.notebook_service = NotebookService(db, tenant_id, user_id)
         self.catalog_service = TutorCatalogService(db)
         self.chat_service = ChatService(db, tenant_id, user_id)
+        self.context_cache = TutorNcertContextCache(tenant_id)
 
     async def bootstrap_notebook(self, notebook_id: str) -> Dict[str, Any]:
         notebook = await self.notebook_service.get_notebook(notebook_id)
@@ -187,9 +186,12 @@ class TutorNotebookBootstrapService:
         scope = _normalize_scope(scope_raw)
 
         t0 = time.perf_counter()
-        ncert_context, topic_summary, _cache_hit = await self.fetch_scope_materials(scope)
+        ncert_context, topic_summary, cache_hit = await self.fetch_scope_materials(
+            scope, context_cache=self.context_cache
+        )
         print(
-            f"[TUTOR_BOOTSTRAP] phase=ncert_retrieval ms={int((time.perf_counter() - t0) * 1000)}"
+            f"[TUTOR_BOOTSTRAP] phase=ncert_retrieval ms={int((time.perf_counter() - t0) * 1000)} "
+            f"cache_hit={bool(cache_hit)}"
         )
 
         t0 = time.perf_counter()

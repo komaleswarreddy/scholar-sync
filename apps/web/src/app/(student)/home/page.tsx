@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserContext } from '@/contexts/UserContext';
+import { usePlatformSession } from '@/hooks/usePlatformSession';
 import {
   HomeHero,
   QuickActionCard,
@@ -21,9 +22,11 @@ import { track } from '@/lib/telemetry';
 
 export default function HomeLandingPage() {
   const router = useRouter();
-  const { user } = useUserContext();
+  const { user: contextUser } = useUserContext();
+  const { user: sessionUser } = usePlatformSession();
+  const user = contextUser ?? sessionUser;
   const [createPopoverOpen, setCreatePopoverOpen] = useState(false);
-  const { data: homeSummary, isLoading: homeLoading } = useHomeSummary();
+  const { data: homeSummary, isPending: homePending } = useHomeSummary();
 
   useEffect(() => {
     track('home.viewed');
@@ -45,10 +48,10 @@ export default function HomeLandingPage() {
   }, [homeSummary?.continue_learning]);
 
   const continueDescription = useMemo(() => {
-    if (homeLoading) return '\u00a0';
+    if (homePending && !homeSummary) return '\u00a0';
     if (recentNotebook?.title) return recentNotebook.title;
     return 'No recent notebook yet';
-  }, [homeLoading, recentNotebook?.title]);
+  }, [homePending, homeSummary, recentNotebook?.title]);
 
   const handleContinue = () => {
     track('home.continue_learning_clicked');
@@ -63,7 +66,7 @@ export default function HomeLandingPage() {
     <div className="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-10">
       <HomeMobileNav />
 
-      {homeLoading && !homeSummary ? (
+      {homePending && !homeSummary ? (
         <HomeOverviewSkeleton />
       ) : (
         <>

@@ -6,8 +6,10 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 import { apiClient } from '@/lib/api-client';
 import {
   Chart as ChartJS,
@@ -50,31 +52,15 @@ interface Source {
 
 export default function DocumentsPage() {
   const { ready } = useAdminPortalApi();
-  const [sources, setSources] = useState<Source[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch sources from backend
-  useEffect(() => {
-    const fetchSources = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const sourcesList = await apiClient.listSources();
-        setSources(sourcesList || []);
-      } catch (err: any) {
-        console.error('[Documents] Failed to fetch sources:', err);
-        setError(err?.message || 'Failed to load documents');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSources();
-  }, [ready]);
+  const { data, isPending, error: queryError } = useQuery({
+    queryKey: adminQueryKeys.documents(),
+    queryFn: () => apiClient.listSources(),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const sources = data ?? [];
+  const loading = isPending;
+  const error = queryError ? ((queryError as any)?.message || 'Failed to load documents') : null;
 
   // Calculate statistics
   const stats = useMemo(() => {

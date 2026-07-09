@@ -1,17 +1,20 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 
 export function useAdminAccounts(search?: string, role?: string) {
   const { ready } = useAdminPortalApi();
   const queryClient = useQueryClient();
 
   const listQuery = useQuery({
-    queryKey: ['admin', 'accounts', search, role],
+    queryKey: adminQueryKeys.accounts(search, role),
     queryFn: () => apiClient.listAccounts({ search, role }),
     enabled: ready,
+    staleTime: 2 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 
   const createMutation = useMutation({

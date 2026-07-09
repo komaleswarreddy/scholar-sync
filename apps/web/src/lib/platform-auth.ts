@@ -5,6 +5,7 @@
 const TOKEN_KEY = 'platform_token';
 const SESSION_COOKIE = 'platform_session';
 const ROLE_COOKIE = 'platform_role';
+const PROFILE_SYNCED_AT_KEY = 'platform_user_synced_at';
 
 export const SIGN_OUT_QUERY = 'signed_out';
 export const PLATFORM_SESSION_CHANGED = 'platform-session-changed';
@@ -45,17 +46,40 @@ export function setPlatformToken(token: string, role?: string | null): void {
 
 /** Persist token + user profile and role cookie (used after login). */
 export function establishPlatformSession(token: string, user: PlatformUser): void {
+  if (!token?.trim()) {
+    throw new Error('establishPlatformSession: missing access token');
+  }
+  if (!user?.id) {
+    throw new Error('establishPlatformSession: login response missing user.id');
+  }
   const role =
     user.is_bootstrap_admin || user.role === 'schooladmin' ? 'schooladmin' : user.role || 'student';
   setPlatformToken(token, role);
   setStoredPlatformUser(user);
+  try {
+    sessionStorage.setItem(PROFILE_SYNCED_AT_KEY, String(Date.now()));
+  } catch {
+    /* ignore */
+  }
   notifyPlatformSessionChanged();
+}
+
+/** Timestamp (ms) of the last time the user profile was known-fresh (login or /auth/me). */
+export function getStoredProfileSyncedAt(): number | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(PROFILE_SYNCED_AT_KEY);
+    return raw ? Number(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function clearPlatformSession(): void {
   if (typeof window === 'undefined') return;
   sessionStorage.removeItem(TOKEN_KEY);
   sessionStorage.removeItem('platform_user');
+  sessionStorage.removeItem(PROFILE_SYNCED_AT_KEY);
   document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   document.cookie = `${ROLE_COOKIE}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   notifyPlatformSessionChanged();

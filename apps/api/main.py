@@ -9,6 +9,19 @@ from dotenv import load_dotenv
 import sys
 import logging
 
+# ========== FORCE UTF-8 STDOUT/STDERR (Windows console defaults to cp1252
+# "charmap", which cannot encode non-ASCII chars like Greek letters (ρ, μ, Ω)
+# that show up in ingested source text / LLM output. Debug print() calls
+# throughout the RAG pipeline dump raw chunk previews to stdout; without this,
+# any such character crashes the process with UnicodeEncodeError mid-request,
+# which streaming endpoints then surface to the client as a fake "streaming
+# error". reconfigure() must run before any other print/log call below. ==========
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+# ========== END UTF-8 STDOUT/STDERR ==========
+
 # ========== CONFIGURE LOGGING FOR IMMEDIATE DISPLAY ==========
 # Ensure all logs are immediately flushed and visible in terminal
 logging.basicConfig(
@@ -38,9 +51,27 @@ def log_msg(msg):
 import builtins
 _original_print = builtins.print
 def flushed_print(*args, **kwargs):
-    """Override print to always flush"""
+    """Override print to always flush.
+
+    Also swallows UnicodeEncodeError: on Windows, uvicorn's colorama console
+    wrapper re-binds sys.stdout to a cp1252 ("charmap") stream even after
+    reconfigure(encoding="utf-8") runs above, so any debug print() of source
+    text containing non-ASCII chars (e.g. Greek letters like ρ, μ, Ω from
+    physics/chemistry PDFs) can still raise mid-request and crash a
+    streaming response. Retry with the offending characters replaced instead
+    of ever propagating the encoding error out of a print() call.
+    """
     kwargs['flush'] = True
-    return _original_print(*args, **kwargs)
+    try:
+        return _original_print(*args, **kwargs)
+    except UnicodeEncodeError:
+        target_encoding = getattr(kwargs.get('file', sys.stdout), "encoding", None) or "ascii"
+        safe_args = tuple(
+            arg.encode(target_encoding, errors="replace").decode(target_encoding, errors="replace")
+            if isinstance(arg, str) else arg
+            for arg in args
+        )
+        return _original_print(*safe_args, **kwargs)
 builtins.print = flushed_print
 
 load_dotenv()
@@ -97,7 +128,7 @@ else:
 from apps.api.middleware.tenant import TenantMiddleware
 from apps.api.middleware.request_logging import RequestLoggingMiddleware
 from apps.api.middleware.security_headers import SecurityHeadersMiddleware
-from apps.api.routes import chat, sources, studio, studio_features, notes, notebooks, home, health, metrics, dashboards, alerts, admin, admin_ncert_global, admin_accounts, admin_curation, message_feedback, pipeline_traces, tutor, problem_solver, teacher_auth, auth, users
+from apps.api.routes import chat, sources, studio, studio_features, notes, notebooks, home, health, metrics, dashboards, alerts, admin, admin_ncert_global, admin_accounts, admin_curation, admin_portal_config, message_feedback, pipeline_traces, tutor, problem_solver, teacher_auth, auth, users
 
 # Fail-closed: refuse to start with insecure defaults in production.
 from config.settings import validate_production_security
@@ -206,6 +237,8 @@ app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["alerts"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 app.include_router(admin_accounts.router, prefix="/api/v1/admin", tags=["admin-accounts"])
 app.include_router(admin_curation.router, prefix="/api/v1/admin", tags=["admin-curation"])
+app.include_router(admin_portal_config.public_router, prefix="/api/v1", tags=["portal-config"])
+app.include_router(admin_portal_config.admin_router, prefix="/api/v1/admin", tags=["admin-portal-config"])
 app.include_router(admin_ncert_global.router, prefix="/api/v1/admin", tags=["admin-ncert-global"])
 app.include_router(message_feedback.router, prefix="/api/v1", tags=["message-feedback"])
 app.include_router(teacher_auth.router, prefix="/api/v1/teacher", tags=["teacher-auth"])

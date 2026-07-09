@@ -472,35 +472,19 @@ class IngestionService:
     async def _extract_text_with_pages(self, file_content: bytes, pdf_password: str = None) -> Tuple[str, List]:
         """
         Extract text from PDF with page metadata.
-        
+
         Returns:
             Tuple of (full_text, pages) where pages is list of (page_num, page_text) tuples
         """
         try:
-            pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
-            
-            # Check if PDF is encrypted
-            if pdf_reader.is_encrypted:
-                if pdf_password:
-                    if not pdf_reader.decrypt(pdf_password):
-                        raise ValueError("Incorrect password for PDF. Please provide the correct password.")
-                else:
-                    if not pdf_reader.decrypt(""):
-                        raise ValueError("PDF is password-protected or encrypted. Please provide the password.")
-            
-            # Extract pages with metadata
-            pages = []
-            full_text = ""
-            for page_num, page in enumerate(pdf_reader.pages, start=1):
-                try:
-                    page_text = page.extract_text() or ""
-                    if page_text.strip():
-                        pages.append((page_num, page_text))
-                        full_text += page_text + "\n\n"
-                except Exception as page_error:
-                    print(f"[WARNING] Failed to extract text from page {page_num}: {str(page_error)}")
-                    continue
-            
+            # pypdf parsing is synchronous/CPU-bound. process_file_background (the caller of
+            # this method) is invoked via FastAPI BackgroundTasks as an async task, which runs
+            # on the main event loop rather than a dedicated thread — so this work is offloaded
+            # to a worker thread to avoid stalling other concurrent requests.
+            full_text, pages = await asyncio.to_thread(
+                self._parse_pdf_pages_sync, file_content, pdf_password
+            )
+
             if not full_text or not full_text.strip():
                 from packages.core.processing.image_ocr import ocr_scanned_pdf
 
@@ -517,12 +501,45 @@ class IngestionService:
                     raise ValueError(
                         f"{SCANNED_PDF_MESSAGE} ({ocr_error})"
                     ) from ocr_error
-            
+
             return full_text.strip(), pages
         except ValueError:
             raise
         except Exception as e:
             raise ValueError(f"Failed to extract text from PDF: {str(e)}")
+
+    @staticmethod
+    def _parse_pdf_pages_sync(file_content: bytes, pdf_password: str = None) -> Tuple[str, List]:
+        """
+        Synchronous pypdf parsing, extracted so it can be run off the event loop via
+        asyncio.to_thread. Returns (full_text, pages); full_text may be empty (caller
+        falls back to OCR in that case).
+        """
+        pdf_reader = pypdf.PdfReader(io.BytesIO(file_content))
+
+        # Check if PDF is encrypted
+        if pdf_reader.is_encrypted:
+            if pdf_password:
+                if not pdf_reader.decrypt(pdf_password):
+                    raise ValueError("Incorrect password for PDF. Please provide the correct password.")
+            else:
+                if not pdf_reader.decrypt(""):
+                    raise ValueError("PDF is password-protected or encrypted. Please provide the password.")
+
+        # Extract pages with metadata
+        pages = []
+        full_text = ""
+        for page_num, page in enumerate(pdf_reader.pages, start=1):
+            try:
+                page_text = page.extract_text() or ""
+                if page_text.strip():
+                    pages.append((page_num, page_text))
+                    full_text += page_text + "\n\n"
+            except Exception as page_error:
+                print(f"[WARNING] Failed to extract text from page {page_num}: {str(page_error)}")
+                continue
+
+        return full_text, pages
     
     async def _extract_text(self, file_content: bytes, content_type: str, pdf_password: str = None) -> str:
         if content_type == "application/pdf":

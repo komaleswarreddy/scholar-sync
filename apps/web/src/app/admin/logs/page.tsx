@@ -6,10 +6,12 @@
 
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
 import { apiClient } from '@/lib/api-client';
-import { Search, Loader2, AlertCircle, Info, CheckCircle2, XCircle, Database } from 'lucide-react';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
+import { Search, AlertCircle, Info, CheckCircle2, XCircle, Database } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { AdminTableSkeleton } from '@/components/skeleton';
 
@@ -23,44 +25,37 @@ interface LogEntry {
 
 export default function LogsPage() {
   const { ready } = useAdminPortalApi();
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch real logs from backend
-  useEffect(() => {
-    const fetchLogs = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const data = await apiClient.getLogs(7, 1000, filterType !== 'all' ? filterType : undefined);
-        
-        // Transform backend logs to LogEntry format
-        const logEntries: LogEntry[] = (data.logs || []).map((log: any) => ({
-          timestamp: log.timestamp || log.created_at || new Date().toISOString(),
-          event_type: log.event_type || 'info',
-          user: log.user || log.user_id || 'system',
-          message: log.message || log.detail || 'System event',
-          level: log.level || 'info',
-        }));
-        
-        setLogs(logEntries);
-      } catch (err: any) {
-        console.error('[Logs] Failed to fetch logs:', err);
-        setError(err?.message || 'Failed to load logs');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data, isPending, error: queryError } = useQuery({
+    queryKey: adminQueryKeys.logs(7, 1000, filterType !== 'all' ? filterType : undefined),
+    queryFn: async () => {
+      const data = await apiClient.getLogs(7, 1000, filterType !== 'all' ? filterType : undefined);
 
-    fetchLogs();
-  }, [ready, filterType]);
+      // Transform backend logs to LogEntry format
+      const logEntries: LogEntry[] = (data.logs || []).map((log: any) => ({
+        timestamp: log.timestamp || log.created_at || new Date().toISOString(),
+        event_type: log.event_type || 'info',
+        user: log.user || log.user_id || 'system',
+        message: log.message || log.detail || 'System event',
+        level: log.level || 'info',
+      }));
+
+      return logEntries;
+    },
+    enabled: ready,
+    staleTime: 60 * 1000,
+    // Old behavior kept previously-fetched logs visible while a filterType
+    // change re-fetches in the background (no full-skeleton flash) — this
+    // reproduces that instead of showing AdminTableSkeleton on every filter switch.
+    placeholderData: keepPreviousData,
+  });
+  const logs = data ?? [];
+  const loading = isPending;
+  const error = queryError ? ((queryError as any)?.message || 'Failed to load logs') : null;
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);

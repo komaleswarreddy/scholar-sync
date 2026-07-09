@@ -6,8 +6,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 import { apiClient } from '@/lib/api-client';
 import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import {
@@ -39,32 +40,14 @@ ChartJS.register(
 
 export default function RAGMetricsPage() {
   const { ready } = useAdminPortalApi();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [ragData, setRagData] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const data = await apiClient.getRagQuality(30);
-        console.log('[RAG Metrics] Raw API response:', JSON.stringify(data, null, 2));
-        setRagData(data);
-      } catch (err: any) {
-        console.error('[RAG Metrics] Failed to fetch data:', err);
-        console.error('[RAG Metrics] Error details:', err?.response?.data || err?.message);
-        setError(err?.message || 'Failed to load RAG metrics');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [ready]);
+  const { data: ragData, isPending, error: queryError } = useQuery({
+    queryKey: adminQueryKeys.ragQuality(30),
+    queryFn: () => apiClient.getRagQuality(30),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const loading = isPending;
+  const error = queryError ? ((queryError as any)?.message || 'Failed to load RAG metrics') : null;
 
   const formatNumber = (num: number | null | undefined) => {
     // Always show the number, even if it's 0
@@ -80,7 +63,7 @@ export default function RAGMetricsPage() {
     return `${percentage.toFixed(2)}%`;
   };
 
-  if (loading) return <AdminTableSkeleton />;
+  if (loading && !ragData) return <AdminTableSkeleton />;
 
   if (error) {
     return (

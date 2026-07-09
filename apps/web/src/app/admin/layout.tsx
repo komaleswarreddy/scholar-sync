@@ -9,14 +9,15 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AdminHeader } from '@/components/layout/AdminHeader';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { apiClient } from '@/lib/api-client';
 import {
   getPlatformToken,
   getStoredPlatformUser,
   hasPlatformSession,
   isSchoolAdmin,
 } from '@/lib/platform-auth';
-import { AdminTableSkeleton } from '@/components/skeleton';
+import { usePlatformSession } from '@/hooks/usePlatformSession';
+import { usePrefetchAdminData, primeAdminApiToken } from '@/hooks/usePrefetchAdminData';
+import { AdminShellSkeleton } from '@/components/skeleton';
 import { Menu, X } from 'lucide-react';
 
 export default function AdminLayout({
@@ -27,42 +28,49 @@ export default function AdminLayout({
   const pathname = usePathname();
   const router = useRouter();
   const isLoginRoute = pathname === '/admin/login';
-
+  const session = usePlatformSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [sessionReady, setSessionReady] = useState(() =>
-    typeof window !== 'undefined' && hasPlatformSession()
-  );
+
+  usePrefetchAdminData();
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (session.signedIn && isSchoolAdmin(session.user, session.token)) {
+      primeAdminApiToken();
+    }
+  }, [session.signedIn, session.user, session.token]);
 
   useEffect(() => {
-    if (!mounted) return;
-
     if (isLoginRoute) {
       router.replace('/sign-in');
       return;
     }
-
     if (!hasPlatformSession()) {
       router.replace('/sign-in');
       return;
     }
-
-    const user = getStoredPlatformUser();
-    const token = getPlatformToken();
+    const user = session.user ?? getStoredPlatformUser();
+    const token = session.token ?? getPlatformToken();
     if (!isSchoolAdmin(user, token)) {
       router.replace('/home');
-      return;
     }
-
-    apiClient.setTokenGetter(async () => getPlatformToken());
-    setSessionReady(true);
-  }, [mounted, isLoginRoute, router]);
+  }, [isLoginRoute, router, session.user, session.token, session.signedIn]);
 
   if (isLoginRoute) {
+    return null;
+  }
+
+  // Session resolution reads sessionStorage, which isn't available until after hydration —
+  // render a skeleton shell instead of blanking the page while that's still unknown. Only
+  // treat `signedIn: false` as definitive once `isHydrated` confirms it (see usePlatformSession).
+  if (!session.isHydrated) {
+    return (
+      <ThemeProvider>
+        <AdminShellSkeleton />
+      </ThemeProvider>
+    );
+  }
+
+  if (!session.signedIn) {
     return null;
   }
 
@@ -85,9 +93,7 @@ export default function AdminLayout({
 
         <div className="flex-1 flex flex-col min-w-0">
           <AdminHeader />
-          <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-            {!sessionReady ? <AdminTableSkeleton rows={8} /> : children}
-          </main>
+          <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
         </div>
 
         <button

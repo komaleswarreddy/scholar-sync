@@ -98,7 +98,7 @@ export function CreateNotebookPopover({
         mode: modeId,
       });
       onClose();
-      await showToast('Notebook created', { minVisibleMs: TOAST_MIN_VISIBLE_MS });
+      void showToast('Notebook created', { minVisibleMs: TOAST_MIN_VISIBLE_MS });
       onCreated(notebook.slug);
     } catch (err) {
       setPendingMode(null);
@@ -138,8 +138,7 @@ export function CreateNotebookPopover({
         <ul className="create-notebook-modal__list" role="listbox" aria-label="Notebook modes">
           {NOTEBOOK_MODES.map((mode) => {
             const isPending = pendingMode === mode.id && createNotebook.isPending;
-            const isDisabled =
-              !mode.available || (createNotebook.isPending && pendingMode !== mode.id);
+            const isDisabled = !mode.available || createNotebook.isPending;
 
             return (
               <li key={mode.id} className="create-notebook-modal__list-item">

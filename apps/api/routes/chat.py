@@ -315,7 +315,7 @@ async def stream_chat(
                 {"role": msg.role, "content": msg.content}
                 for msg in request_body.history
             ]
-            
+
             async for event in service.stream(
                 message=request_body.message,
                 history=history_dicts,
@@ -371,8 +371,12 @@ async def stream_chat(
     try:
         return StreamingResponse(
             generate_stream(),
-            media_type="text/event-stream",
-            headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+            media_type="text/event-stream; charset=utf-8",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
         )
     except Exception as e:
         raise HTTPException(

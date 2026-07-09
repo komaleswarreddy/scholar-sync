@@ -22,6 +22,8 @@ export function ModeResponseView({
 
   finalAnswer,
 
+  statusMessage,
+
 }: {
 
   title?: string;
@@ -31,6 +33,8 @@ export function ModeResponseView({
   isStreaming?: boolean;
 
   finalAnswer?: string | null;
+
+  statusMessage?: string | null;
 
 }) {
 
@@ -55,6 +59,12 @@ export function ModeResponseView({
         ) : null}
 
       </div>
+
+      {isStreaming && !sections.length && statusMessage ? (
+
+        <p className={styles.psHint}>{statusMessage}</p>
+
+      ) : null}
 
       <div className={styles.psResponseBody}>
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import inspect
 import re
 import time
@@ -317,6 +318,13 @@ class LangGraphChatPipeline:
         self.user_id = user_id
         self.db = db
 
+        # Set for the duration of a `stream()` call; lets `_node_generate` push live
+        # tokens for the primary answer out to the SSE consumer as they are produced,
+        # instead of the whole graph having to finish before anything is sent. `None`
+        # outside of `stream()` (e.g. in unit tests that call nodes directly), in which
+        # case generation falls back to the previous buffered `.generate()` call.
+        self._live_stream_queue: Optional[asyncio.Queue] = None
+
         _require_langgraph()
 
         # Shared helpers
@@ -594,6 +602,34 @@ class LangGraphChatPipeline:
                 raise
 
         return sync_wrapped
+
+    def _push_live(self, item: Tuple[str, Any]) -> None:
+        """Best-effort push of a live-stream event onto the current request's queue.
+
+        Never raises: if there is no active `stream()` consumer (queue is None) or the
+        queue rejects the item for some reason, generation must proceed unaffected —
+        live streaming is a UX optimization, not a correctness requirement.
+        """
+        q = self._live_stream_queue
+        if q is None:
+            return
+        try:
+            q.put_nowait(item)
+        except Exception:
+            pass
+
+    async def _run_graph_and_signal(self, state: ChatGraphState, queue: asyncio.Queue) -> None:
+        """Run the compiled graph to completion and post the outcome onto `queue`.
+
+        Runs as a background task so `stream()` can concurrently drain live tokens
+        pushed by `_node_generate` while the rest of the graph (including nodes that
+        run after Generate, like ModerationOutput) executes normally.
+        """
+        try:
+            result = await self._graph.ainvoke(state)
+            await queue.put(("__graph_done__", result))
+        except Exception as exc:  # noqa: BLE001 - re-raised by the consumer in stream()
+            await queue.put(("__graph_error__", exc))
 
     def _moderation_refusal(self) -> str:
         return self.refusals.get_refusal(RefusalReason.SAFETY_VIOLATION, variation_key=self.user_id)
@@ -1536,13 +1572,25 @@ class LangGraphChatPipeline:
         cls = state.get("ncert_class")
         subj_raw = (state.get("ncert_subject") or "").strip()
         subj_disp = subj_raw.replace("_", " ").title() if subj_raw else "Science"
+        chapter_no = state.get("ncert_chapter_no")
+        chapter_name = (state.get("ncert_chapter_name") or "").strip()
+        chapter_bit = ""
+        if chapter_no is not None and chapter_name:
+            chapter_bit = f" (Chapter {chapter_no}: {chapter_name})"
+        elif chapter_no is not None:
+            chapter_bit = f" (Chapter {chapter_no})"
+        elif chapter_name:
+            chapter_bit = f" ({chapter_name})"
         if cls is not None:
             return (
-                f"The requested information was not found in the selected NCERT Class {cls} "
-                f"{subj_disp} chapters."
+                f"I could not find matching NCERT content for Class {cls} {subj_disp}"
+                f"{chapter_bit} in the curriculum index. "
+                "Try a different question, confirm the chapter selection, "
+                "or upload a source PDF for this notebook and ask again."
             )
         return (
-            "The requested information was not found in the selected NCERT class/chapter filters."
+            "I could not find matching NCERT content for the selected class/chapter filters. "
+            "Try a different question or upload a source PDF for this notebook."
         )
 
     async def _node_tutor_relevance_gate(self, state: ChatGraphState) -> ChatGraphState:
@@ -1871,15 +1919,39 @@ class LangGraphChatPipeline:
             from packages.core.guardrails.budget_enforcer import BudgetEnforcer
 
             await BudgetEnforcer().enforce_budget(str(self.tenant_id), estimated_cost=0.002)
-        resp = await llm_client.generate(
-            prompt=full_prompt,
-            temperature=gen_temp,
-            max_tokens=max_gen,
-            tenant_id=self.tenant_id,
-            user_id=self.user_id,
-            feature_tag="chat_langgraph",
-        )
-        answer = (resp.content or "").strip()
+
+        # Primary generation: stream tokens live to the SSE consumer as they arrive
+        # (when running inside `stream()`) instead of buffering the full completion
+        # first. Everything below this call — two-stage expansion, the not-found /
+        # incomplete-answer / hallucination-guard retries, output formatting, and
+        # moderation — is completely unchanged and still operates on `answer` as a
+        # plain string. If any of that ends up changing the text after tokens were
+        # already streamed, `stream()` detects the mismatch (comparing against what it
+        # actually sent) and emits a `replace` event instead of silently diverging.
+        if self._live_stream_queue is not None:
+            streamed_parts: List[str] = []
+            async for stream_chunk in llm_client.stream_generate(
+                prompt=full_prompt,
+                temperature=gen_temp,
+                max_tokens=max_gen,
+                tenant_id=self.tenant_id,
+                user_id=self.user_id,
+                feature_tag="chat_langgraph",
+            ):
+                if stream_chunk.content:
+                    streamed_parts.append(stream_chunk.content)
+                    self._push_live(("token", stream_chunk.content))
+            answer = "".join(streamed_parts).strip()
+        else:
+            resp = await llm_client.generate(
+                prompt=full_prompt,
+                temperature=gen_temp,
+                max_tokens=max_gen,
+                tenant_id=self.tenant_id,
+                user_id=self.user_id,
+                feature_tag="chat_langgraph",
+            )
+            answer = (resp.content or "").strip()
 
         # Two-stage: expand to full context once when mini-context answer is insufficient.
         if state.get("use_mini_context") and not state.get("needs_expansion"):
@@ -2279,6 +2351,17 @@ class LangGraphChatPipeline:
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Produce SSE events preserving the existing event/data shapes.
+
+        The graph runs as a background task while this generator concurrently drains
+        `self._live_stream_queue`: `_node_generate`'s primary answer call streams
+        tokens onto that queue live (see `_node_generate`), so they reach the client as
+        the LLM produces them instead of only after the whole graph (retrieval,
+        grounding, generation, and any retries) has fully finished. Everything that can
+        run after the primary call — two-stage expansion, retries, the hallucination
+        guard, output formatting, output moderation — is unchanged and still decided
+        from the fully-buffered `answer` string inside the graph; if any of it changes
+        the final text after tokens were already streamed, a `replace` event is sent
+        with the authoritative text (see the reconciliation below).
         """
         trace_id_opt: Optional[str] = None
         if getattr(settings, "ENABLE_PIPELINE_TRACE", True):
@@ -2305,17 +2388,43 @@ class LangGraphChatPipeline:
             "force_whole_file_map_reduce": bool(force_whole_file_map_reduce),
         }
 
+        live_queue: asyncio.Queue = asyncio.Queue()
+        self._live_stream_queue = live_queue
+        graph_task = asyncio.create_task(self._run_graph_and_signal(state, live_queue))
+
+        streamed_text_parts: List[str] = []
+        graph_result_state: Optional[ChatGraphState] = None
+        graph_exc: Optional[BaseException] = None
         try:
-            state = await self._graph.ainvoke(state)
-        except Exception as exc:
+            while True:
+                kind, payload = await live_queue.get()
+                if kind == "token":
+                    streamed_text_parts.append(payload)
+                    yield {"event": "chunk", "data": {"text": payload}}
+                elif kind == "__graph_done__":
+                    graph_result_state = payload
+                    break
+                elif kind == "__graph_error__":
+                    graph_exc = payload
+                    break
+        finally:
+            self._live_stream_queue = None
+            if not graph_task.done():
+                graph_task.cancel()
+
+        if graph_exc is not None:
             if trace_id_opt:
                 get_pipeline_trace_store().finalize_trace(trace_id_opt, success=False)
             from packages.core.guardrails.exceptions import BudgetExceededError
 
-            if isinstance(exc, BudgetExceededError):
-                err_msg = str(exc)
-                for chunk in _split_stream_text(err_msg):
-                    yield {"event": "chunk", "data": {"text": chunk}}
+            if isinstance(graph_exc, BudgetExceededError):
+                err_msg = str(graph_exc)
+                # Budget enforcement runs before any token is produced, so in practice
+                # nothing will have streamed yet; guard anyway so we never mix a partial
+                # live answer with an unrelated buffered error message.
+                if not streamed_text_parts:
+                    for chunk in _split_stream_text(err_msg):
+                        yield {"event": "chunk", "data": {"text": chunk}}
                 yield {
                     "event": "done",
                     "data": {
@@ -2326,7 +2435,9 @@ class LangGraphChatPipeline:
                     },
                 }
                 return
-            raise
+            raise graph_exc
+
+        state = graph_result_state if graph_result_state is not None else state
         if trace_id_opt:
             get_pipeline_trace_store().finalize_trace(trace_id_opt, success=True)
             print(
@@ -2386,7 +2497,9 @@ class LangGraphChatPipeline:
             }
             return
 
-        # Emit citations first (restore from backup / matches if a gate cleared them post-retrieval)
+        # Emit citations (restore from backup / matches if a gate cleared them post-retrieval).
+        # Citations never depend on whether the primary answer was streamed live or
+        # buffered, so this is unchanged and always computed from the final state.
         citations = list(state.get("citations") or [])
         blocked = bool(
             state.get("context_grounding_blocked")
@@ -2409,15 +2522,31 @@ class LangGraphChatPipeline:
         for c in citations:
             yield {"event": "citation", "data": c}
 
-        # Emit text chunks
         out_text = (state.get("final_output_text") or state.get("final_answer") or "").strip()
+        streamed_text = "".join(streamed_text_parts).strip()
+
         if state.get("moderation_block_reason"):
             await self._record_guardrail_block_event(
                 reason=str(state.get("moderation_block_reason")),
                 session_id=trace_id_opt,
             )
-        for chunk in _split_stream_text(out_text):
-            yield {"event": "chunk", "data": {"text": chunk}}
+
+        if streamed_text:
+            # The primary answer already reached the client live, token by token. Only
+            # send more text if something after the primary call — a retry, the
+            # hallucination guard, output formatting/limiting, or output moderation —
+            # produced a different final answer. We cannot un-send tokens already on
+            # the wire, so tell the client to replace the displayed text outright
+            # rather than silently leaving a stale/incorrect answer on screen.
+            if out_text != streamed_text:
+                yield {"event": "replace", "data": {"text": out_text}}
+        else:
+            # No live streaming happened for this turn (e.g. DirectChat conversational
+            # reply, a tutor/source relevance gate block, or a whole-file map-reduce
+            # precomputed answer never call the streaming primary-generation branch) —
+            # unchanged buffered fake-stream behavior.
+            for chunk in _split_stream_text(out_text):
+                yield {"event": "chunk", "data": {"text": chunk}}
 
         done_data = dict(state.get("done_payload") or {})
         done_data["final_output_text"] = out_text

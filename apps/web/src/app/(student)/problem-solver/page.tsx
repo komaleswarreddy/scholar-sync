@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { HomeMobileNav } from '@/components/home/HomeMobileNav';
 import { ProblemSolverLanding } from '@/components/problem-solver/ProblemSolverLanding';
 import { isProblemSolverEnabled } from '@/lib/feature-flags';
+import { usePortalTabGuard } from '@/hooks/usePortalTabGuard';
 import { track } from '@/lib/telemetry';
 
 export default function ProblemSolverPage() {
   const router = useRouter();
+  const enabled = usePortalTabGuard('problem_solver');
 
   useEffect(() => {
     if (!isProblemSolverEnabled) {
@@ -18,7 +20,7 @@ export default function ProblemSolverPage() {
     track('problem_solver.viewed');
   }, [router]);
 
-  if (!isProblemSolverEnabled) {
+  if (!isProblemSolverEnabled || !enabled) {
     return null;
   }
 

@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
-import uuid
+import asyncio
 
 from apps.api.schemas.home import HomeSummaryResponse
 from config.settings import settings
@@ -34,19 +34,28 @@ async def get_home_summary(
     service = HomeSummaryService(db, tenant_id, user_id)
     data = await service.get_summary()
     focus = data.get("focus_concept")
-    if focus and settings.IIL_ENABLED:
+    topic = (focus.get("topic") or "") if focus else ""
+    if focus and settings.IIL_ENABLED and len(topic.strip()) >= 6:
         try:
-            concept_id = await map_concept_from_query(db, focus.get("topic") or "")
-            if concept_id:
-                prompts = await get_template_prompts_for_concept(
+            # Both steps are sequential by necessity (the second needs the first's
+            # concept_id), but they're bounded by ONE shared timeout budget instead
+            # of two stacked 1.5s timeouts — caps worst-case added latency on the
+            # home page's critical path at ~1.5s instead of ~3s.
+            async def _enrich_with_starter_prompts():
+                concept_id = await map_concept_from_query(db, topic)
+                if not concept_id:
+                    return None
+                return await get_template_prompts_for_concept(
                     db,
                     tenant_id=uuid.UUID(tenant_id),
                     concept_node_id=concept_id,
                     limit=3,
                 )
-                if prompts:
-                    focus["starter_prompts"] = prompts
-                    data["focus_concept"] = focus
+
+            prompts = await asyncio.wait_for(_enrich_with_starter_prompts(), timeout=1.5)
+            if prompts:
+                focus["starter_prompts"] = prompts
+                data["focus_concept"] = focus
         except Exception:
             pass
     return HomeSummaryResponse(**data)

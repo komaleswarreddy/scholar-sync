@@ -211,7 +211,7 @@ async def admin_portal_login(body: AdminPortalLoginRequest, request: Request):
     check_login_allowed("admin", request, email)
 
     email_ok = hmac.compare_digest(email.encode("utf-8"), expected_email.encode("utf-8"))
-    password_ok = verify_portal_password(
+    password_ok = await verify_portal_password(
         password, settings.ADMIN_PORTAL_PASSWORD, settings.ADMIN_PORTAL_PASSWORD_HASH
     )
     if not (email_ok and password_ok):

@@ -46,7 +46,10 @@ async def list_candidates(
     total = (await db.execute(count_q)).scalar() or 0
 
     result = await db.execute(
-        q.options(selectinload(CurationCandidate.interaction_log))
+        q.options(
+            selectinload(CurationCandidate.interaction_log),
+            selectinload(CurationCandidate.feedback),
+        )
         .order_by(CurationCandidate.created_at.desc())
         .offset(offset)
         .limit(limit)
@@ -84,6 +87,28 @@ async def _conversation_text_for_log(db: AsyncSession, log: InteractionLog) -> s
     return "\n\n".join(parts)
 
 
+async def _conversation_text_for_message(db: AsyncSession, message_id: uuid.UUID) -> str:
+    msg_result = await db.execute(select(Message).where(Message.id == message_id))
+    msg = msg_result.scalar_one_or_none()
+    if not msg:
+        return ""
+    user_result = await db.execute(
+        select(Message)
+        .where(Message.chat_id == msg.chat_id)
+        .where(Message.role == "user")
+        .where(Message.created_at <= msg.created_at)
+        .order_by(Message.created_at.desc())
+        .limit(1)
+    )
+    user_msg = user_result.scalar_one_or_none()
+    parts: List[str] = []
+    if user_msg and user_msg.content:
+        parts.append(f"User: {user_msg.content[:2000]}")
+    if msg.content:
+        parts.append(f"Assistant: {msg.content[:4000]}")
+    return "\n\n".join(parts)
+
+
 async def review_candidate(
     db: AsyncSession,
     *,
@@ -108,46 +133,88 @@ async def review_candidate(
         content = ""
         dimension_tags: List[str] = ["definition"]
         source_ids: List[uuid.UUID] = []
+        source_tier: Optional[str] = None
 
-        if cand.source_type == "expert_note" and cand.feedback_id:
+        fb: Optional[InteractionFeedback] = None
+        if cand.feedback_id:
             fb_result = await db.execute(
                 select(InteractionFeedback).where(InteractionFeedback.id == cand.feedback_id)
             )
             fb = fb_result.scalar_one_or_none()
-            content = (fb.free_text if fb else "") or ""
-            dimension_tags = ["definition"]
-            if fb and fb.dimension_tag:
-                dimension_tags = [fb.dimension_tag]
-        elif cand.interaction_log:
+
+        if cand.interaction_log:
             content = await _conversation_text_for_log(db, cand.interaction_log)
             extracted = await extract_artifact_from_chain(content)
-            content = extracted["content"]
+            content = extracted.get("content") or content
             dimension_tags = extracted.get("dimension_tags") or ["definition"]
             source_ids = [cand.interaction_log.id]
+            source_tier = cand.interaction_log.user_tier
+            if fb and fb.free_text:
+                content = f"{content}\n\nExpert note: {fb.free_text}"
+            if fb and fb.dimension_tag:
+                dimension_tags = list({*(dimension_tags or []), fb.dimension_tag})
+        elif fb:
+            source_tier = fb.user_tier
+            if fb.signal_type == "expert_note" and (fb.free_text or "").strip():
+                content = (fb.free_text or "").strip()
+                dimension_tags = [fb.dimension_tag] if fb.dimension_tag else ["definition"]
+            elif fb.message_id:
+                content = await _conversation_text_for_message(db, fb.message_id)
+                if fb.free_text:
+                    content = f"{content}\n\nExpert note: {fb.free_text}".strip()
+                if content.strip():
+                    extracted = await extract_artifact_from_chain(content)
+                    content = extracted.get("content") or content
+                    dimension_tags = extracted.get("dimension_tags") or ["definition"]
+                if fb.dimension_tag:
+                    dimension_tags = list({*(dimension_tags or []), fb.dimension_tag})
+            elif (fb.free_text or "").strip():
+                content = (fb.free_text or "").strip()
+                dimension_tags = [fb.dimension_tag] if fb.dimension_tag else ["definition"]
+
+        content = (content or "").strip()
+        if not content:
+            content = (
+                (fb.free_text if fb and fb.free_text else "")
+                or "Approved expert-curated interaction."
+            ).strip()
 
         artifact = DerivedKnowledgeArtifact(
             candidate_id=cand.id,
             concept_node_id=cand.concept_node_id,
             tenant_id=cand.tenant_id,
-            dimension_tags=dimension_tags,
+            dimension_tags=dimension_tags or ["definition"],
             content=content,
             source_interaction_ids=source_ids,
-            source_user_tier=cand.interaction_log.user_tier if cand.interaction_log else None,
+            source_user_tier=source_tier,
             confidence_score=confidence_score,
             is_active=True,
         )
         db.add(artifact)
         await db.flush()
 
-        eid = await embed_artifact(
-            tenant_id=str(cand.tenant_id),
-            artifact_id=str(artifact.id),
-            content=content,
-            concept_node_id=str(cand.concept_node_id) if cand.concept_node_id else None,
-            dimension_tags=dimension_tags,
-        )
-        if eid:
-            artifact.embedding_id = eid
+        # Embed is best-effort — never block approve / DB persistence.
+        try:
+            import asyncio
+
+            eid = await asyncio.wait_for(
+                embed_artifact(
+                    tenant_id=str(cand.tenant_id),
+                    artifact_id=str(artifact.id),
+                    content=content,
+                    concept_node_id=str(cand.concept_node_id) if cand.concept_node_id else None,
+                    dimension_tags=dimension_tags,
+                ),
+                timeout=45.0,
+            )
+            if eid:
+                artifact.embedding_id = eid
+        except Exception as exc:
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "IIL: embed_artifact skipped for candidate %s: %s", cand.id, exc
+            )
 
     await db.commit()
     await db.refresh(cand)

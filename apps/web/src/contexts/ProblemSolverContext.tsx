@@ -19,7 +19,6 @@ import {
   useProblemSolverFollowUp,
   useResetProblemSolverSession,
   useSelectProblemSolverMode,
-  useSubmitProblemSolverCheckpoint,
 } from '@/hooks/useProblemSolver';
 import type {
   ProblemSolverFlowStep,
@@ -36,6 +35,7 @@ type ProblemSolverContextValue = {
   isLoadingSession: boolean;
   streamingSections: ProblemSolverSection[];
   streamTitle: string;
+  streamStatus: { message: string; elapsedMs: number } | null;
   isStreaming: boolean;
   isFollowUpLoading: boolean;
   streamError: string | null;
@@ -94,7 +94,6 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
   );
   const createSession = useCreateProblemSolverSession();
   const selectModeMutation = useSelectProblemSolverMode();
-  const checkpointMutation = useSubmitProblemSolverCheckpoint();
   const followUpMutation = useProblemSolverFollowUp();
   const resetMutation = useResetProblemSolverSession();
 
@@ -103,6 +102,9 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamTitle, setStreamTitle] = useState('');
   const [streamingSections, setStreamingSections] = useState<ProblemSolverSection[]>([]);
+  const [streamStatus, setStreamStatus] = useState<{ message: string; elapsedMs: number } | null>(
+    null,
+  );
   const [streamError, setStreamError] = useState<string | null>(null);
   const [forceIntake, setForceIntake] = useState(false);
 
@@ -148,9 +150,17 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
     setStreamError(null);
     setStreamingSections([]);
     setStreamTitle('');
+    setStreamStatus(null);
 
     await apiClient.streamProblemSolverResponse(sessionId, {
+      onStatus: (data) => {
+        setStreamStatus({
+          message: data.message ?? 'Working through the problem…',
+          elapsedMs: data.elapsed_ms ?? 0,
+        });
+      },
       onStart: (data) => {
+        setStreamStatus(null);
         setStreamTitle(data.title ?? '');
       },
       onSection: (data) => {
@@ -166,6 +176,7 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
       },
       onDone: async (data) => {
         setIsStreaming(false);
+        setStreamStatus(null);
         const refreshed = (await apiClient.getProblemSolverSession(sessionId)) as ProblemSolverSession;
         setLocalSession(refreshed);
         track('problem_solver.response_complete', {
@@ -178,6 +189,7 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
       },
       onError: (message) => {
         setIsStreaming(false);
+        setStreamStatus(null);
         setStreamError(message);
       },
     });
@@ -220,23 +232,68 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
   const submitCheckpoint = useCallback(
     async (checkpointNumber: number, optionId: string) => {
       if (!session) return;
+      const sessionId = session.session_id;
       track('problem_solver.checkpoint_submitted', {
-        session_id: session.session_id,
+        session_id: sessionId,
         checkpoint_number: checkpointNumber,
       });
-      const updated = await checkpointMutation.mutateAsync({
-        sessionId: session.session_id,
-        checkpointNumber,
-        selectedOption: optionId,
-      });
-      setLocalSession(updated);
-      const { title, sections } = applyModeResponseToView(updated.last_response);
-      if (sections.length) {
-        setStreamingSections(sections);
-        setStreamTitle(title);
+
+      setIsStreaming(true);
+      setStreamError(null);
+      setStreamingSections([]);
+      setStreamTitle('');
+      setStreamStatus(null);
+
+      try {
+        await apiClient.streamProblemSolverCheckpoint(sessionId, checkpointNumber, optionId, {
+          onStatus: (data) => {
+            setStreamStatus({
+              message: data.message ?? 'Checking your answer…',
+              elapsedMs: data.elapsed_ms ?? 0,
+            });
+          },
+          onStart: (data) => {
+            setStreamStatus(null);
+            setStreamTitle(data.title ?? '');
+          },
+          onSection: (data) => {
+            setStreamingSections((prev) => {
+              const next = [...prev];
+              const idx = data.index ?? next.length;
+              next[idx] = {
+                heading: data.heading ?? '',
+                bodyMarkdown: data.bodyMarkdown ?? '',
+              };
+              return next;
+            });
+          },
+          onDone: async (data) => {
+            setIsStreaming(false);
+            setStreamStatus(null);
+            const refreshed = (await apiClient.getProblemSolverSession(
+              sessionId,
+            )) as ProblemSolverSession;
+            setLocalSession(refreshed);
+            if (data.checkpoint) {
+              track('problem_solver.checkpoint_shown', { session_id: sessionId });
+            }
+          },
+          onError: (message) => {
+            setIsStreaming(false);
+            setStreamStatus(null);
+            setStreamError(message);
+          },
+        });
+      } catch (error: unknown) {
+        setIsStreaming(false);
+        setStreamStatus(null);
+        const message =
+          error instanceof Error ? error.message : 'Checkpoint submission failed. Please try again.';
+        setStreamError(message);
+        throw error;
       }
     },
-    [checkpointMutation, session],
+    [session],
   );
 
   const triggerFollowUp = useCallback(
@@ -286,6 +343,7 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
     setForceIntake(true);
     setStreamingSections([]);
     setStreamTitle('');
+    setStreamStatus(null);
     setStreamError(null);
     setIsExtracting(false);
     track('problem_solver.reset', { notebook_id: notebookId });
@@ -298,6 +356,7 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
       isLoadingSession,
       streamingSections,
       streamTitle,
+      streamStatus,
       isStreaming,
       isFollowUpLoading,
       streamError,
@@ -316,6 +375,7 @@ export function ProblemSolverProvider({ children }: { children: ReactNode }) {
       isLoadingSession,
       streamingSections,
       streamTitle,
+      streamStatus,
       isStreaming,
       isFollowUpLoading,
       streamError,

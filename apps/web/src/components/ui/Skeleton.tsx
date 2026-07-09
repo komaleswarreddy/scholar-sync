@@ -23,14 +23,12 @@ function cx(...parts: (string | undefined | false)[]) {
 
 export function Skeleton({ variant = 'pulse', className, rounded = 'md' }: SkeletonProps) {
   if (variant === 'shimmer') {
+    // Opaque base fill (not an alpha-blended tint) so the shape always reads
+    // as a distinct card silhouette against light page backgrounds instead
+    // of blending into them; the sweep overlay adds the "loading" motion.
     return (
       <div
-        className={cx(
-          'bg-gradient-to-r from-border-default/40 via-border-default/70 to-border-default/40',
-          'bg-[length:200%_100%] animate-shimmer',
-          roundedMap[rounded],
-          className,
-        )}
+        className={cx('relative isolate overflow-hidden bg-border-default skeleton-sweep', roundedMap[rounded], className)}
         aria-hidden
       />
     );
@@ -38,7 +36,7 @@ export function Skeleton({ variant = 'pulse', className, rounded = 'md' }: Skele
 
   return (
     <div
-      className={cx('animate-pulse bg-border-default/60', roundedMap[rounded], className)}
+      className={cx('animate-pulse bg-border-default', roundedMap[rounded], className)}
       aria-hidden
     />
   );

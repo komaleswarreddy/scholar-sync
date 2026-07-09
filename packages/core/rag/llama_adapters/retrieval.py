@@ -62,6 +62,8 @@ class LlamaIndexRetrievalAdapter:
             "model": settings.OPENAI_EMBEDDING_MODEL,
             "dimensions": settings.OPENAI_EMBEDDING_DIMENSIONS,
         }
+        if settings.OPENAI_API_KEY:
+            embed_kwargs["api_key"] = settings.OPENAI_API_KEY
         if sync_http_client is not None:
             embed_kwargs["http_client"] = sync_http_client
         if async_http_client is not None:

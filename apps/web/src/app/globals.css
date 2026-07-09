@@ -129,6 +129,41 @@
     color: var(--color-home-text);
   }
 
+  /* ── Skeleton loading states ──
+   * Opaque base (bg-border-default, set inline via Skeleton.tsx) + an
+   * animated light sweep, so skeletons always read as distinct card shapes
+   * against light backgrounds instead of the very-low-contrast alpha tints
+   * used previously (which visually "disappeared" into the page background). */
+  @keyframes skeleton-sweep {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .skeleton-sweep::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+    animation: skeleton-sweep 1.6s ease-in-out infinite;
+  }
+
+  .dark .skeleton-sweep::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  }
+
+  /* Card surface for skeleton blocks on the student ("home") pages — mirrors
+   * .library-notebook-card so loading states match the real card look
+   * instead of floating as bare shapes on the page background. */
+  .skeleton-card {
+    background-color: var(--color-home-card);
+    border: 1px solid var(--color-home-border);
+    box-shadow: var(--shadow-home-card);
+  }
+
   /* ── Sign-in / auth shell (student portal brand) ── */
   .auth-sign-in-page {
     min-height: 100vh;

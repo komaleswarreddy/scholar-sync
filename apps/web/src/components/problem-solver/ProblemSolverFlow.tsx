@@ -17,6 +17,7 @@ export function ProblemSolverFlow() {
     isLoadingSession,
     streamingSections,
     streamTitle,
+    streamStatus,
     isStreaming,
     isFollowUpLoading,
     streamError,
@@ -43,6 +44,9 @@ export function ProblemSolverFlow() {
       ? streamingSections
       : session?.last_response?.sections ?? [];
   const responseTitle = streamTitle || session?.last_response?.title;
+  const responseStatusMessage = streamStatus
+    ? `${streamStatus.message} (${Math.max(1, Math.round(streamStatus.elapsedMs / 1000))}s)`
+    : null;
 
   return (
     <main className="notebook-col notebook-col--center notebook-col--embedded flex flex-col min-h-0 h-full">
@@ -104,6 +108,7 @@ export function ProblemSolverFlow() {
               sections={responseSections}
               isStreaming={isStreaming || isFollowUpLoading}
               finalAnswer={session?.last_response?.finalAnswer}
+              statusMessage={responseStatusMessage}
             />
           ) : null}
 

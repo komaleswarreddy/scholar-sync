@@ -6,8 +6,10 @@
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 import { apiClient } from '@/lib/api-client';
 import { Download, RefreshCw, Search, X, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import {
@@ -88,43 +90,37 @@ export default function AgentsPage() {
   const [agentFilter, setAgentFilter] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('calls');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [loading, setLoading] = useState<boolean>(true);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [summary, setSummary] = useState<any>(null);
-  const [rows, setRows] = useState<AgentRow[]>([]);
-  const [series, setSeries] = useState<any[]>([]);
-  const [recent, setRecent] = useState<any[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
 
-  const fetchAll = async (showSpinner: boolean) => {
-    if (!ready) return;
-    if (showSpinner) setLoading(true);
-    else setRefreshing(true);
-    setError(null);
-    try {
-      const [summaryRes, detailRes, tsRes, recentRes] = await Promise.all([
+  const {
+    data,
+    isPending,
+    isFetching,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: adminQueryKeys.agents(days, compareDays, compareEnabled),
+    queryFn: () =>
+      Promise.all([
         apiClient.getAgentSummary(days, compareEnabled ? compareDays : 0),
         apiClient.getAgentDetails(days),
         apiClient.getAgentTimeseries(days),
         apiClient.getAgentRecent(80),
-      ]);
-      setSummary(summaryRes || null);
-      setRows((detailRes?.rows || []) as AgentRow[]);
-      setSeries(tsRes?.series || []);
-      setRecent(recentRes?.rows || []);
-    } catch (e: any) {
-      setError(e?.message || 'Failed to load agents data');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+      ]),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    fetchAll(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, days, compareDays, compareEnabled]);
+  const [summary, detailsRaw, tsRes, recentRes] = data ?? [];
+  const rows = (detailsRaw?.rows || []) as AgentRow[];
+  const series = tsRes?.series || [];
+  const recent = recentRes?.rows || [];
+
+  const loading = isPending;
+  const refreshing = isFetching && !isPending;
+  const error = queryError
+    ? (queryError as any)?.response?.data?.detail || (queryError as any)?.message || 'Failed to load agents data'
+    : null;
 
   const filteredRows = useMemo(() => {
     let out = [...rows];
@@ -227,7 +223,7 @@ export default function AgentsPage() {
     [rows, includeUtility]
   );
 
-  if (loading) return <AdminTableSkeleton />;
+  if (loading && !summary) return <AdminTableSkeleton />;
 
   return (
     <div className="h-full">
@@ -283,7 +279,7 @@ export default function AgentsPage() {
             </select>
           )}
           <button
-            onClick={() => fetchAll(false)}
+            onClick={() => refetch()}
             className="px-3 py-2 rounded-lg bg-surface border border-border-default text-sm text-text-primary hover:bg-surface-hover inline-flex items-center gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />

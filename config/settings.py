@@ -129,7 +129,7 @@ class Settings(BaseSettings):
     IIL_CURATION_CANDIDATE_THRESHOLD: int = 5
     IIL_CURATION_SCORING_INTERVAL_MINUTES: int = 15
     IIL_ENRICHMENT_MAX_DIMENSIONS: int = 2
-    IIL_LOGGING_ASYNC_TIMEOUT_MS: int = 5000
+    IIL_LOGGING_ASYNC_TIMEOUT_MS: int = 20000
     IIL_DERIVED_NAMESPACE_SUFFIX: str = "derived"
     IIL_ENABLED: bool = True
 
@@ -210,6 +210,14 @@ class Settings(BaseSettings):
     # Ingestion throughput guardrails.
     CONTEXTUAL_RETRIEVAL_MAX_CONCURRENCY_PER_DOCUMENT: int = 6
     CONTEXTUAL_RETRIEVAL_MAX_RETRIES: int = 2
+    # Worst-case latency cap for very large documents: contextual retrieval issues ONE LLM call per
+    # chunk (gated by the semaphore above). At CONTEXTUAL_RETRIEVAL_MAX_CONCURRENCY_PER_DOCUMENT=6 and an
+    # observed ~2-4s per gpt-4o-mini contextualization call, worst-case wall time ~= ceil(chunks / concurrency)
+    # * per_call_seconds. Threshold chosen so that at 6 concurrency and ~3s/call, worst case stays under
+    # ~90s: ceil(150/6) * 3s = 75s. Documents with more chunks than this skip contextual enrichment
+    # entirely (nodes are indexed unmodified, exactly as if the feature were disabled for that document)
+    # rather than degrading quality by, e.g., truncating chunks or lowering enrichment quality.
+    CONTEXTUAL_RETRIEVAL_MAX_CHUNKS: int = 150
     # NCERT global ingest: same long document was repeated per chunk (was ~24k chars × N chunks → huge
     # prompt tokens, slow requests, client timeouts). Cap document excerpt per contextualization call.
     CONTEXTUAL_RETRIEVAL_NCERT_DOC_CONTEXT_CHARS: int = 5000
@@ -282,6 +290,16 @@ class Settings(BaseSettings):
     # Tutor prepare: NCERT context warm cache (Redis + in-memory fallback)
     TUTOR_NCERT_CONTEXT_CACHE_TTL_SECONDS: int = 3600
     TUTOR_NCERT_CONTEXT_REDIS_KEY_PREFIX: str = "tutor:ncert_context:"
+    # Tutor prepare: bootstrap CONTENT cache (opening_summary + suggestions +
+    # studio_recommendations from step 1, plus generated study-asset JSON from step 2).
+    # NCERT chapter content is identical for every student nationally, so the first
+    # student to open a given (class, subject, chapter, concept) scope pays the full
+    # ~48s generation chain and every later student (within the same tenant, matching
+    # TutorNcertContextCache's scoping) gets the cached result instantly. Longer TTL
+    # than the raw NCERT context cache above since this content changes even less often.
+    ENABLE_TUTOR_BOOTSTRAP_CONTENT_CACHE: bool = True
+    TUTOR_BOOTSTRAP_CONTENT_CACHE_TTL_SECONDS: int = 172800  # 48 hours
+    TUTOR_BOOTSTRAP_CONTENT_REDIS_KEY_PREFIX: str = "tutor:bootstrap_content:"
     # Follow-up aware retrieval: persist last selected chunks per chat/session
     RETRIEVAL_SESSION_CACHE_TTL_SECONDS: int = 3600
     RETRIEVAL_SESSION_REDIS_KEY_PREFIX: str = "retrieval:prev_chunks:"
@@ -409,6 +427,25 @@ class Settings(BaseSettings):
     ANSWER_CONFIDENCE_THRESHOLD: float = 0.6  # Threshold for showing answers based on LLM-evaluated confidence (lowered from 0.75 to be more lenient)
     # Monthly tenant LLM budget (hard block when ENABLE_BUDGET_ENFORCEMENT is True)
     ENABLE_BUDGET_ENFORCEMENT: bool = True
+
+    # ---------------------------
+    # Celery (optional out-of-process ingestion worker)
+    # ---------------------------
+    # Feature flag: when True, POST /api/v1/ingest/upload dispatches ingestion via a
+    # Celery task (.delay()) instead of FastAPI BackgroundTasks. Defaults to False:
+    # no Celery worker process runs by default in this dev environment, and flipping
+    # this on without a running, connected worker makes uploads silently hang forever
+    # at status="processing" (the task message just sits in the Redis queue). See
+    # apps/worker/celery_app.py for how to run a worker locally (Windows: --pool=solo).
+    ENABLE_CELERY_INGESTION: bool = False
+    # Empty (default) = reuse REDIS_URL above for both broker and result backend (the
+    # same Redis already used for caching elsewhere in this codebase). Set explicitly
+    # to point Celery at a different Redis instance/db index than the cache uses.
+    CELERY_BROKER_URL: str = ""
+    CELERY_RESULT_BACKEND: str = ""
+    # Hard kill switch for a stuck ingestion task (contextual retrieval + embeddings +
+    # Pinecone upsert can take minutes for large documents).
+    CELERY_TASK_TIME_LIMIT_SECONDS: int = 600
 
     # Guided Problem Solver (V1)
     ENABLE_PROBLEM_SOLVER: bool = False

@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, case, literal, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.core.database.models.notebook import Notebook
@@ -142,8 +142,16 @@ class NotebookService:
         result: Dict[str, Dict[str, int]] = {nid: dict(empty) for nid in notebook_ids}
         uuids = [uuid.UUID(nid) for nid in notebook_ids]
 
-        sources_rows = await self.db.execute(
-            select(Source.notebook_id, func.count(Source.id))
+        # Sources and notes live in different tables but share the same shape
+        # (notebook_id, count) -> combine via UNION ALL into a single round trip.
+        # This preserves the previous failure isolation: this pair was never
+        # wrapped in try/except before, so an error here still propagates.
+        sources_stmt = (
+            select(
+                Source.notebook_id.label("notebook_id"),
+                literal("sources_count").label("count_type"),
+                func.count(Source.id).label("cnt"),
+            )
             .where(
                 Source.notebook_id.in_(uuids),
                 Source.tenant_id == self.tenant_id,
@@ -151,11 +159,12 @@ class NotebookService:
             )
             .group_by(Source.notebook_id)
         )
-        for nb_id, cnt in sources_rows.all():
-            result[str(nb_id)]["sources_count"] = int(cnt or 0)
-
-        notes_rows = await self.db.execute(
-            select(Note.notebook_id, func.count(Note.id))
+        notes_stmt = (
+            select(
+                Note.notebook_id.label("notebook_id"),
+                literal("notes_count").label("count_type"),
+                func.count(Note.id).label("cnt"),
+            )
             .where(
                 Note.notebook_id.in_(uuids),
                 Note.tenant_id == self.tenant_id,
@@ -163,14 +172,25 @@ class NotebookService:
             )
             .group_by(Note.notebook_id)
         )
-        for nb_id, cnt in notes_rows.all():
-            result[str(nb_id)]["notes_count"] = int(cnt or 0)
+        combined_rows = await self.db.execute(select(union_all(sources_stmt, notes_stmt).subquery()))
+        for nb_id, count_type, cnt in combined_rows.all():
+            result[str(nb_id)][count_type] = int(cnt or 0)
 
         try:
             from packages.core.database.models.studio_feature import StudioFeature
 
-            assets_rows = await self.db.execute(
-                select(StudioFeature.notebook_id, func.count(StudioFeature.id))
+            # study_assets_count (all types) and quizzes_count (type == "quiz")
+            # both come from the same table/filter set, so compute them together
+            # with a single conditional aggregation instead of two GROUP BY
+            # queries. Still inside the same try/except as before, so a missing
+            # studio_features table (or any other failure) still leaves both
+            # counts at their zero defaults, exactly like the previous behavior.
+            studio_rows = await self.db.execute(
+                select(
+                    StudioFeature.notebook_id.label("notebook_id"),
+                    func.count(StudioFeature.id).label("study_assets_count"),
+                    func.sum(case((StudioFeature.type == "quiz", 1), else_=0)).label("quizzes_count"),
+                )
                 .where(
                     StudioFeature.notebook_id.in_(uuids),
                     StudioFeature.tenant_id == self.tenant_id,
@@ -178,21 +198,9 @@ class NotebookService:
                 )
                 .group_by(StudioFeature.notebook_id)
             )
-            for nb_id, cnt in assets_rows.all():
-                result[str(nb_id)]["study_assets_count"] = int(cnt or 0)
-
-            quiz_rows = await self.db.execute(
-                select(StudioFeature.notebook_id, func.count(StudioFeature.id))
-                .where(
-                    StudioFeature.notebook_id.in_(uuids),
-                    StudioFeature.tenant_id == self.tenant_id,
-                    StudioFeature.user_id == self.user_id,
-                    StudioFeature.type == "quiz",
-                )
-                .group_by(StudioFeature.notebook_id)
-            )
-            for nb_id, cnt in quiz_rows.all():
-                result[str(nb_id)]["quizzes_count"] = int(cnt or 0)
+            for nb_id, study_assets_count, quizzes_count in studio_rows.all():
+                result[str(nb_id)]["study_assets_count"] = int(study_assets_count or 0)
+                result[str(nb_id)]["quizzes_count"] = int(quizzes_count or 0)
         except Exception:
             pass
 
@@ -213,27 +221,24 @@ class NotebookService:
             from packages.core.database.models.studio_feature import StudioFeature
 
             notebook_uuid = uuid.UUID(notebook_id)
-            study_assets_count = int(
-                await self.db.scalar(
-                    select(func.count(StudioFeature.id)).where(
+            # Combine both StudioFeature counts (all types vs. quiz-only) into a
+            # single conditional-aggregation query instead of two sequential
+            # round trips. Still guarded by the same try/except as before, so
+            # any failure (e.g. missing table) leaves both counts at 0.
+            studio_row = (
+                await self.db.execute(
+                    select(
+                        func.count(StudioFeature.id).label("study_assets_count"),
+                        func.sum(case((StudioFeature.type == "quiz", 1), else_=0)).label("quizzes_count"),
+                    ).where(
                         StudioFeature.notebook_id == notebook_uuid,
                         StudioFeature.tenant_id == self.tenant_id,
                         StudioFeature.user_id == self.user_id,
                     )
                 )
-                or 0
-            )
-            quizzes_count = int(
-                await self.db.scalar(
-                    select(func.count(StudioFeature.id)).where(
-                        StudioFeature.notebook_id == notebook_uuid,
-                        StudioFeature.tenant_id == self.tenant_id,
-                        StudioFeature.user_id == self.user_id,
-                        StudioFeature.type == "quiz",
-                    )
-                )
-                or 0
-            )
+            ).one()
+            study_assets_count = int(studio_row.study_assets_count or 0)
+            quizzes_count = int(studio_row.quizzes_count or 0)
         except Exception:
             pass
         return {
@@ -289,36 +294,53 @@ class NotebookService:
             Notebook.user_id == self.user_id,
         )
 
-        sources_count = await self.db.scalar(
-            select(func.count(Source.id)).where(
+        sources_subq = (
+            select(func.count(Source.id))
+            .where(
                 Source.notebook_id == notebook_uuid,
                 Source.tenant_id == self.tenant_id,
                 Source.user_id == self.user_id,
             )
+            .scalar_subquery()
         )
-        chats_count = await self.db.scalar(
-            select(func.count(Chat.id)).where(
+        chats_subq = (
+            select(func.count(Chat.id))
+            .where(
                 Chat.notebook_id == notebook_uuid,
                 Chat.tenant_id == self.tenant_id,
                 Chat.user_id == self.user_id,
             )
+            .scalar_subquery()
         )
-        notes_count = await self.db.scalar(
-            select(func.count(Note.id)).where(
+        notes_subq = (
+            select(func.count(Note.id))
+            .where(
                 Note.notebook_id == notebook_uuid,
                 Note.tenant_id == self.tenant_id,
                 Note.user_id == self.user_id,
             )
+            .scalar_subquery()
+        )
+        notebook_exists_subq = (
+            select(func.count(Notebook.id)).where(Notebook.id == notebook_uuid).where(base).scalar_subquery()
         )
 
-        notebook_exists = await self.db.scalar(
-            select(func.count(Notebook.id)).where(Notebook.id == notebook_uuid).where(base)
-        )
-        if not notebook_exists:
+        row = (
+            await self.db.execute(
+                select(
+                    sources_subq.label("sources_count"),
+                    chats_subq.label("chats_count"),
+                    notes_subq.label("notes_count"),
+                    notebook_exists_subq.label("notebook_exists"),
+                )
+            )
+        ).one()
+
+        if not row.notebook_exists:
             return {}
 
         return {
-            "sources_count": int(sources_count or 0),
-            "chats_count": int(chats_count or 0),
-            "notes_count": int(notes_count or 0),
+            "sources_count": int(row.sources_count or 0),
+            "chats_count": int(row.chats_count or 0),
+            "notes_count": int(row.notes_count or 0),
         }

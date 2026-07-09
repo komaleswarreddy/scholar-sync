@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LogOut, Shield, User, ChevronDown } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
+import { usePlatformSession } from '@/hooks/usePlatformSession';
 import { useAppSignOut } from '@/hooks/useAppSignOut';
 import { DraftSaveModal } from '../notes/DraftSaveModal';
 import { isSchoolAdmin } from '@/lib/platform-auth';
@@ -19,7 +20,9 @@ const ROLE_LABELS: Record<string, string> = {
 export function UserMenuDropdown() {
   const router = useRouter();
   const pathname = usePathname();
-  const { email, role, user, username, loading } = useUserContext();
+  const { email, role, user: contextUser, username, loading } = useUserContext();
+  const { user: sessionUser } = usePlatformSession();
+  const user = contextUser ?? sessionUser;
   const displayName = user ? profileDisplayName(user) : 'User';
   const subtitle = email ?? (username ? `@${username}` : null);
   const [isOpen, setIsOpen] = useState(false);

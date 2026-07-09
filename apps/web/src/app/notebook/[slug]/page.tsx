@@ -11,6 +11,7 @@ import {
   NotebookWorkspaceProvider,
 } from '@/components/notebook';
 import { useNotebookBySlug } from '@/hooks/useNotebooks';
+import { NotebookWorkspaceSkeleton } from '@/components/skeleton';
 
 export default function NotebookWorkspacePage() {
   const router = useRouter();
@@ -26,11 +27,7 @@ export default function NotebookWorkspacePage() {
   }, [loading, isSignedIn, router]);
 
   if (loading || isLoading) {
-    return (
-      <div className="min-h-screen home-page flex items-center justify-center">
-        <p className="text-[var(--color-home-text-muted)]">Loading notebook...</p>
-      </div>
-    );
+    return <NotebookWorkspaceSkeleton />;
   }
 
   if (!isSignedIn) {

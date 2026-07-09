@@ -109,7 +109,7 @@ async def create_account(
     user = User(
         tenant_id=tenant_uuid,
         username=username,
-        password_hash=hash_password(body.password),
+        password_hash=await hash_password(body.password),
         role=role,
         expertise_tier=expertise_tier,
         first_name=(body.first_name or "").strip() or None,
@@ -196,7 +196,7 @@ async def update_account(
     if body.role is not None:
         user.role = _normalize_role(body.role)
     if body.password:
-        user.password_hash = hash_password(body.password)
+        user.password_hash = await hash_password(body.password)
     if body.first_name is not None:
         user.first_name = body.first_name.strip() or None
     if body.last_name is not None:

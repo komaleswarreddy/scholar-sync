@@ -7,7 +7,7 @@ export function NotesListSkeleton({ count = 5 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="p-4 rounded-xl border border-border-default/50 space-y-2"
+          className="skeleton-card p-4 rounded-xl space-y-2"
         >
           <Skeleton variant="shimmer" className="h-5 w-2/3" rounded="md" />
           <SkeletonText lines={2} />

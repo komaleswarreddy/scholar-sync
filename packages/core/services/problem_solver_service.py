@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
+import time
 import uuid
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
@@ -328,6 +330,58 @@ class ProblemSolverService:
             raise HTTPException(status_code=502, detail="LLM returned invalid JSON")
         return parsed
 
+    HEARTBEAT_INTERVAL_S = 1.5
+
+    async def _run_with_heartbeat(
+        self,
+        coro: Any,
+        *,
+        message: str,
+        interval_s: float = HEARTBEAT_INTERVAL_S,
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """Run `coro` to completion while periodically yielding SSE-shaped
+        'status' heartbeat events, so a streaming client sees live progress
+        instead of dead air while the single blocking LLM call is in flight.
+
+        The mode-response LLM call (`_llm_json`) returns exactly one JSON
+        object; individual fields (sections, checkpoint, followUpButtons...)
+        cannot be reliably extracted until that object is fully valid, so
+        this intentionally does NOT attempt to stream partial content. It
+        only surfaces real-time "still working" feedback (elapsed time).
+
+        The final item yielded is a sentinel
+        {"event": "__result__", "data": <awaited result>} — callers must
+        intercept this event and must NOT forward it to the client.
+        """
+        task = asyncio.ensure_future(coro)
+        start = time.monotonic()
+        # Emit an immediate heartbeat so the client sees feedback right away
+        # instead of waiting a full interval before the first status event.
+        yield {
+            "event": "status",
+            "data": {"stage": "generating", "message": message, "elapsed_ms": 0},
+        }
+        try:
+            while True:
+                done, _pending = await asyncio.wait({task}, timeout=interval_s)
+                if task in done:
+                    break
+                elapsed_ms = int((time.monotonic() - start) * 1000)
+                yield {
+                    "event": "status",
+                    "data": {
+                        "stage": "generating",
+                        "message": message,
+                        "elapsed_ms": elapsed_ms,
+                    },
+                }
+            result = await task
+        except Exception:
+            if not task.done():
+                task.cancel()
+            raise
+        yield {"event": "__result__", "data": result}
+
     async def create_session(
         self,
         *,
@@ -512,7 +566,18 @@ class ProblemSolverService:
         if session.state not in ("mode_selected", "responding", "follow_up"):
             raise HTTPException(status_code=409, detail="Cannot respond in current state")
         self._transition(session, "responding")
-        response = await self._build_mode_response(session)
+
+        response: Optional[Dict[str, Any]] = None
+        async for event in self._run_with_heartbeat(
+            self._build_mode_response(session),
+            message="Working through the problem…",
+        ):
+            if event["event"] == "__result__":
+                response = event["data"]
+            else:
+                yield event
+        assert response is not None
+
         session.last_response = response
         self._transition(session, _response_end_state(session, response))
         await self._persist_assistant_message(session, response)
@@ -534,13 +599,16 @@ class ProblemSolverService:
             },
         }
 
-    async def submit_checkpoint(
+    async def _checkpoint_precheck(
         self,
-        session_id: str,
+        session: ProblemSolverSession,
         checkpoint_number: int,
         selected_option: str,
-    ) -> Dict[str, Any]:
-        session = await self._get_session(session_id)
+    ) -> tuple[Optional[Dict[str, Any]], Optional[str]]:
+        """Shared validation + pre-LLM state mutation for checkpoint submission.
+
+        Returns (prior_dict, prior_response) for use in the prompt/enrichment.
+        """
         if session.solving_mode != "HELP_ME_SOLVE_IT":
             raise HTTPException(status_code=400, detail="Checkpoints only for Help Me Solve It mode")
         if session.interaction_count >= 2:
@@ -554,6 +622,20 @@ class ProblemSolverService:
             content=selected_option,
             metadata={"checkpoint_number": checkpoint_number, "selected_option": selected_option},
         )
+        return prior_dict, prior_response
+
+    async def _build_checkpoint_response(
+        self,
+        session: ProblemSolverSession,
+        checkpoint_number: int,
+        selected_option: str,
+        prior_dict: Optional[Dict[str, Any]],
+        prior_response: Optional[str],
+    ) -> Dict[str, Any]:
+        """Runs the single blocking LLM call + post-processing for a checkpoint
+        turn. Extracted from `submit_checkpoint` so both the blocking and
+        streaming (heartbeat) code paths share identical logic.
+        """
         notebook = await self._get_notebook(str(session.notebook_id))
         scope = self._scope_from_notebook(notebook)
         dna = session.problem_dna or {}
@@ -590,6 +672,21 @@ class ProblemSolverService:
             prior_response=prior_dict,
         )
         response["mode"] = session.solving_mode
+        return response
+
+    async def submit_checkpoint(
+        self,
+        session_id: str,
+        checkpoint_number: int,
+        selected_option: str,
+    ) -> Dict[str, Any]:
+        session = await self._get_session(session_id)
+        prior_dict, prior_response = await self._checkpoint_precheck(
+            session, checkpoint_number, selected_option
+        )
+        response = await self._build_checkpoint_response(
+            session, checkpoint_number, selected_option, prior_dict, prior_response
+        )
         session.last_response = response
         session.state = _response_end_state(session, response)
         await self._persist_assistant_message(session, response)
@@ -597,6 +694,57 @@ class ProblemSolverService:
         await self.db.commit()
         await self.db.refresh(session)
         return _session_to_public(session)
+
+    async def stream_submit_checkpoint(
+        self,
+        session_id: str,
+        checkpoint_number: int,
+        selected_option: str,
+    ) -> AsyncGenerator[Dict[str, Any], None]:
+        """Same behavior as `submit_checkpoint`, but emits SSE-shaped events:
+        live 'status' heartbeats while the (single, blocking) LLM call is in
+        flight, then 'start'/'section'/'done' once the complete response is
+        available -- mirroring `stream_respond`. See `_run_with_heartbeat`
+        for why this does not stream partial JSON content.
+        """
+        session = await self._get_session(session_id)
+        prior_dict, prior_response = await self._checkpoint_precheck(
+            session, checkpoint_number, selected_option
+        )
+
+        response: Optional[Dict[str, Any]] = None
+        async for event in self._run_with_heartbeat(
+            self._build_checkpoint_response(
+                session, checkpoint_number, selected_option, prior_dict, prior_response
+            ),
+            message="Checking your answer…",
+        ):
+            if event["event"] == "__result__":
+                response = event["data"]
+            else:
+                yield event
+        assert response is not None
+
+        session.last_response = response
+        session.state = _response_end_state(session, response)
+        await self._persist_assistant_message(session, response)
+        await self._append_step(session, "mode_response", metadata=response)
+        await self.db.commit()
+
+        yield {"event": "start", "data": {"title": response.get("title"), "mode": response.get("mode")}}
+        for i, section in enumerate(response.get("sections") or []):
+            yield {"event": "section", "data": {"index": i, **section}}
+        yield {
+            "event": "done",
+            "data": {
+                "followUpButtons": response.get("followUpButtons") or [],
+                "revealLevel": response.get("revealLevel"),
+                "checkpoint": response.get("checkpoint"),
+                "finalAnswer": response.get("finalAnswer"),
+                "session_id": str(session.id),
+                "assistant_message_id": response.get("assistant_message_id"),
+            },
+        }
 
     async def follow_up(
         self,

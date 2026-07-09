@@ -58,6 +58,7 @@ export function useListNotebooks() {
 
 export function useNotebookBySlug(slug: string | null) {
   const queryEnabled = useClerkQueryEnabled();
+  const queryClient = useQueryClient();
   return useQuery({
     queryKey: notebookKeys.detailBySlug(slug || ''),
     queryFn: async () => {
@@ -71,6 +72,17 @@ export function useNotebookBySlug(slug: string | null) {
     },
     enabled: queryEnabled && !!slug,
     staleTime: 30 * 1000,
+    // Seed from the already-fetched notebook list cache (e.g. navigating from /library)
+    // so the workspace can mount immediately with the real id/mode instead of waiting
+    // on this full detail request (which also computes source/note/quiz counts).
+    // Sources/chat/studio panels only need notebook.id + notebook.mode to render and
+    // fetch their own data, both of which are already present on the list item; this
+    // request still runs in the background to fill in fresh counts/settings.
+    placeholderData: () => {
+      if (!slug) return undefined;
+      const cachedList = queryClient.getQueryData<NotebookListResponse>(notebookKeys.lists());
+      return cachedList?.notebooks.find((n) => n.slug === slug);
+    },
   });
 }
 

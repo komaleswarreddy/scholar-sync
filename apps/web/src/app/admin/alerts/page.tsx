@@ -6,8 +6,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 import { apiClient } from '@/lib/api-client';
 import { Loader2, AlertTriangle, AlertCircle, XCircle, CheckCircle2, Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -28,36 +30,21 @@ interface Alert {
 
 export default function AlertsPage() {
   const { ready } = useAdminPortalApi();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [filterType, setFilterType] = useState<string>('all');
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
 
-  useEffect(() => {
-    const fetchAlerts = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const data = await apiClient.getAlertsStatus();
-        setAlerts(data.alerts || []);
-      } catch (err: any) {
-        console.error('[Alerts] Failed to fetch alerts:', err);
-        setError(err?.message || 'Failed to load alerts');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAlerts();
-    
-    // Refresh alerts every 30 seconds
-    const interval = setInterval(fetchAlerts, 30000);
-    return () => clearInterval(interval);
-  }, [ready]);
+  const { data, isPending, error: queryError } = useQuery({
+    queryKey: adminQueryKeys.alertsStatus(),
+    queryFn: () => apiClient.getAlertsStatus(),
+    enabled: ready,
+    staleTime: 20 * 1000,
+    refetchInterval: 30 * 1000,
+  });
+  const [locallyResolvedIds, setLocallyResolvedIds] = useState<Set<string>>(new Set());
+  const alerts = (data?.alerts ?? []).map((alert: Alert) =>
+    alert.id && locallyResolvedIds.has(alert.id) ? { ...alert, resolved: true } : alert
+  );
+  const error = queryError ? ((queryError as any)?.message || 'Failed to load alerts') : null;
 
   const formatTimestamp = (timestamp: string | undefined) => {
     if (!timestamp) return 'N/A';
@@ -103,9 +90,7 @@ export default function AlertsPage() {
     try {
       // In production, you'd have a markResolved endpoint
       // For now, we'll just update the local state
-      setAlerts(alerts.map(alert => 
-        alert.id === alertId ? { ...alert, resolved: true } : alert
-      ));
+      setLocallyResolvedIds(prev => new Set(prev).add(alertId));
     } catch (err) {
       console.error('[Alerts] Failed to mark alert as resolved:', err);
     }
@@ -148,7 +133,7 @@ export default function AlertsPage() {
   const activeAlerts = filteredAlerts.filter(a => !a.resolved);
   const resolvedAlerts = filteredAlerts.filter(a => a.resolved);
 
-  if (loading) return <AdminTableSkeleton />;
+  if (isPending) return <AdminTableSkeleton />;
 
   if (error) {
     return (

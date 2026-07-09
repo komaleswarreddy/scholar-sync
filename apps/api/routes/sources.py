@@ -2,8 +2,10 @@ from fastapi import APIRouter, UploadFile, File, Form, Depends, Request, Backgro
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import DBAPIError, OperationalError
+import asyncio
 import uuid
 
+from config.settings import settings
 from packages.core.database.connection import get_db, AsyncSessionLocal
 from packages.core.services.source_service import IngestionService
 from packages.core.security.file_validator import FileValidator
@@ -78,7 +80,9 @@ async def upload_source(
     is_pdf = content_type == "application/pdf" or filename.lower().endswith(".pdf")
     if is_pdf:
         try:
-            validate_pdf_at_upload(file_content, pdf_password)
+            # validate_pdf_at_upload does synchronous pypdf parsing; run it in a worker
+            # thread so it doesn't block the event loop for other concurrent requests.
+            await asyncio.to_thread(validate_pdf_at_upload, file_content, pdf_password)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
     
@@ -97,7 +101,20 @@ async def upload_source(
             notebook_id=notebook_id,
         )
 
-        background_tasks.add_task(process_upload_background, tenant_id, user_id, result["id"], content_type, pdf_password)
+        # Opt-in: dispatch ingestion to a Celery worker instead of running it on this
+        # process's event loop (default). Off unless ENABLE_CELERY_INGESTION=true AND a
+        # worker is confirmed running — see apps/worker/celery_app.py for the risk of
+        # enabling this without one (uploads silently stuck at status="processing").
+        if settings.ENABLE_CELERY_INGESTION:
+            from apps.worker.tasks.pdf_task import process_source_ingestion
+
+            process_source_ingestion.delay(
+                tenant_id, user_id, result["id"], content_type, pdf_password
+            )
+        else:
+            background_tasks.add_task(
+                process_upload_background, tenant_id, user_id, result["id"], content_type, pdf_password
+            )
         return SourceResponse(**result)
 
     except ValueError as e:

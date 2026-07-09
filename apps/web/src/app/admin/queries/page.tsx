@@ -6,8 +6,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 import { apiClient } from '@/lib/api-client';
 import { Search, Loader2, Database, Clock, TrendingUp, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
@@ -15,31 +17,16 @@ import { AdminTableSkeleton } from '@/components/skeleton';
 
 export default function QueriesPage() {
   const { ready } = useAdminPortalApi();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [metrics, setMetrics] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const data = await apiClient.getAggregateMetrics(30);
-        setMetrics(data);
-      } catch (err: any) {
-        console.error('[Queries] Failed to fetch data:', err);
-        setError(err?.message || 'Failed to load queries data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data: metrics, isPending: loading, error: queryError } = useQuery({
+    queryKey: adminQueryKeys.aggregateMetrics(30),
+    queryFn: () => apiClient.getAggregateMetrics(30),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
 
-    fetchData();
-  }, [ready]);
+  const error = queryError ? ((queryError as any)?.message || 'Failed to load queries data') : null;
 
   const formatNumber = (num: number | null | undefined) => {
     if (num === null || num === undefined) return '—';
@@ -51,7 +38,7 @@ export default function QueriesPage() {
     return `${num.toFixed(1)}%`;
   };
 
-  if (loading) return <AdminTableSkeleton />;
+  if (loading && !metrics) return <AdminTableSkeleton />;
 
   if (error) {
     return (

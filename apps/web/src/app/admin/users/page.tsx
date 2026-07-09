@@ -7,12 +7,14 @@
 
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, User, Calendar, Database, Zap, FileText, AlertTriangle, Clock, DollarSign, TrendingUp, Loader2, Filter, XCircle } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAdminPortalApi } from '@/hooks/useAdminPortalApi';
 import { apiClient } from '@/lib/api-client';
+import { adminQueryKeys } from '@/hooks/usePrefetchAdminData';
 import { AdminTableSkeleton, AdminDetailSkeleton } from '@/components/skeleton';
 
 // User data type
@@ -92,9 +94,6 @@ interface UserDetailPanelProps {
 
 function UserDetailPanel({ userId, userName, userEmail, onClose }: UserDetailPanelProps) {
   const { ready } = useAdminPortalApi();
-  const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState<UserDetailMetrics | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [showSessionsModal, setShowSessionsModal] = useState(false);
   const [sessionsDateRange, setSessionsDateRange] = useState<{ start: string; end: string }>({
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
@@ -103,76 +102,122 @@ function UserDetailPanel({ userId, userName, userEmail, onClose }: UserDetailPan
   const [filteredSessions, setFilteredSessions] = useState<any[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
 
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        
-        // Fetch user metrics and sessions
-        const [userMetrics, tokenData, costData, latencyData, cacheData, alertsData, sessionsData] = await Promise.all([
-          apiClient.getUserMetrics(userId, 30).catch(() => null),
-          apiClient.getTokenConsumption(30, 'user').catch(() => null),
-          apiClient.getCostTracking(30, true).catch(() => null),
-          apiClient.getLatencyDashboard(30).catch(() => null),
-          apiClient.getCacheEfficiency(30).catch(() => null),
-          apiClient.getAlertsStatus().catch(() => null),
-          apiClient.getUserSessions(userId, 30).catch(() => null),
-        ]);
+  const queryEnabled = ready && Boolean(userId);
 
-        // Find user-specific data from token consumption
-        const userTokenData = tokenData?.breakdown?.find((item: any) => item.key === userId);
-        
-        // Find user-specific cost data
-        const userCostData = costData?.user_breakdown?.find((item: any) => item.user_id === userId);
-        
-        // Filter alerts for this user
-        const userAlerts = alertsData?.alerts?.filter((alert: any) => alert.user_id === userId) || [];
+  const userMetricsQuery = useQuery({
+    queryKey: adminQueryKeys.userMetrics(userId, 30),
+    queryFn: () => apiClient.getUserMetrics(userId, 30),
+    enabled: queryEnabled,
+    staleTime: 2 * 60 * 1000,
+  });
+  const tokenQuery = useQuery({
+    queryKey: adminQueryKeys.tokenConsumption(30, 'user'),
+    queryFn: () => apiClient.getTokenConsumption(30, 'user'),
+    enabled: queryEnabled,
+    staleTime: 2 * 60 * 1000,
+  });
+  const costQuery = useQuery({
+    queryKey: adminQueryKeys.costTracking(30, true),
+    queryFn: () => apiClient.getCostTracking(30, true),
+    enabled: queryEnabled,
+    staleTime: 2 * 60 * 1000,
+  });
+  const latencyQuery = useQuery({
+    queryKey: adminQueryKeys.latencyDashboard(30),
+    queryFn: () => apiClient.getLatencyDashboard(30),
+    enabled: queryEnabled,
+    staleTime: 2 * 60 * 1000,
+  });
+  const cacheQuery = useQuery({
+    queryKey: adminQueryKeys.cacheEfficiency(30),
+    queryFn: () => apiClient.getCacheEfficiency(30),
+    enabled: queryEnabled,
+    staleTime: 2 * 60 * 1000,
+  });
+  const alertsQuery = useQuery({
+    queryKey: adminQueryKeys.alertsStatus(),
+    queryFn: () => apiClient.getAlertsStatus(),
+    enabled: queryEnabled,
+    staleTime: 2 * 60 * 1000,
+  });
+  const sessionsQuery = useQuery({
+    queryKey: adminQueryKeys.userSessions(userId, 30),
+    queryFn: () => apiClient.getUserSessions(userId, 30),
+    enabled: queryEnabled,
+    staleTime: 2 * 60 * 1000,
+  });
 
-        // Get sessions from backend
-        const sessions = sessionsData?.sessions || [];
+  // Old behavior: every sub-fetch was individually `.catch(() => null)`-wrapped,
+  // so `loading` was purely "true until the whole Promise.all settles" and
+  // `error` was never set from any of these calls. Reproduce that: loading is
+  // true while any of the 7 queries is still in flight; error is never derived
+  // from these (react-query surfaces failures as `data === undefined`, which
+  // the derivation below already tolerates via `?? null`).
+  const loading =
+    userMetricsQuery.isPending ||
+    tokenQuery.isPending ||
+    costQuery.isPending ||
+    latencyQuery.isPending ||
+    cacheQuery.isPending ||
+    alertsQuery.isPending ||
+    sessionsQuery.isPending;
+  // Old code's outer try/catch around fetchUserDetails practically never threw
+  // (every sub-fetch was individually `.catch(() => null)`-wrapped), so `error`
+  // was effectively only ever set by the interactive "Filter" button handler
+  // below. Keep that same local error state for that one-off, user-triggered
+  // fetch — it is out of scope for this react-query conversion.
+  const [error, setError] = useState<string | null>(null);
 
-        setMetrics({
-          summary: userMetrics?.summary || {},
-          usage: userMetrics?.usage || {},
-          endpoints: userMetrics?.endpoints || [],
-          tokenConsumption: userTokenData ? {
-            input_tokens: userTokenData.prompt_tokens || 0,
-            output_tokens: userTokenData.completion_tokens || 0,
-            total_tokens: userTokenData.total_tokens || 0,
-          } : undefined,
-          costs: userCostData ? {
-            total_cost: userCostData.cost || 0,
-            breakdown: [],
-          } : undefined,
-          latency: latencyData?.summary ? {
-            avg_latency_ms: latencyData.summary.avg_latency_ms || 0,
-            p95_latency_ms: latencyData.summary.p95_latency_ms || 0,
-            p99_latency_ms: latencyData.summary.p99_latency_ms || 0,
-          } : undefined,
-          cache: cacheData?.summary ? {
-            hits: cacheData.summary.hits || 0,
-            misses: cacheData.summary.misses || 0,
-            hit_rate: cacheData.summary.hit_rate || 0,
-          } : undefined,
-          alerts: userAlerts,
-          sessions: sessions,
-        });
-      } catch (err: any) {
-        console.error('[Users] Failed to fetch user details:', err);
-        setError(err?.message || 'Failed to load user details');
-      } finally {
-        setLoading(false);
-      }
+  const userMetrics = userMetricsQuery.data ?? null;
+  const tokenData = tokenQuery.data ?? null;
+  const costData = costQuery.data ?? null;
+  const latencyData = latencyQuery.data ?? null;
+  const cacheData = cacheQuery.data ?? null;
+  const alertsData = alertsQuery.data ?? null;
+  const sessionsData = sessionsQuery.data ?? null;
+
+  const metrics: UserDetailMetrics | null = useMemo(() => {
+    if (loading) return null;
+
+    // Find user-specific data from token consumption
+    const userTokenData = tokenData?.breakdown?.find((item: any) => item.key === userId);
+
+    // Find user-specific cost data
+    const userCostData = costData?.user_breakdown?.find((item: any) => item.user_id === userId);
+
+    // Filter alerts for this user
+    const userAlerts = alertsData?.alerts?.filter((alert: any) => alert.user_id === userId) || [];
+
+    // Get sessions from backend
+    const sessions = sessionsData?.sessions || [];
+
+    return {
+      summary: userMetrics?.summary || {},
+      usage: userMetrics?.usage || {},
+      endpoints: userMetrics?.endpoints || [],
+      tokenConsumption: userTokenData ? {
+        input_tokens: userTokenData.prompt_tokens || 0,
+        output_tokens: userTokenData.completion_tokens || 0,
+        total_tokens: userTokenData.total_tokens || 0,
+      } : undefined,
+      costs: userCostData ? {
+        total_cost: userCostData.cost || 0,
+        breakdown: [],
+      } : undefined,
+      latency: latencyData?.summary ? {
+        avg_latency_ms: latencyData.summary.avg_latency_ms || 0,
+        p95_latency_ms: latencyData.summary.p95_latency_ms || 0,
+        p99_latency_ms: latencyData.summary.p99_latency_ms || 0,
+      } : undefined,
+      cache: cacheData?.summary ? {
+        hits: cacheData.summary.hits || 0,
+        misses: cacheData.summary.misses || 0,
+        hit_rate: cacheData.summary.hit_rate || 0,
+      } : undefined,
+      alerts: userAlerts,
+      sessions: sessions,
     };
-
-    if (userId) {
-      fetchUserDetails();
-    }
-  }, [userId, ready]);
+  }, [loading, tokenData, costData, alertsData, sessionsData, userMetrics, userId]);
 
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return 'N/A';
@@ -741,10 +786,6 @@ function UserDetailPanel({ userId, userName, userEmail, onClose }: UserDetailPan
 
 export default function UsersPage() {
   const { ready } = useAdminPortalApi();
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [userAnalytics, setUserAnalytics] = useState<UserAnalytics[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -759,69 +800,98 @@ export default function UsersPage() {
   const [filterDays, setFilterDays] = useState<number>(30);
   const itemsPerPage = 10;
 
-  // Fetch users and their analytics
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!ready) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        const [usersResponse, tokenData, costData, cacheData, latencyData, alertsData] =
-          await Promise.all([
-            apiClient.listAllUsers(),
-            apiClient.getTokenConsumption(30, 'user').catch(() => null),
-            apiClient.getCostTracking(30, true).catch(() => null),
-            apiClient.getCacheEfficiency(30).catch(() => null),
-            apiClient.getLatencyDashboard(30).catch(() => null),
-            apiClient.getAlertsStatus().catch(() => null),
-          ]);
-        const usersList = usersResponse.users || [];
-        setUsers(usersList);
-        
-        // Build analytics for each user
-        const analytics: UserAnalytics[] = usersList.map((user: UserData) => {
-          const userId = user.clerk_user_id || user.id;
-          
-          // Find user in token breakdown
-          const userTokenData = tokenData?.breakdown?.find((item: any) => item.key === userId);
-          
-          // Find user in cost breakdown
-          const userCostData = costData?.user_breakdown?.find((item: any) => item.user_id === userId);
-          
-          // Count alerts for this user
-          const userAlerts = alertsData?.alerts?.filter((alert: any) => alert.user_id === userId) || [];
-          
-          return {
-            userId,
-            email: user.email || 'N/A',
-            name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || user.email || 'Unknown',
-            tokensUsed: userTokenData?.total_tokens || 0,
-            inputTokens: userTokenData?.prompt_tokens || 0,
-            outputTokens: userTokenData?.completion_tokens || 0,
-            cost: userCostData?.cost || 0,
-            queries: userTokenData?.total_calls || 0,
-            avgLatency: latencyData?.summary?.avg_latency_ms || 0,
-            cacheHits: 0, // Would need user-specific cache data
-            cacheMisses: 0,
-            cacheHitRate: 0,
-            lastActive: user.last_sign_in_at || user.created_at || '',
-            alerts: userAlerts.length,
-          };
-        });
-        
-        setUserAnalytics(analytics);
-      } catch (err: any) {
-        console.error('[Users] Failed to fetch data:', err);
-        setError(err?.message || 'Failed to load users');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch users and their analytics. These 6 endpoints are also warmed by
+  // prefetchAdminPortalData() right at login-click time (see
+  // usePrefetchAdminData.ts) — using the same adminQueryKeys here means this
+  // page reads that already-warm cache on first paint instead of re-fetching.
+  const usersQuery = useQuery({
+    queryKey: adminQueryKeys.usersList(),
+    queryFn: () => apiClient.listAllUsers(),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const tokenQuery = useQuery({
+    queryKey: adminQueryKeys.tokenConsumption(30, 'user'),
+    queryFn: () => apiClient.getTokenConsumption(30, 'user'),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const costQuery = useQuery({
+    queryKey: adminQueryKeys.costTracking(30, true),
+    queryFn: () => apiClient.getCostTracking(30, true),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const cacheQuery = useQuery({
+    queryKey: adminQueryKeys.cacheEfficiency(30),
+    queryFn: () => apiClient.getCacheEfficiency(30),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const latencyQuery = useQuery({
+    queryKey: adminQueryKeys.latencyDashboard(30),
+    queryFn: () => apiClient.getLatencyDashboard(30),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
+  const alertsQuery = useQuery({
+    queryKey: adminQueryKeys.alertsStatus(),
+    queryFn: () => apiClient.getAlertsStatus(),
+    enabled: ready,
+    staleTime: 2 * 60 * 1000,
+  });
 
-    fetchData();
-  }, [ready]);
+  const users = useMemo(() => usersQuery.data?.users ?? [], [usersQuery.data]);
+
+  // Old behavior: only listAllUsers()'s failure produced a page-level error;
+  // the other 5 calls were individually `.catch(() => null)`-wrapped, so their
+  // failures silently fell back to `null` inputs in the analytics derivation.
+  const loading = usersQuery.isPending;
+  const error = usersQuery.error
+    ? (usersQuery.error as any)?.message || 'Failed to load users'
+    : null;
+
+  const userAnalytics: UserAnalytics[] = useMemo(() => {
+    const tokenData = tokenQuery.data ?? null;
+    const costData = costQuery.data ?? null;
+    const latencyData = latencyQuery.data ?? null;
+    const alertsData = alertsQuery.data ?? null;
+
+    return users.map((user: UserData) => {
+      const userId = user.clerk_user_id || user.id;
+
+      // Find user in token breakdown
+      const userTokenData = tokenData?.breakdown?.find((item: any) => item.key === userId);
+
+      // Find user in cost breakdown
+      const userCostData = costData?.user_breakdown?.find((item: any) => item.user_id === userId);
+
+      // Count alerts for this user
+      const userAlerts = alertsData?.alerts?.filter((alert: any) => alert.user_id === userId) || [];
+
+      return {
+        userId,
+        email: user.email || 'N/A',
+        name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || user.email || 'Unknown',
+        tokensUsed: userTokenData?.total_tokens || 0,
+        inputTokens: userTokenData?.prompt_tokens || 0,
+        outputTokens: userTokenData?.completion_tokens || 0,
+        cost: userCostData?.cost || 0,
+        queries: userTokenData?.total_calls || 0,
+        avgLatency: latencyData?.summary?.avg_latency_ms || 0,
+        cacheHits: 0, // Would need user-specific cache data
+        cacheMisses: 0,
+        cacheHitRate: 0,
+        lastActive: user.last_sign_in_at || user.created_at || '',
+        alerts: userAlerts.length,
+      };
+    });
+  }, [users, tokenQuery.data, costQuery.data, latencyQuery.data, alertsQuery.data]);
+
+  // cacheQuery is fetched (and cached) here purely so this page shares that
+  // cache entry with UserDetailPanel / admin login prefetch — not otherwise
+  // consumed in this component's own analytics derivation (matches old code).
+  void cacheQuery.data;
 
   // Filter and sort users
   const filteredAndSortedUsers = useMemo(() => {
@@ -1059,7 +1129,7 @@ export default function UsersPage() {
   const selectedUser = selectedUserId ? userAnalytics.find(u => u.userId === selectedUserId) : null;
   const selectedUserData = selectedUserId ? users.find(u => (u.clerk_user_id || u.id) === selectedUserId) : null;
 
-  if (loading) return <AdminTableSkeleton />;
+  if (!ready || loading) return <AdminTableSkeleton />;
 
   if (error) {
     return (

@@ -5,6 +5,7 @@ from pathlib import Path
 import asyncio
 import hashlib
 import json
+import math
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -219,6 +220,26 @@ class LlamaIndexIngestionAdapter:
         if not nodes:
             return nodes
         if not (whole_document_text or "").strip():
+            return nodes
+
+        # Latency guardrail: contextual retrieval issues one LLM call per chunk. For very large
+        # documents (many chunks) this can add minutes of invisible "processing" time. Rather than
+        # silently degrading enrichment quality (e.g. shrinking prompts or lowering targets), skip
+        # contextual enrichment entirely for outlier-sized documents once past this chunk-count cap —
+        # identical behavior to ENABLE_CONTEXTUAL_RETRIEVAL_INGESTION=False, but scoped to this one
+        # document instead of a global toggle. Typical small/medium documents are unaffected.
+        max_chunks = int(getattr(settings, "CONTEXTUAL_RETRIEVAL_MAX_CHUNKS", 150))
+        if max_chunks > 0 and len(nodes) > max_chunks:
+            per_call_estimate_s = 3.0
+            concurrency_estimate = max(
+                1, int(getattr(settings, "CONTEXTUAL_RETRIEVAL_MAX_CONCURRENCY_PER_DOCUMENT", 6))
+            )
+            estimated_s = math.ceil(len(nodes) / concurrency_estimate) * per_call_estimate_s
+            print(
+                f"[INGEST] Skipping contextual retrieval: {len(nodes)} chunks exceeds threshold "
+                f"{max_chunks} (CONTEXTUAL_RETRIEVAL_MAX_CHUNKS); would add ~{estimated_s:.0f}s at "
+                f"{concurrency_estimate}x concurrency. Indexing chunks without contextual enrichment."
+            )
             return nodes
 
         # Build shared document context once. NCERT uses a smaller cap + metadata header so we do not send

@@ -1165,7 +1165,11 @@ class Retriever:
         original_hybrid_count = len(hybrid_matches)
         if used_rewrites and len(rewritten_queries) > 1:
             additional_matches = []
-            for rewritten_query in rewritten_queries[1:]:  # Additional variants (primary already searched)
+
+            async def _fetch_rewritten_variant(rewritten_query: str) -> List[Dict[str, Any]]:
+                # Independent per-variant embed+retrieve; results are merged by
+                # the caller after all variants complete, so this is safe to
+                # run concurrently with the other variants via asyncio.gather.
                 try:
                     rewritten_embedding = await self.embedder.generate_embedding(rewritten_query)
                     if self.li_retriever is not None:
@@ -1209,11 +1213,20 @@ class Retriever:
                             variant_hybrid,
                             ncert_variant_matches,
                         )
-                    additional_matches.extend(variant_hybrid)
+                    return variant_hybrid
                 except Exception as e:
                     self._log("REWRITE", f"Error searching with rewritten query: {e}")
-                    continue
-            
+                    return []
+
+            # Run embed+retrieve for all rewritten variants concurrently (each
+            # variant is independent - results are merged/deduped below, same
+            # as the previous sequential loop), then flatten in order.
+            variant_results = await asyncio.gather(
+                *[_fetch_rewritten_variant(rq) for rq in rewritten_queries[1:]]
+            )
+            for variant_hybrid in variant_results:
+                additional_matches.extend(variant_hybrid)
+
             # Merge results, avoiding duplicates, keeping best scores
             seen_ids = {}
             for match in hybrid_matches:
@@ -1588,10 +1601,36 @@ class Retriever:
                             current_tokens += chunk_tokens
             debug_trace["guardrails_applied"].append("min_context_chunks_enforced")
         
-        # Final check: Never send empty context
+        # Empty context: return no matches and let chat graph show a user-facing message
+        # (tutor NCERT miss, no uploads, etc.). Do not raise — that surfaces as a blank stream.
         if len(selected_matches) == 0:
-            raise ValueError(f"[RAG_PIPELINE] CRITICAL ERROR: Cannot proceed with empty context. No chunks available after all fallbacks.")
-        
+            print(
+                "[RAG_PIPELINE] WARNING: Empty context after all fallbacks — "
+                "returning empty matches for upstream handling"
+            )
+            debug_trace["guardrails_applied"].append("empty_context_returned")
+            result = {
+                "matches": [],
+                "intent": intent,
+                "intent_confidence": intent_confidence,
+                "key_terms": key_terms,
+                "focused_query": focused_query,
+                "rewritten_queries": rewritten_queries,
+                "derived_hit": False,
+                "empty_context": True,
+                "metadata": {
+                    "total_retrieved": len(hybrid_matches),
+                    "after_mmr": len(diverse_matches),
+                    "after_reranking": len(reranked_matches),
+                    "final_selected": 0,
+                    "derived_hit": False,
+                    "empty_context": True,
+                },
+            }
+            if settings.RAG_DEBUG:
+                result["debug_trace"] = debug_trace
+            return result
+
         # DEBUG: Log source_id and content preview of each chunk
         print(f"[RAG_PIPELINE] FINAL: {len(selected_matches)} chunks ready for LLM (token_size: {final_token_size})")
         print(f"[CHUNK_SOURCES] Retrieving chunks with filter={filter}:")

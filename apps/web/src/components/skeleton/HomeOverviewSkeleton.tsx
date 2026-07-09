@@ -9,21 +9,34 @@ export function HomeOverviewSkeleton() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Skeleton variant="shimmer" className="h-28 w-full" rounded="2xl" />
-        <Skeleton variant="shimmer" className="h-28 w-full" rounded="2xl" />
+        <div className="skeleton-card rounded-2xl p-5 space-y-3">
+          <Skeleton variant="shimmer" className="h-4 w-24" rounded="md" />
+          <Skeleton variant="shimmer" className="h-6 w-40" rounded="md" />
+        </div>
+        <div className="skeleton-card rounded-2xl p-5 space-y-3">
+          <Skeleton variant="shimmer" className="h-4 w-32" rounded="md" />
+          <Skeleton variant="shimmer" className="h-6 w-36" rounded="md" />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} variant="shimmer" className="h-24 w-full" rounded="2xl" />
+          <div key={i} className="skeleton-card rounded-2xl p-4 space-y-2.5">
+            <Skeleton variant="shimmer" className="h-3 w-16" rounded="md" />
+            <Skeleton variant="shimmer" className="h-6 w-12" rounded="md" />
+          </div>
         ))}
       </div>
 
-      <Skeleton variant="shimmer" className="h-20 w-full" rounded="2xl" />
+      <div className="skeleton-card rounded-2xl p-5">
+        <Skeleton variant="shimmer" className="h-full w-full min-h-[3rem]" rounded="lg" />
+      </div>
 
       <div className="space-y-3">
         <Skeleton variant="shimmer" className="h-6 w-40" rounded="md" />
-        <Skeleton variant="shimmer" className="h-16 w-full" rounded="xl" />
+        <div className="skeleton-card rounded-xl p-4">
+          <Skeleton variant="shimmer" className="h-8 w-full" rounded="md" />
+        </div>
       </div>
     </div>
   );

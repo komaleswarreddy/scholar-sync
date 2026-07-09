@@ -3,10 +3,12 @@
 import { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { BookOpen, GraduationCap, Loader2, Lock, Sparkles, User } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { prefetchStudentPortalData } from '@/hooks/usePrefetchStudentData';
+import { prefetchAdminPortalData } from '@/hooks/usePrefetchAdminData';
 import { hasPlatformSession, getStoredPlatformUser, getPlatformToken, isSchoolAdmin, SIGN_OUT_QUERY } from '@/lib/platform-auth';
-import { useUserContext } from '@/contexts/UserContext';
 import { AppBrandLogo } from '@/components/layout/AppBrandLogo';
 
 const FEATURES = [
@@ -29,7 +31,7 @@ const FEATURES = [
 
 export default function SignInPage() {
   const router = useRouter();
-  const { refreshUser } = useUserContext();
+  const queryClient = useQueryClient();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -56,10 +58,11 @@ export default function SignInPage() {
     setLoading(true);
     try {
       const user = await apiClient.login(username.trim(), password);
-      await refreshUser();
       if (user.role === 'schooladmin' || user.is_bootstrap_admin) {
+        prefetchAdminPortalData(queryClient);
         router.replace('/admin/users');
       } else {
+        prefetchStudentPortalData(queryClient);
         router.replace('/home');
       }
     } catch (err: unknown) {
@@ -188,7 +191,7 @@ export default function SignInPage() {
             <br />
             Contact your administrator if you need access.
           </p>
-        </div>
+      </div>
       </main>
     </div>
   );

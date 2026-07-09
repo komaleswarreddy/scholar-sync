@@ -18,6 +18,7 @@ import { useNotebookLeaveGuardOptional } from '@/contexts/NotebookLeaveGuardCont
 import { useTutorClass } from '@/contexts/TutorClassContext';
 import { TUTOR_CLASS_OPTIONS } from '@/hooks/useTutorCatalog';
 import { isProblemSolverEnabled } from '@/lib/feature-flags';
+import { usePortalConfig } from '@/hooks/usePortalConfig';
 import {
   prefetchHomeSummary,
   prefetchNotebooks,
@@ -25,14 +26,14 @@ import {
 } from '@/hooks/usePrefetchStudentData';
 
 const baseNavItems = [
-  { href: '/home', label: 'Home', icon: Home },
-  { href: '/library', label: 'Library', icon: BookOpen },
+  { href: '/home', label: 'Home', icon: Home, tab: null },
+  { href: '/library', label: 'Library', icon: BookOpen, tab: null },
   ...(isProblemSolverEnabled
-    ? [{ href: '/problem-solver', label: 'Problem Solver', icon: Lightbulb } as const]
+    ? [{ href: '/problem-solver', label: 'Problem Solver', icon: Lightbulb, tab: 'problem_solver' } as const]
     : []),
-  { href: '/study-planner', label: 'Study Plan', icon: CalendarDays },
-  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/assets', label: 'Assets', icon: FolderOpen },
+  { href: '/study-planner', label: 'Study Plan', icon: CalendarDays, tab: 'study_planner' },
+  { href: '/analytics', label: 'Analytics', icon: BarChart3, tab: 'analytics' },
+  { href: '/assets', label: 'Assets', icon: FolderOpen, tab: 'assets' },
 ] as const;
 
 type HomeTopNavProps = {
@@ -47,6 +48,8 @@ export function HomeTopNav({ activeStyle = 'pill', hideClassPill = false }: Home
   const queryClient = useQueryClient();
   const leaveGuard = useNotebookLeaveGuardOptional();
   const { classNum, setClassNum } = useTutorClass();
+  const { isTabEnabled } = usePortalConfig();
+  const navItems = baseNavItems.filter((item) => item.tab === null || isTabEnabled(item.tab));
 
   const handlePrefetch = (href: string) => {
     if (href === '/home') void prefetchHomeSummary(queryClient);
@@ -92,7 +95,7 @@ export function HomeTopNav({ activeStyle = 'pill', hideClassPill = false }: Home
         <AppBrandLogo showDivider />
 
         <nav className="home-top-nav__links" aria-label="Main">
-          {baseNavItems.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, label, icon: Icon }) => {
             const active = isActive(href);
             const linkClass =
               activeStyle === 'underline'

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
@@ -40,11 +41,28 @@ class HomeSummaryService:
         self.user_id = user_id
         self.notebooks = NotebookService(db, tenant_id, user_id)
 
+    async def _quiz_count(self) -> int:
+        try:
+            return int(
+                await self.db.scalar(
+                    select(func.count(StudioFeature.id)).where(
+                        StudioFeature.tenant_id == self.notebooks.tenant_id,
+                        StudioFeature.user_id == self.user_id,
+                        StudioFeature.type == 'quiz',
+                    )
+                )
+                or 0
+            )
+        except Exception:
+            return 0
+
     async def get_summary(self) -> Dict[str, Any]:
-        notebooks = await self.notebooks.list_notebooks(limit=100)
+        notebooks, quiz_count = await asyncio.gather(
+            self.notebooks.list_notebooks(limit=40),
+            self._quiz_count(),
+        )
         total = len(notebooks)
 
-        quiz_count = 0
         strong = 0
         attention = 0
         mastery_values: List[int] = []
@@ -56,20 +74,6 @@ class HomeSummaryService:
                     strong += 1
                 elif nb.mastery_percent < 60:
                     attention += 1
-
-        try:
-            quiz_count = int(
-                await self.db.scalar(
-                    select(func.count(StudioFeature.id)).where(
-                        StudioFeature.tenant_id == self.notebooks.tenant_id,
-                        StudioFeature.user_id == self.user_id,
-                        StudioFeature.type == 'quiz',
-                    )
-                )
-                or 0
-            )
-        except Exception:
-            quiz_count = 0
 
         syllabus_pct = round(sum(mastery_values) / len(mastery_values)) if mastery_values else 0
 

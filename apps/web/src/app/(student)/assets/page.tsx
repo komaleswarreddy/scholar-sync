@@ -15,11 +15,13 @@ import {
 import { StudyAssetsSkeleton } from '@/components/skeleton';
 import { NOTE_SORT_OPTIONS } from '@/lib/assets-mock-data';
 import { StudioPreviewProvider } from '@/contexts/StudioPreviewContext';
+import { usePortalTabGuard } from '@/hooks/usePortalTabGuard';
 
 function AssetsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { loading, isSignedIn } = useUserContext();
+  const enabled = usePortalTabGuard('assets');
   const [activeTab, setActiveTab] = useState<AssetsTab>('study-assets');
   const [assetSearch, setAssetSearch] = useState('');
   const [noteSearch, setNoteSearch] = useState('');
@@ -55,6 +57,8 @@ function AssetsPageContent() {
       router.replace('/sign-in');
     }
   }, [loading, isSignedIn, router]);
+
+  if (!enabled) return null;
 
   return (
     <div className="assets-page library-page max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-10 pb-10">
