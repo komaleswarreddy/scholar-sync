@@ -10,11 +10,15 @@ from enum import Enum
 from config.settings import settings
 from packages.core.llm._base import LLMClient, LLMProvider
 from packages.core.llm.openai_client import OpenAIClient
+from packages.core.llm.groq_client import GroqClient
 
 
 class LLMModel(str, Enum):
     """Supported models across all providers."""
-    # OpenAI Models
+    # Groq Models (primary — text generation)
+    GPT_OSS_120B = "openai/gpt-oss-120b"
+
+    # OpenAI Models (embeddings/vision/moderation/image-gen call sites; not primary chat)
     GPT_4O_MINI = "gpt-4o-mini"
     GPT_4O = "gpt-4o"
     GPT_4_TURBO = "gpt-4-turbo"
@@ -24,6 +28,24 @@ class LLMModel(str, Enum):
     CLAUDE_3_OPUS = "claude-3-opus"
     CLAUDE_3_SONNET = "claude-3-sonnet"
     CLAUDE_3_HAIKU = "claude-3-haiku"
+
+
+# Groq model-name prefixes/substrings that identify a model as Groq-hosted rather
+# than a literal OpenAI/Anthropic model. Used to route registry-configured model
+# strings (e.g. from config/models.yaml) to the right client.
+_GROQ_MODEL_MARKERS = (
+    "openai/gpt-oss",
+    "llama-3",
+    "llama3",
+    "meta-llama/",
+    "mixtral",
+    "qwen",
+    "moonshotai/",
+    "kimi",
+    "gemma2",
+    "gemma-2",
+    "deepseek-r1-distill",
+)
 
 
 def get_llm_client(
@@ -51,15 +73,21 @@ def get_llm_client(
     if provider is None and model:
         provider = _detect_provider_from_model(model)
     elif provider is None:
-        # Default to OpenAI
-        provider = LLMProvider.OPENAI
-    
+        # Default to Groq (primary text-generation provider)
+        provider = LLMProvider.GROQ
+
     # Set default model if not specified
     if model is None:
         model = _get_default_model(provider)
-    
+
     # Create client based on provider
-    if provider == LLMProvider.OPENAI:
+    if provider == LLMProvider.GROQ:
+        return GroqClient(
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+    elif provider == LLMProvider.OPENAI:
         return OpenAIClient(
             model=model,
             temperature=temperature,
@@ -77,26 +105,37 @@ def get_llm_client(
         raise ValueError(f"Unknown provider: {provider}")
 
 
-def _detect_provider_from_model(model: str) -> LLMProvider:
-    """Detect provider from model name."""
+def detect_provider_from_model(model: str) -> LLMProvider:
+    """Detect provider from model name. Public — use this instead of assuming a
+    provider (e.g. hardcoding OPENAI) whenever `model` came from get_model_for_task()
+    or the model_registry, since either can now resolve to a Groq model string."""
     model_lower = model.lower()
-    
-    if model_lower.startswith("gpt") or "openai" in model_lower:
+
+    if any(marker in model_lower for marker in _GROQ_MODEL_MARKERS):
+        return LLMProvider.GROQ
+    elif model_lower.startswith("gpt") or model_lower.startswith("text-embedding") or "dall-e" in model_lower:
         return LLMProvider.OPENAI
     elif "claude" in model_lower:
         return LLMProvider.CLAUDE
+    elif "gemini" in model_lower:
+        return LLMProvider.GEMINI
     else:
-        # Default to OpenAI for unknown models
-        return LLMProvider.OPENAI
+        # Default unknown models to the primary provider (Groq)
+        return LLMProvider.GROQ
+
+
+# Backcompat alias (was private/internal-only name).
+_detect_provider_from_model = detect_provider_from_model
 
 
 def _get_default_model(provider: LLMProvider) -> str:
     """Get default model for provider."""
     defaults = {
+        LLMProvider.GROQ: getattr(settings, "PRIMARY_LLM_MODEL", LLMModel.GPT_OSS_120B.value),
         LLMProvider.OPENAI: LLMModel.GPT_4O_MINI.value,
         LLMProvider.CLAUDE: LLMModel.CLAUDE_3_HAIKU.value,
     }
-    return defaults.get(provider, LLMModel.GPT_4O_MINI.value)
+    return defaults.get(provider, LLMModel.GPT_OSS_120B.value)
 
 
 def get_model_for_task(task_type: str) -> tuple:
@@ -109,43 +148,50 @@ def get_model_for_task(task_type: str) -> tuple:
     Returns:
         Tuple of (provider, model)
     """
+    # Vision tasks need real multimodal input (image_url content parts). Groq's primary
+    # model (openai/gpt-oss-120b) is text-only, so these stay on an OpenAI vision model
+    # regardless of provider/registry config below.
+    VISION_TASKS = {"source_image_ocr", "image_ocr", "diagram_label_ocr"}
+    if task_type in VISION_TASKS:
+        return (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value)
+
     # Config registry override (production.yaml / models.yaml)
     try:
         from packages.core.config.model_registry import get_model_for_task_key
 
         model = get_model_for_task_key(task_type)
         if model:
-            return (LLMProvider.OPENAI, model)
+            return (_detect_provider_from_model(model), model)
     except Exception:
         pass
 
-    # Task-based routing (can be configured via settings)
+    # Task-based routing — Groq (openai/gpt-oss-120b) is the primary text-generation
+    # model for every task below; only vision tasks (handled above) stay on OpenAI.
+    _GROQ_PRIMARY = (LLMProvider.GROQ, getattr(settings, "PRIMARY_LLM_MODEL", LLMModel.GPT_OSS_120B.value))
     task_routing = {
-        # Studio structured tasks -> OpenAI (better JSON adherence)
-        "quiz": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "flashcards": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "mind_map": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "slide_deck": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "intent_classifier": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "query_rewriter": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "scope_narrower": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        # Studio structured tasks
+        "quiz": _GROQ_PRIMARY,
+        "flashcards": _GROQ_PRIMARY,
+        "mind_map": _GROQ_PRIMARY,
+        "slide_deck": _GROQ_PRIMARY,
+        "intent_classifier": _GROQ_PRIMARY,
+        "query_rewriter": _GROQ_PRIMARY,
+        "scope_narrower": _GROQ_PRIMARY,
         # Ingestion-time chunk contextualization (Contextual Retrieval)
-        "chunk_contextualization": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "chunk_contextualization": _GROQ_PRIMARY,
         # Admin NCERT global corpus (overridable via settings.NCERT_GLOBAL_CONTEXT_MODEL at call site)
-        "ncert_chunk_contextualization": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "ncert_chunk_contextualization": _GROQ_PRIMARY,
         # Optional: query decomposition for retrieval (production-gated)
-        "query_decomposer": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
+        "query_decomposer": _GROQ_PRIMARY,
 
-        # Chat -> OpenAI
-        "chat": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "tutor_follow_ups": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "problem_solver_dna": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "problem_solver_mode": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "source_question_extract": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        "source_image_ocr": (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value),
-        
+        # Chat
+        "chat": _GROQ_PRIMARY,
+        "tutor_follow_ups": _GROQ_PRIMARY,
+        "problem_solver_dna": _GROQ_PRIMARY,
+        "problem_solver_mode": _GROQ_PRIMARY,
+        "source_question_extract": _GROQ_PRIMARY,
     }
-    
-    return task_routing.get(task_type, (LLMProvider.OPENAI, LLMModel.GPT_4O_MINI.value))
+
+    return task_routing.get(task_type, _GROQ_PRIMARY)
 
 

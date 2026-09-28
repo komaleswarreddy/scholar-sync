@@ -7,7 +7,7 @@ Prevents vendor lock-in and enables easy model switching.
 
 from ._base import LLMClient, LLMResponse, LLMStreamChunk
 from .openai_client import OpenAIClient
-from .factory import get_llm_client, get_model_for_task, LLMProvider, LLMModel
+from .factory import get_llm_client, get_model_for_task, detect_provider_from_model, LLMProvider, LLMModel
 
 __all__ = [
     'LLMClient',
@@ -16,6 +16,7 @@ __all__ = [
     'OpenAIClient',
     'get_llm_client',
     'get_model_for_task',
+    'detect_provider_from_model',
     'LLMProvider',
     'LLMModel',
 ]

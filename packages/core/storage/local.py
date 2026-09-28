@@ -39,11 +39,14 @@ class LocalStorage(BaseStorage):
         full_path.write_bytes(file_content)
     
     async def get_presigned_url(self, file_path: str, expiration: int = 3600) -> str:
-        """Generate local file URL (not presigned, just path)."""
+        """Generate local file URL (not presigned — served statically by the API)."""
         full_path = self.tenant_path / file_path
-        if full_path.exists():
-            return f"/storage/{self.tenant_id}/{file_path}"
-        return None
+        if not full_path.exists():
+            return None
+        from config.settings import settings
+
+        base = getattr(settings, "API_BASE_URL", "").rstrip("/")
+        return f"{base}/storage/{self.tenant_id}/{file_path}"
     
     async def download_file(self, file_path: str) -> bytes:
         """Download file from local storage."""

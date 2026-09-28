@@ -34,6 +34,14 @@ class Settings(BaseSettings):
     DB_FAIL_OPEN_ON_POOL_TIMEOUT: bool = True
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""
+
+    # File storage backend: "s3" (Supabase Storage, S3-compatible — default/production)
+    # or "local" (filesystem under ./storage, served at /storage/* — for local dev
+    # without a reachable Supabase project).
+    STORAGE_BACKEND: str = "s3"
+    # Used to build absolute URLs for local-storage files (frontend runs on a different
+    # origin/port than the API, so a relative /storage/... path would resolve wrong).
+    API_BASE_URL: str = "http://localhost:8000"
     
     # Vector Database
     PINECONE_API_KEY: str = ""
@@ -45,6 +53,20 @@ class Settings(BaseSettings):
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
     OPENAI_EMBEDDING_DIMENSIONS: int = 1024
     GEMINI_API_KEY: str = ""
+
+    # Groq — primary text-generation provider (OpenAI-compatible endpoint, LPU inference).
+    # Chat/RAG/studio/tutor/problem-solver text generation defaults here. Embeddings, reranking,
+    # image generation, moderation, and vision OCR stay on OpenAI/Cohere since Groq doesn't offer them.
+    GROQ_API_KEY: str = ""
+    GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
+    PRIMARY_LLM_PROVIDER: str = "groq"
+    PRIMARY_LLM_MODEL: str = "openai/gpt-oss-120b"
+    # openai/gpt-oss-120b is a reasoning model: it spends completion tokens on hidden
+    # chain-of-thought before the visible answer. "low" keeps that overhead small so the
+    # app's existing (pre-Groq) max_tokens budgets don't get silently truncated to empty
+    # output, and keeps latency down — most tasks here (classification, JSON formatting,
+    # chat) don't need deep reasoning. One of "low" | "medium" | "high".
+    GROQ_REASONING_EFFORT: str = "low"
 
     # Plan B: LangGraph chat orchestration
     USE_LANGGRAPH_CHAT: bool = True
@@ -268,9 +290,10 @@ class Settings(BaseSettings):
     # NCERT global knowledge (admin Pinecone namespace; separate from tenant chat embeddings)
     # ---------------------------
     NCERT_GLOBAL_PINECONE_NAMESPACE: str = "NcertDataGlobal"
-    # Contextualization model for NCERT chunk enrichment (OpenAI chat model id).
-    # Use a model your OpenAI account actually serves; override in .env when newer IDs ship.
-    NCERT_GLOBAL_CONTEXT_MODEL: str = "gpt-4o-mini"
+    # Contextualization model for NCERT chunk enrichment (text-generation — provider is
+    # auto-detected from this model id via detect_provider_from_model, so a Groq model
+    # id works here too, same as everywhere else). Override in .env if needed.
+    NCERT_GLOBAL_CONTEXT_MODEL: str = "openai/gpt-oss-120b"
     # Embeddings for vectors stored under NCERT_GLOBAL_PINECONE_NAMESPACE — dimensions MUST match Pinecone index.
     NCERT_GLOBAL_EMBEDDING_MODEL: str = "text-embedding-3-large"
     NCERT_GLOBAL_EMBEDDING_DIMENSIONS: int = 1024

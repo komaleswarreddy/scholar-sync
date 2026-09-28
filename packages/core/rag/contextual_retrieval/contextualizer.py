@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from config.settings import settings
-from packages.core.llm import get_llm_client, get_model_for_task
+from packages.core.llm import get_llm_client, get_model_for_task, detect_provider_from_model
 from packages.core.llm._base import LLMProvider
 from packages.core.prompts import load_prompt
 from packages.core.guardrails.cost_manager import get_cost_manager
@@ -109,7 +109,7 @@ class ChunkContextualizer:
         )
 
         if llm_model:
-            provider, model = LLMProvider.OPENAI, llm_model
+            provider, model = detect_provider_from_model(llm_model), llm_model
         else:
             provider, model = get_model_for_task("chunk_contextualization")
         llm = get_llm_client(provider=provider, model=model, temperature=0.2)
@@ -123,7 +123,7 @@ class ChunkContextualizer:
         }
         if request_id:
             llm_kwargs["request_id"] = request_id
-        if provider == LLMProvider.OPENAI:
+        if provider in (LLMProvider.OPENAI, LLMProvider.GROQ):
             llm_kwargs["response_format"] = {"type": "json_object"}
 
         retries = max(1, int(getattr(settings, "CONTEXTUAL_RETRIEVAL_MAX_RETRIES", 2)))

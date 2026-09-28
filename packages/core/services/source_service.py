@@ -17,7 +17,7 @@ from config.settings import settings
 from packages.core.database.models.source import Source, SourceType, SourceStatus
 from packages.core.database.models.chat import Chat, Message
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
-from packages.core.storage.s3 import S3Storage
+from packages.core.storage import get_storage_service
 from packages.core.rag.chunker import Chunker
 from packages.core.processing.context_cache import ContextCache
 from packages.core.processing.pdf_preprocessor import PDFPreprocessor
@@ -30,7 +30,7 @@ class IngestionService:
         
         # Pass tenant_id to downstream services for infrastructure isolation
         self.vector_store = PineconeVectorStore(tenant_id)
-        self.storage_service = S3Storage(tenant_id)
+        self.storage_service = get_storage_service(tenant_id)
         self.chunker = Chunker(use_semantic=getattr(settings, 'USE_SEMANTIC_CHUNKING', True))
         self.context_cache = ContextCache(cache_dir=f"cache/processed_pdfs/{tenant_id}")
         self.pdf_preprocessor = PDFPreprocessor()

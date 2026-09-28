@@ -28,7 +28,7 @@ from packages.core.services.notebook_service import NotebookService
 from packages.core.services.tutor_catalog_service import TutorCatalogService
 from packages.core.services.tutor_notebook_bootstrap_service import TutorNotebookBootstrapService
 from packages.core.services.tutor_notebook_prepare_service import TutorNotebookPrepareService
-from packages.core.storage.s3 import S3Storage
+from packages.core.storage import get_storage_service
 from apps.api.utils.safe_errors import safe_detail
 
 router = APIRouter()
@@ -105,7 +105,7 @@ async def get_ncert_document_file(
     if doc.status != "indexed":
         raise HTTPException(status_code=409, detail="NCERT document is not ready yet")
 
-    storage = S3Storage(tenant_id="global")
+    storage = get_storage_service(tenant_id="global")
     try:
         content = await storage.download_file(doc.storage_key)
     except Exception as exc:

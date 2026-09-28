@@ -5,10 +5,9 @@ from typing import Any, Dict, Optional
 
 from config.settings import settings
 from packages.core.llm import get_llm_client
-from packages.core.llm._base import LLMProvider
 from packages.core.prompts import load_prompt
 from packages.core.guardrails.cost_manager import get_cost_manager
-from packages.core.llm.factory import get_model_for_task
+from packages.core.llm.factory import get_model_for_task, detect_provider_from_model
 
 
 def _cap_chars(s: str, max_chars: int) -> str:
@@ -54,7 +53,7 @@ async def generate_ncert_document_sketch(
         header=header,
         document_text=document_text,
     )
-    llm = get_llm_client(provider=LLMProvider.OPENAI, model=model, temperature=0.2)
+    llm = get_llm_client(provider=detect_provider_from_model(model), model=model, temperature=0.2)
 
     resp = await llm.generate(
         prompt=prompt,
@@ -140,7 +139,7 @@ async def generate_upload_document_sketch(
         header=header,
         document_text=document_text,
     )
-    llm = get_llm_client(provider=LLMProvider.OPENAI, model=resolved_model, temperature=0.2)
+    llm = get_llm_client(provider=detect_provider_from_model(resolved_model), model=resolved_model, temperature=0.2)
 
     resp = await llm.generate(
         prompt=prompt,

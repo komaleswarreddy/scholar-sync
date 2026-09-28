@@ -24,7 +24,7 @@ from packages.core.processing.pdf_preprocessor import PDFPreprocessor
 from packages.core.rag.llama_adapters.ingestion import LlamaIndexIngestionAdapter
 from packages.core.rag.vectorstores.pinecone_store import PineconeVectorStore
 from packages.core.services.ncert_constants import METRICS_TENANT_NCERT
-from packages.core.storage.s3 import S3Storage
+from packages.core.storage import get_storage_service
 _DEFAULT_SUBJECTS: Dict[int, List[str]] = {
     12: ["physics", "chemistry", "mathematics", "biology"],
 }
@@ -456,7 +456,7 @@ async def delete_ncert_global_document_cascade(db: AsyncSession, document_id: uu
         print(f"[NCERT] Pinecone delete warning for {sid}: {e}")
 
     try:
-        storage = S3Storage(tenant_id="global")
+        storage = get_storage_service(tenant_id="global")
         await storage.delete_file(doc.storage_key)
     except Exception as e:
         print(f"[NCERT] Storage delete warning for {doc.storage_key}: {e}")
@@ -550,7 +550,7 @@ async def create_ncert_upload(
     db.add(doc)
     db.add(run)
 
-    storage = S3Storage(tenant_id="global")
+    storage = get_storage_service(tenant_id="global")
     await storage.upload_file_bytes(
         file_content,
         skey,

@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import traceback
 from dotenv import load_dotenv
@@ -216,6 +217,14 @@ app.add_middleware(
     expose_headers=["Content-Type", "Authorization"],
     max_age=3600,  # Cache preflight requests for 1 hour
 )
+
+# ---------------- Local file storage (dev only — STORAGE_BACKEND=local) ----------------
+if getattr(settings, "STORAGE_BACKEND", "s3").strip().lower() == "local":
+    from pathlib import Path
+
+    _local_storage_dir = Path("storage")
+    _local_storage_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/storage", StaticFiles(directory=str(_local_storage_dir)), name="storage")
 
 # ---------------- Routes ----------------
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])

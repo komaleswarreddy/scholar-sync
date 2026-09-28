@@ -1,7 +1,8 @@
 version: 1.0.0
-default_model: gpt-4o-mini
-default_provider: openai
+default_model: openai/gpt-oss-120b
+default_provider: groq
 candidate_models:
+- openai/gpt-oss-120b
 - gpt-4o-mini
 - gpt-4o
 - gpt-4-turbo

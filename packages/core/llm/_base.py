@@ -15,6 +15,7 @@ from enum import Enum
 
 class LLMProvider(str, Enum):
     """Supported LLM providers."""
+    GROQ = "groq"
     OPENAI = "openai"
     GEMINI = "gemini"
     CLAUDE = "claude"  # Future support

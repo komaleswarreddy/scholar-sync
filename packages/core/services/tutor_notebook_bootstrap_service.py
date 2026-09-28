@@ -269,7 +269,7 @@ class TutorNotebookBootstrapService:
             "feature_tag": "tutor_follow_ups",
             "max_tokens": 200,
         }
-        if provider == LLMProvider.OPENAI:
+        if provider in (LLMProvider.OPENAI, LLMProvider.GROQ):
             gen_kwargs["response_format"] = {"type": "json_object"}
 
         try:
@@ -431,7 +431,7 @@ class TutorNotebookBootstrapService:
             "feature_tag": "tutor_notebook_bootstrap",
             "max_tokens": 1400,
         }
-        if provider == LLMProvider.OPENAI:
+        if provider in (LLMProvider.OPENAI, LLMProvider.GROQ):
             gen_kwargs["response_format"] = {"type": "json_object"}
 
         try:

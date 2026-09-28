@@ -17,6 +17,9 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
+# Local file storage (STORAGE_BACKEND=local dev uploads)
+/storage/
+
 # Misc
 .DS_Store
 *.pem

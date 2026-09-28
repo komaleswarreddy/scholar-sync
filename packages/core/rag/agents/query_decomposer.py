@@ -82,7 +82,7 @@ class QueryDecomposer:
             "user_id": self.user_id,
             "feature_tag": feature_tag,
         }
-        if provider == LLMProvider.OPENAI:
+        if provider in (LLMProvider.OPENAI, LLMProvider.GROQ):
             llm_kwargs["response_format"] = {"type": "json_object"}
 
         try:

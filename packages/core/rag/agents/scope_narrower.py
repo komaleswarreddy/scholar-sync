@@ -89,7 +89,7 @@ class ScopeNarrower:
                 "tenant_id": self.tenant_id,
                 "feature_tag": "scope_narrower",
             }
-            if provider == LLMProvider.OPENAI:
+            if provider in (LLMProvider.OPENAI, LLMProvider.GROQ):
                 llm_kwargs["response_format"] = {"type": "json_object"}
 
             response = await llm_client.generate(

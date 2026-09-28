@@ -21,7 +21,7 @@ from packages.core.llm import get_llm_client, get_model_for_task
 from packages.core.processing.question_regex_parser import regex_extract_questions
 from packages.core.prompts import load_prompt
 from packages.core.rag.whole_file_map_reduce import fetch_all_chunks_for_sources, _chunk_text
-from packages.core.storage.s3 import S3Storage
+from packages.core.storage import get_storage_service
 
 _PREVIEW_MAX = 120
 _TEXT_BATCH_CHARS = 12_000
@@ -208,7 +208,7 @@ class SourceQuestionExtractionService:
         return "\n".join(t for t in texts if t).strip()
 
     async def _fetch_storage_text(self, source: Source, *, allow_ocr: bool) -> str:
-        storage = S3Storage(self.tenant_id)
+        storage = get_storage_service(self.tenant_id)
         try:
             file_content = await storage.download_file(source.s3_key)
         except Exception as exc:

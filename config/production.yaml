@@ -7,101 +7,101 @@ langsmith_project: notebooklm-dev
 
 agents:
   intent_classifier:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: intent_classifier
 
   query_rewriter:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: query_rewriter
 
   query_decomposer:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: query_decomposer
 
   scope_narrower:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: scope_narrower
 
   direct_chat:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: chat
 
   chat_summarizer:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: chat
 
   studio_quiz:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: quiz
 
   studio_flashcards:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: flashcards
 
   studio_mind_map:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: mind_map
 
   studio_slide_deck:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: slide_deck
 
   problem_dna_analyzer:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: problem_solver_dna
 
   explain_from_basics:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: problem_solver_mode
 
   show_best_approach:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: problem_solver_mode
 
   show_missing_idea:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: problem_solver_mode
 
   help_me_solve_it:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: problem_solver_mode
 
   tutor_follow_up_questions:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: tutor_follow_ups
 
   source_question_extraction:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: source_question_extract
 
   retriever:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: chat
 
   verifier:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: chat
 
   answer_generator:
-    model: gpt-4o-mini
+    model: openai/gpt-oss-120b
     prompt: v1
     task_key: chat

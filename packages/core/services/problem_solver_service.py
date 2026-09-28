@@ -829,7 +829,7 @@ class ProblemSolverService:
         from packages.core.database.models.source import Source
         from packages.core.processing.problem_solver_extraction import detect_corruption
         from packages.core.processing.problem_solver_source_text import extract_problem_text_from_bytes
-        from packages.core.storage.s3 import S3Storage
+        from packages.core.storage import get_storage_service
 
         result = await self.db.execute(
             select(Source).where(
@@ -850,7 +850,7 @@ class ProblemSolverService:
         if len(combined) >= 20 and not detect_corruption(combined):
             return combined[:12000]
 
-        storage = S3Storage(self.tenant_id)
+        storage = get_storage_service(self.tenant_id)
         try:
             file_content = await storage.download_file(source.s3_key)
         except Exception as exc:

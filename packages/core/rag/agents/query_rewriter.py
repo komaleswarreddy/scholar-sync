@@ -120,7 +120,7 @@ class QueryRewriter:
             }
             if self.user_id:
                 llm_kwargs["user_id"] = self.user_id
-            if provider == LLMProvider.OPENAI:
+            if provider in (LLMProvider.OPENAI, LLMProvider.GROQ):
                 llm_kwargs["response_format"] = {"type": "json_object"}
 
             response = await llm_client.generate(
